@@ -1,0 +1,111 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{4082B9BC-243E-456D-A9C5-705F4428EB36}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>ContractConfigurator</RootNamespace>
+    <AssemblyName>ContractConfigurator</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Kerbal Space Program\KSP_Data\Managed\Assembly-CSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="UnityEngine">
+      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Kerbal Space Program\KSP_Data\Managed\UnityEngine.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ContractParameter\All.cs" />
+    <Compile Include="ContractParameter\Any.cs" />
+    <Compile Include="ContractRequirement.cs" />
+    <Compile Include="ContractRequirement\All.cs" />
+    <Compile Include="ContractRequirement\CompleteContractRequirement.cs" />
+    <Compile Include="ContractRequirement\Any.cs" />
+    <Compile Include="ContractRequirement\TechResearchedRequirement.cs" />
+    <Compile Include="ContractRequirement\SpacewalkRequirement.cs" />
+    <Compile Include="ContractRequirement\SpaceCrewTransferRequirement.cs" />
+    <Compile Include="ContractRequirement\RunwayLandingRequirement.cs" />
+    <Compile Include="ContractRequirement\ReachSpaceRequirement.cs" />
+    <Compile Include="ContractRequirement\KSCLandingRequirement.cs" />
+    <Compile Include="ContractRequirement\FirstLaunchRequirement.cs" />
+    <Compile Include="ContractRequirement\FirstCrewToSurviveRequirement.cs" />
+    <Compile Include="ContractRequirement\AltitudeRecordRequirement.cs" />
+    <Compile Include="ContractRequirement\ProgressCelestialBodyRequirement.cs" />
+    <Compile Include="ContractRequirement\ProgressCelestialBodyRequirement\BaseConstructionRequirement.cs" />
+    <Compile Include="ContractRequirement\ProgressCelestialBodyRequirement\SurfaceEVARequirement.cs" />
+    <Compile Include="ContractRequirement\ProgressCelestialBodyRequirement\SplashDownRequirement.cs" />
+    <Compile Include="ContractRequirement\ProgressCelestialBodyRequirement\ReturnFromSurfaceRequirement.cs" />
+    <Compile Include="ContractRequirement\ProgressCelestialBodyRequirement\ReturnFromOrbitRequirement.cs" />
+    <Compile Include="ContractRequirement\ProgressCelestialBodyRequirement\ReturnFromFlyByRequirement.cs" />
+    <Compile Include="ContractRequirement\ProgressCelestialBodyRequirement\RendezvousRequirement.cs" />
+    <Compile Include="ContractRequirement\ProgressCelestialBodyRequirement\OrbitRequirement.cs" />
+    <Compile Include="ContractRequirement\ProgressCelestialBodyRequirement\LandingRequirement.cs" />
+    <Compile Include="ContractRequirement\ProgressCelestialBodyRequirement\FlyByRequirement.cs" />
+    <Compile Include="ContractRequirement\ProgressCelestialBodyRequirement\EscapeRequirement.cs" />
+    <Compile Include="ContractRequirement\ProgressCelestialBodyRequirement\DockingRequirement.cs" />
+    <Compile Include="ContractRequirement\PartUnlockedRequirement.cs" />
+    <Compile Include="ParameterFactory\AllFactory.cs" />
+    <Compile Include="ParameterFactory\AnyFactory.cs" />
+    <Compile Include="ParameterFactory\PartTestFactory.cs" />
+    <Compile Include="ParameterFactory\RecoverKerbalFactory.cs" />
+    <Compile Include="ParameterFactory\BoardAnyVesselFactory.cs" />
+    <Compile Include="ParameterFactory\ReachSpaceFactory.cs" />
+    <Compile Include="ParameterFactory\ReachSituationFactory.cs" />
+    <Compile Include="ParameterFactory\ReachDestinationFactory.cs" />
+    <Compile Include="ParameterFactory\ReachBiomeFactory.cs" />
+    <Compile Include="ParameterFactory\ReachSpeedEnvelopeFactory.cs" />
+    <Compile Include="ParameterFactory\ReachAltitudeEnvelopeFactory.cs" />
+    <Compile Include="ParameterFactory\PlantFlagFactory.cs" />
+    <Compile Include="ParameterFactory\LaunchVesselFactory.cs" />
+    <Compile Include="ParameterFactory\LandOnBodyFactory.cs" />
+    <Compile Include="ParameterFactory\KerbalDeathsFactory.cs" />
+    <Compile Include="ParameterFactory\EnterSOIFactory.cs" />
+    <Compile Include="ParameterFactory\EnterOrbitFactory.cs" />
+    <Compile Include="ParameterFactory\AltitudeRecordFactory.cs" />
+    <Compile Include="ContractConfigurator.cs" />
+    <Compile Include="ContractType.cs" />
+    <Compile Include="ConfiguredContract.cs" />
+    <Compile Include="ParameterFactory.cs" />
+    <Compile Include="ConfigNodeUtil.cs" />
+    <Compile Include="ParameterFactory\CollectScienceFactory.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
