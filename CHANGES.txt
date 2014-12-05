@@ -1,0 +1,7 @@
+ContractConfigurator UNRELEASED
+- Added HasCrew parameter
+- Added VesselParameterGroup parameter (supports grouping Vessel parameters, tracking duration and tracking non-active vessels).
+- Creating new versions of all the stock parameters dealing with Vessels to add support for tracking non-active vessels.
+
+ContractConfigurator 0.1.0
+- Initial release.
