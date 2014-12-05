@@ -23,7 +23,7 @@ namespace ContractConfigurator
             // Load base class
             bool valid = base.Load(configNode);
 
-            // Get location
+            // Get situation
             if (!configNode.HasValue("situation"))
             {
                 valid = false;
@@ -42,7 +42,7 @@ namespace ContractConfigurator
                     ": error parsing situation: " + e.Message);
             }
 
-            // Get title - note the situtation is automatically appended
+            // Get title
             title = configNode.HasValue("title") ? configNode.GetValue("title") : null;
 
             return valid;

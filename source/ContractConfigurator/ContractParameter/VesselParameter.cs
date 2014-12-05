@@ -180,6 +180,12 @@ namespace ContractConfigurator.Parameters
          */
         protected virtual void CheckVessel(Vessel vessel)
         {
+            // No vessel to check.
+            if (vessel == null)
+            {
+                return;
+            }
+
             // Ignored vessel types
             switch (vessel.vesselType)
             {

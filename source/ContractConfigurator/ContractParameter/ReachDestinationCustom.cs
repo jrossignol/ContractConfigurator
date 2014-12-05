@@ -18,14 +18,14 @@ namespace ContractConfigurator.Parameters
         public CelestialBody destination { get; set; }
 
         public ReachDestinationCustom()
-            : this(null, "dummy title")
+            : this(null, null)
         {
         }
 
         public ReachDestinationCustom(CelestialBody destination, string title)
             : base()
         {
-            this.title = title != null ? title : "Destination: " + destination.name;
+            this.title = title != null ? title : "Destination: " + (destination != null ? destination.name : "");
             this.destination = destination;
         }
 
