@@ -5,7 +5,7 @@ using System.Text;
 using UnityEngine;
 using KSP;
 using Contracts;
-using Contracts.Parameters;
+using ContractConfigurator.Parameters;
 
 namespace ContractConfigurator
 {
@@ -14,8 +14,8 @@ namespace ContractConfigurator
      */
     public class ReachSpeedEnvelopeFactory : ParameterFactory
     {
-        protected float minSpeed { get; set; }
-        protected float maxSpeed { get; set; }
+        protected double minSpeed { get; set; }
+        protected double maxSpeed { get; set; }
         protected string title { get; set; }
 
         public override bool Load(ConfigNode configNode)
@@ -54,17 +54,14 @@ namespace ContractConfigurator
             maxSpeed = (float)Convert.ToDouble(configNode.GetValue("maxSpeed"));
 
             // Get title
-            title = configNode.HasValue("title") ? configNode.GetValue("title") :
-                "Speed: Between " + minSpeed.ToString("N0") + " and " + maxSpeed.ToString("N0") + " m/s";
+            title = configNode.HasValue("title") ? configNode.GetValue("title") : null;
 
             return valid;
         }
 
         public override ContractParameter Generate(Contract contract)
         {
-            ReachSpeedEnvelope parameter = new ReachSpeedEnvelope(maxSpeed, minSpeed, title);
-            parameter.useSpdLimits = false;
-            return parameter;
+            return new ReachSpeedEnvelopeCustom(minSpeed, maxSpeed, title);
         }
     }
 }

@@ -45,6 +45,15 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ContractParameter\HasCrew.cs" />
+    <Compile Include="ContractParameter\ReachBiomeCustom.cs" />
+    <Compile Include="ContractParameter\ReachSpeedEnvelopeCustom.cs" />
+    <Compile Include="ContractParameter\ReachAltitudeEnvelopeCustom.cs" />
+    <Compile Include="DurationUtil.cs" />
+    <Compile Include="ContractParameter\ReachSituationCustom.cs" />
+    <Compile Include="ContractParameter\VesselParameter.cs" />
+    <Compile Include="ContractParameter\ReachDestinationCustom.cs" />
+    <Compile Include="ContractParameter\VesselParameterGroup.cs" />
     <Compile Include="ContractParameter\All.cs" />
     <Compile Include="ContractParameter\Any.cs" />
     <Compile Include="ContractRequirement.cs" />
@@ -74,6 +83,8 @@
     <Compile Include="ContractRequirement\ProgressCelestialBodyRequirement\EscapeRequirement.cs" />
     <Compile Include="ContractRequirement\ProgressCelestialBodyRequirement\DockingRequirement.cs" />
     <Compile Include="ContractRequirement\PartUnlockedRequirement.cs" />
+    <Compile Include="ParameterFactory\HasCrewFactory.cs" />
+    <Compile Include="ParameterFactory\VesselParameterGroupFactory.cs" />
     <Compile Include="ParameterFactory\AllFactory.cs" />
     <Compile Include="ParameterFactory\AnyFactory.cs" />
     <Compile Include="ParameterFactory\PartTestFactory.cs" />

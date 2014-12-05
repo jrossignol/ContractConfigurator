@@ -5,7 +5,7 @@ using System.Text;
 using UnityEngine;
 using KSP;
 using Contracts;
-using Contracts.Parameters;
+using ContractConfigurator.Parameters;
 
 namespace ContractConfigurator
 {
@@ -54,17 +54,14 @@ namespace ContractConfigurator
             maxAltitude = (float)Convert.ToDouble(configNode.GetValue("maxAltitude"));
 
             // Get title
-            title = configNode.HasValue("title") ? configNode.GetValue("title") :
-                "Altitude: Between " + minAltitude.ToString("N0") + " and " + maxAltitude.ToString("N0") + " meters";
+            title = configNode.HasValue("title") ? configNode.GetValue("title") : null;
 
             return valid;
         }
 
         public override ContractParameter Generate(Contract contract)
         {
-            ReachAltitudeEnvelope parameter = new ReachAltitudeEnvelope(maxAltitude, minAltitude, title);
-            parameter.useAltLimits = false;
-            return parameter;
+            return new ReachAltitudeEnvelopeCustom(minAltitude, maxAltitude, title);
         }
     }
 }

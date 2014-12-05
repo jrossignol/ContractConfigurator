@@ -6,6 +6,7 @@ using UnityEngine;
 using KSP;
 using Contracts;
 using Contracts.Parameters;
+using ContractConfigurator.Parameters;
 
 namespace ContractConfigurator
 {
@@ -42,14 +43,14 @@ namespace ContractConfigurator
             }
 
             // Get title - note the situtation is automatically appended
-            title = configNode.HasValue("title") ? configNode.GetValue("title") : "Situation: ";
+            title = configNode.HasValue("title") ? configNode.GetValue("title") : null;
 
             return valid;
         }
 
         public override ContractParameter Generate(Contract contract)
         {
-            return new ReachSituation(situation, title);
+            return new ReachSituationCustom(situation, title);
         }
     }
 }

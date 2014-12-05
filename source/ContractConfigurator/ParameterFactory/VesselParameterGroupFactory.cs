@@ -6,39 +6,38 @@ using UnityEngine;
 using KSP;
 using Contracts;
 using Contracts.Parameters;
-using ContractConfigurator.Parameters;
 
 namespace ContractConfigurator
 {
     /*
-     * ParameterFactory wrapper for ReachDestination ContractParameter.
+     * ParameterFactory to provide logic for a parameter that groups vessel related parameters together.
      */
-    public class ReachDestinationFactory : ParameterFactory
+    public class VesselParameterGroupFactory : ParameterFactory
     {
         protected string title { get; set; }
+        protected double duration { get; set; }
+        protected string vesselName { get; set; }
 
         public override bool Load(ConfigNode configNode)
         {
             // Load base class
             bool valid = base.Load(configNode);
 
-            // Validate target body
-            if (targetBody == null)
-            {
-                valid = false;
-                Debug.LogError("ContractConfigurator: " + ErrorPrefix(configNode) +
-                    ": targetBody for ReachDestination must be specified.");
-            }
-
             // Get title
             title = configNode.HasValue("title") ? configNode.GetValue("title") : null;
+
+            // Get duration
+            duration = configNode.HasValue("duration") ? DurationUtil.ParseDuration(configNode, "duration") : 0.0;
+
+            // Get vesselName
+            vesselName = configNode.HasValue("vesselName") ? configNode.GetValue("vesselName") : null;
 
             return valid;
         }
 
         public override ContractParameter Generate(Contract contract)
         {
-            return new ReachDestinationCustom(targetBody, title);
+            return new Parameters.VesselParameterGroup(title, vesselName, duration);
         }
     }
 }

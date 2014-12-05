@@ -5,7 +5,7 @@ using System.Text;
 using UnityEngine;
 using KSP;
 using Contracts;
-using Contracts.Parameters;
+using ContractConfigurator.Parameters;
 
 namespace ContractConfigurator
 {
@@ -32,14 +32,14 @@ namespace ContractConfigurator
             biome = configNode.GetValue("biome");
 
             // Get title
-            title = configNode.HasValue("title") ? configNode.GetValue("title") : "Biome: ";
+            title = configNode.HasValue("title") ? configNode.GetValue("title") : null;
 
             return valid;
         }
 
         public override ContractParameter Generate(Contract contract)
         {
-            return new ReachBiome(biome, title);
+            return new ReachBiomeCustom(biome, title);
         }
     }
 }
