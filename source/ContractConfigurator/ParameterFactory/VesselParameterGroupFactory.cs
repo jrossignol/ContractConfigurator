@@ -14,7 +14,6 @@ namespace ContractConfigurator
      */
     public class VesselParameterGroupFactory : ParameterFactory
     {
-        protected string title { get; set; }
         protected double duration { get; set; }
         protected string vesselName { get; set; }
 
@@ -22,9 +21,6 @@ namespace ContractConfigurator
         {
             // Load base class
             bool valid = base.Load(configNode);
-
-            // Get title
-            title = configNode.HasValue("title") ? configNode.GetValue("title") : null;
 
             // Get duration
             duration = configNode.HasValue("duration") ? DurationUtil.ParseDuration(configNode, "duration") : 0.0;

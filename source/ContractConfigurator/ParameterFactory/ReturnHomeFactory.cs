@@ -5,18 +5,18 @@ using System.Text;
 using UnityEngine;
 using KSP;
 using Contracts;
-using Contracts.Parameters;
+using ContractConfigurator.Parameters;
 
 namespace ContractConfigurator
 {
     /*
-     * ParameterFactory wrapper for OR ContractParameter.
+     * ParameterFactory wrapper for ReturnHome ContractParameter.
      */
-    public class AnyFactory : ParameterFactory
+    public class ReturnHomeFactory : ParameterFactory
     {
         public override ContractParameter Generate(Contract contract)
         {
-            return new Parameters.Any(title);
+            return new ReturnHome(title);
         }
     }
 }

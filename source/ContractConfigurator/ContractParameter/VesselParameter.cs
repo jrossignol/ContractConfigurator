@@ -146,7 +146,7 @@ namespace ContractConfigurator.Parameters
          */
         public virtual IEnumerable<Vessel> GetCompletingVessels()
         {
-            return vesselInfo.Where(p => p.Value.state == Contracts.ParameterState.Complete).Select(p => p.Value.vessel);
+            return vesselInfo.Where(p => p.Value.state == Contracts.ParameterState.Complete && p.Value.vessel != null).Select(p => p.Value.vessel);
         }
 
         protected override void OnRegister()

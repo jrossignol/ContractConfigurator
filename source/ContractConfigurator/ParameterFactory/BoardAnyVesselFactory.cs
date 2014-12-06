@@ -15,7 +15,6 @@ namespace ContractConfigurator
     public class BoardAnyVesselFactory : ParameterFactory
     {
         protected string kerbal { get; set; }
-        protected string title { get; set; }
 
         public override bool Load(ConfigNode configNode)
         {
@@ -33,7 +32,10 @@ namespace ContractConfigurator
             kerbal = configNode.GetValue("kerbal");
 
             // Get title
-            title = configNode.HasValue("title") ? configNode.GetValue("title") : kerbal + ": Board a vessel";
+            if (title == null)
+            {
+                title = kerbal + ": Board a vessel";
+            }
 
             return valid;
         }

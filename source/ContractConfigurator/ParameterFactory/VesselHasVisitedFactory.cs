@@ -11,12 +11,11 @@ using ContractConfigurator.Parameters;
 namespace ContractConfigurator
 {
     /*
-     * ParameterFactory wrapper for ReturnFrom ContractParameter.
+     * ParameterFactory wrapper for VesselHasVisited ContractParameter.
      */
-    public class ReturnFromFactory : ParameterFactory
+    public class VesselHasVisitedFactory : ParameterFactory
     {
         protected KSPAchievements.ReturnFrom situation { get; set; }
-        protected string title { get; set; }
 
         public override bool Load(ConfigNode configNode)
         {
@@ -50,15 +49,12 @@ namespace ContractConfigurator
                     ": error parsing situation: " + e.Message);
             }
 
-            // Get title
-            title = configNode.HasValue("title") ? configNode.GetValue("title") : null;
-
             return valid;
         }
 
         public override ContractParameter Generate(Contract contract)
         {
-            return new Parameters.ReturnFrom(targetBody, situation, title);
+            return new Parameters.VesselHasVisited(targetBody, situation, title);
         }
     }
 }

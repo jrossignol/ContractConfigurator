@@ -16,7 +16,6 @@ namespace ContractConfigurator
     {
         protected double minSpeed { get; set; }
         protected double maxSpeed { get; set; }
-        protected string title { get; set; }
 
         public override bool Load(ConfigNode configNode)
         {
@@ -52,9 +51,6 @@ namespace ContractConfigurator
                     ": invalid value of " + configNode.GetValue("maxSpeed") + " for maxSpeed.  Must be a real number greater than zero.");
             }
             maxSpeed = (float)Convert.ToDouble(configNode.GetValue("maxSpeed"));
-
-            // Get title
-            title = configNode.HasValue("title") ? configNode.GetValue("title") : null;
 
             return valid;
         }

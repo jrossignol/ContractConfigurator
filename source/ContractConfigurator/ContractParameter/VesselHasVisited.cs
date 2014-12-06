@@ -11,41 +11,41 @@ using Contracts.Parameters;
 namespace ContractConfigurator.Parameters
 {
     /*
-     * Parameter for returning from a CelestialBody + Situation.
+     * Parameter for a vessel having visited a CelestialBody + Situation.
      */
-    public class ReturnFrom : VesselParameter
+    public class VesselHasVisited : VesselParameter
     {
         protected string title { get; set; }
         public CelestialBody destination { get; set; }
         public KSPAchievements.ReturnFrom returnFrom { get; set; }
 
-        public ReturnFrom()
+        public VesselHasVisited()
             : this(null, KSPAchievements.ReturnFrom.Flight, null)
         {
         }
 
-        public ReturnFrom(CelestialBody destination, KSPAchievements.ReturnFrom returnFrom, string title)
+        public VesselHasVisited(CelestialBody destination, KSPAchievements.ReturnFrom returnFrom, string title)
             : base()
         {
             if (title == null)
             {
-                this.title = "Return from ";
+                this.title = "Perform ";
                 switch (returnFrom)
                 {
                     case KSPAchievements.ReturnFrom.Flight:
-                        this.title += "flight on ";
+                        this.title += "a flight on ";
                         break;
                     case KSPAchievements.ReturnFrom.FlyBy:
-                        this.title += "flyby of ";
+                        this.title += "a flyby of ";
                         break;
                     case KSPAchievements.ReturnFrom.Orbit:
-                        this.title += "orbit of ";
+                        this.title += "an orbit of ";
                         break;
                     case KSPAchievements.ReturnFrom.SubOrbit:
                         this.title += "a sub-orbital trajectory of ";
                         break;
                     case KSPAchievements.ReturnFrom.Surface:
-                        this.title += "the surface of ";
+                        this.title += "a landing on ";
                         break;
                 }
                 if (destination != null)
@@ -102,34 +102,25 @@ namespace ContractConfigurator.Parameters
         {
             CheckVessel(pair.host);
         }
-        
+
         /*
          * Whether this vessel meets the parameter condition.
          */
         protected override bool VesselMeetsCondition(Vessel vessel)
         {
-            // On Kerbin
-            if (vessel.mainBody.isHomeWorld)
+            VesselTripLog log = VesselTripLog.FromVessel(vessel);
+            switch (returnFrom)
             {
-                // Landed or splashed down
-                if (vessel.situation == Vessel.Situations.LANDED ||
-                    vessel.situation == Vessel.Situations.SPLASHED)
-                {
-                    VesselTripLog log = VesselTripLog.FromVessel(vessel);
-                    switch (returnFrom)
-                    {
-                        case KSPAchievements.ReturnFrom.Flight:
-                            return log.Flew.At(destination);
-                        case KSPAchievements.ReturnFrom.FlyBy:
-                            return log.FlewBy.At(destination);
-                        case KSPAchievements.ReturnFrom.Orbit:
-                            return log.Orbited.At(destination);
-                        case KSPAchievements.ReturnFrom.SubOrbit:
-                            return log.SubOrbited.At(destination);
-                        case KSPAchievements.ReturnFrom.Surface:
-                            return log.Surfaced.At(destination);
-                    }
-                }
+                case KSPAchievements.ReturnFrom.Flight:
+                    return log.Flew.At(destination);
+                case KSPAchievements.ReturnFrom.FlyBy:
+                    return log.FlewBy.At(destination);
+                case KSPAchievements.ReturnFrom.Orbit:
+                    return log.Orbited.At(destination);
+                case KSPAchievements.ReturnFrom.SubOrbit:
+                    return log.SubOrbited.At(destination);
+                case KSPAchievements.ReturnFrom.Surface:
+                    return log.Surfaced.At(destination);
             }
 
             return false;

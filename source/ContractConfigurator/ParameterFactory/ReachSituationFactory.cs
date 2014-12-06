@@ -16,7 +16,6 @@ namespace ContractConfigurator
     public class ReachSituationFactory : ParameterFactory
     {
         protected Vessel.Situations situation { get; set; }
-        protected string title { get; set; }
 
         public override bool Load(ConfigNode configNode)
         {
@@ -41,9 +40,6 @@ namespace ContractConfigurator
                 Debug.LogError("ContractConfigurator: " + ErrorPrefix(configNode) +
                     ": error parsing situation: " + e.Message);
             }
-
-            // Get title
-            title = configNode.HasValue("title") ? configNode.GetValue("title") : null;
 
             return valid;
         }

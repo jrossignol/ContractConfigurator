@@ -2,7 +2,8 @@ ContractConfigurator (UNRELEASED)
 - Added VesselParameterGroup parameter (supports grouping Vessel parameters, tracking duration and tracking non-active vessels).
 - Created new versions of all the stock parameters dealing with Vessels to add support for tracking non-active vessels.
 - Added HasCrew parameter.
-- Added ReturnFrom parameter.
+- Added VesselHasVisited parameter.
+- Added ReturnHome parameter.
 
 ContractConfigurator 0.1.0
 - Initial release.

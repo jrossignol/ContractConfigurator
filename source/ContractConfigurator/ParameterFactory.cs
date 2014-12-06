@@ -25,6 +25,7 @@ namespace ContractConfigurator
         protected virtual bool optional { get; set; }
         protected virtual bool disableOnStateChange { get; set; }
         protected virtual List<ParameterFactory> childNodes { get; set; }
+        protected virtual string title { get; set; }
 
         /*
          * Loads the ParameterFactory from the given ConfigNode.  The base version performs the following:
@@ -76,6 +77,9 @@ namespace ContractConfigurator
             {
                 disableOnStateChange = true;
             }
+
+            // Get title
+            title = configNode.HasValue("title") ? configNode.GetValue("title") : null;
 
             // Load child nodes
             childNodes = new List<ParameterFactory>();

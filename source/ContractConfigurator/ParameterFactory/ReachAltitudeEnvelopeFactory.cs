@@ -16,7 +16,6 @@ namespace ContractConfigurator
     {
         protected float minAltitude { get; set; }
         protected float maxAltitude { get; set; }
-        protected string title { get; set; }
 
         public override bool Load(ConfigNode configNode)
         {
@@ -52,9 +51,6 @@ namespace ContractConfigurator
                     ": invalid value of " + configNode.GetValue("maxAltitude") + " for maxAltitude.  Must be a real number greater than zero.");
             }
             maxAltitude = (float)Convert.ToDouble(configNode.GetValue("maxAltitude"));
-
-            // Get title
-            title = configNode.HasValue("title") ? configNode.GetValue("title") : null;
 
             return valid;
         }

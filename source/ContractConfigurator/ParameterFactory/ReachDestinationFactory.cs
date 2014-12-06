@@ -15,8 +15,6 @@ namespace ContractConfigurator
      */
     public class ReachDestinationFactory : ParameterFactory
     {
-        protected string title { get; set; }
-
         public override bool Load(ConfigNode configNode)
         {
             // Load base class
@@ -29,9 +27,6 @@ namespace ContractConfigurator
                 Debug.LogError("ContractConfigurator: " + ErrorPrefix(configNode) +
                     ": targetBody for ReachDestination must be specified.");
             }
-
-            // Get title
-            title = configNode.HasValue("title") ? configNode.GetValue("title") : null;
 
             return valid;
         }

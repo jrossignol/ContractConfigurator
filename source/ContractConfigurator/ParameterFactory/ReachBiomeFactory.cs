@@ -15,7 +15,6 @@ namespace ContractConfigurator
     public class ReachBiomeFactory : ParameterFactory
     {
         protected string biome { get; set; }
-        protected string title { get; set; }
 
         public override bool Load(ConfigNode configNode)
         {
@@ -30,9 +29,6 @@ namespace ContractConfigurator
                     ": missing required value 'biome'.");
             }
             biome = configNode.GetValue("biome");
-
-            // Get title
-            title = configNode.HasValue("title") ? configNode.GetValue("title") : null;
 
             return valid;
         }

@@ -15,7 +15,6 @@ namespace ContractConfigurator
      */
     public class HasCrewFactory : ParameterFactory
     {
-        protected string title { get; set; }
         protected int minCrew { get; set; }
         protected int maxCrew { get; set; }
 
@@ -43,9 +42,6 @@ namespace ContractConfigurator
             {
                 maxCrew = int.MaxValue;
             }
-
-            // Get title
-            title = configNode.HasValue("title") ? configNode.GetValue("title") : null;
 
             return valid;
         }

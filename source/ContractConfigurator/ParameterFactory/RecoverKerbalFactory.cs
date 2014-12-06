@@ -15,7 +15,6 @@ namespace ContractConfigurator
     public class RecoverKerbalFactory : ParameterFactory
     {
         protected string kerbal { get; set; }
-        protected string title { get; set; }
 
         public override bool Load(ConfigNode configNode)
         {
@@ -31,9 +30,6 @@ namespace ContractConfigurator
                     ": missing required value 'kerbal'.");
             }
             kerbal = configNode.GetValue("kerbal");
-
-            // Get title
-            title = configNode.HasValue("title") ? configNode.GetValue("title") : kerbal + ": Recovered";
 
             return valid;
         }

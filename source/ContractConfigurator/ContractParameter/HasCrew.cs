@@ -79,28 +79,20 @@ namespace ContractConfigurator.Parameters
         {
             base.OnRegister();
             GameEvents.onStageSeparation.Add(new EventData<EventReport>.OnEvent(OnStageSeparation));
-            GameEvents.onSameVesselDock.Add(new EventData<GameEvents.FromToAction<ModuleDockingNode, ModuleDockingNode>>.OnEvent(OnSameVesselDockUndock));
-            GameEvents.onSameVesselUndock.Add(new EventData<GameEvents.FromToAction<ModuleDockingNode, ModuleDockingNode>>.OnEvent(OnSameVesselDockUndock));
-            GameEvents.onPartUndock.Add(new EventData<Part>.OnEvent(OnPartUndock));
+            GameEvents.onPartAttach.Add(new EventData<GameEvents.HostTargetAction<Part, Part>>.OnEvent(onPartAttach));
             GameEvents.onPartJointBreak.Add(new EventData<PartJoint>.OnEvent(OnPartJointBreak));
             GameEvents.onKerbalAdded.Add(new EventData<ProtoCrewMember>.OnEvent(OnKerbalChanged));
             GameEvents.onKerbalRemoved.Add(new EventData<ProtoCrewMember>.OnEvent(OnKerbalChanged));
-            GameEvents.onVesselCreate.Add(new EventData<Vessel>.OnEvent(OnVesselCreateChange));
-            GameEvents.onVesselChange.Add(new EventData<Vessel>.OnEvent(OnVesselCreateChange));
         }
 
         protected override void OnUnregister()
         {
             base.OnUnregister();
             GameEvents.onStageSeparation.Remove(new EventData<EventReport>.OnEvent(OnStageSeparation));
-            GameEvents.onSameVesselDock.Remove(new EventData<GameEvents.FromToAction<ModuleDockingNode, ModuleDockingNode>>.OnEvent(OnSameVesselDockUndock));
-            GameEvents.onSameVesselUndock.Remove(new EventData<GameEvents.FromToAction<ModuleDockingNode, ModuleDockingNode>>.OnEvent(OnSameVesselDockUndock));
-            GameEvents.onPartUndock.Remove(new EventData<Part>.OnEvent(OnPartUndock));
+            GameEvents.onPartAttach.Remove(new EventData<GameEvents.HostTargetAction<Part, Part>>.OnEvent(onPartAttach));
             GameEvents.onPartJointBreak.Remove(new EventData<PartJoint>.OnEvent(OnPartJointBreak));
             GameEvents.onKerbalAdded.Remove(new EventData<ProtoCrewMember>.OnEvent(OnKerbalChanged));
             GameEvents.onKerbalRemoved.Remove(new EventData<ProtoCrewMember>.OnEvent(OnKerbalChanged));
-            GameEvents.onVesselCreate.Remove(new EventData<Vessel>.OnEvent(OnVesselCreateChange));
-            GameEvents.onVesselChange.Remove(new EventData<Vessel>.OnEvent(OnVesselCreateChange));
         }
 
         protected void OnStageSeparation(EventReport e)
@@ -108,12 +100,7 @@ namespace ContractConfigurator.Parameters
             CheckVessel(FlightGlobals.ActiveVessel);
         }
 
-        protected void OnSameVesselDockUndock(GameEvents.FromToAction<ModuleDockingNode, ModuleDockingNode> e)
-        {
-            CheckVessel(FlightGlobals.ActiveVessel);
-        }
-
-        protected void OnPartUndock(Part p)
+        protected void onPartAttach(GameEvents.HostTargetAction<Part, Part> e)
         {
             CheckVessel(FlightGlobals.ActiveVessel);
         }
