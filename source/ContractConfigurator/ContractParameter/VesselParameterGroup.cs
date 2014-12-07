@@ -178,6 +178,9 @@ namespace ContractConfigurator.Parameters
                     ((VesselParameter)p).SetState(trackedVessel);
                 }
             }
+
+            // Manually run the OnParameterStateChange
+            OnParameterStateChange(this);
         }
 
         protected override void OnSave(ConfigNode node)
@@ -232,14 +235,19 @@ namespace ContractConfigurator.Parameters
                 waiting = true;
                 completionTime = Planetarium.GetUniversalTime() + duration;
             }
-            else if (AnyChildParametersFailed())
-            {
-                waiting = false;
-                SetFailed();
-            }
             else
             {
                 waiting = false;
+
+                // Find any failed non-VesselParameter parameters
+                for (int i = 0; i < ParameterCount; i++)
+                {
+                    ContractParameter param = GetParameter(i);
+                    if (!param.GetType().IsSubclassOf(typeof(VesselParameter)) && param.State == ParameterState.Failed) {
+                        SetFailed();
+                        break;
+                    }
+                }
             }
         }
 

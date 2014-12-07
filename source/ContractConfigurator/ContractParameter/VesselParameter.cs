@@ -42,6 +42,12 @@ namespace ContractConfigurator.Parameters
         private Dictionary<uint, ParamStrength> dockedVesselStrength;
         private bool allowStateReset = true;
 
+        /*
+         * Set to true in child classes to fail instead of being incomplete when the parameter
+         * conditions are not met.
+         */
+        protected bool failWhenUnmet = false;
+
         public VesselParameter()
             : base()
         {
@@ -151,6 +157,12 @@ namespace ContractConfigurator.Parameters
                 vesselInfo[vessel.id].completionTime = Planetarium.GetUniversalTime();
             }
 
+            // Force to failure if failWhenUnmet is set
+            if (failWhenUnmet && state == ParameterState.Incomplete)
+            {
+                state = ParameterState.Failed;
+            }
+
             // Set the state
             if (allowStateReset || state != ParameterState.Incomplete)
             {
@@ -163,14 +175,18 @@ namespace ContractConfigurator.Parameters
          */
         public virtual void SetState(Vessel vessel)
         {
-            if (vesselInfo.ContainsKey(vessel.id) && vesselInfo[vessel.id].state == ParameterState.Complete)
+            if (vesselInfo.ContainsKey(vessel.id)) 
             {
-                SetComplete();
+                this.state = vesselInfo[vessel.id].state;
             }
             else
             {
-                SetIncomplete();
+                this.state = ParameterState.Incomplete;
             }
+
+            // Fire the parameter change event for the *parent* - otherwise the failed state will
+            // cause the contract to fail, which we don't want.
+            GameEvents.Contract.onParameterChange.Fire(this.Root, (ContractParameter)this.Parent);
         }
 
         /*

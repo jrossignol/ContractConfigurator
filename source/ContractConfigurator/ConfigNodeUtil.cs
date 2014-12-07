@@ -39,5 +39,24 @@ namespace ContractConfigurator
 
             return targetBody;
         }
+
+        /*
+         * Parses the AvailablePart from the given ConfigNode and key.
+         */
+        public static AvailablePart ParsePart(ConfigNode configNode, string key)
+        {
+            AvailablePart part = null;
+            if (configNode.HasValue(key))
+            {
+                string partName = configNode.GetValue(key);
+                part = PartLoader.getPartInfoByName(partName);
+                if (part == null)
+                {
+                    Debug.LogError("ContractConfigurator: '" + partName + "' is not a valid Part.");
+                }
+            }
+
+            return part;
+        }
     }
 }
