@@ -62,6 +62,7 @@ namespace ContractConfigurator.Parameters
 
         protected void OnVesselSOIChanged(GameEvents.HostedFromToAction<Vessel, CelestialBody> pair)
         {
+            Debug.Log("ReachDestination test: " + pair.to);
             CheckVessel(pair.host);
         }
         

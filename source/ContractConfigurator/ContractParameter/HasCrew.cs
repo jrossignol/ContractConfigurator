@@ -78,9 +78,6 @@ namespace ContractConfigurator.Parameters
         protected override void OnRegister()
         {
             base.OnRegister();
-            GameEvents.onStageSeparation.Add(new EventData<EventReport>.OnEvent(OnStageSeparation));
-            GameEvents.onPartAttach.Add(new EventData<GameEvents.HostTargetAction<Part, Part>>.OnEvent(onPartAttach));
-            GameEvents.onPartJointBreak.Add(new EventData<PartJoint>.OnEvent(OnPartJointBreak));
             GameEvents.onKerbalAdded.Add(new EventData<ProtoCrewMember>.OnEvent(OnKerbalChanged));
             GameEvents.onKerbalRemoved.Add(new EventData<ProtoCrewMember>.OnEvent(OnKerbalChanged));
         }
@@ -88,25 +85,19 @@ namespace ContractConfigurator.Parameters
         protected override void OnUnregister()
         {
             base.OnUnregister();
-            GameEvents.onStageSeparation.Remove(new EventData<EventReport>.OnEvent(OnStageSeparation));
-            GameEvents.onPartAttach.Remove(new EventData<GameEvents.HostTargetAction<Part, Part>>.OnEvent(onPartAttach));
-            GameEvents.onPartJointBreak.Remove(new EventData<PartJoint>.OnEvent(OnPartJointBreak));
             GameEvents.onKerbalAdded.Remove(new EventData<ProtoCrewMember>.OnEvent(OnKerbalChanged));
             GameEvents.onKerbalRemoved.Remove(new EventData<ProtoCrewMember>.OnEvent(OnKerbalChanged));
         }
 
-        protected void OnStageSeparation(EventReport e)
+        protected override void OnPartAttach(GameEvents.HostTargetAction<Part, Part> e)
         {
+            base.OnPartAttach(e);
             CheckVessel(FlightGlobals.ActiveVessel);
         }
 
-        protected void onPartAttach(GameEvents.HostTargetAction<Part, Part> e)
+        protected override void OnPartJointBreak(PartJoint p)
         {
-            CheckVessel(FlightGlobals.ActiveVessel);
-        }
-
-        protected void OnPartJointBreak(PartJoint p)
-        {
+            base.OnPartJointBreak(p);
             CheckVessel(FlightGlobals.ActiveVessel);
         }
 
