@@ -43,6 +43,10 @@ namespace ContractConfigurator.Parameters
                 {
                     this.title += "At most " + maxCrew + " Kerbal" + (maxCrew != 1 ? "s" : "");
                 }
+                else if (minCrew == maxCrew)
+                {
+                    this.title += "Exactly " + minCrew + " Kerbal" + (minCrew != 1 ? "s" : "");
+                }
                 else
                 {
                     this.title += "Between " + minCrew + " and " + maxCrew + " Kerbals";
