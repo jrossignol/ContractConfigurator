@@ -36,7 +36,7 @@ namespace ContractConfigurator
 
         public override ContractParameter Generate(Contract contract)
         {
-            RecoverKerbal contractParam = new RecoverKerbal(title);
+            RecoverKerbal contractParam = new RecoverKerbal(title != null ? title : kerbal + ": Recovered");
             contractParam .AddKerbal(kerbal);
             return contractParam;
         }
