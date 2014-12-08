@@ -86,5 +86,24 @@ namespace ContractConfigurator
 
             return valid;
         }
+
+        /*
+         * Parses the PartResource from the given ConfigNode and key.
+         */
+        public static PartResourceDefinition ParseResource(ConfigNode configNode, string key)
+        {
+            PartResourceDefinition resource = null;
+            if (configNode.HasValue(key))
+            {
+                string name = configNode.GetValue(key);
+                resource = PartResourceLibrary.Instance.resourceDefinitions.Where(prd => prd.name == name).First();
+                if (resource == null)
+                {
+                    Debug.LogError("ContractConfigurator: '" + name + "' is not a valid resource.");
+                }
+            }
+
+            return resource;
+        }
     }
 }

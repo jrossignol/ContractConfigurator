@@ -133,9 +133,10 @@ namespace ContractConfigurator.Parameters
         }
 
         /*
-         * Sets the parameter state for the given vessel.
+         * Sets the parameter state for the given vessel.  Returns true if a state change actually
+         * occurred.
          */
-        protected virtual void SetState(Vessel vessel, Contracts.ParameterState state)
+        protected virtual bool SetState(Vessel vessel, Contracts.ParameterState state)
         {
             // Before we wreck anything, don't allow the default disable on state change logic
             if (disableOnStateChange)
@@ -166,8 +167,18 @@ namespace ContractConfigurator.Parameters
             // Set the state
             if (allowStateReset || state != ParameterState.Incomplete)
             {
-                vesselInfo[vessel.id].state = state;
+                if (vesselInfo[vessel.id].state != state)
+                {
+                    vesselInfo[vessel.id].state = state;
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
             }
+
+            return false;
         }
 
         /*
@@ -183,10 +194,6 @@ namespace ContractConfigurator.Parameters
             {
                 this.state = ParameterState.Incomplete;
             }
-
-            // Fire the parameter change event for the *parent* - otherwise the failed state will
-            // cause the contract to fail, which we don't want.
-            GameEvents.Contract.onParameterChange.Fire(this.Root, (ContractParameter)this.Parent);
         }
 
         /*
@@ -571,13 +578,15 @@ namespace ContractConfigurator.Parameters
             if (Parent.GetType() == typeof(VesselParameterGroup))
             {
                 // Set the craft specific state
-                SetState(vessel, VesselMeetsCondition(vessel) ? Contracts.ParameterState.Complete :
-                    Contracts.ParameterState.Incomplete);
+                bool stateChanged = SetState(vessel, VesselMeetsCondition(vessel) ?
+                    Contracts.ParameterState.Complete : Contracts.ParameterState.Incomplete);
 
                 // Update the group
-                VesselParameterGroup vpg = (VesselParameterGroup) Parent;
-                vpg.UpdateState();
-
+                if (stateChanged)
+                {
+                    VesselParameterGroup vpg = (VesselParameterGroup)Parent;
+                    vpg.UpdateState();
+                }
             }
             // Logic applies only to active vessel
             else if (vessel.isActiveVessel)
