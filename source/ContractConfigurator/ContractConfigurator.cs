@@ -40,8 +40,6 @@ namespace ContractConfigurator
             }
         }
 
-
-
         /*
          * Registers all the out of the box ParameterFactory classes.
          */
