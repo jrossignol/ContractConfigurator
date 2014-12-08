@@ -2,7 +2,7 @@
      "NAME":"ContractConfigurator",
 	 "URL":"https://raw.githubusercontent.com/jrossignol/ContractConfigurator/tree/master/GameData/ContractConfigurator/ContractConfigurator.version"
 	 "DOWNLOAD":"https://github.com/jrossignol/ContractConfigurator/releases"
-     "CHANGE_LOG_URL":"https://raw.githubusercontent.com/jrossignol/ContractConfigurator/master/CHANGES.txt"
+     "CHANGE_LOG_URL":"https://raw.github.com/jrossignol/ContractConfigurator/blob/0.2.0_fixed/CHANGES.txt"
      "GITHUB":{
          "USERNAME":"jrossignol",
          "REPOSITORY":"ContractConfigurator",
