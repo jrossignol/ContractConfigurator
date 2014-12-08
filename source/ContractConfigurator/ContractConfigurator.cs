@@ -139,7 +139,7 @@ namespace ContractConfigurator
         }
 
         /*
-         * TODO
+         * Disables contract types as per configuration files.
          */
         void DisableContractTypes()
         {
