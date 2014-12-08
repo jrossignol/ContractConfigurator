@@ -45,6 +45,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ContractParameter\SequenceNode.cs" />
+    <Compile Include="ContractParameter\Sequence.cs" />
     <Compile Include="ContractParameter\HasResource.cs" />
     <Compile Include="ContractParameter\HasPartModule.cs" />
     <Compile Include="ContractParameter\HasPart.cs" />
@@ -89,6 +91,8 @@
     <Compile Include="ContractRequirement\ProgressCelestialBodyRequirement\EscapeRequirement.cs" />
     <Compile Include="ContractRequirement\ProgressCelestialBodyRequirement\DockingRequirement.cs" />
     <Compile Include="ContractRequirement\PartUnlockedRequirement.cs" />
+    <Compile Include="ParameterFactory\SequenceNodeFactory.cs" />
+    <Compile Include="ParameterFactory\SequenceFactory.cs" />
     <Compile Include="ParameterFactory\HasResourceFactory.cs" />
     <Compile Include="ParameterFactory\HasPartModuleFactory.cs" />
     <Compile Include="ParameterFactory\HasPartFactory.cs" />

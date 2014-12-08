@@ -8,6 +8,8 @@ ContractConfigurator (UNRELEASED)
 - Added PartModuleUnlocked requirement.
 - Added VesselHasVisited parameter.
 - Added ReturnHome parameter.
+- Added Sequence and SequenceNode parameters.
+- Various minor bug-fixes
 
 ContractConfigurator 0.1.0
 - Initial release.

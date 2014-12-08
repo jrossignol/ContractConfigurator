@@ -38,25 +38,42 @@ namespace ContractConfigurator.Parameters
         {
             this.vesselName = vesselName;
             this.duration = duration;
-            if (title != null)
-            {
-                this.title = title;
-
-            }
-            else
-            {
-                this.title = "Vessel: Any";
-                if (duration > 0.0)
-                {
-                    this.title += ";\n Duration: " + DurationUtil.StringValue(duration);
-                }
-            }
+            this.title = title;
             waiting = false;
         }
 
         protected override string GetTitle()
         {
-            return title;
+            // Set the first part of the output
+            string output;
+            if (title != null && title != "")
+            {
+                output = title;
+            }
+            else
+            {
+                output = "Vessel: Any";
+            }
+
+            // Not yet complete, add duration
+            if (state != ParameterState.Complete)
+            {
+                // Add duration
+                if (duration > 0.0)
+                {
+                    output += ";\n Duration: " + DurationUtil.StringValue(duration);
+                }
+            }
+            // If we're complete and a custom title hasn't been provided, try to get a better title
+            else if (title != null && title != "")
+            {
+                if (ParameterCount == 1)
+                {
+                    return GetParameter(0).Title;
+                }
+            }
+
+            return output;
         }
 
         protected override string GetNotes()
@@ -235,22 +252,31 @@ namespace ContractConfigurator.Parameters
 
         protected override void OnParameterStateChange(ContractParameter contractParameter)
         {
-            if (AllChildParametersComplete())
+            if (System.Object.ReferenceEquals(contractParameter.Parent, this) ||
+                System.Object.ReferenceEquals(contractParameter, this))
             {
-                waiting = true;
-                completionTime = Planetarium.GetUniversalTime() + duration;
-            }
-            else
-            {
-                waiting = false;
-
-                // Find any failed non-VesselParameter parameters
-                for (int i = 0; i < ParameterCount; i++)
+                if (AllChildParametersComplete())
                 {
-                    ContractParameter param = GetParameter(i);
-                    if (!param.GetType().IsSubclassOf(typeof(VesselParameter)) && param.State == ParameterState.Failed) {
-                        SetFailed();
-                        break;
+                    waiting = true;
+                    completionTime = Planetarium.GetUniversalTime() + duration;
+                }
+                else
+                {
+                    waiting = false;
+                    if (state == ParameterState.Complete)
+                    {
+                        SetIncomplete();
+                    }
+
+                    // Find any failed non-VesselParameter parameters
+                    for (int i = 0; i < ParameterCount; i++)
+                    {
+                        ContractParameter param = GetParameter(i);
+                        if (!param.GetType().IsSubclassOf(typeof(VesselParameter)) && param.State == ParameterState.Failed)
+                        {
+                            SetFailed();
+                            break;
+                        }
                     }
                 }
             }

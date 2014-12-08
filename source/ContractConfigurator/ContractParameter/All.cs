@@ -52,13 +52,16 @@ namespace ContractConfigurator.Parameters
 
         protected override void OnParameterStateChange(ContractParameter contractParameter)
         {
-            if (AllChildParametersComplete())
+            if (System.Object.ReferenceEquals(contractParameter.Parent, this))
             {
-                SetComplete();
-            }
-            else if (AnyChildParametersFailed())
-            {
-                SetFailed();
+                if (AllChildParametersComplete())
+                {
+                    SetComplete();
+                }
+                else if (AnyChildParametersFailed())
+                {
+                    SetFailed();
+                }
             }
         }
     }

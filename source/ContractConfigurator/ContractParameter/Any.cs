@@ -52,9 +52,12 @@ namespace ContractConfigurator.Parameters
 
         protected override void OnParameterStateChange(ContractParameter contractParameter)
         {
-            if (contractParameter.State == ParameterState.Complete)
+            if (System.Object.ReferenceEquals(contractParameter.Parent, this))
             {
-                SetComplete();
+                if (contractParameter.State == ParameterState.Complete)
+                {
+                    SetComplete();
+                }
             }
         }
     }
