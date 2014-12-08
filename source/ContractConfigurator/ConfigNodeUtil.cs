@@ -58,5 +58,33 @@ namespace ContractConfigurator
 
             return part;
         }
+
+        /*
+         * Parses the PartModule from the given ConfigNode and key.  Returns true if valid
+         */
+        public static bool ValidatePartModule(string name)
+        {
+            bool valid = true;
+            Type classType = AssemblyLoader.GetClassByName(typeof(PartModule), name);
+            if (classType == null)
+            {
+                Debug.LogError("ContractConfigurator: No PartModule class for '" + name + "'.");
+                valid = false;
+            }
+            else
+            {
+                // One would think there's a better way than this to get a PartModule instance,
+                // but this is the best I've come up with
+                GameObject go = new GameObject();
+                PartModule partModule = (PartModule)go.AddComponent(classType);
+                if (partModule == null)
+                {
+                    valid = false;
+                    Debug.LogError("ContractConfigurator: Unable to instantiate PartModule '" + name + "'.");
+                }
+            }
+
+            return valid;
+        }
     }
 }

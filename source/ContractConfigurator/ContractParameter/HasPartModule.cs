@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using UnityEngine;
 using KSP;
 using Contracts;
@@ -10,32 +11,34 @@ using Contracts.Parameters;
 namespace ContractConfigurator.Parameters
 {
     /*
-     * Parameter for checking whether a vessel has a part.
+     * Parameter for checking whether a vessel has a part module.
      */
-    public class HasPart : VesselParameter
+    public class HasPartModule : VesselParameter
     {
         protected string title { get; set; }
-        protected AvailablePart part { get; set; }
+        protected string partModule { get; set; }
         protected int minCount { get; set; }
         protected int maxCount { get; set; }
 
-        public HasPart()
+        public HasPartModule()
             : this(null)
         {
         }
 
-        public HasPart(AvailablePart part, int minCount = 1, int maxCount = int.MaxValue, string title = null)
+        public HasPartModule(string partModule, int minCount = 1, int maxCount = int.MaxValue, string title = null)
             : base()
         {
             // Vessels should fail if they don't meet the part conditions
             failWhenUnmet = true;
 
-            this.part = part;
+            this.partModule = partModule;
             this.minCount = minCount;
             this.maxCount = maxCount;
-            if (title == null && part != null)
+            if (title == null && partModule != null)
             {
-                this.title += "Part: " + part.title + ": ";
+                string moduleName = partModule.Replace("Module", "");
+                moduleName = Regex.Replace(moduleName, "(\\B[A-Z])", " $1");
+                this.title = "Module: " + moduleName + ": ";
 
                 if (maxCount == 0)
                 {
@@ -75,7 +78,7 @@ namespace ContractConfigurator.Parameters
             node.AddValue("title", title);
             node.AddValue("minCount", minCount);
             node.AddValue("maxCount", maxCount);
-            node.AddValue("part", part.name);
+            node.AddValue("partModule", partModule);
         }
 
         protected override void OnLoad(ConfigNode node)
@@ -84,7 +87,7 @@ namespace ContractConfigurator.Parameters
             title = node.GetValue("title");
             minCount = Convert.ToInt32(node.GetValue("minCount"));
             maxCount = Convert.ToInt32(node.GetValue("maxCount"));
-            part = ConfigNodeUtil.ParsePart(node, "part");
+            partModule = node.GetValue("partModule");
         }
 
         protected override void OnRegister()
@@ -114,7 +117,18 @@ namespace ContractConfigurator.Parameters
          */
         protected override bool VesselMeetsCondition(Vessel vessel)
         {
-            int count = vessel.parts.Count<Part>(p => p.partInfo.name == part.name);
+            // No linq for part modules. :(
+            int count = 0;
+            foreach (Part p in vessel.parts)
+            {
+                foreach (PartModule pm in p.Modules)
+                {
+                    if (pm.moduleName == partModule)
+                    {
+                        count++;
+                    }
+                }
+            }
             return count >= minCount && count <= maxCount;
         }
     }
