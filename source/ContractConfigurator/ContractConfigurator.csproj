@@ -53,6 +53,7 @@
     <Compile Include="ContractParameter\VesselHasVisited.cs" />
     <Compile Include="ContractParameter\ReachSpeedEnvelopeCustom.cs" />
     <Compile Include="ContractParameter\ReachAltitudeEnvelopeCustom.cs" />
+    <Compile Include="ContractRequirement\PartModuleUnlockedRequirement.cs" />
     <Compile Include="DurationUtil.cs" />
     <Compile Include="ContractParameter\ReachSituationCustom.cs" />
     <Compile Include="ContractParameter\VesselParameter.cs" />

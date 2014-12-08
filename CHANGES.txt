@@ -4,6 +4,7 @@ ContractConfigurator (UNRELEASED)
 - Added HasCrew parameter.
 - Added HasPart parameter.
 - Added HasPartModule parameter.
+- Added PartModuleUnlocked requirement.
 - Added VesselHasVisited parameter.
 - Added ReturnHome parameter.
 

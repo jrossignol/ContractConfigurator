@@ -9,8 +9,7 @@ using KSPAchievements;
 namespace ContractConfigurator
 {
     /*
-     * ContractRequirement to provide requirement for player having performed a surface EVA on a
-     * specific CelestialBody.
+     * ContractRequirement to provide requirement for player having unlocked a particular part.
      */
     public class PartUnlockedRequirement : ContractRequirement
     {
