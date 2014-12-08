@@ -1,3 +1,6 @@
+ContractConfigurator (UNRELEASED)
+- Support for disabling other contract types
+
 ContractConfigurator 0.2.0
 - Added VesselParameterGroup parameter (supports grouping Vessel parameters, tracking duration, tracking non-active vessels, works across docking/undocking/decoupling).
 - Created new versions of all the stock parameters dealing with Vessels to add support for tracking non-active vessels.

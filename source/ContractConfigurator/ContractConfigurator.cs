@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
+using KSP;
+using Contracts;
 
 namespace ContractConfigurator
 {
@@ -10,11 +12,16 @@ namespace ContractConfigurator
     class ContractConfigurator : MonoBehaviour
     {
         static bool loaded = false;
+        static bool contractsDisabled = false;
 
         void Start()
         {
             DontDestroyOnLoad(this);
+        }
 
+        void Update()
+        {
+            // Load all the contract configurator configuration
             if (HighLogic.LoadedScene == GameScenes.MAINMENU && !loaded)
             {
                 RegisterParameterFactories();
@@ -22,7 +29,18 @@ namespace ContractConfigurator
                 LoadContractConfig();
                 loaded = true;
             }
+            // Try to disable the contract types
+            else if ((HighLogic.LoadedScene == GameScenes.SPACECENTER) && !contractsDisabled)
+            {
+                DisableContractTypes();
+                contractsDisabled = true;
+
+                // We're done, don't need to keep calling us
+                Destroy(this);
+            }
         }
+
+
 
         /*
          * Registers all the out of the box ParameterFactory classes.
@@ -118,6 +136,59 @@ namespace ContractConfigurator
                         Debug.LogError("ContractConfigurator: Error loading contract type '" + name +
                             "': " + e.Message + "\n" + e.StackTrace);
                     }
+                }
+            }
+        }
+
+        /*
+         * TODO
+         */
+        void DisableContractTypes()
+        {
+            Debug.Log("ContractConfigurator: Loading CONTRACT_CONFIGURATOR nodes.");
+            ConfigNode[] nodes = GameDatabase.Instance.GetConfigNodes("CONTRACT_CONFIGURATOR");
+
+            // Build a unique list of contract types to disable, in case multiple mods try to
+            // disable the same ones.
+            Dictionary<string, Type> contractsToDisable = new Dictionary<string, Type>();
+            foreach (ConfigNode node in nodes)
+            {
+                foreach (string contractType in node.GetValues("disabledContractType"))
+                {
+                    // No type for now
+                    contractsToDisable[contractType] = null;
+                }
+            }
+
+            // Figure out the types
+            var subclasses =
+                from assembly in AppDomain.CurrentDomain.GetAssemblies()
+                from type in assembly.GetTypes()
+                where type.IsSubclassOf(typeof(Contract))
+                select type;
+
+            // Map the string to a type
+            foreach (Type subclass in subclasses)
+            {
+                string name = subclass.Name;
+                if (contractsToDisable.ContainsKey(name))
+                {
+                    contractsToDisable[name] = subclass;
+                }
+            }
+
+            // Start disabling!
+            foreach (KeyValuePair<string, Type> p in contractsToDisable)
+            {
+                // Didn't find a type
+                if (p.Value == null)
+                {
+                    Debug.LogWarning("ContractConfigurator: Couldn't find ContractType '" + p.Key + "' to disable.");
+                }
+                else
+                {
+                    Debug.Log("ContractConfigurator: Disabling ContractType: " + p.Value.FullName + " (" + p.Value.Module + ")");
+                    ContractSystem.ContractTypes.Remove(p.Value);
                 }
             }
         }
