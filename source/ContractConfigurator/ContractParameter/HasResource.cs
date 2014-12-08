@@ -27,7 +27,7 @@ namespace ContractConfigurator.Parameters
         {
         }
 
-        public HasResource(PartResourceDefinition resource, double minQuantity = 0.0, double maxQuantity = double.MaxValue, string title = null)
+        public HasResource(PartResourceDefinition resource, double minQuantity = 0.01, double maxQuantity = double.MaxValue, string title = null)
             : base()
         {
             // Vessels should fail if they don't meet the part conditions
@@ -44,9 +44,9 @@ namespace ContractConfigurator.Parameters
                 {
                     this.title += "None";
                 }
-                else if (maxQuantity == double.MaxValue && minQuantity == 0.0)
+                else if (maxQuantity == double.MaxValue && (minQuantity > 0.0 && minQuantity <= 0.01))
                 {
-                    this.title += "Not none";
+                    this.title += "Not zero units";
                 }
                 else if (maxQuantity == double.MaxValue)
                 {
@@ -127,7 +127,7 @@ namespace ContractConfigurator.Parameters
                     quantity += pr.amount;
                 }
             }
-            return quantity > minQuantity && quantity <= maxQuantity;
+            return quantity >= minQuantity && quantity <= maxQuantity;
         }
     }
 }

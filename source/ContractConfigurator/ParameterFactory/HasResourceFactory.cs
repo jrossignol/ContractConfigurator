@@ -31,7 +31,7 @@ namespace ContractConfigurator
             }
             else
             {
-                minQuantity = 0.0;
+                minQuantity = 0.01;
             }
 
             // Get maxQuantity
