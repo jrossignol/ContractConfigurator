@@ -24,6 +24,9 @@ namespace ContractConfigurator
         public virtual string title { get; set; }
         public virtual string notes { get; set; }
         public virtual string description { get; set; }
+        public virtual string topic { get; set; }
+        public virtual string subject { get; set; }
+        public virtual string motivation { get; set; }
         public virtual string synopsis { get; set; }
         public virtual string completedMessage { get; set; }
         public virtual Agent agent { get; set; }
@@ -80,6 +83,9 @@ namespace ContractConfigurator
             // Load contract text details
             title = contractConfig.GetValue("title");
             description = contractConfig.GetValue("description");
+            topic = contractConfig.GetValue("topic");
+            subject = contractConfig.GetValue("subject");
+            motivation = contractConfig.GetValue("motivation");
             notes = contractConfig.GetValue("notes");
             synopsis = contractConfig.GetValue("synopsis");
             completedMessage = contractConfig.GetValue("completedMessage");
@@ -159,8 +165,6 @@ namespace ContractConfigurator
                     requirements.Add(requirement);
                 }
             }
-
-            // TODO - log some warnings if there is something invalid about the contract type
         }
 
         /*

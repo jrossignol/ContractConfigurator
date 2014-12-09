@@ -45,7 +45,7 @@ namespace ContractConfigurator
                 agent = contractType.agent;
             }
 
-            // Set the contract expiry, deadline
+            // Set the contract expiry
             if (contractType.minExpiry == 0.0f)
             {
                 SetExpiry();
@@ -99,7 +99,16 @@ namespace ContractConfigurator
 
         protected override string GetDescription()
         {
-            return contractType.description;
+            if (contractType.description == null || contractType.description == "")
+            {
+                // Generate the contract description
+                return TextGen.GenerateBackStories(agent.Name, agent.GetMindsetString(),
+                    contractType.topic, contractType.subject, contractType.motivation, MissionSeed);
+            }
+            else
+            {
+                return contractType.description;
+            }
         }
 
         protected override string GetSynopsys()
