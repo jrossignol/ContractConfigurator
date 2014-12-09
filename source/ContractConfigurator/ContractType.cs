@@ -22,6 +22,7 @@ namespace ContractConfigurator
         // Contract attributes
         public virtual string name { get; private set; }
         public virtual string title { get; set; }
+        public virtual string notes { get; set; }
         public virtual string description { get; set; }
         public virtual string synopsis { get; set; }
         public virtual string completedMessage { get; set; }
@@ -79,6 +80,7 @@ namespace ContractConfigurator
             // Load contract text details
             title = contractConfig.GetValue("title");
             description = contractConfig.GetValue("description");
+            notes = contractConfig.GetValue("notes");
             synopsis = contractConfig.GetValue("synopsis");
             completedMessage = contractConfig.GetValue("completedMessage");
 

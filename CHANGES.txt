@@ -1,5 +1,7 @@
 ContractConfigurator (UNRELEASED)
 - Support for disabling other contract types
+- Support for contract level notes.
+- Various minor bug-fixes.
 
 ContractConfigurator 0.2.0
 - Added VesselParameterGroup parameter (supports grouping Vessel parameters, tracking duration, tracking non-active vessels, works across docking/undocking/decoupling).

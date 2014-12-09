@@ -112,6 +112,11 @@ namespace ContractConfigurator
             return contractType.completedMessage;
         }
 
+        protected override string GetNotes()
+        {
+            return contractType.notes + "\n";
+        }
+        
         protected override void OnLoad(ConfigNode node)
         {
             contractType = ContractType.contractTypes[node.GetValue("subtype")];
