@@ -32,10 +32,15 @@ namespace ContractConfigurator
             // Try to disable the contract types
             else if ((HighLogic.LoadedScene == GameScenes.SPACECENTER) && !contractsDisabled)
             {
-                DisableContractTypes();
-                contractsDisabled = true;
+                if (DisableContractTypes())
+                {
+                    contractsDisabled = true;
+                }
+            }
 
-                // We're done, don't need to keep calling us
+            // We're done, don't need to keep calling us
+            if (contractsDisabled && loaded)
+            {
                 Destroy(this);
             }
         }
@@ -141,8 +146,14 @@ namespace ContractConfigurator
         /*
          * Disables contract types as per configuration files.
          */
-        void DisableContractTypes()
+        bool DisableContractTypes()
         {
+            // Don't do anything if the contract system has not yet loaded
+            if (ContractSystem.ContractTypes == null)
+            {
+                return false;
+            }
+
             Debug.Log("ContractConfigurator: Loading CONTRACT_CONFIGURATOR nodes.");
             ConfigNode[] nodes = GameDatabase.Instance.GetConfigNodes("CONTRACT_CONFIGURATOR");
 
@@ -189,6 +200,8 @@ namespace ContractConfigurator
                     ContractSystem.ContractTypes.Remove(p.Value);
                 }
             }
+
+            return true;
         }
     }
 }

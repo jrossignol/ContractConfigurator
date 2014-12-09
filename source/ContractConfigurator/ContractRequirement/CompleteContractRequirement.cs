@@ -56,7 +56,10 @@ namespace ContractConfigurator
                         Debug.LogError("ContractConfigurator: " + ErrorPrefix(configNode) + ": contractType '" + contractType +
                             "' must either be a Contract sub-class or ContractConfigurator contract type");
                     }
-                    contractClass = classes.First();
+                    else
+                    {
+                        contractClass = classes.First();
+                    }
                 }
             }
 
