@@ -14,6 +14,7 @@ namespace ContractConfigurator
     public class ConfiguredContract : Contract
     {
         public ContractType contractType { get; private set; }
+        protected List<ContractBehaviour> behaviours { get; set; }
 
         protected override bool Generate()
         {
@@ -70,11 +71,24 @@ namespace ContractConfigurator
             SetReputation(contractType.rewardReputation, contractType.failureReputation, contractType.targetBody);
             SetFunds(contractType.advanceFunds, contractType.rewardFunds, contractType.failureFunds, contractType.targetBody);
 
+            // Generate behaviours
+            behaviours = new List<ContractBehaviour>();
+            contractType.GenerateBehaviours(this);
+
             // Generate parameters
             contractType.GenerateParameters(this);
 
             Debug.Log("ContractConfigurator: Generated a contract: " + contractType);
             return true;
+        }
+
+        /*
+         * Adds a new behaviour to our list.
+         */
+        public void AddBehaviour(ContractBehaviour behaviour)
+        {
+            behaviours.Add(behaviour);
+            behaviour.contract = this;
         }
 
         public override bool CanBeCancelled()
@@ -129,11 +143,21 @@ namespace ContractConfigurator
         protected override void OnLoad(ConfigNode node)
         {
             contractType = ContractType.contractTypes[node.GetValue("subtype")];
-       }
+            foreach (ConfigNode child in node.GetNodes("BEHAVIOUR"))
+            {
+                ContractBehaviour behaviour = ContractBehaviour.LoadBehaviour(child);
+                behaviours.Add(behaviour);
+            }
+        }
 
         protected override void OnSave(ConfigNode node)
         {
             node.AddValue("subtype", contractType.name);
+            foreach (ContractBehaviour behaviour in behaviours)
+            {
+                ConfigNode child = new ConfigNode("BEHAVIOUR");
+                behaviour.Save(child);
+            }
         }
 
         public override bool MeetRequirements()
@@ -147,6 +171,145 @@ namespace ContractConfigurator
             else
             {
                 return contractType.MeetRequirements(this);
+            }
+        }
+
+        //
+        // These methods all fall through to the various ContractBehaviour objects.
+        //
+
+        protected override void OnAccepted()
+        {
+            base.OnAccepted();
+            foreach (ContractBehaviour behaviour in behaviours)
+            {
+                behaviour.Accept();
+            }
+        }
+
+        protected override void OnCancelled()
+        {
+            base.OnCancelled();
+            foreach (ContractBehaviour behaviour in behaviours)
+            {
+                behaviour.Cancel();
+            }
+        }
+
+        protected override void OnCompleted()
+        {
+            base.OnCompleted();
+            foreach (ContractBehaviour behaviour in behaviours)
+            {
+                behaviour.Complete();
+            }
+        }
+
+        protected override void OnDeadlineExpired()
+        {
+            base.OnDeadlineExpired();
+            foreach (ContractBehaviour behaviour in behaviours)
+            {
+                behaviour.ExpireDeadline();
+            }
+        }
+
+        protected override void OnDeclined()
+        {
+            base.OnDeclined();
+            foreach (ContractBehaviour behaviour in behaviours)
+            {
+                behaviour.Decline();
+            }
+        }
+
+        protected override void OnFailed()
+        {
+            base.OnFailed();
+            foreach (ContractBehaviour behaviour in behaviours)
+            {
+                behaviour.Fail();
+            }
+        }
+
+        protected override void OnFinished()
+        {
+            base.OnFinished();
+            foreach (ContractBehaviour behaviour in behaviours)
+            {
+                behaviour.Finish();
+            }
+        }
+
+        protected override void OnGenerateFailed()
+        {
+            base.OnGenerateFailed();
+            foreach (ContractBehaviour behaviour in behaviours)
+            {
+                behaviour.FailGeneration();
+            }
+        }
+
+        protected override void OnOffered()
+        {
+            base.OnOffered();
+            foreach (ContractBehaviour behaviour in behaviours)
+            {
+                behaviour.Offer();
+            }
+        }
+
+        protected override void OnOfferExpired()
+        {
+            base.OnOfferExpired();
+            foreach (ContractBehaviour behaviour in behaviours)
+            {
+                behaviour.ExpireOffer();
+            }
+        }
+
+        protected override void OnParameterStateChange(ContractParameter param)
+        {
+            base.OnParameterStateChange(param);
+            foreach (ContractBehaviour behaviour in behaviours)
+            {
+                behaviour.ParameterStateChange(param);
+            }
+        }
+
+        protected override void OnRegister()
+        {
+            base.OnRegister();
+            foreach (ContractBehaviour behaviour in behaviours)
+            {
+                behaviour.Register();
+            }
+        }
+
+        protected override void OnUnregister()
+        {
+            base.OnUnregister();
+            foreach (ContractBehaviour behaviour in behaviours)
+            {
+                behaviour.Unregister();
+            }
+        }
+
+        protected override void OnUpdate()
+        {
+            base.OnUpdate();
+            foreach (ContractBehaviour behaviour in behaviours)
+            {
+                behaviour.Update();
+            }
+        }
+
+        protected override void OnWithdrawn()
+        {
+            base.OnWithdrawn();
+            foreach (ContractBehaviour behaviour in behaviours)
+            {
+                behaviour.Withdraw();
             }
         }
     }

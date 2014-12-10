@@ -17,6 +17,7 @@ namespace ContractConfigurator
         public static Dictionary<string, ContractType> contractTypes = new Dictionary<string,ContractType>();
 
         protected virtual List<ParameterFactory> paramFactories { get; set; }
+        protected virtual List<BehaviourFactory> behaviourFactories { get; set; }
         protected virtual List<ContractRequirement> requirements { get; set; }
 
         // Contract attributes
@@ -155,6 +156,17 @@ namespace ContractConfigurator
                 throw new Exception("Need at least one parameter for a contract!");
             }
 
+            // Load behaviours
+            behaviourFactories = new List<BehaviourFactory>();
+            foreach (ConfigNode requirementNode in contractConfig.GetNodes("BEHAVIOUR"))
+            {
+                BehaviourFactory behaviourFactory = BehaviourFactory.GenerateBehaviourFactory(requirementNode, this);
+                if (behaviourFactory != null)
+                {
+                    behaviourFactories.Add(behaviourFactory);
+                }
+            }
+
             // Load requirements
             requirements = new List<ContractRequirement>();
             foreach (ConfigNode requirementNode in contractConfig.GetNodes("REQUIREMENT"))
@@ -165,6 +177,14 @@ namespace ContractConfigurator
                     requirements.Add(requirement);
                 }
             }
+        }
+
+        /*
+         * Generates and loads all the parameters required for the given contract.
+         */
+        public void GenerateBehaviours(ConfiguredContract contract)
+        {
+            BehaviourFactory.GenerateBehaviours(contract, behaviourFactories);
         }
 
         /*

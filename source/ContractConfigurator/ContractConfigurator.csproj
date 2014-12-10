@@ -56,6 +56,7 @@
     <Compile Include="ContractParameter\VesselHasVisited.cs" />
     <Compile Include="ContractParameter\ReachSpeedEnvelopeCustom.cs" />
     <Compile Include="ContractParameter\ReachAltitudeEnvelopeCustom.cs" />
+    <Compile Include="ContractBehaviour.cs" />
     <Compile Include="ContractRequirement\PartModuleUnlockedRequirement.cs" />
     <Compile Include="DurationUtil.cs" />
     <Compile Include="ContractParameter\ReachSituationCustom.cs" />
@@ -91,6 +92,7 @@
     <Compile Include="ContractRequirement\ProgressCelestialBodyRequirement\EscapeRequirement.cs" />
     <Compile Include="ContractRequirement\ProgressCelestialBodyRequirement\DockingRequirement.cs" />
     <Compile Include="ContractRequirement\PartUnlockedRequirement.cs" />
+    <Compile Include="BehaviourFactory.cs" />
     <Compile Include="ParameterFactory\SequenceNodeFactory.cs" />
     <Compile Include="ParameterFactory\SequenceFactory.cs" />
     <Compile Include="ParameterFactory\HasResourceFactory.cs" />

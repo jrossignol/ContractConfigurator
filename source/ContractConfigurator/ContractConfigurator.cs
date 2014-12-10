@@ -25,6 +25,7 @@ namespace ContractConfigurator
             if (HighLogic.LoadedScene == GameScenes.MAINMENU && !loaded)
             {
                 RegisterParameterFactories();
+                RegisterBehaviourFactories();
                 RegisterContractRequirements();
                 LoadContractConfig();
                 loaded = true;
@@ -66,6 +67,30 @@ namespace ContractConfigurator
                     name = name.Remove(name.Length - 7, 7);
                 }
                 ParameterFactory.Register(subclass, name);
+            }
+        }
+
+        /*
+         * Registers all the out of the box BehaviourFactory classes.
+         */
+        void RegisterBehaviourFactories()
+        {
+            // Get everything that extends BehaviourFactory
+            var subclasses =
+                from assembly in AppDomain.CurrentDomain.GetAssemblies()
+                from type in assembly.GetTypes()
+                where type.IsSubclassOf(typeof(BehaviourFactory))
+                select type;
+
+            // Register each type with the behaviour factory
+            foreach (Type subclass in subclasses)
+            {
+                string name = subclass.Name;
+                if (name.EndsWith("Factory"))
+                {
+                    name = name.Remove(name.Length - 7, 7);
+                }
+                BehaviourFactory.Register(subclass, name);
             }
         }
 
