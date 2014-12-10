@@ -75,7 +75,7 @@ namespace ContractConfigurator
                 if (output.Length != 0) output += ", ";
                 output += days + (days == 1 ? "days" : " days");
             }
-            if (hours != 0 || minutes != 0 || seconds != 0)
+            if (hours != 0 || minutes != 0 || seconds != 0 || output.Length == 0)
             {
                 if (output.Length != 0) output += ", ";
                 output += hours.ToString("D2") + ":" + minutes.ToString("D2") + ":" + seconds.ToString("D2");
