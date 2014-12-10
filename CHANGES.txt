@@ -2,6 +2,7 @@ ContractConfigurator (UNRELEASED)
 - Support for disabling other contract types
 - Support for contract level notes.
 - Support for using TextGen generated descriptions.
+- Added Timer parameter.
 - Various minor bug-fixes.
 
 ContractConfigurator 0.2.0

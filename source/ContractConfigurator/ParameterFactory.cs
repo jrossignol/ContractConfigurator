@@ -23,7 +23,7 @@ namespace ContractConfigurator
         protected virtual float failureReputation { get; set; }
         protected virtual float failureFunds { get; set; }
         protected virtual bool optional { get; set; }
-        protected virtual bool disableOnStateChange { get; set; }
+        protected virtual bool? disableOnStateChange { get; set; }
         protected virtual List<ParameterFactory> childNodes { get; set; }
         protected virtual string title { get; set; }
 
@@ -75,7 +75,7 @@ namespace ContractConfigurator
             }
             else
             {
-                disableOnStateChange = true;
+                disableOnStateChange = null;
             }
 
             // Get title
@@ -137,7 +137,10 @@ namespace ContractConfigurator
 
             // Set other flags
             parameter.Optional = optional;
-            parameter.DisableOnStateChange = disableOnStateChange;
+            if (disableOnStateChange != null)
+            {
+                parameter.DisableOnStateChange = (bool)disableOnStateChange;
+            }
 
             return parameter;
         }
