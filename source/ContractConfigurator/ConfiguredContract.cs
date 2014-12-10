@@ -14,7 +14,7 @@ namespace ContractConfigurator
     public class ConfiguredContract : Contract
     {
         public ContractType contractType { get; private set; }
-        protected List<ContractBehaviour> behaviours { get; set; }
+        private List<ContractBehaviour> behaviours = new List<ContractBehaviour>();
 
         protected override bool Generate()
         {
