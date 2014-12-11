@@ -17,15 +17,14 @@ namespace ContractConfigurator.Parameters
         protected string title { get; set; }
 
         public Any()
-            : base()
+            : this(null)
         {
-            this.title = "Complete any ONE of the following";
         }
 
         public Any(string title)
             : base()
         {
-            this.title = title;
+            this.title = title != null ? title : "Complete any ONE of the following";
         }
 
         protected override string GetTitle()

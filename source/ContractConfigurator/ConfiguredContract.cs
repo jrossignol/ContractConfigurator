@@ -137,7 +137,7 @@ namespace ContractConfigurator
 
         protected override string GetNotes()
         {
-            return contractType.notes + "\n";
+            return contractType.notes != null ? contractType.notes + "\n" : "";
         }
         
         protected override void OnLoad(ConfigNode node)
