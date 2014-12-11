@@ -113,86 +113,72 @@ namespace ContractConfigurator.Parameters
         /*
          * Checks the child parameters and updates state.
          */
-        public void UpdateState()
+        public void UpdateState(Vessel vessel)
         {
-            int max = 0;
-            int requiredParameters = 0;
-            Dictionary<Vessel, int> counts = new Dictionary<Vessel, int>();
+            Debug.Log("UpdateState, vessel = " + vessel.id + ", trackedVesselGuid = " + trackedVesselGuid + ", state = " + state);
 
-            // Figure out the currently winning vessel
-            for (int i = 0; i < ParameterCount; i++)
+            // Ignore updates to non-tracked vessels if that vessel is already winning
+            if (vessel != trackedVessel && waiting)
             {
-                ContractParameter p = GetParameter(i);
-                if (p.GetType().IsSubclassOf(typeof(VesselParameter)))
+                // Make sure that the state of our tracked vessel has not suddenly changed
+                SetChildState(trackedVessel);
+                if (AllChildParametersComplete())
                 {
-                    requiredParameters++;
-                    foreach (Vessel v in ((VesselParameter)p).GetCompletingVessels())
-                    {
-                        if (!counts.ContainsKey(v))
-                        {
-                            counts[v] = 0;
-                        }
-                        max = Math.Max(++counts[v], max);
-                    }
+                    return;
                 }
             }
 
-            // Nobody matches anything yet!
-            if (counts.Count == 0)
-            {
-                return;
-            }
+            // Temporarily change the state
+            SetChildState(vessel);
 
-            // Someone has completed
-            if (max == requiredParameters)
+            // Check if this is a completion
+            if (AllChildParametersComplete())
             {
-                // Get the winning vessel
-                if (trackedVessel == null || !counts.ContainsKey(trackedVessel) || counts[trackedVessel] < max)
-                {
-                    IEnumerable<KeyValuePair<Vessel, int>> matches = counts.Where(p => p.Value == max);
-                    double minVessel = Double.MaxValue;
-                    foreach (KeyValuePair<Vessel, int> pair in matches)
-                    {
-                        double maxParam = 0.0;
-                        for (int i = 0; i < ParameterCount; i++)
-                        {
-                            ContractParameter p = GetParameter(i);
-                            if (p.GetType().IsSubclassOf(typeof(VesselParameter)))
-                            {
-                                maxParam = Math.Max(maxParam, ((VesselParameter)p).GetCompletionTime(pair.Key));
-                            }
-                        }
-                        if (maxParam < minVessel)
-                        {
-                            minVessel = maxParam;
-                            trackedVessel = pair.Key;
-                            trackedVesselGuid = trackedVessel.id;
-                        }
-                    }
+                Debug.Log("    winning!");
 
-                    // Use the time of the selected vessel for the completion time
-                    if (AllChildParametersComplete())
-                    {
-                        waiting = true;
-                        completionTime = minVessel + duration;
-                    }
-
-                }
-            }
-            // Use the active vessel
-            else if (FlightGlobals.ActiveVessel != null)
-            {
-                trackedVessel = FlightGlobals.ActiveVessel;
+                trackedVessel = vessel;
                 trackedVesselGuid = trackedVessel.id;
             }
-
-            // Set the state based on the tracked vessel
-            for (int i = 0; i < ParameterCount; i++)
+            // Look at all other possible craft to see if we can find a winner
+            else
             {
-                ContractParameter p = GetParameter(i);
-                if (p.GetType().IsSubclassOf(typeof(VesselParameter)))
+                trackedVessel = null;
+
+                // Get a list of vessels to check
+                Dictionary<Vessel, int> vessels = new Dictionary<Vessel, int>();
+                foreach (VesselParameter p in AllDescendents<VesselParameter>())
                 {
-                    ((VesselParameter)p).SetState(trackedVessel);
+                    foreach (Vessel v in p.GetCompletingVessels())
+                    {
+                        if (v != vessel)
+                        {
+                            vessels[v] = 0;
+                        }
+                    }
+                }
+
+                // TODO - completion time
+                // Check the vessels
+                foreach (Vessel v in vessels.Keys)
+                {
+                    // Temporarily change the state
+                    SetChildState(v);
+
+                    // Do a check
+                    if (AllChildParametersComplete())
+                    {
+                        trackedVessel = v;
+                        trackedVesselGuid = trackedVessel.id;
+                        break;
+                    }
+                }
+
+                // Still no winner - use active
+                if (trackedVessel == null)
+                {
+                    SetChildState(FlightGlobals.ActiveVessel);
+                    trackedVessel = FlightGlobals.ActiveVessel;
+                    trackedVesselGuid = trackedVessel.id;
                 }
             }
 
@@ -247,7 +233,7 @@ namespace ContractConfigurator.Parameters
 
         protected void OnVesselChange(Vessel vessel)
         {
-            UpdateState();
+            UpdateState(vessel);
         }
 
         protected override void OnParameterStateChange(ContractParameter contractParameter)
@@ -309,6 +295,42 @@ namespace ContractConfigurator.Parameters
                         noteTracker.Clear();
                         richText.Text = notePrefix + GetNotes();
                     }
+                }
+            } 
+        }
+
+        protected IEnumerable<T> AllDescendents<T>() where T : ContractParameter 
+        {
+            return AllDescendents<T>(this);
+        }
+
+        protected static IEnumerable<T> AllDescendents<T>(ContractParameter p) where T : ContractParameter
+        {
+            for (int i = 0; i < p.ParameterCount; i++)
+            {
+                ContractParameter child = p.GetParameter(i);
+                if (child is T)
+                {
+                    yield return child as T;
+                }
+                foreach (ContractParameter grandChild in AllDescendents<T>(child))
+                {
+                    yield return grandChild as T;
+                }
+            }
+        }
+
+        /*
+         * Set the state in all children to that of the given vessel.
+         */
+        protected void SetChildState(Vessel vessel)
+        {
+            foreach (VesselParameter p in AllDescendents<VesselParameter>())
+            {
+                p.SetState(vessel);
+                if (p.Parent != this)
+                {
+                    p.Parent.ParameterStateUpdate(p);
                 }
             }
         }

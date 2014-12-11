@@ -574,8 +574,14 @@ namespace ContractConfigurator.Parameters
                 return;
             }
 
+            IContractParameterHost host = Parent;
+            while (host != Root && !(host is VesselParameterGroup))
+            {
+                host = host.Parent;
+            }
+
             // Using VesselParameterGroup logic
-            if (Parent.GetType() == typeof(VesselParameterGroup))
+            if (host is VesselParameterGroup)
             {
                 // Set the craft specific state
                 bool stateChanged = SetState(vessel, VesselMeetsCondition(vessel) ?
@@ -584,8 +590,7 @@ namespace ContractConfigurator.Parameters
                 // Update the group
                 if (stateChanged)
                 {
-                    VesselParameterGroup vpg = (VesselParameterGroup)Parent;
-                    vpg.UpdateState();
+                    ((VesselParameterGroup)host).UpdateState(vessel);
                 }
             }
             // Logic applies only to active vessel

@@ -3,6 +3,7 @@ ContractConfigurator (UNRELEASED)
 - Support for contract level notes.
 - Support for using TextGen generated descriptions.
 - Added Timer parameter.
+- VesselParameterGroup now works with deeply nested children (previously would only work with direct children).
 - Various minor bug-fixes.
 
 ContractConfigurator 0.2.0

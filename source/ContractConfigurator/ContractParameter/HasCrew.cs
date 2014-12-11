@@ -82,15 +82,13 @@ namespace ContractConfigurator.Parameters
         protected override void OnRegister()
         {
             base.OnRegister();
-            GameEvents.onKerbalAdded.Add(new EventData<ProtoCrewMember>.OnEvent(OnKerbalChanged));
-            GameEvents.onKerbalRemoved.Add(new EventData<ProtoCrewMember>.OnEvent(OnKerbalChanged));
+            GameEvents.onCrewTransferred.Add(new EventData<GameEvents.HostedFromToAction<ProtoCrewMember, Part>>.OnEvent(OnCrewTransferred));            
         }
 
         protected override void OnUnregister()
         {
             base.OnUnregister();
-            GameEvents.onKerbalAdded.Remove(new EventData<ProtoCrewMember>.OnEvent(OnKerbalChanged));
-            GameEvents.onKerbalRemoved.Remove(new EventData<ProtoCrewMember>.OnEvent(OnKerbalChanged));
+            GameEvents.onCrewTransferred.Remove(new EventData<GameEvents.HostedFromToAction<ProtoCrewMember, Part>>.OnEvent(OnCrewTransferred));
         }
 
         protected override void OnPartAttach(GameEvents.HostTargetAction<Part, Part> e)
@@ -105,9 +103,12 @@ namespace ContractConfigurator.Parameters
             CheckVessel(FlightGlobals.ActiveVessel);
         }
 
-        protected void OnKerbalChanged(ProtoCrewMember p)
+        protected void OnCrewTransferred(GameEvents.HostedFromToAction<ProtoCrewMember, Part> a)
         {
-            CheckVessel(FlightGlobals.ActiveVessel);
+            // Check both, as the Kerbal/ship swap spots depending on whether the kerbal is
+            // incoming or outgoing
+            CheckVessel(a.from.vessel);
+            CheckVessel(a.to.vessel);
         }
 
         /*
