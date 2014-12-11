@@ -17,6 +17,9 @@ namespace ContractConfigurator.Parameters
         protected string title { get; set; }
         public string biome { get; set; }
 
+        private float lastUpdate = 0.0f;
+        private const float UPDATE_FREQUENCY = 0.5f;
+
         public ReachBiomeCustom()
             : this(null, null)
         {
@@ -50,7 +53,12 @@ namespace ContractConfigurator.Parameters
 
         protected override void OnUpdate()
         {
-            CheckVessel(FlightGlobals.ActiveVessel);
+            base.OnUpdate();
+            if (UnityEngine.Time.fixedTime - lastUpdate > UPDATE_FREQUENCY)
+            {
+                lastUpdate = UnityEngine.Time.fixedTime;
+                CheckVessel(FlightGlobals.ActiveVessel);
+            }
         }
 
         /*

@@ -18,6 +18,9 @@ namespace ContractConfigurator.Parameters
         public float minAltitude { get; set; }
         public float maxAltitude { get; set; }
 
+        private float lastUpdate = 0.0f;
+        private const float UPDATE_FREQUENCY = 0.1f;
+
         public ReachAltitudeEnvelopeCustom()
             : this(0.0f, 50000.0f, null)
         {
@@ -55,7 +58,12 @@ namespace ContractConfigurator.Parameters
 
         protected override void OnUpdate()
         {
-            CheckVessel(FlightGlobals.ActiveVessel);
+            base.OnUpdate();
+            if (UnityEngine.Time.fixedTime - lastUpdate > UPDATE_FREQUENCY)
+            {
+                lastUpdate = UnityEngine.Time.fixedTime;
+                CheckVessel(FlightGlobals.ActiveVessel);
+            }
         }
 
         /*
