@@ -117,7 +117,6 @@ namespace ContractConfigurator
 
         protected override void OnAccepted()
         {
-            int i = 0;
             // Actually spawn the kerbals in the game world!
             foreach (KerbalData kerbal in kerbals)
             {
