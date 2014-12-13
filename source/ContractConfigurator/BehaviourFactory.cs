@@ -16,12 +16,20 @@ namespace ContractConfigurator
         private static Dictionary<string, Type> factories = new Dictionary<string, Type>();
 
         protected virtual ContractType contractType { get; set; }
+        protected virtual CelestialBody targetBody { get; set; }
 
         /*
          * Loads the BehaviourFactory from the given ConfigNode.
          */
         public virtual bool Load(ConfigNode configNode)
         {
+            // Load targetBody
+            CelestialBody body = ConfigNodeUtil.ParseCelestialBody(configNode, "targetBody");
+            if (body != null)
+            {
+                targetBody = body;
+            }
+
             return true;
         }
 
@@ -80,6 +88,7 @@ namespace ContractConfigurator
 
             // Set attributes
             behaviourFactory.contractType = contractType;
+            behaviourFactory.targetBody = contractType.targetBody;
 
             // Load config
             if (!behaviourFactory.Load(behaviourConfig))

@@ -15,6 +15,7 @@ namespace ContractConfigurator
     public class RecoverKerbalFactory : ParameterFactory
     {
         protected string kerbal { get; set; }
+        protected int index { get; set; }
 
         public override bool Load(ConfigNode configNode)
         {
@@ -23,21 +24,50 @@ namespace ContractConfigurator
 
             // Get Kerbal
             kerbal = "";
-            if (!configNode.HasValue("kerbal"))
+            if (configNode.HasValue("kerbal"))
+            {
+                kerbal = configNode.GetValue("kerbal");
+                index = -1;
+            }
+            else if (configNode.HasValue("index"))
+            {
+                kerbal = null;
+                index = Convert.ToInt32(configNode.GetValue("index"));
+            }
+            else
             {
                 valid = false;
                 Debug.LogError("ContractConfigurator: " + ErrorPrefix(configNode) +
-                    ": missing required value 'kerbal'.");
+                    ": missing required value 'kerbal' or 'index'.");
             }
-            kerbal = configNode.GetValue("kerbal");
 
             return valid;
         }
 
         public override ContractParameter Generate(Contract contract)
         {
-            RecoverKerbal contractParam = new RecoverKerbal(title != null ? title : kerbal + ": Recovered");
-            contractParam .AddKerbal(kerbal);
+            RecoverKerbal contractParam = new RecoverKerbal(title);
+
+            // Add the kerbal
+            string kerbalName;
+            if (kerbal != null)
+            {
+                kerbalName = kerbal;
+            }
+            else
+            {
+                SpawnKerbal spawnKerbal = ((ConfiguredContract)contract).Behaviours.OfType<SpawnKerbal>().First<SpawnKerbal>();
+                kerbalName = spawnKerbal.GetKerbalName(index);
+            }
+
+            contractParam.AddKerbal(kerbalName);
+
+            // Get title
+            if (title == null)
+            {
+                contractParam.SetTitle(kerbalName + ": Recovered");
+            }
+
             return contractParam;
         }
     }

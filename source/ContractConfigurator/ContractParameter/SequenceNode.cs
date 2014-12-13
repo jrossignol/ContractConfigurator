@@ -79,20 +79,16 @@ namespace ContractConfigurator.Parameters
         private bool ReadyToComplete()
         {
             // Go through the parent's parameters
-            Debug.Log("params for: " + ID);
             for (int i = 0; i < Parent.ParameterCount; i++)
             {
                 ContractParameter param = Parent.GetParameter(i);
-                Debug.Log("    param: " + param.ID + ", " + param.GetType().Name);
                 // If we've made it all the way to us, we're ready
                 if (System.Object.ReferenceEquals(param, this))
                 {
-                    Debug.Log("it's us!");
                     return true;
                 }
                 else if (param.State != ParameterState.Complete)
                 {
-                    Debug.Log("it's incomplete!");
                     return false;
                 }
             }

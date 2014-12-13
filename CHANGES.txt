@@ -1,7 +1,9 @@
 ContractConfigurator (UNRELEASED)
+- Support for ContractBehaviour - extensible behaviours at the contract level.
 - Support for disabling other contract types
 - Support for contract level notes.
 - Support for using TextGen generated descriptions.
+- Added SpawnKerbal behaviour.
 - Added Timer parameter.
 - VesselParameterGroup now works with deeply nested children (previously would only work with direct children).
 - Various minor bug-fixes.

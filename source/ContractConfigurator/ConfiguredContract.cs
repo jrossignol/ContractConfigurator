@@ -15,6 +15,7 @@ namespace ContractConfigurator
     {
         public ContractType contractType { get; private set; }
         private List<ContractBehaviour> behaviours = new List<ContractBehaviour>();
+        public IEnumerable<ContractBehaviour> Behaviours { get { return behaviours.AsReadOnly(); } }
 
         protected override bool Generate()
         {

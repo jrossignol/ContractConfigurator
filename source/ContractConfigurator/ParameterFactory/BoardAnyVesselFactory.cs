@@ -15,6 +15,7 @@ namespace ContractConfigurator
     public class BoardAnyVesselFactory : ParameterFactory
     {
         protected string kerbal { get; set; }
+        protected int index { get; set; }
 
         public override bool Load(ConfigNode configNode)
         {
@@ -23,18 +24,21 @@ namespace ContractConfigurator
 
             // Get Kerbal
             kerbal = "";
-            if (!configNode.HasValue("kerbal"))
+            if (configNode.HasValue("kerbal"))
+            {
+                kerbal = configNode.GetValue("kerbal");
+                index = -1;
+            }
+            else if (configNode.HasValue("index"))
+            {
+                kerbal = null;
+                index = Convert.ToInt32(configNode.GetValue("index"));
+            }
+            else
             {
                 valid = false;
                 Debug.LogError("ContractConfigurator: " + ErrorPrefix(configNode) +
-                    ": missing required value 'kerbal'.");
-            }
-            kerbal = configNode.GetValue("kerbal");
-
-            // Get title
-            if (title == null)
-            {
-                title = kerbal + ": Board a vessel";
+                    ": missing required value 'kerbal' or 'index'.");
             }
 
             return valid;
@@ -43,7 +47,27 @@ namespace ContractConfigurator
         public override ContractParameter Generate(Contract contract)
         {
             BoardAnyVessel contractParam = new BoardAnyVessel(title);
-            contractParam .AddKerbal(kerbal);
+
+            // Add the kerbal
+            string kerbalName;
+            if (kerbal != null)
+            {
+                kerbalName = kerbal;
+            }
+            else
+            {
+                SpawnKerbal spawnKerbal = ((ConfiguredContract)contract).Behaviours.OfType<SpawnKerbal>().First<SpawnKerbal>();
+                kerbalName = spawnKerbal.GetKerbalName(index);
+            }
+
+            contractParam.AddKerbal(kerbalName);
+
+            // Get title
+            if (title == null)
+            {
+                contractParam.SetTitle(kerbalName + ": Board a vessel");
+            }
+
             return contractParam;
         }
     }

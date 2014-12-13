@@ -45,6 +45,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BehaviourFactory\SpawnKerbalFactory.cs" />
+    <Compile Include="ContractBehaviour\SpawnKerbal.cs" />
     <Compile Include="ContractParameter\Timer.cs" />
     <Compile Include="ContractParameter\SequenceNode.cs" />
     <Compile Include="ContractParameter\Sequence.cs" />
@@ -130,6 +132,7 @@
     <Compile Include="ParameterFactory\CollectScienceFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
