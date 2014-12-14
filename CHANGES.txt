@@ -1,5 +1,6 @@
 ContractConfigurator (UNRELEASED)
 - Support for ContractBehaviour - extensible behaviours at the contract level.
+- Support for a persistant data store.
 - Support for disabling other contract types
 - Support for contract level notes.
 - Support for using TextGen generated descriptions.
