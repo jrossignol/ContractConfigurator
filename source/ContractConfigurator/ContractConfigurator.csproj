@@ -46,8 +46,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BehaviourFactory\SpawnKerbalFactory.cs" />
+    <Compile Include="ExpressionParser.cs" />
     <Compile Include="ContractBehaviour\SpawnKerbal.cs" />
-    <Compile Include="PersistantDataStore.cs" />
+    <Compile Include="PersistentDataStore.cs" />
     <Compile Include="ContractParameter\Timer.cs" />
     <Compile Include="ContractParameter\SequenceNode.cs" />
     <Compile Include="ContractParameter\Sequence.cs" />
