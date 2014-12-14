@@ -12,7 +12,7 @@ namespace ContractConfigurator
     class ContractConfigurator : MonoBehaviour
     {
         static bool loaded = false;
-        static bool contractsDisabled = false;
+        static bool contractTypesAdjusted = false;
 
         void Start()
         {
@@ -31,16 +31,16 @@ namespace ContractConfigurator
                 loaded = true;
             }
             // Try to disable the contract types
-            else if ((HighLogic.LoadedScene == GameScenes.SPACECENTER) && !contractsDisabled)
+            else if ((HighLogic.LoadedScene == GameScenes.SPACECENTER) && !contractTypesAdjusted)
             {
-                if (DisableContractTypes())
+                if (AdjustContractTypes())
                 {
-                    contractsDisabled = true;
+                    contractTypesAdjusted = true;
                 }
             }
 
             // We're done, don't need to keep calling us
-            if (contractsDisabled && loaded)
+            if (loaded && contractTypesAdjusted)
             {
                 Destroy(this);
             }
@@ -169,9 +169,11 @@ namespace ContractConfigurator
         }
 
         /*
-         * Disables contract types as per configuration files.
+         * Performs adjustments to the contract type list.  Specifically, disables contract types
+         * as per configuration files and adds addtional ConfiguredContract instances based on the
+         * number on contract types.
          */
-        bool DisableContractTypes()
+        bool AdjustContractTypes()
         {
             // Don't do anything if the contract system has not yet loaded
             if (ContractSystem.ContractTypes == null)
@@ -224,6 +226,13 @@ namespace ContractConfigurator
                     Debug.Log("ContractConfigurator: Disabling ContractType: " + p.Value.FullName + " (" + p.Value.Module + ")");
                     ContractSystem.ContractTypes.Remove(p.Value);
                 }
+            }
+
+            // Now add the ConfiguredContract type
+            int count = (int)(ContractType.contractTypes.Count / 4.0 + 0.5);
+            for (int i = 0; i < count; i++)
+            {
+                ContractSystem.ContractTypes.Add(typeof(ConfiguredContract));
             }
 
             return true;

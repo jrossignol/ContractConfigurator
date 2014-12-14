@@ -46,6 +46,7 @@ namespace ContractConfigurator
         public virtual float failureReputation { get; set; }
         public virtual float failureFunds { get; set; }
         public virtual float advanceFunds { get; set; }
+        public virtual double weight { get; set; }
 
         public ContractType(string name)
         {
@@ -69,6 +70,7 @@ namespace ContractConfigurator
             failureReputation = 0.0f;
             failureFunds = 0.0f;
             advanceFunds = 0.0f;
+            weight = 1.0;
         }
 
         ~ContractType()
@@ -138,6 +140,12 @@ namespace ContractConfigurator
             failureFunds = (float)Convert.ToDouble(contractConfig.GetValue("failureFunds"));
             failureReputation = (float)Convert.ToDouble(contractConfig.GetValue("failureReputation"));
             advanceFunds = (float)Convert.ToDouble(contractConfig.GetValue("advanceFunds"));
+
+            // Load other values
+            if (contractConfig.HasValue("weight"))
+            {
+                weight = Convert.ToDouble(contractConfig.GetValue("weight"));
+            }
 
             // Load parameters
             paramFactories = new List<ParameterFactory>();

@@ -19,14 +19,16 @@ namespace ContractConfigurator
 
         protected override bool Generate()
         {
-            // Build of list of ContractTypes to choose from
-            List<ContractType> validContractTypes = new List<ContractType>();
+            // Build a weighted list of ContractTypes to choose from
+            Dictionary<ContractType, double> validContractTypes = new Dictionary<ContractType, double>();
+            double totalWeight = 0.0;
             foreach (ContractType ct in ContractType.contractTypes.Values)
             {
                 // Only add contract types that have their requirements met
                 if (ct.MeetRequirements(this))
                 {
-                    validContractTypes.Add(ct);
+                    validContractTypes.Add(ct, ct.weight);
+                    totalWeight += ct.weight;
                 }
             }
 
@@ -37,9 +39,24 @@ namespace ContractConfigurator
                 return false;
             }
 
-            // Pick one of the contract types
+            // Pick one of the contract types based on their weight
             System.Random generator = new System.Random(this.MissionSeed);
-            contractType = validContractTypes[generator.Next(0, validContractTypes.Count())];
+            double value = generator.NextDouble() * totalWeight;
+            foreach (KeyValuePair<ContractType, double> pair in validContractTypes)
+            {
+                value -= pair.Value;
+                if (value <= 0.0)
+                {
+                    contractType = pair.Key;
+                    break;
+                }
+            }
+
+            // Shouldn't happen, but floating point rounding could put us here
+            if (contractType == null)
+            {
+                contractType = validContractTypes.First().Key;
+            }
 
             // Set the agent
             if (contractType.agent != null)

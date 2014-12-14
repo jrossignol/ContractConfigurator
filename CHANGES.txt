@@ -5,7 +5,9 @@ ContractConfigurator (UNRELEASED)
 - Support for using TextGen generated descriptions.
 - Added SpawnKerbal behaviour.
 - Added Timer parameter.
-- Added cooldownDuration to CompleteContract requirement
+- Added cooldownDuration to CompleteContract requirement.
+- Added weight to CONTRACT_TYPE to support genering some contract types with higher/lower probability.
+- Increase the odds of a ContractConfigurator contract being generated (versus a stock or traditionally defined contract) based on the number of configured contracts.
 - VesselParameterGroup now works with deeply nested children (previously would only work with direct children).
 - Various minor bug-fixes.
 
