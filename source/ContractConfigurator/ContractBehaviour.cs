@@ -15,11 +15,30 @@ namespace ContractConfigurator
     {
         public ConfiguredContract contract { get; set; }
 
+        /*
+         * Loads a behaviour from a ConfigNode.
+         */
+        public static ContractBehaviour LoadBehaviour(ConfigNode configNode)
+        {
+            // Determine the type
+            string typeName = configNode.GetValue("type");
+            Type type = Type.GetType(typeName);
+            if (type == null)
+            {
+                Debug.LogError("No ContractBehaviour with type = '" + typeName + "'.");
+                return null;
+            }
+
+            // Instantiate and load
+            ContractBehaviour behaviour = (ContractBehaviour)Activator.CreateInstance(type);
+            behaviour.Load(configNode);
+            return behaviour;
+        }
+
         //
         // Lots of methods that can be overriden!
         //
 
-        // Contract accepted
         public void Accept() { OnAccepted(); }
         protected virtual void OnAccepted() { }
 
@@ -70,25 +89,5 @@ namespace ContractConfigurator
 
         public void Save(ConfigNode configNode) { OnSave(configNode); }
         protected virtual void OnSave(ConfigNode configNode) { }
-
-        /*
-         * Loads a behaviour from a ConfigNode.
-         */
-        public static ContractBehaviour LoadBehaviour(ConfigNode configNode)
-        {
-            // Determine the type
-            string typeName = configNode.GetValue("type");
-            Type type = Type.GetType(typeName);
-            if (type == null)
-            {
-                Debug.LogError("No ContractBehaviour with type = '" + typeName + "'.");
-                return null;
-            }
-
-            // Instantiate and load
-            ContractBehaviour behaviour = (ContractBehaviour)Activator.CreateInstance(type);
-            behaviour.Load(configNode);
-            return behaviour;
-        }
     }
 }
