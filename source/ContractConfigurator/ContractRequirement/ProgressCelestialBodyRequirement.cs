@@ -48,7 +48,7 @@ namespace ContractConfigurator
             return null;
         }
 
-        public override bool RequirementMet(ContractType contractType)
+        public override bool RequirementMet(ConfiguredContract contract)
         {
             // Validate the CelestialBodySubtree exists
             CelestialBodySubtree cbProgress = GetCelestialBodySubtree();

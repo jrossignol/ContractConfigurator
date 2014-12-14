@@ -41,7 +41,7 @@ namespace ContractConfigurator
             return valid;
         }
 
-        public override bool RequirementMet(ContractType contractType)
+        public override bool RequirementMet(ConfiguredContract contract)
         {
             return ProgressTracking.Instance.altitudeRecords.record > minAltitude;
         }

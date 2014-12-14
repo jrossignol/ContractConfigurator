@@ -36,7 +36,7 @@ namespace ContractConfigurator
             return valid;
         }
 
-        public override bool RequirementMet(ContractType contractType)
+        public override bool RequirementMet(ConfiguredContract contract)
         {
             // Search for a part that has our module
             foreach (AvailablePart p in PartLoader.Instance.parts)

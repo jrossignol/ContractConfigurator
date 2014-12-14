@@ -18,6 +18,7 @@ namespace ContractConfigurator
         protected Type contractClass { get; set; }
         protected uint minCount { get; set; }
         protected uint maxCount { get; set; }
+        protected double cooldown { get; set; }
 
         public override bool Load(ConfigNode configNode)
         {
@@ -101,23 +102,54 @@ namespace ContractConfigurator
                 }
             }
 
+            // Get cooldown
+            cooldown = configNode.HasValue("cooldownDuration") ? DurationUtil.ParseDuration(configNode, "cooldownDuration") : 0.0;
+
             return valid;
         }
 
-        public override bool RequirementMet(ContractType contractType)
+        public override bool RequirementMet(ConfiguredContract contract)
         {
+            // Performance - don't do the check if the contract is already active
+            if (contract.ContractState == Contract.State.Active)
+            {
+                return true;
+            }
+
+            // Get the count of finished contracts
             int finished = 0;
+            double lastFinished = 0.0;
+
+            // Finished contracts - Contract Configurator style
             if (ccType != null)
             {
-                finished = ContractSystem.Instance.GetCompletedContracts<ConfiguredContract>().Count(c => c.contractType.name.Equals(ccType));
-
+                IEnumerable<ConfiguredContract> completedContract = ContractSystem.Instance.GetCompletedContracts<ConfiguredContract>().Where(c => c.contractType.name.Equals(ccType));
+                finished = completedContract.Count();
+                if (finished > 0)
+                {
+                    // TODO - this isn't working out
+                    lastFinished = completedContract.OrderByDescending<ConfiguredContract, double>(c => c.DateFinished).First().DateFinished;
+                }
             }
+            // Finished contracts - stock style
             else
             {
                 // Call the GetCompletedContracts with our type, and get the count
                 Contract[] completedContract = (Contract[])typeof(ContractSystem).GetMethod("GetCompletedContracts").MakeGenericMethod(contractClass).Invoke(ContractSystem.Instance, null);
                 finished = completedContract.Count();
+                if (finished > 0)
+                {
+                    lastFinished = completedContract.OrderByDescending<Contract, double>(c => c.DateFinished).First().DateFinished;
+                }
             }
+
+            // Check cooldown
+            if (cooldown > 0.0 && finished > 0 && lastFinished + cooldown > Planetarium.GetUniversalTime())
+            {
+                return false;
+            }
+
+            // Return based on the min/max counts configured
             return (finished >= minCount) && (finished <= maxCount);
         }
     }

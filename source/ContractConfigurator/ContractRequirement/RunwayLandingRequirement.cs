@@ -13,7 +13,7 @@ namespace ContractConfigurator
      */
     public class RunwayLandingRequirement : ContractRequirement
     {
-        public override bool RequirementMet(ContractType contractType)
+        public override bool RequirementMet(ConfiguredContract contract)
         {
             return ProgressTracking.Instance.runwayLanding.IsComplete;
         }

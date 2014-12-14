@@ -200,6 +200,11 @@ namespace ContractConfigurator
         protected override void OnCompleted()
         {
             base.OnCompleted();
+            
+            // Stock seems to have issues with setting this correctly.
+            // TODO - check post-0.25 to see if this is still necessary as a workaround
+            dateFinished = Planetarium.GetUniversalTime();
+
             foreach (ContractBehaviour behaviour in behaviours)
             {
                 behaviour.Complete();

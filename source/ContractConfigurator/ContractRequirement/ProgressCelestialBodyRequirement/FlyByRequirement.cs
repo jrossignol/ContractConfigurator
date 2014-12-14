@@ -14,9 +14,9 @@ namespace ContractConfigurator
      */
     public class FlyByRequirement : ProgressCelestialBodyRequirement
     {
-        public override bool RequirementMet(ContractType contractType)
+        public override bool RequirementMet(ConfiguredContract contract)
         {
-            return base.RequirementMet(contractType) &&
+            return base.RequirementMet(contract) &&
                 GetCelestialBodySubtree().flyBy.IsComplete;
         }
     }

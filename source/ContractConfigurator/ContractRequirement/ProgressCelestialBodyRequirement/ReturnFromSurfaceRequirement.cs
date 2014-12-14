@@ -30,10 +30,10 @@ namespace ContractConfigurator
             return valid;
         }
 
-        public override bool RequirementMet(ContractType contractType)
+        public override bool RequirementMet(ConfiguredContract contract)
         {
             // This appears bugged - returnFromSurface is null
-            return base.RequirementMet(contractType) &&
+            return base.RequirementMet(contract) &&
                 GetCelestialBodySubtree().returnFromSurface.IsComplete;
         }
     }

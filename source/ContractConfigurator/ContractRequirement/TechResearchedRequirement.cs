@@ -39,7 +39,7 @@ namespace ContractConfigurator
             return valid;
         }
 
-        public override bool RequirementMet(ContractType contractType)
+        public override bool RequirementMet(ConfiguredContract contract)
         {
             ProtoTechNode techNode = ResearchAndDevelopment.Instance.GetTechState(tech);
             if (techNode == null)

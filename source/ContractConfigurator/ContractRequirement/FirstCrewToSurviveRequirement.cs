@@ -13,7 +13,7 @@ namespace ContractConfigurator
      */
     public class FirstCrewToSurviveRequirement : ContractRequirement
     {
-        public override bool RequirementMet(ContractType contractType)
+        public override bool RequirementMet(ConfiguredContract contract)
         {
             return ProgressTracking.Instance.firstCrewToSurvive.IsComplete;
         }

@@ -58,17 +58,17 @@ namespace ContractConfigurator
          * If child requirements are supported, then the class implementing this method is
          * responsible for checking those requirements.
          */
-        public abstract bool RequirementMet(ContractType contractType);
+        public virtual bool RequirementMet(ConfiguredContract contract) { return true; }
 
         /*
          * Checks if all the given ContractRequirement meet the requirement.
          */
-        public static bool RequirementsMet(ContractType contractType, List<ContractRequirement> contractRequirements)
+        public static bool RequirementsMet(ConfiguredContract contract, List<ContractRequirement> contractRequirements)
         {
             bool allReqMet = true;
             foreach (ContractRequirement requirement in contractRequirements)
             {
-                bool nodeMet = requirement.RequirementMet(contractType);
+                bool nodeMet = requirement.RequirementMet(contract);
                 allReqMet = allReqMet && (requirement.invertRequirement ? !nodeMet : nodeMet);
             }
             return allReqMet;

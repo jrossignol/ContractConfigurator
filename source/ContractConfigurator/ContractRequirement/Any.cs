@@ -13,12 +13,12 @@ namespace ContractConfigurator
      */
     public class AnyRequirement : ContractRequirement
     {
-        public override bool RequirementMet(ContractType contractType)
+        public override bool RequirementMet(ConfiguredContract contract)
         {
             bool requirementMet = false;
             foreach (ContractRequirement contractRequirement in childNodes)
             {
-                requirementMet |= contractRequirement.RequirementMet(contractType);
+                requirementMet |= contractRequirement.RequirementMet(contract);
             }
             return requirementMet;
         }

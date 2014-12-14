@@ -198,7 +198,7 @@ namespace ContractConfigurator
         /*
          * Returns true if the contract can be offered.
          */
-        public bool MeetRequirements(Contract contract)
+        public bool MeetRequirements(ConfiguredContract contract)
         {
             // Check prestige
             if (prestige != null && contract.Prestige != prestige)
@@ -225,7 +225,7 @@ namespace ContractConfigurator
             }
 
             // Check the captured requirements
-            return ContractRequirement.RequirementsMet(this, requirements);
+            return ContractRequirement.RequirementsMet(contract, requirements);
         }
 
         /*

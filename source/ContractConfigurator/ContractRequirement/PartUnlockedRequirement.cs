@@ -42,7 +42,7 @@ namespace ContractConfigurator
             return valid;
         }
 
-        public override bool RequirementMet(ContractType contractType)
+        public override bool RequirementMet(ConfiguredContract contract)
         {
             return ResearchAndDevelopment.PartTechAvailable(part);
         }
