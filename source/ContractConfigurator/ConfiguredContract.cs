@@ -175,6 +175,7 @@ namespace ContractConfigurator
             {
                 ConfigNode child = new ConfigNode("BEHAVIOUR");
                 behaviour.Save(child);
+                node.AddNode(child);
             }
         }
 

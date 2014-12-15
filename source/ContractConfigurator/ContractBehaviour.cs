@@ -87,7 +87,11 @@ namespace ContractConfigurator
         public void Load(ConfigNode configNode) { OnLoad(configNode); }
         protected virtual void OnLoad(ConfigNode configNode) { }
 
-        public void Save(ConfigNode configNode) { OnSave(configNode); }
+        public void Save(ConfigNode configNode)
+        {
+            configNode.AddValue("type", GetType());
+            OnSave(configNode);
+        }
         protected virtual void OnSave(ConfigNode configNode) { }
     }
 }

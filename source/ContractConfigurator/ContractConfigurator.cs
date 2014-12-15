@@ -161,8 +161,14 @@ namespace ContractConfigurator
                     catch (Exception e)
                     {
                         ContractType.contractTypes.Remove(name);
-                        Debug.LogError("ContractConfigurator: Error loading contract type '" + name +
-                            "': " + e.Message + "\n" + e.StackTrace);
+                        string err = "ContractConfigurator: Error loading contract type '" + name +
+                            "': " + e.Message + "\n" + e.StackTrace;
+                        while (e.InnerException != null)
+                        {
+                            e = e.InnerException;
+                            err += "\n" + e.Message + "\n" + e.StackTrace;
+                        }
+                        Debug.LogError(err);
                     }
                 }
             }

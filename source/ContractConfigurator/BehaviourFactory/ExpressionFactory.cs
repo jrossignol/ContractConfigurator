@@ -4,16 +4,15 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 using KSP;
-using ContractConfigurator;
 
 namespace ContractConfigurator.Behaviour
 {
     /*
-     * BehaviourFactory wrapper for SpawnKerbal ContractBehaviour.
+     * BehaviourFactory wrapper for Expression ContractBehaviour.
      */
-    public class SpawnKerbalFactory : BehaviourFactory
+    public class ExpressionFactory : BehaviourFactory
     {
-        SpawnKerbal spawnKerbal;
+        Expression expression;
 
         public override bool Load(ConfigNode configNode)
         {
@@ -21,14 +20,14 @@ namespace ContractConfigurator.Behaviour
             bool valid = base.Load(configNode);
 
             // Call SpawnKerbal for load behaviour
-            spawnKerbal = SpawnKerbal.Create(configNode, targetBody);
+            expression = Expression.Parse(configNode);
 
-            return valid && spawnKerbal != null;
+            return valid && expression != null;
         }
 
         public override ContractBehaviour Generate(ConfiguredContract contract)
         {
-            return new SpawnKerbal(spawnKerbal);
+            return new Expression(expression);
         }
     }
 }

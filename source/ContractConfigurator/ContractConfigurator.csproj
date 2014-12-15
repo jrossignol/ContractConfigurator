@@ -45,7 +45,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BehaviourFactory\ExpressionFactory.cs" />
     <Compile Include="BehaviourFactory\SpawnKerbalFactory.cs" />
+    <Compile Include="ContractBehaviour\Expression.cs" />
     <Compile Include="ExpressionParser.cs" />
     <Compile Include="ContractBehaviour\SpawnKerbal.cs" />
     <Compile Include="PersistentDataStore.cs" />

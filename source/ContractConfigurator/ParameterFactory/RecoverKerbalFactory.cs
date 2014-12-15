@@ -6,6 +6,7 @@ using UnityEngine;
 using KSP;
 using Contracts;
 using Contracts.Parameters;
+using ContractConfigurator.Behaviour;
 
 namespace ContractConfigurator
 {

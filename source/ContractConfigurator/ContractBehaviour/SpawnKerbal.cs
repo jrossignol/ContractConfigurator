@@ -7,7 +7,7 @@ using KSP;
 using Contracts;
 using ContractConfigurator;
 
-namespace ContractConfigurator
+namespace ContractConfigurator.Behaviour
 {
     /*
      * Class for spawning a Kerbal.
@@ -42,7 +42,7 @@ namespace ContractConfigurator
         }
         private List<KerbalData> kerbals = new List<KerbalData>();
 
-        private SpawnKerbal() {}
+        public SpawnKerbal() {}
 
         /*
          * Copy constructor.
@@ -183,13 +183,6 @@ namespace ContractConfigurator
         {
             RemoveKerbals();
         }
-
-        protected override void OnLoad(ConfigNode configNode)
-        {
-            configNode.GetValue("kerbal");
-        }
-
-        protected override void OnSave(ConfigNode configNode) { }
 
         private void RemoveKerbals()
         {
