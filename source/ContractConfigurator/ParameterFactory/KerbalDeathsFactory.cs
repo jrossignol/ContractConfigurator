@@ -35,7 +35,7 @@ namespace ContractConfigurator
             }
             else
             {
-                countMax = 0;
+                countMax = 1;
             }
 
             return valid;
