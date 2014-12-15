@@ -52,6 +52,10 @@ namespace ContractConfigurator
          */
         public T Retrieve<T>(string key) where T : struct
         {
+            if (!data.ContainsKey(key))
+            {
+                return new T();
+            }
             return (T)data[key];
         }
 
