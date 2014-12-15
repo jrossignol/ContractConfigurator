@@ -72,13 +72,16 @@ namespace ContractConfigurator
         private static string expression;
         private static bool parseMode = true;
 
-        public static double ExecuteExpression(string key, string expression)
+        public static void ExecuteExpression(string key, string expression)
+        {
+            PersistentDataStore.Instance.Store<double>(key, ExecuteExpression(expression));
+        }
+
+        public static double ExecuteExpression(string expression)
         {
             parseMode = false;
             double val = ParseExpression(expression);
             parseMode = true;
-
-            PersistentDataStore.Instance.Store<double>(key, val);
 
             return val;
         }

@@ -4,9 +4,10 @@ ContractConfigurator (UNRELEASED)
 - Support for disabling other contract types
 - Support for contract level notes.
 - Support for using TextGen generated descriptions.
+- Added Timer parameter.
+- Added Expression requirement.
 - Added SpawnKerbal behaviour.
 - Added Expression behaviour.
-- Added Timer parameter.
 - Added cooldownDuration to CompleteContract requirement.
 - Added weight to CONTRACT_TYPE to support genering some contract types with higher/lower probability.
 - Increase the odds of a ContractConfigurator contract being generated (versus a stock or traditionally defined contract) based on the number of configured contracts.
