@@ -1,4 +1,4 @@
-ContractConfigurator (UNRELEASED)
+Contract Configurator 0.3.0
 - Support for ContractBehaviour - extensible behaviours at the contract level.
 - Support for a persistant data store.
 - Support for disabling other contract types
@@ -14,7 +14,7 @@ ContractConfigurator (UNRELEASED)
 - VesselParameterGroup now works with deeply nested children (previously would only work with direct children).
 - Various minor bug-fixes.
 
-ContractConfigurator 0.2.0
+Contract Configurator 0.2.0
 - Added VesselParameterGroup parameter (supports grouping Vessel parameters, tracking duration, tracking non-active vessels, works across docking/undocking/decoupling).
 - Created new versions of all the stock parameters dealing with Vessels to add support for tracking non-active vessels.
 - Added HasCrew parameter.
@@ -27,5 +27,5 @@ ContractConfigurator 0.2.0
 - Added Sequence and SequenceNode parameters.
 - Various minor bug-fixes
 
-ContractConfigurator 0.1.0
+Contract Configurator 0.1.0
 - Initial release.
