@@ -115,8 +115,6 @@ namespace ContractConfigurator.Parameters
          */
         public void UpdateState(Vessel vessel)
         {
-            Debug.Log("UpdateState, vessel = " + vessel.id + ", trackedVesselGuid = " + trackedVesselGuid + ", state = " + state);
-
             // Ignore updates to non-tracked vessels if that vessel is already winning
             if (vessel != trackedVessel && waiting)
             {
@@ -134,8 +132,6 @@ namespace ContractConfigurator.Parameters
             // Check if this is a completion
             if (AllChildParametersComplete())
             {
-                Debug.Log("    winning!");
-
                 trackedVessel = vessel;
                 trackedVesselGuid = trackedVessel.id;
             }

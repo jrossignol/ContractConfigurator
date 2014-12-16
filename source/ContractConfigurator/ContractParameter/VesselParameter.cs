@@ -110,7 +110,7 @@ namespace ContractConfigurator.Parameters
                 Guid id = new Guid(child.GetValue("vessel"));
                 Vessel vessel = FlightGlobals.Vessels.Find(v => v.id == id);
 
-                if (vessel != null || HighLogic.LoadedScene == GameScenes.EDITOR || HighLogic.LoadedScene == GameScenes.SPH)
+                if (vessel != null || HighLogic.LoadedScene == GameScenes.EDITOR)
                 {
                     VesselInfo info = new VesselInfo(id, vessel);
                     info.state = (ParameterState)Enum.Parse(typeof(ParameterState), child.GetValue("state"));
@@ -262,8 +262,6 @@ namespace ContractConfigurator.Parameters
 
         protected virtual void OnVesselCreate(Vessel vessel)
         {
-            Debug.Log("VesselParameter: OnVesselCreate: " + vessel.id);
-
             if (IsIgnoredVesselType(vessel.vesselType))
             {
                 return;
@@ -300,18 +298,15 @@ namespace ContractConfigurator.Parameters
 
         protected virtual void OnVesselChange(Vessel vessel)
         {
-            Debug.Log("VesselParameter: OnVesselChange: " + vessel.id);
-
             CheckVessel(vessel);
         }
 
         protected virtual void OnPartJointBreak(PartJoint p)
         {
-            if (HighLogic.LoadedScene == GameScenes.EDITOR || HighLogic.LoadedScene == GameScenes.SPH)
+            if (HighLogic.LoadedScene == GameScenes.EDITOR)
             {
                 return;
             }
-            Debug.Log("VesselParameter: OnPartJointBreak: " + p.Child.vessel.id);
 
             // Check if we need to make modifications based on undocking
             if (vesselInfo.ContainsKey(p.Parent.vessel.id) && vesselInfo[p.Parent.vessel.id].state == ParameterState.Complete)
@@ -357,12 +352,10 @@ namespace ContractConfigurator.Parameters
 
         protected virtual void OnPartAttach(GameEvents.HostTargetAction<Part, Part> e)
         {
-            if (HighLogic.LoadedScene == GameScenes.EDITOR || HighLogic.LoadedScene == GameScenes.SPH)
+            if (HighLogic.LoadedScene == GameScenes.EDITOR)
             {
                 return;
             }
-
-            Debug.Log("VesselParameter: OnPartAttach: " + e.host.vessel.id);
 
             // Get the vesselInfo structs
             VesselInfo v1 = vesselInfo.ContainsKey(e.host.vessel.id) ? vesselInfo[e.host.vessel.id] : null;
