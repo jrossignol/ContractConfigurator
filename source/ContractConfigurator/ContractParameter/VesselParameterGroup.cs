@@ -239,8 +239,11 @@ namespace ContractConfigurator.Parameters
             {
                 if (AllChildParametersComplete())
                 {
-                    waiting = true;
-                    completionTime = Planetarium.GetUniversalTime() + duration;
+                    if (!waiting)
+                    {
+                        waiting = true;
+                        completionTime = Planetarium.GetUniversalTime() + duration;
+                    }
                 }
                 else
                 {
