@@ -1,5 +1,5 @@
 Contract Configurator 0.4.0
-- Added HasKerbal requirement.  Allows filtering on trait, experience level and count.
+- Added HasCrew requirement.  Allows filtering on trait, experience level and count.
 
 Contract Configurator 0.3.3
 - Persistant data store can now store config nodes.
