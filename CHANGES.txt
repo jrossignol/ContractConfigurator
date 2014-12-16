@@ -1,5 +1,6 @@
-Contract Configurator 0.4.0
+Contract Configurator 0.3.3
 - Persistant data store can now store config nodes.
+- Fixed an issue with maxCompletions not working correctly (thanks @tattagreis).
 
 Contract Configurator 0.3.2
 - (0.90) Support for KSP 0.90

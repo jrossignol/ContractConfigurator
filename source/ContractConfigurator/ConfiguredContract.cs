@@ -18,12 +18,17 @@ namespace ContractConfigurator
         public IEnumerable<ContractBehaviour> Behaviours { get { return behaviours.AsReadOnly(); } }
 
         protected override bool Generate()
-        {            
+        {
+            // MeetsRequirement gets called first and sets the contract type, but check it and
+            // select the contract type just in case.
             if (contractType == null)
             {
-                return false;
+                if (!SelectContractType())
+                {
+                    return false;
+                }
             }
-            Debug.Log("Generate: " + contractType.ToString());
+            Debug.Log("ContractConfigurator: Generate contract type: " + contractType.ToString());
 
             // Set the agent
             if (contractType.agent != null)
@@ -151,53 +156,56 @@ namespace ContractConfigurator
             // No ContractType chosen
             if (contractType == null)
             {
-                // Build a weighted list of ContractTypes to choose from
-                Dictionary<ContractType, double> validContractTypes = new Dictionary<ContractType, double>();
-                double totalWeight = 0.0;
-                foreach (ContractType ct in ContractType.contractTypes.Values)
-                {
-                    // Only add contract types that have their requirements met
-                    if (ct.MeetRequirements(this))
-                    {
-                        validContractTypes.Add(ct, ct.weight);
-                        totalWeight += ct.weight;
-                    }
-                }
-
-                // No contract to generate!
-                if (validContractTypes.Count == 0)
-                {
-                    // Debug message is to much spam
-                    //Debug.LogWarning("ContractConfigurator: No currently valid contract types to generate.");
-                    return false;
-                }
-
-                // Pick one of the contract types based on their weight
-                System.Random generator = new System.Random(this.MissionSeed);
-                double value = generator.NextDouble() * totalWeight;
-                foreach (KeyValuePair<ContractType, double> pair in validContractTypes)
-                {
-                    value -= pair.Value;
-                    if (value <= 0.0)
-                    {
-                        contractType = pair.Key;
-                        break;
-                    }
-                }
-
-                // Shouldn't happen, but floating point rounding could put us here
-                if (contractType == null)
-                {
-                    contractType = validContractTypes.First().Key;
-                }
-
-                return true;
+                return SelectContractType();
             }
             else 
             {
                 // ContractType already chosen, check if still meets requirements.
                 return contractType.MeetRequirements(this);
             }
+        }
+
+        private bool SelectContractType()
+        {
+            // Build a weighted list of ContractTypes to choose from
+            Dictionary<ContractType, double> validContractTypes = new Dictionary<ContractType, double>();
+            double totalWeight = 0.0;
+            foreach (ContractType ct in ContractType.contractTypes.Values)
+            {
+                // Only add contract types that have their requirements met
+                if (ct.MeetRequirements(this))
+                {
+                    validContractTypes.Add(ct, ct.weight);
+                    totalWeight += ct.weight;
+                }
+            }
+
+            // No contract to generate!
+            if (validContractTypes.Count == 0)
+            {
+                return false;
+            }
+
+            // Pick one of the contract types based on their weight
+            System.Random generator = new System.Random(this.MissionSeed);
+            double value = generator.NextDouble() * totalWeight;
+            foreach (KeyValuePair<ContractType, double> pair in validContractTypes)
+            {
+                value -= pair.Value;
+                if (value <= 0.0)
+                {
+                    contractType = pair.Key;
+                    break;
+                }
+            }
+
+            // Shouldn't happen, but floating point rounding could put us here
+            if (contractType == null)
+            {
+                contractType = validContractTypes.First().Key;
+            }
+
+            return true;
         }
 
         //
