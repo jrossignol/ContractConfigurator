@@ -1,5 +1,6 @@
 Contract Configurator 0.4.0
 - Added HasCrew requirement.  Allows filtering on trait, experience level and count.
+- Updated HasCrew parameter to support trait and experience level filtering.
 
 Contract Configurator 0.3.3
 - Persistant data store can now store config nodes.

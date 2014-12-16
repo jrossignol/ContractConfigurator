@@ -15,21 +15,29 @@ namespace ContractConfigurator.Parameters
     public class HasCrew : VesselParameter
     {
         protected string title { get; set; }
+        protected string trait { get; set; }
         protected int minCrew { get; set; }
         protected int maxCrew { get; set; }
+        protected int minExperience { get; set; }
+        protected int maxExperience { get; set; }
 
         public HasCrew()
-            : this(null)
+            : this(null, null)
         {
         }
 
-        public HasCrew(string title, int minCrew = 1, int maxCrew = int.MaxValue)
+        public HasCrew(string title, string trait, int minCrew = 1, int maxCrew = int.MaxValue, int minExperience = 0, int maxExperience = 5)
             : base()
         {
             this.minCrew = minCrew;
             this.maxCrew = maxCrew;
+            this.minExperience = minExperience;
+            this.maxExperience = maxExperience;
+            this.trait = trait;
             if (title == null)
             {
+                string traitString = String.IsNullOrEmpty(trait) ? "Kerbal" : trait;
+
                 this.title = "Crew: ";
                 if (maxCrew == 0)
                 {
@@ -37,19 +45,35 @@ namespace ContractConfigurator.Parameters
                 }
                 else if (maxCrew == int.MaxValue)
                 {
-                    this.title += "At least " + minCrew + " Kerbal" + (minCrew != 1 ? "s" : "");
+                    this.title += "At least " + minCrew + " " + traitString + (minCrew != 1 ? "s" : "");
                 }
                 else if (minCrew == 0)
                 {
-                    this.title += "At most " + maxCrew + " Kerbal" + (maxCrew != 1 ? "s" : "");
+                    this.title += "At most " + maxCrew + " " + traitString + (maxCrew != 1 ? "s" : "");
                 }
                 else if (minCrew == maxCrew)
                 {
-                    this.title += "Exactly " + minCrew + " Kerbal" + (minCrew != 1 ? "s" : "");
+                    this.title += minCrew + " " + traitString + (minCrew != 1 ? "s" : "");
                 }
                 else
                 {
-                    this.title += "Between " + minCrew + " and " + maxCrew + " Kerbals";
+                    this.title += "Between " + minCrew + " and " + maxCrew + " " + traitString + "s";
+                }
+
+                if (minExperience != 0 && maxExperience != 5)
+                {
+                    if (minExperience == 0)
+                    {
+                        this.title += " with experience level of at most " + maxExperience;
+                    }
+                    else if (maxExperience == 5)
+                    {
+                        this.title += " with experience level of at least " + minExperience;
+                    }
+                    else
+                    {
+                        this.title += " with experience level between " + minExperience + " and " + maxExperience;
+                    }
                 }
             }
             else
@@ -67,14 +91,20 @@ namespace ContractConfigurator.Parameters
         {
             base.OnSave(node);
             node.AddValue("title", title);
+            node.AddValue("trait", trait);
             node.AddValue("minCrew", minCrew);
             node.AddValue("maxCrew", maxCrew);
+            node.AddValue("minExperience", minExperience);
+            node.AddValue("maxExperience", maxExperience);
         }
 
         protected override void OnLoad(ConfigNode node)
         {
             base.OnLoad(node);
             title = node.GetValue("title");
+            trait = node.GetValue("trait");
+            minExperience = Convert.ToInt32(node.GetValue("minExperience"));
+            maxExperience = Convert.ToInt32(node.GetValue("maxExperience"));
             minCrew = Convert.ToInt32(node.GetValue("minCrew"));
             maxCrew = Convert.ToInt32(node.GetValue("maxCrew"));
         }
@@ -116,7 +146,19 @@ namespace ContractConfigurator.Parameters
          */
         protected override bool VesselMeetsCondition(Vessel vessel)
         {
-            int count = vessel.GetCrewCount();
+            IEnumerable<ProtoCrewMember> crew = vessel.GetVesselCrew();
+
+            // Filter by trait
+            if (trait != null)
+            {
+                crew = crew.Where<ProtoCrewMember>(cm => cm.experienceTrait.TypeName == trait);
+            }
+
+            // Filter by experience
+            crew = crew.Where<ProtoCrewMember>(cm => cm.experienceLevel >= minExperience && cm.experienceLevel <= maxExperience);
+
+            // Check counts
+            int count = crew.Count();
             return count >= minCrew && count <= maxCrew;
         }
     }
