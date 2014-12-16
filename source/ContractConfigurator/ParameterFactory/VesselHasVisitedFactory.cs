@@ -15,7 +15,7 @@ namespace ContractConfigurator
      */
     public class VesselHasVisitedFactory : ParameterFactory
     {
-        protected KSPAchievements.ReturnFrom situation { get; set; }
+        protected FlightLog.EntryType situation { get; set; }
 
         public override bool Load(ConfigNode configNode)
         {
@@ -40,7 +40,7 @@ namespace ContractConfigurator
             try
             {
                 string situationStr = configNode.GetValue("situation");
-                situation = (KSPAchievements.ReturnFrom)Enum.Parse(typeof(KSPAchievements.ReturnFrom), situationStr);
+                situation = (FlightLog.EntryType)Enum.Parse(typeof(FlightLog.EntryType), situationStr);
             }
             catch (Exception e)
             {

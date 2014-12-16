@@ -17,35 +17,59 @@ namespace ContractConfigurator.Parameters
     {
         protected string title { get; set; }
         public CelestialBody destination { get; set; }
-        public KSPAchievements.ReturnFrom returnFrom { get; set; }
+        public FlightLog.EntryType entryType { get; set; }
 
         public VesselHasVisited()
-            : this(null, KSPAchievements.ReturnFrom.Flight, null)
+            : this(null, FlightLog.EntryType.Flight, null)
         {
         }
 
-        public VesselHasVisited(CelestialBody destination, KSPAchievements.ReturnFrom returnFrom, string title)
+        public VesselHasVisited(CelestialBody destination, FlightLog.EntryType entryType, string title)
             : base()
         {
             if (title == null)
             {
                 this.title = "Perform ";
-                switch (returnFrom)
+                switch (entryType)
                 {
-                    case KSPAchievements.ReturnFrom.Flight:
+                    case FlightLog.EntryType.BoardVessel:
+                        this.title = "Board a vessel on ";
+                        break;
+                    case FlightLog.EntryType.Die:
+                        this.title = "Die on ";
+                        break;
+                    case FlightLog.EntryType.Escape:
+                        this.title += "an escape from";
+                        break;
+                    case FlightLog.EntryType.ExitVessel:
+                        this.title = "Exit a vessel on ";
+                        break;
+                    case FlightLog.EntryType.Flight:
                         this.title += "a flight on ";
                         break;
-                    case KSPAchievements.ReturnFrom.FlyBy:
+                    case FlightLog.EntryType.Flyby:
                         this.title += "a flyby of ";
                         break;
-                    case KSPAchievements.ReturnFrom.Orbit:
+                    case FlightLog.EntryType.Land:
+                        this.title += "a landing on ";
+                        break;
+                    case FlightLog.EntryType.Launch:
+                        this.title += "a launch from ";
+                        break;
+                    case FlightLog.EntryType.Orbit:
                         this.title += "an orbit of ";
                         break;
-                    case KSPAchievements.ReturnFrom.SubOrbit:
-                        this.title += "a sub-orbital trajectory of ";
+                    case FlightLog.EntryType.PlantFlag:
+                        this.title = "Plant a flag on ";
                         break;
-                    case KSPAchievements.ReturnFrom.Surface:
-                        this.title += "a landing on ";
+                    case FlightLog.EntryType.Recover:
+                        this.title += " a recovery on ";
+                        break;
+                    case FlightLog.EntryType.Spawn:
+                        this.title = "Spawn on ";
+                        break;
+                    case FlightLog.EntryType.Suborbit:
+                        this.title += "a sub-orbital trajectory of ";
                         break;
                 }
                 if (destination != null)
@@ -62,7 +86,7 @@ namespace ContractConfigurator.Parameters
                 this.title = title;
             }
             this.destination = destination;
-            this.returnFrom = returnFrom;
+            this.entryType = entryType;
         }
 
         protected override string GetTitle()
@@ -75,7 +99,7 @@ namespace ContractConfigurator.Parameters
             base.OnSave(node);
             node.AddValue("title", title);
             node.AddValue("destination", destination.name);
-            node.AddValue("returnFrom", returnFrom);
+            node.AddValue("entryType", entryType);
         }
 
         protected override void OnLoad(ConfigNode node)
@@ -83,7 +107,7 @@ namespace ContractConfigurator.Parameters
             base.OnLoad(node);
             title = node.GetValue("title");
             destination = ConfigNodeUtil.ParseCelestialBody(node, "destination");
-            returnFrom = (KSPAchievements.ReturnFrom)Enum.Parse(typeof(KSPAchievements.ReturnFrom), node.GetValue("returnFrom"));
+            entryType = (FlightLog.EntryType)Enum.Parse(typeof(FlightLog.EntryType), node.GetValue("entryType"));
         }
 
         protected override void OnRegister()
@@ -108,22 +132,7 @@ namespace ContractConfigurator.Parameters
          */
         protected override bool VesselMeetsCondition(Vessel vessel)
         {
-            VesselTripLog log = VesselTripLog.FromVessel(vessel);
-            switch (returnFrom)
-            {
-                case KSPAchievements.ReturnFrom.Flight:
-                    return log.Flew.At(destination);
-                case KSPAchievements.ReturnFrom.FlyBy:
-                    return log.FlewBy.At(destination);
-                case KSPAchievements.ReturnFrom.Orbit:
-                    return log.Orbited.At(destination);
-                case KSPAchievements.ReturnFrom.SubOrbit:
-                    return log.SubOrbited.At(destination);
-                case KSPAchievements.ReturnFrom.Surface:
-                    return log.Surfaced.At(destination);
-            }
-
-            return false;
+            return VesselTripLog.FromVessel(vessel).Log.HasEntry(entryType, destination.name);
         }
     }
 }

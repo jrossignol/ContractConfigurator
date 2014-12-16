@@ -1,3 +1,7 @@
+Contract Configurator 0.3.1
+- (0.90) Support for KSP 0.90
+- (0.90) Fixed VesselHasVisited (note the valid values for situation changed)>
+
 Contract Configurator 0.3.0
 - Support for ContractBehaviour - extensible behaviours at the contract level.
 - Support for a persistent data store.
