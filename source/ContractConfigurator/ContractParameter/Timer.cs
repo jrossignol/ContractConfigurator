@@ -122,10 +122,6 @@ namespace ContractConfigurator.Parameters
                         SpriteTextRich richText = listObject.GetComponentInChildren<SpriteTextRich>();
                         if (richText != null)
                         {
-                            Debug.Log("    text: " + richText.Text);
-                        }
-                        if (richText != null)
-                        {
                             // Check for any string in titleTracker
                             string found = null;
                             foreach (string title in titleTracker)

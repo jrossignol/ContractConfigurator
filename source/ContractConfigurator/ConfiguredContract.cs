@@ -35,7 +35,7 @@ namespace ContractConfigurator
             // No contract to generate!
             if (validContractTypes.Count == 0)
             {
-                Debug.Log("ContractConfigurator: No currently valid contract types to generate.");
+                Debug.LogWarning("ContractConfigurator: No currently valid contract types to generate.");
                 return false;
             }
 
