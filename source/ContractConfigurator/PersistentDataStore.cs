@@ -15,6 +15,7 @@ namespace ContractConfigurator
     {
         static public PersistentDataStore Instance { get; private set; }
         private Dictionary<string, System.Object> data = new Dictionary<string, System.Object>();
+        private Dictionary<string, ConfigNode> configNodes = new Dictionary<string, ConfigNode>();
 
         public PersistentDataStore()
         {
@@ -47,6 +48,15 @@ namespace ContractConfigurator
             data[key] = value;
         }
 
+        
+        /*
+         * Call this to store an entire config node into the persistant data store.
+         */
+        public void Store(ConfigNode node)
+        {
+            configNodes[node.name] = node;
+        }
+
         /*
          * Call this to retrieve a previously stored value from the persistant data store.
          */
@@ -59,14 +69,27 @@ namespace ContractConfigurator
             return (T)data[key];
         }
 
+        /*
+         * Call this to retrieve a previously stored config node from the persistant data store.
+         */
+        public ConfigNode Retrieve(string key)
+        {
+            if (!configNodes.ContainsKey(key))
+            {
+                return new ConfigNode();
+            }
+            return configNodes[key];
+        }
+
         public override void OnLoad(ConfigNode node)
         {
  	        base.OnLoad(node);
 
-            ConfigNode child = node.GetNode("DATA");
-            if (child != null)
+            ConfigNode dataNode = node.GetNode("DATA");
+            if (dataNode != null)
             {
-                foreach (ConfigNode.Value pair in child.values)
+                // Handle individual values
+                foreach (ConfigNode.Value pair in dataNode.values)
                 {
                     string typeName = pair.value.Remove(pair.value.IndexOf(":"));
                     string value = pair.value.Substring(typeName.Length + 1, pair.value.Length - typeName.Length - 1);
@@ -80,6 +103,12 @@ namespace ContractConfigurator
                         data[pair.name] = type.InvokeMember("Parse", System.Reflection.BindingFlags.InvokeMethod, null, null, new string[] { value });
                     }
                 }
+
+                // Handle config nodes
+                foreach (ConfigNode childNode in dataNode.GetNodes())
+                {
+                    configNodes[childNode.name] = childNode;
+                }
             }
         }
 
@@ -87,12 +116,19 @@ namespace ContractConfigurator
         {
  	        base.OnSave(node);
 
-            ConfigNode child = new ConfigNode("DATA");
-            node.AddNode(child);
+            ConfigNode dataNode = new ConfigNode("DATA");
+            node.AddNode(dataNode);
 
+            // Handle individual values
             foreach (KeyValuePair<string, System.Object> p in data)
             {
-                child.AddValue(p.Key, p.Value.GetType() + ":" + p.Value);
+                dataNode.AddValue(p.Key, p.Value.GetType() + ":" + p.Value);
+            }
+
+            // Handle config nodes
+            foreach (ConfigNode childNode in configNodes.Values)
+            {
+                dataNode.AddNode(childNode);
             }
         }
     }
