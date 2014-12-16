@@ -48,10 +48,12 @@
     <Compile Include="BehaviourFactory\ExpressionFactory.cs" />
     <Compile Include="BehaviourFactory\SpawnKerbalFactory.cs" />
     <Compile Include="ContractBehaviour\Expression.cs" />
+    <Compile Include="ContractParameter\VesselMass.cs" />
     <Compile Include="ContractRequirement\ExpressionRequirement.cs" />
     <Compile Include="ContractRequirement\HasCrewRequirement.cs" />
     <Compile Include="ExpressionParser.cs" />
     <Compile Include="ContractBehaviour\SpawnKerbal.cs" />
+    <Compile Include="ParameterFactory\VesselMassFactory.cs" />
     <Compile Include="PersistentDataStore.cs" />
     <Compile Include="ContractParameter\Timer.cs" />
     <Compile Include="ContractParameter\SequenceNode.cs" />
