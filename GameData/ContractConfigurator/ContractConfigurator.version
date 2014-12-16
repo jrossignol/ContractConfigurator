@@ -1,8 +1,8 @@
 {
-     "NAME":"ContractConfigurator",
+     "NAME":"Contract Configurator",
 	 "URL":"https://raw.githubusercontent.com/jrossignol/ContractConfigurator/master/GameData/ContractConfigurator/ContractConfigurator.version",
 	 "DOWNLOAD":"https://github.com/jrossignol/ContractConfigurator/releases",
-     "CHANGE_LOG_URL":"https://raw.githubusercontent.com/jrossignol/ContractConfigurator/0.3.0/CHANGES.txt",
+     "CHANGE_LOG_URL":"https://raw.githubusercontent.com/jrossignol/ContractConfigurator/0.3.1/CHANGES.txt",
      "GITHUB":{
          "USERNAME":"jrossignol",
          "REPOSITORY":"ContractConfigurator",
