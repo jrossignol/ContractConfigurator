@@ -50,6 +50,7 @@
     <Compile Include="ContractBehaviour\Expression.cs" />
     <Compile Include="ContractParameter\VesselMass.cs" />
     <Compile Include="ContractRequirement\ExpressionRequirement.cs" />
+    <Compile Include="ContractRequirement\FacilityRequirement.cs" />
     <Compile Include="ContractRequirement\HasCrewRequirement.cs" />
     <Compile Include="ExpressionParser.cs" />
     <Compile Include="ContractBehaviour\SpawnKerbal.cs" />
