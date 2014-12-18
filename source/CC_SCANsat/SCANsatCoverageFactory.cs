@@ -6,10 +6,11 @@ using System.Linq;
 using System.Text;
 using ContractConfigurator;
 using UnityEngine;
+using SCANsat;
 
-namespace ContractConfigurator
+namespace ContractConfigurator.SCANsat
 {
-    public class ScanSatCoverageFactory : ParameterFactory
+    public class SCANsatCoverageFactory : ParameterFactory
     {
         protected int scanType { get; set; }
         protected string scanTypeName { get; set; }
@@ -36,7 +37,7 @@ namespace ContractConfigurator
                 {
                     valid = false;
                     Debug.LogError("ContractConfigurator: " + ErrorPrefix(configNode) +
-                    ": can't parse value 'coverage'.");                    
+                    ": can't parse value 'coverage': " + e.Message);                    
                 }
             }
 
@@ -51,14 +52,14 @@ namespace ContractConfigurator
                 try
                 {
                     scanTypeName = configNode.GetValue("scanType");
-                    SCANsat.SCANdata.SCANtype scanTypeEnum = (SCANsat.SCANdata.SCANtype)Enum.Parse(typeof(SCANsat.SCANdata.SCANtype), scanTypeName);
+                    SCANdata.SCANtype scanTypeEnum = (SCANdata.SCANtype)Enum.Parse(typeof(SCANdata.SCANtype), scanTypeName);
                     scanType = (int)scanTypeEnum;
                 }
                 catch (Exception e)
                 {
                     valid = false;
                     Debug.LogError("ContractConfigurator: " + ErrorPrefix(configNode) +
-                    ": can't parse value 'scanType', wrong name?");
+                    ": can't parse value 'scanType':" + e.Message);
                 }
             }
 
@@ -75,8 +76,8 @@ namespace ContractConfigurator
 
         public override ContractParameter Generate(Contract contract)
         {
-            Debug.Log("ScanSatCoverageFactory in Generate " + coverage + ":" + scanTypeName + ":" + targetBody + ":" + title);
-            return new ScanSatCoverage(coverage, scanType, scanTypeName, targetBody, title);
+            Debug.Log("SCANsatCoverageFactory in Generate " + coverage + ":" + scanTypeName + ":" + targetBody + ":" + title);
+            return new SCANsatCoverage(coverage, scanType, scanTypeName, targetBody, title);
         }
     }
 }

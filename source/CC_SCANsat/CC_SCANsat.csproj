@@ -7,10 +7,11 @@
     <ProjectGuid>{CED05332-B7F3-418A-B86B-43E02F72850B}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ScanSatContracts</RootNamespace>
-    <AssemblyName>ScanSatContracts</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <RootNamespace>ContractConfigurator.SCANsat</RootNamespace>
+    <AssemblyName>CC_SCANsat</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -31,28 +32,27 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Assembly-CSharp">
-      <HintPath>..\..\..\..\Spiele\Steam\steamapps\common\Kerbal Space Program\KSP_Data\Managed\Assembly-CSharp.dll</HintPath>
+      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Kerbal Space Program\KSP_Data\Managed\Assembly-CSharp.dll</HintPath>
     </Reference>
     <Reference Include="ContractConfigurator">
-      <HintPath>..\..\..\..\Spiele\Steam\steamapps\common\Kerbal Space Program\GameData\ContractConfigurator\ContractConfigurator.dll</HintPath>
+      <HintPath>..\ContractConfigurator\bin\Release\ContractConfigurator.dll</HintPath>
     </Reference>
     <Reference Include="SCANsat">
-      <HintPath>..\..\..\..\Spiele\Steam\steamapps\common\Kerbal Space Program\GameData\SCANsat\Plugins\SCANsat.dll</HintPath>
+      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Kerbal Space Program\GameData\SCANsat\Plugins\SCANsat.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
     <Reference Include="UnityEngine">
-      <HintPath>..\..\..\..\Spiele\Steam\steamapps\common\Kerbal Space Program\KSP_Data\Managed\UnityEngine.dll</HintPath>
+      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Kerbal Space Program\KSP_Data\Managed\UnityEngine.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ScanSatCoverageFactory.cs" />
-    <Compile Include="ScanSatCoverage.cs" />
+    <Compile Include="SCANsatCoverageFactory.cs" />
+    <Compile Include="SCANsatCoverage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

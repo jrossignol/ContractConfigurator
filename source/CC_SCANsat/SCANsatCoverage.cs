@@ -8,29 +8,27 @@ using ContractConfigurator;
 using System;
 using UnityEngine;
 
-namespace ContractConfigurator
+namespace ContractConfigurator.SCANsat
 {
-    public class ScanSatCoverage : Contracts.ContractParameter
+    public class SCANsatCoverage : Contracts.ContractParameter
     {
-
         protected string title { get; set; }
         public double coverage { get; set; }
         public CelestialBody targetBody { get; set;}
         public int scanType { get; set; }
 
         private float lastUpdate = 0.0f;
-        private const float UPDATE_FREQUENCY = 0.1f;
+        private const float UPDATE_FREQUENCY = 0.25f;
 
-        public ScanSatCoverage()
+        public SCANsatCoverage()
             : this(95.0f, 0, null, null, null)
         {
         }
 
-        public ScanSatCoverage(double coverage, int scanType, string scanTypeName, CelestialBody targetBody, string title)
+        public SCANsatCoverage(double coverage, int scanType, string scanTypeName, CelestialBody targetBody, string title)
             : base()
         {
-
-            Debug.Log("ScanSatCoverage in Constructor");
+            Debug.Log("SCANsatCoverage in Constructor");
 
             this.title = title;
             if (title == null) {
