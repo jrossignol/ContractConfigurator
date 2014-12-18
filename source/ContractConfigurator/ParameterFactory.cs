@@ -163,11 +163,22 @@ namespace ContractConfigurator
         /*
          * Adds a new ParameterFactory to handle PARAMETER nodes with the given type.
          */
-        public static void Register(Type factory, string type)
+        public static void Register(Type factoryType, string typeName)
         {
-            Debug.Log("ContractConfigurator: Registered parameter factory class " +
-                factory.FullName + " for handling PARAMETER nodes with type = " + type + ".");
-            factories.Add(type, factory);
+            Debug.Log("ContractConfigurator: Registering parameter factory class " +
+                factoryType.FullName + " for handling PARAMETER nodes with type = " + typeName + ".");
+
+            if (factories.ContainsKey(typeName))
+            {
+                Debug.LogError("Cannot register " + factoryType.FullName + "[" + factoryType.Module +
+                    "] to handle type " + typeName + ": already handled by " +
+                    factories[typeName].FullName + "[" +
+                    factories[typeName].Module + "]");
+            }
+            else
+            {
+                factories.Add(typeName, factoryType);
+            }
         }
 
         /*

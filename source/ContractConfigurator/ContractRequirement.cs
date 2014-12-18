@@ -79,9 +79,20 @@ namespace ContractConfigurator
          */
         public static void Register(Type crType, string typeName)
         {
-            Debug.Log("ContractConfigurator: Registered ContractRequirement class " +
+            Debug.Log("ContractConfigurator: Registering ContractRequirement class " +
                 crType.FullName + " for handling REQUIREMENT nodes with type = " + typeName + ".");
-            requirementTypes.Add(typeName, crType);
+
+            if (requirementTypes.ContainsKey(typeName))
+            {
+                Debug.LogError("Cannot register " + crType.FullName + "[" + crType.Module +
+                    "] to handle type " + typeName + ": already handled by " +
+                    requirementTypes[typeName].FullName + "[" +
+                    requirementTypes[typeName].Module + "]");
+            }
+            else
+            {
+                requirementTypes.Add(typeName, crType);
+            }
         }
 
         /*
