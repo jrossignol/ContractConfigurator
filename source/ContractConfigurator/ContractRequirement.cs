@@ -19,6 +19,7 @@ namespace ContractConfigurator
         protected virtual ContractType contractType { get; set; }
         protected virtual CelestialBody targetBody { get; set; }
         protected virtual bool invertRequirement { get; set; }
+        protected virtual bool checkOnActiveContract { get; set; }
 
         /*
          * Loads the ContractRequirement from the given ConfigNode.  The base version loads the following:
@@ -28,6 +29,9 @@ namespace ContractConfigurator
         public virtual bool Load(ConfigNode configNode)
         {
             bool valid = true;
+
+            // Check the requirement for active contracts
+            checkOnActiveContract = true;
 
             // Load invertRequirement flag
             invertRequirement = false;
@@ -68,7 +72,7 @@ namespace ContractConfigurator
             bool allReqMet = true;
             foreach (ContractRequirement requirement in contractRequirements)
             {
-                bool nodeMet = requirement.RequirementMet(contract);
+                bool nodeMet = (!requirement.checkOnActiveContract && contract.ContractState == Contract.State.Active) || requirement.RequirementMet(contract);
                 allReqMet = allReqMet && (requirement.invertRequirement ? !nodeMet : nodeMet);
             }
             return allReqMet;
