@@ -2,7 +2,8 @@ Contract Configurator 0.4.0
 - Added HasCrew requirement.  Allows filtering on trait, experience level and count.
 - Updated HasCrew parameter to support trait and experience level filtering.
 - Added VesselMass parameter.
-- Added FacilityRequirement - requires that a player has a facility upgraded to a specified level.
+- Added Facility requirement - requires that a player has a facility upgraded to a specified level.
+- Added SCANsatCoverage parameter and requirement (big thanks @tattagreis on the SCANsat integration).
 
 Contract Configurator 0.3.3
 - Persistant data store can now store config nodes.
