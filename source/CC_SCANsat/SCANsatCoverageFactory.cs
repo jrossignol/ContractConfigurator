@@ -68,7 +68,7 @@ namespace ContractConfigurator.SCANsat
             {
                 valid = false;
                 Debug.LogError("ContractConfigurator: " + ErrorPrefix(configNode) +
-                    ": targetBody for CollectScience must be specified.");
+                    ": targetBody for SCANsatCoverage must be specified.");
             }
 
             return valid;

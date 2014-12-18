@@ -20,19 +20,27 @@ namespace ContractConfigurator.SCANsat
         private float lastUpdate = 0.0f;
         private const float UPDATE_FREQUENCY = 0.25f;
 
+        private Dictionary<string, string> nameRemap = new Dictionary<string, string>();
+
         public SCANsatCoverage()
-            : this(95.0f, 0, null, null, null)
+            : this(95.0f, 0, null, null, "")
         {
         }
 
         public SCANsatCoverage(double coverage, int scanType, string scanTypeName, CelestialBody targetBody, string title)
             : base()
         {
-            Debug.Log("SCANsatCoverage in Constructor");
-
             this.title = title;
             if (title == null) {
-                this.title = "Get a minimum of " + coverage + "% coverage using a " + scanTypeName + "-Scan of " + targetBody + ".";
+                // Re-label a couple of scan names to make them nicer
+                nameRemap["AltimetryLoRes"] = "Low resolution altimetry";
+                nameRemap["AltimetryHiRes"] = "High resolution altimetry";
+                if (nameRemap.ContainsKey(scanTypeName))
+                {
+                    scanTypeName = nameRemap[scanTypeName];
+                }
+
+                this.title = scanTypeName + " scan: " + coverage.ToString("N0") + "% coverage of " + targetBody.name;
             }
 
             this.coverage = coverage;
