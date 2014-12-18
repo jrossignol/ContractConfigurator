@@ -72,8 +72,11 @@ namespace ContractConfigurator
             bool allReqMet = true;
             foreach (ContractRequirement requirement in contractRequirements)
             {
-                bool nodeMet = (!requirement.checkOnActiveContract && contract.ContractState == Contract.State.Active) || requirement.RequirementMet(contract);
-                allReqMet = allReqMet && (requirement.invertRequirement ? !nodeMet : nodeMet);
+                if (requirement.checkOnActiveContract || contract.ContractState != Contract.State.Active)
+                {
+                    bool nodeMet = requirement.RequirementMet(contract);
+                    allReqMet = allReqMet && (requirement.invertRequirement ? !nodeMet : nodeMet);
+                }
             }
             return allReqMet;
         }
