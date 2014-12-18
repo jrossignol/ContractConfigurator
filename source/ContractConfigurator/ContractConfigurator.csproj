@@ -46,8 +46,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BehaviourFactory\ExpressionFactory.cs" />
+    <Compile Include="BehaviourFactory\WaypointGeneratorFactory.cs" />
     <Compile Include="BehaviourFactory\SpawnKerbalFactory.cs" />
     <Compile Include="ContractBehaviour\Expression.cs" />
+    <Compile Include="ContractBehaviour\WaypointGenerator.cs" />
     <Compile Include="ContractParameter\VesselMass.cs" />
     <Compile Include="ContractRequirement\ExpressionRequirement.cs" />
     <Compile Include="ContractRequirement\FacilityRequirement.cs" />

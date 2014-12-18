@@ -66,7 +66,7 @@ namespace ContractConfigurator
         public static void Register(Type factory, string type)
         {
             Debug.Log("ContractConfigurator: Registered behaviour factory class " +
-                factory.FullName + " for handling Behaviour nodes with type = " + type + ".");
+                factory.FullName + " for handling BEHAVIOUR nodes with type = " + type + ".");
             factories.Add(type, factory);
         }
 
