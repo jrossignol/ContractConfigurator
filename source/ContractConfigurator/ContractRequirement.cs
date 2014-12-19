@@ -11,7 +11,7 @@ namespace ContractConfigurator
     /*
      * Class for capturing a requirement for making a contract available.
      */
-    public abstract class ContractRequirement
+    public abstract class ContractRequirement : IContractConfiguratorFactory
     {
         private static Dictionary<string, Type> requirementTypes = new Dictionary<string, Type>();
 

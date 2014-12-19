@@ -77,8 +77,8 @@ namespace ContractConfigurator
          */
         public void AddBehaviour(ContractBehaviour behaviour)
         {
-            behaviours.Add(behaviour);
             behaviour.contract = this;
+            behaviours.Add(behaviour);
         }
 
         public override bool CanBeCancelled()
@@ -135,7 +135,7 @@ namespace ContractConfigurator
             contractType = ContractType.contractTypes[node.GetValue("subtype")];
             foreach (ConfigNode child in node.GetNodes("BEHAVIOUR"))
             {
-                ContractBehaviour behaviour = ContractBehaviour.LoadBehaviour(child);
+                ContractBehaviour behaviour = ContractBehaviour.LoadBehaviour(child, this);
                 behaviours.Add(behaviour);
             }
         }

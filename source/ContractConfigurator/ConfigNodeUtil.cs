@@ -12,6 +12,22 @@ namespace ContractConfigurator
     public class ConfigNodeUtil
     {
         /*
+         * Checks whether the mandatory field exists, and if not logs and error.  Returns true
+         * only if the validation succeeded.
+         */
+        public static bool ValidateMandatoryField(ConfigNode configNode, string field, IContractConfiguratorFactory obj)
+        {
+            if (!configNode.HasValue(field))
+            {
+                Debug.LogError("ContractConfigurator: " + obj.ErrorPrefix(configNode) +
+                    ": missing required value '" + field + "'.");
+                return false;
+            }
+
+            return true;
+        }
+
+        /*
          * Parses the CelestialBody from the given ConfigNode and key.
          */
         public static CelestialBody ParseCelestialBody(ConfigNode configNode, string key)
