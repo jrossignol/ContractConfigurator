@@ -165,12 +165,12 @@ namespace ContractConfigurator
          */
         public static void Register(Type factoryType, string typeName)
         {
-            Debug.Log("ContractConfigurator: Registering parameter factory class " +
+            LoggingUtil.LogDebug(typeof(ParameterFactory), "Registering parameter factory class " +
                 factoryType.FullName + " for handling PARAMETER nodes with type = " + typeName + ".");
 
             if (factories.ContainsKey(typeName))
             {
-                Debug.LogError("Cannot register " + factoryType.FullName + "[" + factoryType.Module +
+                LoggingUtil.LogError(typeof(ParameterFactory), "Cannot register " + factoryType.FullName + "[" + factoryType.Module +
                     "] to handle type " + typeName + ": already handled by " +
                     factories[typeName].FullName + "[" +
                     factories[typeName].Module + "]");
@@ -190,7 +190,7 @@ namespace ContractConfigurator
             string type = parameterConfig.GetValue("type");
             if (!factories.ContainsKey(type))
             {
-                Debug.LogError("ContractConfigurator: No ParameterFactory has been registered for type '" + type + "'.");
+                LoggingUtil.LogError(typeof(ParameterFactory), "No ParameterFactory has been registered for type '" + type + "'.");
                 return null;
             }
 

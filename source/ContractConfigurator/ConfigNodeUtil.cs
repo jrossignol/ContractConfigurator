@@ -33,7 +33,7 @@ namespace ContractConfigurator
 
                 if (!found)
                 {
-                    Debug.LogError("ContractConfigurator: '" + celestialName + "' is not a valid CelestialBody.");
+                    LoggingUtil.LogError(typeof(ConfigNodeUtil), celestialName + "' is not a valid CelestialBody.");
                 }
             }
 
@@ -52,7 +52,7 @@ namespace ContractConfigurator
                 part = PartLoader.getPartInfoByName(partName);
                 if (part == null)
                 {
-                    Debug.LogError("ContractConfigurator: '" + partName + "' is not a valid Part.");
+                    LoggingUtil.LogError(typeof(ConfigNodeUtil), partName + "' is not a valid Part.");
                 }
             }
 
@@ -68,7 +68,7 @@ namespace ContractConfigurator
             Type classType = AssemblyLoader.GetClassByName(typeof(PartModule), name);
             if (classType == null)
             {
-                Debug.LogError("ContractConfigurator: No PartModule class for '" + name + "'.");
+                LoggingUtil.LogError(typeof(ConfigNodeUtil), "No PartModule class for '" + name + "'.");
                 valid = false;
             }
             else
@@ -80,7 +80,7 @@ namespace ContractConfigurator
                 if (partModule == null)
                 {
                     valid = false;
-                    Debug.LogError("ContractConfigurator: Unable to instantiate PartModule '" + name + "'.");
+                    LoggingUtil.LogError(typeof(ConfigNodeUtil), "Unable to instantiate PartModule '" + name + "'.");
                 }
             }
 
@@ -99,7 +99,7 @@ namespace ContractConfigurator
                 resource = PartResourceLibrary.Instance.resourceDefinitions.Where(prd => prd.name == name).First();
                 if (resource == null)
                 {
-                    Debug.LogError("ContractConfigurator: '" + name + "' is not a valid resource.");
+                    LoggingUtil.LogError(typeof(ConfigNodeUtil), name + "' is not a valid resource.");
                 }
             }
 

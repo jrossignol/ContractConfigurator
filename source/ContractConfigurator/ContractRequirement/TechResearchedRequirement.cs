@@ -24,7 +24,7 @@ namespace ContractConfigurator
             if (!configNode.HasValue("tech"))
             {
                 valid = false;
-                Debug.LogError("ContractConfigurator: " + ErrorPrefix(configNode) +
+                LoggingUtil.LogError(this.GetType(), ErrorPrefix(configNode) +
                     ": missing required value 'tech'.");
             }
             else

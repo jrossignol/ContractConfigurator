@@ -38,7 +38,7 @@ namespace ContractConfigurator
             else
             {
                 valid = false;
-                Debug.LogError("ContractConfigurator: " + ErrorPrefix(configNode) +
+                LoggingUtil.LogError(this.GetType(), ErrorPrefix(configNode) +
                     ": missing required value 'kerbal' or 'index'.");
             }
 

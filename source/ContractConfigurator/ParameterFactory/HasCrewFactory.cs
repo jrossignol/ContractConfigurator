@@ -40,7 +40,7 @@ namespace ContractConfigurator
                 catch (Exception e)
                 {
                     valid = false;
-                    Debug.LogError("ContractConfigurator: " + ErrorPrefix(configNode) +
+                    LoggingUtil.LogError(this.GetType(), ErrorPrefix(configNode) +
                         ": error parsing trait: " + e.Message);
                 }
             }

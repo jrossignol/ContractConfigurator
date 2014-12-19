@@ -26,13 +26,13 @@ namespace ContractConfigurator
             if (!configNode.HasValue("minAltitude"))
             {
                 valid = false;
-                Debug.LogError("ContractConfigurator: " + ErrorPrefix(configNode) +
+                LoggingUtil.LogError(this.GetType(), ErrorPrefix(configNode) +
                     ": missing required value 'minAltitude'.");
             }
             else if (Convert.ToDouble(configNode.GetValue("minAltitude")) <= 0.0d)
             {
                 valid = false;
-                Debug.LogError("ContractConfigurator: " + ErrorPrefix(configNode) +
+                LoggingUtil.LogError(this.GetType(), ErrorPrefix(configNode) +
                     ": invalid value of " + configNode.GetValue("minAltitude") + " for minAltitude.  Must be a real number greater than zero.");
             }
             minAltitude = (float)Convert.ToDouble(configNode.GetValue("minAltitude"));
@@ -41,13 +41,13 @@ namespace ContractConfigurator
             if (!configNode.HasValue("maxAltitude"))
             {
                 valid = false;
-                Debug.LogError("ContractConfigurator: " + ErrorPrefix(configNode) +
+                LoggingUtil.LogError(this.GetType(), ErrorPrefix(configNode) +
                     ": missing required value 'maxAltitude'.");
             }
             else if (Convert.ToDouble(configNode.GetValue("maxAltitude")) <= 0.0d)
             {
                 valid = false;
-                Debug.LogError("ContractConfigurator: " + ErrorPrefix(configNode) +
+                LoggingUtil.LogError(this.GetType(), ErrorPrefix(configNode) +
                     ": invalid value of " + configNode.GetValue("maxAltitude") + " for maxAltitude.  Must be a real number greater than zero.");
             }
             maxAltitude = (float)Convert.ToDouble(configNode.GetValue("maxAltitude"));

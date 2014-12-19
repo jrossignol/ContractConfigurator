@@ -25,7 +25,7 @@ namespace ContractConfigurator
             if (!configNode.HasValue("location"))
             {
                 valid = false;
-                Debug.LogError("ContractConfigurator: " + ErrorPrefix(configNode) +
+                LoggingUtil.LogError(this.GetType(), ErrorPrefix(configNode) +
                     ": missing required value 'location'.");
             }
             try
@@ -36,7 +36,7 @@ namespace ContractConfigurator
             catch (Exception e)
             {
                 valid = false;
-                Debug.LogError("ContractConfigurator: " + ErrorPrefix(configNode) +
+                LoggingUtil.LogError(this.GetType(), ErrorPrefix(configNode) +
                     ": error parsing location: " + e.Message);
             }
 
@@ -44,7 +44,7 @@ namespace ContractConfigurator
             if (targetBody == null)
             {
                 valid = false;
-                Debug.LogError("ContractConfigurator: " + ErrorPrefix(configNode) +
+                LoggingUtil.LogError(this.GetType(), ErrorPrefix(configNode) +
                     ": targetBody for CollectScience must be specified.");
             }
 

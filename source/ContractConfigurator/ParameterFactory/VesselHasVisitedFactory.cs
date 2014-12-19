@@ -26,7 +26,7 @@ namespace ContractConfigurator
             if (targetBody == null)
             {
                 valid = false;
-                Debug.LogError("ContractConfigurator: " + ErrorPrefix(configNode) +
+                LoggingUtil.LogError(this.GetType(), ErrorPrefix(configNode) +
                     ": targetBody for ReachDestination must be specified.");
             }
 
@@ -34,7 +34,7 @@ namespace ContractConfigurator
             if (!configNode.HasValue("situation"))
             {
                 valid = false;
-                Debug.LogError("ContractConfigurator: " + ErrorPrefix(configNode) +
+                LoggingUtil.LogError(this.GetType(), ErrorPrefix(configNode) +
                     ": missing required value 'situation'.");
             }
             try
@@ -45,7 +45,7 @@ namespace ContractConfigurator
             catch (Exception e)
             {
                 valid = false;
-                Debug.LogError("ContractConfigurator: " + ErrorPrefix(configNode) +
+                LoggingUtil.LogError(this.GetType(), ErrorPrefix(configNode) +
                     ": error parsing situation: " + e.Message);
             }
 

@@ -28,7 +28,7 @@ namespace ContractConfigurator
                 if (Convert.ToInt32(configNode.GetValue("countMax")) <= 0)
                 {
                     valid = false;
-                    Debug.LogError("ContractConfigurator: " + ErrorPrefix(configNode) +
+                    LoggingUtil.LogError(this.GetType(), ErrorPrefix(configNode) +
                         ": invalid value of " + configNode.GetValue("countMax") + " for countMax.  Must be an integer greater than zero.");
                 }
                 countMax = Convert.ToInt32(configNode.GetValue("countMax"));

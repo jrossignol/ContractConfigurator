@@ -28,7 +28,8 @@ namespace ContractConfigurator
                     return false;
                 }
             }
-            Debug.Log("ContractConfigurator: Generate contract type: " + contractType.ToString());
+
+            LoggingUtil.LogDebug(this.GetType(), "Generating contract: " + contractType);
 
             // Set the agent
             if (contractType.agent != null)
@@ -68,7 +69,7 @@ namespace ContractConfigurator
             // Generate parameters
             contractType.GenerateParameters(this);
 
-            Debug.Log("ContractConfigurator: Generated a contract: " + contractType);
+            LoggingUtil.LogInfo(this.GetType(), "Generated contract: " + contractType);
             return true;
         }
 

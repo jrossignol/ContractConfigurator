@@ -26,13 +26,13 @@ namespace ContractConfigurator
             if (!configNode.HasValue("minSpeed"))
             {
                 valid = false;
-                Debug.LogError("ContractConfigurator: " + ErrorPrefix(configNode) +
+                LoggingUtil.LogError(this.GetType(), ErrorPrefix(configNode) +
                     ": missing required value 'minSpeed'.");
             }
             else if (Convert.ToDouble(configNode.GetValue("minSpeed")) <= 0.0d)
             {
                 valid = false;
-                Debug.LogError("ContractConfigurator: " + ErrorPrefix(configNode) +
+                LoggingUtil.LogError(this.GetType(), ErrorPrefix(configNode) +
                     ": invalid value of " + configNode.GetValue("minSpeed") + " for minSpeed.  Must be a real number greater than zero.");
             }
             minSpeed = (float)Convert.ToDouble(configNode.GetValue("minSpeed"));
@@ -41,13 +41,13 @@ namespace ContractConfigurator
             if (!configNode.HasValue("maxSpeed"))
             {
                 valid = false;
-                Debug.LogError("ContractConfigurator: " + ErrorPrefix(configNode) +
+                LoggingUtil.LogError(this.GetType(), ErrorPrefix(configNode) +
                     ": missing required value 'maxSpeed'.");
             }
             else if (Convert.ToDouble(configNode.GetValue("maxSpeed")) <= 0.0d)
             {
                 valid = false;
-                Debug.LogError("ContractConfigurator: " + ErrorPrefix(configNode) +
+                LoggingUtil.LogError(this.GetType(), ErrorPrefix(configNode) +
                     ": invalid value of " + configNode.GetValue("maxSpeed") + " for maxSpeed.  Must be a real number greater than zero.");
             }
             maxSpeed = (float)Convert.ToDouble(configNode.GetValue("maxSpeed"));

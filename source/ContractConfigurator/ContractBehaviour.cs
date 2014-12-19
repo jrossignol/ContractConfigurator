@@ -25,7 +25,7 @@ namespace ContractConfigurator
             Type type = Type.GetType(typeName);
             if (type == null)
             {
-                Debug.LogError("No ContractBehaviour with type = '" + typeName + "'.");
+                LoggingUtil.LogError(typeof(ContractBehaviour), "No ContractBehaviour with type = '" + typeName + "'.");
                 return null;
             }
 

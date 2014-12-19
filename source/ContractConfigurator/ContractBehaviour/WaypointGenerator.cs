@@ -107,12 +107,12 @@ namespace ContractConfigurator.Behaviour
                 if (wpData.type == "RANDOM_WAYPOINT")
                 {
                     // Generate the position
-                    Debug.Log("adding info for a random waypoint");
+                    LoggingUtil.LogDebug(this.GetType(), "Adding info for a random waypoint");
                     WaypointManager.ChooseRandomPosition(out wpData.waypoint.latitude, out wpData.waypoint.longitude, wpData.waypoint.celestialName, true, false, random);
                 }
 
                 CreateWayPoint(wpData.waypoint);
-                Debug.Log("Generated a waypoint at (" + wpData.waypoint.latitude + ", " + wpData.waypoint.longitude + ") on " + wpData.waypoint.celestialName);
+                LoggingUtil.LogDebug(this.GetType(), "Generated a waypoint at (" + wpData.waypoint.latitude + ", " + wpData.waypoint.longitude + ") on " + wpData.waypoint.celestialName);
             }
         }
 
@@ -206,7 +206,7 @@ namespace ContractConfigurator.Behaviour
 
         private void CreateWayPoint(Waypoint waypoint)
         {
-            Debug.Log("Creating a waypoint.");
+            LoggingUtil.LogDebug(this.GetType(), "Creating a waypoint.");
             waypoint.altitude = 0.0;
             waypoint.isOnSurface = true;
             waypoint.index = 0;

@@ -24,7 +24,7 @@ namespace ContractConfigurator
             if (!configNode.HasValue("minAltitude"))
             {
                 valid = false;
-                Debug.LogError("ContractConfigurator: " + ErrorPrefix(configNode) +
+                LoggingUtil.LogError(this.GetType(), ErrorPrefix(configNode) +
                     ": missing required value 'minAltitude'.");
             }
             else
@@ -33,7 +33,7 @@ namespace ContractConfigurator
                 if (minAltitude <= 0.0)
                 {
                     valid = false;
-                    Debug.LogError("ContractConfigurator: " + ErrorPrefix(configNode) +
+                    LoggingUtil.LogError(this.GetType(), ErrorPrefix(configNode) +
                         ": minAltitude must be greater than zero.");
                 }
             }

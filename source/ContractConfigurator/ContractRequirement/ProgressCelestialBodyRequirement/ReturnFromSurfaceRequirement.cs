@@ -23,7 +23,7 @@ namespace ContractConfigurator
             if (targetBody.name.Equals("Kerbin"))
             {
                 valid = false;
-                Debug.LogError("ContractConfigurator: " + ErrorPrefix(configNode) +
+                LoggingUtil.LogError(this.GetType(), ErrorPrefix(configNode) +
                     ": targetBody cannot be Kerbin for ReturnFromSurface.");
             }
 

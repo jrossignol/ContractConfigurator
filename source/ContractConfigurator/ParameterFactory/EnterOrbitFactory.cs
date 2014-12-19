@@ -23,7 +23,7 @@ namespace ContractConfigurator
             if (targetBody == null)
             {
                 valid = false;
-                Debug.LogError("ContractConfigurator: " + ErrorPrefix(configNode) +
+                LoggingUtil.LogError(this.GetType(), ErrorPrefix(configNode) +
                     ": targetBody for EnterOrbit must be specified.");
             }
 
