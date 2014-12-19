@@ -23,22 +23,20 @@ namespace ContractConfigurator
             bool valid = base.Load(configNode);
 
             // Get situation
-            if (!configNode.HasValue("situation"))
+            valid &= ConfigNodeUtil.ValidateMandatoryField(configNode, "situation", this);
+            if (valid)
             {
-                valid = false;
-                Debug.LogError("ContractConfigurator: " + ErrorPrefix(configNode) +
-                    ": missing required value 'situation'.");
-            }
-            try
-            {
-                string situationStr = configNode.GetValue("situation");
-                situation = (Vessel.Situations)Enum.Parse(typeof(Vessel.Situations), situationStr);
-            }
-            catch (Exception e)
-            {
-                valid = false;
-                Debug.LogError("ContractConfigurator: " + ErrorPrefix(configNode) +
-                    ": error parsing situation: " + e.Message);
+                try
+                {
+                    string situationStr = configNode.GetValue("situation");
+                    situation = (Vessel.Situations)Enum.Parse(typeof(Vessel.Situations), situationStr);
+                }
+                catch (Exception e)
+                {
+                    valid = false;
+                    Debug.LogError("ContractConfigurator: " + ErrorPrefix(configNode) +
+                        ": error parsing situation: " + e.Message);
+                }
             }
 
             return valid;

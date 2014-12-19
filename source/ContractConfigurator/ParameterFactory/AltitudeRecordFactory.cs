@@ -22,19 +22,17 @@ namespace ContractConfigurator
             bool valid = base.Load(configNode);
 
             // Get altitude
-            if (!configNode.HasValue("altitude"))
-            {
-                valid = false;
-                Debug.LogError("ContractConfigurator: " + ErrorPrefix(configNode) +
-                    ": missing required value 'altitude'.");
-            }
-            else if (Convert.ToDouble(configNode.GetValue("altitude")) <= 0.0f)
+            valid &= ConfigNodeUtil.ValidateMandatoryField(configNode, "altitude", this);
+            if (valid && Convert.ToDouble(configNode.GetValue("altitude")) <= 0.0f)
             {
                 valid = false;
                 Debug.LogError("ContractConfigurator: " + ErrorPrefix(configNode) +
                     ": invalid value of " + configNode.GetValue("altitude") + " for altitude.  Must be a real number greater than zero.");
             }
-            altitude = Convert.ToDouble(configNode.GetValue("altitude"));
+            else
+            {
+                altitude = Convert.ToDouble(configNode.GetValue("altitude"));
+            }
 
             return valid;
         }

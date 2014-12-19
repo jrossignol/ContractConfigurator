@@ -22,13 +22,8 @@ namespace ContractConfigurator
             bool valid = base.Load(configNode);
 
             // Get expression
-            if (!configNode.HasValue("expression"))
-            {
-                valid = false;
-                Debug.LogError("ContractConfigurator: " + ErrorPrefix(configNode) +
-                    ": missing required value 'expression'.");
-            }
-            else
+            valid &= ConfigNodeUtil.ValidateMandatoryField(configNode, "expression", this);
+            if (valid)
             {
                 expression = configNode.GetValue("expression");
                 ExpressionParser.ParseExpression(expression);

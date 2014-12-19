@@ -27,13 +27,8 @@ namespace ContractConfigurator.SCANsat
             // contract is invalidated, which is usually not what's meant.
             checkOnActiveContract = false;
 
-            if (!configNode.HasValue("minCoverage"))
-            {
-                valid = false;
-                Debug.LogError("ContractConfigurator: " + ErrorPrefix(configNode) +
-                    ": missing required value 'minCoverage'.");
-            }
-            else
+            valid &= ConfigNodeUtil.ValidateMandatoryField(configNode, "minCoverage", this);
+            if (valid)
             {
                 try
                 {
@@ -47,13 +42,8 @@ namespace ContractConfigurator.SCANsat
                 }
             }
 
-            if (!configNode.HasValue("maxCoverage"))
-            {
-                valid = false;
-                Debug.LogError("ContractConfigurator: " + ErrorPrefix(configNode) +
-                    ": missing required value 'maxCoverage'.");
-            }
-            else
+            valid &= ConfigNodeUtil.ValidateMandatoryField(configNode, "maxCoverage", this);
+            if (valid)
             {
                 try
                 {
@@ -67,13 +57,8 @@ namespace ContractConfigurator.SCANsat
                 }
             }
 
-            if (!configNode.HasValue("scanType"))
-            {
-                valid = false;
-                Debug.LogError("ContractConfigurator: " + ErrorPrefix(configNode) +
-                    ": missing required value 'scanType'.");
-            }
-            else
+            valid &= ConfigNodeUtil.ValidateMandatoryField(configNode, "scanType", this);
+            if (valid)
             {
                 try
                 {

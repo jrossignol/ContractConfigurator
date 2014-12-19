@@ -45,13 +45,8 @@ namespace ContractConfigurator
             }
 
             // Get part
-            if (!configNode.HasValue("part"))
-            {
-                valid = false;
-                Debug.LogError("ContractConfigurator: " + ErrorPrefix(configNode) +
-                    ": missing required value 'part'.");
-            }
-            else
+            valid &= ConfigNodeUtil.ValidateMandatoryField(configNode, "part", this);
+            if (valid)
             {
                 part = ConfigNodeUtil.ParsePart(configNode, "part");
                 valid &= part != null;

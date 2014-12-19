@@ -45,13 +45,8 @@ namespace ContractConfigurator
             }
 
             // Get resource
-            if (!configNode.HasValue("resource"))
-            {
-                valid = false;
-                Debug.LogError("ContractConfigurator: " + ErrorPrefix(configNode) +
-                    ": missing required value 'resource'.");
-            }
-            else
+            valid &= ConfigNodeUtil.ValidateMandatoryField(configNode, "resource", this);
+            if (valid)
             {
                 resource = ConfigNodeUtil.ParseResource(configNode, "resource");
                 valid &= resource != null;

@@ -21,13 +21,8 @@ namespace ContractConfigurator
             bool valid = base.Load(configNode);
 
             // Get minAltitude
-            if (!configNode.HasValue("minAltitude"))
-            {
-                valid = false;
-                Debug.LogError("ContractConfigurator: " + ErrorPrefix(configNode) +
-                    ": missing required value 'minAltitude'.");
-            }
-            else
+            valid &= ConfigNodeUtil.ValidateMandatoryField(configNode, "minAltitude", this);
+            if (valid)
             {
                 minAltitude = Convert.ToDouble(configNode.GetValue("minAltitude"));
                 if (minAltitude <= 0.0)
