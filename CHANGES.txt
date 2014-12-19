@@ -1,9 +1,12 @@
 Contract Configurator 0.4.0
+- Added WaypointGenerator behaviour.  Allows creation of waypoints.
 - Added HasCrew requirement.  Allows filtering on trait, experience level and count.
 - Updated HasCrew parameter to support trait and experience level filtering.
 - Added VesselMass parameter.
 - Added Facility requirement - requires that a player has a facility upgraded to a specified level.
 - Added SCANsatCoverage parameter and requirement (big thanks @tattagreis on the SCANsat integration).
+- Fixed a bug in the HasPart parameter for parts with an underscore in the name (thanks @tattagreis).
+- Improved HasCrew now errors if minCrew > maxCrew (thanks @tattagreis).
 
 Contract Configurator 0.3.3
 - Persistant data store can now store config nodes.

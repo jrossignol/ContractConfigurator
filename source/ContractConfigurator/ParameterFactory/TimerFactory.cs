@@ -22,7 +22,11 @@ namespace ContractConfigurator
             bool valid = base.Load(configNode);
 
             // Get duration
-            duration = configNode.HasValue("duration") ? DurationUtil.ParseDuration(configNode, "duration") : 0.0;
+            valid &= ConfigNodeUtil.ValidateMandatoryField(configNode, "duration", this);
+            if (valid)
+            {
+                duration = DurationUtil.ParseDuration(configNode, "duration");
+            }
 
             return valid;
         }

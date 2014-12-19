@@ -26,13 +26,8 @@ namespace ContractConfigurator
             bool valid = base.Load(configNode);
 
             // Get type
-            if (!configNode.HasValue("contractType"))
-            {
-                valid = false;
-                LoggingUtil.LogError(this.GetType(), ErrorPrefix(configNode) +
-                    ": missing required value 'contractType'.");
-            }
-            else
+            valid &= ConfigNodeUtil.ValidateMandatoryField(configNode, "contractType", this);
+            if (valid)
             {
                 string contractType = configNode.GetValue("contractType");
 

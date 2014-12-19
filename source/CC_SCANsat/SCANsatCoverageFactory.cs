@@ -21,13 +21,8 @@ namespace ContractConfigurator.SCANsat
             // Load base class
             bool valid = base.Load(configNode);
 
-            if (!configNode.HasValue("coverage"))
-            {
-                valid = false;
-                Debug.LogError("ContractConfigurator: " + ErrorPrefix(configNode) +
-                    ": missing required value 'coverage'.");
-            }
-            else
+            valid &= ConfigNodeUtil.ValidateMandatoryField(configNode, "coverage", this);
+            if (valid)
             {
                 try
                 {
@@ -41,13 +36,8 @@ namespace ContractConfigurator.SCANsat
                 }
             }
 
-            if (!configNode.HasValue("scanType"))
-            {
-                valid = false;
-                Debug.LogError("ContractConfigurator: " + ErrorPrefix(configNode) +
-                    ": missing required value 'scanType'.");
-            }
-            else
+            valid &= ConfigNodeUtil.ValidateMandatoryField(configNode, "scanType", this);
+            if (valid)
             {
                 try
                 {

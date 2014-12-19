@@ -22,13 +22,11 @@ namespace ContractConfigurator
             bool valid = base.Load(configNode);
 
             // Get biome
-            if (!configNode.HasValue("biome"))
+            valid &= ConfigNodeUtil.ValidateMandatoryField(configNode, "biome", this);
+            if (valid)
             {
-                valid = false;
-                LoggingUtil.LogError(this.GetType(), ErrorPrefix(configNode) +
-                    ": missing required value 'biome'.");
+                biome = configNode.GetValue("biome");
             }
-            biome = configNode.GetValue("biome");
 
             return valid;
         }

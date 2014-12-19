@@ -11,7 +11,7 @@ namespace ContractConfigurator
     /*
      * Class for generating ContractParameter objects.
      */
-    public abstract class ParameterFactory
+    public abstract class ParameterFactory : IContractConfiguratorFactory
     {
         private static Dictionary<string, Type> factories = new Dictionary<string, Type>();
 

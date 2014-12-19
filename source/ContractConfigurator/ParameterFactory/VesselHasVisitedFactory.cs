@@ -31,22 +31,21 @@ namespace ContractConfigurator
             }
 
             // Get returnFrom
-            if (!configNode.HasValue("situation"))
+            valid &= ConfigNodeUtil.ValidateMandatoryField(configNode, "situation", this);
+            if (valid)
             {
-                valid = false;
-                LoggingUtil.LogError(this.GetType(), ErrorPrefix(configNode) +
-                    ": missing required value 'situation'.");
-            }
-            try
-            {
-                string situationStr = configNode.GetValue("situation");
-                situation = (FlightLog.EntryType)Enum.Parse(typeof(FlightLog.EntryType), situationStr);
-            }
-            catch (Exception e)
-            {
-                valid = false;
-                LoggingUtil.LogError(this.GetType(), ErrorPrefix(configNode) +
-                    ": error parsing situation: " + e.Message);
+                try
+                {
+                    string situationStr = configNode.GetValue("situation");
+                    situation = (FlightLog.EntryType)Enum.Parse(typeof(FlightLog.EntryType), situationStr);
+                }
+                catch (Exception e)
+                {
+                    valid = false;
+                    LoggingUtil.LogError(this.GetType(), ErrorPrefix(configNode) +
+                        ": error parsing situation: " + e.Message);
+                }
+
             }
 
             return valid;

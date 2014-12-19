@@ -71,10 +71,11 @@ namespace ContractConfigurator.Behaviour
             }
         }
 
-        public static SpawnKerbal Create(ConfigNode configNode, CelestialBody defaultBody)
+        public static SpawnKerbal Create(ConfigNode configNode, CelestialBody defaultBody, SpawnKerbalFactory factory)
         {
             SpawnKerbal spawnKerbal = new SpawnKerbal();
 
+            bool valid = true;
             foreach (ConfigNode child in configNode.GetNodes("KERBAL"))
             {
                 KerbalData kerbal = new KerbalData();
@@ -86,10 +87,15 @@ namespace ContractConfigurator.Behaviour
                 }
 
                 // Get celestial body
+                if (defaultBody == null)
+                {
+                    valid &= ConfigNodeUtil.ValidateMandatoryField(child, "targetBody", factory);
+                }
                 kerbal.body = child.HasValue("targetBody") ? 
                     ConfigNodeUtil.ParseCelestialBody(child, "targetBody") : defaultBody;
 
                 // Get orbit
+                valid &= ConfigNodeUtil.ValidateMandatoryField(child, "ORBIT", factory);
                 kerbal.orbit = new OrbitSnapshot(child.GetNode("ORBIT")).Load();
                 kerbal.orbit.referenceBody = kerbal.body;
 
@@ -112,7 +118,7 @@ namespace ContractConfigurator.Behaviour
                 spawnKerbal.kerbals.Add(kerbal);
             }
 
-            return spawnKerbal;
+            return valid ? spawnKerbal : null;
         }
 
         protected override void OnAccepted()

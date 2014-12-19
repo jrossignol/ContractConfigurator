@@ -23,34 +23,30 @@ namespace ContractConfigurator
             bool valid = base.Load(configNode);
 
             // Get minAltitude
-            if (!configNode.HasValue("minAltitude"))
-            {
-                valid = false;
-                LoggingUtil.LogError(this.GetType(), ErrorPrefix(configNode) +
-                    ": missing required value 'minAltitude'.");
-            }
-            else if (Convert.ToDouble(configNode.GetValue("minAltitude")) <= 0.0d)
+            valid &= ConfigNodeUtil.ValidateMandatoryField(configNode, "minAltitude", this);
+            if (valid && Convert.ToDouble(configNode.GetValue("minAltitude")) <= 0.0d)
             {
                 valid = false;
                 LoggingUtil.LogError(this.GetType(), ErrorPrefix(configNode) +
                     ": invalid value of " + configNode.GetValue("minAltitude") + " for minAltitude.  Must be a real number greater than zero.");
             }
-            minAltitude = (float)Convert.ToDouble(configNode.GetValue("minAltitude"));
+            else
+            {
+                minAltitude = (float)Convert.ToDouble(configNode.GetValue("minAltitude"));
+            }
 
             // Get maxAltitude
-            if (!configNode.HasValue("maxAltitude"))
-            {
-                valid = false;
-                LoggingUtil.LogError(this.GetType(), ErrorPrefix(configNode) +
-                    ": missing required value 'maxAltitude'.");
-            }
-            else if (Convert.ToDouble(configNode.GetValue("maxAltitude")) <= 0.0d)
+            valid &= ConfigNodeUtil.ValidateMandatoryField(configNode, "maxAltitude", this);
+            if (valid && Convert.ToDouble(configNode.GetValue("maxAltitude")) <= 0.0d)
             {
                 valid = false;
                 LoggingUtil.LogError(this.GetType(), ErrorPrefix(configNode) +
                     ": invalid value of " + configNode.GetValue("maxAltitude") + " for maxAltitude.  Must be a real number greater than zero.");
             }
-            maxAltitude = (float)Convert.ToDouble(configNode.GetValue("maxAltitude"));
+            else
+            {
+                maxAltitude = (float)Convert.ToDouble(configNode.GetValue("maxAltitude"));
+            }
 
             return valid;
         }

@@ -34,6 +34,17 @@ namespace ContractConfigurator.Parameters
             this.minExperience = minExperience;
             this.maxExperience = maxExperience;
             this.trait = trait;
+
+            // Validate min/max crew
+            if (maxCrew == 0)
+            {
+                minCrew = 0;
+            }
+            else if (minCrew > maxCrew)
+            {
+                throw new ArgumentException("HasCrew parameter: minCrew must be less than maxCrew!");
+            }
+
             if (title == null)
             {
                 string traitString = String.IsNullOrEmpty(trait) ? "Kerbal" : trait;

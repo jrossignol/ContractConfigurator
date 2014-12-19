@@ -22,12 +22,7 @@ namespace ContractConfigurator
             bool valid = base.Load(configNode);
 
             // Get location
-            if (!configNode.HasValue("location"))
-            {
-                valid = false;
-                LoggingUtil.LogError(this.GetType(), ErrorPrefix(configNode) +
-                    ": missing required value 'location'.");
-            }
+            valid &= ConfigNodeUtil.ValidateMandatoryField(configNode, "location", this);
             try
             {
                 string locationStr = configNode.GetValue("location");

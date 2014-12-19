@@ -24,13 +24,8 @@ namespace ContractConfigurator
             bool valid = base.Load(configNode);
 
             // Get trait
-            if (!configNode.HasValue("facility"))
-            {
-                valid = false;
-                LoggingUtil.LogError(this.GetType(), ErrorPrefix(configNode) +
-                    ": missing required value 'facility'.");
-            }
-            else
+            valid &= ConfigNodeUtil.ValidateMandatoryField(configNode, "facility", this);
+            if (valid)
             {
                 facility = configNode.GetValue("facility");
             }

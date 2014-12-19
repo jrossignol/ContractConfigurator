@@ -11,7 +11,7 @@ namespace ContractConfigurator
     /*
      * Class for generating ContractBehaviour objects.
      */
-    public abstract class BehaviourFactory
+    public abstract class BehaviourFactory : IContractConfiguratorFactory
     {
         private static Dictionary<string, Type> factories = new Dictionary<string, Type>();
 

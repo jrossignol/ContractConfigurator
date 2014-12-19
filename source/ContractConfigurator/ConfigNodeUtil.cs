@@ -12,6 +12,22 @@ namespace ContractConfigurator
     public class ConfigNodeUtil
     {
         /*
+         * Checks whether the mandatory field exists, and if not logs and error.  Returns true
+         * only if the validation succeeded.
+         */
+        public static bool ValidateMandatoryField(ConfigNode configNode, string field, IContractConfiguratorFactory obj)
+        {
+            if (!configNode.HasValue(field))
+            {
+                LoggingUtil.LogError(typeof(ConfigNodeUtil), obj.ErrorPrefix(configNode) +
+                    ": missing required value '" + field + "'.");
+                return false;
+            }
+
+            return true;
+        }
+
+        /*
          * Parses the CelestialBody from the given ConfigNode and key.
          */
         public static CelestialBody ParseCelestialBody(ConfigNode configNode, string key)
@@ -49,7 +65,11 @@ namespace ContractConfigurator
             if (configNode.HasValue(key))
             {
                 string partName = configNode.GetValue(key);
+
+                // Underscores in part names get replaced with spaces.  Nobody knows why.
+                partName = partName.Replace('_', '.');  
                 part = PartLoader.getPartInfoByName(partName);
+
                 if (part == null)
                 {
                     LoggingUtil.LogError(typeof(ConfigNodeUtil), partName + "' is not a valid Part.");

@@ -21,13 +21,8 @@ namespace ContractConfigurator
             bool valid = base.Load(configNode);
 
             // Get technology
-            if (!configNode.HasValue("tech"))
-            {
-                valid = false;
-                LoggingUtil.LogError(this.GetType(), ErrorPrefix(configNode) +
-                    ": missing required value 'tech'.");
-            }
-            else
+            valid &= ConfigNodeUtil.ValidateMandatoryField(configNode, "tech", this);
+            if (valid)
             {
                 tech = configNode.GetValue("tech");
 

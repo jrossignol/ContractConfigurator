@@ -18,7 +18,7 @@ namespace ContractConfigurator
         /*
          * Loads a behaviour from a ConfigNode.
          */
-        public static ContractBehaviour LoadBehaviour(ConfigNode configNode)
+        public static ContractBehaviour LoadBehaviour(ConfigNode configNode, ConfiguredContract contract)
         {
             // Determine the type
             string typeName = configNode.GetValue("type");
@@ -31,6 +31,7 @@ namespace ContractConfigurator
 
             // Instantiate and load
             ContractBehaviour behaviour = (ContractBehaviour)Activator.CreateInstance(type);
+            behaviour.contract = contract;
             behaviour.Load(configNode);
             return behaviour;
         }
@@ -84,7 +85,10 @@ namespace ContractConfigurator
         public void Withdraw() { OnWithdrawn(); }
         protected virtual void OnWithdrawn() { }
 
-        public void Load(ConfigNode configNode) { OnLoad(configNode); }
+        public void Load(ConfigNode configNode)
+        {
+            OnLoad(configNode);
+        }
         protected virtual void OnLoad(ConfigNode configNode) { }
 
         public void Save(ConfigNode configNode)
