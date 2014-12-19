@@ -49,7 +49,11 @@ namespace ContractConfigurator
             if (configNode.HasValue(key))
             {
                 string partName = configNode.GetValue(key);
+
+                // Underscores in part names get replaced with spaces.  Nobody knows why.
+                partName = partName.Replace('_', '.');  
                 part = PartLoader.getPartInfoByName(partName);
+
                 if (part == null)
                 {
                     Debug.LogError("ContractConfigurator: '" + partName + "' is not a valid Part.");
