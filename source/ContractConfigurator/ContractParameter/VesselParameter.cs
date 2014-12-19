@@ -336,7 +336,7 @@ namespace ContractConfigurator.Parameters
                     // Shouldn't still be null...
                     if (strength == null)
                     {
-                        Debug.LogWarning("ContractConfigurator: Unexpected value when undocking!  Raise a GitHub issue!");
+                        LoggingUtil.LogWarning(this.GetType(), "Unexpected value when undocking!  Raise a GitHub issue!");
                         strength = ParamStrength.WEAK;
                     }
 

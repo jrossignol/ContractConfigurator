@@ -99,8 +99,7 @@ namespace ContractConfigurator
                 agent = AgentList.Instance.GetAgent(contractConfig.GetValue("agent"));
                 if (agent == null)
                 {
-                    Debug.LogWarning("ContractConfigurator: No agent with name '" +
-                        contractConfig.GetValue("agent") + "'.");
+                    LoggingUtil.LogWarning(this.GetType(), "No agent with name '" + contractConfig.GetValue("agent") + "'.");
                 }
             }
             if (contractConfig.HasValue("minExpiry"))

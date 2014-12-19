@@ -94,7 +94,7 @@ namespace ContractConfigurator.Parameters
             }
 
             // Shouldn't get here unless things are really messed up
-            Debug.LogWarning("ContractConfigurator - Unexpected state for SequenceNode parameter.  Log a GitHub issue!");
+            LoggingUtil.LogWarning(this.GetType(), "Unexpected state for SequenceNode parameter.  Log a GitHub issue!");
             return false;
         }
 

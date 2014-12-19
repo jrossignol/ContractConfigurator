@@ -49,7 +49,7 @@ namespace ContractConfigurator
                     if (classes.Count() < 1)
                     {
                         valid = false;
-                        Debug.LogError("ContractConfigurator: " + ErrorPrefix(configNode) + ": contractType '" + contractType +
+                        LoggingUtil.LogError(this.GetType(), "contractType '" + contractType +
                             "' must either be a Contract sub-class or ContractConfigurator contract type");
                     }
                     else
@@ -73,7 +73,7 @@ namespace ContractConfigurator
                 catch (Exception e)
                 {
                     valid = false;
-                    Debug.LogError("ContractConfigurator: " + ErrorPrefix(configNode) +
+                    LoggingUtil.LogError(this.GetType(), ErrorPrefix(configNode) +
                         ": minCount: " + e.Message);
                 }
             }
@@ -92,7 +92,7 @@ namespace ContractConfigurator
                 catch (Exception e)
                 {
                     valid = false;
-                    Debug.LogError("ContractConfigurator: " + ErrorPrefix(configNode) +
+                    LoggingUtil.LogError(this.GetType(), ErrorPrefix(configNode) +
                         ": maxCount: " + e.Message);
                 }
             }

@@ -26,7 +26,7 @@ namespace ContractConfigurator
             if (valid && Convert.ToDouble(configNode.GetValue("altitude")) <= 0.0f)
             {
                 valid = false;
-                Debug.LogError("ContractConfigurator: " + ErrorPrefix(configNode) +
+                LoggingUtil.LogError(this.GetType(), ErrorPrefix(configNode) +
                     ": invalid value of " + configNode.GetValue("altitude") + " for altitude.  Must be a real number greater than zero.");
             }
             else

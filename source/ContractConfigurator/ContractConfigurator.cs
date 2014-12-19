@@ -24,6 +24,7 @@ namespace ContractConfigurator
             // Load all the contract configurator configuration
             if (HighLogic.LoadedScene == GameScenes.MAINMENU && !loaded)
             {
+                LoggingUtil.LoadDebuggingConfig();
                 RegisterParameterFactories();
                 RegisterBehaviourFactories();
                 RegisterContractRequirements();
@@ -51,6 +52,8 @@ namespace ContractConfigurator
          */
         void RegisterParameterFactories()
         {
+            LoggingUtil.LogDebug(this.GetType(), "Start Registering ParameterFactories");
+
             // Get everything that extends ParameterFactory
             var subclasses =
                 from assembly in AppDomain.CurrentDomain.GetAssemblies()
@@ -66,8 +69,11 @@ namespace ContractConfigurator
                 {
                     name = name.Remove(name.Length - 7, 7);
                 }
+
                 ParameterFactory.Register(subclass, name);
             }
+
+            LoggingUtil.LogInfo(this.GetType(), "Finsished Registering ParameterFactories");
         }
 
         /*
@@ -75,6 +81,8 @@ namespace ContractConfigurator
          */
         void RegisterBehaviourFactories()
         {
+            LoggingUtil.LogDebug(this.GetType(), "Start Registering BehaviourFactories");
+
             // Get everything that extends BehaviourFactory
             var subclasses =
                 from assembly in AppDomain.CurrentDomain.GetAssemblies()
@@ -92,6 +100,8 @@ namespace ContractConfigurator
                 }
                 BehaviourFactory.Register(subclass, name);
             }
+
+            LoggingUtil.LogInfo(this.GetType(), "Finished Registering BehaviourFactories");
         }
 
         /*
@@ -99,6 +109,8 @@ namespace ContractConfigurator
          */
         void RegisterContractRequirements()
         {
+            LoggingUtil.LogDebug(this.GetType(), "Start Registering ContractRequirements");
+
             // Get everything that extends ContractRequirement
             var subclasses =
                 from assembly in AppDomain.CurrentDomain.GetAssemblies()
@@ -116,6 +128,8 @@ namespace ContractConfigurator
                 }
                 ContractRequirement.Register(subclass, name);
             }
+
+            LoggingUtil.LogInfo(this.GetType(), "Finished Registering ContractRequirements");
         }
 
         /*
@@ -123,14 +137,13 @@ namespace ContractConfigurator
          */
         void LoadContractConfig()
         {
-            Debug.Log("ContractConfigurator: Loading CONTRACT_TYPE nodes.");
+            LoggingUtil.LogDebug(this.GetType(), "Loading CONTRACT_TYPE nodes.");
             ConfigNode[] contractConfigs = GameDatabase.Instance.GetConfigNodes("CONTRACT_TYPE");
 
             // First pass - create all the ContractType objects
             foreach (ConfigNode contractConfig in contractConfigs)
             {
-                Debug.Log("ContractConfigurator: First pass for node: '" + contractConfig.GetValue("name") + "'");
-
+                LoggingUtil.LogDebug(this.GetType(), "First pass for node: '" + contractConfig.GetValue("name") + "'");
                 // Create the initial contract type
                 try
                 {
@@ -138,8 +151,7 @@ namespace ContractConfigurator
                 }
                 catch (ArgumentException)
                 {
-                    Debug.LogError("ContractConfigurator: Couldn't load CONTRACT_TYPE '" +
-                        contractConfig.GetValue("name") + "' due to a duplicate name.");
+                    LoggingUtil.LogError(this.GetType(), "Couldn't load CONTRACT_TYPE '" + contractConfig.GetValue("name") + "' due to a duplicate name.");
                 }
             }
 
@@ -151,8 +163,7 @@ namespace ContractConfigurator
                 ContractType contractType = ContractType.contractTypes[name];
                 if (contractType != null)
                 {
-                    Debug.Log("ContractConfigurator: Second pass for node: '" + name + "'");
-
+                    LoggingUtil.LogDebug(this.GetType(), "Second pass for node: '" + name + "'");
                     // Perform the load
                     try
                     {
@@ -161,17 +172,19 @@ namespace ContractConfigurator
                     catch (Exception e)
                     {
                         ContractType.contractTypes.Remove(name);
-                        string err = "ContractConfigurator: Error loading contract type '" + name +
+                        string err = "Error loading contract type '" + name +
                             "': " + e.Message + "\n" + e.StackTrace;
                         while (e.InnerException != null)
                         {
                             e = e.InnerException;
                             err += "\n" + e.Message + "\n" + e.StackTrace;
                         }
-                        Debug.LogError(err);
+                        LoggingUtil.LogError(this.GetType(), err);
                     }
                 }
             }
+
+            LoggingUtil.LogInfo(this.GetType(), "Finished loading ContractTypes");
         }
 
         /*
@@ -187,7 +200,7 @@ namespace ContractConfigurator
                 return false;
             }
 
-            Debug.Log("ContractConfigurator: Loading CONTRACT_CONFIGURATOR nodes.");
+            LoggingUtil.LogDebug(this.GetType(), "Loading CONTRACT_CONFIGURATOR nodes.");
             ConfigNode[] nodes = GameDatabase.Instance.GetConfigNodes("CONTRACT_CONFIGURATOR");
 
             // Build a unique list of contract types to disable, in case multiple mods try to
@@ -225,11 +238,11 @@ namespace ContractConfigurator
                 // Didn't find a type
                 if (p.Value == null)
                 {
-                    Debug.LogWarning("ContractConfigurator: Couldn't find ContractType '" + p.Key + "' to disable.");
+                    LoggingUtil.LogWarning(this.GetType(), "Couldn't find ContractType '" + p.Key + "' to disable.");
                 }
                 else
                 {
-                    Debug.Log("ContractConfigurator: Disabling ContractType: " + p.Value.FullName + " (" + p.Value.Module + ")");
+                    LoggingUtil.LogDebug(this.GetType(), "Disabling ContractType: " + p.Value.FullName + " (" + p.Value.Module + ")");
                     ContractSystem.ContractTypes.Remove(p.Value);
                 }
             }
@@ -240,6 +253,8 @@ namespace ContractConfigurator
             {
                 ContractSystem.ContractTypes.Add(typeof(ConfiguredContract));
             }
+
+            LoggingUtil.LogInfo(this.GetType(), "Finished Adjusting ContractTypes");
 
             return true;
         }

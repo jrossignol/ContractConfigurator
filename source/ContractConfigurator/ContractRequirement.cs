@@ -86,12 +86,12 @@ namespace ContractConfigurator
          */
         public static void Register(Type crType, string typeName)
         {
-            Debug.Log("ContractConfigurator: Registering ContractRequirement class " +
+            LoggingUtil.LogDebug(typeof(ContractRequirement), "Registering ContractRequirement class " +
                 crType.FullName + " for handling REQUIREMENT nodes with type = " + typeName + ".");
 
             if (requirementTypes.ContainsKey(typeName))
             {
-                Debug.LogError("Cannot register " + crType.FullName + "[" + crType.Module +
+                LoggingUtil.LogError(typeof(ContractRequirement), "Cannot register " + crType.FullName + "[" + crType.Module +
                     "] to handle type " + typeName + ": already handled by " +
                     requirementTypes[typeName].FullName + "[" +
                     requirementTypes[typeName].Module + "]");
@@ -111,7 +111,7 @@ namespace ContractConfigurator
             string type = configNode.GetValue("type");
             if (!requirementTypes.ContainsKey(type))
             {
-                Debug.LogError("ContractConfigurator: No ContractRequirement has been registered for type '" + type + "'.");
+                LoggingUtil.LogError(typeof(ContractRequirement), "No ContractRequirement has been registered for type '" + type + "'.");
                 return null;
             }
 

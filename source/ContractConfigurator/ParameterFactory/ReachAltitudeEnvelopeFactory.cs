@@ -27,7 +27,7 @@ namespace ContractConfigurator
             if (valid && Convert.ToDouble(configNode.GetValue("minAltitude")) <= 0.0d)
             {
                 valid = false;
-                Debug.LogError("ContractConfigurator: " + ErrorPrefix(configNode) +
+                LoggingUtil.LogError(this.GetType(), ErrorPrefix(configNode) +
                     ": invalid value of " + configNode.GetValue("minAltitude") + " for minAltitude.  Must be a real number greater than zero.");
             }
             else
@@ -40,7 +40,7 @@ namespace ContractConfigurator
             if (valid && Convert.ToDouble(configNode.GetValue("maxAltitude")) <= 0.0d)
             {
                 valid = false;
-                Debug.LogError("ContractConfigurator: " + ErrorPrefix(configNode) +
+                LoggingUtil.LogError(this.GetType(), ErrorPrefix(configNode) +
                     ": invalid value of " + configNode.GetValue("maxAltitude") + " for maxAltitude.  Must be a real number greater than zero.");
             }
             else

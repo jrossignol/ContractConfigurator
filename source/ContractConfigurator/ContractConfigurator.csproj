@@ -57,6 +57,7 @@
     <Compile Include="ExpressionParser.cs" />
     <Compile Include="ContractBehaviour\SpawnKerbal.cs" />
     <Compile Include="IContractConfiguratorFactory.cs" />
+    <Compile Include="LoggingUtil.cs" />
     <Compile Include="ParameterFactory\VesselMassFactory.cs" />
     <Compile Include="PersistentDataStore.cs" />
     <Compile Include="ContractParameter\Timer.cs" />

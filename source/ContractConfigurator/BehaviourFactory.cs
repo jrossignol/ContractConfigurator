@@ -65,12 +65,12 @@ namespace ContractConfigurator
          */
         public static void Register(Type factoryType, string typeName)
         {
-            Debug.Log("ContractConfigurator: Registering behaviour factory class " +
+            LoggingUtil.LogDebug(typeof(BehaviourFactory), "Registering behaviour factory class " +
                 factoryType.FullName + " for handling BEHAVIOUR nodes with type = " + typeName + ".");
 
             if (factories.ContainsKey(typeName))
             {
-                Debug.LogError("Cannot register " + factoryType.FullName + "[" + factoryType.Module +
+                LoggingUtil.LogError(typeof(BehaviourFactory), "Cannot register " + factoryType.FullName + "[" + factoryType.Module +
                     "] to handle type " + typeName + ": already handled by " +
                     factories[typeName].FullName + "[" +
                     factories[typeName].Module + "]");
@@ -90,7 +90,7 @@ namespace ContractConfigurator
             string type = behaviourConfig.GetValue("type");
             if (!factories.ContainsKey(type))
             {
-                Debug.LogError("ContractConfigurator: No BehaviourFactory has been registered for type '" + type + "'.");
+                LoggingUtil.LogError(typeof(BehaviourFactory), "No BehaviourFactory has been registered for type '" + type + "'.");
                 return null;
             }
 

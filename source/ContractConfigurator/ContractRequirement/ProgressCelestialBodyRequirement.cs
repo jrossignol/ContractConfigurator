@@ -27,7 +27,7 @@ namespace ContractConfigurator
             if (targetBody == null)
             {
                 valid = false;
-                Debug.LogError("ContractConfigurator: " + ErrorPrefix(configNode) +
+                LoggingUtil.LogError(this.GetType(), ErrorPrefix(configNode) +
                     ": targetBody for " + this.GetType().Name + " must be specified.");
             }
 
@@ -54,8 +54,7 @@ namespace ContractConfigurator
             CelestialBodySubtree cbProgress = GetCelestialBodySubtree();
             if (cbProgress == null)
             {
-                Debug.LogError("ContractConfigurator: " + this.GetType().Name + ": " +
-                    ": ProgressNode for targetBody " + targetBody.bodyName + " not found.");
+                LoggingUtil.LogError(this.GetType(), ": ProgressNode for targetBody " + targetBody.bodyName + " not found.");
                 return false;
             }
             return true;

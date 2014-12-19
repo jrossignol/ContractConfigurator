@@ -28,7 +28,7 @@ namespace ContractConfigurator
                 if (part == null)
                 {
                     valid = false;
-                    Debug.LogError("ContractConfigurator: " + ErrorPrefix(configNode) +
+                    LoggingUtil.LogError(this.GetType(), ErrorPrefix(configNode) +
                         ": invalid name for part: '" + configNode.GetValue("part") + "'.");
                 }
             }
