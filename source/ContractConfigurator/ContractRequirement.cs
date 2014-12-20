@@ -36,8 +36,9 @@ namespace ContractConfigurator
             name = configNode.HasValue("name") ? configNode.GetValue("name") : "unknown";
             type = configNode.GetValue("type");
 
-            // Check the requirement for active contracts
-            checkOnActiveContract = true;
+            // By default, do not check the requirement for active contracts
+            checkOnActiveContract = configNode.HasValue("checkOnActiveContract") ?
+                Convert.ToBoolean(configNode.GetValue("checkOnActiveContract")) : false;
 
             // Load invertRequirement flag
             invertRequirement = false;
@@ -84,6 +85,17 @@ namespace ContractConfigurator
                     allReqMet = allReqMet && (requirement.invertRequirement ? !nodeMet : nodeMet);
                 }
             }
+
+            // Force fail the contract if a requirement becomes unmet
+            if(contract.ContractState == Contract.State.Active && !allReqMet)
+            {
+                // Fail the contract - unfortunately, the player won't know why. :(
+                contract.Fail();
+
+                // Force the stock contracts window to refresh
+                GameEvents.Contract.onContractsLoaded.Fire();
+            }
+
             return allReqMet;
         }
 

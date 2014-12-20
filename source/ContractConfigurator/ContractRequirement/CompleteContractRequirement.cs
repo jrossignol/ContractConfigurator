@@ -105,12 +105,6 @@ namespace ContractConfigurator
 
         public override bool RequirementMet(ConfiguredContract contract)
         {
-            // Performance - don't do the check if the contract is already active
-            if (contract.ContractState == Contract.State.Active)
-            {
-                return true;
-            }
-
             // Get the count of finished contracts
             int finished = 0;
             double lastFinished = 0.0;
