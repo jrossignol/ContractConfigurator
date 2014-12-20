@@ -19,7 +19,7 @@ namespace ContractConfigurator
         {
             if (!configNode.HasValue(field))
             {
-                LoggingUtil.LogError(obj.GetType(), obj.ErrorPrefix(configNode) +
+                LoggingUtil.LogError(obj.GetType(), obj.ErrorPrefix() +
                     ": missing required value '" + field + "'.");
                 return false;
             }

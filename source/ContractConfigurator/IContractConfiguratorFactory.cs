@@ -7,6 +7,7 @@ namespace ContractConfigurator
 {
     public interface IContractConfiguratorFactory
     {
+        string ErrorPrefix();
         string ErrorPrefix(ConfigNode configNode);
     }
 }

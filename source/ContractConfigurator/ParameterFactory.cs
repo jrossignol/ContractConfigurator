@@ -15,6 +15,8 @@ namespace ContractConfigurator
     {
         private static Dictionary<string, Type> factories = new Dictionary<string, Type>();
 
+        protected string name { get; set; }
+        protected string type { get; set; }
         protected virtual ContractType contractType { get; set; }
         protected virtual CelestialBody targetBody { get; set; }
         protected virtual float rewardScience { get; set; }
@@ -44,6 +46,10 @@ namespace ContractConfigurator
         public virtual bool Load(ConfigNode configNode)
         {
             bool valid = true;
+
+            // Get name and type
+            name = configNode.HasValue("name") ? configNode.GetValue("name") : "unknown";
+            type = configNode.GetValue("type");
 
             // Load targetBody
             CelestialBody body = ConfigNodeUtil.ParseCelestialBody(configNode, "targetBody");
@@ -208,6 +214,11 @@ namespace ContractConfigurator
             }
 
             return paramFactory;
+        }
+
+        public string ErrorPrefix()
+        {
+            return "PARAMETER '" + name + "' of type '" + type + "'";
         }
 
         public string ErrorPrefix(ConfigNode configNode)

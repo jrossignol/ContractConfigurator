@@ -15,6 +15,8 @@ namespace ContractConfigurator
     {
         private static Dictionary<string, Type> requirementTypes = new Dictionary<string, Type>();
 
+        protected string name { get; set; }
+        protected string type { get; set; }
         protected virtual List<ContractRequirement> childNodes { get; set; }
         protected virtual ContractType contractType { get; set; }
         protected virtual CelestialBody targetBody { get; set; }
@@ -29,6 +31,10 @@ namespace ContractConfigurator
         public virtual bool Load(ConfigNode configNode)
         {
             bool valid = true;
+
+            // Get name and type
+            name = configNode.HasValue("name") ? configNode.GetValue("name") : "unknown";
+            type = configNode.GetValue("type");
 
             // Check the requirement for active contracts
             checkOnActiveContract = true;
@@ -129,6 +135,11 @@ namespace ContractConfigurator
             }
 
             return requirement;
+        }
+
+        public string ErrorPrefix()
+        {
+            return "REQUIREMENT '" + name + "' of type '" + type + "'";
         }
 
         public string ErrorPrefix(ConfigNode configNode)
