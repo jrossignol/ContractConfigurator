@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using UnityEngine;
 
@@ -49,14 +50,22 @@ namespace ContractConfigurator
                     {
                         if (levelExceptionNode.HasValue("type") && levelExceptionNode.HasValue("logLevel"))
                         {
-                            // Fetch full type name
+                            // Fetch full type name - just search and find the matching one while
+                            // ignoring namespace
                             string typeName = levelExceptionNode.GetValue("type");
-                            if (typeName.StartsWith("ContractConfigurator.") == false)
+                            Type type = null;
+                            foreach (Assembly a in AppDomain.CurrentDomain.GetAssemblies())
                             {
-                                typeName = "ContractConfigurator." + typeName;
-                            }
+                                foreach (Type t in a.GetTypes())
+                                {
+                                    if (t.Name == typeName)
+                                    {
+                                        type = t;
+                                        break;
+                                    }
 
-                            Type type = Type.GetType(typeName);
+                                }
+                            }
 
                             if (type != null)
                             {
