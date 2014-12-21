@@ -9,6 +9,9 @@ Contract Configurator 0.4.0
 - Improved HasCrew now errors if minCrew > maxCrew (thanks @tattagreis).
 - Most requirements are no longer checked on active contracts.  Exposed attribute to override default behaviour through config file (thanks @scerion).
 
+Contract Configurator 0.3.4
+- Fixed incompatibility with Tweakscale.
+
 Contract Configurator 0.3.3
 - Persistant data store can now store config nodes.
 - Fixed an issue with maxCompletions not working correctly (thanks @tattagreis).

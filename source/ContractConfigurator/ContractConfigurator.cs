@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using UnityEngine;
 using KSP;
@@ -54,15 +55,8 @@ namespace ContractConfigurator
         {
             LoggingUtil.LogDebug(this.GetType(), "Start Registering ParameterFactories");
 
-            // Get everything that extends ParameterFactory
-            var subclasses =
-                from assembly in AppDomain.CurrentDomain.GetAssemblies()
-                from type in assembly.GetTypes()
-                where type.IsSubclassOf(typeof(ParameterFactory))
-                select type;
-
             // Register each type with the parameter factory
-            foreach (Type subclass in subclasses)
+            foreach (Type subclass in GetAllTypes<ParameterFactory>())
             {
                 string name = subclass.Name;
                 if (name.EndsWith("Factory"))
@@ -83,15 +77,8 @@ namespace ContractConfigurator
         {
             LoggingUtil.LogDebug(this.GetType(), "Start Registering BehaviourFactories");
 
-            // Get everything that extends BehaviourFactory
-            var subclasses =
-                from assembly in AppDomain.CurrentDomain.GetAssemblies()
-                from type in assembly.GetTypes()
-                where type.IsSubclassOf(typeof(BehaviourFactory))
-                select type;
-
             // Register each type with the behaviour factory
-            foreach (Type subclass in subclasses)
+            foreach (Type subclass in GetAllTypes<BehaviourFactory>())
             {
                 string name = subclass.Name;
                 if (name.EndsWith("Factory"))
@@ -111,15 +98,8 @@ namespace ContractConfigurator
         {
             LoggingUtil.LogDebug(this.GetType(), "Start Registering ContractRequirements");
 
-            // Get everything that extends ContractRequirement
-            var subclasses =
-                from assembly in AppDomain.CurrentDomain.GetAssemblies()
-                from type in assembly.GetTypes()
-                where type.IsSubclassOf(typeof(ContractRequirement))
-                select type;
-
             // Register each type with the parameter factory
-            foreach (Type subclass in subclasses)
+            foreach (Type subclass in GetAllTypes<ContractRequirement>())
             {
                 string name = subclass.Name;
                 if (name.EndsWith("Requirement"))
@@ -257,6 +237,28 @@ namespace ContractConfigurator
             LoggingUtil.LogInfo(this.GetType(), "Finished Adjusting ContractTypes");
 
             return true;
+        }
+
+        public static List<Type> GetAllTypes<T>()
+        {
+            // Get everything that extends ParameterFactory
+            List<Type> allTypes = new List<Type>();
+            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                try
+                {
+                    foreach (Type t in from type in assembly.GetTypes() where type.IsSubclassOf(typeof(T)) select type)
+                    {
+                        allTypes.Add(t);
+                    }
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError("Error loading types from assembly " + assembly.FullName + ": " + e.Message);
+                }
+            }
+
+            return allTypes;
         }
     }
 }
