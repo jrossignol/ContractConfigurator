@@ -106,20 +106,48 @@ namespace ContractConfigurator
             }
         }
 
-        public static void LogVerbose(Type type, string message) {
+        public static void LogVerbose(System.Object obj, string message)
+        {
+            LoggingUtil.Log(LogLevel.VERBOSE, obj.GetType(), message);
+        }
+
+        public static void LogVerbose(Type type, string message)
+        {
             LoggingUtil.Log(LogLevel.VERBOSE, type, message);
         }
 
-        public static void LogDebug(Type type, string message) {
+        public static void LogDebug(System.Object obj, string message)
+        {
+            LoggingUtil.Log(LogLevel.DEBUG, obj.GetType(), message);
+        }
+
+        public static void LogDebug(Type type, string message)
+        {
             LoggingUtil.Log(LogLevel.DEBUG, type, message);
+        }
+
+        public static void LogInfo(System.Object obj, string message)
+        {
+            LoggingUtil.Log(LogLevel.INFO, obj.GetType(), message);
         }
 
         public static void LogInfo(Type type, string message) {
             LoggingUtil.Log(LogLevel.INFO, type, message);
         }
-        
-        public static void LogWarning(Type type, string message) {
+
+        public static void LogWarning(System.Object obj, string message)
+        {
+            LoggingUtil.Log(LogLevel.WARNING, obj.GetType(), message);
+        }
+
+        public static void LogWarning(Type type, string message)
+        {
             LoggingUtil.Log(LogLevel.WARNING, type, message);
+        }
+
+        public static void LogError(System.Object obj, string message)
+        {
+            LoggingUtil.Log(LogLevel.ERROR, obj.GetType(), message);
         }
 
         public static void LogError(Type type, string message) {
