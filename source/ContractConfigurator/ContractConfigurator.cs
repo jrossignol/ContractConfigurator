@@ -195,15 +195,8 @@ namespace ContractConfigurator
                 }
             }
 
-            // Figure out the types
-            var subclasses =
-                from assembly in AppDomain.CurrentDomain.GetAssemblies()
-                from type in assembly.GetTypes()
-                where type.IsSubclassOf(typeof(Contract))
-                select type;
-
             // Map the string to a type
-            foreach (Type subclass in subclasses)
+            foreach (Type subclass in GetAllTypes<Contract>())
             {
                 string name = subclass.Name;
                 if (contractsToDisable.ContainsKey(name))
