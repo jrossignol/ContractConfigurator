@@ -27,7 +27,7 @@ namespace ContractConfigurator
          */
         public static void LoadDebuggingConfig()
         {
-            Debug.Log("[INFO] CC_LoggingUtil: Loading DebuggingConfig node.");
+            Debug.Log("[INFO] ContractConfigurator.LoggingUtil: Loading DebuggingConfig node.");
             // Don't know why .GetConfigNode("CC_DEBUGGING") returns null, using .GetConfigNodes("CC_DEBUGGING") works fine.
             ConfigNode[] debuggingConfigs = GameDatabase.Instance.GetConfigNodes("CC_DEBUGGING");
 
@@ -56,14 +56,20 @@ namespace ContractConfigurator
                             Type type = null;
                             foreach (Assembly a in AppDomain.CurrentDomain.GetAssemblies())
                             {
-                                foreach (Type t in a.GetTypes())
+                                try
                                 {
-                                    if (t.Name == typeName)
+                                    foreach (Type t in a.GetTypes())
                                     {
-                                        type = t;
-                                        break;
+                                        if (t.Name == typeName)
+                                        {
+                                            type = t;
+                                            break;
+                                        }
                                     }
-
+                                }
+                                catch (Exception e)
+                                {
+                                    Debug.LogWarning("[WARNING] Error loading types from assembly " + a.FullName + ": " + e.Message);
                                 }
                             }
 
@@ -74,12 +80,12 @@ namespace ContractConfigurator
                             }
                             else
                             {
-                                Debug.LogWarning("[WARNING] CC_LoggingUtil: Couldn't find Type with name: '" + typeName + "'");
+                                Debug.LogWarning("[WARNING] ContractConfigurator.LoggingUtil: Couldn't find Type with name: '" + typeName + "'");
                             }
                         }
                         else
                         {
-                            Debug.LogWarning("[WARNING] CC_LoggingUtil: Couldn't load specific LogLevel node, type or logLevel not given!");
+                            Debug.LogWarning("[WARNING] ContractConfigurator.LoggingUtil: Couldn't load specific LogLevel node, type or logLevel not given!");
                         }
                     }
 
@@ -129,8 +135,8 @@ namespace ContractConfigurator
             }
 
             if (logLevel >= logLevelCheckAgainst)
-            {                
-                message = "CC_" + type.Name + ": " + message;
+            {
+                message = "ContractConfigurator." + type.Name + ": " + message;
 
                 if (logLevel <= LogLevel.INFO) {
                     Debug.Log("[" + logLevel + "] " + message);
