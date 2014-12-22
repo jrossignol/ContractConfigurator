@@ -8,6 +8,7 @@ using KSP;
 using KSPAchievements;
 using Contracts;
 using Contracts.Parameters;
+using System.Text.RegularExpressions;
 
 namespace ContractConfigurator
 {
@@ -16,6 +17,8 @@ namespace ContractConfigurator
         public ContractType contractType { get; private set; }
         private List<ContractBehaviour> behaviours = new List<ContractBehaviour>();
         public IEnumerable<ContractBehaviour> Behaviours { get { return behaviours.AsReadOnly(); } }
+
+        public const string HIDDEN_IDENTIFIER = "__HIDDEN__";
 
         protected override bool Generate()
         {
@@ -209,6 +212,16 @@ namespace ContractConfigurator
             return true;
         }
 
+        public override string MissionControlTextRich()
+        {
+            // Remove the stuff that's supposed to be hidden from the mission control text
+            string str = base.MissionControlTextRich();
+            str = Regex.Replace(str, "\r", "");
+            str = Regex.Replace(str, "[^\n]*?" + HIDDEN_IDENTIFIER + ".*?\n\n", "", RegexOptions.Singleline);
+            return str;
+        }
+
+
         //
         // These methods all fall through to the various ContractBehaviour objects.
         //
@@ -320,6 +333,7 @@ namespace ContractConfigurator
         protected override void OnRegister()
         {
             base.OnRegister();
+            LoggingUtil.LogDebug(this.GetType(), "OnRegister, count = " + behaviours.Count);
             foreach (ContractBehaviour behaviour in behaviours)
             {
                 behaviour.Register();

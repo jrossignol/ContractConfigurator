@@ -28,6 +28,22 @@ namespace ContractConfigurator
         }
 
         /*
+         * Checks whether the mandatory field exists, and if not logs and error.  Returns true
+         * only if the validation succeeded.
+         */
+        public static bool ValidateMandatoryChild(ConfigNode configNode, string field, IContractConfiguratorFactory obj)
+        {
+            if (!configNode.HasNode(field))
+            {
+                LoggingUtil.LogError(obj.GetType(), obj.ErrorPrefix() +
+                    ": missing required child node '" + field + "'.");
+                return false;
+            }
+
+            return true;
+        }
+
+        /*
          * Parses the CelestialBody from the given ConfigNode and key.
          */
         public static CelestialBody ParseCelestialBody(ConfigNode configNode, string key)

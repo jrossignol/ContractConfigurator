@@ -12,7 +12,7 @@ using FinePrint.Utilities;
 namespace ContractConfigurator.Behaviour
 {
     /*
-     * Class for spawning a Kerbal.
+     * Class for spawning a waypoint.
      */
     public class WaypointGenerator : ContractBehaviour
     {
@@ -100,7 +100,7 @@ namespace ContractConfigurator.Behaviour
                     WaypointData wpData = new WaypointData(child.name);
 
                     // Get target body
-                    if (defaultBody ==  null)
+                    if (defaultBody == null)
                     {
                         valid &= ConfigNodeUtil.ValidateMandatoryField(child, "targetBody", factory);
                     }
@@ -232,7 +232,7 @@ namespace ContractConfigurator.Behaviour
 
             foreach (ConfigNode child in configNode.GetNodes("WAYPOINT"))
             {
-                // Read all the waypont data
+                // Read all the waypoint data
                 WaypointData wpData = new WaypointData();
                 wpData.type = child.GetValue("type");
                 wpData.waypoint.celestialName = child.GetValue("celestialName");
