@@ -43,7 +43,7 @@ namespace ContractConfigurator.Behaviour
             public Orbit orbit = new Orbit();
             public string type = null;
             public string name = null;
-            public OrbitType orbitType = OrbitType.EQUATORIAL;
+            public OrbitType orbitType = OrbitType.RANDOM;
             public double difficulty = 1.0;
             public int index = 0;
 
@@ -85,6 +85,36 @@ namespace ContractConfigurator.Behaviour
             {
                 // Copy orbit data
                 orbits.Add(new OrbitData(old, contract));
+            }
+
+            System.Random random = new System.Random(contract.MissionSeed);
+
+            // Register the orbit drawing class
+            if (MapView.MapCamera.gameObject.GetComponent<OrbitRenderer>() == null)
+            {
+                MapView.MapCamera.gameObject.AddComponent<OrbitRenderer>();
+            }
+
+            // Find/add the AlwaysTrue parameter
+            AlwaysTrue alwaysTrue = AlwaysTrue.FetchOrAdd(contract);
+
+            int i = 0;
+            foreach (OrbitData obData in orbits)
+            {
+                // Do type specific handling
+                if (obData.type == "RANDOM_ORBIT")
+                {
+                    obData.orbit = CelestialUtilities.GenerateOrbit(obData.orbitType, contract.MissionSeed + i++, obData.orbit.referenceBody, obData.difficulty);
+                }
+
+                // Create the wrapper to the SpecificOrbit parameter that will do the rendering work
+                SpecificOrbitWrapper s = new SpecificOrbitWrapper(obData.orbitType, obData.orbit.inclination,
+                    obData.orbit.eccentricity, obData.orbit.semiMajorAxis, obData.orbit.LAN, obData.orbit.argumentOfPeriapsis,
+                    obData.orbit.meanAnomalyAtEpoch, obData.orbit.epoch, obData.orbit.referenceBody,
+                    obData.difficulty, 3.0);
+                s.DisableOnStateChange = false;
+                alwaysTrue.AddParameter(s);
+                obData.index = alwaysTrue.ParameterCount - 1;
             }
         }
 
@@ -149,33 +179,6 @@ namespace ContractConfigurator.Behaviour
             allOrbitGenerators.Remove(this);
         }
 
-        protected override void OnOffered()
-        {
-            System.Random random = new System.Random(contract.MissionSeed);
-
-            // Find/add the AlwaysTrue parameter
-            AlwaysTrue alwaysTrue = FetchOrbitWrapperNode();
-
-            int i = 0;
-            foreach (OrbitData obData in orbits)
-            {
-                // Do type specific handling
-                if (obData.type == "RANDOM_ORBIT")
-                {
-                    obData.orbit = CelestialUtilities.GenerateOrbit(obData.orbitType, contract.MissionSeed + i++, obData.orbit.referenceBody, obData.difficulty);
-                }
-
-                // Create the wrapper to the SpecificOrbit parameter that will do the rendering work
-                SpecificOrbitWrapper s = new SpecificOrbitWrapper(obData.orbitType, obData.orbit.inclination,
-                    obData.orbit.eccentricity, obData.orbit.semiMajorAxis, obData.orbit.LAN, obData.orbit.argumentOfPeriapsis,
-                    obData.orbit.meanAnomalyAtEpoch, obData.orbit.epoch, obData.orbit.referenceBody,
-                    obData.difficulty, 1.0);
-                s.DisableOnStateChange = false;
-                alwaysTrue.AddParameter(s);
-                obData.index = alwaysTrue.ParameterCount - 1;
-            }
-        }
-
         protected override void OnLoad(ConfigNode configNode)
         {
             base.OnLoad(configNode);
@@ -234,32 +237,15 @@ namespace ContractConfigurator.Behaviour
                 // Update the map icons
                 foreach (OrbitData obData in orbits)
                 {
-                    SpecificOrbitParameter s = FetchOrbitWrapperNode().GetParameter(obData.index) as SpecificOrbitParameter;
+                    SpecificOrbitParameter s = AlwaysTrue.FetchOrAdd(contract).GetParameter(obData.index) as SpecificOrbitParameter;
                     s.updateMapIcons(CelestialUtilities.MapFocusBody() == obData.orbit.referenceBody);
                 }
             }
         }
 
-        private AlwaysTrue FetchOrbitWrapperNode()
+        public SpecificOrbitWrapper GetOrbitParameter(int index)
         {
-            // While we're here register our drawing class
-            if (MapView.MapCamera.gameObject.GetComponent<OrbitRenderer>() == null)
-            {
-                MapView.MapCamera.gameObject.AddComponent<OrbitRenderer>();
-            }
-
-            // Fetch the AlwaysTrue wrapper
-            IEnumerable<ContractParameter> parameters = contract.AllParameters.Where<ContractParameter>(p => p.GetType() == typeof(AlwaysTrue));
-            if (parameters.Count() == 0)
-            {
-                AlwaysTrue alwaysTrue = new AlwaysTrue();
-                contract.AddParameter(alwaysTrue);
-                return alwaysTrue;
-            }
-            else
-            {
-                return parameters.First() as AlwaysTrue;
-            }
+            return AlwaysTrue.FetchOrAdd(contract).GetParameter(orbits[index].index) as SpecificOrbitWrapper;
         }
     }
 }

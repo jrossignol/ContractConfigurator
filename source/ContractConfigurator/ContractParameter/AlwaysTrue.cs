@@ -20,6 +20,7 @@ namespace ContractConfigurator.Parameters
         public AlwaysTrue()
             : base()
         {
+            disableOnStateChange = false;
         }
 
 
@@ -48,5 +49,22 @@ namespace ContractConfigurator.Parameters
         {
             return (this.Root.MissionSeed.ToString() + this.Root.DateAccepted.ToString() + this.ID);
         }
+
+        public static AlwaysTrue FetchOrAdd(Contract contract)
+        {
+            // Fetch the AlwaysTrue wrapper
+            IEnumerable<ContractParameter> parameters = contract.AllParameters.Where<ContractParameter>(p => p.GetType() == typeof(AlwaysTrue));
+            if (parameters.Count() == 0)
+            {
+                AlwaysTrue alwaysTrue = new AlwaysTrue();
+                contract.AddParameter(alwaysTrue);
+                return alwaysTrue;
+            }
+            else
+            {
+                return parameters.First() as AlwaysTrue;
+            }
+        }
+
     }
 }
