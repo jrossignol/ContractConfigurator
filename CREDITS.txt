@@ -1,0 +1,2 @@
+- SCANsat integration courtesy of tattagreis.
+- Some GameDatabase reloading code courtesy of Sarbian (ModuleManager).

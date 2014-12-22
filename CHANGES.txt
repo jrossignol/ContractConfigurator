@@ -10,6 +10,8 @@ Contract Configurator 0.4.0
 - Fixed a bug in the HasPart parameter for parts with an underscore in the name (thanks @tattagreis).
 - Improved HasCrew now errors if minCrew > maxCrew (thanks @tattagreis).
 - Most requirements are no longer checked on active contracts.  Exposed attribute to override default behaviour through config file (thanks @scerion).
+- Added ability to reload all CONTRACT_TYPE nodes on demand (via Alt-F9).
+- Various minor bug-fixes.
 
 Contract Configurator 0.3.4
 - Fixed incompatibility with Tweakscale.

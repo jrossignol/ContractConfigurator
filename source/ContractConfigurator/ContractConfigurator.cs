@@ -15,6 +15,12 @@ namespace ContractConfigurator
         static bool loaded = false;
         static bool contractTypesAdjusted = false;
 
+        private bool showGUI = false;
+        private Rect windowPos = new Rect(320f, 100f, 240f, 40f);
+
+        private int totalContracts = 0;
+        private int successContracts = 0;
+
         void Start()
         {
             DontDestroyOnLoad(this);
@@ -41,12 +47,61 @@ namespace ContractConfigurator
                 }
             }
 
-            // We're done, don't need to keep calling us
-            if (loaded && contractTypesAdjusted)
+            // Alt-F9 shows the contract configurator window
+            if (GameSettings.MODIFIER_KEY.GetKey() && Input.GetKeyDown(KeyCode.F9))
             {
-                Destroy(this);
+                showGUI = !showGUI;
             }
         }
+
+        public void OnGUI()
+        {
+            if (showGUI && (HighLogic.LoadedScene == GameScenes.SPACECENTER || HighLogic.LoadedScene == GameScenes.MAINMENU))
+            {
+                windowPos = GUILayout.Window(
+                    GetType().FullName.GetHashCode(),
+                    windowPos,
+                    WindowGUI,
+                    "Contract Configurator " + GetType().Assembly.GetName().Version.ToString(),
+                    GUILayout.Width(200),
+                    GUILayout.Height(20));
+            }
+        }
+
+        protected void WindowGUI(int windowID)
+        {
+            GUILayout.BeginVertical();
+
+            if (GUILayout.Button("Reload Contracts"))
+                StartCoroutine(ReloadContractTypes());
+            GUILayout.EndVertical();
+            GUI.DragWindow();
+        }
+
+        private IEnumerator<ContractType> ReloadContractTypes()
+        {
+            // Infrom the player of the reload process
+            ScreenMessages.PostScreenMessage("Reloading contract types...", 2,
+                ScreenMessageStyle.UPPER_CENTER);
+            yield return null;
+
+            GameDatabase.Instance.Recompile = true;
+            GameDatabase.Instance.StartLoad();
+
+            // Wait for the reload
+            while (!GameDatabase.Instance.IsReady())
+                yield return null;
+
+            // Reload contract configurator
+            ClearContractConfig();
+            LoadContractConfig();
+            AdjustContractTypes();
+
+            // We're done!
+            ScreenMessages.PostScreenMessage("Loaded " + successContracts + " out of " + totalContracts
+                + " contracts successfully.", 3, ScreenMessageStyle.UPPER_CENTER);
+        }
+
 
         /*
          * Registers all the out of the box ParameterFactory classes.
@@ -113,6 +168,15 @@ namespace ContractConfigurator
         }
 
         /*
+         * Clears the contract configuration.
+         */
+        void ClearContractConfig()
+        {
+            ContractType.contractTypes.Clear();
+            totalContracts = successContracts = 0;
+        }
+
+        /*
          * Loads all the contact configuration nodes and creates ContractType objects.
          */
         void LoadContractConfig()
@@ -123,6 +187,7 @@ namespace ContractConfigurator
             // First pass - create all the ContractType objects
             foreach (ConfigNode contractConfig in contractConfigs)
             {
+                totalContracts++;
                 LoggingUtil.LogDebug(this.GetType(), "First pass for node: '" + contractConfig.GetValue("name") + "'");
                 // Create the initial contract type
                 try
@@ -147,7 +212,10 @@ namespace ContractConfigurator
                     // Perform the load
                     try
                     {
-                        contractType.Load(contractConfig);
+                        if (contractType.Load(contractConfig))
+                        {
+                            successContracts++;
+                        }
                     }
                     catch (Exception e)
                     {
@@ -164,7 +232,7 @@ namespace ContractConfigurator
                 }
             }
 
-            LoggingUtil.LogInfo(this.GetType(), "Finished loading ContractTypes");
+            LoggingUtil.LogInfo(this.GetType(), "Loaded " + successContracts + " out of " + totalContracts + " CONTRACT_TYPE nodes.");
         }
 
         /*

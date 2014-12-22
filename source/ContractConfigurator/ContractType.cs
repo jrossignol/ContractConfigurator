@@ -81,8 +81,10 @@ namespace ContractConfigurator
         /*
          * Loads the contract type details from the given config node.
          */
-        public void Load(ConfigNode contractConfig)
+        public bool Load(ConfigNode contractConfig)
         {
+            bool valid = true;
+
             // Load contract text details
             title = contractConfig.GetValue("title");
             description = contractConfig.GetValue("description");
@@ -155,12 +157,17 @@ namespace ContractConfigurator
                 {
                     paramFactories.Add(paramFactory);
                 }
+                else
+                {
+                    valid = false;
+                }
             }
 
             // Check we have at least one valid parameter
             if (paramFactories.Count() == 0)
             {
-                throw new Exception("Need at least one parameter for a contract!");
+                LoggingUtil.LogError(this.GetType(), "Need at least one parameter for a contract!");
+                valid = false;
             }
 
             // Load behaviours
@@ -171,6 +178,10 @@ namespace ContractConfigurator
                 if (behaviourFactory != null)
                 {
                     behaviourFactories.Add(behaviourFactory);
+                }
+                else
+                {
+                    valid = false;
                 }
             }
 
@@ -183,7 +194,13 @@ namespace ContractConfigurator
                 {
                     requirements.Add(requirement);
                 }
+                else
+                {
+                    valid = false;
+                }
             }
+
+            return valid;
         }
 
         /*
