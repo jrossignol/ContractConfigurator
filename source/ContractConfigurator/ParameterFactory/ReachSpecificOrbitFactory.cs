@@ -34,10 +34,23 @@ namespace ContractConfigurator
             // Get the OrbitGenerator behaviour
             OrbitGenerator orbitGenerator = ((ConfiguredContract)contract).Behaviours.OfType<OrbitGenerator>().First<OrbitGenerator>();
 
-            // Get the parameter for that orbit
-            SpecificOrbitWrapper s = orbitGenerator.GetOrbitParameter(index);
+            if (orbitGenerator == null)
+            {
+                LoggingUtil.LogError(this, "Could not find OrbitGenerator BEHAVIOUR to couple with ReachSpecificOrbit PARAMETER.");
+                return null;
+            }
 
-            return new VesselParameterDelegator(s);
+            // Get the parameter for that orbit
+            try
+            {
+                SpecificOrbitWrapper s = orbitGenerator.GetOrbitParameter(index);
+                return new VesselParameterDelegator(s);
+            }
+            catch (Exception e)
+            {
+                LoggingUtil.LogError(this, "Couldn't find orbit in OrbitGenerator with index " + index + ": " + e.Message);
+                return null;
+            }
         }
     }
 }
