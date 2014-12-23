@@ -27,13 +27,8 @@ namespace ContractConfigurator
             valid &= ConfigNodeUtil.ValidateMandatoryField(configNode, "part", this);
             if (valid)
             {
-                part = PartLoader.getPartInfoByName(configNode.GetValue("part"));
-                if (part == null)
-                {
-                    valid = false;
-                    LoggingUtil.LogError(this.GetType(), ErrorPrefix(configNode) +
-                        ": invalid name for part: '" + configNode.GetValue("part") + "'.");
-                }
+                part = ConfigNodeUtil.ParsePart(configNode, "part");
+                valid &= part != null;
             }
 
             return valid;
