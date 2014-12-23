@@ -8,8 +8,9 @@ Contract Configurator 0.4.0
 - Added VesselMass parameter.
 - Added Facility requirement - requires that a player has a facility upgraded to a specified level.
 - Added SCANsatCoverage parameter and requirement (big thanks @tattagreis on the SCANsat integration).
+- Added support for turning up log levels through the ContractConfigurator.cfg file (thanks @tattagreis).
 - Fixed a bug in the HasPart parameter for parts with an underscore in the name (thanks @tattagreis).
-- Improved HasCrew now errors if minCrew > maxCrew (thanks @tattagreis).
+- HasCrew now errors if minCrew > maxCrew (thanks @tattagreis).
 - Most requirements are no longer checked on active contracts.  Exposed attribute to override default behaviour through config file (thanks @scerion).
 - Added ability to reload all CONTRACT_TYPE nodes on demand (via Alt-F9).
 - Various minor bug-fixes.
