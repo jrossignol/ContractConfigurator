@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using UnityEngine;
 
@@ -26,7 +27,7 @@ namespace ContractConfigurator
          */
         public static void LoadDebuggingConfig()
         {
-            Debug.Log("[INFO] CC_LoggingUtil: Loading DebuggingConfig node.");
+            Debug.Log("[INFO] ContractConfigurator.LoggingUtil: Loading DebuggingConfig node.");
             // Don't know why .GetConfigNode("CC_DEBUGGING") returns null, using .GetConfigNodes("CC_DEBUGGING") works fine.
             ConfigNode[] debuggingConfigs = GameDatabase.Instance.GetConfigNodes("CC_DEBUGGING");
 
@@ -49,14 +50,28 @@ namespace ContractConfigurator
                     {
                         if (levelExceptionNode.HasValue("type") && levelExceptionNode.HasValue("logLevel"))
                         {
-                            // Fetch full type name
+                            // Fetch full type name - just search and find the matching one while
+                            // ignoring namespace
                             string typeName = levelExceptionNode.GetValue("type");
-                            if (typeName.StartsWith("ContractConfigurator.") == false)
+                            Type type = null;
+                            foreach (Assembly a in AppDomain.CurrentDomain.GetAssemblies())
                             {
-                                typeName = "ContractConfigurator." + typeName;
+                                try
+                                {
+                                    foreach (Type t in a.GetTypes())
+                                    {
+                                        if (t.Name == typeName)
+                                        {
+                                            type = t;
+                                            break;
+                                        }
+                                    }
+                                }
+                                catch (Exception e)
+                                {
+                                    Debug.LogWarning("[WARNING] Error loading types from assembly " + a.FullName + ": " + e.Message);
+                                }
                             }
-
-                            Type type = Type.GetType(typeName);
 
                             if (type != null)
                             {
@@ -65,12 +80,12 @@ namespace ContractConfigurator
                             }
                             else
                             {
-                                Debug.LogWarning("[WARNING] CC_LoggingUtil: Couldn't find Type with name: '" + typeName + "'");
+                                Debug.LogWarning("[WARNING] ContractConfigurator.LoggingUtil: Couldn't find Type with name: '" + typeName + "'");
                             }
                         }
                         else
                         {
-                            Debug.LogWarning("[WARNING] CC_LoggingUtil: Couldn't load specific LogLevel node, type or logLevel not given!");
+                            Debug.LogWarning("[WARNING] ContractConfigurator.LoggingUtil: Couldn't load specific LogLevel node, type or logLevel not given!");
                         }
                     }
 
@@ -91,20 +106,48 @@ namespace ContractConfigurator
             }
         }
 
-        public static void LogVerbose(Type type, string message) {
+        public static void LogVerbose(System.Object obj, string message)
+        {
+            LoggingUtil.Log(LogLevel.VERBOSE, obj.GetType(), message);
+        }
+
+        public static void LogVerbose(Type type, string message)
+        {
             LoggingUtil.Log(LogLevel.VERBOSE, type, message);
         }
 
-        public static void LogDebug(Type type, string message) {
+        public static void LogDebug(System.Object obj, string message)
+        {
+            LoggingUtil.Log(LogLevel.DEBUG, obj.GetType(), message);
+        }
+
+        public static void LogDebug(Type type, string message)
+        {
             LoggingUtil.Log(LogLevel.DEBUG, type, message);
+        }
+
+        public static void LogInfo(System.Object obj, string message)
+        {
+            LoggingUtil.Log(LogLevel.INFO, obj.GetType(), message);
         }
 
         public static void LogInfo(Type type, string message) {
             LoggingUtil.Log(LogLevel.INFO, type, message);
         }
-        
-        public static void LogWarning(Type type, string message) {
+
+        public static void LogWarning(System.Object obj, string message)
+        {
+            LoggingUtil.Log(LogLevel.WARNING, obj.GetType(), message);
+        }
+
+        public static void LogWarning(Type type, string message)
+        {
             LoggingUtil.Log(LogLevel.WARNING, type, message);
+        }
+
+        public static void LogError(System.Object obj, string message)
+        {
+            LoggingUtil.Log(LogLevel.ERROR, obj.GetType(), message);
         }
 
         public static void LogError(Type type, string message) {
@@ -120,8 +163,8 @@ namespace ContractConfigurator
             }
 
             if (logLevel >= logLevelCheckAgainst)
-            {                
-                message = "CC_" + type.Name + ": " + message;
+            {
+                message = "ContractConfigurator." + type.Name + ": " + message;
 
                 if (logLevel <= LogLevel.INFO) {
                     Debug.Log("[" + logLevel + "] " + message);

@@ -12,7 +12,7 @@ using FinePrint.Utilities;
 namespace ContractConfigurator.Behaviour
 {
     /*
-     * Class for spawning a Kerbal.
+     * Class for spawning a waypoint.
      */
     public class WaypointGenerator : ContractBehaviour
     {
@@ -100,7 +100,7 @@ namespace ContractConfigurator.Behaviour
                     WaypointData wpData = new WaypointData(child.name);
 
                     // Get target body
-                    if (defaultBody ==  null)
+                    if (defaultBody == null)
                     {
                         valid &= ConfigNodeUtil.ValidateMandatoryField(child, "targetBody", factory);
                     }
@@ -108,7 +108,6 @@ namespace ContractConfigurator.Behaviour
                         ConfigNodeUtil.ParseCelestialBody(child, "targetBody") : defaultBody).name;
 
                     // Get name
-                    valid &= ConfigNodeUtil.ValidateMandatoryField(child, "name", factory);
                     wpData.waypoint.name = child.GetValue("name");
 
                     // Get icon
@@ -191,6 +190,7 @@ namespace ContractConfigurator.Behaviour
         {
             System.Random random = new System.Random(contract.MissionSeed);
 
+            int i = 0;
             foreach (WaypointData wpData in waypoints)
             {
                 // Do type-specific waypoint handling
@@ -222,6 +222,13 @@ namespace ContractConfigurator.Behaviour
                     }
                 }
 
+                // Set name
+                if (string.IsNullOrEmpty(wpData.waypoint.name))
+                {
+                    CelestialBody body = FlightGlobals.Bodies.Where<CelestialBody>(b => b.name == wpData.waypoint.celestialName).First();
+                    wpData.waypoint.name = StringUtilities.GenerateSiteName(contract.MissionSeed + i++, body, !wpData.waterAllowed);
+                }
+
                 AddWayPoint(wpData.waypoint);
             }
         }
@@ -232,7 +239,7 @@ namespace ContractConfigurator.Behaviour
 
             foreach (ConfigNode child in configNode.GetNodes("WAYPOINT"))
             {
-                // Read all the waypont data
+                // Read all the waypoint data
                 WaypointData wpData = new WaypointData();
                 wpData.type = child.GetValue("type");
                 wpData.waypoint.celestialName = child.GetValue("celestialName");
@@ -294,6 +301,11 @@ namespace ContractConfigurator.Behaviour
             {
                 WaypointManager.AddWaypoint(waypoint);
             }
+        }
+
+        public Waypoint GetWaypoint(int index)
+        {
+            return waypoints[index].waypoint;
         }
     }
 }

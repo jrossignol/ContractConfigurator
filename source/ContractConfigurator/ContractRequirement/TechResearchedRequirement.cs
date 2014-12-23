@@ -20,6 +20,9 @@ namespace ContractConfigurator
             // Load base class
             bool valid = base.Load(configNode);
 
+            // Check on active contracts too
+            checkOnActiveContract = configNode.HasValue("checkOnActiveContract") ? checkOnActiveContract : true;
+
             // Get technology
             valid &= ConfigNodeUtil.ValidateMandatoryField(configNode, "tech", this);
             if (valid)

@@ -95,7 +95,7 @@ namespace ContractConfigurator.Behaviour
                     ConfigNodeUtil.ParseCelestialBody(child, "targetBody") : defaultBody;
 
                 // Get orbit
-                valid &= ConfigNodeUtil.ValidateMandatoryField(child, "ORBIT", factory);
+                valid &= ConfigNodeUtil.ValidateMandatoryChild(child, "ORBIT", factory);
                 kerbal.orbit = new OrbitSnapshot(child.GetNode("ORBIT")).Load();
                 kerbal.orbit.referenceBody = kerbal.body;
 

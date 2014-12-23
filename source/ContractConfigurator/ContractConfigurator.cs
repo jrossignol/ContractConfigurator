@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using UnityEngine;
 using KSP;
@@ -13,6 +14,12 @@ namespace ContractConfigurator
     {
         static bool loaded = false;
         static bool contractTypesAdjusted = false;
+
+        private bool showGUI = false;
+        private Rect windowPos = new Rect(320f, 100f, 240f, 40f);
+
+        private int totalContracts = 0;
+        private int successContracts = 0;
 
         void Start()
         {
@@ -40,12 +47,61 @@ namespace ContractConfigurator
                 }
             }
 
-            // We're done, don't need to keep calling us
-            if (loaded && contractTypesAdjusted)
+            // Alt-F9 shows the contract configurator window
+            if (GameSettings.MODIFIER_KEY.GetKey() && Input.GetKeyDown(KeyCode.F9))
             {
-                Destroy(this);
+                showGUI = !showGUI;
             }
         }
+
+        public void OnGUI()
+        {
+            if (showGUI && (HighLogic.LoadedScene == GameScenes.SPACECENTER || HighLogic.LoadedScene == GameScenes.MAINMENU))
+            {
+                windowPos = GUILayout.Window(
+                    GetType().FullName.GetHashCode(),
+                    windowPos,
+                    WindowGUI,
+                    "Contract Configurator " + GetType().Assembly.GetName().Version.ToString(),
+                    GUILayout.Width(200),
+                    GUILayout.Height(20));
+            }
+        }
+
+        protected void WindowGUI(int windowID)
+        {
+            GUILayout.BeginVertical();
+
+            if (GUILayout.Button("Reload Contracts"))
+                StartCoroutine(ReloadContractTypes());
+            GUILayout.EndVertical();
+            GUI.DragWindow();
+        }
+
+        private IEnumerator<ContractType> ReloadContractTypes()
+        {
+            // Infrom the player of the reload process
+            ScreenMessages.PostScreenMessage("Reloading contract types...", 2,
+                ScreenMessageStyle.UPPER_CENTER);
+            yield return null;
+
+            GameDatabase.Instance.Recompile = true;
+            GameDatabase.Instance.StartLoad();
+
+            // Wait for the reload
+            while (!GameDatabase.Instance.IsReady())
+                yield return null;
+
+            // Reload contract configurator
+            ClearContractConfig();
+            LoadContractConfig();
+            AdjustContractTypes();
+
+            // We're done!
+            ScreenMessages.PostScreenMessage("Loaded " + successContracts + " out of " + totalContracts
+                + " contracts successfully.", 3, ScreenMessageStyle.UPPER_CENTER);
+        }
+
 
         /*
          * Registers all the out of the box ParameterFactory classes.
@@ -54,15 +110,8 @@ namespace ContractConfigurator
         {
             LoggingUtil.LogDebug(this.GetType(), "Start Registering ParameterFactories");
 
-            // Get everything that extends ParameterFactory
-            var subclasses =
-                from assembly in AppDomain.CurrentDomain.GetAssemblies()
-                from type in assembly.GetTypes()
-                where type.IsSubclassOf(typeof(ParameterFactory))
-                select type;
-
             // Register each type with the parameter factory
-            foreach (Type subclass in subclasses)
+            foreach (Type subclass in GetAllTypes<ParameterFactory>())
             {
                 string name = subclass.Name;
                 if (name.EndsWith("Factory"))
@@ -83,15 +132,8 @@ namespace ContractConfigurator
         {
             LoggingUtil.LogDebug(this.GetType(), "Start Registering BehaviourFactories");
 
-            // Get everything that extends BehaviourFactory
-            var subclasses =
-                from assembly in AppDomain.CurrentDomain.GetAssemblies()
-                from type in assembly.GetTypes()
-                where type.IsSubclassOf(typeof(BehaviourFactory))
-                select type;
-
             // Register each type with the behaviour factory
-            foreach (Type subclass in subclasses)
+            foreach (Type subclass in GetAllTypes<BehaviourFactory>())
             {
                 string name = subclass.Name;
                 if (name.EndsWith("Factory"))
@@ -111,15 +153,8 @@ namespace ContractConfigurator
         {
             LoggingUtil.LogDebug(this.GetType(), "Start Registering ContractRequirements");
 
-            // Get everything that extends ContractRequirement
-            var subclasses =
-                from assembly in AppDomain.CurrentDomain.GetAssemblies()
-                from type in assembly.GetTypes()
-                where type.IsSubclassOf(typeof(ContractRequirement))
-                select type;
-
             // Register each type with the parameter factory
-            foreach (Type subclass in subclasses)
+            foreach (Type subclass in GetAllTypes<ContractRequirement>())
             {
                 string name = subclass.Name;
                 if (name.EndsWith("Requirement"))
@@ -133,6 +168,15 @@ namespace ContractConfigurator
         }
 
         /*
+         * Clears the contract configuration.
+         */
+        void ClearContractConfig()
+        {
+            ContractType.contractTypes.Clear();
+            totalContracts = successContracts = 0;
+        }
+
+        /*
          * Loads all the contact configuration nodes and creates ContractType objects.
          */
         void LoadContractConfig()
@@ -143,6 +187,7 @@ namespace ContractConfigurator
             // First pass - create all the ContractType objects
             foreach (ConfigNode contractConfig in contractConfigs)
             {
+                totalContracts++;
                 LoggingUtil.LogDebug(this.GetType(), "First pass for node: '" + contractConfig.GetValue("name") + "'");
                 // Create the initial contract type
                 try
@@ -167,7 +212,10 @@ namespace ContractConfigurator
                     // Perform the load
                     try
                     {
-                        contractType.Load(contractConfig);
+                        if (contractType.Load(contractConfig))
+                        {
+                            successContracts++;
+                        }
                     }
                     catch (Exception e)
                     {
@@ -184,7 +232,7 @@ namespace ContractConfigurator
                 }
             }
 
-            LoggingUtil.LogInfo(this.GetType(), "Finished loading ContractTypes");
+            LoggingUtil.LogInfo(this.GetType(), "Loaded " + successContracts + " out of " + totalContracts + " CONTRACT_TYPE nodes.");
         }
 
         /*
@@ -215,17 +263,8 @@ namespace ContractConfigurator
                 }
             }
 
-            LoggingUtil.LogDebug(this.GetType(), "Loaded " + contractsToDisable.Count + " contracts to disable.");
-
-            // Figure out the types
-            var subclasses =
-                from assembly in AppDomain.CurrentDomain.GetAssemblies()
-                from type in assembly.GetTypes()
-                where type.IsSubclassOf(typeof(Contract))
-                select type;
-
             // Map the string to a type
-            foreach (Type subclass in subclasses)
+            foreach (Type subclass in GetAllTypes<Contract>())
             {
                 string name = subclass.Name;
                 if (contractsToDisable.ContainsKey(name))
@@ -263,6 +302,28 @@ namespace ContractConfigurator
             LoggingUtil.LogInfo(this.GetType(), "Finished Adjusting ContractTypes");
 
             return true;
+        }
+
+        public static List<Type> GetAllTypes<T>()
+        {
+            // Get everything that extends ParameterFactory
+            List<Type> allTypes = new List<Type>();
+            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                try
+                {
+                    foreach (Type t in from type in assembly.GetTypes() where type.IsSubclassOf(typeof(T)) select type)
+                    {
+                        allTypes.Add(t);
+                    }
+                }
+                catch (Exception e)
+                {
+                    LoggingUtil.LogWarning(typeof(ContractConfigurator), "Error loading types from assembly " + assembly.FullName + ": " + e.Message);
+                }
+            }
+
+            return allTypes;
         }
     }
 }

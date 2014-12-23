@@ -15,6 +15,8 @@ namespace ContractConfigurator
     {
         private static Dictionary<string, Type> requirementTypes = new Dictionary<string, Type>();
 
+        protected string name { get; set; }
+        protected string type { get; set; }
         protected virtual List<ContractRequirement> childNodes { get; set; }
         protected virtual ContractType contractType { get; set; }
         protected virtual CelestialBody targetBody { get; set; }
@@ -30,8 +32,13 @@ namespace ContractConfigurator
         {
             bool valid = true;
 
-            // Check the requirement for active contracts
-            checkOnActiveContract = true;
+            // Get name and type
+            name = configNode.HasValue("name") ? configNode.GetValue("name") : "unknown";
+            type = configNode.GetValue("type");
+
+            // By default, do not check the requirement for active contracts
+            checkOnActiveContract = configNode.HasValue("checkOnActiveContract") ?
+                Convert.ToBoolean(configNode.GetValue("checkOnActiveContract")) : false;
 
             // Load invertRequirement flag
             invertRequirement = false;
@@ -78,6 +85,17 @@ namespace ContractConfigurator
                     allReqMet = allReqMet && (requirement.invertRequirement ? !nodeMet : nodeMet);
                 }
             }
+
+            // Force fail the contract if a requirement becomes unmet
+            if(contract.ContractState == Contract.State.Active && !allReqMet)
+            {
+                // Fail the contract - unfortunately, the player won't know why. :(
+                contract.Fail();
+
+                // Force the stock contracts window to refresh
+                GameEvents.Contract.onContractsLoaded.Fire();
+            }
+
             return allReqMet;
         }
 
@@ -129,6 +147,11 @@ namespace ContractConfigurator
             }
 
             return requirement;
+        }
+
+        public string ErrorPrefix()
+        {
+            return "REQUIREMENT '" + name + "' of type '" + type + "'";
         }
 
         public string ErrorPrefix(ConfigNode configNode)

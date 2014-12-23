@@ -19,8 +19,24 @@ namespace ContractConfigurator
         {
             if (!configNode.HasValue(field))
             {
-                LoggingUtil.LogError(typeof(ConfigNodeUtil), obj.ErrorPrefix(configNode) +
+                LoggingUtil.LogError(obj.GetType(), obj.ErrorPrefix() +
                     ": missing required value '" + field + "'.");
+                return false;
+            }
+
+            return true;
+        }
+
+        /*
+         * Checks whether the mandatory field exists, and if not logs and error.  Returns true
+         * only if the validation succeeded.
+         */
+        public static bool ValidateMandatoryChild(ConfigNode configNode, string field, IContractConfiguratorFactory obj)
+        {
+            if (!configNode.HasNode(field))
+            {
+                LoggingUtil.LogError(obj.GetType(), obj.ErrorPrefix() +
+                    ": missing required child node '" + field + "'.");
                 return false;
             }
 
