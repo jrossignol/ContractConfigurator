@@ -1,5 +1,6 @@
 Contract Configurator 0.4.0
 - Added WaypointGenerator behaviour.  Allows creation of waypoints.
+- Added VisitWaypoint parameter (for use with WaypointGenerator behaviour).
 - Added OrbitGenerator behaviour.  Allows creation of orbits.
 - Added ReachSpecificOrbit parameter (for use with OrbitGenerator behaviour).
 - Added HasCrew requirement.  Allows filtering on trait, experience level and count.
