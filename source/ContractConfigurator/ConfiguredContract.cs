@@ -70,7 +70,15 @@ namespace ContractConfigurator
             contractType.GenerateBehaviours(this);
 
             // Generate parameters
-            contractType.GenerateParameters(this);
+            try
+            {
+                contractType.GenerateParameters(this);
+            }
+            catch (Exception e)
+            {
+                LoggingUtil.LogWarning(this.GetType(), " Failed generating parameters for " + contractType + " message: " + e.Message);
+                return false;
+            }
 
             LoggingUtil.LogInfo(this.GetType(), "Generated contract: " + contractType);
             return true;
@@ -121,12 +129,12 @@ namespace ContractConfigurator
 
         protected override string GetSynopsys()
         {
-            return contractType.synopsis;
+            return contractType.synopsis != null ? contractType.synopsis + "\n" : "";
         }
 
         protected override string MessageCompleted()
         {
-            return contractType.completedMessage;
+            return contractType.completedMessage != null ? contractType.completedMessage + "\n" : "";
         }
 
         protected override string GetNotes()

@@ -274,6 +274,7 @@ namespace ContractConfigurator
             }
 
             // Start disabling!
+            int disabledCounter = 0;
             foreach (KeyValuePair<string, Type> p in contractsToDisable)
             {
                 // Didn't find a type
@@ -285,8 +286,11 @@ namespace ContractConfigurator
                 {
                     LoggingUtil.LogDebug(this.GetType(), "Disabling ContractType: " + p.Value.FullName + " (" + p.Value.Module + ")");
                     ContractSystem.ContractTypes.Remove(p.Value);
+                    disabledCounter++;
                 }
             }
+
+            LoggingUtil.LogInfo(this.GetType(), "Disabled " + disabledCounter + " ContractTypes.");
 
             // Now add the ConfiguredContract type
             int count = (int)(ContractType.contractTypes.Count / 4.0 + 0.5);
