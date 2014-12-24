@@ -52,6 +52,10 @@
     <Compile Include="ContractBehaviour\Expression.cs" />
     <Compile Include="ContractBehaviour\OrbitGenerator.cs" />
     <Compile Include="ContractBehaviour\WaypointGenerator.cs" />
+    <Compile Include="ContractParameter\OrbitEccentricity.cs" />
+    <Compile Include="ContractParameter\OrbitPeriapsis.cs" />
+    <Compile Include="ContractParameter\OrbitApoapsis.cs" />
+    <Compile Include="ContractParameter\OrbitInclination.cs" />
     <Compile Include="ContractParameter\VisitWaypoint.cs" />
     <Compile Include="ContractParameter\SpecificOrbitWrapper.cs" />
     <Compile Include="ContractParameter\AlwaysTrue.cs" />
@@ -64,6 +68,10 @@
     <Compile Include="ContractBehaviour\SpawnKerbal.cs" />
     <Compile Include="IContractConfiguratorFactory.cs" />
     <Compile Include="LoggingUtil.cs" />
+    <Compile Include="ParameterFactory\OrbitEccentrictyFactory.cs" />
+    <Compile Include="ParameterFactory\OrbitPeriapsisFactory.cs" />
+    <Compile Include="ParameterFactory\OrbitApoapsisFactory.cs" />
+    <Compile Include="ParameterFactory\OrbitInclinationFactory.cs" />
     <Compile Include="ParameterFactory\VisitWaypointFactory.cs" />
     <Compile Include="ParameterFactory\ReachSpecificOrbitFactory.cs" />
     <Compile Include="ParameterFactory\VesselMassFactory.cs" />
