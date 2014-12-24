@@ -36,7 +36,7 @@ namespace ContractConfigurator.Parameters
 
             if (title == null)
             {
-                this.title = "Reach and hold an inclination between " + minInclination + "° and " + maxInclination + "°";
+                this.title = "Orbit inclination: between " + minInclination.ToString("F1") + "° and " + maxInclination.ToString("F1") + "°";
             }
             else
             {
@@ -92,9 +92,16 @@ namespace ContractConfigurator.Parameters
          */
         protected override bool VesselMeetsCondition(Vessel vessel)
         {
-            if (vessel.mainBody == targetBody && vessel.situation == Vessel.Situations.ORBITING)
+            if (vessel.mainBody == targetBody && vessel.situation != Vessel.Situations.LANDED)
             {
                 double inclination = vessel.orbit.inclination;
+
+                // Inclination can momentarily be in the [0.0, 360] range before KSP adjusts it
+                if (inclination > 180.0)
+                {
+                    inclination = 360 - inclination;
+                }
+                
                 return inclination >= minInclination && inclination <= maxInclination;
             }
 

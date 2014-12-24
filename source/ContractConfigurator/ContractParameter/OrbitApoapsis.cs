@@ -36,7 +36,19 @@ namespace ContractConfigurator.Parameters
 
             if (title == null)
             {
-                this.title = "Reach and hold an apoapsis between " + minApoapsis + "m and " + maxApoapsis + "m";
+                this.title = "Apoapsis: ";
+                if (minApoapsis == 0.0)
+                {
+                    this.title += "below " + maxApoapsis.ToString("N0") + "m";
+                }
+                else if (maxApoapsis == double.MaxValue)
+                {
+                    this.title += "above " + minApoapsis.ToString("N0") + "m";
+                }
+                else
+                {
+                    this.title += "between " + minApoapsis.ToString("N0") + "m and " + maxApoapsis.ToString("N0") + "m";
+                }
             }
             else
             {
@@ -54,7 +66,10 @@ namespace ContractConfigurator.Parameters
             base.OnSave(node);
             node.AddValue("title", title);
             node.AddValue("minApoapsis", minApoapsis);
-            node.AddValue("maxApoapsis", maxApoapsis);
+            if (maxApoapsis != double.MaxValue)
+            {
+                node.AddValue("maxApoapsis", maxApoapsis);
+            }
             node.AddValue("targetBody", targetBody.name);
         }
 
@@ -63,7 +78,7 @@ namespace ContractConfigurator.Parameters
             base.OnLoad(node);
             title = node.GetValue("title");
             minApoapsis = Convert.ToDouble(node.GetValue("minApoapsis"));
-            maxApoapsis = Convert.ToDouble(node.GetValue("maxApoapsis"));
+            maxApoapsis = node.HasValue("maxApoapsis") ? Convert.ToDouble(node.GetValue("maxApoapsis")) : double.MaxValue;
             targetBody = ConfigNodeUtil.ParseCelestialBody(node, "targetBody");
         }
 
@@ -92,7 +107,7 @@ namespace ContractConfigurator.Parameters
          */
         protected override bool VesselMeetsCondition(Vessel vessel)
         {
-            if (vessel.mainBody == targetBody && vessel.situation == Vessel.Situations.ORBITING)
+            if (vessel.mainBody == targetBody && vessel.situation != Vessel.Situations.LANDED)
             {
                 double apoapsis = vessel.orbit.ApA;
                 return apoapsis >= minApoapsis && apoapsis <= maxApoapsis;

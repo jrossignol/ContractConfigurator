@@ -1,4 +1,8 @@
 Contract Configurator 0.5.0
+- Added OrbitalInclination parameter (thanks tattagreis).
+- Added OrbitalEccentricity parameter (thanks tattagreis).
+- Added OrbitalApoapsis parameter (thanks tattagreis).
+- Added OrbitalPeriapsis parameter (thanks tattagreis).
 - Minor bug fixes.
 
 Contract Configurator 0.4.0

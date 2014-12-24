@@ -40,21 +40,21 @@ namespace ContractConfigurator
             }
             else
             {
-                maxEccentricity = int.MaxValue;
+                maxEccentricity = double.MaxValue;
             }
 
-            if (minEccentricity == 0 && maxEccentricity == int.MaxValue)
+            if (!configNode.HasValue("minEccentricity") && !configNode.HasValue("maxEccentricity"))
             {
                 valid = false;
                 LoggingUtil.LogError(this.GetType(), ErrorPrefix(configNode) +
-                    ": max and min Eccentricity not given!");
+                    ": either minEccentricity or maxEccentricity must be supplied!");
             }
 
             if (minEccentricity < 0)
             {
                 valid = false;
                 LoggingUtil.LogError(this.GetType(), ErrorPrefix(configNode) +
-                    ": minvalue is out bound! (< 0)");
+                    ": minEccentricity must be positive! (< 0)");
             }
 
             if (targetBody == null)

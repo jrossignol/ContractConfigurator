@@ -36,7 +36,19 @@ namespace ContractConfigurator.Parameters
 
             if (title == null)
             {
-                this.title = "Reach and hold an eccentricity between " + minEccentricity + " and " + maxEccentricity;
+                this.title = "Orbit eccentricity: ";
+                if (minEccentricity == 0.0)
+                {
+                    this.title += "less than " + maxEccentricity.ToString("F4");
+                }
+                else if (maxEccentricity == double.MaxValue)
+                {
+                    this.title += "greater than " + minEccentricity.ToString("F4");
+                }
+                else
+                {
+                    this.title += "between " + minEccentricity.ToString("F4") + " and " + maxEccentricity.ToString("F4");
+                }
             }
             else
             {
@@ -54,7 +66,10 @@ namespace ContractConfigurator.Parameters
             base.OnSave(node);
             node.AddValue("title", title);
             node.AddValue("minEccentricity", minEccentricity);
-            node.AddValue("maxEccentricity", maxEccentricity);
+            if (maxEccentricity != double.MaxValue)
+            {
+                node.AddValue("maxEccentricity", maxEccentricity);
+            }
             node.AddValue("targetBody", targetBody.name);
         }
 
@@ -63,7 +78,7 @@ namespace ContractConfigurator.Parameters
             base.OnLoad(node);
             title = node.GetValue("title");
             minEccentricity = Convert.ToDouble(node.GetValue("minEccentricity"));
-            maxEccentricity = Convert.ToDouble(node.GetValue("maxEccentricity"));
+            maxEccentricity = node.HasValue("maxEccentricity") ? Convert.ToDouble(node.GetValue("maxEccentricity")) : double.MaxValue;
             targetBody = ConfigNodeUtil.ParseCelestialBody(node, "targetBody");
         }
 
@@ -92,7 +107,7 @@ namespace ContractConfigurator.Parameters
          */
         protected override bool VesselMeetsCondition(Vessel vessel)
         {
-            if (vessel.mainBody == targetBody && vessel.situation == Vessel.Situations.ORBITING)
+            if (vessel.mainBody == targetBody && vessel.situation != Vessel.Situations.LANDED)
             {
                 double eccentricity = vessel.orbit.eccentricity;
                 return eccentricity >= minEccentricity && eccentricity <= maxEccentricity;

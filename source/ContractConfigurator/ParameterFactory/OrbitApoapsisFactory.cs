@@ -23,7 +23,7 @@ namespace ContractConfigurator
             // Load base class
             bool valid = base.Load(configNode);
 
-            // Get minInclination
+            // Get minApoapsis
             if (configNode.HasValue("minApA"))
             {
                 minApoapsis = Convert.ToDouble(configNode.GetValue("minApA"));
@@ -40,14 +40,14 @@ namespace ContractConfigurator
             }
             else
             {
-                maxApoapsis = int.MaxValue;
+                maxApoapsis = double.MaxValue;
             }
 
-            if (minApoapsis == 0 && maxApoapsis == int.MaxValue)
+            if (!configNode.HasValue("minApA") && !configNode.HasValue("maxApA"))
             {
                 valid = false;
                 LoggingUtil.LogError(this.GetType(), ErrorPrefix(configNode) +
-                    ": max and min apoapsis not given!");
+                    ": either minApA or maxApA must be supplied!");
             }
 
             if (targetBody == null)

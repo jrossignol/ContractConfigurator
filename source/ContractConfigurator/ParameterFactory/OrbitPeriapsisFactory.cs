@@ -23,7 +23,7 @@ namespace ContractConfigurator
             // Load base class
             bool valid = base.Load(configNode);
 
-            // Get minInclination
+            // Get minPeriapsis
             if (configNode.HasValue("minPeA"))
             {
                 minPeriapsis = Convert.ToDouble(configNode.GetValue("minPeA"));
@@ -40,14 +40,14 @@ namespace ContractConfigurator
             }
             else
             {
-                maxPeriapsis = int.MaxValue;
+                maxPeriapsis = double.MaxValue;
             }
-            // Get minPeriapsis
-            if (minPeriapsis == 0 && maxPeriapsis == int.MaxValue)
+
+            if (!configNode.HasValue("minPeA") && !configNode.HasValue("maxPeA"))
             {
                 valid = false;
                 LoggingUtil.LogError(this.GetType(), ErrorPrefix(configNode) +
-                    ": max and min periapsis not given!");
+                    ": either minPeA or maxPeA must be supplied!");
             }
 
             if (targetBody == null)

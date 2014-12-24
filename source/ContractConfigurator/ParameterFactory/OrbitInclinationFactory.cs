@@ -43,11 +43,11 @@ namespace ContractConfigurator
                 maxInclination = 180;
             }
 
-            if (minInclination == 0 && maxInclination == 180)
+            if (!configNode.HasValue("minInclination") && !configNode.HasValue("maxInclination"))
             {
                 valid = false;
                 LoggingUtil.LogError(this.GetType(), ErrorPrefix(configNode) +
-                    ": max and min inclination not given!");
+                    ": either minInclination or maxInclination must be supplied!");
             }
 
             if (minInclination < 0 || maxInclination > 180)

@@ -36,7 +36,19 @@ namespace ContractConfigurator.Parameters
 
             if (title == null)
             {
-                this.title = "Reach and hold an periapsis between " + minPeriapsis + "m and " + maxPeriapsis + "m";
+                this.title = "Periapsis: ";
+                if (minPeriapsis == 0.0)
+                {
+                    this.title += "below " + maxPeriapsis.ToString("N0") + "m";
+                }
+                else if (maxPeriapsis == double.MaxValue)
+                {
+                    this.title += "above " + minPeriapsis.ToString("N0") + "m";
+                }
+                else
+                {
+                    this.title += "between " + minPeriapsis.ToString("N0") + "m and " + maxPeriapsis.ToString("N0") + "m";
+                }
             }
             else
             {
@@ -54,7 +66,10 @@ namespace ContractConfigurator.Parameters
             base.OnSave(node);
             node.AddValue("title", title);
             node.AddValue("minPeriapsis", minPeriapsis);
-            node.AddValue("maxPeriapsis", maxPeriapsis);
+            if (maxPeriapsis != double.MaxValue)
+            {
+                node.AddValue("maxPeriapsis", maxPeriapsis);
+            }
             node.AddValue("targetBody", targetBody.name);
         }
 
@@ -63,7 +78,7 @@ namespace ContractConfigurator.Parameters
             base.OnLoad(node);
             title = node.GetValue("title");
             minPeriapsis = Convert.ToDouble(node.GetValue("minPeriapsis"));
-            maxPeriapsis = Convert.ToDouble(node.GetValue("maxPeriapsis"));
+            maxPeriapsis = node.HasValue("maxPeriapsis") ? Convert.ToDouble(node.GetValue("maxPeriapsis")) : double.MaxValue;
             targetBody = ConfigNodeUtil.ParseCelestialBody(node, "targetBody");
         }
 
@@ -92,7 +107,7 @@ namespace ContractConfigurator.Parameters
          */
         protected override bool VesselMeetsCondition(Vessel vessel)
         {
-            if (vessel.mainBody == targetBody && vessel.situation == Vessel.Situations.ORBITING)
+            if (vessel.mainBody == targetBody && vessel.situation != Vessel.Situations.LANDED)
             {
                 double periapsis = vessel.orbit.PeA;
                 return periapsis >= minPeriapsis && periapsis <= maxPeriapsis;
