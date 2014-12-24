@@ -36,7 +36,7 @@ namespace ContractConfigurator.Parameters
             this.maxMass = maxMass;
             if (title == null)
             {
-                this.title += "Mass: ";
+                this.title = "Mass: ";
 
                 if (maxMass == float.MaxValue)
                 {

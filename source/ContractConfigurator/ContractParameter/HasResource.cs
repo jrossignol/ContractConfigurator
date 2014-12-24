@@ -38,7 +38,7 @@ namespace ContractConfigurator.Parameters
             this.maxQuantity = maxQuantity;
             if (title == null && resource != null)
             {
-                this.title += "Resource: " + resource.name + ": ";
+                this.title = "Resource: " + resource.name + ": ";
 
                 if (maxQuantity == 0)
                 {
