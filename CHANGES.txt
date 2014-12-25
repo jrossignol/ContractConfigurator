@@ -1,8 +1,10 @@
-Contract Configurator 0.5.0
+Contract Configurator 0.4.1
 - Added OrbitalInclination parameter (thanks tattagreis).
 - Added OrbitalEccentricity parameter (thanks tattagreis).
 - Added OrbitalApoapsis parameter (thanks tattagreis).
 - Added OrbitalPeriapsis parameter (thanks tattagreis).
+- Moved debug key from Alt-F9 to Alt-F10.
+- Added LICENSE.txt into download file.
 - Minor bug fixes.
 
 Contract Configurator 0.4.0

@@ -48,7 +48,7 @@ namespace ContractConfigurator
             }
 
             // Alt-F9 shows the contract configurator window
-            if (GameSettings.MODIFIER_KEY.GetKey() && Input.GetKeyDown(KeyCode.F9))
+            if (GameSettings.MODIFIER_KEY.GetKey() && Input.GetKeyDown(KeyCode.F10))
             {
                 showGUI = !showGUI;
             }
