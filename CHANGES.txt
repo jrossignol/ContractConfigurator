@@ -3,6 +3,7 @@ Contract Configurator 0.4.1
 - Added OrbitalEccentricity parameter (thanks tattagreis).
 - Added OrbitalApoapsis parameter (thanks tattagreis).
 - Added OrbitalPeriapsis parameter (thanks tattagreis).
+- Fixed defaults for SCANsatCoverage requirement.
 - Moved debug key from Alt-F9 to Alt-F10.
 - Added LICENSE.txt into download file.
 - Minor bug fixes.

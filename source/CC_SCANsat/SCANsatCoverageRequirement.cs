@@ -27,8 +27,7 @@ namespace ContractConfigurator.SCANsat
             // contract is invalidated, which is usually not what's meant.
             checkOnActiveContract = false;
 
-            valid &= ConfigNodeUtil.ValidateMandatoryField(configNode, "minCoverage", this);
-            if (valid)
+            if (configNode.HasValue("minCoverage"))
             {
                 try
                 {
@@ -41,9 +40,12 @@ namespace ContractConfigurator.SCANsat
                     ": can't parse value 'minCoverage': " + e.Message);
                 }
             }
+            else
+            {
+                minCoverage = 0.0;
+            }
 
-            valid &= ConfigNodeUtil.ValidateMandatoryField(configNode, "maxCoverage", this);
-            if (valid)
+            if (configNode.HasValue("maxCoverage"))
             {
                 try
                 {
@@ -55,6 +57,10 @@ namespace ContractConfigurator.SCANsat
                     Debug.LogError("ContractConfigurator: " + ErrorPrefix(configNode) +
                     ": can't parse value 'maxCoverage': " + e.Message);
                 }
+            }
+            else
+            {
+                maxCoverage = 100.0;
             }
 
             valid &= ConfigNodeUtil.ValidateMandatoryField(configNode, "scanType", this);
