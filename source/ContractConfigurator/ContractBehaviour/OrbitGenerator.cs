@@ -138,17 +138,8 @@ namespace ContractConfigurator.Behaviour
                     }
                     else if (child.name == "RANDOM_ORBIT")
                     {
-                        try
-                        {
-                            obData.orbitType = (OrbitType)Enum.Parse(typeof(OrbitType), child.GetValue("type"));
-                        }
-                        catch (Exception e)
-                        {
-                            valid = false;
-                            LoggingUtil.LogError(typeof(OrbitGenerator), factory.ErrorPrefix(configNode) +
-                                ": error parsing type: " + e.Message);
-                        }
-                        obData.difficulty = Convert.ToDouble(child.GetValue("difficulty"));
+                        valid &= ConfigNodeUtil.ParseValue<OrbitType>(child, "type", ref obData.orbitType, factory);
+                        valid &= ConfigNodeUtil.ParseValue<double>(configNode, "difficulty", ref obData.difficulty, factory, 1.0, x => Validation.GE(x, 0.0));
                     }
                     else
                     {
@@ -156,12 +147,7 @@ namespace ContractConfigurator.Behaviour
                     }
 
                     // Get target body
-                    if (defaultBody == null)
-                    {
-                        valid &= ConfigNodeUtil.ValidateMandatoryField(child, "targetBody", factory);
-                    }
-                    obData.orbit.referenceBody = (child.HasValue("targetBody") ?
-                        ConfigNodeUtil.ParseCelestialBody(child, "targetBody") : defaultBody);
+                    valid &= ConfigNodeUtil.ParseValue<CelestialBody>(child, "targetBody", ref obData.orbit.referenceBody, factory, defaultBody, Validation.NotNull);
                     
                     // Add to the list
                     obGenerator.orbits.Add(obData);

@@ -45,7 +45,7 @@ namespace ContractConfigurator.Parameters
         {
             base.OnLoad(node);
             title = node.GetValue("title");
-            destination = ConfigNodeUtil.ParseCelestialBody(node, "destination");
+            destination = ConfigNodeUtil.ParseValue<CelestialBody>(node, "destination");
         }
 
         protected override void OnRegister()

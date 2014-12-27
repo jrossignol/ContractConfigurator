@@ -22,26 +22,20 @@ namespace ContractConfigurator
         /*
          * Parses a duration in the form "1y 2d 3h 4m 5s"
          */
-        public static double ParseDuration(ConfigNode configNode, string key)
+        public static double ParseDuration(string durationStr)
         {
-            if (configNode.HasValue(key))
-            {
-                string durationStr = configNode.GetValue(key);
-                Match m = Regex.Match(durationStr, @"((\d+)?y,?\s*)?((\d+)?d,?\s*)?((\d+)?h,?\s*)?((\d+)?m,?\s*)?((\d+)?s,?\s*)?");
-                int years = m.Groups[2].Value.Equals("") ? 0 : Convert.ToInt32(m.Groups[2].Value);
-                int days = m.Groups[4].Value.Equals("") ? 0 : Convert.ToInt32(m.Groups[4].Value);
-                int hours = m.Groups[6].Value.Equals("") ? 0 : Convert.ToInt32(m.Groups[6].Value);
-                int minutes = m.Groups[8].Value.Equals("") ? 0 : Convert.ToInt32(m.Groups[8].Value);
-                int seconds = m.Groups[10].Value.Equals("") ? 0 : Convert.ToInt32(m.Groups[10].Value);
+            Match m = Regex.Match(durationStr, @"((\d+)?y,?\s*)?((\d+)?d,?\s*)?((\d+)?h,?\s*)?((\d+)?m,?\s*)?((\d+)?s,?\s*)?");
+            int years = m.Groups[2].Value.Equals("") ? 0 : Convert.ToInt32(m.Groups[2].Value);
+            int days = m.Groups[4].Value.Equals("") ? 0 : Convert.ToInt32(m.Groups[4].Value);
+            int hours = m.Groups[6].Value.Equals("") ? 0 : Convert.ToInt32(m.Groups[6].Value);
+            int minutes = m.Groups[8].Value.Equals("") ? 0 : Convert.ToInt32(m.Groups[8].Value);
+            int seconds = m.Groups[10].Value.Equals("") ? 0 : Convert.ToInt32(m.Groups[10].Value);
 
-                return seconds +
-                    minutes * SECONDS_PER_MINUTE +
-                    hours * SECONDS_PER_HOUR +
-                    days * SECONDS_PER_DAY +
-                    years * SECONDS_PER_YEAR;
-            }
-
-            return 0.0;
+            return seconds +
+                minutes * SECONDS_PER_MINUTE +
+                hours * SECONDS_PER_HOUR +
+                days * SECONDS_PER_DAY +
+                years * SECONDS_PER_YEAR;
         }
         
         /*

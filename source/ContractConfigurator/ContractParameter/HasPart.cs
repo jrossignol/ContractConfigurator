@@ -84,7 +84,7 @@ namespace ContractConfigurator.Parameters
             title = node.GetValue("title");
             minCount = Convert.ToInt32(node.GetValue("minCount"));
             maxCount = Convert.ToInt32(node.GetValue("maxCount"));
-            part = ConfigNodeUtil.ParsePart(node, "part");
+            part = ConfigNodeUtil.ParseValue<AvailablePart>(node, "part");
         }
 
         protected override void OnRegister()

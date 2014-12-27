@@ -19,13 +19,7 @@ namespace ContractConfigurator
             // Load base class
             bool valid = base.Load(configNode);
 
-            // Validate target body
-            if (targetBody == null)
-            {
-                valid = false;
-                LoggingUtil.LogError(this.GetType(), ErrorPrefix(configNode) +
-                    ": targetBody for PlantFlag must be specified.");
-            }
+            valid &= ValidateTargetBody(configNode);
 
             return valid;
         }

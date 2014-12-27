@@ -14,9 +14,9 @@ namespace ContractConfigurator
      */
     public class FacilityRequirement : ContractRequirement
     {
-        protected string facility { get; set; }
-        protected int minLevel { get; set; }
-        protected int maxLevel { get; set; }
+        protected string facility;
+        protected int minLevel;
+        protected int maxLevel;
 
         public override bool Load(ConfigNode configNode)
         {
@@ -26,43 +26,32 @@ namespace ContractConfigurator
             // Check on active contracts too
             checkOnActiveContract = configNode.HasValue("checkOnActiveContract") ? checkOnActiveContract : true;
 
-            // Get trait
-            valid &= ConfigNodeUtil.ValidateMandatoryField(configNode, "facility", this);
-            if (valid)
-            {
-                facility = configNode.GetValue("facility");
-            }
-
-            // Get minCount
-            if (configNode.HasValue("minLevel"))
-            {
-                minLevel = Convert.ToInt32(configNode.GetValue("minLevel"));
-            }
-            else
-            {
-                minLevel = 1;
-            }
-
-            // Get maxCount
-            if (configNode.HasValue("maxLevel"))
-            {
-                maxLevel = Convert.ToInt32(configNode.GetValue("maxLevel"));
-            }
-            else
-            {
-                maxLevel = int.MaxValue;
-            }
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "facility", ref facility, this);
+            valid &= ConfigNodeUtil.ParseValue<int>(configNode, "minLevel", ref minLevel, this, 1, x => Validation.Between(x, 0, 3));
+            valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxLevel", ref maxLevel, this, 3, x => Validation.Between(x, 0, 3));
+            valid &= ConfigNodeUtil.AtLeastOne(configNode, new string[] { "minLevel", "maxLevel" }, this);
 
             return valid;
         }
 
         public override bool RequirementMet(ConfiguredContract contract)
         {
-            UpgradeableFacility upgradeableFacility = UnityEngine.Object.FindObjectsOfType<SpaceCenterBuilding>().
-                Where<SpaceCenterBuilding>(b => b.facilityName == facility).First<SpaceCenterBuilding>().Facility;
+            IEnumerable<UpgradeableFacility> facilities = UnityEngine.Object.FindObjectsOfType<UpgradeableFacility>().
+                Where<UpgradeableFacility>(f => f.name == facility);
 
-            int level = upgradeableFacility.FacilityLevel;
-            return level >= minLevel && level <= maxLevel;
+            if (facilities.Count() > 0)
+            {
+                UpgradeableFacility upgradeableFacility = facilities.First<UpgradeableFacility>();
+
+                int level = upgradeableFacility.FacilityLevel;
+                return level >= minLevel && level <= maxLevel;
+            }
+            else
+            {
+                // Should only get here if the facility name entered was bad
+                LoggingUtil.LogError(this, "Coudn't read find facility with name '" + facility + "'!");
+                return false;
+            }
         }
     }
 }

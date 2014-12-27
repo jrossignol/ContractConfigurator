@@ -14,75 +14,23 @@ namespace ContractConfigurator
      */
     public class HasCrewRequirement : ContractRequirement
     {
-        protected string trait { get; set; }
-        protected int minExperience { get; set; }
-        protected int maxExperience { get; set; }
-        protected int minCount { get; set; }
-        protected int maxCount { get; set; }
+        protected string trait;
+        protected int minExperience;
+        protected int maxExperience;
+        protected int minCount;
+        protected int maxCount;
 
         public override bool Load(ConfigNode configNode)
         {
             // Load base class
             bool valid = base.Load(configNode);
 
-            // Get trait
-            if (!configNode.HasValue("trait"))
-            {
-                trait = null;
-            }
-            else
-            {
-                try
-                {
-                    trait = configNode.GetValue("trait");
-                }
-                catch (Exception e)
-                {
-                    valid = false;
-                    LoggingUtil.LogError(this.GetType(), ErrorPrefix(configNode) +
-                        ": error parsing trait: " + e.Message);
-                }
-            }
-
-            // Get minimum experience level
-            if (configNode.HasValue("minExperience"))
-            {
-                minExperience = Convert.ToInt32(configNode.GetValue("minExperience"));
-            }
-            else
-            {
-                minExperience = 0;
-            }
-
-            // Get maximum experience level
-            if (configNode.HasValue("maxExperience"))
-            {
-                maxExperience = Convert.ToInt32(configNode.GetValue("maxExperience"));
-            }
-            else
-            {
-                maxExperience = 5;
-            }
-
-            // Get minCount
-            if (configNode.HasValue("minCount"))
-            {
-                minCount = Convert.ToInt32(configNode.GetValue("minCount"));
-            }
-            else
-            {
-                minCount = 1;
-            }
-
-            // Get maxCount
-            if (configNode.HasValue("maxCount"))
-            {
-                maxCount = Convert.ToInt32(configNode.GetValue("maxCount"));
-            }
-            else
-            {
-                maxCount = int.MaxValue;
-            }
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "trait", ref trait, this, (string)null);
+            valid &= ConfigNodeUtil.ParseValue<int>(configNode, "minExperience", ref minExperience, this, 0, x => Validation.Between(x, 0, 5));
+            valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxExperience", ref maxExperience, this, 5, x => Validation.Between(x, 0, 5));
+            valid &= ConfigNodeUtil.ParseValue<int>(configNode, "minCount", ref minCount, this, 1, x => Validation.GE(x, 0));
+            valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxCount", ref maxCount, this, int.MaxValue, x => Validation.GE(x, 0));
+            valid &= ConfigNodeUtil.AtLeastOne(configNode, new string[] { "minExperience", "maxExperience", "minCount", "maxCount" }, this);
 
             return valid;
         }

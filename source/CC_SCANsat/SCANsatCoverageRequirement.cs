@@ -13,10 +13,9 @@ namespace ContractConfigurator.SCANsat
      */
     public class SCANsatCoverageRequirement : ContractRequirement
     {
-        protected int scanType { get; set; }
-        protected string scanTypeName { get; set; }
-        protected double minCoverage { get; set; }
-        protected double maxCoverage { get; set; }
+        protected SCANdata.SCANtype scanType;
+        protected double minCoverage;
+        protected double maxCoverage;
 
         public override bool Load(ConfigNode configNode)
         {
@@ -27,73 +26,17 @@ namespace ContractConfigurator.SCANsat
             // contract is invalidated, which is usually not what's meant.
             checkOnActiveContract = false;
 
-            if (configNode.HasValue("minCoverage"))
-            {
-                try
-                {
-                    minCoverage = Convert.ToDouble(configNode.GetValue("minCoverage"));
-                }
-                catch (Exception e)
-                {
-                    valid = false;
-                    Debug.LogError("ContractConfigurator: " + ErrorPrefix(configNode) +
-                    ": can't parse value 'minCoverage': " + e.Message);
-                }
-            }
-            else
-            {
-                minCoverage = 0.0;
-            }
-
-            if (configNode.HasValue("maxCoverage"))
-            {
-                try
-                {
-                    maxCoverage = Convert.ToDouble(configNode.GetValue("maxCoverage"));
-                }
-                catch (Exception e)
-                {
-                    valid = false;
-                    Debug.LogError("ContractConfigurator: " + ErrorPrefix(configNode) +
-                    ": can't parse value 'maxCoverage': " + e.Message);
-                }
-            }
-            else
-            {
-                maxCoverage = 100.0;
-            }
-
-            valid &= ConfigNodeUtil.ValidateMandatoryField(configNode, "scanType", this);
-            if (valid)
-            {
-                try
-                {
-                    scanTypeName = configNode.GetValue("scanType");
-                    SCANdata.SCANtype scanTypeEnum = (SCANdata.SCANtype)Enum.Parse(typeof(SCANdata.SCANtype), scanTypeName);
-                    scanType = (int)scanTypeEnum;
-                }
-                catch (Exception e)
-                {
-                    valid = false;
-                    Debug.LogError("ContractConfigurator: " + ErrorPrefix(configNode) +
-                    ": can't parse value 'scanType':" + e.Message);
-                }
-            }
-
-            // Validate target body
-            if (targetBody == null)
-            {
-                valid = false;
-                Debug.LogError("ContractConfigurator: " + ErrorPrefix(configNode) +
-                    ": targetBody for SCANsatCoverage must be specified.");
-            }
+            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "minCoverage", ref minCoverage, this, 0.0);
+            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "maxCoverage", ref maxCoverage, this, 100.0);
+            valid &= ConfigNodeUtil.ParseValue<SCANdata.SCANtype>(configNode, "scanType", ref scanType, this);
+            valid &= ValidateTargetBody(configNode);
 
             return valid;
         }
 
         public override bool RequirementMet(ConfiguredContract contract)
         {
-            double coverageInPercentage = SCANUtil.GetCoverage(scanType, targetBody);
+            double coverageInPercentage = SCANUtil.GetCoverage((int)scanType, targetBody);
             return coverageInPercentage >= minCoverage && coverageInPercentage <= maxCoverage;
         }
     }

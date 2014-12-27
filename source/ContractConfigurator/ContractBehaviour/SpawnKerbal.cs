@@ -87,12 +87,7 @@ namespace ContractConfigurator.Behaviour
                 }
 
                 // Get celestial body
-                if (defaultBody == null)
-                {
-                    valid &= ConfigNodeUtil.ValidateMandatoryField(child, "targetBody", factory);
-                }
-                kerbal.body = child.HasValue("targetBody") ? 
-                    ConfigNodeUtil.ParseCelestialBody(child, "targetBody") : defaultBody;
+                valid &= ConfigNodeUtil.ParseValue<CelestialBody>(child, "targetBody", ref kerbal.body, factory, defaultBody, Validation.NotNull);
 
                 // Get orbit
                 valid &= ConfigNodeUtil.ValidateMandatoryChild(child, "ORBIT", factory);
@@ -102,16 +97,16 @@ namespace ContractConfigurator.Behaviour
                 // Get landed stuff
                 if (child.HasValue("lat") && child.HasValue("lon") && child.HasValue("alt"))
                 {
-                    kerbal.latitude = Convert.ToDouble(child.GetValue("lat"));
-                    kerbal.longitude = Convert.ToDouble(child.GetValue("lon"));
-                    kerbal.altitude = Convert.ToDouble(child.GetValue("alt"));
+                    valid &= ConfigNodeUtil.ParseValue<double>(child, "lat", ref kerbal.latitude, factory);
+                    valid &= ConfigNodeUtil.ParseValue<double>(child, "lon", ref kerbal.longitude, factory);
+                    valid &= ConfigNodeUtil.ParseValue<double>(child, "alt", ref kerbal.altitude, factory);
                     kerbal.landed = true;
                 }
 
                 // Get owned flag
                 if (child.HasValue("owned"))
                 {
-                    kerbal.owned = Convert.ToBoolean(child.GetValue("owned"));
+                    valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "owned", ref kerbal.owned, factory, false);
                 }
 
                 // Add to the list

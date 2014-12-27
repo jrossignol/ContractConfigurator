@@ -14,7 +14,7 @@ namespace ContractConfigurator
      */
     public class AltitudeRecordFactory : ParameterFactory
     {
-        protected double altitude { get; set; }
+        protected double altitude;
 
         public override bool Load(ConfigNode configNode)
         {
@@ -22,17 +22,7 @@ namespace ContractConfigurator
             bool valid = base.Load(configNode);
 
             // Get altitude
-            valid &= ConfigNodeUtil.ValidateMandatoryField(configNode, "altitude", this);
-            if (valid && Convert.ToDouble(configNode.GetValue("altitude")) <= 0.0f)
-            {
-                valid = false;
-                LoggingUtil.LogError(this.GetType(), ErrorPrefix(configNode) +
-                    ": invalid value of " + configNode.GetValue("altitude") + " for altitude.  Must be a real number greater than zero.");
-            }
-            else
-            {
-                altitude = Convert.ToDouble(configNode.GetValue("altitude"));
-            }
+            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "altitude", ref altitude, this, x => Validation.GT(x, 0.0));
 
             return valid;
         }

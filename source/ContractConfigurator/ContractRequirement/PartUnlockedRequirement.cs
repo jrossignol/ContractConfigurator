@@ -13,7 +13,7 @@ namespace ContractConfigurator
      */
     public class PartUnlockedRequirement : ContractRequirement
     {
-        protected AvailablePart part { get; set; }
+        protected AvailablePart part;
 
         public override bool Load(ConfigNode configNode)
         {
@@ -23,13 +23,7 @@ namespace ContractConfigurator
             // Check on active contracts too
             checkOnActiveContract = configNode.HasValue("checkOnActiveContract") ? checkOnActiveContract : true;
 
-            // Get Part
-            valid &= ConfigNodeUtil.ValidateMandatoryField(configNode, "part", this);
-            if (valid)
-            {
-                part = ConfigNodeUtil.ParsePart(configNode, "part");
-                valid &= part != null;
-            }
+            valid &= ConfigNodeUtil.ParseValue<AvailablePart>(configNode, "part", ref part, this);
 
             return valid;
         }

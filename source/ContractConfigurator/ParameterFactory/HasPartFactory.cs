@@ -15,42 +15,18 @@ namespace ContractConfigurator
      */
     public class HasPartFactory : ParameterFactory
     {
-        protected int minCount { get; set; }
-        protected int maxCount { get; set; }
-        protected AvailablePart part { get; set; }
+        protected int minCount;
+        protected int maxCount;
+        protected AvailablePart part;
 
         public override bool Load(ConfigNode configNode)
         {
             // Load base class
             bool valid = base.Load(configNode);
 
-            // Get minCount
-            if (configNode.HasValue("minCount"))
-            {
-                minCount = Convert.ToInt32(configNode.GetValue("minCount"));
-            }
-            else
-            {
-                minCount = 1;
-            }
-
-            // Get maxCount
-            if (configNode.HasValue("maxCount"))
-            {
-                maxCount = Convert.ToInt32(configNode.GetValue("maxCount"));
-            }
-            else
-            {
-                maxCount = int.MaxValue;
-            }
-
-            // Get part
-            valid &= ConfigNodeUtil.ValidateMandatoryField(configNode, "part", this);
-            if (valid)
-            {
-                part = ConfigNodeUtil.ParsePart(configNode, "part");
-                valid &= part != null;
-            }
+            valid &= ConfigNodeUtil.ParseValue<int>(configNode, "minCount", ref minCount, this, 1, x => Validation.GE(x, 0));
+            valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxCount", ref maxCount, this, int.MaxValue, x => Validation.GE(x, 0));
+            valid &= ConfigNodeUtil.ParseValue<AvailablePart>(configNode, "part", ref part, this);
 
             return valid;
         }

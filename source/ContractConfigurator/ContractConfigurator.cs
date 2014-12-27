@@ -12,6 +12,7 @@ namespace ContractConfigurator
     [KSPAddon(KSPAddon.Startup.MainMenu, true)]
     class ContractConfigurator : MonoBehaviour
     {
+        static bool reloading = false;
         static bool loaded = false;
         static bool contractTypesAdjusted = false;
 
@@ -80,6 +81,8 @@ namespace ContractConfigurator
 
         private IEnumerator<ContractType> ReloadContractTypes()
         {
+            reloading = true;
+
             // Infrom the player of the reload process
             ScreenMessages.PostScreenMessage("Reloading contract types...", 2,
                 ScreenMessageStyle.UPPER_CENTER);
@@ -100,6 +103,8 @@ namespace ContractConfigurator
             // We're done!
             ScreenMessages.PostScreenMessage("Loaded " + successContracts + " out of " + totalContracts
                 + " contracts successfully.", 3, ScreenMessageStyle.UPPER_CENTER);
+
+            reloading = false;
         }
 
 
@@ -220,8 +225,7 @@ namespace ContractConfigurator
                     catch (Exception e)
                     {
                         ContractType.contractTypes.Remove(name);
-                        string err = "Error loading contract type '" + name +
-                            "': " + e.Message + "\n" + e.StackTrace;
+                        string err = "Error loading CONTRACT_TYPE '" + name + "': " + e.Message + "\n" + e.StackTrace;
                         while (e.InnerException != null)
                         {
                             e = e.InnerException;
@@ -233,6 +237,12 @@ namespace ContractConfigurator
             }
 
             LoggingUtil.LogInfo(this.GetType(), "Loaded " + successContracts + " out of " + totalContracts + " CONTRACT_TYPE nodes.");
+
+            if (!reloading && LoggingUtil.logLevel == LoggingUtil.LogLevel.DEBUG || LoggingUtil.logLevel == LoggingUtil.LogLevel.VERBOSE)
+            {
+                ScreenMessages.PostScreenMessage("Contract Configurator: Loaded " + successContracts + " out of " + totalContracts
+                    + " contracts successfully.", 5, ScreenMessageStyle.UPPER_CENTER);
+            }
         }
 
         /*

@@ -14,6 +14,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
+
 // Durch Festlegen von ComVisible auf "false" werden die Typen in dieser Assembly unsichtbar 
 // für COM-Komponenten.  Wenn Sie auf einen Typ in dieser Assembly von 
 // COM zugreifen müssen, legen Sie das ComVisible-Attribut für diesen Typ auf "true" fest.
@@ -34,3 +35,6 @@ using System.Runtime.InteropServices;
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("0.4.1")]
 [assembly: AssemblyFileVersion("0.4.1")]
+[assembly: KSPAssembly("CC_SCANsat", 0, 4)]
+[assembly: KSPAssemblyDependency("ContractConfigurator", 0, 4)]
+[assembly: KSPAssemblyDependency("SCANsat", 0, 8)]

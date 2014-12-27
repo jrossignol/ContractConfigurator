@@ -18,18 +18,7 @@ namespace ContractConfigurator
             // Load base class
             bool valid = base.Load(configNode);
 
-            // Load target body
-            CelestialBody body = ConfigNodeUtil.ParseCelestialBody(configNode, "targetBody");
-            if (body != null)
-            {
-                targetBody = body;
-            }
-            if (targetBody == null)
-            {
-                valid = false;
-                LoggingUtil.LogError(this.GetType(), ErrorPrefix(configNode) +
-                    ": targetBody for " + this.GetType().Name + " must be specified.");
-            }
+            valid &= ValidateTargetBody(configNode);
 
             return valid;
         }

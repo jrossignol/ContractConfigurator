@@ -15,38 +15,15 @@ namespace ContractConfigurator
      */
     public class VesselHasVisitedFactory : ParameterFactory
     {
-        protected FlightLog.EntryType situation { get; set; }
+        protected FlightLog.EntryType situation;
 
         public override bool Load(ConfigNode configNode)
         {
             // Load base class
             bool valid = base.Load(configNode);
 
-            // Validate target body
-            if (targetBody == null)
-            {
-                valid = false;
-                LoggingUtil.LogError(this.GetType(), ErrorPrefix(configNode) +
-                    ": targetBody for ReachDestination must be specified.");
-            }
-
-            // Get returnFrom
-            valid &= ConfigNodeUtil.ValidateMandatoryField(configNode, "situation", this);
-            if (valid)
-            {
-                try
-                {
-                    string situationStr = configNode.GetValue("situation");
-                    situation = (FlightLog.EntryType)Enum.Parse(typeof(FlightLog.EntryType), situationStr);
-                }
-                catch (Exception e)
-                {
-                    valid = false;
-                    LoggingUtil.LogError(this.GetType(), ErrorPrefix(configNode) +
-                        ": error parsing situation: " + e.Message);
-                }
-
-            }
+            valid &= ConfigNodeUtil.ParseValue<FlightLog.EntryType>(configNode, "situation", ref situation, this);
+            valid &= ValidateTargetBody(configNode);
 
             return valid;
         }

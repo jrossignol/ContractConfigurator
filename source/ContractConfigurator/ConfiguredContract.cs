@@ -341,7 +341,6 @@ namespace ContractConfigurator
         protected override void OnRegister()
         {
             base.OnRegister();
-            LoggingUtil.LogDebug(this.GetType(), "OnRegister, count = " + behaviours.Count);
             foreach (ContractBehaviour behaviour in behaviours)
             {
                 behaviour.Register();

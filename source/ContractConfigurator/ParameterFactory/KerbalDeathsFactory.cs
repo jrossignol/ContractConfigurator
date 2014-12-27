@@ -15,28 +15,14 @@ namespace ContractConfigurator
      */
     public class KerbalDeathsFactory : ParameterFactory
     {
-        protected int countMax { get; set; }
+        protected int countMax;
 
         public override bool Load(ConfigNode configNode)
         {
             // Load base class
             bool valid = base.Load(configNode);
 
-            // Get countMax
-            if (configNode.HasValue("countMax"))
-            {
-                if (Convert.ToInt32(configNode.GetValue("countMax")) <= 0)
-                {
-                    valid = false;
-                    LoggingUtil.LogError(this.GetType(), ErrorPrefix(configNode) +
-                        ": invalid value of " + configNode.GetValue("countMax") + " for countMax.  Must be an integer greater than zero.");
-                }
-                countMax = Convert.ToInt32(configNode.GetValue("countMax"));
-            }
-            else
-            {
-                countMax = 1;
-            }
+            valid &= ConfigNodeUtil.ParseValue<int>(configNode, "countMax", ref countMax, this, 1, x => Validation.GT(x, 0));
 
             return valid;
         }

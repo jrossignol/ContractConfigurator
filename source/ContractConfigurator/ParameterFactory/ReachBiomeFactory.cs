@@ -14,7 +14,7 @@ namespace ContractConfigurator
      */
     public class ReachBiomeFactory : ParameterFactory
     {
-        protected string biome { get; set; }
+        protected string biome;
 
         public override bool Load(ConfigNode configNode)
         {
@@ -22,11 +22,7 @@ namespace ContractConfigurator
             bool valid = base.Load(configNode);
 
             // Get biome
-            valid &= ConfigNodeUtil.ValidateMandatoryField(configNode, "biome", this);
-            if (valid)
-            {
-                biome = configNode.GetValue("biome");
-            }
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "biome", ref biome, this);
 
             return valid;
         }

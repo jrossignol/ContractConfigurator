@@ -12,61 +12,24 @@ namespace ContractConfigurator.SCANsat
 {
     public class SCANsatCoverageFactory : ParameterFactory
     {
-        protected int scanType { get; set; }
-        protected string scanTypeName { get; set; }
-        protected double coverage { get; set; }
+        protected SCANdata.SCANtype scanType;
+        protected double coverage;
 
         public override bool Load(ConfigNode configNode)
         {
             // Load base class
             bool valid = base.Load(configNode);
 
-            valid &= ConfigNodeUtil.ValidateMandatoryField(configNode, "coverage", this);
-            if (valid)
-            {
-                try
-                {
-                    coverage = Convert.ToDouble(configNode.GetValue("coverage"));
-                }
-                catch (Exception e)
-                {
-                    valid = false;
-                    Debug.LogError("ContractConfigurator: " + ErrorPrefix(configNode) +
-                    ": can't parse value 'coverage': " + e.Message);                    
-                }
-            }
-
-            valid &= ConfigNodeUtil.ValidateMandatoryField(configNode, "scanType", this);
-            if (valid)
-            {
-                try
-                {
-                    scanTypeName = configNode.GetValue("scanType");
-                    SCANdata.SCANtype scanTypeEnum = (SCANdata.SCANtype)Enum.Parse(typeof(SCANdata.SCANtype), scanTypeName);
-                    scanType = (int)scanTypeEnum;
-                }
-                catch (Exception e)
-                {
-                    valid = false;
-                    Debug.LogError("ContractConfigurator: " + ErrorPrefix(configNode) +
-                    ": can't parse value 'scanType':" + e.Message);
-                }
-            }
-
-            // Validate target body
-            if (targetBody == null)
-            {
-                valid = false;
-                Debug.LogError("ContractConfigurator: " + ErrorPrefix(configNode) +
-                    ": targetBody for SCANsatCoverage must be specified.");
-            }
+            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "coverage", ref coverage, this);
+            valid &= ConfigNodeUtil.ParseValue<SCANdata.SCANtype>(configNode, "scanType", ref scanType, this);
+            valid &= ValidateTargetBody(configNode);
 
             return valid;
         }
 
         public override ContractParameter Generate(Contract contract)
         {
-            return new SCANsatCoverage(coverage, scanType, scanTypeName, targetBody, title);
+            return new SCANsatCoverage(coverage, scanType, targetBody, title);
         }
     }
 }

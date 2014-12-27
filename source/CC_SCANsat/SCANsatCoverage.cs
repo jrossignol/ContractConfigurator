@@ -15,7 +15,7 @@ namespace ContractConfigurator.SCANsat
         protected string title { get; set; }
         public double coverage { get; set; }
         public CelestialBody targetBody { get; set;}
-        public int scanType { get; set; }
+        public SCANdata.SCANtype scanType { get; set; }
 
         private float lastUpdate = 0.0f;
         private const float UPDATE_FREQUENCY = 0.25f;
@@ -23,23 +23,21 @@ namespace ContractConfigurator.SCANsat
         private Dictionary<string, string> nameRemap = new Dictionary<string, string>();
 
         public SCANsatCoverage()
-            : this(95.0f, 0, null, null, "")
+            : this(95.0f, SCANdata.SCANtype.Altimetry, null, "")
         {
         }
 
-        public SCANsatCoverage(double coverage, int scanType, string scanTypeName, CelestialBody targetBody, string title)
+        public SCANsatCoverage(double coverage, SCANdata.SCANtype scanType, CelestialBody targetBody, string title)
             : base()
         {
             this.title = title;
-            if (title == null) {
+            if (title == null)
+            {
                 // Re-label a couple of scan names to make them nicer
                 nameRemap["AltimetryLoRes"] = "Low resolution altimetry";
                 nameRemap["AltimetryHiRes"] = "High resolution altimetry";
-                if (nameRemap.ContainsKey(scanTypeName))
-                {
-                    scanTypeName = nameRemap[scanTypeName];
-                }
 
+                string scanTypeName = nameRemap.ContainsKey(scanType.ToString()) ? nameRemap[scanType.ToString()] : scanType.ToString();
                 this.title = scanTypeName + " scan: " + coverage.ToString("N0") + "% coverage of " + targetBody.name;
             }
 
@@ -68,9 +66,9 @@ namespace ContractConfigurator.SCANsat
             base.OnLoad(node);
 
             title = node.GetValue("title");
-            coverage = (double)Convert.ToDouble(node.GetValue("coverage"));
-            scanType = (int)Convert.ToInt32(node.GetValue("scanType"));
-            targetBody = ConfigNodeUtil.ParseCelestialBody(node, "targetBody");
+            coverage = ConfigNodeUtil.ParseValue<double>(node, "coverage");
+            scanType = ConfigNodeUtil.ParseValue<SCANdata.SCANtype>(node, "scanType");
+            targetBody = ConfigNodeUtil.ParseValue<CelestialBody>(node, "targetBody");
         }
 
         protected override void OnUpdate()
@@ -84,8 +82,9 @@ namespace ContractConfigurator.SCANsat
             if (UnityEngine.Time.fixedTime - lastUpdate > UPDATE_FREQUENCY)
             {
                 lastUpdate = UnityEngine.Time.fixedTime;
-                double coverageInPercentage = SCANUtil.GetCoverage(scanType, targetBody);
-                if (coverageInPercentage > coverage) {
+                double coverageInPercentage = SCANUtil.GetCoverage((int)scanType, targetBody);
+                if (coverageInPercentage > coverage)
+                {
                     SetComplete();
                 }
             }

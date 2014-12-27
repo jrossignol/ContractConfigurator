@@ -79,7 +79,7 @@ namespace ContractConfigurator.Parameters
             title = node.GetValue("title");
             minEccentricity = Convert.ToDouble(node.GetValue("minEccentricity"));
             maxEccentricity = node.HasValue("maxEccentricity") ? Convert.ToDouble(node.GetValue("maxEccentricity")) : double.MaxValue;
-            targetBody = ConfigNodeUtil.ParseCelestialBody(node, "targetBody");
+            targetBody = ConfigNodeUtil.ParseValue<CelestialBody>(node, "targetBody");
         }
 
         protected override void OnRegister()

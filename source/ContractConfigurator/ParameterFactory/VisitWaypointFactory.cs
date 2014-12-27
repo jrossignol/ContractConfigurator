@@ -16,21 +16,16 @@ namespace ContractConfigurator
      */
     public class VisitWaypointFactory : ParameterFactory
     {
-        protected int index { get; set; }
-        protected double distance { get; set; }
+        protected int index;
+        protected double distance;
 
         public override bool Load(ConfigNode configNode)
         {
             // Load base class
             bool valid = base.Load(configNode);
 
-            // Get waypoint index
-            index = configNode.HasValue("index") ? Convert.ToInt32(configNode.GetValue("index")) : 0;
-
-            // Get the distance
-            distance = configNode.HasValue("distance") ? Convert.ToDouble(configNode.GetValue("distance")) : 0.0;
-            // 500 surface
-            // 15000 orbit/air
+            valid &= ConfigNodeUtil.ParseValue<int>(configNode, "index", ref index, this, 1, x => Validation.GE(x, 0));
+            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "distance", ref distance, this, 0.0, x => Validation.GE(x, 0.0));
 
             return valid;
         }

@@ -14,7 +14,7 @@ namespace ContractConfigurator
      */
     public class ExpressionRequirement : ContractRequirement
     {
-        protected string expression { get; set; }
+        protected string expression;
 
         public override bool Load(ConfigNode configNode)
         {
@@ -22,12 +22,8 @@ namespace ContractConfigurator
             bool valid = base.Load(configNode);
 
             // Get expression
-            valid &= ConfigNodeUtil.ValidateMandatoryField(configNode, "expression", this);
-            if (valid)
-            {
-                expression = configNode.GetValue("expression");
-                ExpressionParser.ParseExpression(expression);
-            }
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "expression", ref expression, this, x => ExpressionParser.ParseExpression(x) == 0.0 || true);
+
             return valid;
         }
 

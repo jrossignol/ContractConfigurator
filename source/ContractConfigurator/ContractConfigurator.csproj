@@ -49,6 +49,7 @@
     <Compile Include="BehaviourFactory\OrbitGeneratorFactory.cs" />
     <Compile Include="BehaviourFactory\WaypointGeneratorFactory.cs" />
     <Compile Include="BehaviourFactory\SpawnKerbalFactory.cs" />
+    <Compile Include="Validation.cs" />
     <Compile Include="ContractBehaviour\Expression.cs" />
     <Compile Include="ContractBehaviour\OrbitGenerator.cs" />
     <Compile Include="ContractBehaviour\WaypointGenerator.cs" />

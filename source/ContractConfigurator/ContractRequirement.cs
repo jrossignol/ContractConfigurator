@@ -19,9 +19,9 @@ namespace ContractConfigurator
         protected string type { get; set; }
         protected virtual List<ContractRequirement> childNodes { get; set; }
         protected virtual ContractType contractType { get; set; }
-        protected virtual CelestialBody targetBody { get; set; }
-        protected virtual bool invertRequirement { get; set; }
-        protected virtual bool checkOnActiveContract { get; set; }
+        protected CelestialBody targetBody;
+        protected bool invertRequirement;
+        protected bool checkOnActiveContract;
 
         /*
          * Loads the ContractRequirement from the given ConfigNode.  The base version loads the following:
@@ -36,16 +36,13 @@ namespace ContractConfigurator
             name = configNode.HasValue("name") ? configNode.GetValue("name") : "unknown";
             type = configNode.GetValue("type");
 
+            valid &= ConfigNodeUtil.ParseValue<CelestialBody>(configNode, "targetBody", ref targetBody, this, (CelestialBody)null);
+
             // By default, do not check the requirement for active contracts
-            checkOnActiveContract = configNode.HasValue("checkOnActiveContract") ?
-                Convert.ToBoolean(configNode.GetValue("checkOnActiveContract")) : false;
+            valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "checkOnActiveContract", ref checkOnActiveContract, this, false);
 
             // Load invertRequirement flag
-            invertRequirement = false;
-            if (configNode.HasValue("invertRequirement"))
-            {
-                invertRequirement = Convert.ToBoolean(configNode.GetValue("invertRequirement"));
-            }
+            valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "invertRequirement", ref invertRequirement, this, false);
 
             // Load child nodes
             childNodes = new List<ContractRequirement>();
@@ -151,12 +148,28 @@ namespace ContractConfigurator
 
         public string ErrorPrefix()
         {
-            return "REQUIREMENT '" + name + "' of type '" + type + "'";
+            return (contractType != null ? "CONTRACT_TYPE '" + contractType.name + "', " : "") + 
+                "REQUIREMENT '" + name + "' of type '" + type + "'";
         }
 
         public string ErrorPrefix(ConfigNode configNode)
         {
-            return "REQUIREMENT '" + configNode.GetValue("name") + "' of type '" + configNode.GetValue("type") + "'";
+            return (contractType != null ? "CONTRACT_TYPE '" + contractType.name + "', " : "") + 
+                "REQUIREMENT '" + configNode.GetValue("name") + "' of type '" + configNode.GetValue("type") + "'";
+        }
+
+        /*
+         * Validates whether the targetBody valuehas been loaded.
+         */
+        protected virtual bool ValidateTargetBody(ConfigNode configNode)
+        {
+            if (targetBody == null)
+            {
+                Debug.LogError("ContractConfigurator: " + ErrorPrefix(configNode) +
+                    ": targetBody for " + GetType() + " must be specified.");
+                return false;
+            }
+            return true;
         }
     }
 }

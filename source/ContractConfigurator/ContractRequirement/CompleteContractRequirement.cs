@@ -14,11 +14,11 @@ namespace ContractConfigurator
      */
     public class CompleteContractRequirement : ContractRequirement
     {
-        protected string ccType { get; set; }
-        protected Type contractClass { get; set; }
-        protected uint minCount { get; set; }
-        protected uint maxCount { get; set; }
-        protected double cooldown { get; set; }
+        protected string ccType;
+        protected Type contractClass;
+        protected uint minCount;
+        protected uint maxCount;
+        protected double cooldown;
 
         public override bool Load(ConfigNode configNode)
         {
@@ -26,11 +26,10 @@ namespace ContractConfigurator
             bool valid = base.Load(configNode);
 
             // Get type
-            valid &= ConfigNodeUtil.ValidateMandatoryField(configNode, "contractType", this);
+            string contractType = null;
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "contractType", ref contractType, this);
             if (valid)
             {
-                string contractType = configNode.GetValue("contractType");
-
                 if (ContractType.contractTypes.Keys.Contains(contractType))
                 {
                     ccType = contractType;
@@ -59,46 +58,16 @@ namespace ContractConfigurator
                 }
             }
 
-            // Get minCount
-            if (!configNode.HasValue("minCount"))
-            {
-                minCount = 1;
-            }
-            else
-            {
-                try
-                {
-                    minCount = Convert.ToUInt32(configNode.GetValue("minCount"));
-                }
-                catch (Exception e)
-                {
-                    valid = false;
-                    LoggingUtil.LogError(this.GetType(), ErrorPrefix(configNode) +
-                        ": minCount: " + e.Message);
-                }
-            }
-
-            // Get maxCount
-            if (!configNode.HasValue("maxCount"))
-            {
-                maxCount = UInt32.MaxValue;
-            }
-            else
-            {
-                try
-                {
-                    maxCount = Convert.ToUInt32(configNode.GetValue("maxCount"));
-                }
-                catch (Exception e)
-                {
-                    valid = false;
-                    LoggingUtil.LogError(this.GetType(), ErrorPrefix(configNode) +
-                        ": maxCount: " + e.Message);
-                }
-            }
+            valid &= ConfigNodeUtil.ParseValue<uint>(configNode, "minCount", ref minCount, this, 1);
+            valid &= ConfigNodeUtil.ParseValue<uint>(configNode, "maxCount", ref maxCount, this, UInt32.MaxValue);
 
             // Get cooldown
-            cooldown = configNode.HasValue("cooldownDuration") ? DurationUtil.ParseDuration(configNode, "cooldownDuration") : 0.0;
+            string cooldownStr = null;
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "cooldownDuration", ref cooldownStr, this, "");
+            if (cooldownStr != null)
+            {
+                cooldown = cooldownStr != "" ? DurationUtil.ParseDuration(cooldownStr) : 0.0;
+            }
 
             return valid;
         }

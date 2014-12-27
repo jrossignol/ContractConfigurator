@@ -15,54 +15,25 @@ namespace ContractConfigurator
      */
     public class OrbitApoapsisFactory : ParameterFactory
     {
-        protected double minApoapsis { get; set; }
-        protected double maxApoapsis { get; set; }
+        protected double minApA;
+        protected double maxApA;
 
         public override bool Load(ConfigNode configNode)
         {
             // Load base class
             bool valid = base.Load(configNode);
 
-            // Get minApoapsis
-            if (configNode.HasValue("minApA"))
-            {
-                minApoapsis = Convert.ToDouble(configNode.GetValue("minApA"));
-            }
-            else
-            {
-                minApoapsis = 0;
-            }
-
-            // Get maxApoapsis
-            if (configNode.HasValue("maxApA"))
-            {
-                maxApoapsis = Convert.ToDouble(configNode.GetValue("maxApA"));
-            }
-            else
-            {
-                maxApoapsis = double.MaxValue;
-            }
-
-            if (!configNode.HasValue("minApA") && !configNode.HasValue("maxApA"))
-            {
-                valid = false;
-                LoggingUtil.LogError(this.GetType(), ErrorPrefix(configNode) +
-                    ": either minApA or maxApA must be supplied!");
-            }
-
-            if (targetBody == null)
-            {
-                valid = false;
-                LoggingUtil.LogError(this.GetType(), ErrorPrefix(configNode) +
-                    ": targetBody must be specified.");
-            }
+            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "minApA", ref minApA, this, 0.0, x => Validation.GE(x, 0.0));
+            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "maxApA", ref maxApA, this, double.MaxValue, x => Validation.GE(x, 0.0));
+            valid &= ConfigNodeUtil.AtLeastOne(configNode, new string[] { "minApA", "maxApA" }, this);
+            valid &= ValidateTargetBody(configNode);
 
             return valid;
         }
 
         public override ContractParameter Generate(Contract contract)
         {
-            return new OrbitApoapsis(minApoapsis, maxApoapsis, targetBody, title);
+            return new OrbitApoapsis(minApA, maxApA, targetBody, title);
         }
     }
 }

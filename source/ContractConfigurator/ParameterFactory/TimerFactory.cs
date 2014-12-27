@@ -14,7 +14,7 @@ namespace ContractConfigurator
      */
     public class TimerFactory : ParameterFactory
     {
-        protected double duration { get; set; }
+        protected double duration;
 
         public override bool Load(ConfigNode configNode)
         {
@@ -22,10 +22,11 @@ namespace ContractConfigurator
             bool valid = base.Load(configNode);
 
             // Get duration
-            valid &= ConfigNodeUtil.ValidateMandatoryField(configNode, "duration", this);
-            if (valid)
+            string durationStr = null;
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "duration", ref durationStr, this, "");
+            if (durationStr != null)
             {
-                duration = DurationUtil.ParseDuration(configNode, "duration");
+                duration = durationStr != "" ? DurationUtil.ParseDuration(durationStr) : 0.0;
             }
 
             return valid;

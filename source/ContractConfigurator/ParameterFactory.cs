@@ -18,16 +18,16 @@ namespace ContractConfigurator
         protected string name { get; set; }
         protected string type { get; set; }
         protected virtual ContractType contractType { get; set; }
-        protected virtual CelestialBody targetBody { get; set; }
-        protected virtual float rewardScience { get; set; }
-        protected virtual float rewardReputation { get; set; }
-        protected virtual float rewardFunds { get; set; }
-        protected virtual float failureReputation { get; set; }
-        protected virtual float failureFunds { get; set; }
-        protected virtual bool optional { get; set; }
-        protected virtual bool? disableOnStateChange { get; set; }
+        protected CelestialBody targetBody;
+        protected float rewardScience;
+        protected float rewardReputation;
+        protected float rewardFunds;
+        protected float failureReputation;
+        protected float failureFunds;
+        protected bool optional;
+        protected bool? disableOnStateChange;
         protected virtual List<ParameterFactory> childNodes { get; set; }
-        protected virtual string title { get; set; }
+        protected string title;
 
         /*
          * Loads the ParameterFactory from the given ConfigNode.  The base version performs the following:
@@ -51,41 +51,21 @@ namespace ContractConfigurator
             name = configNode.HasValue("name") ? configNode.GetValue("name") : "unknown";
             type = configNode.GetValue("type");
 
-            // Load targetBody
-            CelestialBody body = ConfigNodeUtil.ParseCelestialBody(configNode, "targetBody");
-            if (body != null) {
-                targetBody = body;
-            }
+            valid &= ConfigNodeUtil.ParseValue<CelestialBody>(configNode, "targetBody", ref targetBody, this, (CelestialBody)null);
 
             // Load rewards
-            rewardFunds = (float)Convert.ToDouble(configNode.GetValue("rewardFunds"));
-            rewardReputation = (float)Convert.ToDouble(configNode.GetValue("rewardReputation"));
-            rewardScience = (float)Convert.ToDouble(configNode.GetValue("rewardScience"));
-            failureFunds = (float)Convert.ToDouble(configNode.GetValue("failureFunds"));
-            failureReputation = (float)Convert.ToDouble(configNode.GetValue("failureReputation"));
+            valid &= ConfigNodeUtil.ParseValue<float>(configNode, "rewardFunds", ref rewardFunds, this, 0.0f, x => Validation.GE(x, 0.0f));
+            valid &= ConfigNodeUtil.ParseValue<float>(configNode, "rewardReputation", ref rewardReputation, this, 0.0f, x => Validation.GE(x, 0.0f));
+            valid &= ConfigNodeUtil.ParseValue<float>(configNode, "rewardScience", ref rewardScience, this, 0.0f, x => Validation.GE(x, 0.0f));
+            valid &= ConfigNodeUtil.ParseValue<float>(configNode, "failureFunds", ref failureFunds, this, 0.0f, x => Validation.GE(x, 0.0f));
+            valid &= ConfigNodeUtil.ParseValue<float>(configNode, "failureReputation", ref failureReputation, this, 0.0f, x => Validation.GE(x, 0.0f));
 
-            // Load optional flag
-            if (configNode.HasValue("optional"))
-            {
-                optional = Convert.ToBoolean(configNode.GetValue("optional"));
-            }
-            else
-            {
-                optional = false;
-            }
-
-            // Load disableOnStateChange flag
-            if (configNode.HasValue("disableOnStateChange"))
-            {
-                disableOnStateChange = Convert.ToBoolean(configNode.GetValue("disableOnStateChange"));
-            }
-            else
-            {
-                disableOnStateChange = null;
-            }
+            // Load flags
+            valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "optional", ref optional, this, false);
+            valid &= ConfigNodeUtil.ParseValue<bool?>(configNode, "disableOnStateChange", ref disableOnStateChange, this, (bool?)null);
 
             // Get title
-            title = configNode.HasValue("title") ? configNode.GetValue("title") : null;
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "title", ref title, this, (string)null);
 
             // Load child nodes
             childNodes = new List<ParameterFactory>();
@@ -218,12 +198,28 @@ namespace ContractConfigurator
 
         public string ErrorPrefix()
         {
-            return "PARAMETER '" + name + "' of type '" + type + "'";
+            return (contractType != null ? "CONTRACT_TYPE '" + contractType.name + "', " : "") + 
+                "PARAMETER '" + name + "' of type '" + type + "'";
         }
 
         public string ErrorPrefix(ConfigNode configNode)
         {
-            return "PARAMETER '" + configNode.GetValue("name") + "' of type '" + configNode.GetValue("type") + "'";
+            return (contractType != null ? "CONTRACT_TYPE '" + contractType.name + "', " : "") + 
+                "PARAMETER '" + configNode.GetValue("name") + "' of type '" + configNode.GetValue("type") + "'";
+        }
+
+        /*
+         * Validates whether the targetBody valuehas been loaded.
+         */
+        protected virtual bool ValidateTargetBody(ConfigNode configNode)
+        {
+            if (targetBody == null)
+            {
+                Debug.LogError("ContractConfigurator: " + ErrorPrefix(configNode) +
+                    ": targetBody for " + GetType() + " must be specified.");
+                return false;
+            }
+            return true;
         }
     }
 }

@@ -1,3 +1,7 @@
+Contract Configurator 0.5.0
+- Improved validation when loading configuration.  More checking for invalid cases and better error messaging.
+- Minor bug fixes.
+
 Contract Configurator 0.4.1
 - Added OrbitalInclination parameter (thanks tattagreis).
 - Added OrbitalEccentricity parameter (thanks tattagreis).

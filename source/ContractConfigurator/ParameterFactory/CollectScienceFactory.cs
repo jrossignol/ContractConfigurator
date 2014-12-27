@@ -14,34 +14,15 @@ namespace ContractConfigurator
      */
     public class CollectScienceFactory : ParameterFactory
     {
-        protected BodyLocation location { get; set; }
+        protected BodyLocation location;
 
         public override bool Load(ConfigNode configNode)
         {
             // Load base class
             bool valid = base.Load(configNode);
 
-            // Get location
-            valid &= ConfigNodeUtil.ValidateMandatoryField(configNode, "location", this);
-            try
-            {
-                string locationStr = configNode.GetValue("location");
-                location = (BodyLocation)Enum.Parse(typeof(BodyLocation), locationStr);
-            }
-            catch (Exception e)
-            {
-                valid = false;
-                LoggingUtil.LogError(this.GetType(), ErrorPrefix(configNode) +
-                    ": error parsing location: " + e.Message);
-            }
-
-            // Validate target body
-            if (targetBody == null)
-            {
-                valid = false;
-                LoggingUtil.LogError(this.GetType(), ErrorPrefix(configNode) +
-                    ": targetBody for CollectScience must be specified.");
-            }
+            valid &= ConfigNodeUtil.ParseValue<BodyLocation>(configNode, "location", ref location, this);
+            valid &= ValidateTargetBody(configNode);
 
             return valid;
         }

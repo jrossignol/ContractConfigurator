@@ -15,29 +15,14 @@ namespace ContractConfigurator
      */
     public class ReachSituationFactory : ParameterFactory
     {
-        protected Vessel.Situations situation { get; set; }
+        protected Vessel.Situations situation;
 
         public override bool Load(ConfigNode configNode)
         {
             // Load base class
             bool valid = base.Load(configNode);
 
-            // Get situation
-            valid &= ConfigNodeUtil.ValidateMandatoryField(configNode, "situation", this);
-            if (valid)
-            {
-                try
-                {
-                    string situationStr = configNode.GetValue("situation");
-                    situation = (Vessel.Situations)Enum.Parse(typeof(Vessel.Situations), situationStr);
-                }
-                catch (Exception e)
-                {
-                    valid = false;
-                    LoggingUtil.LogError(this.GetType(), ErrorPrefix(configNode) +
-                        ": error parsing situation: " + e.Message);
-                }
-            }
+            valid &= ConfigNodeUtil.ParseValue<Vessel.Situations>(configNode, "situation", ref situation, this);
 
             return valid;
         }

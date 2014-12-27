@@ -13,25 +13,14 @@ namespace ContractConfigurator
      */
     public class AltitudeRecordRequirement : ContractRequirement
     {
-        protected double minAltitude { get; set; }
+        protected double minAltitude;
 
         public override bool Load(ConfigNode configNode)
         {
             // Load base class
             bool valid = base.Load(configNode);
 
-            // Get minAltitude
-            valid &= ConfigNodeUtil.ValidateMandatoryField(configNode, "minAltitude", this);
-            if (valid)
-            {
-                minAltitude = Convert.ToDouble(configNode.GetValue("minAltitude"));
-                if (minAltitude <= 0.0)
-                {
-                    valid = false;
-                    LoggingUtil.LogError(this.GetType(), ErrorPrefix(configNode) +
-                        ": minAltitude must be greater than zero.");
-                }
-            }
+            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "minAltitude", ref minAltitude, this, x => Validation.GT(x, 0.0));
 
             return valid;
         }

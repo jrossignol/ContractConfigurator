@@ -12,7 +12,7 @@ namespace ContractConfigurator
     /*
      * Class for capturing all contract type details.
      */
-    public class ContractType
+    public class ContractType : IContractConfiguratorFactory
     {
         public static Dictionary<string, ContractType> contractTypes = new Dictionary<string,ContractType>();
 
@@ -22,31 +22,31 @@ namespace ContractConfigurator
 
         // Contract attributes
         public virtual string name { get; private set; }
-        public virtual string title { get; set; }
-        public virtual string notes { get; set; }
-        public virtual string description { get; set; }
-        public virtual string topic { get; set; }
-        public virtual string subject { get; set; }
-        public virtual string motivation { get; set; }
-        public virtual string synopsis { get; set; }
-        public virtual string completedMessage { get; set; }
-        public virtual Agent agent { get; set; }
-        public virtual float minExpiry { get; set; }
-        public virtual float maxExpiry { get; set; }
-        public virtual float deadline { get; set; }
-        public virtual bool cancellable { get; set; }
-        public virtual bool declinable { get; set; }
-        public virtual Contract.ContractPrestige? prestige { get; set; }
-        public virtual CelestialBody targetBody { get; set; }
-        public virtual int maxCompletions { get; set; }
-        public virtual int maxSimultaneous { get; set; }
-        public virtual float rewardScience { get; set; }
-        public virtual float rewardReputation { get; set; }
-        public virtual float rewardFunds { get; set; }
-        public virtual float failureReputation { get; set; }
-        public virtual float failureFunds { get; set; }
-        public virtual float advanceFunds { get; set; }
-        public virtual double weight { get; set; }
+        public string title;
+        public string notes;
+        public string description;
+        public string topic;
+        public string subject;
+        public string motivation;
+        public string synopsis;
+        public string completedMessage;
+        public Agent agent;
+        public float minExpiry;
+        public float maxExpiry;
+        public float deadline;
+        public bool cancellable;
+        public bool declinable;
+        public Contract.ContractPrestige? prestige;
+        public CelestialBody targetBody;
+        public int maxCompletions;
+        public int maxSimultaneous;
+        public float rewardScience;
+        public float rewardReputation;
+        public float rewardFunds;
+        public float failureReputation;
+        public float failureFunds;
+        public float advanceFunds;
+        public double weight;
 
         public ContractType(string name)
         {
@@ -81,76 +81,48 @@ namespace ContractConfigurator
         /*
          * Loads the contract type details from the given config node.
          */
-        public bool Load(ConfigNode contractConfig)
+        public bool Load(ConfigNode configNode)
         {
             bool valid = true;
 
             // Load contract text details
-            title = contractConfig.GetValue("title");
-            description = contractConfig.GetValue("description");
-            topic = contractConfig.GetValue("topic");
-            subject = contractConfig.GetValue("subject");
-            motivation = contractConfig.GetValue("motivation");
-            notes = contractConfig.GetValue("notes");
-            synopsis = contractConfig.GetValue("synopsis");
-            completedMessage = contractConfig.GetValue("completedMessage");
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "title", ref title, this);
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "description", ref description, this, (string)null);
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "topic", ref topic, this, (string)null);
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "subject", ref subject, this, (string)null);
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "motivation", ref motivation, this, (string)null);
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "notes", ref notes, this, (string)null);
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "synopsis", ref synopsis, this);
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "completedMessage", ref completedMessage, this);
 
             // Load optional attributes
-            if (contractConfig.HasValue("agent"))
-            {
-                agent = AgentList.Instance.GetAgent(contractConfig.GetValue("agent"));
-                if (agent == null)
-                {
-                    LoggingUtil.LogWarning(this.GetType(), "No agent with name '" + contractConfig.GetValue("agent") + "'.");
-                }
-            }
-            if (contractConfig.HasValue("minExpiry"))
-            {
-                minExpiry = (float)Convert.ToDouble(contractConfig.GetValue("minExpiry"));
-            }
-            if (contractConfig.HasValue("maxExpiry"))
-            {
-                maxExpiry = (float)Convert.ToDouble(contractConfig.GetValue("maxExpiry"));
-            }
-            if (contractConfig.HasValue("deadline"))
-            {
-                deadline = (float)Convert.ToDouble(contractConfig.GetValue("deadline"));
-            }
-            if (contractConfig.HasValue("cancellable"))
-            {
-                cancellable = Convert.ToBoolean(contractConfig.GetValue("cancellable"));
-            }
-            if (contractConfig.HasValue("declinable"))
-            {
-                declinable = Convert.ToBoolean(contractConfig.GetValue("declinable"));
-            }
-            if (contractConfig.HasValue("prestige"))
-            {
-                prestige = (Contract.ContractPrestige)Enum.Parse(typeof(Contract.ContractPrestige),
-                    contractConfig.GetValue("prestige"));
-            }
-            targetBody = ConfigNodeUtil.ParseCelestialBody(contractConfig, "targetBody");
+            valid &= ConfigNodeUtil.ParseValue<Agent>(configNode, "agent", ref agent, this, (Agent)null);
+            valid &= ConfigNodeUtil.ParseValue<float>(configNode, "minExpiry", ref minExpiry, this, 0.0f, x => Validation.GE(x, 0.0f));
+            valid &= ConfigNodeUtil.ParseValue<float>(configNode, "maxExpiry", ref maxExpiry, this, 0.0f, x => Validation.GE(x, 0.0f));
+            valid &= ConfigNodeUtil.ParseValue<float>(configNode, "deadline", ref deadline, this, 0.0f, x => Validation.GE(x, 0.0f));
+            valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "cancellable", ref cancellable, this, true);
+            valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "declinable", ref declinable, this, true);
+            valid &= ConfigNodeUtil.ParseValue<Contract.ContractPrestige?>(configNode, "prestige", ref prestige, this, (Contract.ContractPrestige?)null);
+            ConfigNodeUtil.ParseValue<CelestialBody>(configNode, "targetBody", ref targetBody, this, (CelestialBody)null);
 
-            maxCompletions = Convert.ToInt32(contractConfig.GetValue("maxCompletions"));
-            maxSimultaneous = Convert.ToInt32(contractConfig.GetValue("maxSimultaneous"));
+
+            valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxCompletions", ref maxCompletions, this, 0, x => Validation.GE(x, 0));
+            valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxSimultaneous", ref maxSimultaneous, this, 0, x => Validation.GE(x, 0));
 
             // Load rewards
-            rewardFunds = (float)Convert.ToDouble(contractConfig.GetValue("rewardFunds"));
-            rewardReputation = (float)Convert.ToDouble(contractConfig.GetValue("rewardReputation"));
-            rewardScience = (float)Convert.ToDouble(contractConfig.GetValue("rewardScience"));
-            failureFunds = (float)Convert.ToDouble(contractConfig.GetValue("failureFunds"));
-            failureReputation = (float)Convert.ToDouble(contractConfig.GetValue("failureReputation"));
-            advanceFunds = (float)Convert.ToDouble(contractConfig.GetValue("advanceFunds"));
+            valid &= ConfigNodeUtil.ParseValue<float>(configNode, "rewardFunds", ref rewardFunds, this, 0.0f, x => Validation.GE(x, 0.0f));
+            valid &= ConfigNodeUtil.ParseValue<float>(configNode, "rewardReputation", ref rewardReputation, this, 0.0f, x => Validation.GE(x, 0.0f));
+            valid &= ConfigNodeUtil.ParseValue<float>(configNode, "rewardScience", ref rewardScience, this, 0.0f, x => Validation.GE(x, 0.0f));
+            valid &= ConfigNodeUtil.ParseValue<float>(configNode, "failureFunds", ref failureFunds, this, 0.0f, x => Validation.GE(x, 0.0f));
+            valid &= ConfigNodeUtil.ParseValue<float>(configNode, "failureReputation", ref failureReputation, this, 0.0f, x => Validation.GE(x, 0.0f));
+            valid &= ConfigNodeUtil.ParseValue<float>(configNode, "advanceFunds", ref advanceFunds, this, 0.0f, x => Validation.GE(x, 0.0f));
 
             // Load other values
-            if (contractConfig.HasValue("weight"))
-            {
-                weight = Convert.ToDouble(contractConfig.GetValue("weight"));
-            }
+            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "weight", ref weight, this, 1.0, x => Validation.GT(x, 0.0f));
 
             // Load parameters
             paramFactories = new List<ParameterFactory>();
-            foreach (ConfigNode contractParameter in contractConfig.GetNodes("PARAMETER"))
+            foreach (ConfigNode contractParameter in configNode.GetNodes("PARAMETER"))
             {
                 ParameterFactory paramFactory = ParameterFactory.GenerateParameterFactory(contractParameter, this);
                 if (paramFactory != null)
@@ -166,13 +138,13 @@ namespace ContractConfigurator
             // Check we have at least one valid parameter
             if (paramFactories.Count() == 0)
             {
-                LoggingUtil.LogError(this.GetType(), "Need at least one parameter for a contract!");
+                LoggingUtil.LogError(this.GetType(), ErrorPrefix() + ": Need at least one parameter for a contract!");
                 valid = false;
             }
 
             // Load behaviours
             behaviourFactories = new List<BehaviourFactory>();
-            foreach (ConfigNode requirementNode in contractConfig.GetNodes("BEHAVIOUR"))
+            foreach (ConfigNode requirementNode in configNode.GetNodes("BEHAVIOUR"))
             {
                 BehaviourFactory behaviourFactory = BehaviourFactory.GenerateBehaviourFactory(requirementNode, this);
                 if (behaviourFactory != null)
@@ -187,7 +159,7 @@ namespace ContractConfigurator
 
             // Load requirements
             requirements = new List<ContractRequirement>();
-            foreach (ConfigNode requirementNode in contractConfig.GetNodes("REQUIREMENT"))
+            foreach (ConfigNode requirementNode in configNode.GetNodes("REQUIREMENT"))
             {
                 ContractRequirement requirement = ContractRequirement.GenerateRequirement(requirementNode, this);
                 if (requirement != null)
@@ -264,5 +236,16 @@ namespace ContractConfigurator
         {
             return "ContractType[" + name + "]";
         }
+        
+        public string ErrorPrefix()
+        {
+            return "CONTRACT_TYPE '" + name + "'";
+        }
+
+        public string ErrorPrefix(ConfigNode configNode)
+        {
+            return ErrorPrefix();
+        }
+
     }
 }

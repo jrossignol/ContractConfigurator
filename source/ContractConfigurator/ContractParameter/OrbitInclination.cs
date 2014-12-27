@@ -64,7 +64,7 @@ namespace ContractConfigurator.Parameters
             title = node.GetValue("title");
             minInclination = Convert.ToDouble(node.GetValue("minInclination"));
             maxInclination = Convert.ToDouble(node.GetValue("maxInclination"));
-            targetBody = ConfigNodeUtil.ParseCelestialBody(node, "targetBody");
+            targetBody = ConfigNodeUtil.ParseValue<CelestialBody>(node, "targetBody");
         }
 
         protected override void OnRegister()

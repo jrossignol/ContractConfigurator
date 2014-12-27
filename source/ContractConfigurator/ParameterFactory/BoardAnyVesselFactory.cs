@@ -15,31 +15,22 @@ namespace ContractConfigurator
      */
     public class BoardAnyVesselFactory : ParameterFactory
     {
-        protected string kerbal { get; set; }
-        protected int index { get; set; }
+        protected string kerbal;
+        protected int index;
 
         public override bool Load(ConfigNode configNode)
         {
             // Load base class
             bool valid = base.Load(configNode);
 
-            // Get Kerbal
-            kerbal = "";
-            if (configNode.HasValue("kerbal"))
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "kerbal", ref kerbal, this, (string)null);
+            valid &= ConfigNodeUtil.ParseValue<int>(configNode, "index", ref index, this, -1);
+            valid &= ConfigNodeUtil.AtLeastOne(configNode, new string[] { "kerbal", "index" }, this);
+
+            // Manually validate, since the default is technically invalid
+            if (kerbal == null)
             {
-                kerbal = configNode.GetValue("kerbal");
-                index = -1;
-            }
-            else if (configNode.HasValue("index"))
-            {
-                kerbal = null;
-                index = Convert.ToInt32(configNode.GetValue("index"));
-            }
-            else
-            {
-                valid = false;
-                LoggingUtil.LogError(this.GetType(), ErrorPrefix(configNode) +
-                    ": missing required value 'kerbal' or 'index'.");
+                valid &= Validation.GE(index, 0);
             }
 
             return valid;

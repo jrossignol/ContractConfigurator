@@ -19,25 +19,23 @@ namespace ContractConfigurator
         protected string type { get; set; }
 
         protected virtual ContractType contractType { get; set; }
-        protected virtual CelestialBody targetBody { get; set; }
+        protected CelestialBody targetBody;
 
         /*
          * Loads the BehaviourFactory from the given ConfigNode.
          */
         public virtual bool Load(ConfigNode configNode)
         {
+            bool valid = true;
+
             // Get name and type
             name = configNode.HasValue("name") ? configNode.GetValue("name") : "unknown";
             type = configNode.GetValue("type");
 
             // Load targetBody
-            CelestialBody body = ConfigNodeUtil.ParseCelestialBody(configNode, "targetBody");
-            if (body != null)
-            {
-                targetBody = body;
-            }
+            valid &= ConfigNodeUtil.ParseValue<CelestialBody>(configNode, "targetBody", ref targetBody, this, (CelestialBody)null);
 
-            return true;
+            return valid;
         }
 
         /*
@@ -119,12 +117,14 @@ namespace ContractConfigurator
 
         public string ErrorPrefix()
         {
-            return "BEHAVIOUR '" + name + "' of type '" + type + "'";
+            return (contractType != null ? "CONTRACT_TYPE '" + contractType.name + "', " : "") + 
+                "BEHAVIOUR '" + name + "' of type '" + type + "'";
         }
 
         public string ErrorPrefix(ConfigNode configNode)
         {
-            return "BEHAVIOUR '" + configNode.GetValue("name") + "' of type '" + configNode.GetValue("type") + "'";
+            return (contractType != null ? "CONTRACT_TYPE '" + contractType.name + "', " : "") + 
+                "BEHAVIOUR '" + configNode.GetValue("name") + "' of type '" + configNode.GetValue("type") + "'";
         }
     }
 }

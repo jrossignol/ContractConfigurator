@@ -14,24 +14,16 @@ namespace ContractConfigurator
      */
     public class PartTestFactory : ParameterFactory
     {
-        protected AvailablePart part { get; set; }
-        protected string notes { get; set; }
+        protected AvailablePart part;
+        protected string notes;
 
         public override bool Load(ConfigNode configNode)
         {
             // Load base class
             bool valid = base.Load(configNode);
 
-            // Get Part
-            valid &= ConfigNodeUtil.ValidateMandatoryField(configNode, "part", this);
-            if (valid)
-            {
-                part = ConfigNodeUtil.ParsePart(configNode, "part");
-                valid &= part != null;
-            }
-
-            // Get notes
-            notes = configNode.HasValue("notes") ? configNode.GetValue("notes") : null;
+            valid &= ConfigNodeUtil.ParseValue<AvailablePart>(configNode, "part", ref part, this);
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "notes", ref notes, this, (string)null);
 
             return valid;
         }

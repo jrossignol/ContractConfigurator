@@ -16,8 +16,8 @@ namespace ContractConfigurator
      */
     public class ReachSpecificOrbitFactory : ParameterFactory
     {
-        protected int index { get; set; }
-        protected double deviationWindow { get; set; }
+        protected int index;
+        protected double deviationWindow;
 
         public override bool Load(ConfigNode configNode)
         {
@@ -25,8 +25,8 @@ namespace ContractConfigurator
             bool valid = base.Load(configNode);
 
             // Get orbit details from the OrbitGenerator behaviour
-            index = configNode.HasValue("index") ? Convert.ToInt32(configNode.GetValue("index")) : 0;
-            deviationWindow = configNode.HasValue("deviationWindow") ? Convert.ToDouble(configNode.GetValue("deviationWindow")) : 0.0;
+            valid &= ConfigNodeUtil.ParseValue<int>(configNode, "index", ref index, this, 0, x => Validation.GE(x, 0));
+            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "deviationWindow", ref deviationWindow, this, 0.0, x => Validation.GE(x, 0.0));
 
             return valid;
         }

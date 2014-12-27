@@ -97,70 +97,44 @@ namespace ContractConfigurator.Behaviour
                 int count = child.HasValue("count") ? Convert.ToInt32(child.GetValue("count")) : 1;
                 for (int i = 0; i < count; i++)
                 {
+                    double? altitude = null;
                     WaypointData wpData = new WaypointData(child.name);
 
-                    // Get target body
-                    if (defaultBody == null)
-                    {
-                        valid &= ConfigNodeUtil.ValidateMandatoryField(child, "targetBody", factory);
-                    }
-                    wpData.waypoint.celestialName = (child.HasValue("targetBody") ?
-                        ConfigNodeUtil.ParseCelestialBody(child, "targetBody") : defaultBody).name;
-
-                    // Get name
-                    wpData.waypoint.name = child.GetValue("name");
-
-                    // Get icon
-                    valid &= ConfigNodeUtil.ValidateMandatoryField(child, "icon", factory);
-                    wpData.waypoint.id = child.GetValue("icon");
+                    valid &= ConfigNodeUtil.ParseValue<string>(child, "targetBody", ref wpData.waypoint.celestialName, factory, defaultBody != null ? defaultBody.name : null, Validation.NotNull);
+                    valid &= ConfigNodeUtil.ParseValue<string>(child, "name", ref wpData.waypoint.name, factory, (string)null);
+                    valid &= ConfigNodeUtil.ParseValue<string>(child, "icon", ref wpData.waypoint.id, factory);
+                    valid &= ConfigNodeUtil.ParseValue<double?>(child, "altitude", ref altitude, factory, (double?)null, x => Validation.GE(x.Value, 0.0));
 
                     // Track the index
                     wpData.waypoint.index = index++;
 
                     // Get altitude
-                    if (child.HasValue("altitude"))
+                    if (altitude == null)
                     {
-                        wpData.waypoint.altitude = Convert.ToDouble(child.GetValue("altitude"));
-                    }
-                    else
-                    {
+                        wpData.waypoint.altitude = 0.0;
                         wpData.randomAltitude = true;
                     }
 
                     // Get settings that differ by type
                     if (child.name == "WAYPOINT")
                     {
-                        // Get lat/long
-                        valid &= ConfigNodeUtil.ValidateMandatoryField(child, "latitude", factory);
-                        valid &= ConfigNodeUtil.ValidateMandatoryField(child, "longitude", factory);
-                        wpData.waypoint.latitude = Convert.ToDouble(child.GetValue("latitude"));
-                        wpData.waypoint.longitude = Convert.ToDouble(child.GetValue("longitude"));
+                        valid &= ConfigNodeUtil.ParseValue<double>(child, "latitude", ref wpData.waypoint.latitude, factory);
+                        valid &= ConfigNodeUtil.ParseValue<double>(child, "longitude", ref wpData.waypoint.longitude, factory);
                     }
                     else if (child.name == "RANDOM_WAYPOINT")
                     {
                         // Get settings for randomization
-                        if (child.HasValue("waterAllowed"))
-                        {
-                            wpData.waterAllowed = Convert.ToBoolean(child.GetValue("waterAllowed"));
-                        }
-                        if (child.HasValue("forceEquatorial"))
-                        {
-                            wpData.forceEquatorial = Convert.ToBoolean(child.GetValue("forceEquatorial"));
-                        }
+                        valid &= ConfigNodeUtil.ParseValue<bool>(child, "waterAllowed", ref wpData.waterAllowed, factory, true);
+                        valid &= ConfigNodeUtil.ParseValue<bool>(child, "forceEquatorial", ref wpData.forceEquatorial, factory, false);
                     }
                     else if (child.name == "RANDOM_WAYPOINT_NEAR")
                     {
                         // Get settings for randomization
-                        if (child.HasValue("waterAllowed"))
-                        {
-                            wpData.waterAllowed = Convert.ToBoolean(child.GetValue("waterAllowed"));
-                        }
+                        valid &= ConfigNodeUtil.ParseValue<bool>(child, "waterAllowed", ref wpData.waterAllowed, factory, true);
 
                         // Get near waypoint details
-                        valid &= ConfigNodeUtil.ValidateMandatoryField(child, "nearIndex", factory);
-                        valid &= ConfigNodeUtil.ValidateMandatoryField(child, "nearDistance", factory);
-                        wpData.nearIndex = Convert.ToInt32(child.GetValue("nearIndex"));
-                        wpData.nearDistance = Convert.ToDouble(child.GetValue("nearDistance"));
+                        valid &= ConfigNodeUtil.ParseValue<int>(child, "nearIndex", ref wpData.nearIndex, factory, x => Validation.GE(x, 0));
+                        valid &= ConfigNodeUtil.ParseValue<double>(child, "nearDistance", ref wpData.nearDistance, factory, x => Validation.GT(x, 0.0));
                     }
                     else
                     {

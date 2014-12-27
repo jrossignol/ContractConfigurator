@@ -15,42 +15,18 @@ namespace ContractConfigurator
      */
     public class HasResourceFactory : ParameterFactory
     {
-        protected double minQuantity { get; set; }
-        protected double maxQuantity { get; set; }
-        protected PartResourceDefinition resource { get; set; }
+        protected double minQuantity;
+        protected double maxQuantity;
+        protected PartResourceDefinition resource;
 
         public override bool Load(ConfigNode configNode)
         {
             // Load base class
             bool valid = base.Load(configNode);
 
-            // Get minQuantity
-            if (configNode.HasValue("minQuantity"))
-            {
-                minQuantity = Convert.ToDouble(configNode.GetValue("minQuantity"));
-            }
-            else
-            {
-                minQuantity = 0.01;
-            }
-
-            // Get maxQuantity
-            if (configNode.HasValue("maxQuantity"))
-            {
-                maxQuantity = Convert.ToDouble(configNode.GetValue("maxQuantity"));
-            }
-            else
-            {
-                maxQuantity = double.MaxValue;
-            }
-
-            // Get resource
-            valid &= ConfigNodeUtil.ValidateMandatoryField(configNode, "resource", this);
-            if (valid)
-            {
-                resource = ConfigNodeUtil.ParseResource(configNode, "resource");
-                valid &= resource != null;
-            }
+            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "minQuantity", ref minQuantity, this, 0.01, x => Validation.GE(x, 0.0));
+            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "maxQuantity", ref maxQuantity, this, double.MaxValue, x => Validation.GE(x, 0.0));
+            valid &= ConfigNodeUtil.ParseValue<PartResourceDefinition>(configNode, "resource", ref resource, this);
 
             return valid;
         }

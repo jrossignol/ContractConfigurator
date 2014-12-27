@@ -14,39 +14,17 @@ namespace ContractConfigurator
      */
     public class ReachSpeedEnvelopeFactory : ParameterFactory
     {
-        protected double minSpeed { get; set; }
-        protected double maxSpeed { get; set; }
+        protected double minSpeed;
+        protected double maxSpeed;
 
         public override bool Load(ConfigNode configNode)
         {
             // Load base class
             bool valid = base.Load(configNode);
 
-            // Get minSpeed
-            valid &= ConfigNodeUtil.ValidateMandatoryField(configNode, "minSpeed", this);
-            if (valid && Convert.ToDouble(configNode.GetValue("minSpeed")) <= 0.0d)
-            {
-                valid = false;
-                LoggingUtil.LogError(this.GetType(), ErrorPrefix(configNode) +
-                    ": invalid value of " + configNode.GetValue("minSpeed") + " for minSpeed.  Must be a real number greater than zero.");
-            }
-            else
-            {
-                minSpeed = (float)Convert.ToDouble(configNode.GetValue("minSpeed"));
-            }
-
-            // Get maxSpeed
-            valid &= ConfigNodeUtil.ValidateMandatoryField(configNode, "maxSpeed", this);
-            if (valid && Convert.ToDouble(configNode.GetValue("maxSpeed")) <= 0.0d)
-            {
-                valid = false;
-                LoggingUtil.LogError(this.GetType(), ErrorPrefix(configNode) +
-                    ": invalid value of " + configNode.GetValue("maxSpeed") + " for maxSpeed.  Must be a real number greater than zero.");
-            }
-            else
-            {
-                maxSpeed = (float)Convert.ToDouble(configNode.GetValue("maxSpeed"));
-            }
+            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "minSpeed", ref minSpeed, this, 0.0, x => Validation.GT(x, 0.0));
+            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "maxSpeed", ref maxSpeed, this, double.MaxValue, x => Validation.GT(x, 0.0));
+            valid &= ConfigNodeUtil.AtLeastOne(configNode, new string[] { "minSpeed", "maxSpeed" }, this);
 
             return valid;
         }

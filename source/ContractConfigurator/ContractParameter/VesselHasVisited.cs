@@ -106,7 +106,7 @@ namespace ContractConfigurator.Parameters
         {
             base.OnLoad(node);
             title = node.GetValue("title");
-            destination = ConfigNodeUtil.ParseCelestialBody(node, "destination");
+            destination = ConfigNodeUtil.ParseValue<CelestialBody>(node, "destination");
             entryType = (FlightLog.EntryType)Enum.Parse(typeof(FlightLog.EntryType), node.GetValue("entryType"));
         }
 

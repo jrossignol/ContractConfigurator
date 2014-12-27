@@ -79,7 +79,7 @@ namespace ContractConfigurator.Parameters
             title = node.GetValue("title");
             minApoapsis = Convert.ToDouble(node.GetValue("minApoapsis"));
             maxApoapsis = node.HasValue("maxApoapsis") ? Convert.ToDouble(node.GetValue("maxApoapsis")) : double.MaxValue;
-            targetBody = ConfigNodeUtil.ParseCelestialBody(node, "targetBody");
+            targetBody = ConfigNodeUtil.ParseValue<CelestialBody>(node, "targetBody");
         }
 
         protected override void OnRegister()

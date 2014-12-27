@@ -15,54 +15,25 @@ namespace ContractConfigurator
      */
     public class OrbitPeriapsisFactory : ParameterFactory
     {
-        protected double minPeriapsis { get; set; }
-        protected double maxPeriapsis { get; set; }
+        protected double minPeA;
+        protected double maxPeA;
 
         public override bool Load(ConfigNode configNode)
         {
             // Load base class
             bool valid = base.Load(configNode);
 
-            // Get minPeriapsis
-            if (configNode.HasValue("minPeA"))
-            {
-                minPeriapsis = Convert.ToDouble(configNode.GetValue("minPeA"));
-            }
-            else
-            {
-                minPeriapsis = 0;
-            }
-
-            // Get maxPeriapsis
-            if (configNode.HasValue("maxPeA"))
-            {
-                maxPeriapsis = Convert.ToDouble(configNode.GetValue("maxPeA"));
-            }
-            else
-            {
-                maxPeriapsis = double.MaxValue;
-            }
-
-            if (!configNode.HasValue("minPeA") && !configNode.HasValue("maxPeA"))
-            {
-                valid = false;
-                LoggingUtil.LogError(this.GetType(), ErrorPrefix(configNode) +
-                    ": either minPeA or maxPeA must be supplied!");
-            }
-
-            if (targetBody == null)
-            {
-                valid = false;
-                LoggingUtil.LogError(this.GetType(), ErrorPrefix(configNode) +
-                    ": targetBody must be specified.");
-            }
+            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "minPeA", ref minPeA, this, 0.0, x => Validation.GE(x, 0.0));
+            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "maxPeA", ref maxPeA, this, double.MaxValue, x => Validation.GE(x, 0.0));
+            valid &= ConfigNodeUtil.AtLeastOne(configNode, new string[] { "minPeA", "maxPeA" }, this);
+            valid &= ValidateTargetBody(configNode);
 
             return valid;
         }
 
         public override ContractParameter Generate(Contract contract)
         {
-            return new OrbitPeriapsis(minPeriapsis, maxPeriapsis, targetBody, title);
+            return new OrbitPeriapsis(minPeA, maxPeA, targetBody, title);
         }
     }
 }

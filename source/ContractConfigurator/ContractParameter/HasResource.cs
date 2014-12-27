@@ -90,7 +90,7 @@ namespace ContractConfigurator.Parameters
             title = node.GetValue("title");
             minQuantity = Convert.ToDouble(node.GetValue("minQuantity"));
             maxQuantity = node.HasValue("maxQuantity") ? Convert.ToDouble(node.GetValue("maxQuantity")) : double.MaxValue;
-            resource = ConfigNodeUtil.ParseResource(node, "resource");
+            resource = ConfigNodeUtil.ParseValue<PartResourceDefinition>(node, "resource");
         }
 
         protected override void OnRegister()

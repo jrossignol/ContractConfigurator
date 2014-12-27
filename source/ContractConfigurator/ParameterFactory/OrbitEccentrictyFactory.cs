@@ -15,54 +15,18 @@ namespace ContractConfigurator
      */
     public class OrbitEccentricityFactory : ParameterFactory
     {
-        protected double minEccentricity { get; set; }
-        protected double maxEccentricity { get; set; }
+        protected double minEccentricity;
+        protected double maxEccentricity;
 
         public override bool Load(ConfigNode configNode)
         {
             // Load base class
             bool valid = base.Load(configNode);
 
-            // Get minEccentricity
-            if (configNode.HasValue("minEccentricity"))
-            {
-                minEccentricity = Convert.ToDouble(configNode.GetValue("minEccentricity"));
-            }
-            else
-            {
-                minEccentricity = 0;
-            }
-
-            // Get maxEccentricity
-            if (configNode.HasValue("maxEccentricity"))
-            {
-                maxEccentricity = Convert.ToDouble(configNode.GetValue("maxEccentricity"));
-            }
-            else
-            {
-                maxEccentricity = double.MaxValue;
-            }
-
-            if (!configNode.HasValue("minEccentricity") && !configNode.HasValue("maxEccentricity"))
-            {
-                valid = false;
-                LoggingUtil.LogError(this.GetType(), ErrorPrefix(configNode) +
-                    ": either minEccentricity or maxEccentricity must be supplied!");
-            }
-
-            if (minEccentricity < 0)
-            {
-                valid = false;
-                LoggingUtil.LogError(this.GetType(), ErrorPrefix(configNode) +
-                    ": minEccentricity must be positive! (< 0)");
-            }
-
-            if (targetBody == null)
-            {
-                valid = false;
-                LoggingUtil.LogError(this.GetType(), ErrorPrefix(configNode) +
-                    ": targetBody must be specified.");
-            }
+            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "minEccentricity", ref minEccentricity, this, 0, x => Validation.GE(x, 0.0));
+            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "maxEccentricity", ref maxEccentricity, this, double.MaxValue, x => Validation.GE(x, 0.0));
+            valid &= ConfigNodeUtil.AtLeastOne(configNode, new string[] { "minEccentricity", "maxEccentricity" }, this);
+            valid &= ValidateTargetBody(configNode);
 
             return valid;
         }
