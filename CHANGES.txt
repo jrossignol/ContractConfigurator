@@ -1,5 +1,8 @@
 Contract Configurator 0.5.0
 - Improved validation when loading configuration.  More checking for invalid cases and better error messaging.
+- Added Funds requirement.
+- Added Science requirement.
+- Added Repuration requirement.
 - Minor bug fixes.
 
 Contract Configurator 0.4.1
