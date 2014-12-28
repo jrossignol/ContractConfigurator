@@ -49,9 +49,11 @@
     <Compile Include="BehaviourFactory\OrbitGeneratorFactory.cs" />
     <Compile Include="BehaviourFactory\WaypointGeneratorFactory.cs" />
     <Compile Include="BehaviourFactory\SpawnKerbalFactory.cs" />
+    <Compile Include="ContractParameter\HasPassengers.cs" />
     <Compile Include="ContractRequirement\ScienceRequirement.cs" />
     <Compile Include="ContractRequirement\ReputationRequirement.cs" />
     <Compile Include="ContractRequirement\FundsRequirement.cs" />
+    <Compile Include="ParameterFactory\HasPassengersFactory.cs" />
     <Compile Include="Validation.cs" />
     <Compile Include="ContractBehaviour\Expression.cs" />
     <Compile Include="ContractBehaviour\OrbitGenerator.cs" />
