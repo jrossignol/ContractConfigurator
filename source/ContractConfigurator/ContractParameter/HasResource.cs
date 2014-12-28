@@ -118,6 +118,7 @@ namespace ContractConfigurator.Parameters
          */
         protected override bool VesselMeetsCondition(Vessel vessel)
         {
+            LoggingUtil.LogVerbose(this, "Checking VesselMeetsCondition: " + vessel.id);
             double quantity = 0.0;
             foreach (Part part in vessel.Parts)
             {

@@ -106,6 +106,7 @@ namespace ContractConfigurator.Parameters
          */
         protected override bool VesselMeetsCondition(Vessel vessel)
         {
+            LoggingUtil.LogVerbose(this, "Checking VesselMeetsCondition: " + vessel.id);
             float mass = vessel.GetTotalMass();
             return mass >= minMass && mass <= maxMass;
         }

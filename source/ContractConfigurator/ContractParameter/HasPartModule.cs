@@ -117,6 +117,7 @@ namespace ContractConfigurator.Parameters
          */
         protected override bool VesselMeetsCondition(Vessel vessel)
         {
+            LoggingUtil.LogVerbose(this, "Checking VesselMeetsCondition: " + vessel.id);
             // No linq for part modules. :(
             int count = 0;
             foreach (Part p in vessel.parts)

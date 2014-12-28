@@ -114,6 +114,7 @@ namespace ContractConfigurator.Parameters
          */
         protected override bool VesselMeetsCondition(Vessel vessel)
         {
+            LoggingUtil.LogVerbose(this, "Checking VesselMeetsCondition: " + vessel.id);
             int count = vessel.parts.Count<Part>(p => p.partInfo.name == part.name);
             return count >= minCount && count <= maxCount;
         }

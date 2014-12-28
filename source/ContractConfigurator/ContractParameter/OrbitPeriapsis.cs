@@ -107,6 +107,7 @@ namespace ContractConfigurator.Parameters
          */
         protected override bool VesselMeetsCondition(Vessel vessel)
         {
+            LoggingUtil.LogVerbose(this, "Checking VesselMeetsCondition: " + vessel.id);
             if (vessel.mainBody == targetBody && vessel.situation != Vessel.Situations.LANDED)
             {
                 double periapsis = vessel.orbit.PeA;

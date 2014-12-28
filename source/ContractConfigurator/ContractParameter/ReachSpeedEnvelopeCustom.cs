@@ -71,6 +71,7 @@ namespace ContractConfigurator.Parameters
          */
         protected override bool VesselMeetsCondition(Vessel vessel)
         {
+            LoggingUtil.LogVerbose(this, "Checking VesselMeetsCondition: " + vessel.id);
             double speed = GetVesselSpeed(vessel);
             return speed >= minSpeed && speed <= maxSpeed;
         }

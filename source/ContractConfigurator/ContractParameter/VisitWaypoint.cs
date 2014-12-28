@@ -12,7 +12,7 @@ using ContractConfigurator.Behaviour;
 namespace ContractConfigurator.Parameters
 {
     /*
-     * 
+     * Parameter for requiring a Kerbal to visit a waypoint.
      */
     public class VisitWaypoint : VesselParameter
     {
@@ -126,6 +126,7 @@ namespace ContractConfigurator.Parameters
          */
         protected override bool VesselMeetsCondition(Vessel vessel)
         {
+            LoggingUtil.LogVerbose(this, "Checking VesselMeetsCondition: " + vessel.id);
             // Not even close
             if (vessel.mainBody.name != waypoint.celestialName)
             {

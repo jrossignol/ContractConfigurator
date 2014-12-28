@@ -157,6 +157,7 @@ namespace ContractConfigurator.Parameters
          */
         protected override bool VesselMeetsCondition(Vessel vessel)
         {
+            LoggingUtil.LogVerbose(this, "Checking VesselMeetsCondition: " + vessel.id);
             IEnumerable<ProtoCrewMember> crew = vessel.GetVesselCrew();
 
             // Filter by trait

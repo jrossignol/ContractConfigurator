@@ -608,7 +608,6 @@ namespace ContractConfigurator.Parameters
             switch (vesselType)
             {
                 case VesselType.Debris:
-                case VesselType.EVA:
                 case VesselType.Flag:
                 case VesselType.SpaceObject:
                 case VesselType.Unknown:
