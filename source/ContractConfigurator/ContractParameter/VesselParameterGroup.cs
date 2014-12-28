@@ -115,6 +115,7 @@ namespace ContractConfigurator.Parameters
          */
         public void UpdateState(Vessel vessel)
         {
+            LoggingUtil.LogVerbose(this, "-> UpdateState(" + vessel.id + ")");
             // Ignore updates to non-tracked vessels if that vessel is already winning
             if (vessel != trackedVessel && waiting)
             {
@@ -122,6 +123,7 @@ namespace ContractConfigurator.Parameters
                 SetChildState(trackedVessel);
                 if (AllChildParametersComplete())
                 {
+                    LoggingUtil.LogVerbose(this, "<- UpdateState");
                     return;
                 }
             }
@@ -185,6 +187,8 @@ namespace ContractConfigurator.Parameters
 
             // Manually run the OnParameterStateChange
             OnParameterStateChange(this);
+
+            LoggingUtil.LogVerbose(this, "<- UpdateState");
         }
 
         protected override void OnSave(ConfigNode node)

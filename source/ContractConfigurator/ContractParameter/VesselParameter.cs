@@ -446,6 +446,8 @@ namespace ContractConfigurator.Parameters
          */
         public static List<uint> GetVesselHashes(Vessel vessel)
         {
+            LoggingUtil.LogVerbose(typeof(VesselParameter), "-> GetVesselHashes(" + vessel.id + ")");
+
             Queue<Part> queue = new Queue<Part>();
             Dictionary<Part, int> visited = new Dictionary<Part, int>();
             Dictionary<uint, uint> dockedParts = new Dictionary<uint, uint>();
@@ -548,6 +550,7 @@ namespace ContractConfigurator.Parameters
             // Add the last hash
             hashes.Add(hash);
 
+            LoggingUtil.LogVerbose(typeof(VesselParameter), "<- GetVesselHashes = " + hashes);
             return hashes;
         }
 
@@ -562,8 +565,10 @@ namespace ContractConfigurator.Parameters
                 return;
             }
 
+            LoggingUtil.LogVerbose(this, "-> CheckVessel(" + vessel.id + ")");
             if (IsIgnoredVesselType(vessel.vesselType))
             {
+                LoggingUtil.LogVerbose(this, "<- CheckVessel");
                 return;
             }
 
@@ -598,6 +603,7 @@ namespace ContractConfigurator.Parameters
                     SetIncomplete();
                 }
             }
+            LoggingUtil.LogVerbose(this, "<- CheckVessel");
         }
 
         /*
