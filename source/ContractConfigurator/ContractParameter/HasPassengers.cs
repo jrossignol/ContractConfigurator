@@ -40,19 +40,19 @@ namespace ContractConfigurator.Parameters
                 this.title = "Passengers: ";
                 if (maxPassengers == int.MaxValue)
                 {
-                    this.title += "At least " + minPassengers;
+                    this.title += "At least " + minPassengers + (minPassengers != 1 ? " Kerbals" : " Kerbal");
                 }
                 else if (minPassengers == 0)
                 {
-                    this.title += "At most " + maxPassengers;
+                    this.title += "At most " + maxPassengers + (maxPassengers != 1 ? " Kerbals" : " Kerbal");
                 }
                 else if (minPassengers == maxPassengers)
                 {
-                    this.title += minPassengers;
+                    this.title += "Exactly " + minPassengers + (minPassengers != 1 ? " Kerbals" : " Kerbal");
                 }
                 else
                 {
-                    this.title += "Between " + minPassengers + " and " + maxPassengers;
+                    this.title += "Between " + minPassengers + " and " + maxPassengers + " Kerbals";
                 }
             }
             else
