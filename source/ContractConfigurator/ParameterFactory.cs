@@ -51,7 +51,7 @@ namespace ContractConfigurator
             name = configNode.HasValue("name") ? configNode.GetValue("name") : "unknown";
             type = configNode.GetValue("type");
 
-            valid &= ConfigNodeUtil.ParseValue<CelestialBody>(configNode, "targetBody", ref targetBody, this, (CelestialBody)null);
+            valid &= ConfigNodeUtil.ParseValue<CelestialBody>(configNode, "targetBody", ref targetBody, this, contractType.targetBody);
 
             // Load rewards
             valid &= ConfigNodeUtil.ParseValue<float>(configNode, "rewardFunds", ref rewardFunds, this, 0.0f, x => Validation.GE(x, 0.0f));
@@ -185,7 +185,6 @@ namespace ContractConfigurator
 
             // Set attributes
             paramFactory.contractType = contractType;
-            paramFactory.targetBody = contractType.targetBody;
 
             // Load config
             if (!paramFactory.Load(parameterConfig))
