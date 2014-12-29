@@ -14,10 +14,10 @@ namespace ContractConfigurator
      */
     public class DurationUtil
     {
-        public const int SECONDS_PER_MINUTE = 60;
-        public const int SECONDS_PER_HOUR = SECONDS_PER_MINUTE * 60;
-        public const int SECONDS_PER_DAY = SECONDS_PER_HOUR * 6;
-        public const int SECONDS_PER_YEAR = 9203545;
+        private static uint SecondsPerYear;
+        private static uint SecondsPerDay;
+        private static uint SecondsPerHour;
+        private static uint SecondsPerMinute;
 
         /*
          * Parses a duration in the form "1y 2d 3h 4m 5s"
@@ -31,11 +31,12 @@ namespace ContractConfigurator
             int minutes = m.Groups[8].Value.Equals("") ? 0 : Convert.ToInt32(m.Groups[8].Value);
             int seconds = m.Groups[10].Value.Equals("") ? 0 : Convert.ToInt32(m.Groups[10].Value);
 
+            SetTimeConsts();
             return seconds +
-                minutes * SECONDS_PER_MINUTE +
-                hours * SECONDS_PER_HOUR +
-                days * SECONDS_PER_DAY +
-                years * SECONDS_PER_YEAR;
+                minutes * SecondsPerMinute +
+                hours * SecondsPerHour +
+                days * SecondsPerDay +
+                years * SecondsPerYear;
         }
         
         /*
@@ -44,18 +45,19 @@ namespace ContractConfigurator
         public static string StringValue(double duration)
         {
             double time = duration;
+            SetTimeConsts();
 
-            int years = (int)(time / SECONDS_PER_YEAR);
-            time -= years * SECONDS_PER_YEAR;
+            int years = (int)(time / SecondsPerYear);
+            time -= years * SecondsPerYear;
 
-            int days = (int)(time / SECONDS_PER_DAY);
-            time -= days * SECONDS_PER_DAY;
+            int days = (int)(time / SecondsPerDay);
+            time -= days * SecondsPerDay;
 
-            int hours = (int)(time / SECONDS_PER_HOUR);
-            time -= hours * SECONDS_PER_HOUR;
+            int hours = (int)(time / SecondsPerHour);
+            time -= hours * SecondsPerHour;
 
-            int minutes = (int)(time / SECONDS_PER_MINUTE);
-            time -= minutes * SECONDS_PER_MINUTE;
+            int minutes = (int)(time / SecondsPerMinute);
+            time -= minutes * SecondsPerMinute;
 
             int seconds = (int)(time);
 
@@ -76,6 +78,23 @@ namespace ContractConfigurator
             }
 
             return output;
+        }
+
+        private static void SetTimeConsts()
+        {
+            // Earthtime
+            SecondsPerYear = 31536000; // = 365d
+            SecondsPerDay = 86400;     // = 24h
+            SecondsPerHour = 3600;     // = 60m
+            SecondsPerMinute = 60;     // = 60s
+
+            if (GameSettings.KERBIN_TIME)
+            {
+                SecondsPerYear = 9201600;  // = 426d
+                SecondsPerDay = 21600;     // = 6h
+                SecondsPerHour = 3600;     // = 60m
+                SecondsPerMinute = 60;     // = 60s
+            }
         }
 
     }
