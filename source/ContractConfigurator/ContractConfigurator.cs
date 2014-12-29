@@ -193,7 +193,7 @@ namespace ContractConfigurator
             foreach (ConfigNode contractConfig in contractConfigs)
             {
                 totalContracts++;
-                LoggingUtil.LogDebug(this.GetType(), "First pass for node: '" + contractConfig.GetValue("name") + "'");
+                LoggingUtil.LogVerbose(this.GetType(), "Pre-load for node: '" + contractConfig.GetValue("name") + "'");
                 // Create the initial contract type
                 try
                 {
@@ -213,7 +213,7 @@ namespace ContractConfigurator
                 ContractType contractType = ContractType.contractTypes[name];
                 if (contractType != null)
                 {
-                    LoggingUtil.LogDebug(this.GetType(), "Second pass for node: '" + name + "'");
+                    LoggingUtil.LogDebug(this.GetType(), "Loading CONTRACT_TYPE: '" + name + "'");
                     // Perform the load
                     try
                     {
