@@ -20,6 +20,8 @@ namespace ContractConfigurator.Parameters
         private float lastUpdate = 0.0f;
         private const float UPDATE_FREQUENCY = 0.5f;
 
+        private Vessel.Situations[] landedSituations = new Vessel.Situations[] { Vessel.Situations.LANDED, Vessel.Situations.PRELAUNCH, Vessel.Situations.SPLASHED };
+
         public ReachBiomeCustom()
             : this(null, null)
         {
@@ -67,6 +69,16 @@ namespace ContractConfigurator.Parameters
         protected override bool VesselMeetsCondition(Vessel vessel)
         {
             LoggingUtil.LogVerbose(this, "Checking VesselMeetsCondition: " + vessel.id);
+
+            // Fixes problems with special biomes like KSC buildings (total different naming)
+            if (landedSituations.Contains(vessel.situation))
+            {
+                if (Vessel.GetLandedAtString(vessel.landedAt) == biome)
+                {
+                    return true;
+                }
+            }
+
             return ScienceUtil.GetExperimentBiome(vessel.mainBody, vessel.latitude, vessel.longitude) == biome;
         }
     }
