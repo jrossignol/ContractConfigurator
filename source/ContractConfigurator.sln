@@ -6,6 +6,9 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ContractConfigurator", "ContractConfigurator\ContractConfigurator.csproj", "{4082B9BC-243E-456D-A9C5-705F4428EB36}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CC_SCANsat", "CC_SCANsat\CC_SCANsat.csproj", "{CED05332-B7F3-418A-B86B-43E02F72850B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{4082B9BC-243E-456D-A9C5-705F4428EB36} = {4082B9BC-243E-456D-A9C5-705F4428EB36}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
