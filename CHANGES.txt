@@ -1,4 +1,4 @@
-Contract Configurator 0.5.0
+Contract Configurator 0.4.2
 - Improved validation when loading configuration.  More checking for invalid cases and better error messaging.
 - Added HasPassengers parameter.
 - Added Funds requirement.
