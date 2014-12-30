@@ -10,6 +10,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CC_SCANsat", "CC_SCANsat\CC
 		{4082B9BC-243E-456D-A9C5-705F4428EB36} = {4082B9BC-243E-456D-A9C5-705F4428EB36}
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CC_RemoteTech", "CC_RemoteTech\CC_RemoteTech.csproj", "{AA91A060-C3CA-4770-8B39-F053E6ADAB5F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,6 +26,10 @@ Global
 		{CED05332-B7F3-418A-B86B-43E02F72850B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CED05332-B7F3-418A-B86B-43E02F72850B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CED05332-B7F3-418A-B86B-43E02F72850B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AA91A060-C3CA-4770-8B39-F053E6ADAB5F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AA91A060-C3CA-4770-8B39-F053E6ADAB5F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AA91A060-C3CA-4770-8B39-F053E6ADAB5F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AA91A060-C3CA-4770-8B39-F053E6ADAB5F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

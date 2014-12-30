@@ -607,6 +607,17 @@ namespace ContractConfigurator.Parameters
         }
 
         /*
+         * 
+         */
+        protected IEnumerable<Vessel> GetVessels()
+        {
+            foreach (VesselInfo vi in vesselInfo.Values)
+            {
+                yield return vi.vessel;
+            }
+        }
+
+        /*
          * Checks if this is one of the ignored vessel types.
          */
         public static bool IsIgnoredVesselType(VesselType vesselType) 

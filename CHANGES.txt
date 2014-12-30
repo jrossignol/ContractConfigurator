@@ -1,3 +1,8 @@
+Contract Configurator 0.5.0
+- RemoteTech integration!
+  - KSCConnectivity parameter - indicates that a vessel must have connectivity back to mission control.
+
+
 Contract Configurator 0.4.2
 - Improved validation when loading configuration.  More checking for invalid cases and better error messaging.
 - Added HasPassengers parameter.
