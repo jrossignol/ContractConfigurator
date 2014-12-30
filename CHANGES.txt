@@ -4,6 +4,7 @@ Contract Configurator 0.5.0
 - Added Funds requirement.
 - Added Science requirement.
 - Added Repuration requirement.
+- Allow zero min speed for ReachSpeedEnvelope; improved titles.
 - Minor bug fixes.
 
 Contract Configurator 0.4.1

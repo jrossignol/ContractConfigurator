@@ -29,8 +29,28 @@ namespace ContractConfigurator.Parameters
         public ReachSpeedEnvelopeCustom(double minSpeed, double maxSpeed, string title)
             : base()
         {
-            this.title = title != null ? title : "Speed: Between " + minSpeed.ToString("N0") +
-                " and " + maxSpeed.ToString("N0") + " m/s";
+            if (title == null)
+            {
+                this.title = "Speed: ";
+
+                if (maxSpeed == double.MaxValue)
+                {
+                    this.title += "At least " + minSpeed.ToString("N0") + " m/s";
+                }
+                else if (minSpeed == 0.0)
+                {
+                    this.title += "At most " + maxSpeed.ToString("N0") + " m/s";
+                }
+                else
+                {
+                    this.title += "Between " + minSpeed.ToString("N0") + " and " + maxSpeed.ToString("N0") + " m/s";
+                }
+            }
+            else
+            {
+                this.title = title;
+            }
+
             this.minSpeed = minSpeed;
             this.maxSpeed = maxSpeed;
         }

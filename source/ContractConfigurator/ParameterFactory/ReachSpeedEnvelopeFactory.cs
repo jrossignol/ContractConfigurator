@@ -22,8 +22,8 @@ namespace ContractConfigurator
             // Load base class
             bool valid = base.Load(configNode);
 
-            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "minSpeed", ref minSpeed, this, 0.0, x => Validation.GT(x, 0.0));
-            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "maxSpeed", ref maxSpeed, this, double.MaxValue, x => Validation.GT(x, 0.0));
+            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "minSpeed", ref minSpeed, this, 0.0, x => Validation.GE(x, 0.0));
+            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "maxSpeed", ref maxSpeed, this, double.MaxValue, x => Validation.GE(x, 0.0));
             valid &= ConfigNodeUtil.AtLeastOne(configNode, new string[] { "minSpeed", "maxSpeed" }, this);
 
             return valid;
