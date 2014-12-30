@@ -48,6 +48,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="SignalDelayFactory.cs" />
+    <Compile Include="SignalDelay.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="KSCConnectivity.cs" />
     <Compile Include="KSCConnectivityFactory.cs" />
