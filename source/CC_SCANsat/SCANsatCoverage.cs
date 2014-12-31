@@ -83,7 +83,8 @@ namespace ContractConfigurator.SCANsat
             {
                 lastUpdate = UnityEngine.Time.fixedTime;
                 double coverageInPercentage = SCANUtil.GetCoverage((int)scanType, targetBody);
-                if (coverageInPercentage > coverage)
+                // While loading flight, SCANsat returns 100% coverage, that will complete any coverage parameter instant :(
+                if (coverageInPercentage != 100 && coverageInPercentage > coverage)
                 {
                     SetComplete();
                 }
