@@ -53,6 +53,7 @@ namespace ContractConfigurator.Parameters
         {
             vesselInfo = new Dictionary<Guid, VesselInfo>();
             dockedVesselStrength = new Dictionary<uint, ParamStrength>();
+            disableOnStateChange = false;
         }
 
         protected override string GetHashString()

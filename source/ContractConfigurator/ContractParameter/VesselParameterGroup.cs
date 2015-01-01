@@ -40,6 +40,7 @@ namespace ContractConfigurator.Parameters
             this.duration = duration;
             this.title = title;
             waiting = false;
+            disableOnStateChange = false;
         }
 
         protected override string GetTitle()
