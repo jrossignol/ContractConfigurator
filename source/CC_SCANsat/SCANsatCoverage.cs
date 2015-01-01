@@ -17,8 +17,12 @@ namespace ContractConfigurator.SCANsat
         public CelestialBody targetBody { get; set;}
         public SCANdata.SCANtype scanType { get; set; }
 
-        private float lastUpdate = 0.0f;
-        private const float UPDATE_FREQUENCY = 0.25f;
+        private float lastRealUpdate = 0.0f;
+        private double lastGameTimeUpdate = 0.0;
+        private int consecutive_successes = 0;
+        private const float REAL_UPDATE_FREQUENCY = 5.0f;
+        private const double GAME_UPDATE_FREQUENCY = 100.0;
+        private const int CONSECUTIVE_SUCCESSES_REQUIRED = 2;
 
         private Dictionary<string, string> nameRemap = new Dictionary<string, string>();
 
@@ -79,11 +83,28 @@ namespace ContractConfigurator.SCANsat
                 return;
             }
 
-            if (UnityEngine.Time.fixedTime - lastUpdate > UPDATE_FREQUENCY)
+            // Do a check if either:
+            //   REAL_UPDATE_FREQUENCY of real time has elapsed
+            //   GAME_UPDATE_FREQUENCY of game time has elapsed
+            if (UnityEngine.Time.fixedTime - lastRealUpdate > REAL_UPDATE_FREQUENCY ||
+                Planetarium.GetUniversalTime() - lastGameTimeUpdate > GAME_UPDATE_FREQUENCY)
             {
-                lastUpdate = UnityEngine.Time.fixedTime;
+                lastRealUpdate = UnityEngine.Time.fixedTime;
+                lastGameTimeUpdate = Planetarium.GetUniversalTime();
                 double coverageInPercentage = SCANUtil.GetCoverage((int)scanType, targetBody);
+
+                // Count the number of sucesses
                 if (coverageInPercentage > coverage)
+                {
+                    consecutive_successes++;
+                }
+                else
+                {
+                    consecutive_successes = 0;
+                }
+
+                // We've had enough successes to be sure that the scan is complete
+                if (consecutive_successes >= CONSECUTIVE_SUCCESSES_REQUIRED)
                 {
                     SetComplete();
                 }
