@@ -1,7 +1,10 @@
 Contract Configurator 0.5.0
 - RemoteTech integration!
   - KSCConnectivity parameter - indicates that a vessel must have connectivity back to mission control.
-
+  - SignalDelay parameter - requires a min/max signal delay for a connection.
+- Vessel tracking!
+  - New define attribute of VesselParameterGroup to associate the ship that completes the parameter to the given name.
+  - IsNotVessel parameter for exclusion (eg. to have two VesselParameterGroup parameters in a contract that must be met by different vessels).
 
 Contract Configurator 0.4.2
 - Improved validation when loading configuration.  More checking for invalid cases and better error messaging.

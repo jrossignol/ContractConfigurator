@@ -15,7 +15,7 @@ namespace ContractConfigurator
     public class VesselParameterGroupFactory : ParameterFactory
     {
         protected double duration;
-        protected string vesselName;
+        protected string define;
 
         public override bool Load(ConfigNode configNode)
         {
@@ -30,14 +30,14 @@ namespace ContractConfigurator
                 duration = durationStr != "" ? DurationUtil.ParseDuration(durationStr) : 0.0;
             }
 
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "vesselName", ref vesselName, this, (string)null);
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "define", ref define, this, (string)null);
 
             return valid;
         }
 
         public override ContractParameter Generate(Contract contract)
         {
-            return new Parameters.VesselParameterGroup(title, vesselName, duration);
+            return new Parameters.VesselParameterGroup(title, define, duration);
         }
     }
 }
