@@ -138,6 +138,8 @@ namespace ContractConfigurator.Parameters
          */
         protected virtual bool SetState(Vessel vessel, Contracts.ParameterState state)
         {
+            LoggingUtil.LogVerbose(this, "SetState to " + state + " for vessel " + vessel.id);
+
             // Before we wreck anything, don't allow the default disable on state change logic
             if (disableOnStateChange)
             {
@@ -186,6 +188,8 @@ namespace ContractConfigurator.Parameters
          */
         public virtual void SetState(Vessel vessel)
         {
+            LoggingUtil.LogVerbose(this, "SetState to that of vessel " + vessel.id);
+
             if (vesselInfo.ContainsKey(vessel.id)) 
             {
                 this.state = vesselInfo[vessel.id].state;
@@ -578,29 +582,32 @@ namespace ContractConfigurator.Parameters
                 host = host.Parent;
             }
 
-            // Using VesselParameterGroup logic
-            if (host is VesselParameterGroup)
+            if (CanCheckVesselMeetsCondition(vessel))
             {
-                // Set the craft specific state
-                bool stateChanged = SetState(vessel, VesselMeetsCondition(vessel) ?
-                    Contracts.ParameterState.Complete : Contracts.ParameterState.Incomplete);
+                // Using VesselParameterGroup logic
+                if (host is VesselParameterGroup)
+                {
+                    // Set the craft specific state
+                    bool stateChanged = SetState(vessel, VesselMeetsCondition(vessel) ?
+                        Contracts.ParameterState.Complete : Contracts.ParameterState.Incomplete);
 
-                // Update the group
-                if (stateChanged)
-                {
-                    ((VesselParameterGroup)host).UpdateState(vessel);
+                    // Update the group
+                    if (stateChanged)
+                    {
+                        ((VesselParameterGroup)host).UpdateState(vessel);
+                    }
                 }
-            }
-            // Logic applies only to active vessel
-            else if (vessel.isActiveVessel)
-            {
-                if (VesselMeetsCondition(vessel))
+                // Logic applies only to active vessel
+                else if (vessel.isActiveVessel)
                 {
-                    SetComplete();
-                }
-                else
-                {
-                    SetIncomplete();
+                    if (VesselMeetsCondition(vessel))
+                    {
+                        SetComplete();
+                    }
+                    else
+                    {
+                        SetIncomplete();
+                    }
                 }
             }
             LoggingUtil.LogVerbose(this, "<- CheckVessel");
@@ -632,6 +639,18 @@ namespace ContractConfigurator.Parameters
                 default:
                     return false;
             }
+        }
+
+        /// <summary>
+        /// Function that determines if we are able to call VesselMeetsCondition for the given
+        /// vessel at this time.
+        /// </summary>
+        /// <param name="vessel">The vessel to check for.</param>
+        /// <returns>Whether we are allowed to call VesselMeetsCondition.  If false is returned,
+        /// VesselMeetsCondition will not be called, and the vessel's state remains unchanged.</returns>
+        protected virtual bool CanCheckVesselMeetsCondition(Vessel vessel)
+        {
+            return true;
         }
 
         protected abstract bool VesselMeetsCondition(Vessel vessel);
