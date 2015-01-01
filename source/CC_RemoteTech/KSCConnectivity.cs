@@ -66,13 +66,24 @@ namespace ContractConfigurator.RemoteTech
             }
         }
 
+        /// <summary>
+        /// Check for whether we are in a valid state to check the given vessel.  Checks if the
+        /// RemoteTech logic is initialized.
+        /// </summary>
+        /// <param name="vessel">The vessel - ignored.</param>
+        /// <returns>True only if RemoteTech is initialized.</returns>
+        protected override bool CanCheckVesselMeetsCondition(Vessel vessel)
+        {
+            return RTCore.Instance != null;
+        }
+
         /*
          * Whether this vessel meets the parameter condition.
          */
         protected override bool VesselMeetsCondition(Vessel vessel)
         {
+            LoggingUtil.LogVerbose(this, "Checking VesselMeetsCondition: " + vessel.id);
             return API.HasConnectionToKSC(vessel.id) ^ !hasConnectivity;
         }
-
     }
 }
