@@ -139,6 +139,11 @@ namespace ContractConfigurator.Parameters
          */
         protected virtual bool SetState(Vessel vessel, Contracts.ParameterState state)
         {
+            if (vessel == null)
+            {
+                return false;
+            }
+
             LoggingUtil.LogVerbose(this, "SetState to " + state + " for vessel " + vessel.id);
 
             // Before we wreck anything, don't allow the default disable on state change logic
@@ -189,9 +194,9 @@ namespace ContractConfigurator.Parameters
          */
         public virtual void SetState(Vessel vessel)
         {
-            LoggingUtil.LogVerbose(this, "SetState to that of vessel " + vessel.id);
+            LoggingUtil.LogVerbose(this, "SetState to that of vessel " + vessel != null ? vessel.id.ToString() : "null");
 
-            if (vesselInfo.ContainsKey(vessel.id)) 
+            if (vessel != null && vesselInfo.ContainsKey(vessel.id))
             {
                 this.state = vesselInfo[vessel.id].state;
             }
