@@ -76,7 +76,7 @@ namespace ContractConfigurator
             }
             catch (Exception e)
             {
-                LoggingUtil.LogWarning(this.GetType(), " Failed generating parameters for " + contractType + " message: " + e.Message);
+                Debug.LogException(new Exception("Failed generating parameters for " + contractType, e));
                 return false;
             }
 
