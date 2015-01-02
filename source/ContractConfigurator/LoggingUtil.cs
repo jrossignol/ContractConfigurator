@@ -7,9 +7,8 @@ using UnityEngine;
 
 namespace ContractConfigurator
 {
-    class LoggingUtil
+    public class LoggingUtil
     {
-
         public enum LogLevel {
             VERBOSE = 0,
             DEBUG = 1,

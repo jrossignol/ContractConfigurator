@@ -53,6 +53,10 @@ namespace ContractConfigurator
                 {
                     childNodes.Add(child);
                 }
+                else
+                {
+                    valid = false;
+                }
             }
 
             return valid;

@@ -12,6 +12,7 @@ namespace ContractConfigurator.Parameters
     /*
      * Parameter for checking whether a vessel has a part.
      */
+    [Obsolete("Obsolete, use PartValidation")]
     public class HasPart : VesselParameter
     {
         protected string title { get; set; }

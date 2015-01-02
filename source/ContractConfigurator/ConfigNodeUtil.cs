@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using UnityEngine;
@@ -72,10 +73,36 @@ namespace ContractConfigurator
             {
                 return (T)(object)ParseAgentValue(configNode, key);
             }
-            
-            // Get string value
-            string stringValue = configNode.GetValue(key);
+            else if (typeof(T).Name == "List`1")
+            {
+                // Create the list instance
+                T list = (T) Activator.CreateInstance(typeof(T));
+                int count = configNode.GetValues(key).Count();
 
+                // Create the generic methods
+                MethodInfo parseValueMethod = typeof(ConfigNodeUtil).GetMethod("ParseSingleValue",
+                    BindingFlags.NonPublic | BindingFlags.Static, null,
+                    new Type[] { typeof(string), typeof(string) }, null);
+                parseValueMethod = parseValueMethod.MakeGenericMethod(typeof(T).GetGenericArguments());
+                MethodInfo addMethod = typeof(T).GetMethod("Add");
+
+                // Populate the list
+                for (int i = 0; i < count; i++)
+                {
+                    string strVal = configNode.GetValue(key, i);
+                    addMethod.Invoke(list, new object[] { parseValueMethod.Invoke(null, new object[] { key, strVal }) });
+                }
+
+                return list;
+            }
+            
+            // Get string value, pass to parse single value function
+            string stringValue = configNode.GetValue(key);
+            return ParseSingleValue<T>(key, stringValue);
+        }
+
+        private static T ParseSingleValue<T>(string key, string stringValue)
+        {
             // Enum parsing logic
             if (typeof(T).IsEnum)
             {
@@ -225,6 +252,62 @@ namespace ContractConfigurator
                 LoggingUtil.LogError(obj, obj.ErrorPrefix(configNode) + ": One of " + output + " is required.");
             }
             return false;
+        }
+
+        /// <summary>
+        /// Ensures that the config node does not have items from the two mutually exclusive groups.
+        /// </summary>
+        /// <param name="configNode">The configNode to verify.</param>
+        /// <param name="group1">The first group of keys.</param>
+        /// <param name="group2">The second group of keys</param>
+        /// <param name="obj">IContractConfiguratorFactory for logging</param>
+        /// <returns>Whether the condition is satisfied</returns>
+        public static bool MutuallyExclusive(ConfigNode configNode, string[] group1, string[] group2, IContractConfiguratorFactory obj)
+        {
+            string group1String = "";
+            string group2String = "";
+            bool group1Value = false;
+            bool group2Value = false;
+            foreach (string value in group1)
+            {
+                if (configNode.HasValue(value))
+                {
+                    group1Value = true;
+                }
+
+                if (value == group1.First())
+                {
+                    group1String = value;
+                }
+                else
+                {
+                    group1String += ", " + value;
+                }
+            }
+            foreach (string value in group2)
+            {
+                if (configNode.HasValue(value))
+                {
+                    group2Value = true;
+                }
+
+                if (value == group2.First())
+                {
+                    group2String = value;
+                }
+                else
+                {
+                    group2String += ", " + value;
+                }
+            }
+
+            if (group1Value && group2Value)
+            {
+                LoggingUtil.LogError(obj, obj.ErrorPrefix(configNode) + ": The values " + group1String + " and " + group2String + " are mutually exclusive.");
+                return false;
+            }
+
+            return true;
         }
 
         [Obsolete("ParseCelestialBody has been replaced by ParseValue<CelestialBody>")]
