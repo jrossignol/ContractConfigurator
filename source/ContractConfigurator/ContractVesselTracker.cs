@@ -14,7 +14,7 @@ namespace ContractConfigurator
     /// </summary>
     [KSPScenario(ScenarioCreationOptions.AddToExistingCareerGames | ScenarioCreationOptions.AddToNewCareerGames,
         GameScenes.FLIGHT, GameScenes.TRACKSTATION, GameScenes.SPACECENTER)]
-    class ContractVesselTracker : ScenarioModule
+    public class ContractVesselTracker : ScenarioModule
     {
         public static ContractVesselTracker Instance { get; private set; }
         public static EventData<GameEvents.HostTargetAction<Vessel, string>> OnVesselAssociation = new EventData<GameEvents.HostTargetAction<Vessel, string>>("OnVesselAssociation");
