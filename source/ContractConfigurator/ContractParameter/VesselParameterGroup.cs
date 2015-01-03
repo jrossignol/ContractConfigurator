@@ -118,9 +118,10 @@ namespace ContractConfigurator.Parameters
          */
         public void UpdateState(Vessel vessel)
         {
-            LoggingUtil.LogVerbose(this, "-> UpdateState(" + vessel.id + ")");
+            LoggingUtil.LogVerbose(this, "-> UpdateState(" + (vessel != null ? vessel.id.ToString() : "null") + ")");
+
             // Ignore updates to non-tracked vessels if that vessel is already winning
-            if (vessel != trackedVessel && waiting)
+            if (vessel != trackedVessel && (waiting || state == ParameterState.Complete))
             {
                 // Make sure that the state of our tracked vessel has not suddenly changed
                 SetChildState(trackedVessel);
@@ -176,9 +177,12 @@ namespace ContractConfigurator.Parameters
                 // Still no winner - use active
                 if (trackedVessel == null)
                 {
-                    SetChildState(FlightGlobals.ActiveVessel);
-                    trackedVessel = FlightGlobals.ActiveVessel;
-                    trackedVesselGuid = trackedVessel.id;
+                    if (FlightGlobals.ActiveVessel != null)
+                    {
+                        SetChildState(FlightGlobals.ActiveVessel);
+                        trackedVessel = FlightGlobals.ActiveVessel;
+                        trackedVesselGuid = trackedVessel.id;
+                    }
                 }
             }
 
@@ -270,7 +274,7 @@ namespace ContractConfigurator.Parameters
                         completionTime = Planetarium.GetUniversalTime() + duration;
 
                         // Set the current craft as the one matching the name
-                        if (!string.IsNullOrEmpty(define))
+                        if (!string.IsNullOrEmpty(define) && trackedVessel != null)
                         {
                             ContractVesselTracker.Instance.AssociateVessel(define, trackedVessel);
                         }
