@@ -15,8 +15,6 @@ namespace ContractConfigurator.RemoteTech
         protected string title { get; set; }
         public bool hasConnectivity { get; set; }
 
-        private Dictionary<string, string> nameRemap = new Dictionary<string, string>();
-
         public KSCConnectivity()
             : this(true, "")
         {

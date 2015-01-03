@@ -50,6 +50,8 @@
   <ItemGroup>
     <Compile Include="RemoteTechAssistant.cs" />
     <Compile Include="RemoteTechParameter.cs" />
+    <Compile Include="ActiveVesselConnection.cs" />
+    <Compile Include="ActiveVesselConnectionFactory.cs" />
     <Compile Include="VesselConnectivityFactory.cs" />
     <Compile Include="VesselConnectivity.cs" />
     <Compile Include="SignalDelayFactory.cs" />

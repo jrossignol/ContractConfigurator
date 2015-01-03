@@ -15,6 +15,8 @@ namespace ContractConfigurator.RemoteTech
     {
         public static EventData<VesselSatellite> OnRemoteTechUpdate = new EventData<VesselSatellite>("OnRemoteTechUpdate");
 
+        private static string[] UNITS = { "m", "km", "Mm", "Gm", "Tm" };
+
         private const int UNLOADED_REFRESH_CYCLE = 4; // Refresh every 4 cycles for unloaded ships
         private const int REFRESH_TICKS = 50;
         private int mTick = -1; // Start one tick behind RT
@@ -23,25 +25,17 @@ namespace ContractConfigurator.RemoteTech
 
         void Start()
         {
-            LoggingUtil.LogVerbose(this, "Attempting to start RemoteTechAssistant.");
             // Validate scenes
             if (HighLogic.LoadedScene != GameScenes.FLIGHT && 
                 HighLogic.LoadedScene != GameScenes.SPACECENTER && 
                 HighLogic.LoadedScene != GameScenes.TRACKSTATION)
             {
-                LoggingUtil.LogVerbose(this, "Destroying RemoteTechAssistant.");
                 Destroy(this);
-            }
-            else
-            {
-                LoggingUtil.LogVerbose(this, "Not destroying RemoteTechAssistant.");
             }
         }
 
         void FixedUpdate()
         {
-            LoggingUtil.LogVerbose(this, "Updating RemoteTech satellites.");
-
             // RemoteTech not yet initialized
             if (RTCore.Instance == null)
             {
@@ -94,6 +88,18 @@ namespace ContractConfigurator.RemoteTech
                 mCycle++;
             }
             mTickIndex = mTickIndex % RTCore.Instance.Satellites.Count;
+        }
+
+        public static string RangeString(double range)
+        {
+            int unit = 0;
+            while (unit < 4 && range >= 10000.0)
+            {
+                range /= 1000.0;
+                unit++;
+            }
+
+            return range.ToString("N1") + UNITS[unit];
         }
 
     }

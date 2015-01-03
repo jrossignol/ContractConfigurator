@@ -19,8 +19,6 @@ namespace ContractConfigurator.RemoteTech
         protected bool hasConnectivity { get; set; }
         protected string vesselKey { get; set; }
 
-        private Dictionary<string, string> nameRemap = new Dictionary<string, string>();
-
         public VesselConnectivity()
             : this(null)
         {
