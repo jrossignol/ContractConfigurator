@@ -122,6 +122,12 @@ namespace ContractConfigurator
                 }
             }
 
+            // Do newline conversions
+            if (typeof(T) == typeof(string))
+            {
+                stringValue = stringValue.Replace("\\n", "\n");
+            }
+
             // Try a basic type
             return (T)Convert.ChangeType(stringValue, typeof(T));
         }
