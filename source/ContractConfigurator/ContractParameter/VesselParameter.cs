@@ -194,7 +194,7 @@ namespace ContractConfigurator.Parameters
          */
         public virtual void SetState(Vessel vessel)
         {
-            LoggingUtil.LogVerbose(this, "SetState to that of vessel " + vessel != null ? vessel.id.ToString() : "null");
+            LoggingUtil.LogVerbose(this, "SetState to that of vessel " + (vessel != null ? vessel.id.ToString() : "null"));
 
             if (vessel != null && vesselInfo.ContainsKey(vessel.id))
             {
