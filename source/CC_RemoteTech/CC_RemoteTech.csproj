@@ -48,6 +48,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="RemoteTechParameter.cs" />
+    <Compile Include="VesselConnectivityFactory.cs" />
+    <Compile Include="VesselConnectivity.cs" />
     <Compile Include="SignalDelayFactory.cs" />
     <Compile Include="SignalDelay.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

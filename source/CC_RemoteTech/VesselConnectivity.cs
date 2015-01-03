@@ -5,36 +5,52 @@ using System.Linq;
 using System.Text;
 using System;
 using UnityEngine;
-using ContractConfigurator;
 using RemoteTech;
+using ContractConfigurator;
 
 namespace ContractConfigurator.RemoteTech
 {
-    public class KSCConnectivity : RemoteTechParameter
+    /// <summary>
+    /// Parameter to indicate that a vessel has connectivity with another vessel.
+    /// </summary>
+    public class VesselConnectivity : RemoteTechParameter
     {
         protected string title { get; set; }
-        public bool hasConnectivity { get; set; }
+        protected bool hasConnectivity { get; set; }
+        protected string vesselKey { get; set; }
 
         private float lastUpdate = 0.0f;
         private const float UPDATE_FREQUENCY = 1.00f;
 
         private Dictionary<string, string> nameRemap = new Dictionary<string, string>();
 
-        public KSCConnectivity()
-            : this(true, "")
+        public VesselConnectivity()
+            : this(null)
         {
         }
 
-        public KSCConnectivity(bool hasConnectivity, string title)
+        public VesselConnectivity(string vesselKey, bool hasConnectivity = true, string title = null)
             : base()
         {
-            this.title = string.IsNullOrEmpty(title) ? (hasConnectivity ? "Connected to KSC" : " Not connected to KSC") : title;
+            this.title = title;
+            this.vesselKey = vesselKey;
             this.hasConnectivity = hasConnectivity;
         }
 
         protected override string GetTitle()
         {
-            return title;
+            string output;
+            if (string.IsNullOrEmpty(title))
+            {
+                output = (hasConnectivity ? "Direct connection to:" : "No direct connection to:");
+                output += ContractVesselTracker.Instance.GetDisplayName(vesselKey);
+            }
+            else
+            {
+                output = title;
+            }
+
+            return output;
         }
 
         protected override void OnSave(ConfigNode node)
@@ -43,6 +59,7 @@ namespace ContractConfigurator.RemoteTech
 
             node.AddValue("title", title);
             node.AddValue("hasConnectivity", hasConnectivity);
+            node.AddValue("vesselKey", vesselKey);
         }
 
         protected override void OnLoad(ConfigNode node)
@@ -51,6 +68,7 @@ namespace ContractConfigurator.RemoteTech
 
             title = node.GetValue("title");
             hasConnectivity = ConfigNodeUtil.ParseValue<bool>(node, "hasConnectivity");
+            vesselKey = node.GetValue("vesselKey");
         }
 
         protected override void OnUpdate()
@@ -72,13 +90,24 @@ namespace ContractConfigurator.RemoteTech
         protected override bool VesselMeetsCondition(Vessel vessel)
         {
             LoggingUtil.LogVerbose(this, "Checking VesselMeetsCondition: " + vessel.id);
-            var satellite = RTCore.Instance.Satellites[vessel.id];
-            foreach (var v in RTCore.Instance.Network[satellite])
+            
+            // Check vessels
+            Vessel vessel2 = ContractVesselTracker.Instance.GetAssociatedVessel(vesselKey);
+            if (vessel == null || vessel2 == null)
             {
-                LoggingUtil.LogVerbose(this, "    Goal = " + v.Goal.Name);
-                LoggingUtil.LogVerbose(this, "    Links.Count = " + v.Links.Count);
+                return false;
             }
-            return VesselConditionWrapper(vessel, API.HasConnectionToKSC(vessel.id) ^ !hasConnectivity);
+
+            // Get satellites
+            VesselSatellite sat1 = RTCore.Instance.Satellites[vessel.id];
+            VesselSatellite sat2 = RTCore.Instance.Satellites[vessel2.id];
+            if (sat1 == null || sat2 == null)
+            {
+                return false;
+            }
+
+            // Check if there is a link
+            return VesselConditionWrapper(vessel, NetworkManager.GetLink(sat1, sat2) != null);
         }
     }
 }

@@ -10,7 +10,7 @@ using RemoteTech;
 
 namespace ContractConfigurator.RemoteTech
 {
-    public class SignalDelay : VesselParameter
+    public class SignalDelay : RemoteTechParameter
     {
         protected string title { get; set; }
         public double minSignalDelay { get; set; }
@@ -18,8 +18,6 @@ namespace ContractConfigurator.RemoteTech
 
         private float lastUpdate = 0.0f;
         private const float UPDATE_FREQUENCY = 1.00f;
-
-        private Dictionary<string, string> nameRemap = new Dictionary<string, string>();
 
         public SignalDelay()
             : this(0.0, double.MaxValue, "")
@@ -91,17 +89,6 @@ namespace ContractConfigurator.RemoteTech
             }
         }
 
-        /// <summary>
-        /// Check for whether we are in a valid state to check the given vessel.  Checks if the
-        /// RemoteTech logic is initialized.
-        /// </summary>
-        /// <param name="vessel">The vessel - ignored.</param>
-        /// <returns>True only if RemoteTech is initialized.</returns>
-        protected override bool CanCheckVesselMeetsCondition(Vessel vessel)
-        {
-            return RTCore.Instance != null;
-        }
-
         /*
          * Whether this vessel meets the parameter condition.
          */
@@ -109,7 +96,7 @@ namespace ContractConfigurator.RemoteTech
         {
             LoggingUtil.LogVerbose(this, "Checking VesselMeetsCondition: " + vessel.id);
             double delay = API.GetSignalDelayToKSC(vessel.id);
-            return delay >= minSignalDelay && delay <= maxSignalDelay;
+            return VesselConditionWrapper(vessel, delay >= minSignalDelay && delay <= maxSignalDelay);
         }
 
     }
