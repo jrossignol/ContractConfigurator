@@ -16,9 +16,6 @@ namespace ContractConfigurator.RemoteTech
         public double minSignalDelay { get; set; }
         public double maxSignalDelay { get; set; }
 
-        private float lastUpdate = 0.0f;
-        private const float UPDATE_FREQUENCY = 1.00f;
-
         public SignalDelay()
             : this(0.0, double.MaxValue, "")
         {
@@ -76,19 +73,6 @@ namespace ContractConfigurator.RemoteTech
             maxSignalDelay = ConfigNodeUtil.ParseValue<double>(node, "maxSignalDelay");
         }
 
-        protected override void OnUpdate()
-        {
-            base.OnUpdate();
-            if (UnityEngine.Time.fixedTime - lastUpdate > UPDATE_FREQUENCY)
-            {
-                lastUpdate = UnityEngine.Time.fixedTime;
-                foreach (Vessel v in GetVessels())
-                {
-                    CheckVessel(v);
-                }
-            }
-        }
-
         /*
          * Whether this vessel meets the parameter condition.
          */
@@ -96,7 +80,7 @@ namespace ContractConfigurator.RemoteTech
         {
             LoggingUtil.LogVerbose(this, "Checking VesselMeetsCondition: " + vessel.id);
             double delay = API.GetSignalDelayToKSC(vessel.id);
-            return VesselConditionWrapper(vessel, delay >= minSignalDelay && delay <= maxSignalDelay);
+            return delay >= minSignalDelay && delay <= maxSignalDelay;
         }
 
     }

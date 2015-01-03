@@ -19,9 +19,6 @@ namespace ContractConfigurator.RemoteTech
         protected bool hasConnectivity { get; set; }
         protected string vesselKey { get; set; }
 
-        private float lastUpdate = 0.0f;
-        private const float UPDATE_FREQUENCY = 1.00f;
-
         private Dictionary<string, string> nameRemap = new Dictionary<string, string>();
 
         public VesselConnectivity()
@@ -71,19 +68,6 @@ namespace ContractConfigurator.RemoteTech
             vesselKey = node.GetValue("vesselKey");
         }
 
-        protected override void OnUpdate()
-        {
-            base.OnUpdate();
-            if (UnityEngine.Time.fixedTime - lastUpdate > UPDATE_FREQUENCY)
-            {
-                lastUpdate = UnityEngine.Time.fixedTime;
-                foreach (Vessel v in GetVessels())
-                {
-                    CheckVessel(v);
-                }
-            }
-        }
-
         /*
          * Whether this vessel meets the parameter condition.
          */
@@ -107,7 +91,7 @@ namespace ContractConfigurator.RemoteTech
             }
 
             // Check if there is a link
-            return VesselConditionWrapper(vessel, NetworkManager.GetLink(sat1, sat2) != null);
+            return NetworkManager.GetLink(sat1, sat2) != null;
         }
     }
 }

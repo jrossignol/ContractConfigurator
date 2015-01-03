@@ -15,9 +15,6 @@ namespace ContractConfigurator.RemoteTech
         protected string title { get; set; }
         public bool hasConnectivity { get; set; }
 
-        private float lastUpdate = 0.0f;
-        private const float UPDATE_FREQUENCY = 1.00f;
-
         private Dictionary<string, string> nameRemap = new Dictionary<string, string>();
 
         public KSCConnectivity()
@@ -53,19 +50,6 @@ namespace ContractConfigurator.RemoteTech
             hasConnectivity = ConfigNodeUtil.ParseValue<bool>(node, "hasConnectivity");
         }
 
-        protected override void OnUpdate()
-        {
-            base.OnUpdate();
-            if (UnityEngine.Time.fixedTime - lastUpdate > UPDATE_FREQUENCY)
-            {
-                lastUpdate = UnityEngine.Time.fixedTime;
-                foreach (Vessel v in GetVessels())
-                {
-                    CheckVessel(v);
-                }
-            }
-        }
-
         /*
          * Whether this vessel meets the parameter condition.
          */
@@ -78,7 +62,7 @@ namespace ContractConfigurator.RemoteTech
                 LoggingUtil.LogVerbose(this, "    Goal = " + v.Goal.Name);
                 LoggingUtil.LogVerbose(this, "    Links.Count = " + v.Links.Count);
             }
-            return VesselConditionWrapper(vessel, API.HasConnectionToKSC(vessel.id) ^ !hasConnectivity);
+            return API.HasConnectionToKSC(vessel.id) ^ !hasConnectivity;
         }
     }
 }

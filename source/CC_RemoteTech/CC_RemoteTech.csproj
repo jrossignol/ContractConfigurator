@@ -48,6 +48,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="RemoteTechAssistant.cs" />
     <Compile Include="RemoteTechParameter.cs" />
     <Compile Include="VesselConnectivityFactory.cs" />
     <Compile Include="VesselConnectivity.cs" />
