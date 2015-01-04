@@ -211,6 +211,7 @@ namespace ContractConfigurator
                 // Fetch the contractType
                 string name = contractConfig.GetValue("name");
                 ContractType contractType = ContractType.contractTypes[name];
+                bool success = false;
                 if (contractType != null)
                 {
                     LoggingUtil.LogDebug(this.GetType(), "Loading CONTRACT_TYPE: '" + name + "'");
@@ -220,18 +221,20 @@ namespace ContractConfigurator
                         if (contractType.Load(contractConfig))
                         {
                             successContracts++;
+                            success = true;
                         }
                     }
                     catch (Exception e)
                     {
-                        ContractType.contractTypes.Remove(name);
-                        string err = "Error loading CONTRACT_TYPE '" + name + "': " + e.Message + "\n" + e.StackTrace;
-                        while (e.InnerException != null)
+                        Exception wrapper = new Exception("Error loading CONTRACT_TYPE '" + name + "'", e);
+                        Debug.LogException(wrapper);
+                    }
+                    finally
+                    {
+                        if (!success)
                         {
-                            e = e.InnerException;
-                            err += "\n" + e.Message + "\n" + e.StackTrace;
+                            ContractType.contractTypes.Remove(name);
                         }
-                        LoggingUtil.LogError(this.GetType(), err);
                     }
                 }
             }
