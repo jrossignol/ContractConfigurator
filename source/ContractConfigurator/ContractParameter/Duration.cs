@@ -91,9 +91,9 @@ namespace ContractConfigurator.Parameters
             base.OnLoad(node);
             duration = Convert.ToDouble(node.GetValue("duration"));
             endTime = Convert.ToDouble(node.GetValue("endTime"));
-            preWaitText = node.HasValue("preWaitText") ? ConfigNodeUtil.ParseValue<string>(node, "preWaitText") : null;
-            waitingText = node.HasValue("waitingText") ? ConfigNodeUtil.ParseValue<string>(node, "waitingText") : null;
-            completionText = node.HasValue("completionText") ? ConfigNodeUtil.ParseValue<string>(node, "completionText") : null;
+            preWaitText = ConfigNodeUtil.ParseValue<string>(node, "preWaitText", (string)null);
+            waitingText = ConfigNodeUtil.ParseValue<string>(node, "waitingText", (string)null);
+            completionText = ConfigNodeUtil.ParseValue<string>(node, "completionText", (string)null);
         }
 
         protected override void OnRegister()

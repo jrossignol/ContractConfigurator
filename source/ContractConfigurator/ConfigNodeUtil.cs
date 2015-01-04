@@ -13,26 +13,14 @@ namespace ContractConfigurator
 {
     public class ConfigNodeUtil
     {
-        /*
-         * Checks whether the mandatory field exists, and if not logs and error.  Returns true
-         * only if the validation succeeded.
-         */
-        [Obsolete("Use ParseValue<T> which will throw an error if the expected value is not there.")]
-        public static bool ValidateMandatoryField(ConfigNode configNode, string field, IContractConfiguratorFactory obj)
-        {
-            if (!configNode.HasValue(field))
-            {
-                LoggingUtil.LogError(obj.GetType(), obj.ErrorPrefix() + ": Missing required value '" + field + "'.");
-                return false;
-            }
-
-            return true;
-        }
-
-        /*
-         * Checks whether the mandatory field exists, and if not logs and error.  Returns true
-         * only if the validation succeeded.
-         */
+        /// <summary>
+        /// Checks whether the mandatory field exists, and if not logs and error.  Returns true
+        /// only if the validation succeeded.
+        /// </summary>
+        /// <param name="configNode">The ConfigNode to check.</param>
+        /// <param name="field">The child that is expected</param>
+        /// <param name="obj">IContractConfiguratorFactory object for error reporting</param>
+        /// <returns>Whether the validation succeeded, additionally logs an error on failure.</returns>
         public static bool ValidateMandatoryChild(ConfigNode configNode, string field, IContractConfiguratorFactory obj)
         {
             if (!configNode.HasNode(field))
@@ -48,7 +36,7 @@ namespace ContractConfigurator
         /// <summary>
         /// Validates that the given config node does NOT contain the given value.
         /// </summary>
-        /// <param name="configNode">The configNode to check.</param>
+        /// <param name="configNode">The ConfigNode to check.</param>
         /// <param name="field">The field to exclude</param>
         /// <param name="obj">IContractConfiguratorFactory object for error reporting</param>
         /// <returns>Always true, but logs a warning for an unexpected value.</returns>
@@ -63,9 +51,13 @@ namespace ContractConfigurator
             return true;
         }
 
-        /*
-         * Attempts to parse a value from the config node.
-         */
+        /// <summary>
+        /// Parses a value from a config node.
+        /// </summary>
+        /// <typeparam name="T">The type to convert to.</typeparam>
+        /// <param name="configNode">The ConfigNode to read from</param>
+        /// <param name="key">The key to examine.</param>
+        /// <returns>The parsed value</returns>
         public static T ParseValue<T>(ConfigNode configNode, string key)
         {
             // Check for requried value
@@ -148,6 +140,26 @@ namespace ContractConfigurator
 
             // Try a basic type
             return (T)Convert.ChangeType(stringValue, typeof(T));
+        }
+
+        /// <summary>
+        /// Attempts to parse a value from the config node.  Returns a default value if not found.
+        /// </summary>
+        /// <typeparam name="T">The type of value to convert to.</typeparam>
+        /// <param name="configNode">The ConfigNode to read from.</param>
+        /// <param name="key">The key to examine.</param>
+        /// <param name="defaultValue">The default value to return.</param>
+        /// <returns>The parsed value (or default value if not found)</returns>
+        public static T ParseValue<T>(ConfigNode configNode, string key, T defaultValue)
+        {
+            if (configNode.HasValue(key))
+            {
+                return ParseValue<T>(configNode, key);
+            }
+            else
+            {
+                return defaultValue;
+            }
         }
 
         /*
