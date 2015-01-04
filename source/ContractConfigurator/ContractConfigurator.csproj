@@ -49,6 +49,7 @@
     <Compile Include="BehaviourFactory\OrbitGeneratorFactory.cs" />
     <Compile Include="BehaviourFactory\WaypointGeneratorFactory.cs" />
     <Compile Include="BehaviourFactory\SpawnKerbalFactory.cs" />
+    <Compile Include="ContractParameter\Duration.cs" />
     <Compile Include="ContractParameter\VesselParameter\PartValidation.cs" />
     <Compile Include="ContractParameter\VesselParameter\HasPassengers.cs" />
     <Compile Include="ContractParameter\VesselParameter\IsNotVessel.cs" />
@@ -59,6 +60,7 @@
     <Compile Include="ParameterFactory\PartValidationFactory.cs" />
     <Compile Include="ParameterFactory\IsNotVesselFactory.cs" />
     <Compile Include="ParameterFactory\HasPassengersFactory.cs" />
+    <Compile Include="ParameterFactory\DurationFactory.cs" />
     <Compile Include="Validation.cs" />
     <Compile Include="ContractBehaviour\Expression.cs" />
     <Compile Include="ContractBehaviour\OrbitGenerator.cs" />

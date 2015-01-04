@@ -45,6 +45,24 @@ namespace ContractConfigurator
             return true;
         }
 
+        /// <summary>
+        /// Validates that the given config node does NOT contain the given value.
+        /// </summary>
+        /// <param name="configNode">The configNode to check.</param>
+        /// <param name="field">The field to exclude</param>
+        /// <param name="obj">IContractConfiguratorFactory object for error reporting</param>
+        /// <returns>Always true, but logs a warning for an unexpected value.</returns>
+        public static bool ValidateExcludedValue(ConfigNode configNode, string field, IContractConfiguratorFactory obj)
+        {
+            if (configNode.HasNode(field) || configNode.HasValue(field))
+            {
+                LoggingUtil.LogWarning(obj.GetType(), obj.ErrorPrefix() +
+                    ": unexpected entry '" + field + "' found, ignored.");
+            }
+
+            return true;
+        }
+
         /*
          * Attempts to parse a value from the config node.
          */

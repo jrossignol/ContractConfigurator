@@ -9,6 +9,7 @@ Contract Configurator 0.5.0
 - Vessel tracking!
   - New define attribute of VesselParameterGroup to associate the ship that completes the parameter to the given name.
   - IsNotVessel parameter for exclusion (eg. to have two VesselParameterGroup parameters in a contract that must be met by different vessels).
+- Added Duration parameter.
 - Added PartValidator parameter and deprecated HasPart and HasPartModule.
 - Added OrbitAltitude parameter.
 - Added PartModuleTypeUnlocked requirement.
