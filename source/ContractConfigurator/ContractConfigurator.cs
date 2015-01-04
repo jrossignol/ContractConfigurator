@@ -127,7 +127,7 @@ namespace ContractConfigurator
                 ParameterFactory.Register(subclass, name);
             }
 
-            LoggingUtil.LogInfo(this.GetType(), "Finsished Registering ParameterFactories");
+            LoggingUtil.LogInfo(this.GetType(), "Finished Registering ParameterFactories");
         }
 
         /*
