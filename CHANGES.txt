@@ -4,6 +4,8 @@ Contract Configurator 0.5.0
   - KSCConnectivity parameter - indicates that a vessel must have connectivity back to mission control.
   - SignalDelay parameter - requires a min/max signal delay for a connection.
   - VesselConnectivity parameter - checks for connectivity between two vessels.
+  - ActiveVesselRange requirement - requires that a celestial body has a satellite with a minimum active vessel range (achievable via either an omni antenna or dish targetting active vessel).
+  - CelestialBodyCoverage requiremnt - requirement for having a dish pointed at the given celestial body.
 - Vessel tracking!
   - New define attribute of VesselParameterGroup to associate the ship that completes the parameter to the given name.
   - IsNotVessel parameter for exclusion (eg. to have two VesselParameterGroup parameters in a contract that must be met by different vessels).
