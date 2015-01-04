@@ -21,7 +21,7 @@ namespace ContractConfigurator
         protected virtual List<ContractRequirement> requirements { get; set; }
 
         // Contract attributes
-        public virtual string name { get; private set; }
+        public string name;
         public string title;
         public string notes;
         public string description;
@@ -83,7 +83,10 @@ namespace ContractConfigurator
          */
         public bool Load(ConfigNode configNode)
         {
+            ConfigNodeUtil.ClearFoundCache();
             bool valid = true;
+
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "name", ref name, this);
 
             // Load contract text details
             valid &= ConfigNodeUtil.ParseValue<string>(configNode, "title", ref title, this);
@@ -118,6 +121,9 @@ namespace ContractConfigurator
 
             // Load other values
             valid &= ConfigNodeUtil.ParseValue<double>(configNode, "weight", ref weight, this, 1.0, x => Validation.GT(x, 0.0f));
+            
+            // Check for unexpected values - always do this last
+            valid &= ConfigNodeUtil.ValidateUnexpectedValues(configNode, this);
 
             // Load parameters
             paramFactories = new List<ParameterFactory>();
@@ -170,6 +176,7 @@ namespace ContractConfigurator
                     valid = false;
                 }
             }
+
 
             return valid;
         }

@@ -15,8 +15,8 @@ namespace ContractConfigurator
     {
         private static Dictionary<string, Type> factories = new Dictionary<string, Type>();
 
-        protected string name { get; set; }
-        protected string type { get; set; }
+        protected string name;
+        protected string type;
         protected virtual ContractType contractType { get; set; }
         protected CelestialBody targetBody;
         protected float rewardScience;
@@ -48,8 +48,8 @@ namespace ContractConfigurator
             bool valid = true;
 
             // Get name and type
-            name = configNode.HasValue("name") ? configNode.GetValue("name") : "unknown";
-            type = configNode.GetValue("type");
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "name", ref name, this, "unknown");
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "type", ref type, this);
 
             valid &= ConfigNodeUtil.ParseValue<CelestialBody>(configNode, "targetBody", ref targetBody, this, contractType.targetBody);
 
@@ -191,12 +191,12 @@ namespace ContractConfigurator
             paramFactory.contractType = contractType;
 
             // Load config
-            if (!paramFactory.Load(parameterConfig))
-            {
-                return null;
-            }
+            bool valid = paramFactory.Load(parameterConfig);
 
-            return paramFactory;
+            // Check for unexpected values - always do this last
+            valid &= ConfigNodeUtil.ValidateUnexpectedValues(parameterConfig, paramFactory);
+
+            return valid ? paramFactory : null;
         }
 
         public string ErrorPrefix()

@@ -15,8 +15,8 @@ namespace ContractConfigurator
     {
         private static Dictionary<string, Type> requirementTypes = new Dictionary<string, Type>();
 
-        protected string name { get; set; }
-        protected string type { get; set; }
+        protected string name;
+        protected string type;
         protected virtual List<ContractRequirement> childNodes { get; set; }
         protected virtual ContractType contractType { get; set; }
         protected CelestialBody targetBody;
@@ -33,8 +33,8 @@ namespace ContractConfigurator
             bool valid = true;
 
             // Get name and type
-            name = configNode.HasValue("name") ? configNode.GetValue("name") : "unknown";
-            type = configNode.GetValue("type");
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "name", ref name, this, "unknown");
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "type", ref type, this);
 
             valid &= ConfigNodeUtil.ParseValue<CelestialBody>(configNode, "targetBody", ref targetBody, this, (CelestialBody)null);
 
@@ -141,13 +141,14 @@ namespace ContractConfigurator
             requirement.contractType = contractType;
             requirement.targetBody = contractType.targetBody;
 
-            // Load config
-            if (!requirement.Load(configNode))
-            {
-                return null;
-            }
 
-            return requirement;
+            // Load config
+            bool valid = requirement.Load(configNode);
+
+            // Check for unexpected values - always do this last
+            valid &= ConfigNodeUtil.ValidateUnexpectedValues(configNode, requirement);
+
+            return valid ? requirement : null;
         }
 
         public string ErrorPrefix()

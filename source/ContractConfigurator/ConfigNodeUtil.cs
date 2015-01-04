@@ -13,6 +13,8 @@ namespace ContractConfigurator
 {
     public class ConfigNodeUtil
     {
+        private static Dictionary<ConfigNode, Dictionary<string, int>> keysFound = new Dictionary<ConfigNode,Dictionary<string,int>>();
+
         /// <summary>
         /// Checks whether the mandatory field exists, and if not logs and error.  Returns true
         /// only if the validation succeeded.
@@ -177,6 +179,10 @@ namespace ContractConfigurator
                 LoggingUtil.LogError(obj, obj.ErrorPrefix(configNode) + ": Error parsing " + key + ": " + configNode.id + e.Message);
                 LoggingUtil.LogDebug(obj, e.StackTrace);
                 return false;
+            }
+            finally
+            {
+                AddFoundKey(configNode, key);
             }
         }
 
@@ -429,6 +435,54 @@ namespace ContractConfigurator
             }
 
             return agent;
+        }
+
+        private static void AddFoundKey(ConfigNode configNode, string key)
+        {
+            // Initialize the list
+            if (!keysFound.ContainsKey(configNode))
+            {
+                keysFound[configNode] = new Dictionary<string,int>();
+            }
+
+            // Add the key
+            keysFound[configNode][key] = 1;
+        }
+
+        /// <summary>
+        /// Clears the cache of found keys.
+        /// </summary>
+        public static void ClearFoundCache()
+        {
+            keysFound = new Dictionary<ConfigNode, Dictionary<string, int>>();
+        }
+
+        /// <summary>
+        /// Performs validation to check if the given config node has values that were not expected.
+        /// </summary>
+        /// <param name="configNode">The ConfigNode to check.</param>
+        /// <param name="obj">IContractConfiguratorFactory object for error reporting</param>
+        /// <returns>Always true, but logs a warning if unexpected keys were found</returns>
+        public static bool ValidateUnexpectedValues(ConfigNode configNode, IContractConfiguratorFactory obj)
+        {
+            if (!keysFound.ContainsKey(configNode))
+            {
+                LoggingUtil.LogWarning(obj.GetType(), obj.ErrorPrefix() +
+                    ": did not attempt to load values for ConfigNode!");
+                return false;
+            }
+
+            Dictionary<string, int> found = keysFound[configNode];
+            foreach (ConfigNode.Value pair in configNode.values)
+            {
+                if (!found.ContainsKey(pair.name))
+                {
+                    LoggingUtil.LogWarning(obj.GetType(), obj.ErrorPrefix() +
+                        ": unexpected entry '" + pair.name + "' found, ignored.");
+                }
+            }
+
+            return true;
         }
     }
 }
