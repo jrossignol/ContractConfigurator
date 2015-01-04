@@ -28,7 +28,7 @@ namespace ContractConfigurator.RemoteTech
 
         public override ContractParameter Generate(Contract contract)
         {
-            return new VesselConnectivity(vesselKey, hasConnectivity, title);
+            return new VesselConnectivityParameter(vesselKey, hasConnectivity, title);
         }
     }
 }

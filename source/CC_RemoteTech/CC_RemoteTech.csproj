@@ -48,16 +48,19 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ActiveVesselRangeRequirement.cs" />
+    <Compile Include="CelestialBodyCoverageRequirement.cs" />
+    <Compile Include="RemoteTechProgressTracker.cs" />
     <Compile Include="RemoteTechAssistant.cs" />
     <Compile Include="RemoteTechParameter.cs" />
-    <Compile Include="ActiveVesselConnection.cs" />
+    <Compile Include="ActiveVesselConnectionParameter.cs" />
     <Compile Include="ActiveVesselConnectionFactory.cs" />
     <Compile Include="VesselConnectivityFactory.cs" />
-    <Compile Include="VesselConnectivity.cs" />
+    <Compile Include="VesselConnectivityParameter.cs" />
     <Compile Include="SignalDelayFactory.cs" />
-    <Compile Include="SignalDelay.cs" />
+    <Compile Include="SignalDelayParameter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="KSCConnectivity.cs" />
+    <Compile Include="KSCConnectivityParameter.cs" />
     <Compile Include="KSCConnectivityFactory.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -26,7 +26,7 @@ namespace ContractConfigurator.RemoteTech
 
         public override ContractParameter Generate(Contract contract)
         {
-            return new KSCConnectivity(hasConnectivity, title);
+            return new KSCConnectivityParameter(hasConnectivity, title);
         }
     }
 }

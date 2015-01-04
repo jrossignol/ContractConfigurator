@@ -29,7 +29,7 @@ namespace ContractConfigurator.RemoteTech
 
         public override ContractParameter Generate(Contract contract)
         {
-            return new SignalDelay(minSignalDelay, maxSignalDelay, title);
+            return new SignalDelayParameter(minSignalDelay, maxSignalDelay, title);
         }
     }
 }
