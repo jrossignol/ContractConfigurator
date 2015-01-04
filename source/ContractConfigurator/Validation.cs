@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 using KSP;
+using FinePrint;
 
 namespace ContractConfigurator
 {
@@ -86,9 +87,11 @@ namespace ContractConfigurator
             return true;
         }
 
-        /*
-         * Parses the PartModule from the given ConfigNode and key.  Returns true if valid
-         */
+        /// <summary>
+        /// Checks that the given PartModule is valid.
+        /// </summary>
+        /// <param name="name">name of the PartModule</param>
+        /// <returns>True if valid, exeption otherwise</returns>
         public static bool ValidatePartModule(string name)
         {
             Type classType = AssemblyLoader.GetClassByName(typeof(PartModule), name);
@@ -111,6 +114,27 @@ namespace ContractConfigurator
             return true;
         }
 
+        /// <summary>
+        /// Checks that the given type of PartModule is valid.
+        /// </summary>
+        /// <param name="name">name of the PartModule type</param>
+        /// <returns>True if valid, exeption otherwise</returns>
+        public static bool ValidatePartModuleType(string name)
+        {
+            if (ContractDefs.GetModules(name).Count == 0)
+            {
+                throw new ArgumentException("No PartModules found for type '" + name + "'.");
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Validates that the argument is not null.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="val"></param>
+        /// <returns></returns>
         public static bool NotNull<T>(T val)
         {
             if (val == null)
