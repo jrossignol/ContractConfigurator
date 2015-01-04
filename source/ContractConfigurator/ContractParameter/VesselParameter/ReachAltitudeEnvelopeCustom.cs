@@ -29,9 +29,28 @@ namespace ContractConfigurator.Parameters
         public ReachAltitudeEnvelopeCustom(float minAltitude, float maxAltitude, string title)
             : base()
         {
-            // TODO - need to fix up the strings here
-            this.title = title != null ? title : "Altitude: Between " + minAltitude.ToString("N0") +
-                " and " + maxAltitude.ToString("N0") + " meters";
+            if (title == null)
+            {
+                this.title = "Altitude: ";
+
+                if (maxAltitude == float.MaxValue)
+                {
+                    this.title += "At least " + minAltitude.ToString("N0") + "m";
+                }
+                else if (minAltitude == 0.0f)
+                {
+                    this.title += "At most " + maxAltitude.ToString("N0") + "m";
+                }
+                else
+                {
+                    this.title += "Between " + minAltitude.ToString("N0") + " and " + maxAltitude.ToString("N0") + "m";
+                }
+            }
+            else
+            {
+                this.title = title;
+            }
+
             this.minAltitude = minAltitude;
             this.maxAltitude = maxAltitude;
         }
