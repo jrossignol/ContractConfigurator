@@ -18,6 +18,9 @@ Contract Configurator 0.5.0
 - Reloading contract types will also re-run module manager (which means you can now reload contract types that use module manager).
 - Minor bug fixes
 
+Contract Configurator 0.4.4
+- Fixed NullRef issue when approaching another vessel (thanks Tellion).
+
 Contract Configurator 0.4.3
 - Fixed issue where SCANsat reported 100% scanning during flight loading, causing SCANsat parameters to complete early.
 
