@@ -102,7 +102,10 @@ namespace ContractConfigurator.Parameters
         {
             base.OnSave(node);
             node.AddValue("title", title);
-            node.AddValue("trait", trait);
+            if (trait != null)
+            {
+                node.AddValue("trait", trait);
+            }
             node.AddValue("minCrew", minCrew);
             node.AddValue("maxCrew", maxCrew);
             node.AddValue("minExperience", minExperience);
@@ -113,7 +116,7 @@ namespace ContractConfigurator.Parameters
         {
             base.OnLoad(node);
             title = node.GetValue("title");
-            trait = node.GetValue("trait");
+            trait = ConfigNodeUtil.ParseValue<string>(node, "trait", (string)null);
             minExperience = Convert.ToInt32(node.GetValue("minExperience"));
             maxExperience = Convert.ToInt32(node.GetValue("maxExperience"));
             minCrew = Convert.ToInt32(node.GetValue("minCrew"));
@@ -161,7 +164,7 @@ namespace ContractConfigurator.Parameters
             IEnumerable<ProtoCrewMember> crew = vessel.GetVesselCrew();
             
             // Filter by trait
-            if (trait != null)
+            if (!string.IsNullOrEmpty(trait))
             {
                 crew = crew.Where<ProtoCrewMember>(cm => cm.experienceTrait.TypeName == trait);
             }
