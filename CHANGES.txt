@@ -1,5 +1,5 @@
 Contract Configurator 0.4.4
-- Fixed NullRef issue when approaching another vessel.
+- Fixed NullRef issue when approaching another vessel (thanks Tellion).
 
 Contract Configurator 0.4.3
 - Fixed issue where SCANsat reported 100% scanning during flight loading, causing SCANsat parameters to complete early.
