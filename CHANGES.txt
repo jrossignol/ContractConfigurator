@@ -15,6 +15,7 @@ Contract Configurator 0.5.0
 - Added PartModuleTypeUnlocked requirement.
 - Changed default values for disableOnStageChange in parameters to be more logical.
 - Added new validation to check for unexpected values in config nodes - helps when developing contract configuration.
+- Reloading contract types will also re-run module manager (which means you can now reload contract types that use module manager).
 - Minor bug fixes
 
 Contract Configurator 0.4.3

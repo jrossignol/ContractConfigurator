@@ -84,7 +84,7 @@ namespace ContractConfigurator
             reloading = true;
 
             // Infrom the player of the reload process
-            ScreenMessages.PostScreenMessage("Reloading contract types...", 2,
+            ScreenMessages.PostScreenMessage("Reloading game database...", 2,
                 ScreenMessageStyle.UPPER_CENTER);
             yield return null;
 
@@ -95,6 +95,43 @@ namespace ContractConfigurator
             while (!GameDatabase.Instance.IsReady())
                 yield return null;
 
+            // Attempt to find module manager and do their reload
+            var allMM = from loadedAssemblies in AssemblyLoader.loadedAssemblies
+                           let assembly = loadedAssemblies.assembly
+                           where assembly.GetName().Name.StartsWith("ModuleManager")
+                           orderby assembly.GetName().Version descending, loadedAssemblies.path ascending
+                           select loadedAssemblies;
+
+            // Reload module manager
+            if (allMM.Count() > 0)
+            {
+                ScreenMessages.PostScreenMessage("Reloading module manager...", 2,
+                    ScreenMessageStyle.UPPER_CENTER);
+
+                Assembly mmAssembly = allMM.First().assembly;
+                LoggingUtil.LogVerbose(this, "Reloading config using ModuleManager: " + mmAssembly.FullName);
+
+                // Get the module manager object
+                Type mmPatchType = mmAssembly.GetType("ModuleManager.MMPatchLoader");
+                UnityEngine.Object mmPatchLoader = FindObjectOfType(mmPatchType);
+
+                // Get the methods
+                MethodInfo methodStartLoad = mmPatchType.GetMethod("StartLoad", Type.EmptyTypes);
+                MethodInfo methodIsReady = mmPatchType.GetMethod("IsReady");
+
+                // Start the load
+                methodStartLoad.Invoke(mmPatchLoader, null);
+
+                // Wait for it to complete
+                while (!(bool)methodIsReady.Invoke(mmPatchLoader, null))
+                {
+                    yield return null;
+                }
+            }
+
+            ScreenMessages.PostScreenMessage("Reloading contract types...", 1.5f,
+                ScreenMessageStyle.UPPER_CENTER);
+
             // Reload contract configurator
             ClearContractConfig();
             LoadContractConfig();
@@ -102,7 +139,7 @@ namespace ContractConfigurator
 
             // We're done!
             ScreenMessages.PostScreenMessage("Loaded " + successContracts + " out of " + totalContracts
-                + " contracts successfully.", 3, ScreenMessageStyle.UPPER_CENTER);
+                + " contracts successfully.", 5, ScreenMessageStyle.UPPER_CENTER);
 
             reloading = false;
         }
