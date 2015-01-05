@@ -352,7 +352,7 @@ namespace ContractConfigurator.Parameters
 
         protected virtual void OnPartAttach(GameEvents.HostTargetAction<Part, Part> e)
         {
-            if (HighLogic.LoadedScene == GameScenes.EDITOR)
+            if (HighLogic.LoadedScene == GameScenes.EDITOR || e.host.vessel == null || e.target.vessel == null)
             {
                 return;
             }
