@@ -1,4 +1,4 @@
-Contract Configurator 0.4.4
+Contract Configurator 0.4.5
 - Fixed NullRef issue when approaching another vessel (thanks Tellion).
 
 Contract Configurator 0.4.3
