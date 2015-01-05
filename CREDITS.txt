@@ -1,2 +1,3 @@
 - SCANsat integration courtesy of tattagreis.
 - Some GameDatabase reloading code courtesy of Sarbian (ModuleManager).
+- Some code reused from RemoteTech for the RemoteTech integration, credit to the Remote Technologies Group.
