@@ -313,7 +313,7 @@ namespace ContractConfigurator.Parameters
 
         protected virtual void OnPartJointBreak(PartJoint p)
         {
-            if (HighLogic.LoadedScene == GameScenes.EDITOR)
+            if (HighLogic.LoadedScene == GameScenes.EDITOR || p.Parent.vessel == null)
             {
                 return;
             }
