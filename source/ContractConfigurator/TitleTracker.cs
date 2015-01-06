@@ -14,7 +14,6 @@ namespace ContractConfigurator
     /// </summary>
     public class TitleTracker
     {
-        private double lastUpdate = 0.0;
         private List<string> titles = new List<string>();
 
         /// <summary>
