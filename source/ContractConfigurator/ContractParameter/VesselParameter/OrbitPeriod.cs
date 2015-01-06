@@ -36,7 +36,7 @@ namespace ContractConfigurator.Parameters
 
             if (title == null)
             {
-                this.title = "Period: ";
+                this.title = "Orbit Period: ";
                 this.title += "between " + DurationUtil.StringValue(minPeriod, false) + " and " + DurationUtil.StringValue(maxPeriod, false);
             }
             else
