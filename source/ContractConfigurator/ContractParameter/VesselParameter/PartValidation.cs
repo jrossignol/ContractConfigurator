@@ -225,7 +225,7 @@ namespace ContractConfigurator.Parameters
             // Filter by part modules
             foreach (string partModule in partModules)
             {
-                parts = PartsWithModule(parts, partModule);
+                parts = parts.WithModule(partModule);
             }
 
             // Filter by category
@@ -255,21 +255,6 @@ namespace ContractConfigurator.Parameters
             // Validate count
             int count = parts.Count();
             return count >= minCount && count <= maxCount;
-        }
-
-        private IEnumerable<Part> PartsWithModule(IEnumerable<Part> parts, string partModule)
-        {
-            foreach (Part p in parts)
-            {
-                foreach (PartModule pm in p.Modules)
-                {
-                    if (pm.moduleName == partModule)
-                    {
-                        yield return p;
-                        break;
-                    }
-                }
-            }
         }
     }
 }
