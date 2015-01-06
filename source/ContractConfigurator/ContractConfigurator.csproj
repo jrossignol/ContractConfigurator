@@ -59,6 +59,7 @@
     <Compile Include="ContractRequirement\ScienceRequirement.cs" />
     <Compile Include="ContractRequirement\ReputationRequirement.cs" />
     <Compile Include="ContractRequirement\FundsRequirement.cs" />
+    <Compile Include="PartUtil.cs" />
     <Compile Include="ParameterFactory\OrbitPeriodFactory.cs" />
     <Compile Include="ParameterFactory\OrbitAltitudeFactory.cs" />
     <Compile Include="TitleTracker.cs" />

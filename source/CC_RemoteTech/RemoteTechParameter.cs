@@ -29,7 +29,7 @@ namespace ContractConfigurator.RemoteTech
             RemoteTechAssistant.OnRemoteTechUpdate.Remove(new EventData<VesselSatellite>.OnEvent(OnRemoteTechUpdate));
         }
 
-        private void OnRemoteTechUpdate(VesselSatellite s)
+        protected void OnRemoteTechUpdate(VesselSatellite s)
         {
             CheckVessel(s.parentVessel);
         }

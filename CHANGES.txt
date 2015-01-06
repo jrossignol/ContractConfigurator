@@ -1,7 +1,7 @@
 Contract Configurator 0.5.0
 - RemoteTech integration!
-  - ActiveVesselConnection parameter - indicates that a vessel must have an Omni or dish targetted to the active vessel with the given range.
   - KSCConnectivity parameter - indicates that a vessel must have connectivity back to mission control.
+  - HasAntenna parameter - indicates that a vessel must have one or more antenna that meet specific criteria.
   - SignalDelay parameter - requires a min/max signal delay for a connection.
   - VesselConnectivity parameter - checks for connectivity between two vessels.
   - CelestialBodyCoverage parameter - verifies that there is communication coverage of a celestial body.

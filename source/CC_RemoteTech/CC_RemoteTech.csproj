@@ -52,11 +52,11 @@
     <Compile Include="CelestialBodyCoverageParameter.cs" />
     <Compile Include="ActiveVesselRangeRequirement.cs" />
     <Compile Include="CelestialBodyCoverageRequirement.cs" />
+    <Compile Include="HasAntennaParameter.cs" />
+    <Compile Include="HasAntennaFactory.cs" />
     <Compile Include="RemoteTechProgressTracker.cs" />
     <Compile Include="RemoteTechAssistant.cs" />
     <Compile Include="RemoteTechParameter.cs" />
-    <Compile Include="ActiveVesselConnectionParameter.cs" />
-    <Compile Include="ActiveVesselConnectionFactory.cs" />
     <Compile Include="VesselConnectivityFactory.cs" />
     <Compile Include="VesselConnectivityParameter.cs" />
     <Compile Include="SignalDelayFactory.cs" />

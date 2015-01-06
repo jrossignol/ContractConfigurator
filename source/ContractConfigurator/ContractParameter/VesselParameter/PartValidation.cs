@@ -60,13 +60,13 @@ namespace ContractConfigurator.Parameters
                 // Add modules
                 if (partModules != null && partModules.Count > 0)
                 {
-                    this.title += needsComma ? ", " : "";
+                    this.title += needsComma ? "; " : "";
                     this.title += "With module" + (partModules.Count > 1 ? "s" : "") + ": ";
                     needsComma = false;
 
                     foreach (string partModule in partModules)
                     {
-                        this.title += needsComma ? ", " : "";
+                        this.title += needsComma ? "; " : "";
                         string moduleName = partModule.Replace("Module", "");
                         moduleName = Regex.Replace(moduleName, "(\\B[A-Z])", " $1");
                         this.title += moduleName;
@@ -77,7 +77,7 @@ namespace ContractConfigurator.Parameters
                 // Add category
                 if (category != null)
                 {
-                    this.title += needsComma ? ", " : "";
+                    this.title += needsComma ? "; " : "";
                     this.title += "Category: " + category;
                     needsComma = true;
                 }
@@ -85,7 +85,7 @@ namespace ContractConfigurator.Parameters
                 // Add not category
                 if (notCategory != null)
                 {
-                    this.title += needsComma ? ", " : "";
+                    this.title += needsComma ? "; " : "";
                     this.title += "Not category: " + notCategory;
                     needsComma = true;
                 }
@@ -93,7 +93,7 @@ namespace ContractConfigurator.Parameters
                 // Add manufacturer
                 if (manufacturer != null)
                 {
-                    this.title += needsComma ? ", " : "";
+                    this.title += needsComma ? "; " : "";
                     this.title += "Manufacturer: " + manufacturer;
                     needsComma = true;
                 }
@@ -101,7 +101,7 @@ namespace ContractConfigurator.Parameters
                 // Add not manufacturer
                 if (notManufacturer != null)
                 {
-                    this.title += needsComma ? ", " : "";
+                    this.title += needsComma ? "; " : "";
                     this.title += "Not manufacturer: " + notManufacturer;
                     needsComma = true;
                 }

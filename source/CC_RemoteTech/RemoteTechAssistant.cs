@@ -99,7 +99,7 @@ namespace ContractConfigurator.RemoteTech
                 unit++;
             }
 
-            return range.ToString("N1") + UNITS[unit];
+            return range.ToString("N1") + " " + UNITS[unit];
         }
 
     }
