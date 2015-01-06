@@ -11,7 +11,7 @@ using ContractConfigurator.Parameters;
 namespace ContractConfigurator
 {
     /*
-     * ParameterFactory wrapper for OrbitAltitude ContractParameter.
+     * ParameterFactory wrapper for OrbitPeriod ContractParameter.
      */
     public class OrbitPeriodFactory : ParameterFactory
     {

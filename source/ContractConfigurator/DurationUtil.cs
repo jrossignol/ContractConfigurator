@@ -80,6 +80,52 @@ namespace ContractConfigurator
             return output;
         }
 
+        /*
+         * Gets the string value of the duration
+        */
+        public static string StringValue(double duration, bool displayDaysAndYears = true)
+        {
+            double time = duration;
+            SetTimeConsts();
+
+            string output = "";
+
+            if (displayDaysAndYears)
+            {
+                int years = (int)(time / SecondsPerYear);
+                time -= years * SecondsPerYear;
+
+                int days = (int)(time / SecondsPerDay);
+                time -= days * SecondsPerDay;
+
+                if (years != 0)
+                {
+                    output += years + (years == 1 ? "year" : " years");
+                }
+                if (days != 0)
+                {
+                    if (output.Length != 0) output += ", ";
+                    output += days + (days == 1 ? "days" : " days");
+                }
+            }
+
+            int hours = (int)(time / SecondsPerHour);
+            time -= hours * SecondsPerHour;
+
+            int minutes = (int)(time / SecondsPerMinute);
+            time -= minutes * SecondsPerMinute;
+
+            int seconds = (int)(time);
+
+            if (hours != 0 || minutes != 0 || seconds != 0 || output.Length == 0)
+            {
+                if (output.Length != 0) output += ", ";
+                output += hours.ToString("D2") + ":" + minutes.ToString("D2") + ":" + seconds.ToString("D2");
+            }
+
+            return output;
+        }
+
         private static void SetTimeConsts()
         {
             // Earthtime

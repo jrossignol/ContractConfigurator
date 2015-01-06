@@ -10,7 +10,7 @@ using Contracts.Parameters;
 namespace ContractConfigurator.Parameters
 {
     /*
-     * Parameter for checking vessels periapsis
+     * Parameter for checking vessels period
      */
     public class OrbitPeriod : VesselParameter
     {
@@ -37,7 +37,7 @@ namespace ContractConfigurator.Parameters
             if (title == null)
             {
                 this.title = "Period: ";
-                this.title += "between " + DurationUtil.StringValue(minPeriod) + " and " + DurationUtil.StringValue(maxPeriod);
+                this.title += "between " + DurationUtil.StringValue(minPeriod, false) + " and " + DurationUtil.StringValue(maxPeriod, false);
             }
             else
             {
