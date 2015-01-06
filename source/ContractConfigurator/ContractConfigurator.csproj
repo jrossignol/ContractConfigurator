@@ -57,6 +57,7 @@
     <Compile Include="ContractRequirement\ScienceRequirement.cs" />
     <Compile Include="ContractRequirement\ReputationRequirement.cs" />
     <Compile Include="ContractRequirement\FundsRequirement.cs" />
+    <Compile Include="TitleTracker.cs" />
     <Compile Include="ParameterFactory\PartValidationFactory.cs" />
     <Compile Include="ParameterFactory\IsNotVesselFactory.cs" />
     <Compile Include="ParameterFactory\HasPassengersFactory.cs" />

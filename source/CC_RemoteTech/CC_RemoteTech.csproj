@@ -48,6 +48,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CelestialBodyCoverageFactory.cs" />
+    <Compile Include="CelestialBodyCoverageParameter.cs" />
     <Compile Include="ActiveVesselRangeRequirement.cs" />
     <Compile Include="CelestialBodyCoverageRequirement.cs" />
     <Compile Include="RemoteTechProgressTracker.cs" />

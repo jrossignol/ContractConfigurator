@@ -23,7 +23,7 @@ namespace ContractConfigurator.Parameters
         private double lastUpdate = 0.0;
         private bool resetClock = false;
 
-        private List<string> titleTracker = new List<string>();
+        private TitleTracker titleTracker = new TitleTracker();
 
         public Duration()
             : this(0.0)
@@ -139,9 +139,6 @@ namespace ContractConfigurator.Parameters
         {
             base.OnUpdate();
 
-            // Every time the clock ticks over, make an attempt to update the contract window
-            // title.  We do this because otherwise the window will only ever read the title once,
-            // so this is the only way to get our fancy timer to work.
             if (Planetarium.GetUniversalTime() - lastUpdate > 1.0f && (endTime != 0.0 || resetClock))
             {
                 // Completed
@@ -151,38 +148,7 @@ namespace ContractConfigurator.Parameters
                 }
                 lastUpdate = Planetarium.GetUniversalTime();
 
-                // Go through all the list items in the contracts window
-                UIScrollList list = ContractsApp.Instance.cascadingList.cascadingList;
-                if (list != null)
-                {
-                    for (int i = 0; i < list.Count; i++)
-                    {
-                        // Try to find a rich text control that matches the expected text
-                        UIListItemContainer listObject = (UIListItemContainer)list.GetItem(i);
-                        SpriteTextRich richText = listObject.GetComponentInChildren<SpriteTextRich>();
-                        if (richText != null)
-                        {
-                            // Check for any string in titleTracker
-                            string found = null;
-                            foreach (string title in titleTracker)
-                            {
-                                if (richText.Text.Contains(title))
-                                {
-                                    found = title;
-                                    break;
-                                }
-                            }
-
-                            // Clear the titleTracker, and replace the text
-                            if (found != null)
-                            {
-                                titleTracker.Clear();
-                                richText.Text = richText.Text.Replace(found, GetTitle());
-                            }
-                        }
-                    }
-                }
-
+                titleTracker.UpdateContractWindow(GetTitle());
                 resetClock = false;
             }
         }
