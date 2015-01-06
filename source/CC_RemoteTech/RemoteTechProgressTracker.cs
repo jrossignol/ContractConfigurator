@@ -195,6 +195,8 @@ namespace ContractConfigurator.RemoteTech
                 return;
             }
 
+            Initialize();
+
             // Check if time to update
             bool priorityUpdate = false;
             if (tick++ % UPDATE_INTERVAL != 0)

@@ -16,9 +16,11 @@ namespace ContractConfigurator
         public override bool RequirementMet(ConfiguredContract contract)
         {
             bool requirementMet = false;
-            foreach (ContractRequirement contractRequirement in childNodes)
+            foreach (ContractRequirement requirement in childNodes)
             {
-                requirementMet |= contractRequirement.RequirementMet(contract);
+                bool nodeMet = requirement.RequirementMet(contract);
+                LoggingUtil.LogVerbose(typeof(ContractRequirement), "Checked requirement '" + requirement.Name + "' of type " + requirement.Type + ": " + (requirement.InvertRequirement ? !nodeMet : nodeMet));
+                requirementMet |= (requirement.InvertRequirement ? !nodeMet : nodeMet);
             }
             return requirementMet;
         }

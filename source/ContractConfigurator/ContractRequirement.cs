@@ -15,8 +15,12 @@ namespace ContractConfigurator
     {
         private static Dictionary<string, Type> requirementTypes = new Dictionary<string, Type>();
 
+        public string Name { get { return name; } }
+        public string Type { get { return type; } }
         protected string name;
         protected string type;
+
+        public bool InvertRequirement { get { return invertRequirement; } }
         protected virtual List<ContractRequirement> childNodes { get; set; }
         protected virtual ContractType contractType { get; set; }
         protected CelestialBody targetBody;
@@ -75,14 +79,16 @@ namespace ContractConfigurator
         /*
          * Checks if all the given ContractRequirement meet the requirement.
          */
-        public static bool RequirementsMet(ConfiguredContract contract, List<ContractRequirement> contractRequirements)
+        public static bool RequirementsMet(ConfiguredContract contract, ContractType contractType, List<ContractRequirement> contractRequirements)
         {
             bool allReqMet = true;
+            LoggingUtil.LogVerbose(typeof(ContractRequirement), "Checking requirements for contract '" + contractType.name);
             foreach (ContractRequirement requirement in contractRequirements)
             {
                 if (requirement.checkOnActiveContract || contract.ContractState != Contract.State.Active)
                 {
                     bool nodeMet = requirement.RequirementMet(contract);
+                    LoggingUtil.LogVerbose(typeof(ContractRequirement), "Checked requirement '" + requirement.name + "' of type " + requirement.type + ": " + nodeMet);
                     allReqMet = allReqMet && (requirement.invertRequirement ? !nodeMet : nodeMet);
                 }
             }
@@ -140,7 +146,6 @@ namespace ContractConfigurator
             // Set attributes
             requirement.contractType = contractType;
             requirement.targetBody = contractType.targetBody;
-
 
             // Load config
             bool valid = requirement.Load(configNode);

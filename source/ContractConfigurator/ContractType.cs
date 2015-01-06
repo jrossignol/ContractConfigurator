@@ -232,7 +232,7 @@ namespace ContractConfigurator
             }
 
             // Check the captured requirements
-            return ContractRequirement.RequirementsMet(contract, requirements);
+            return ContractRequirement.RequirementsMet(contract, this, requirements);
         }
 
         /*
