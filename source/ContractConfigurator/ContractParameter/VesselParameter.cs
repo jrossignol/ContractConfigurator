@@ -274,14 +274,10 @@ namespace ContractConfigurator.Parameters
             // Set parameters properly on first load
             if (FlightGlobals.ActiveVessel != null)
             {
-                IContractParameterHost host = Parent;
-                while (host != Root && !(host is VesselParameterGroup))
+                VesselParameterGroup vpg = GetParameterGroupHost();
+                if (vpg != null)
                 {
-                    host = host.Parent;
-                }
-                if (host is VesselParameterGroup)
-                {
-                    ((VesselParameterGroup)host).UpdateState(FlightGlobals.ActiveVessel);
+                    vpg.UpdateState(FlightGlobals.ActiveVessel);
                 }
             }
         }
@@ -600,16 +596,12 @@ namespace ContractConfigurator.Parameters
                 return;
             }
 
-            IContractParameterHost host = Parent;
-            while (host != Root && !(host is VesselParameterGroup))
-            {
-                host = host.Parent;
-            }
+            VesselParameterGroup vpg = GetParameterGroupHost();
 
             if (CanCheckVesselMeetsCondition(vessel))
             {
                 // Using VesselParameterGroup logic
-                if (host is VesselParameterGroup)
+                if (vpg != null)
                 {
                     // Set the craft specific state
                     bool stateChanged = SetState(vessel, VesselMeetsCondition(vessel) ?
@@ -618,7 +610,7 @@ namespace ContractConfigurator.Parameters
                     // Update the group
                     if (stateChanged)
                     {
-                        ((VesselParameterGroup)host).UpdateState(vessel);
+                        vpg.UpdateState(vessel);
                     }
                 }
                 // Logic applies only to active vessel
@@ -671,6 +663,20 @@ namespace ContractConfigurator.Parameters
                 default:
                     return false;
             }
+        }
+
+        private VesselParameterGroup GetParameterGroupHost()
+        {
+            IContractParameterHost host = Parent;
+            while (host != Root && !(host is VesselParameterGroup))
+            {
+                host = host.Parent;
+            }
+            if (host is VesselParameterGroup)
+            {
+                return (VesselParameterGroup)host;
+            }
+            return null;
         }
 
         /// <summary>
