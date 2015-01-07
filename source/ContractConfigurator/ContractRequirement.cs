@@ -82,27 +82,34 @@ namespace ContractConfigurator
         public static bool RequirementsMet(ConfiguredContract contract, ContractType contractType, List<ContractRequirement> contractRequirements)
         {
             bool allReqMet = true;
-            LoggingUtil.LogVerbose(typeof(ContractRequirement), "Checking requirements for contract '" + contractType.name);
-            foreach (ContractRequirement requirement in contractRequirements)
+            try
             {
-                if (requirement.checkOnActiveContract || contract.ContractState != Contract.State.Active)
+                LoggingUtil.LogVerbose(typeof(ContractRequirement), "Checking requirements for contract '" + contractType.name);
+                foreach (ContractRequirement requirement in contractRequirements)
                 {
-                    bool nodeMet = requirement.RequirementMet(contract);
-                    LoggingUtil.LogVerbose(typeof(ContractRequirement), "Checked requirement '" + requirement.name + "' of type " + requirement.type + ": " + nodeMet);
-                    allReqMet = allReqMet && (requirement.invertRequirement ? !nodeMet : nodeMet);
+                    if (requirement.checkOnActiveContract || contract.ContractState != Contract.State.Active)
+                    {
+                        bool nodeMet = requirement.RequirementMet(contract);
+                        LoggingUtil.LogVerbose(typeof(ContractRequirement), "Checked requirement '" + requirement.name + "' of type " + requirement.type + ": " + nodeMet);
+                        allReqMet = allReqMet && (requirement.invertRequirement ? !nodeMet : nodeMet);
+                    }
+                }
+
+                // Force fail the contract if a requirement becomes unmet
+                if (contract.ContractState == Contract.State.Active && !allReqMet)
+                {
+                    // Fail the contract - unfortunately, the player won't know why. :(
+                    contract.Fail();
+
+                    // Force the stock contracts window to refresh
+                    GameEvents.Contract.onContractsLoaded.Fire();
                 }
             }
-
-            // Force fail the contract if a requirement becomes unmet
-            if(contract.ContractState == Contract.State.Active && !allReqMet)
+            catch (Exception e)
             {
-                // Fail the contract - unfortunately, the player won't know why. :(
-                contract.Fail();
-
-                // Force the stock contracts window to refresh
-                GameEvents.Contract.onContractsLoaded.Fire();
+                Debug.LogException(new Exception("ContractConfigurator: Exception checking requirements!", e));
+                return false;
             }
-
             return allReqMet;
         }
 
