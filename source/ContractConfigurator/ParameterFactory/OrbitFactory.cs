@@ -67,7 +67,6 @@ namespace ContractConfigurator
             valid &= ConfigNodeUtil.MutuallyExclusive(configNode, new string[] { "minAltitude", "maxAltitude" },
                 new string[] { "minApA", "maxApA", "minPeA", "maxPeA" }, this);
 
-
             return valid;
         }
 
