@@ -25,7 +25,7 @@ namespace ContractConfigurator.Parameters
         public ReachDestinationCustom(CelestialBody destination, string title)
             : base()
         {
-            this.title = title != null ? title : "Destination: " + (destination != null ? destination.name : "");
+            this.title = title != null ? title : "Destination: " + (destination != null ? destination.printName() : "");
             this.destination = destination;
         }
 
