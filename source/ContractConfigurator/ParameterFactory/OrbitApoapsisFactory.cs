@@ -13,6 +13,7 @@ namespace ContractConfigurator
     /*
      * ParameterFactory wrapper for OrbitApoapsis ContractParameter.
      */
+    [Obsolete("Obsolete, use Orbit")]
     public class OrbitApoapsisFactory : ParameterFactory
     {
         protected double minApA;
@@ -27,6 +28,8 @@ namespace ContractConfigurator
             valid &= ConfigNodeUtil.ParseValue<double>(configNode, "maxApA", ref maxApA, this, double.MaxValue, x => Validation.GE(x, 0.0));
             valid &= ConfigNodeUtil.AtLeastOne(configNode, new string[] { "minApA", "maxApA" }, this);
             valid &= ValidateTargetBody(configNode);
+
+            LoggingUtil.LogError(this, "OrbitApoapsis is obsolete as of ContractConfigurator 0.5.0, please use Orbit instead.  OrbitApoapsis will be removed in a future release.");
 
             return valid;
         }

@@ -12,6 +12,7 @@ namespace ContractConfigurator.Parameters
     /*
      * Parameter for checking vessels inclination
      */
+    [Obsolete("Obsolete, use OrbitParameter")]
     public class OrbitEccentricity : VesselParameter
     {
         protected string title { get; set; }

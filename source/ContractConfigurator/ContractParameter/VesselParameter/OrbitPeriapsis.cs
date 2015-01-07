@@ -12,6 +12,7 @@ namespace ContractConfigurator.Parameters
     /*
      * Parameter for checking vessels periapsis
      */
+    [Obsolete("Obsolete, use OrbitParameter")]
     public class OrbitPeriapsis : VesselParameter
     {
         protected string title { get; set; }

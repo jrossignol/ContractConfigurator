@@ -51,8 +51,7 @@
     <Compile Include="BehaviourFactory\SpawnKerbalFactory.cs" />
     <Compile Include="ContractParameter\Duration.cs" />
     <Compile Include="ContractParameter\ParameterDelegate.cs" />
-    <Compile Include="ContractParameter\VesselParameter\OrbitAltitude.cs" />
-    <Compile Include="ContractParameter\VesselParameter\OrbitPeriod.cs" />
+    <Compile Include="ContractParameter\VesselParameter\OrbitParameter.cs" />
     <Compile Include="ContractParameter\VesselParameter\PartValidation.cs" />
     <Compile Include="ContractParameter\VesselParameter\HasPassengers.cs" />
     <Compile Include="ContractParameter\VesselParameter\IsNotVessel.cs" />
@@ -61,9 +60,8 @@
     <Compile Include="ContractRequirement\ReputationRequirement.cs" />
     <Compile Include="ContractRequirement\FundsRequirement.cs" />
     <Compile Include="Extensions.cs" />
+    <Compile Include="ParameterFactory\OrbitFactory.cs" />
     <Compile Include="PartUtil.cs" />
-    <Compile Include="ParameterFactory\OrbitPeriodFactory.cs" />
-    <Compile Include="ParameterFactory\OrbitAltitudeFactory.cs" />
     <Compile Include="TitleTracker.cs" />
     <Compile Include="ParameterFactory\PartValidationFactory.cs" />
     <Compile Include="ParameterFactory\IsNotVesselFactory.cs" />

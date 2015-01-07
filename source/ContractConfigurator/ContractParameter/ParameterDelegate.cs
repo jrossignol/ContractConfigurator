@@ -10,22 +10,22 @@ using Contracts.Parameters;
 namespace ContractConfigurator.Parameters
 {
     /// <summary>
+    /// Parent classes must implement this interface, and should make the following call if
+    /// ChildChanged is true:
+    ///     GameEvents.Contract.onParameterChange.Fire(this.Root, this);
+    /// </summary>
+    public interface ParameterDelegateContainer
+    {
+        bool ChildChanged { get; set; }
+    }
+
+    /// <summary>
     /// Special parameter child class for filtering and validating a list of items.  Parent
     /// parameter classes MUST implement the ParameterDelegate.Container interface.
     /// </summary>
     /// <typeparam name="T">The type of item that will be validated.</typeparam>
     public class ParameterDelegate<T> : ContractParameter
     {
-        /// <summary>
-        /// Parent classes must implement this interface, and should make the following call if
-        /// ChildChanged is true:
-        ///     GameEvents.Contract.onParameterChange.Fire(this.Root, this);
-        /// </summary>
-        public interface Container
-        {
-            bool ChildChanged { get; set; }
-        }
-
         protected string title;
         protected Func<T, bool> filterFunc;
         protected bool trivial;
@@ -67,7 +67,7 @@ namespace ContractConfigurator.Parameters
             {
                 LoggingUtil.LogVerbose(this, "Setting state for '" + title + "', state = " + newState);
                 state = newState;
-                ((Container)Parent).ChildChanged = true;
+                ((ParameterDelegateContainer)Parent).ChildChanged = true;
             }
         }
 
@@ -107,10 +107,31 @@ namespace ContractConfigurator.Parameters
             // No values - failure
             else
             {
-                SetState(state = ParameterState.Failed);
+                SetState(ParameterState.Failed);
             }
 
             return values;
+        }
+
+        /// <summary>
+        /// Set the state for a single value of T.
+        /// </summary>
+        /// <param name="value">The value to check</param>
+        /// <param name="checkOnly">Whether to actually set the state or just perform a check</param>
+        /// <returns>Whether value met the criteria.</returns>
+        protected virtual bool SetState(T value, bool checkOnly = false)
+        {
+            LoggingUtil.LogVerbose(this, "Checking condition for '" + title + "', value = " + value);
+
+            bool result = filterFunc.Invoke(value);
+
+            // Is state change allowed?
+            if (!checkOnly)
+            {
+                SetState(result ? ParameterState.Complete : ParameterState.Failed);
+            }
+
+            return result;
         }
 
         /// <summary>
@@ -143,6 +164,27 @@ namespace ContractConfigurator.Parameters
             }
 
             return !fail && values.Any();
+        }
+
+        /// <summary>
+        /// Checks the child conditions for each child parameter delegate in the given parent.
+        /// </summary>
+        /// <param name="param">The contract parameter that we are called from.</param>
+        /// <param name="values">The values to enumerator over.</param>
+        /// <param name="checkOnly">Only perform a check, don't change values.</param>
+        /// <returns></returns>
+        public static bool CheckChildConditions(ContractParameter param, T value, bool checkOnly = false)
+        {
+            bool conditionMet = true;
+            foreach (ContractParameter child in param.AllParameters)
+            {
+                if (child is ParameterDelegate<T>)
+                {
+                    conditionMet &= ((ParameterDelegate<T>)child).SetState(value);
+                }
+            }
+
+            return conditionMet;
         }
 
         /// <summary>

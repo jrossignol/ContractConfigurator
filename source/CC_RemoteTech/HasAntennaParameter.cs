@@ -15,7 +15,7 @@ namespace ContractConfigurator.RemoteTech
     /// <summary>
     /// Parameter for checking whether the vessel has an antenna that meets the specified criteria.
     /// </summary>
-    public class HasAntennaParameter : RemoteTechParameter, ParameterDelegate<IAntenna>.Container
+    public class HasAntennaParameter : RemoteTechParameter
     {
         public enum AntennaType
         {
@@ -31,8 +31,6 @@ namespace ContractConfigurator.RemoteTech
         protected AntennaType? antennaType { get; set; }
         protected double minRange { get; set; }
         protected double maxRange { get; set; }
-
-        public bool ChildChanged { get; set; }
 
         public HasAntennaParameter()
             : base()
@@ -195,21 +193,13 @@ namespace ContractConfigurator.RemoteTech
             VesselSatellite sat = RTCore.Instance.Satellites[vessel.id];
 
             // If we're a VesselParameterGroup child, only do actual state change if we're the tracked vessel
-            bool checkOnly = true;
+            bool checkOnly = false;
             if (Parent is VesselParameterGroup)
             {
                 checkOnly = ((VesselParameterGroup)Parent).TrackedVessel != vessel;
             }
 
-            bool conditionMet = ParameterDelegate<IAntenna>.CheckChildConditions(this, sat.Antennas, checkOnly);
-            LoggingUtil.LogVerbose(this, "ChildChanged: " + ChildChanged);
-            if (ChildChanged)
-            {
-                ChildChanged = false;
-                GameEvents.Contract.onParameterChange.Fire(this.Root, this);
-            }
-
-            return conditionMet;
+            return ParameterDelegate<IAntenna>.CheckChildConditions(this, sat.Antennas, checkOnly);
         }
     }
 }

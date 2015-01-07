@@ -13,6 +13,7 @@ namespace ContractConfigurator
     /*
      * ParameterFactory wrapper for OrbitEccentricity ContractParameter.
      */
+    [Obsolete("Obsolete, use Orbit")]
     public class OrbitEccentricityFactory : ParameterFactory
     {
         protected double minEccentricity;
@@ -27,6 +28,8 @@ namespace ContractConfigurator
             valid &= ConfigNodeUtil.ParseValue<double>(configNode, "maxEccentricity", ref maxEccentricity, this, double.MaxValue, x => Validation.GE(x, 0.0));
             valid &= ConfigNodeUtil.AtLeastOne(configNode, new string[] { "minEccentricity", "maxEccentricity" }, this);
             valid &= ValidateTargetBody(configNode);
+
+            LoggingUtil.LogError(this, "OrbitEccentricity is obsolete as of ContractConfigurator 0.5.0, please use Orbit instead.  OrbitEccentricity will be removed in a future release.");
 
             return valid;
         }

@@ -12,7 +12,7 @@ namespace ContractConfigurator.Parameters
     /*
      * Base class for parameters that support grouping via VesselParameterGroup.
      */
-    public abstract class VesselParameter : Contracts.ContractParameter
+    public abstract class VesselParameter : Contracts.ContractParameter, ParameterDelegateContainer
     {
         /*
          * Strength of the parameter - ie. how sure we are that we have completed the parameter.
@@ -41,6 +41,8 @@ namespace ContractConfigurator.Parameters
         private Dictionary<Guid, VesselInfo> vesselInfo;
         private Dictionary<uint, ParamStrength> dockedVesselStrength;
         private bool allowStateReset = true;
+
+        public bool ChildChanged { get; set; }
 
         /*
          * Set to true in child classes to fail instead of being incomplete when the parameter
@@ -614,6 +616,14 @@ namespace ContractConfigurator.Parameters
                     {
                         SetIncomplete();
                     }
+                }
+
+                // Special handling for parameter delegates
+                if (ChildChanged)
+                {
+                    LoggingUtil.LogVerbose(this, "Firing onParameterChange due to ChildChanged = true");
+                    GameEvents.Contract.onParameterChange.Fire(this.Root, this);
+                    ChildChanged = false;
                 }
             }
             LoggingUtil.LogVerbose(this, "<- CheckVessel");
