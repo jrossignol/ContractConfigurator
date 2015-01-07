@@ -691,6 +691,13 @@ namespace ContractConfigurator.Parameters
             return true;
         }
 
+        public void CheckVesselMeetsCondition(Vessel vessel)
+        {
+            if (CanCheckVesselMeetsCondition(vessel))
+            {
+                VesselMeetsCondition(vessel);
+            }
+        }
         protected abstract bool VesselMeetsCondition(Vessel vessel);
     }
 }

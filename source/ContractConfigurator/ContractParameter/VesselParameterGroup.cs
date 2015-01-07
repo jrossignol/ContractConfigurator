@@ -21,6 +21,7 @@ namespace ContractConfigurator.Parameters
         protected double completionTime { get; set; }
         protected bool waiting { get; set; }
 
+        private Vessel oldTrackedVessel = null;
         private Vessel trackedVessel = null;
         public Vessel TrackedVessel { get { return trackedVessel; } }
         private Guid trackedVesselGuid = new Guid();
@@ -192,6 +193,19 @@ namespace ContractConfigurator.Parameters
                         trackedVesselGuid = vessel.id;
                     }
                 }
+            }
+
+            // Force a 
+            if (oldTrackedVessel != trackedVessel && trackedVessel != null)
+            {
+                foreach (ContractParameter p in this.GetAllDescendents())
+                {
+                    if (p is VesselParameter)
+                    {
+                        ((VesselParameter)p).CheckVesselMeetsCondition(trackedVessel);
+                    }
+                }
+                oldTrackedVessel = trackedVessel;
             }
 
             // Fire the parameter change event to account for all the changed child parameters.

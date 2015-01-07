@@ -5,6 +5,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using UnityEngine;
 using KSP;
+using Contracts;
 using ContractConfigurator.Parameters;
 
 namespace ContractConfigurator
@@ -23,6 +24,26 @@ namespace ContractConfigurator
         public static string printName(this CelestialBody body)
         {
             return body.name == "Mun" ? "the Mun" : body.name;
+        }
+
+        /// <summary>
+        /// Gets all the parameter's descendents
+        /// </summary>
+        /// <param name="p">Contract parameter</param>
+        /// <returns>Enumerator of descendents</returns>
+        public static IEnumerable<ContractParameter> GetAllDescendents(this ContractParameter p)
+        {
+            foreach (ContractParameter child in p.AllParameters)
+            {
+                if (child != p)
+                {
+                    yield return child;
+                    foreach (ContractParameter descendent in child.GetAllDescendents())
+                    {
+                        yield return descendent;
+                    }
+                }
+            }
         }
     }
 }
