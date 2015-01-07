@@ -8,13 +8,14 @@ using KSP;
 using Contracts;
 using Contracts.Parameters;
 using RemoteTech;
+using ContractConfigurator.Parameters;
 
 namespace ContractConfigurator.RemoteTech
 {
     /// <summary>
     /// Parameter for checking whether the vessel has an antenna that meets the specified criteria.
     /// </summary>
-    public class HasAntennaParameter : RemoteTechParameter
+    public class HasAntennaParameter : RemoteTechParameter, ParameterDelegate<IAntenna>.Container
     {
         public enum AntennaType
         {
@@ -25,23 +26,33 @@ namespace ContractConfigurator.RemoteTech
         protected string title { get; set; }
         protected int minCount { get; set; }
         protected int maxCount { get; set; }
-        public CelestialBody targetBody = null;
-        public bool activeVessel = false;
-        public AntennaType? antennaType = null;
-        public double minRange = 0.0;
-        public double maxRange = double.MaxValue;
+        protected CelestialBody targetBody { get; set; }
+        protected bool activeVessel { get; set; }
+        protected AntennaType? antennaType { get; set; }
+        protected double minRange { get; set; }
+        protected double maxRange { get; set; }
+
+        public bool ChildChanged { get; set; }
 
         public HasAntennaParameter()
-            : this(1)
+            : base()
         {
         }
 
-        public HasAntennaParameter(int minCount = 1, int maxCount = int.MaxValue, string title = null)
+        public HasAntennaParameter(int minCount = 1, int maxCount = int.MaxValue, CelestialBody targetBody = null,
+            bool activeVessel = false, AntennaType? antennaType = null, double minRange = 0.0, double maxRange = double.MaxValue, string title = null)
             : base()
         {
             this.minCount = minCount;
             this.maxCount = maxCount;
+            this.targetBody = targetBody;
+            this.activeVessel = activeVessel;
+            this.antennaType = antennaType;
+            this.minRange = minRange;
+            this.maxRange = maxRange;
             this.title = title;
+
+            CreateDelegates();
         }
 
         protected override string GetTitle()
@@ -49,66 +60,10 @@ namespace ContractConfigurator.RemoteTech
             string output = null;
             if (string.IsNullOrEmpty(title))
             {
-                output = (antennaType == null ? "Antenna" : antennaType.ToString()) + ":";
-
-                bool needsComma = false;
-                if (targetBody != null || activeVessel)
+                output = "Antenna";
+                if (state == ParameterState.Complete)
                 {
-                    output += needsComma ? "; " : " ";
-                    output += "Target: ";
-                    if (activeVessel)
-                    {
-                        output += "Active Vessel";
-                    }
-                    else
-                    {
-                        output += targetBody.name;
-                    }
-                    needsComma = true;
-                }
-
-                if (minRange != 0.0 || maxRange != double.MaxValue)
-                {
-                    output += needsComma ? "; " : " ";
-                    output += "Range: ";
-                    if (maxRange == double.MaxValue)
-                    {
-                        output += "At least " + RemoteTechAssistant.RangeString(minRange);
-                    }
-                    else if (minRange == 0)
-                    {
-                        output += "At most " + RemoteTechAssistant.RangeString(maxRange);
-                    }
-                    else
-                    {
-                        output += "Between " + RemoteTechAssistant.RangeString(minRange) + " and " + RemoteTechAssistant.RangeString(maxRange);
-                    }
-                    needsComma = true;
-                }
-
-                if (minCount != 0 && maxCount != int.MaxValue)
-                {
-                    output += needsComma ? ": " : " ";
-                    if (maxCount == 0)
-                    {
-                        output += "None";
-                    }
-                    else if (maxCount == int.MaxValue)
-                    {
-                        output += "At least " + minCount;
-                    }
-                    else if (minCount == 0)
-                    {
-                        output += "At most " + maxCount;
-                    }
-                    else if (minCount == maxCount)
-                    {
-                        output += "Exactly " + minCount;
-                    }
-                    else
-                    {
-                        output += "Between " + minCount + " and " + maxCount;
-                    }
+                    output += ": " + ParameterDelegate<IAntenna>.GetDelegateText(this);
                 }
             }
             else
@@ -116,6 +71,74 @@ namespace ContractConfigurator.RemoteTech
                 output = title;
             }
             return output;
+        }
+
+        protected void CreateDelegates()
+        {
+            // Filter for celestial bodies
+            if (targetBody != null)
+            {
+                AddParameter(new ParameterDelegate<IAntenna>("Target: " + targetBody.printName(),
+                    a => a.Target == targetBody.Guid() || a.Omni > 0.0));
+            }
+
+            // Filter for active vessel
+            if (activeVessel)
+            {
+                AddParameter(new ParameterDelegate<IAntenna>("Target: Active vessel",
+                    a => a.Target == NetworkManager.ActiveVesselGuid || a.Omni > 0.0));
+            }
+
+            // Filter by type
+            if (antennaType == AntennaType.Dish)
+            {
+                AddParameter(new ParameterDelegate<IAntenna>("Type: " + antennaType,
+                    a => a.CanTarget));
+            }
+            else if (antennaType == AntennaType.Omni)
+            {
+                AddParameter(new ParameterDelegate<IAntenna>("Type: " + antennaType,
+                    a => !a.CanTarget));
+            }
+
+            // Filter for range
+            if (minRange != 0.0 && maxRange != double.MaxValue)
+            {
+                string output = "Range: ";
+                if (maxRange == double.MaxValue)
+                {
+                    output += "At least " + RemoteTechAssistant.RangeString(minRange);
+                }
+                else if (minRange == 0)
+                {
+                    output += "At most " + RemoteTechAssistant.RangeString(maxRange);
+                }
+                else
+                {
+                    output += "Between " + RemoteTechAssistant.RangeString(minRange) + " and " + RemoteTechAssistant.RangeString(maxRange);
+                }
+
+                AddParameter(new ParameterDelegate<IAntenna>(output,
+                    a => Math.Max(a.Omni, a.Dish) >= minRange && Math.Max(a.Omni, a.Dish) <= maxRange));
+            }
+
+            // Activated and powered
+            AddParameter(new ParameterDelegate<IAntenna>("Activated", a => a.Activated, true));
+            AddParameter(new ParameterDelegate<IAntenna>("Powered", a => a.Powered, true));
+
+            // Extra filter for celestial bodies
+            if (targetBody != null)
+            {
+                double distance = (Planetarium.fetch.Home.position - targetBody.position).magnitude;
+                AddParameter(new ParameterDelegate<IAntenna>("Range: In range of " + targetBody.printName(),
+                    a => Math.Max(a.Omni, a.Dish) >= distance, true));
+            }
+
+            // Validate count
+            if (minCount != 0 && maxCount != int.MaxValue)
+            {
+                AddParameter(new CountParameterDelegate<IAntenna>(minCount, maxCount));
+            }
         }
 
         protected override void OnSave(ConfigNode node)
@@ -154,6 +177,9 @@ namespace ContractConfigurator.RemoteTech
             minCount = ConfigNodeUtil.ParseValue<int>(node, "minCount");
             maxCount = ConfigNodeUtil.ParseValue<int>(node, "maxCount");
             antennaType = ConfigNodeUtil.ParseValue<AntennaType?>(node, "antennaType", (AntennaType?)null);
+
+            ParameterDelegate<IAntenna>.OnDelegateContainerLoad(node);
+            CreateDelegates();
         }
 
         /// <summary>
@@ -167,40 +193,23 @@ namespace ContractConfigurator.RemoteTech
 
             // Get all the antennae
             VesselSatellite sat = RTCore.Instance.Satellites[vessel.id];
-            IEnumerable<IAntenna> antennae = sat.Antennas.Where(a => a.Activated && a.Powered);
 
-            // Filter by type
-            if (antennaType == AntennaType.Dish)
+            // If we're a VesselParameterGroup child, only do actual state change if we're the tracked vessel
+            bool checkOnly = true;
+            if (Parent is VesselParameterGroup)
             {
-                antennae = antennae.Where(a => a.Dish > 0.0);
-            }
-            else if (antennaType == AntennaType.Omni)
-            {
-                antennae = antennae.Where(a => a.Omni > 0.0);
+                checkOnly = ((VesselParameterGroup)Parent).TrackedVessel != vessel;
             }
 
-            // Filter for active vessel
-            if (activeVessel)
+            bool conditionMet = ParameterDelegate<IAntenna>.CheckChildConditions(this, sat.Antennas, checkOnly);
+            LoggingUtil.LogVerbose(this, "ChildChanged: " + ChildChanged);
+            if (ChildChanged)
             {
-                antennae = antennae.Where(a => a.Target == NetworkManager.ActiveVesselGuid || a.Omni > 0.0);
+                ChildChanged = false;
+                GameEvents.Contract.onParameterChange.Fire(this.Root, this);
             }
 
-            double minRange = this.minRange;
-
-            // Filter for celestial bodies
-            if (targetBody != null)
-            {
-                double distance = (Planetarium.fetch.Home.position - targetBody.position).magnitude;
-                antennae = antennae.Where(a => a.Target == targetBody.Guid() || a.Omni > 0.0);
-                minRange = Math.Max(minRange, distance);
-            }
-
-            // Filter for range
-            antennae = antennae.Where(a => Math.Max(a.Omni, a.Dish) >= minRange && Math.Max(a.Omni, a.Dish) <= maxRange);
-
-            // Validate count
-            int count = antennae.Count();
-            return count >= minCount && count <= maxCount;
+            return conditionMet;
         }
     }
 }

@@ -50,6 +50,7 @@
     <Compile Include="BehaviourFactory\WaypointGeneratorFactory.cs" />
     <Compile Include="BehaviourFactory\SpawnKerbalFactory.cs" />
     <Compile Include="ContractParameter\Duration.cs" />
+    <Compile Include="ContractParameter\ParameterDelegate.cs" />
     <Compile Include="ContractParameter\VesselParameter\OrbitAltitude.cs" />
     <Compile Include="ContractParameter\VesselParameter\OrbitPeriod.cs" />
     <Compile Include="ContractParameter\VesselParameter\PartValidation.cs" />
@@ -59,6 +60,7 @@
     <Compile Include="ContractRequirement\ScienceRequirement.cs" />
     <Compile Include="ContractRequirement\ReputationRequirement.cs" />
     <Compile Include="ContractRequirement\FundsRequirement.cs" />
+    <Compile Include="Extensions.cs" />
     <Compile Include="PartUtil.cs" />
     <Compile Include="ParameterFactory\OrbitPeriodFactory.cs" />
     <Compile Include="ParameterFactory\OrbitAltitudeFactory.cs" />

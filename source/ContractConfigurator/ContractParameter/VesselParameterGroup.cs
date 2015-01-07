@@ -22,6 +22,7 @@ namespace ContractConfigurator.Parameters
         protected bool waiting { get; set; }
 
         private Vessel trackedVessel = null;
+        public Vessel TrackedVessel { get { return trackedVessel; } }
         private Guid trackedVesselGuid = new Guid();
 
         private double lastUpdate = 0.0f;
@@ -335,7 +336,7 @@ namespace ContractConfigurator.Parameters
                         richText.Text = notePrefix + GetNotes();
                     }
                 }
-            } 
+            }
         }
 
         protected IEnumerable<T> AllDescendents<T>() where T : ContractParameter 
