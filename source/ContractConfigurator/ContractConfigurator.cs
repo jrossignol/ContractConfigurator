@@ -239,6 +239,9 @@ namespace ContractConfigurator
                 catch (ArgumentException)
                 {
                     LoggingUtil.LogError(this.GetType(), "Couldn't load CONTRACT_TYPE '" + contractConfig.GetValue("name") + "' due to a duplicate name.");
+
+                    // BUG: The same contract will get loaded twice, but just decrement the success counter so one shows as failed
+                    successContracts--;
                 }
             }
 
