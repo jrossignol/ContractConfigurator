@@ -12,8 +12,7 @@ Contract Configurator 0.5.0
   - IsNotVessel parameter for exclusion (eg. to have two VesselParameterGroup parameters in a contract that must be met by different vessels).
 - Added Duration parameter.
 - Added PartValidator parameter and deprecated HasPart and HasPartModule.
-- Added OrbitAltitude parameter (thank tattagreis).
-- Added OrbitPeriod parameter (thank tattagreis).
+- Merged all orbital parameters into Orbit parameter.  Thanks ttagreis for contributions on altitude and period.
 - Added PartModuleTypeUnlocked requirement.
 - Changed default values for disableOnStageChange in parameters to be more logical.
 - Added new validation to check for unexpected values in config nodes - helps when developing contract configuration.
