@@ -26,6 +26,12 @@ namespace ContractConfigurator.Parameters
     /// <typeparam name="T">The type of item that will be validated.</typeparam>
     public class ParameterDelegate<T> : ContractParameter
     {
+        protected enum MatchType
+        {
+            ANY,
+            ALL,
+            NONE
+        }
         protected string title;
         protected Func<T, bool> filterFunc;
         protected bool trivial;
@@ -78,9 +84,8 @@ namespace ContractConfigurator.Parameters
         /// <param name="values">Enumerator to filter</param>
         /// <param name="fail">Whether there was an outright failure or the return value can be checked.</param>
         /// <returns>Enumerator after filtering</returns>
-        protected virtual IEnumerable<T> SetState(IEnumerable<T> values, out bool fail, bool checkOnly = false)
+        protected virtual IEnumerable<T> SetState(IEnumerable<T> values, MatchType matchType, out bool fail, bool checkOnly = false)
         {
-            LoggingUtil.LogVerbose(this, "Checking condition for '" + title + "', input.Any() = " + values.Any());
             fail = false;
 
             // Only checking, no state change allowed
@@ -90,24 +95,25 @@ namespace ContractConfigurator.Parameters
             }
 
             // Uncertain - return incomplete
-            if (!values.Any())
+            if (!values.Any() && matchType != MatchType.NONE)
             {
                 SetState(ParameterState.Incomplete);
                 return values;
             }
 
             // Apply the filter
+            int count = values.Count();
             values = values.Where(filterFunc);
 
             // Some values - success
-            if (values.Any())
+            if (matchType == MatchType.ALL ? values.Count() == count : values.Any())
             {
-                SetState(ParameterState.Complete);
+                SetState(matchType != MatchType.NONE ? ParameterState.Complete : ParameterState.Failed);
             }
             // No values - failure
             else
             {
-                SetState(ParameterState.Failed);
+                SetState(matchType != MatchType.NONE ? ParameterState.Failed : ParameterState.Complete);
             }
 
             return values;
@@ -159,7 +165,10 @@ namespace ContractConfigurator.Parameters
             {
                 if (child is ParameterDelegate<T>)
                 {
-                    values = ((ParameterDelegate<T>)child).SetState(values, out fail, checkOnly);
+                    ParameterDelegate<T> paramDelegate = (ParameterDelegate<T>)child;
+                    LoggingUtil.LogVerbose(paramDelegate, "Checking condition for '" + paramDelegate.title + "', input.Any() = " + values.Any());
+                    values = paramDelegate.SetState(values, MatchType.ANY, out fail, checkOnly);
+                    LoggingUtil.LogVerbose(paramDelegate, "Checked condition for '" + paramDelegate.title + "', output.Any() = " + values.Any());
                 }
             }
 
@@ -187,6 +196,57 @@ namespace ContractConfigurator.Parameters
             return conditionMet;
         }
 
+        /// <summary>
+        /// Checks the child conditions for each child parameter delegate in the given parent, but
+        /// checks that all 
+        /// </summary>
+        /// <param name="param">The contract parameter that we are called from.</param>
+        /// <param name="values">The values to enumerator over.</param>
+        /// <param name="checkOnly">Only perform a check, don't change values.</param>
+        /// <returns></returns>
+        public static bool CheckChildConditionsForAll(ContractParameter param, IEnumerable<T> values, bool checkOnly = false)
+        {
+            bool fail = false;
+            bool conditionMet = true;
+            int count = values.Count();
+            foreach (ContractParameter child in param.AllParameters)
+            {
+                if (child is ParameterDelegate<T>)
+                {
+                    ParameterDelegate<T> paramDelegate = (ParameterDelegate<T>)child;
+                    LoggingUtil.LogVerbose(paramDelegate, "Checking condition for '" + paramDelegate.title + "', input.Any() = " + values.Any());
+                    IEnumerable<T> newValues = paramDelegate.SetState(values, MatchType.ALL, out fail, checkOnly);
+                    LoggingUtil.LogVerbose(paramDelegate, "Checked condition for '" + paramDelegate.title + "', result = " + (count == newValues.Count()));
+                    conditionMet &= count == newValues.Count();
+                }
+            }
+
+            return !fail && conditionMet;
+        }
+
+        /// <summary>
+        /// Checks the child conditions for each child parameter delegate in the given parent.
+        /// </summary>
+        /// <param name="param">The contract parameter that we are called from.</param>
+        /// <param name="values">The values to enumerator over.</param>
+        /// <param name="checkOnly">Only perform a check, don't change values.</param>
+        /// <returns></returns>
+        public static bool CheckChildConditionsForNone(ContractParameter param, IEnumerable<T> values, bool checkOnly = false)
+        {
+            bool fail = false;
+            foreach (ContractParameter child in param.AllParameters)
+            {
+                if (child is ParameterDelegate<T>)
+                {
+                    ParameterDelegate<T> paramDelegate = (ParameterDelegate<T>)child;
+                    LoggingUtil.LogVerbose(paramDelegate, "Checking condition for '" + paramDelegate.title + "', input.Any() = " + values.Any());
+                    values = paramDelegate.SetState(values, MatchType.NONE, out fail, checkOnly);
+                    LoggingUtil.LogVerbose(paramDelegate, "Checked condition for '" + paramDelegate.title + "', output.Any() = " + values.Any());
+                }
+            }
+
+            return !fail && !values.Any();
+        }
         /// <summary>
         /// Gets the text of all the child delegates in one big string.  Useful for printing out
         /// the full details for completed parameters.
@@ -249,7 +309,7 @@ namespace ContractConfigurator.Parameters
             }
         }
 
-        protected override IEnumerable<T> SetState(IEnumerable<T> values, out bool fail, bool checkOnly = false)
+        protected override IEnumerable<T> SetState(IEnumerable<T> values, MatchType matchType, out bool fail, bool checkOnly = false)
         {
             // Set our state
             int count = values.Count();

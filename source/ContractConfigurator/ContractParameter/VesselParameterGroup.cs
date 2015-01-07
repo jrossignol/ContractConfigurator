@@ -174,14 +174,22 @@ namespace ContractConfigurator.Parameters
                     }
                 }
 
-                // Still no winner - use active
+                // Still no winner
                 if (trackedVessel == null)
                 {
+                    // Use active
                     if (FlightGlobals.ActiveVessel != null)
                     {
                         SetChildState(FlightGlobals.ActiveVessel);
                         trackedVessel = FlightGlobals.ActiveVessel;
                         trackedVesselGuid = trackedVessel.id;
+                    }
+                    // No active?  Use what was given to us
+                    else
+                    {
+                        SetChildState(vessel);
+                        trackedVessel = vessel;
+                        trackedVesselGuid = vessel.id;
                     }
                 }
             }
@@ -258,6 +266,8 @@ namespace ContractConfigurator.Parameters
 
         protected void OnVesselChange(Vessel vessel)
         {
+            LoggingUtil.LogVerbose(this, "OnVesselChange(" + (vessel != null && vessel.id != null ? vessel.id.ToString() : "null") + "), Active = " +
+                (FlightGlobals.ActiveVessel != null && FlightGlobals.ActiveVessel.id != null ? FlightGlobals.ActiveVessel.id.ToString() : "null"));
             UpdateState(vessel);
         }
 

@@ -270,6 +270,20 @@ namespace ContractConfigurator.Parameters
         protected virtual void OnFlightReady()
         {
             CheckVessel(FlightGlobals.ActiveVessel);
+
+            // Set parameters properly on first load
+            if (FlightGlobals.ActiveVessel != null)
+            {
+                IContractParameterHost host = Parent;
+                while (host != Root && !(host is VesselParameterGroup))
+                {
+                    host = host.Parent;
+                }
+                if (host is VesselParameterGroup)
+                {
+                    ((VesselParameterGroup)host).UpdateState(FlightGlobals.ActiveVessel);
+                }
+            }
         }
 
         protected virtual void OnVesselCreate(Vessel vessel)
@@ -278,6 +292,8 @@ namespace ContractConfigurator.Parameters
             {
                 return;
             }
+
+            LoggingUtil.LogVerbose(this, "OnVesselCreate(" + vessel.id + ")");
 
             // Go through the hashes to try to set the parameters for this vessel
             ParamStrength? strength = null;

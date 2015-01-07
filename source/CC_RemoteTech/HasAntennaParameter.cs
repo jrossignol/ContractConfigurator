@@ -133,7 +133,7 @@ namespace ContractConfigurator.RemoteTech
             }
 
             // Validate count
-            if (minCount != 0 && maxCount != int.MaxValue)
+            if (minCount != 0 || maxCount != int.MaxValue)
             {
                 AddParameter(new CountParameterDelegate<IAntenna>(minCount, maxCount));
             }
@@ -199,7 +199,14 @@ namespace ContractConfigurator.RemoteTech
                 checkOnly = ((VesselParameterGroup)Parent).TrackedVessel != vessel;
             }
 
-            return ParameterDelegate<IAntenna>.CheckChildConditions(this, sat.Antennas, checkOnly);
+            if (minCount == maxCount && minCount == 0)
+            {
+                return ParameterDelegate<IAntenna>.CheckChildConditionsForNone(this, sat.Antennas, checkOnly);
+            }
+            else
+            {
+                return ParameterDelegate<IAntenna>.CheckChildConditions(this, sat.Antennas, checkOnly);
+            }
         }
     }
 }

@@ -19,19 +19,21 @@ namespace ContractConfigurator.Parameters
         protected AvailablePart part { get; set; }
         protected List<string> partModules { get; set; }
         protected PartCategories? category { get; set; }
-        protected PartCategories? notCategory { get; set; }
         protected string manufacturer { get; set; }
-        protected string notManufacturer { get; set; }
+        protected bool allParts { get; set; }
         protected int minCount { get; set; }
         protected int maxCount { get; set; }
 
+        private float lastUpdate = 0.0f;
+        private const float UPDATE_FREQUENCY = 0.25f;
+
         public PartValidation()
-            : this(null, new List<string>())
+            : base()
         {
         }
 
-        public PartValidation(AvailablePart part, List<string> partModules, PartCategories? category = null, PartCategories? notCategory = null,
-            string manufacturer = null, string notManufacturer = null, int minCount = 1, int maxCount = int.MaxValue, string title = null)
+        public PartValidation(AvailablePart part, List<string> partModules, PartCategories? category = null,
+            string manufacturer = null, bool allParts = false, int minCount = 1, int maxCount = int.MaxValue, string title = null)
             : base()
         {
             // Vessels should fail if they don't meet the part conditions
@@ -40,103 +42,81 @@ namespace ContractConfigurator.Parameters
             this.part = part;
             this.partModules = partModules != null ? partModules : new List<string>();
             this.category = category;
-            this.notCategory = notCategory;
             this.manufacturer = manufacturer;
-            this.notManufacturer = notManufacturer;
+            this.allParts = allParts;
             this.minCount = minCount;
             this.maxCount = maxCount;
-            if (title == null)
-            {
-                bool needsComma = false;
-                this.title += "Part: ";
-                
-                // Add specific part
-                if (part != null)
-                {
-                    this.title += part.title;
-                    needsComma = true;
-                }
+            this.title = title;
 
-                // Add modules
-                if (partModules != null && partModules.Count > 0)
-                {
-                    this.title += needsComma ? "; " : "";
-                    this.title += "With module" + (partModules.Count > 1 ? "s" : "") + ": ";
-                    needsComma = false;
-
-                    foreach (string partModule in partModules)
-                    {
-                        this.title += needsComma ? "; " : "";
-                        string moduleName = partModule.Replace("Module", "");
-                        moduleName = Regex.Replace(moduleName, "(\\B[A-Z])", " $1");
-                        this.title += moduleName;
-                        needsComma = true;
-                    }
-                }
-
-                // Add category
-                if (category != null)
-                {
-                    this.title += needsComma ? "; " : "";
-                    this.title += "Category: " + category;
-                    needsComma = true;
-                }
-
-                // Add not category
-                if (notCategory != null)
-                {
-                    this.title += needsComma ? "; " : "";
-                    this.title += "Not category: " + notCategory;
-                    needsComma = true;
-                }
-
-                // Add manufacturer
-                if (manufacturer != null)
-                {
-                    this.title += needsComma ? "; " : "";
-                    this.title += "Manufacturer: " + manufacturer;
-                    needsComma = true;
-                }
-
-                // Add not manufacturer
-                if (notManufacturer != null)
-                {
-                    this.title += needsComma ? "; " : "";
-                    this.title += "Not manufacturer: " + notManufacturer;
-                    needsComma = true;
-                }
-
-                this.title += ": ";
-                if (maxCount == 0)
-                {
-                    this.title += "None";
-                }
-                else if (maxCount == int.MaxValue)
-                {
-                    this.title += "At least " + minCount;
-                }
-                else if (minCount == 0)
-                {
-                    this.title += "At most " + maxCount;
-                }
-                else if (minCount == maxCount)
-                {
-                    this.title += "Exactly " + minCount;
-                }
-                else
-                {
-                    this.title += "Between " + minCount + " and " + maxCount;
-                }
-            }
-            else
-            {
-                this.title = title;
-            }
+            CreateDelegates();
         }
 
         protected override string GetTitle()
         {
-            return title;
+            string output = null;
+            if (string.IsNullOrEmpty(title))
+            {
+                output = allParts ? "All parts" : "Part";
+                if (state == ParameterState.Complete)
+                {
+                    output += ": " + ParameterDelegate<Part>.GetDelegateText(this);
+                }
+            }
+            else
+            {
+                output = title;
+            }
+            return output;
+        }
+
+        protected void CreateDelegates()
+        {
+            // Filter by part name
+            if (part != null)
+            {
+                AddParameter(new ParameterDelegate<Part>("Part: " + part.title,
+                    p => p.partInfo.name == part.name));
+            }
+
+            // Filter by part modules
+            foreach (string partModule in partModules)
+            {
+                string moduleName = partModule.Replace("Module", "");
+                moduleName = Regex.Replace(moduleName, "(\\B[A-Z])", " $1");
+                AddParameter(new ParameterDelegate<Part>("Module: " + moduleName, p => PartHasModule(p, partModule)));
+            }
+            
+            // Filter by category
+            if (category != null)
+            {
+                AddParameter(new ParameterDelegate<Part>("Category: " + category,
+                    p => p.partInfo.category == (PartCategories)category));
+            }
+
+            // Filter by manufacturer
+            if (manufacturer != null)
+            {
+                AddParameter(new ParameterDelegate<Part>("Manufacturer: " + manufacturer,
+                    p => p.partInfo.manufacturer == manufacturer));
+            }
+
+            // Validate count
+            if (!allParts && (minCount != 0 || maxCount != int.MaxValue))
+            {
+                AddParameter(new CountParameterDelegate<Part>(minCount, maxCount));
+            }
+        }
+
+        private bool PartHasModule(Part p, string partModule)
+        {
+            foreach (PartModule pm in p.Modules)
+            {
+                if (pm.moduleName == partModule)
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         protected override void OnSave(ConfigNode node)
@@ -157,18 +137,11 @@ namespace ContractConfigurator.Parameters
             {
                 node.AddValue("category", category);
             }
-            if (notCategory != null)
-            {
-                node.AddValue("notCategory", notCategory);
-            }
             if (manufacturer != null)
             {
                 node.AddValue("manufacturer", manufacturer);
             }
-            if (notManufacturer != null)
-            {
-                node.AddValue("notManufacturer", notManufacturer);
-            }
+            node.AddValue("allParts", allParts);
         }
 
         protected override void OnLoad(ConfigNode node)
@@ -180,20 +153,22 @@ namespace ContractConfigurator.Parameters
             part = node.HasValue("part") ? ConfigNodeUtil.ParseValue<AvailablePart>(node, "part") : null;
             partModules = node.GetValues("partModule").ToList();
             category = node.HasValue("category") ? ConfigNodeUtil.ParseValue<PartCategories?>(node, "category") : null;
-            notCategory = node.HasValue("notCategory") ? ConfigNodeUtil.ParseValue<PartCategories?>(node, "notCategory") : null;
             manufacturer = node.HasValue("manufacturer") ? ConfigNodeUtil.ParseValue<string>(node, "manufacturer") : null;
-            notManufacturer = node.HasValue("notManufacturer") ? ConfigNodeUtil.ParseValue<string>(node, "notManufacturer") : null;
+            allParts = ConfigNodeUtil.ParseValue<bool>(node, "allParts");
+
+            ParameterDelegate<Part>.OnDelegateContainerLoad(node);
+            CreateDelegates();
         }
 
-        protected override void OnRegister()
+/*        protected override void OnUpdate()
         {
-            base.OnRegister();
-        }
-
-        protected override void OnUnregister()
-        {
-            base.OnUnregister();
-        }
+            base.OnUpdate();
+            if (UnityEngine.Time.fixedTime - lastUpdate > UPDATE_FREQUENCY)
+            {
+                lastUpdate = UnityEngine.Time.fixedTime;
+                CheckVessel(FlightGlobals.ActiveVessel);
+            }
+        }*/
 
         protected override void OnPartAttach(GameEvents.HostTargetAction<Part, Part> e)
         {
@@ -214,47 +189,26 @@ namespace ContractConfigurator.Parameters
         {
             LoggingUtil.LogVerbose(this, "Checking VesselMeetsCondition: " + vessel.id);
 
-            IEnumerable<Part> parts = vessel.parts;
-
-            // Filter by part name
-            if (part != null)
+            // If we're a VesselParameterGroup child, only do actual state change if we're the tracked vessel
+            bool checkOnly = false;
+            if (Parent is VesselParameterGroup)
             {
-                parts = parts.Where<Part>(p => p.partInfo.name == part.name);
+                checkOnly = ((VesselParameterGroup)Parent).TrackedVessel != vessel;
             }
 
-            // Filter by part modules
-            foreach (string partModule in partModules)
+            // Check which method of verification we are using - ALL or SEQUENTIAL
+            if (allParts)
             {
-                parts = parts.WithModule(partModule);
+                return ParameterDelegate<Part>.CheckChildConditionsForAll(this, vessel.parts, checkOnly);
             }
-
-            // Filter by category
-            if (category != null)
+            else if (minCount == maxCount && minCount == 0)
             {
-                parts = parts.Where<Part>(p => p.partInfo.category == (PartCategories)category);
+                return ParameterDelegate<Part>.CheckChildConditionsForNone(this, vessel.parts, checkOnly);
             }
-
-            // Filter by category inverse
-            if (notCategory != null)
+            else
             {
-                parts = parts.Where<Part>(p => p.partInfo.category != (PartCategories)notCategory);
+                return ParameterDelegate<Part>.CheckChildConditions(this, vessel.parts, checkOnly);
             }
-
-            // Filter by manufacturer
-            if (manufacturer != null)
-            {
-                parts = parts.Where<Part>(p => p.partInfo.manufacturer == manufacturer);
-            }
-
-            // Filter by manufacturer inverse
-            if (notManufacturer != null)
-            {
-                parts = parts.Where<Part>(p => p.partInfo.manufacturer != notManufacturer);
-            }
-
-            // Validate count
-            int count = parts.Count();
-            return count >= minCount && count <= maxCount;
         }
     }
 }
