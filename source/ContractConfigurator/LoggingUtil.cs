@@ -59,7 +59,7 @@ namespace ContractConfigurator
                                 {
                                     foreach (Type t in a.GetTypes())
                                     {
-                                        if (t.Name == typeName)
+                                        if (t.Name == typeName || t.Name.StartsWith(typeName + '`'))
                                         {
                                             type = t;
                                             break;
