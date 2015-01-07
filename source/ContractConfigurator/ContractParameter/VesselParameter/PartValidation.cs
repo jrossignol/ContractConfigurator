@@ -160,16 +160,6 @@ namespace ContractConfigurator.Parameters
             CreateDelegates();
         }
 
-/*        protected override void OnUpdate()
-        {
-            base.OnUpdate();
-            if (UnityEngine.Time.fixedTime - lastUpdate > UPDATE_FREQUENCY)
-            {
-                lastUpdate = UnityEngine.Time.fixedTime;
-                CheckVessel(FlightGlobals.ActiveVessel);
-            }
-        }*/
-
         protected override void OnPartAttach(GameEvents.HostTargetAction<Part, Part> e)
         {
             base.OnPartAttach(e);
