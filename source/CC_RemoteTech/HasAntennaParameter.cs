@@ -101,8 +101,12 @@ namespace ContractConfigurator.RemoteTech
                     a => !a.CanTarget));
             }
 
+            // Activated and powered
+            AddParameter(new ParameterDelegate<IAntenna>("Activated", a => a.Activated, true));
+            AddParameter(new ParameterDelegate<IAntenna>("Powered", a => a.Powered, true));
+
             // Filter for range
-            if (minRange != 0.0 && maxRange != double.MaxValue)
+            if (minRange != 0.0 || maxRange != double.MaxValue)
             {
                 string output = "Range: ";
                 if (maxRange == double.MaxValue)
@@ -121,10 +125,6 @@ namespace ContractConfigurator.RemoteTech
                 AddParameter(new ParameterDelegate<IAntenna>(output,
                     a => Math.Max(a.Omni, a.Dish) >= minRange && Math.Max(a.Omni, a.Dish) <= maxRange));
             }
-
-            // Activated and powered
-            AddParameter(new ParameterDelegate<IAntenna>("Activated", a => a.Activated, true));
-            AddParameter(new ParameterDelegate<IAntenna>("Powered", a => a.Powered, true));
 
             // Extra filter for celestial bodies
             if (targetBody != null)
