@@ -77,7 +77,7 @@ namespace ContractConfigurator.RemoteTech
             if (targetBody != null)
             {
                 AddParameter(new ParameterDelegate<IAntenna>("Target: " + targetBody.PrintName(),
-                    a => a.Target == targetBody.Guid() || a.Omni > 0.0));
+                    a => a.Target == targetBody.Guid()));
             }
 
             // Filter for active vessel
