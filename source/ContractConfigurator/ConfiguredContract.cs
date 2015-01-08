@@ -129,7 +129,7 @@ namespace ContractConfigurator
 
         protected override string GetSynopsys()
         {
-            return contractType.synopsis != null ? contractType.synopsis + "\n" : "";
+            return contractType.synopsis != null ? contractType.synopsis : "";
         }
 
         protected override string MessageCompleted()
