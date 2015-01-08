@@ -114,6 +114,10 @@ namespace ContractConfigurator.Behaviour
                         wpData.waypoint.altitude = 0.0;
                         wpData.randomAltitude = true;
                     }
+                    else
+                    {
+                        wpData.waypoint.altitude = altitude.Value;
+                    }
 
                     // Get settings that differ by type
                     if (child.name == "WAYPOINT")
