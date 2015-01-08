@@ -33,7 +33,7 @@ namespace ContractConfigurator
             valid &= ConfigNodeUtil.ParseValue<string>(configNode, "type", ref type, this);
 
             // Load targetBody
-            valid &= ConfigNodeUtil.ParseValue<CelestialBody>(configNode, "targetBody", ref targetBody, this, (CelestialBody)null);
+            valid &= ConfigNodeUtil.ParseValue<CelestialBody>(configNode, "targetBody", ref targetBody, this, contractType.targetBody);
 
             return valid;
         }
@@ -125,8 +125,8 @@ namespace ContractConfigurator
 
         public string ErrorPrefix(ConfigNode configNode)
         {
-            return (contractType != null ? "CONTRACT_TYPE '" + contractType.name + "', " : "") + 
-                "BEHAVIOUR '" + configNode.GetValue("name") + "' of type '" + configNode.GetValue("type") + "'";
+            return (contractType != null ? "CONTRACT_TYPE '" + contractType.name + "', " : "") +
+                "BEHAVIOUR '" + configNode.GetValue("name") + "' of type '" + type ?? configNode.GetValue("type") + "'";
         }
     }
 }
