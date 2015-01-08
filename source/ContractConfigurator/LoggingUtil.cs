@@ -19,7 +19,7 @@ namespace ContractConfigurator
 
         public static LogLevel logLevel {set; get;}
 
-        private static Dictionary<Type, LogLevel> specificLogLevels = new Dictionary<Type, LogLevel>();
+        private static Dictionary<string, LogLevel> specificLogLevels = new Dictionary<string, LogLevel>();
 
         /*
          * Loads debugging configurations.
@@ -156,14 +156,14 @@ namespace ContractConfigurator
         public static void Log(LogLevel logLevel, Type type, string message)
         {
             LogLevel logLevelCheckAgainst = LoggingUtil.logLevel;
-            if (specificLogLevels.ContainsKey(type))
+            if (specificLogLevels.ContainsKey(type.Name))
             {
-                logLevelCheckAgainst = specificLogLevels[type]; 
+                logLevelCheckAgainst = specificLogLevels[type.Name]; 
             }
 
             if (logLevel >= logLevelCheckAgainst)
             {
-                message = "ContractConfigurator." + type.Name + ": " + message;
+                message = "ContractConfigurator." + type + ": " + message;
 
                 if (logLevel <= LogLevel.INFO) {
                     Debug.Log("[" + logLevel + "] " + message);
@@ -179,7 +179,7 @@ namespace ContractConfigurator
 
         private static void AddSpecificLogLevel(Type type, LogLevel logLevel)
         {
-            specificLogLevels.Add(type, logLevel);
+            specificLogLevels.Add(type.Name, logLevel);
         }
 
         private static void ClearSpecificLogLevel()
