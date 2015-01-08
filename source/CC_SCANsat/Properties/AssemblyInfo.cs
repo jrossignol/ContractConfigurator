@@ -37,4 +37,4 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyFileVersion("0.5.0")]
 [assembly: KSPAssembly("CC_SCANsat", 0, 5)]
 [assembly: KSPAssemblyDependency("ContractConfigurator", 0, 5)]
-[assembly: KSPAssemblyDependency("SCANsat", 0, 8)]
+[assembly: KSPAssemblyDependency("SCANsat", 0, 9)]
