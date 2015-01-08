@@ -31,18 +31,29 @@ namespace ContractConfigurator
         /// </summary>
         /// <param name="p">Contract parameter</param>
         /// <returns>Enumerator of descendents</returns>
-        public static IEnumerable<ContractParameter> GetAllDescendents(this ContractParameter p)
+        public static IEnumerable<ContractParameter> GetAllDescendents(this IContractParameterHost p)
         {
-            foreach (ContractParameter child in p.AllParameters)
+            for (int i = 0; i < p.ParameterCount; i++)
             {
-                if (child != p)
+                ContractParameter child = p.GetParameter(i);
+                yield return child;
+                foreach (ContractParameter descendent in child.GetAllDescendents())
                 {
-                    yield return child;
-                    foreach (ContractParameter descendent in child.GetAllDescendents())
-                    {
-                        yield return descendent;
-                    }
+                    yield return descendent;
                 }
+            }
+        }
+
+        /// <summary>
+        /// Gets all the parameter's descendents
+        /// </summary>
+        /// <param name="p">Contract parameter</param>
+        /// <returns>Enumerator of descendents</returns>
+        public static IEnumerable<ContractParameter> GetChildren(this IContractParameterHost p)
+        {
+            for (int i = 0; i < p.ParameterCount; i++ )
+            {
+                yield return p.GetParameter(i);
             }
         }
     }

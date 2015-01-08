@@ -24,9 +24,6 @@ namespace ContractConfigurator.Parameters
         protected int minCount { get; set; }
         protected int maxCount { get; set; }
 
-        private float lastUpdate = 0.0f;
-        private const float UPDATE_FREQUENCY = 0.25f;
-
         public PartValidation()
             : base()
         {

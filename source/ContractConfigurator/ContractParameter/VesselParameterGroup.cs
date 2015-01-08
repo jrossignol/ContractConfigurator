@@ -48,7 +48,7 @@ namespace ContractConfigurator.Parameters
         {
             // Set the first part of the output
             string output;
-            if (title != null && title != "")
+            if (!string.IsNullOrEmpty(title))
             {
                 output = title;
             }
@@ -69,7 +69,7 @@ namespace ContractConfigurator.Parameters
                 }
             }
             // If we're complete and a custom title hasn't been provided, try to get a better title
-            else if (title != null && title != "")
+            else if (!string.IsNullOrEmpty(title))
             {
                 if (ParameterCount == 1)
                 {
@@ -195,7 +195,7 @@ namespace ContractConfigurator.Parameters
                 }
             }
 
-            // Force a 
+            // Force a VesselMeetsCondition call to update ParameterDelegate objects
             if (oldTrackedVessel != trackedVessel && trackedVessel != null)
             {
                 foreach (ContractParameter p in this.GetAllDescendents())
@@ -392,10 +392,6 @@ namespace ContractConfigurator.Parameters
             foreach (VesselParameter p in AllDescendents<VesselParameter>())
             {
                 p.SetState(vessel);
-                if (p.Parent != this)
-                {
-                    p.Parent.ParameterStateUpdate(p);
-                }
             }
         }
     }

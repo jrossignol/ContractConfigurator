@@ -114,7 +114,7 @@ namespace ContractConfigurator.Parameters
             if (contract == Root)
             {
                 bool completed = true;
-                foreach (ContractParameter child in Root.AllParameters)
+                foreach (ContractParameter child in Root.GetChildren())
                 {
                     if (child != this && child.State != ParameterState.Complete)
                     {
@@ -125,7 +125,10 @@ namespace ContractConfigurator.Parameters
 
                 if (completed)
                 {
-                    endTime = Planetarium.GetUniversalTime() + duration;
+                    if (endTime == 0.0)
+                    {
+                        endTime = Planetarium.GetUniversalTime() + duration;
+                    }
                 }
                 else
                 {

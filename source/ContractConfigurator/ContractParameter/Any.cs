@@ -24,12 +24,34 @@ namespace ContractConfigurator.Parameters
         public Any(string title)
             : base()
         {
-            this.title = title != null ? title : "Complete any ONE of the following";
+            this.title = title;
         }
 
         protected override string GetTitle()
         {
-            return title;
+            string output = null;
+            if (title == null)
+            {
+                output = "Complete any ONE of the following";
+
+                if (state == ParameterState.Complete)
+                {
+                    foreach (ContractParameter child in this.GetChildren())
+                    {
+                        if (child.State == ParameterState.Complete)
+                        {
+                            output += ": " + child.Title;
+                            break;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                output = title;
+            }
+
+            return output;
         }
 
         protected override string GetHashString()
@@ -49,13 +71,28 @@ namespace ContractConfigurator.Parameters
             title = node.GetValue("title");
         }
 
-        protected override void OnParameterStateChange(ContractParameter contractParameter)
+        protected override void OnRegister()
         {
-            if (System.Object.ReferenceEquals(contractParameter.Parent, this))
+            GameEvents.Contract.onParameterChange.Add(new EventData<Contract,ContractParameter>.OnEvent(OnAnyContractParameterChange));
+        }
+
+        protected override void OnUnregister()
+        {
+            GameEvents.Contract.onParameterChange.Remove(new EventData<Contract, ContractParameter>.OnEvent(OnAnyContractParameterChange));
+        }
+
+        protected void OnAnyContractParameterChange(Contract contract, ContractParameter contractParameter)
+        {
+            if (contract == Root)
             {
-                if (contractParameter.State == ParameterState.Complete)
+                LoggingUtil.LogVerbose(this, "OnAnyContractParameterChange");
+                if (this.GetChildren().Where(p => p.State == ParameterState.Complete).Any())
                 {
                     SetComplete();
+                }
+                else
+                {
+                    SetIncomplete();
                 }
             }
         }
