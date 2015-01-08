@@ -95,7 +95,9 @@ namespace ContractConfigurator
             string type = behaviourConfig.GetValue("type");
             if (!factories.ContainsKey(type))
             {
-                LoggingUtil.LogError(typeof(BehaviourFactory), "No BehaviourFactory has been registered for type '" + type + "'.");
+                LoggingUtil.LogError(typeof(ParameterFactory), "CONTRACT_TYPE '" + contractType.name + "'," +
+                    "BEHAVIOUR '" + behaviourConfig.GetValue("name") + "' of type '" + behaviourConfig.GetValue("type") + "': " +
+                    "No BehaviourFactory has been registered for type '" + type + "'.");
                 return null;
             }
 
