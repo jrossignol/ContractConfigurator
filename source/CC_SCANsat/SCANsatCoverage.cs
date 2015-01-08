@@ -42,7 +42,7 @@ namespace ContractConfigurator.SCANsat
                 nameRemap["AltimetryHiRes"] = "High resolution altimetry";
 
                 string scanTypeName = nameRemap.ContainsKey(scanType.ToString()) ? nameRemap[scanType.ToString()] : scanType.ToString();
-                this.title = scanTypeName + " scan: " + coverage.ToString("N0") + "% coverage of " + targetBody.printName();
+                this.title = scanTypeName + " scan: " + coverage.ToString("N0") + "% coverage of " + targetBody.PrintName();
             }
 
             this.coverage = coverage;
