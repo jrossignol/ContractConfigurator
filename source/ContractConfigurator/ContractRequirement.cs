@@ -143,7 +143,9 @@ namespace ContractConfigurator
             string type = configNode.GetValue("type");
             if (!requirementTypes.ContainsKey(type))
             {
-                LoggingUtil.LogError(typeof(ContractRequirement), "No ContractRequirement has been registered for type '" + type + "'.");
+                LoggingUtil.LogError(typeof(ParameterFactory), "CONTRACT_TYPE '" + contractType.name + "'," +
+                    "REQUIREMENT '" + configNode.GetValue("name") + "' of type '" + configNode.GetValue("type") + "': " +
+                    "No ContractRequirement has been registered for type '" + type + "'.");
                 return null;
             }
 

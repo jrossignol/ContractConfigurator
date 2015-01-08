@@ -180,7 +180,9 @@ namespace ContractConfigurator
             string type = parameterConfig.GetValue("type");
             if (!factories.ContainsKey(type))
             {
-                LoggingUtil.LogError(typeof(ParameterFactory), "No ParameterFactory has been registered for type '" + type + "'.");
+                LoggingUtil.LogError(typeof(ParameterFactory), "CONTRACT_TYPE '" + contractType.name + "'," +
+                    "PARAMETER '" + parameterConfig.GetValue("name") + "' of type '" + parameterConfig.GetValue("type") + "': " +
+                    "No ParameterFactory has been registered for type '" + type + "'.");
                 return null;
             }
 
