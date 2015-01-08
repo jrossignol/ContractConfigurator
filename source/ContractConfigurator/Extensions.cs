@@ -21,7 +21,7 @@ namespace ContractConfigurator
         /// </summary>
         /// <param name="body">The celestial body to print the name for.</param>
         /// <returns>The name of the body, for printing purpose only.</returns>
-        public static string printName(this CelestialBody body)
+        public static string PrintName(this CelestialBody body)
         {
             return body.name == "Mun" ? "the Mun" : body.name;
         }
