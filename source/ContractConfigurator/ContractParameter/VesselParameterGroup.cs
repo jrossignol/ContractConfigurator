@@ -17,6 +17,7 @@ namespace ContractConfigurator.Parameters
         private const string notePrefix = "<#acfcff>[-] Note: ";
         protected string title { get; set; }
         protected string define { get; set; }
+        protected List<string> vesselList { get; set; }
         protected double duration { get; set; }
         protected double completionTime { get; set; }
         protected bool waiting { get; set; }
@@ -31,16 +32,17 @@ namespace ContractConfigurator.Parameters
         private Dictionary<string, string> noteTracker = new Dictionary<string, string>();
 
         public VesselParameterGroup()
-            : this(null, null, 0.0)
+            : this(null, null, null, 0.0)
         {
         }
 
-        public VesselParameterGroup(string title, string define, double duration)
+        public VesselParameterGroup(string title, string define, List<string> vesselList, double duration)
             : base()
         {
             this.define = define;
             this.duration = duration;
             this.title = title;
+            this.vesselList = vesselList == null ? new List<string>() : vesselList;
             waiting = false;
         }
 
@@ -54,9 +56,33 @@ namespace ContractConfigurator.Parameters
             }
             else
             {
-                string vesselStr = (waiting || state == ParameterState.Complete) && trackedVessel != null ? trackedVessel.vesselName
-                    : string.IsNullOrEmpty(define) ? "Any" : (define + " (new)");
-                output = "Vessel: " + vesselStr;
+                // Set the vessel name
+                output = "Vessel: ";
+                if ((waiting || state == ParameterState.Complete) && trackedVessel != null)
+                {
+                    output += trackedVessel.vesselName;
+                }
+                else if (!string.IsNullOrEmpty(define))
+                {
+                    output += define + " (new)";
+                }
+                else if (vesselList.Any())
+                {
+                    bool first = true;
+                    foreach (string vesselName in vesselList)
+                    {
+                        if (!first)
+                        {
+                            output += " OR ";
+                        }
+                        output += vesselName;
+                        first = false;
+                    }
+                }
+                else
+                {
+                    output += "Any";
+                }
             }
 
             // Not yet complete, add duration
@@ -114,12 +140,20 @@ namespace ContractConfigurator.Parameters
             return (this.Root.MissionSeed.ToString() + this.Root.DateAccepted.ToString() + this.ID);
         }
 
-        /*
-         * Checks the child parameters and updates state.
-         */
+        /// <summary>
+        /// Checks the child parameters and updates state.
+        /// </summary>
+        /// <param name="vessel">The vessel to check the state for</param>
         public void UpdateState(Vessel vessel)
         {
             LoggingUtil.LogVerbose(this, "-> UpdateState(" + (vessel != null ? vessel.id.ToString() : "null") + ")");
+
+            // If this vessel doesn't match our list of valid vessels, ignore the update
+            if (!VesselCanBeConsidered(vessel))
+            {
+                LoggingUtil.LogVerbose(this, "<- UpdateState");
+                return;
+            }
 
             // Ignore updates to non-tracked vessels if that vessel is already winning
             if (vessel != trackedVessel && (waiting || state == ParameterState.Complete))
@@ -153,7 +187,7 @@ namespace ContractConfigurator.Parameters
                 {
                     foreach (Vessel v in p.GetCompletingVessels())
                     {
-                        if (v != vessel)
+                        if (v != vessel && VesselCanBeConsidered(v))
                         {
                             vessels[v] = 0;
                         }
@@ -179,18 +213,11 @@ namespace ContractConfigurator.Parameters
                 if (trackedVessel == null)
                 {
                     // Use active
-                    if (FlightGlobals.ActiveVessel != null)
+                    if (FlightGlobals.ActiveVessel != null && VesselCanBeConsidered(FlightGlobals.ActiveVessel))
                     {
                         SetChildState(FlightGlobals.ActiveVessel);
                         trackedVessel = FlightGlobals.ActiveVessel;
                         trackedVesselGuid = trackedVessel.id;
-                    }
-                    // No active?  Use what was given to us
-                    else
-                    {
-                        SetChildState(vessel);
-                        trackedVessel = vessel;
-                        trackedVesselGuid = vessel.id;
                     }
                 }
             }
@@ -224,6 +251,10 @@ namespace ContractConfigurator.Parameters
             base.OnSave(node);
             node.AddValue("title", title);
             node.AddValue("define", define);
+            foreach (string vesselName in vesselList)
+            {
+                node.AddValue("vessel", vesselName);
+            }
             node.AddValue("duration", duration);
             if (waiting || state == ParameterState.Complete)
             {
@@ -241,6 +272,7 @@ namespace ContractConfigurator.Parameters
             title = node.GetValue("title");
             define = node.GetValue("define");
             duration = Convert.ToDouble(node.GetValue("duration"));
+            vesselList = ConfigNodeUtil.ParseValue<List<string>>(node, "vessel", new List<string>());
             if (node.HasValue("completionTime"))
             {
                 waiting = true;
@@ -262,12 +294,54 @@ namespace ContractConfigurator.Parameters
         {
             GameEvents.onVesselChange.Add(new EventData<Vessel>.OnEvent(OnVesselChange));
             GameEvents.onVesselRename.Add(new EventData<GameEvents.HostedFromToAction<Vessel, string>>.OnEvent(OnVesselRename));
+            ContractVesselTracker.OnVesselAssociation.Add(new EventData<GameEvents.HostTargetAction<Vessel, string>>.OnEvent(OnVesselAssociation));
+            ContractVesselTracker.OnVesselDisassociation.Add(new EventData<GameEvents.HostTargetAction<Vessel, string>>.OnEvent(OnVesselDisassociation));
         }
 
         protected override void OnUnregister()
         {
             GameEvents.onVesselChange.Remove(new EventData<Vessel>.OnEvent(OnVesselChange));
             GameEvents.onVesselRename.Remove(new EventData<GameEvents.HostedFromToAction<Vessel, string>>.OnEvent(OnVesselRename));
+            ContractVesselTracker.OnVesselAssociation.Remove(new EventData<GameEvents.HostTargetAction<Vessel, string>>.OnEvent(OnVesselAssociation));
+            ContractVesselTracker.OnVesselDisassociation.Remove(new EventData<GameEvents.HostTargetAction<Vessel, string>>.OnEvent(OnVesselDisassociation));
+        }
+
+        protected void OnVesselAssociation(GameEvents.HostTargetAction<Vessel,string> hta)
+        {
+            // If it's a vessel we're looking for
+            if (vesselList.Contains(hta.target))
+            {
+                // Try it out
+                UpdateState(hta.host);
+            }
+        }
+
+        protected void OnVesselDisassociation(GameEvents.HostTargetAction<Vessel, string> hta)
+        {
+            // If it's a vessel we're looking for, and it's tracked
+            if (vesselList.Contains(hta.target) && trackedVessel == hta.host)
+            {
+                waiting = false;
+                trackedVessel = null;
+
+                // Try out the active vessel
+                UpdateState(FlightGlobals.ActiveVessel);
+
+                // Active vessel didn't work out - force the children to be incomplete
+                if (trackedVessel == null)
+                {
+                    SetChildState(null);
+
+                    // Fire the parameter change event to account for all the changed child parameters.
+                    // We don't fire it for the child parameters, as any with a failed state will cause
+                    // the contract to fail, which we don't want.
+                    GameEvents.Contract.onParameterChange.Fire(this.Root, this);
+
+                    // Manually run the OnParameterStateChange
+                    OnParameterStateChange(this);
+
+                }
+            }
         }
 
         protected void OnVesselRename(GameEvents.HostedFromToAction<Vessel, string> hft)
@@ -393,6 +467,17 @@ namespace ContractConfigurator.Parameters
             {
                 p.SetState(vessel);
             }
+        }
+
+        /// <summary>
+        /// Checks whether the given veseel can be considered for completion of this group.  Checks
+        /// the vessel inclusion list.
+        /// </summary>
+        /// <param name="vessel">The vessel to check.</param>
+        /// <returns>Whether we can continue with this vessel.</returns>
+        private bool VesselCanBeConsidered(Vessel vessel)
+        {
+            return !vesselList.Any() || vesselList.Any(key => ContractVesselTracker.Instance.GetAssociatedVessel(key) == vessel);
         }
     }
 }

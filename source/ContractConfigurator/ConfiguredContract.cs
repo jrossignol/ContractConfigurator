@@ -336,6 +336,20 @@ namespace ContractConfigurator
             {
                 behaviour.ParameterStateChange(param);
             }
+
+            // Check for completion - stock ignores the optional flag
+            bool completed = true;
+            foreach (ContractParameter child in this.GetChildren())
+            {
+                if (child.State != ParameterState.Complete && !child.Optional)
+                {
+                    completed = false;
+                }
+            }
+            if (completed)
+            {
+                SetState(Contract.State.Completed);
+            }
         }
 
         protected override void OnRegister()

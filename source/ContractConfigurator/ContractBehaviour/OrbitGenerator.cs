@@ -64,7 +64,7 @@ namespace ContractConfigurator.Behaviour
                 difficulty = orig.difficulty;
                 index = orig.index;
 
-                // Lazy copy of orbit - only really used to story the orbital parameters, so not
+                // Lazy copy of orbit - only really used to store the orbital parameters, so not
                 // a huge deal.
                 orbit = orig.orbit;
             }
@@ -88,12 +88,6 @@ namespace ContractConfigurator.Behaviour
             }
 
             System.Random random = new System.Random(contract.MissionSeed);
-
-            // Register the orbit drawing class
-            if (MapView.MapCamera.gameObject.GetComponent<OrbitRenderer>() == null)
-            {
-                MapView.MapCamera.gameObject.AddComponent<OrbitRenderer>();
-            }
 
             // Find/add the AlwaysTrue parameter
             AlwaysTrue alwaysTrue = AlwaysTrue.FetchOrAdd(contract);
@@ -168,6 +162,12 @@ namespace ContractConfigurator.Behaviour
         protected override void OnLoad(ConfigNode configNode)
         {
             base.OnLoad(configNode);
+
+            // Register the orbit drawing class
+            if (MapView.MapCamera.gameObject.GetComponent<OrbitRenderer>() == null)
+            {
+                MapView.MapCamera.gameObject.AddComponent<OrbitRenderer>();
+            }
 
             foreach (ConfigNode child in configNode.GetNodes("ORBIT_DETAIL"))
             {

@@ -16,6 +16,7 @@ namespace ContractConfigurator
     {
         protected double duration;
         protected string define;
+        protected List<string> vesselList;
 
         public override bool Load(ConfigNode configNode)
         {
@@ -31,13 +32,14 @@ namespace ContractConfigurator
             }
 
             valid &= ConfigNodeUtil.ParseValue<string>(configNode, "define", ref define, this, (string)null);
+            valid &= ConfigNodeUtil.ParseValue<List<string>>(configNode, "vessel", ref vesselList, this, new List<string>());
 
             return valid;
         }
 
         public override ContractParameter Generate(Contract contract)
         {
-            return new Parameters.VesselParameterGroup(title, define, duration);
+            return new Parameters.VesselParameterGroup(title, define, vesselList, duration);
         }
     }
 }
