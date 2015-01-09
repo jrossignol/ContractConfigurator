@@ -1,3 +1,6 @@
+Contract Configurator 0.5.1
+- Fixed to work with RemoteTech 1.6
+
 Contract Configurator 0.5.0
 - RemoteTech integration!
   - KSCConnectivity parameter - indicates that a vessel must have connectivity back to mission control.

@@ -50,6 +50,7 @@ namespace ContractConfigurator.RemoteTech
             public Guid Guid { get { return NetworkManager.ActiveVesselGuid; } }
             public Vector3d Position { get; set; }
             public CelestialBody Body { get; set; }
+            public Color MarkColor { get { return new Color(0.996078f, 0, 0, 1); } }
 
             public bool Powered { get { return true; } }
             public bool IsCommandStation { get { return true; } }
