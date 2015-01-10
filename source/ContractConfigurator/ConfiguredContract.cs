@@ -18,8 +18,6 @@ namespace ContractConfigurator
         private List<ContractBehaviour> behaviours = new List<ContractBehaviour>();
         public IEnumerable<ContractBehaviour> Behaviours { get { return behaviours.AsReadOnly(); } }
 
-        public const string HIDDEN_IDENTIFIER = "__HIDDEN__";
-
         protected override bool Generate()
         {
             // MeetsRequirement gets called first and sets the contract type, but check it and
@@ -225,7 +223,7 @@ namespace ContractConfigurator
             // Remove the stuff that's supposed to be hidden from the mission control text
             string str = base.MissionControlTextRich();
             str = Regex.Replace(str, "\r", "");
-            str = Regex.Replace(str, "[^\n]*?" + HIDDEN_IDENTIFIER + ".*?\n\n", "", RegexOptions.Singleline);
+            str = Regex.Replace(str, "<b><#......>:.*?\n\n", "", RegexOptions.Singleline);
             return str;
         }
 
