@@ -47,7 +47,7 @@ namespace ContractConfigurator.Parameters
                 string title = null;
                 if (endTime - Planetarium.GetUniversalTime() > 0.0)
                 {
-                    title = (waitingText ?? "Time to completion") + ": " + DurationUtil.StringValue(endTime - Planetarium.GetUniversalTime());
+                    title = (waitingText ?? "Time to completion:") + " " + DurationUtil.StringValue(endTime - Planetarium.GetUniversalTime());
                 }
                 else
                 {
@@ -63,7 +63,7 @@ namespace ContractConfigurator.Parameters
             }
             else
             {
-                return (preWaitText ?? "Waiting time required") + ": " + DurationUtil.StringValue(duration);
+                return (preWaitText ?? "Waiting time required:") + " " + DurationUtil.StringValue(duration);
             }
         }
 
