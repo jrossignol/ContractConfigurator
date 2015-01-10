@@ -1,5 +1,7 @@
 Contract Configurator 0.5.1
 - Fixed to work with RemoteTech 1.6
+- Hide text for fake Parameters related to OrbitGenerator in mission control on active contracts.
+- Removed ':' from the Duration parameter default text.
 
 Contract Configurator 0.5.0
 - RemoteTech integration!
