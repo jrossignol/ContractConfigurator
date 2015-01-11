@@ -72,6 +72,9 @@ namespace ContractConfigurator
                         }
                     }
                 }
+
+                // Reposition items to account for items where the height increased or decreased
+                list.RepositionItems();
             }
         }
     }
