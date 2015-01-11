@@ -7,6 +7,7 @@ using System;
 using UnityEngine;
 using ContractConfigurator;
 using RemoteTech;
+using RemoteTech.API;
 
 namespace ContractConfigurator.RemoteTech
 {
