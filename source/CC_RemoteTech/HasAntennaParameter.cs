@@ -73,18 +73,17 @@ namespace ContractConfigurator.RemoteTech
 
         protected void CreateDelegates()
         {
-            // Filter for celestial bodies
-            if (targetBody != null)
-            {
-                AddParameter(new ParameterDelegate<IAntenna>("Target: " + targetBody.PrintName(),
-                    a => a.Target == targetBody.Guid()));
-            }
-
             // Filter for active vessel
             if (activeVessel)
             {
                 AddParameter(new ParameterDelegate<IAntenna>("Target: Active vessel",
                     a => a.Target == NetworkManager.ActiveVesselGuid || a.Omni > 0.0));
+            }
+            // Filter for celestial bodies
+            else if (targetBody != null)
+            {
+                AddParameter(new ParameterDelegate<IAntenna>("Target: " + targetBody.PrintName(),
+                    a => a.Target == targetBody.Guid()));
             }
 
             // Filter by type
@@ -125,7 +124,7 @@ namespace ContractConfigurator.RemoteTech
             }
 
             // Extra filter for celestial bodies
-            if (targetBody != null)
+            if (!activeVessel && targetBody != null)
             {
                 double distance = (Planetarium.fetch.Home.position - targetBody.position).magnitude;
                 AddParameter(new ParameterDelegate<IAntenna>("Range: In range of " + targetBody.PrintName(),

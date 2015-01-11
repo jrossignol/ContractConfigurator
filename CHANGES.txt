@@ -1,3 +1,6 @@
+Contract Configurator 0.5.2
+- Fixed issue with HasAntenna using ActiveTarget (was breaking the RemoteTech contract pack).  Huge thanks to Bluemoon for pointing this one out.
+
 Contract Configurator 0.5.1
 - Fixed to work with RemoteTech 1.6
 - Hide text for fake Parameters related to OrbitGenerator in mission control on active contracts.
