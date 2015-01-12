@@ -91,7 +91,7 @@ namespace ContractConfigurator.Parameters
                 // Add duration
                 if (duration > 0.0)
                 {
-                    output += ";\n Duration: " + DurationUtil.StringValue(duration);
+                    output += "; Duration: " + DurationUtil.StringValue(duration);
                 }
             }
             // If we're complete and a custom title hasn't been provided, try to get a better title
