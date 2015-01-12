@@ -12,6 +12,7 @@ namespace ContractConfigurator.Parameters
     /*
      * Custom version of the stock ReachSituation parameter.
      */
+    [Obsolete("Obsolete, use ReachState")]
     public class ReachSituationCustom : VesselParameter
     {
         protected string title { get; set; }

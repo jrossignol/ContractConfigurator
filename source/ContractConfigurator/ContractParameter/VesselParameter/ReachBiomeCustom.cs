@@ -12,6 +12,7 @@ namespace ContractConfigurator.Parameters
     /*
      * Custom version of the stock ReachBiome parameter.
      */
+    [Obsolete("Obsolete, use ReachState")]
     public class ReachBiomeCustom : VesselParameter
     {
         protected string title { get; set; }

@@ -55,11 +55,13 @@
     <Compile Include="ContractParameter\VesselParameter\PartValidation.cs" />
     <Compile Include="ContractParameter\VesselParameter\HasPassengers.cs" />
     <Compile Include="ContractParameter\VesselParameter\IsNotVessel.cs" />
+    <Compile Include="ContractParameter\VesselParameter\ReachState.cs" />
     <Compile Include="ContractRequirement\PartModuleTypeUnlockedRequirement.cs" />
     <Compile Include="ContractRequirement\ScienceRequirement.cs" />
     <Compile Include="ContractRequirement\ReputationRequirement.cs" />
     <Compile Include="ContractRequirement\FundsRequirement.cs" />
     <Compile Include="Extensions.cs" />
+    <Compile Include="ParameterFactory\ReachStateFactory.cs" />
     <Compile Include="ParameterFactory\OrbitFactory.cs" />
     <Compile Include="PartUtil.cs" />
     <Compile Include="TitleTracker.cs" />

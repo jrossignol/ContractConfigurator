@@ -12,6 +12,7 @@ namespace ContractConfigurator
     /*
      * ParameterFactory wrapper for ReachSpeedEnvelope ContractParameter.
      */
+    [Obsolete("Obsolete, use ReachState")]
     public class ReachSpeedEnvelopeFactory : ParameterFactory
     {
         protected double minSpeed;
@@ -25,6 +26,8 @@ namespace ContractConfigurator
             valid &= ConfigNodeUtil.ParseValue<double>(configNode, "minSpeed", ref minSpeed, this, 0.0, x => Validation.GE(x, 0.0));
             valid &= ConfigNodeUtil.ParseValue<double>(configNode, "maxSpeed", ref maxSpeed, this, double.MaxValue, x => Validation.GE(x, 0.0));
             valid &= ConfigNodeUtil.AtLeastOne(configNode, new string[] { "minSpeed", "maxSpeed" }, this);
+
+            LoggingUtil.LogError(this, "ReachSpeedEnvelope is obsolete as of ContractConfigurator 0.5.3, please use ReachState instead.  ReachSpeedEnvelope will be removed in a future release.");
 
             return valid;
         }
