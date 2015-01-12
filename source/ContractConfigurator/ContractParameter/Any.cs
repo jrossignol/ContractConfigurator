@@ -30,7 +30,7 @@ namespace ContractConfigurator.Parameters
         protected override string GetTitle()
         {
             string output = null;
-            if (title == null)
+            if (string.IsNullOrEmpty(title))
             {
                 output = "Complete any ONE of the following";
 

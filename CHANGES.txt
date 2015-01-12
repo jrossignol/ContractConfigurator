@@ -1,3 +1,6 @@
+Contract Configurator 0.5.3
+- Minor bug fixes.
+
 Contract Configurator 0.5.2
 - Fixed issue with HasAntenna using ActiveTarget (was breaking the RemoteTech contract pack).  Huge thanks to Bluemoon for pointing this one out.
 
