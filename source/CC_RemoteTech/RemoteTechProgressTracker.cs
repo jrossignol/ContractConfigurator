@@ -7,6 +7,8 @@ using UnityEngine;
 using KSP;
 using Contracts;
 using RemoteTech;
+using RemoteTech.API;
+using RemoteTech.SimpleTypes;
 using ContractConfigurator;
 
 namespace ContractConfigurator.RemoteTech

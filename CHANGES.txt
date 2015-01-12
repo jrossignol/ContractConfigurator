@@ -1,6 +1,7 @@
 Contract Configurator 0.5.3
 - Extensions to PartValidation to handle more varied scenarios.
 - Added ReachState parameter.  Deprecated ReachAltitudeEnvelope, ReachBiome, ReachDestination, ReachSituation and ReachSpeedEnvelope.
+- Fixed to work with additional changes in RemoteTech 1.6.
 - Minor bug fixes.
 
 Contract Configurator 0.5.2

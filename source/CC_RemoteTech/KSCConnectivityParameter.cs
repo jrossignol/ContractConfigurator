@@ -5,8 +5,9 @@ using System.Linq;
 using System.Text;
 using System;
 using UnityEngine;
-using ContractConfigurator;
 using RemoteTech;
+using RemoteTech.API;
+using ContractConfigurator;
 
 namespace ContractConfigurator.RemoteTech
 {
