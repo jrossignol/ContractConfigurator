@@ -19,6 +19,30 @@ namespace ContractConfigurator.Parameters
         bool ChildChanged { get; set; }
     }
 
+    public enum ParameterDelegateMatchType
+    {
+        FILTER,
+        VALIDATE_ALL,
+        NONE
+    }
+
+    public static class MatchExtension
+    {
+        public static string Prefix(this ParameterDelegateMatchType type)
+        {
+            switch (type)
+            {
+                case ParameterDelegateMatchType.FILTER:
+                    return "With ";
+                case ParameterDelegateMatchType.VALIDATE_ALL:
+                    return "All have ";
+                case ParameterDelegateMatchType.NONE:
+                    return "None have ";
+            }
+            return null;
+        }
+    }
+
     /// <summary>
     /// Special parameter child class for filtering and validating a list of items.  Parent
     /// parameter classes MUST implement the ParameterDelegate.Container interface.
@@ -26,26 +50,27 @@ namespace ContractConfigurator.Parameters
     /// <typeparam name="T">The type of item that will be validated.</typeparam>
     public class ParameterDelegate<T> : ContractParameter
     {
-        protected enum MatchType
-        {
-            ANY,
-            ALL,
-            NONE
-        }
         protected string title;
         protected Func<T, bool> filterFunc;
+        protected ParameterDelegateMatchType matchType;
         protected bool trivial;
 
         public ParameterDelegate()
-            : this(null, null)
+            : this(null, null, false)
         {
         }
 
-        public ParameterDelegate(string title, Func<T, bool> filterFunc, bool trivial = false)
+        public ParameterDelegate(string title, Func<T, bool> filterFunc, ParameterDelegateMatchType matchType = ParameterDelegateMatchType.FILTER, bool trivial = false)
+            : this(title, filterFunc, trivial, matchType)
+        {
+        }
+
+        public ParameterDelegate(string title, Func<T, bool> filterFunc, bool trivial, ParameterDelegateMatchType matchType = ParameterDelegateMatchType.FILTER)
             : base()
         {
             this.title = title;
             this.filterFunc = filterFunc;
+            this.matchType = matchType;
             this.trivial = trivial;
             disableOnStateChange = false;
         }
@@ -84,7 +109,7 @@ namespace ContractConfigurator.Parameters
         /// <param name="values">Enumerator to filter</param>
         /// <param name="fail">Whether there was an outright failure or the return value can be checked.</param>
         /// <returns>Enumerator after filtering</returns>
-        protected virtual IEnumerable<T> SetState(IEnumerable<T> values, MatchType matchType, out bool fail, bool checkOnly = false)
+        protected virtual IEnumerable<T> SetState(IEnumerable<T> values, out bool fail, bool checkOnly = false)
         {
             fail = false;
 
@@ -95,9 +120,9 @@ namespace ContractConfigurator.Parameters
             }
 
             // Uncertain - return incomplete
-            if (!values.Any() && matchType != MatchType.NONE)
+            if (!values.Any())
             {
-                SetState(ParameterState.Incomplete);
+                SetState(matchType != ParameterDelegateMatchType.NONE ? ParameterState.Incomplete : ParameterState.Complete);
                 return values;
             }
 
@@ -106,14 +131,14 @@ namespace ContractConfigurator.Parameters
             values = values.Where(filterFunc);
 
             // Some values - success
-            if (matchType == MatchType.ALL ? values.Count() == count : values.Any())
+            if (matchType == ParameterDelegateMatchType.VALIDATE_ALL ? values.Count() == count : values.Any())
             {
-                SetState(matchType != MatchType.NONE ? ParameterState.Complete : ParameterState.Failed);
+                SetState(matchType != ParameterDelegateMatchType.NONE ? ParameterState.Complete : ParameterState.Failed);
             }
             // No values - failure
             else
             {
-                SetState(matchType != MatchType.NONE ? ParameterState.Failed : ParameterState.Complete);
+                SetState(matchType != ParameterDelegateMatchType.NONE ? ParameterState.Failed : ParameterState.Complete);
             }
 
             return values;
@@ -161,18 +186,37 @@ namespace ContractConfigurator.Parameters
         public static bool CheckChildConditions(ContractParameter param, IEnumerable<T> values, bool checkOnly = false)
         {
             bool fail = false;
+            bool conditionMet = true;
+            int count = values.Count();
             foreach (ContractParameter child in param.AllParameters)
             {
                 if (child is ParameterDelegate<T>)
                 {
                     ParameterDelegate<T> paramDelegate = (ParameterDelegate<T>)child;
                     LoggingUtil.LogVerbose(paramDelegate, "Checking condition for '" + paramDelegate.title + "', input.Any() = " + values.Any());
-                    values = paramDelegate.SetState(values, MatchType.ANY, out fail, checkOnly);
-                    LoggingUtil.LogVerbose(paramDelegate, "Checked condition for '" + paramDelegate.title + "', output.Any() = " + values.Any());
+                    IEnumerable<T> newValues = paramDelegate.SetState(values, out fail, checkOnly);
+                    if (paramDelegate.matchType == ParameterDelegateMatchType.FILTER)
+                    {
+                        values = newValues;
+                    }
+                    conditionMet &= !fail;
+                    switch (paramDelegate.matchType)
+                    {
+                        case ParameterDelegateMatchType.FILTER:
+                            conditionMet &= values.Any();
+                            break;
+                        case ParameterDelegateMatchType.VALIDATE_ALL:
+                            conditionMet &= count == newValues.Count();
+                            break;
+                        case ParameterDelegateMatchType.NONE:
+                            conditionMet &= !newValues.Any();
+                            break;
+
+                    }
                 }
             }
 
-            return !fail && values.Any();
+            return conditionMet;
         }
 
         /// <summary>
@@ -196,57 +240,6 @@ namespace ContractConfigurator.Parameters
             return conditionMet;
         }
 
-        /// <summary>
-        /// Checks the child conditions for each child parameter delegate in the given parent, but
-        /// checks that all 
-        /// </summary>
-        /// <param name="param">The contract parameter that we are called from.</param>
-        /// <param name="values">The values to enumerator over.</param>
-        /// <param name="checkOnly">Only perform a check, don't change values.</param>
-        /// <returns></returns>
-        public static bool CheckChildConditionsForAll(ContractParameter param, IEnumerable<T> values, bool checkOnly = false)
-        {
-            bool fail = false;
-            bool conditionMet = true;
-            int count = values.Count();
-            foreach (ContractParameter child in param.AllParameters)
-            {
-                if (child is ParameterDelegate<T>)
-                {
-                    ParameterDelegate<T> paramDelegate = (ParameterDelegate<T>)child;
-                    LoggingUtil.LogVerbose(paramDelegate, "Checking condition for '" + paramDelegate.title + "', input.Any() = " + values.Any());
-                    IEnumerable<T> newValues = paramDelegate.SetState(values, MatchType.ALL, out fail, checkOnly);
-                    LoggingUtil.LogVerbose(paramDelegate, "Checked condition for '" + paramDelegate.title + "', result = " + (count == newValues.Count()));
-                    conditionMet &= count == newValues.Count();
-                }
-            }
-
-            return !fail && conditionMet;
-        }
-
-        /// <summary>
-        /// Checks the child conditions for each child parameter delegate in the given parent.
-        /// </summary>
-        /// <param name="param">The contract parameter that we are called from.</param>
-        /// <param name="values">The values to enumerator over.</param>
-        /// <param name="checkOnly">Only perform a check, don't change values.</param>
-        /// <returns></returns>
-        public static bool CheckChildConditionsForNone(ContractParameter param, IEnumerable<T> values, bool checkOnly = false)
-        {
-            bool fail = false;
-            foreach (ContractParameter child in param.AllParameters)
-            {
-                if (child is ParameterDelegate<T>)
-                {
-                    ParameterDelegate<T> paramDelegate = (ParameterDelegate<T>)child;
-                    LoggingUtil.LogVerbose(paramDelegate, "Checking condition for '" + paramDelegate.title + "', input.Any() = " + values.Any());
-                    values = paramDelegate.SetState(values, MatchType.NONE, out fail, checkOnly);
-                    LoggingUtil.LogVerbose(paramDelegate, "Checked condition for '" + paramDelegate.title + "', output.Any() = " + values.Any());
-                }
-            }
-
-            return !fail && !values.Any();
-        }
         /// <summary>
         /// Gets the text of all the child delegates in one big string.  Useful for printing out
         /// the full details for completed parameters.
@@ -309,7 +302,7 @@ namespace ContractConfigurator.Parameters
             }
         }
 
-        protected override IEnumerable<T> SetState(IEnumerable<T> values, MatchType matchType, out bool fail, bool checkOnly = false)
+        protected override IEnumerable<T> SetState(IEnumerable<T> values, out bool fail, bool checkOnly = false)
         {
             // Set our state
             int count = values.Count();

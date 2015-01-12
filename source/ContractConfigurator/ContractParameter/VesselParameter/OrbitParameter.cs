@@ -84,7 +84,7 @@ namespace ContractConfigurator.Parameters
             if (targetBody != null)
             {
                 AddParameter(new ParameterDelegate<Vessel>("Destination: " + targetBody.PrintName(),
-                    v => v.mainBody == targetBody));
+                    v => v.mainBody == targetBody, true));
             }
 
             // Filter for situation
