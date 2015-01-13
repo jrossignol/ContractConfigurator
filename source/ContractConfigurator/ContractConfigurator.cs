@@ -22,9 +22,19 @@ namespace ContractConfigurator
         private int totalContracts = 0;
         private int successContracts = 0;
 
+        private bool contractsAppVisible = false;
+
+        public static EventData<Contract, ContractParameter> OnParameterChange = new EventData<Contract, ContractParameter>("OnParameterChange");
+
         void Start()
         {
             DontDestroyOnLoad(this);
+            OnParameterChange.Add(new EventData<Contract, ContractParameter>.OnEvent(ParameterChange));
+        }
+
+        void Destroy()
+        {
+            OnParameterChange.Remove(new EventData<Contract, ContractParameter>.OnEvent(ParameterChange));
         }
 
         void Update()
@@ -52,6 +62,45 @@ namespace ContractConfigurator
             if (GameSettings.MODIFIER_KEY.GetKey() && Input.GetKeyDown(KeyCode.F10))
             {
                 showGUI = !showGUI;
+            }
+
+            // Check if the ContractsApp has just become visible, and fire off an update event
+            if (!contractsAppVisible &&
+                ContractsApp.Instance != null &&
+                ContractsApp.Instance.appLauncherButton != null &&
+                ContractsApp.Instance.cascadingList.cascadingList != null &&
+                ContractsApp.Instance.cascadingList.cascadingList.gameObject.activeInHierarchy)
+            {
+                contractsAppVisible = true;
+
+                // Fire off an event for each contract
+                for (int i = 0; i < ContractSystem.Instance.Contracts.Count; i++)
+                {
+                    Contract contract = ContractSystem.Instance.Contracts[i];
+                    if (contract.ContractState == Contract.State.Active && contract.GetType() == typeof(ConfiguredContract))
+                    {
+                        GameEvents.Contract.onParameterChange.Fire(contract, contract.GetParameter(0));
+                    }
+                }
+            }
+        }
+
+        private void ParameterChange(Contract c, ContractParameter p)
+        {
+            // ContractsApp is visible
+            if (ContractsApp.Instance != null &&
+                ContractsApp.Instance.appLauncherButton != null &&
+                ContractsApp.Instance.cascadingList.cascadingList != null &&
+                ContractsApp.Instance.cascadingList.cascadingList.gameObject.activeInHierarchy)
+            {
+                // Just let the event flow through
+                GameEvents.Contract.onParameterChange.Fire(c, p);
+                contractsAppVisible = true;
+            }
+            // Not visible
+            else
+            {
+                contractsAppVisible = false;
             }
         }
 
