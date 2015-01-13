@@ -1,3 +1,8 @@
+Contract Configurator 0.5.5
+- Fixed issue in ReachState where empty situation caused issues (thanks tattagreis).
+- Fixed problems with KerbalSpawner.
+- Added new attribute to KerbalSpawner to have the Kerbal added to the roster (thanks scerion).
+
 Contract Configurator 0.5.4
 - Workaround for stock contracts app lag issue (#3964 on Squad bugtracker).
 - Fixed NullReference issue in HasAntenna when loading a vessel with no antennas (thanks t0chas).

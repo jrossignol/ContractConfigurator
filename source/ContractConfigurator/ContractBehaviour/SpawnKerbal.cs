@@ -25,6 +25,7 @@ namespace ContractConfigurator.Behaviour
             public double altitude = 0.0;
             public bool landed = false;
             public bool owned = false;
+            public bool addToRoster = true;
 
             public KerbalData() { }
             public KerbalData(KerbalData k)
@@ -38,6 +39,7 @@ namespace ContractConfigurator.Behaviour
                 altitude = k.altitude;
                 landed = k.landed;
                 owned = k.owned;
+                addToRoster = k.addToRoster;
             }
         }
         private List<KerbalData> kerbals = new List<KerbalData>();
@@ -103,11 +105,9 @@ namespace ContractConfigurator.Behaviour
                     kerbal.landed = true;
                 }
 
-                // Get owned flag
-                if (child.HasValue("owned"))
-                {
-                    valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "owned", ref kerbal.owned, factory, false);
-                }
+                // Get additional flags
+                valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "owned", ref kerbal.owned, factory, false);
+                valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "addToRoster", ref kerbal.addToRoster, factory, true);
 
                 // Add to the list
                 spawnKerbal.kerbals.Add(kerbal);
@@ -121,6 +121,8 @@ namespace ContractConfigurator.Behaviour
             // Actually spawn the kerbals in the game world!
             foreach (KerbalData kerbal in kerbals)
             {
+                LoggingUtil.LogVerbose(this, "Spawning a Kerbal named " + kerbal.name);
+
                 uint flightId = ShipConstruction.GetUniqueFlightID(HighLogic.CurrentGame.flightState);
 
                 // Create crew member array
@@ -152,6 +154,110 @@ namespace ContractConfigurator.Behaviour
 
                 // Add vessel to the game
                 HighLogic.CurrentGame.AddVessel(protoVesselNode);
+            }
+        }
+
+        protected override void OnSave(ConfigNode configNode)
+        {
+            base.OnLoad(configNode);
+
+            foreach (KerbalData kd in kerbals)
+            {
+                ConfigNode child = new ConfigNode("KERBAL_DETAIL");
+
+                child.AddValue("name", kd.name);
+                child.AddValue("body", kd.body.name);
+                child.AddValue("lat", kd.latitude);
+                child.AddValue("lon", kd.longitude);
+                child.AddValue("alt", kd.altitude);
+                child.AddValue("landed", kd.landed);
+                child.AddValue("owned", kd.owned);
+                child.AddValue("addToRoster", kd.addToRoster);
+
+                ConfigNode orbitNode = new ConfigNode("ORBIT");
+                new OrbitSnapshot(kd.orbit).Save(orbitNode);
+                child.AddNode(orbitNode);
+
+                configNode.AddNode(child);
+            }
+        }
+
+        protected override void OnLoad(ConfigNode configNode)
+        {
+            base.OnLoad(configNode);
+
+            foreach (ConfigNode child in configNode.GetNodes("KERBAL_DETAIL"))
+            {
+                // Read all the orbit data
+                KerbalData kd = new KerbalData();
+                kd.name = child.GetValue("name");
+                kd.body = ConfigNodeUtil.ParseValue<CelestialBody>(child, "body");
+                kd.latitude = ConfigNodeUtil.ParseValue<double>(child, "lat");
+                kd.longitude = ConfigNodeUtil.ParseValue<double>(child, "lon");
+                kd.altitude = ConfigNodeUtil.ParseValue<double>(child, "alt");
+                kd.landed = ConfigNodeUtil.ParseValue<bool>(child, "landed");
+                kd.owned = ConfigNodeUtil.ParseValue<bool>(child, "owned");
+                kd.addToRoster = ConfigNodeUtil.ParseValue<bool>(child, "addToRoster");
+
+                kd.orbit = new OrbitSnapshot(child.GetNode("ORBIT")).Load();
+
+                // Find the ProtoCrewMember
+                kd.crewMember = HighLogic.CurrentGame.CrewRoster.AllKerbals().Where(cm => cm.name == kd.name).First();
+
+                // Add to the global list
+                kerbals.Add(kd);
+            }
+        }
+
+        protected override void OnRegister()
+        {
+            GameEvents.onVesselRecovered.Add(new EventData<ProtoVessel>.OnEvent(OnVesselRecovered));
+        }
+
+        protected override void OnUnregister()
+        {
+            GameEvents.onVesselRecovered.Remove(new EventData<ProtoVessel>.OnEvent(OnVesselRecovered));
+        }
+
+        private void OnVesselRecovered(ProtoVessel v)
+        {
+            LoggingUtil.LogVerbose(this, "OnVesselRecovered: " + v);
+
+            // EVA kerbal
+            if (v.vesselType == VesselType.EVA)
+            {
+                foreach (ProtoPartSnapshot p in v.protoPartSnapshots)
+                {
+                    {
+                        LoggingUtil.LogVerbose(this, "    p: " + p);
+                        foreach (string name in p.protoCrewNames)
+                        {
+                            // Find this crew member in our data
+                            foreach (KerbalData kd in kerbals)
+                            {
+                                if (kd.name == name && kd.addToRoster)
+                                {
+                                    // Add them to the roster
+                                    kd.crewMember.type = ProtoCrewMember.KerbalType.Crew;
+                                }
+                            }
+                        }
+                    }
+                }
+
+            }
+
+            // Vessel with crew
+            foreach (ProtoCrewMember crewMember in v.GetVesselCrew())
+            {
+                foreach (KerbalData kd in kerbals)
+                {
+                    if (kd.crewMember == crewMember && kd.addToRoster)
+                    {
+                        // Add them to the roster
+                        crewMember.type = ProtoCrewMember.KerbalType.Crew;
+                    }
+                }
             }
         }
 

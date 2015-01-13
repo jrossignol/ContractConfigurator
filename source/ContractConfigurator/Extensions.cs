@@ -51,9 +51,22 @@ namespace ContractConfigurator
         /// <returns>Enumerator of descendents</returns>
         public static IEnumerable<ContractParameter> GetChildren(this IContractParameterHost p)
         {
-            for (int i = 0; i < p.ParameterCount; i++ )
+            for (int i = 0; i < p.ParameterCount; i++)
             {
                 yield return p.GetParameter(i);
+            }
+        }
+
+        /// <summary>
+        /// Gets all the parameter's descendents
+        /// </summary>
+        /// <param name="p">Contract parameter</param>
+        /// <returns>Enumerator of descendents</returns>
+        public static IEnumerable<ProtoCrewMember> AllKerbals(this KerbalRoster roster)
+        {
+            for (int i = 0; i < roster.Count; i++)
+            {
+                yield return roster[i];
             }
         }
     }
