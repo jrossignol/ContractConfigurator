@@ -33,8 +33,8 @@ using System.Runtime.InteropServices;
 // Sie können alle Werte angeben oder die standardmäßigen Build- und Revisionsnummern 
 // übernehmen, indem Sie "*" eingeben:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("0.5.3")]
-[assembly: AssemblyFileVersion("0.5.3")]
+[assembly: AssemblyVersion("0.5.4")]
+[assembly: AssemblyFileVersion("0.5.4")]
 [assembly: KSPAssembly("CC_SCANsat", 0, 5)]
 [assembly: KSPAssemblyDependency("ContractConfigurator", 0, 5)]
 [assembly: KSPAssemblyDependency("SCANsat", 0, 9)]
