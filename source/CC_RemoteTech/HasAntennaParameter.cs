@@ -196,6 +196,7 @@ namespace ContractConfigurator.RemoteTech
 
             // Get all the antennae
             VesselSatellite sat = RTCore.Instance.Satellites[vessel.id];
+            IEnumerable<IAntenna> antennas = sat != null ? sat.Antennas : new List<IAntenna>();
 
             // If we're a VesselParameterGroup child, only do actual state change if we're the tracked vessel
             bool checkOnly = false;
@@ -204,7 +205,7 @@ namespace ContractConfigurator.RemoteTech
                 checkOnly = ((VesselParameterGroup)Parent).TrackedVessel != vessel;
             }
 
-            return ParameterDelegate<IAntenna>.CheckChildConditions(this, sat.Antennas, checkOnly);
+            return ParameterDelegate<IAntenna>.CheckChildConditions(this, antennas, checkOnly);
         }
     }
 }

@@ -51,7 +51,6 @@
     <Compile Include="BehaviourFactory\SpawnKerbalFactory.cs" />
     <Compile Include="ContractParameter\Duration.cs" />
     <Compile Include="ContractParameter\ParameterDelegate.cs" />
-    <Compile Include="ContractParameter\ParameterEventRedirector.cs" />
     <Compile Include="ContractParameter\VesselParameter\OrbitParameter.cs" />
     <Compile Include="ContractParameter\VesselParameter\PartValidation.cs" />
     <Compile Include="ContractParameter\VesselParameter\HasPassengers.cs" />
