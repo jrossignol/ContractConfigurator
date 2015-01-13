@@ -167,14 +167,22 @@ namespace ContractConfigurator.Parameters
         {
             base.OnSave(node);
             node.AddValue("title", title);
+            // Can't be null
             node.AddValue("targetBody", targetBody.name);
             node.AddValue("biome", biome);
-            node.AddValue("situation", situation);
-            if (minAltitude != float.MaxValue)
+
+            // Adding null on situation breaks KSP
+            if (situation != null)
             {
-                node.AddValue("minAltitude", minAltitude);
+                node.AddValue("situation", situation);
             }
-            node.AddValue("maxAltitude", maxAltitude);
+
+            node.AddValue("minAltitude", minAltitude);
+            if (maxAltitude != float.MaxValue)
+            {
+                node.AddValue("maxAltitude", maxAltitude);
+            }
+
             node.AddValue("minSpeed", minSpeed);
             if (maxSpeed != Double.MaxValue)
             {
