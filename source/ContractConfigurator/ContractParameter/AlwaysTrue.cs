@@ -26,14 +26,7 @@ namespace ContractConfigurator.Parameters
 
         protected override string GetTitle()
         {
-            if (Root == null || Root.ContractState == Contract.State.Offered)
-            {
-                return ConfiguredContract.HIDDEN_IDENTIFIER;
-            }
-            else
-            {
-                return "";
-            }
+            return "";
         }
 
         protected override void OnUpdate()

@@ -12,6 +12,7 @@ namespace ContractConfigurator.Parameters
     /*
      * Custom version of the stock ReachSpeedEnvelope parameter.
      */
+    [Obsolete("Obsolete, use ReachState")]
     public class ReachSpeedEnvelopeCustom : VesselParameter
     {
         protected string title { get; set; }

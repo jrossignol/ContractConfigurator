@@ -73,35 +73,40 @@ namespace ContractConfigurator.RemoteTech
 
         protected void CreateDelegates()
         {
-            // Filter for celestial bodies
-            if (targetBody != null)
+            ParameterDelegateMatchType matchType = ParameterDelegateMatchType.FILTER;
+            if (maxCount == 0)
             {
-                AddParameter(new ParameterDelegate<IAntenna>("Target: " + targetBody.PrintName(),
-                    a => a.Target == targetBody.Guid()));
-            }
-
-            // Filter for active vessel
-            if (activeVessel)
-            {
-                AddParameter(new ParameterDelegate<IAntenna>("Target: Active vessel",
-                    a => a.Target == NetworkManager.ActiveVesselGuid || a.Omni > 0.0));
+                matchType = ParameterDelegateMatchType.NONE;
             }
 
             // Filter by type
             if (antennaType == AntennaType.Dish)
             {
                 AddParameter(new ParameterDelegate<IAntenna>("Type: " + antennaType,
-                    a => a.CanTarget));
+                    a => a.CanTarget, matchType));
             }
             else if (antennaType == AntennaType.Omni)
             {
                 AddParameter(new ParameterDelegate<IAntenna>("Type: " + antennaType,
-                    a => !a.CanTarget));
+                    a => !a.CanTarget, matchType));
+            }
+
+            // Filter for active vessel
+            if (activeVessel)
+            {
+                AddParameter(new ParameterDelegate<IAntenna>("Target: Active vessel",
+                    a => a.Target == NetworkManager.ActiveVesselGuid || a.Omni > 0.0, matchType));
+            }
+            // Filter for celestial bodies
+            else if (targetBody != null)
+            {
+                AddParameter(new ParameterDelegate<IAntenna>("Target: " + targetBody.PrintName(),
+                    a => a.Target == targetBody.Guid(), matchType));
             }
 
             // Activated and powered
-            AddParameter(new ParameterDelegate<IAntenna>("Activated", a => a.Activated, true));
-            AddParameter(new ParameterDelegate<IAntenna>("Powered", a => a.Powered, true));
+            AddParameter(new ParameterDelegate<IAntenna>("Activated", a => a.Activated, matchType, true));
+            AddParameter(new ParameterDelegate<IAntenna>("Powered", a => a.Powered, matchType, true));
 
             // Filter for range
             if (minRange != 0.0 || maxRange != double.MaxValue)
@@ -121,19 +126,19 @@ namespace ContractConfigurator.RemoteTech
                 }
 
                 AddParameter(new ParameterDelegate<IAntenna>(output,
-                    a => Math.Max(a.Omni, a.Dish) >= minRange && Math.Max(a.Omni, a.Dish) <= maxRange));
+                    a => Math.Max(a.Omni, a.Dish) >= minRange && Math.Max(a.Omni, a.Dish) <= maxRange, matchType));
             }
 
             // Extra filter for celestial bodies
-            if (targetBody != null)
+            if (!activeVessel && targetBody != null)
             {
                 double distance = (Planetarium.fetch.Home.position - targetBody.position).magnitude;
                 AddParameter(new ParameterDelegate<IAntenna>("Range: In range of " + targetBody.PrintName(),
-                    a => Math.Max(a.Omni, a.Dish) >= distance, true));
+                    a => Math.Max(a.Omni, a.Dish) >= distance, matchType, true));
             }
 
             // Validate count
-            if (minCount != 0 || maxCount != int.MaxValue)
+            if (minCount != 0 || maxCount != int.MaxValue && !(minCount == maxCount && maxCount == 0))
             {
                 AddParameter(new CountParameterDelegate<IAntenna>(minCount, maxCount));
             }
@@ -191,6 +196,7 @@ namespace ContractConfigurator.RemoteTech
 
             // Get all the antennae
             VesselSatellite sat = RTCore.Instance.Satellites[vessel.id];
+            IEnumerable<IAntenna> antennas = sat != null ? sat.Antennas : new List<IAntenna>();
 
             // If we're a VesselParameterGroup child, only do actual state change if we're the tracked vessel
             bool checkOnly = false;
@@ -199,14 +205,7 @@ namespace ContractConfigurator.RemoteTech
                 checkOnly = ((VesselParameterGroup)Parent).TrackedVessel != vessel;
             }
 
-            if (minCount == maxCount && minCount == 0)
-            {
-                return ParameterDelegate<IAntenna>.CheckChildConditionsForNone(this, sat.Antennas, checkOnly);
-            }
-            else
-            {
-                return ParameterDelegate<IAntenna>.CheckChildConditions(this, sat.Antennas, checkOnly);
-            }
+            return ParameterDelegate<IAntenna>.CheckChildConditions(this, antennas, checkOnly);
         }
     }
 }

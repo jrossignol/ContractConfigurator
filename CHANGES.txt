@@ -1,5 +1,28 @@
+Contract Configurator <NEXT_VERSION_HERE>
+- Fix display of year/years and day/days in time based parameters (thanks DBT85).
+
+Contract Configurator 0.5.5
+- Fixed issue in ReachState where empty situation caused issues (thanks tattagreis).
+- Fixed problems with KerbalSpawner.
+- Added new attribute to KerbalSpawner to have the Kerbal added to the roster (thanks scerion).
+
+Contract Configurator 0.5.4
+- Workaround for stock contracts app lag issue (#3964 on Squad bugtracker).
+- Fixed NullReference issue in HasAntenna when loading a vessel with no antennas (thanks t0chas).
+
+Contract Configurator 0.5.3
+- Extensions to PartValidation to handle more varied scenarios.
+- Added ReachState parameter.  Deprecated ReachAltitudeEnvelope, ReachBiome, ReachDestination, ReachSituation and ReachSpeedEnvelope.
+- Fixed to work with additional changes in RemoteTech 1.6.
+- Minor bug fixes.
+
+Contract Configurator 0.5.2
+- Fixed issue with HasAntenna using ActiveTarget (was breaking the RemoteTech contract pack).  Huge thanks to Bluemoon for pointing this one out.
+
 Contract Configurator 0.5.1
 - Fixed to work with RemoteTech 1.6
+- Hide text for fake Parameters related to OrbitGenerator in mission control on active contracts.
+- Removed ':' from the Duration parameter default text.
 
 Contract Configurator 0.5.0
 - RemoteTech integration!

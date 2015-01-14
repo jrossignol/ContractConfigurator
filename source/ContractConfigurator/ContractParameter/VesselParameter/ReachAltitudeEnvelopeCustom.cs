@@ -12,6 +12,7 @@ namespace ContractConfigurator.Parameters
     /*
      * Custom version of the stock ReachAltitudeEnvelope parameter.
      */
+    [Obsolete("Obsolete, use ReachState")]
     public class ReachAltitudeEnvelopeCustom : VesselParameter
     {
         protected string title { get; set; }

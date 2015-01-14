@@ -91,7 +91,7 @@ namespace ContractConfigurator.Parameters
                 // Add duration
                 if (duration > 0.0)
                 {
-                    output += ";\n Duration: " + DurationUtil.StringValue(duration);
+                    output += "; Duration: " + DurationUtil.StringValue(duration);
                 }
             }
             // If we're complete and a custom title hasn't been provided, try to get a better title
@@ -238,7 +238,8 @@ namespace ContractConfigurator.Parameters
             // Fire the parameter change event to account for all the changed child parameters.
             // We don't fire it for the child parameters, as any with a failed state will cause
             // the contract to fail, which we don't want.
-            GameEvents.Contract.onParameterChange.Fire(this.Root, this);
+//            GameEvents.Contract.onParameterChange.Fire(this.Root, this);
+            ContractConfigurator.OnParameterChange.Fire(this.Root, this);
 
             // Manually run the OnParameterStateChange
             OnParameterStateChange(this);

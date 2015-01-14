@@ -64,12 +64,12 @@ namespace ContractConfigurator
             string output = "";
             if (years != 0)
             {
-                output += years + (years == 1 ? "year" : " years");
+                output += years + (years == 1 ? " year" : " years");
             }
             if (days != 0)
             {
                 if (output.Length != 0) output += ", ";
-                output += days + (days == 1 ? "days" : " days");
+                output += days + (days == 1 ? " day" : " days");
             }
             if (hours != 0 || minutes != 0 || seconds != 0 || output.Length == 0)
             {
@@ -100,12 +100,12 @@ namespace ContractConfigurator
 
                 if (years != 0)
                 {
-                    output += years + (years == 1 ? "year" : " years");
+                    output += years + (years == 1 ? " year" : " years");
                 }
                 if (days != 0)
                 {
                     if (output.Length != 0) output += ", ";
-                    output += days + (days == 1 ? "days" : " days");
+                    output += days + (days == 1 ? " day" : " days");
                 }
             }
 

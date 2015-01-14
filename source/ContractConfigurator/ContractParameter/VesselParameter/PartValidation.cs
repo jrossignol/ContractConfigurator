@@ -15,12 +15,20 @@ namespace ContractConfigurator.Parameters
      */
     public class PartValidation : VesselParameter
     {
+        public class Filter
+        {
+            public ParameterDelegateMatchType type = ParameterDelegateMatchType.FILTER;
+            public AvailablePart part = null;
+            public List<string> partModules = new List<string>();
+            public PartCategories? category = null;
+            public string manufacturer = null;
+
+            public Filter() { }
+            public Filter(ParameterDelegateMatchType type) { this.type = type; }
+        }
+
         protected string title { get; set; }
-        protected AvailablePart part { get; set; }
-        protected List<string> partModules { get; set; }
-        protected PartCategories? category { get; set; }
-        protected string manufacturer { get; set; }
-        protected bool allParts { get; set; }
+        protected List<Filter> filters { get; set; }
         protected int minCount { get; set; }
         protected int maxCount { get; set; }
 
@@ -29,18 +37,13 @@ namespace ContractConfigurator.Parameters
         {
         }
 
-        public PartValidation(AvailablePart part, List<string> partModules, PartCategories? category = null,
-            string manufacturer = null, bool allParts = false, int minCount = 1, int maxCount = int.MaxValue, string title = null)
+        public PartValidation(List<Filter> filters, int minCount = 1, int maxCount = int.MaxValue, string title = null)
             : base()
         {
             // Vessels should fail if they don't meet the part conditions
             failWhenUnmet = true;
 
-            this.part = part;
-            this.partModules = partModules != null ? partModules : new List<string>();
-            this.category = category;
-            this.manufacturer = manufacturer;
-            this.allParts = allParts;
+            this.filters = filters;
             this.minCount = minCount;
             this.maxCount = maxCount;
             this.title = title;
@@ -53,7 +56,7 @@ namespace ContractConfigurator.Parameters
             string output = null;
             if (string.IsNullOrEmpty(title))
             {
-                output = allParts ? "All parts" : "Part";
+                output = "Parts";
                 if (state == ParameterState.Complete)
                 {
                     output += ": " + ParameterDelegate<Part>.GetDelegateText(this);
@@ -68,37 +71,40 @@ namespace ContractConfigurator.Parameters
 
         protected void CreateDelegates()
         {
-            // Filter by part name
-            if (part != null)
+            foreach (Filter filter in filters)
             {
-                AddParameter(new ParameterDelegate<Part>("Part: " + part.title,
-                    p => p.partInfo.name == part.name));
-            }
+                // Filter by part name
+                if (filter.part != null)
+                {
+                    AddParameter(new ParameterDelegate<Part>(filter.type.Prefix() + "type: " + filter.part.title,
+                        p => p.partInfo.name == filter.part.name, filter.type));
+                }
 
-            // Filter by part modules
-            foreach (string partModule in partModules)
-            {
-                string moduleName = partModule.Replace("Module", "");
-                moduleName = Regex.Replace(moduleName, "(\\B[A-Z])", " $1");
-                AddParameter(new ParameterDelegate<Part>("Module: " + moduleName, p => PartHasModule(p, partModule)));
-            }
-            
-            // Filter by category
-            if (category != null)
-            {
-                AddParameter(new ParameterDelegate<Part>("Category: " + category,
-                    p => p.partInfo.category == (PartCategories)category));
-            }
+                // Filter by part modules
+                foreach (string partModule in filter.partModules)
+                {
+                    string moduleName = partModule.Replace("Module", "");
+                    moduleName = Regex.Replace(moduleName, "(\\B[A-Z])", " $1");
+                    AddParameter(new ParameterDelegate<Part>(filter.type.Prefix() + "module: " + moduleName, p => PartHasModule(p, partModule), filter.type));
+                }
 
-            // Filter by manufacturer
-            if (manufacturer != null)
-            {
-                AddParameter(new ParameterDelegate<Part>("Manufacturer: " + manufacturer,
-                    p => p.partInfo.manufacturer == manufacturer));
+                // Filter by category
+                if (filter.category != null)
+                {
+                    AddParameter(new ParameterDelegate<Part>(filter.type.Prefix() + "category: " + filter.category,
+                        p => p.partInfo.category == filter.category.Value, filter.type));
+                }
+
+                // Filter by manufacturer
+                if (filter.manufacturer != null)
+                {
+                    AddParameter(new ParameterDelegate<Part>(filter.type.Prefix() + "manufacturer: " + filter.manufacturer,
+                        p => p.partInfo.manufacturer == filter.manufacturer, filter.type));
+                }
             }
 
             // Validate count
-            if (!allParts && (minCount != 0 || maxCount != int.MaxValue))
+            if (minCount != 0 || maxCount != int.MaxValue && !(minCount == maxCount && maxCount == 0))
             {
                 AddParameter(new CountParameterDelegate<Part>(minCount, maxCount));
             }
@@ -122,23 +128,31 @@ namespace ContractConfigurator.Parameters
             node.AddValue("title", title);
             node.AddValue("minCount", minCount);
             node.AddValue("maxCount", maxCount);
-            if (part != null)
+
+            foreach (Filter filter in filters)
             {
-                node.AddValue("part", part.name);
+                ConfigNode child = new ConfigNode("FILTER");
+                child.AddValue("type", filter.type);
+
+                if (filter.part != null)
+                {
+                    child.AddValue("part", filter.part.name);
+                }
+                foreach (string partModule in filter.partModules)
+                {
+                    child.AddValue("partModule", partModule);
+                }
+                if (filter.category != null)
+                {
+                    child.AddValue("category", filter.category);
+                }
+                if (filter.manufacturer != null)
+                {
+                    child.AddValue("manufacturer", filter.manufacturer);
+                }
+
+                node.AddNode(child);
             }
-            foreach (string partModule in partModules)
-            {
-                node.AddValue("partModule", partModule);
-            }
-            if (category != null)
-            {
-                node.AddValue("category", category);
-            }
-            if (manufacturer != null)
-            {
-                node.AddValue("manufacturer", manufacturer);
-            }
-            node.AddValue("allParts", allParts);
         }
 
         protected override void OnLoad(ConfigNode node)
@@ -147,11 +161,37 @@ namespace ContractConfigurator.Parameters
             title = node.GetValue("title");
             minCount = Convert.ToInt32(node.GetValue("minCount"));
             maxCount = Convert.ToInt32(node.GetValue("maxCount"));
-            part = node.HasValue("part") ? ConfigNodeUtil.ParseValue<AvailablePart>(node, "part") : null;
-            partModules = node.GetValues("partModule").ToList();
-            category = node.HasValue("category") ? ConfigNodeUtil.ParseValue<PartCategories?>(node, "category") : null;
-            manufacturer = node.HasValue("manufacturer") ? ConfigNodeUtil.ParseValue<string>(node, "manufacturer") : null;
-            allParts = ConfigNodeUtil.ParseValue<bool>(node, "allParts");
+
+            filters = new List<Filter>();
+
+            // Backwards compatibility from pre 0.5.3 release
+            if (node.HasValue("part") || node.HasValue("partModule") || node.HasValue("category") || node.HasValue("manufacturer"))
+            {
+                Filter filter = new Filter();
+                filter.type = ConfigNodeUtil.ParseValue<ParameterDelegateMatchType>(node, "type");
+
+                filter.part = ConfigNodeUtil.ParseValue<AvailablePart>(node, "part", (AvailablePart)null);
+                filter.partModules = node.GetValues("partModule").ToList();
+                filter.category = ConfigNodeUtil.ParseValue<PartCategories?>(node, "category", (PartCategories?)null);
+                filter.manufacturer = ConfigNodeUtil.ParseValue<string>(node, "manufacturer", (string)null);
+
+                filters.Add(filter);
+            }
+            else
+            {
+                foreach (ConfigNode child in node.GetNodes("FILTER"))
+                {
+                    Filter filter = new Filter();
+                    filter.type = ConfigNodeUtil.ParseValue<ParameterDelegateMatchType>(child, "type");
+
+                    filter.part = ConfigNodeUtil.ParseValue<AvailablePart>(child, "part", (AvailablePart)null);
+                    filter.partModules = child.GetValues("partModule").ToList();
+                    filter.category = ConfigNodeUtil.ParseValue<PartCategories?>(child, "category", (PartCategories?)null);
+                    filter.manufacturer = ConfigNodeUtil.ParseValue<string>(child, "manufacturer", (string)null);
+
+                    filters.Add(filter);
+                }
+            }
 
             ParameterDelegate<Part>.OnDelegateContainerLoad(node);
             CreateDelegates();
@@ -183,19 +223,7 @@ namespace ContractConfigurator.Parameters
                 checkOnly = ((VesselParameterGroup)Parent).TrackedVessel != vessel;
             }
 
-            // Check which method of verification we are using - ALL or SEQUENTIAL
-            if (allParts)
-            {
-                return ParameterDelegate<Part>.CheckChildConditionsForAll(this, vessel.parts, checkOnly);
-            }
-            else if (minCount == maxCount && minCount == 0)
-            {
-                return ParameterDelegate<Part>.CheckChildConditionsForNone(this, vessel.parts, checkOnly);
-            }
-            else
-            {
-                return ParameterDelegate<Part>.CheckChildConditions(this, vessel.parts, checkOnly);
-            }
+            return ParameterDelegate<Part>.CheckChildConditions(this, vessel.parts, checkOnly);
         }
     }
 }

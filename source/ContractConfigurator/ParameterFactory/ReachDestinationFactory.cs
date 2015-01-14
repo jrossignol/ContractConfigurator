@@ -13,6 +13,7 @@ namespace ContractConfigurator
     /*
      * ParameterFactory wrapper for ReachDestination ContractParameter.
      */
+    [Obsolete("Obsolete, use ReachState")]
     public class ReachDestinationFactory : ParameterFactory
     {
         public override bool Load(ConfigNode configNode)
@@ -21,6 +22,8 @@ namespace ContractConfigurator
             bool valid = base.Load(configNode);
 
             valid &= ValidateTargetBody(configNode);
+
+            LoggingUtil.LogError(this, "ReachDestination is obsolete as of ContractConfigurator 0.5.3, please use ReachState instead.  ReachDestination will be removed in a future release.");
 
             return valid;
         }
