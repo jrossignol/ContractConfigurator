@@ -1,3 +1,12 @@
+// Contract Configurator configuration file.  Contains settings pertaining
+// to logging.
+//
+// TO USE THIS FILE:
+//     First, copy the file and rename it from ContractConfigurator.cfg.default
+//     to ContractConfigurator.cfg.  Then, add in the desired log levels below.
+//     You can log specific classes by adding an ADD_LOGLEVEL_EXCEPTION block as
+//     demonstrated below.
+
 CC_DEBUGGING
 {
 	// Possible LogLevel: VERBOSE, DEBUG, INFO, WARNING, ERROR
