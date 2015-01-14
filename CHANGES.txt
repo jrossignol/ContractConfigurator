@@ -1,3 +1,6 @@
+Contract Configurator <NEXT_VERSION_HERE>
+- Fix display of year/years and day/days in time based parameters (thanks DBT85).
+
 Contract Configurator 0.5.5
 - Fixed issue in ReachState where empty situation caused issues (thanks tattagreis).
 - Fixed problems with KerbalSpawner.
