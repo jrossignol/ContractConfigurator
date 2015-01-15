@@ -223,7 +223,7 @@ namespace ContractConfigurator.Behaviour
         {
             LoggingUtil.LogVerbose(this, "OnVesselRecovered: " + v);
 
-            // EVA kerbal
+            // EVA vessel
             if (v.vesselType == VesselType.EVA)
             {
                 foreach (ProtoPartSnapshot p in v.protoPartSnapshots)

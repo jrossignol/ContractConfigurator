@@ -85,6 +85,10 @@ namespace ContractConfigurator
             {
                 return (T)(object)ParseAgentValue(configNode, key);
             }
+            else if (typeof(T) == typeof(Guid))
+            {
+                return (T)(object)new Guid(configNode.GetValue(key));
+            }
             else if (typeof(T).Name == "List`1")
             {
                 // Create the list instance

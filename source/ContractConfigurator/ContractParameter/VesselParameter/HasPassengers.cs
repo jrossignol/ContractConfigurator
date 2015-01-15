@@ -108,7 +108,7 @@ namespace ContractConfigurator.Parameters
 
         protected void OnCrewTransferred(GameEvents.HostedFromToAction<ProtoCrewMember, Part> a)
         {
-            // Check both, as the Kerbal/ship swap spots depending on whether the kerbal is
+            // Check both, as the Kerbal/ship swap spots depending on whether the vessel is
             // incoming or outgoing
             CheckVessel(a.from.vessel);
             CheckVessel(a.to.vessel);

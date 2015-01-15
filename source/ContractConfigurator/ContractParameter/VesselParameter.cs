@@ -284,7 +284,7 @@ namespace ContractConfigurator.Parameters
 
         protected virtual void OnVesselCreate(Vessel vessel)
         {
-            if (IsIgnoredVesselType(vessel.vesselType))
+            if (IsIgnoredVesselType(vessel.vesselType) || HighLogic.LoadedScene != GameScenes.FLIGHT)
             {
                 return;
             }
