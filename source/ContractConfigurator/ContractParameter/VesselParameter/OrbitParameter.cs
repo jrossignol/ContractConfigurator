@@ -15,6 +15,7 @@ namespace ContractConfigurator.Parameters
     public class OrbitParameter : VesselParameter
     {
         protected string title { get; set; }
+        protected Vessel.Situations situation { get; set; }
         protected double minAltitude { get; set; }
         protected double maxAltitude { get; set; }
         protected double minApoapsis { get; set; }
@@ -37,12 +38,13 @@ namespace ContractConfigurator.Parameters
         {
         }
 
-        public OrbitParameter(double minAltitude, double maxAltitude, double minApoapsis, double maxApoapsis, double minPeriapsis, double maxPeriapsis,
+        public OrbitParameter(Vessel.Situations situation, double minAltitude, double maxAltitude, double minApoapsis, double maxApoapsis, double minPeriapsis, double maxPeriapsis,
             double minEccentricity, double maxEccentricity, double minInclination, double maxInclination, double minPeriod, double maxPeriod, 
             CelestialBody targetBody, string title = null)
             : base()
         {
             this.title = title;
+            this.situation = situation;
             this.targetBody = targetBody;
             this.minAltitude = minAltitude;
             this.maxAltitude = maxAltitude;
@@ -88,7 +90,8 @@ namespace ContractConfigurator.Parameters
             }
 
             // Filter for situation
-            AddParameter(new ParameterDelegate<Vessel>("Situation: Orbiting", v => v.situation == Vessel.Situations.ORBITING, true));
+            AddParameter(new ParameterDelegate<Vessel>("Situation: " + ReachSituation.GetTitleStringShort(situation),
+                v => v.situation == situation, true));
 
             // Filter for altitude
             if (minAltitude != 0.0 || maxAltitude != double.MaxValue)
@@ -293,9 +296,11 @@ namespace ContractConfigurator.Parameters
             }
         }
 
-        /*
-         * Whether this vessel meets the parameter condition.
-         */
+        /// <summary>
+        /// Whether this vessel meets the parameter condition.
+        /// </summary>
+        /// <param name="vessel">The vessel to check.</param>
+        /// <returns>Whether the vessel meets the conditions.</returns>
         protected override bool VesselMeetsCondition(Vessel vessel)
         {
             LoggingUtil.LogVerbose(this, "Checking VesselMeetsCondition: " + vessel.id);

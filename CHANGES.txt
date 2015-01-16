@@ -1,5 +1,6 @@
 Contract Configurator 0.6.0
 - Added SpawnVessel behaviour.
+- Add situation filter to Orbit parameter.
 - Fix display of year/years and day/days in time based parameters (thanks DBT85).
 
 Contract Configurator 0.5.5

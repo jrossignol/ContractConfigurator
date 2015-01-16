@@ -15,6 +15,7 @@ namespace ContractConfigurator
     /// </summary>
     public class OrbitFactory : ParameterFactory
     {
+        protected Vessel.Situations situation;
         protected double minAltitude;
         protected double maxAltitude;
         protected double minApoapsis;
@@ -33,6 +34,7 @@ namespace ContractConfigurator
             // Load base class
             bool valid = base.Load(configNode);
 
+            valid &= ConfigNodeUtil.ParseValue<Vessel.Situations>(configNode, "situation", ref situation, this, Vessel.Situations.ORBITING, ValidateSituations);
             valid &= ConfigNodeUtil.ParseValue<double>(configNode, "minAltitude", ref minAltitude, this, 0.0, x => Validation.GE(x, 0.0));
             valid &= ConfigNodeUtil.ParseValue<double>(configNode, "maxAltitude", ref maxAltitude, this, double.MaxValue, x => Validation.GE(x, 0.0));
             valid &= ConfigNodeUtil.ParseValue<double>(configNode, "minApA", ref minApoapsis, this, 0.0, x => Validation.GE(x, 0.0));
@@ -70,9 +72,21 @@ namespace ContractConfigurator
             return valid;
         }
 
+        private bool ValidateSituations(Vessel.Situations situation)
+        {
+            if (situation != Vessel.Situations.ESCAPING &&
+                situation != Vessel.Situations.ORBITING &&
+                situation != Vessel.Situations.SUB_ORBITAL)
+            {
+                LoggingUtil.LogError(this, "Invalid situation for Orbit parameter: " + situation + ".  For non-orbital situations, use ReachState instead.");
+                return false;
+            }
+            return true;
+        }
+
         public override ContractParameter Generate(Contract contract)
         {
-            return new OrbitParameter(minAltitude, maxAltitude, minApoapsis, maxApoapsis, minPeriapsis, maxPeriapsis,
+            return new OrbitParameter(situation, minAltitude, maxAltitude, minApoapsis, maxApoapsis, minPeriapsis, maxPeriapsis,
                 minEccentricity, maxEccentricity, minInclination, maxInclination, minPeriod, maxPeriod, targetBody, title);
         }
     }
