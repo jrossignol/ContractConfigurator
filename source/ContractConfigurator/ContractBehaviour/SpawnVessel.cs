@@ -336,8 +336,8 @@ namespace ContractConfigurator.Behaviour
                     if (!string.IsNullOrEmpty(cd.name))
                     {
                         crewNode.AddValue("name", cd.name);
-                        crewNode.AddValue("addToRoster", cd.addToRoster);
                     }
+                    crewNode.AddValue("addToRoster", cd.addToRoster);
 
                     child.AddNode(crewNode);
                 }
