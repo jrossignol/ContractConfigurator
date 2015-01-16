@@ -42,7 +42,7 @@ namespace ContractConfigurator.RemoteTech
             if (string.IsNullOrEmpty(title))
             {
                 output = targetBody.name + ": Communication coverage: ";
-                if (currentCoverage >= 0.0)
+                if (currentCoverage >= 0.0 && state != ParameterState.Complete)
                 {
                     output += (currentCoverage * 100).ToString("F0") + "% / ";
                 }
