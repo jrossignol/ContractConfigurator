@@ -23,28 +23,23 @@ namespace ContractConfigurator.SCANsat
         private const float REAL_UPDATE_FREQUENCY = 5.0f;
         private const double GAME_UPDATE_FREQUENCY = 100.0;
         private const int CONSECUTIVE_SUCCESSES_REQUIRED = 2;
+        private double currentCoverage = 0.0;
 
         private Dictionary<string, string> nameRemap = new Dictionary<string, string>();
+        private TitleTracker titleTracker = new TitleTracker();
 
         public SCANsatCoverage()
             : this(95.0f, SCANdata.SCANtype.Altimetry, null, "")
         {
+            // Re-label a couple of scan names to make them nicer
+            nameRemap["AltimetryLoRes"] = "Low resolution altimetry";
+            nameRemap["AltimetryHiRes"] = "High resolution altimetry";
         }
 
         public SCANsatCoverage(double coverage, SCANdata.SCANtype scanType, CelestialBody targetBody, string title)
             : base()
         {
             this.title = title;
-            if (title == null)
-            {
-                // Re-label a couple of scan names to make them nicer
-                nameRemap["AltimetryLoRes"] = "Low resolution altimetry";
-                nameRemap["AltimetryHiRes"] = "High resolution altimetry";
-
-                string scanTypeName = nameRemap.ContainsKey(scanType.ToString()) ? nameRemap[scanType.ToString()] : scanType.ToString();
-                this.title = scanTypeName + " scan: " + coverage.ToString("N0") + "% coverage of " + targetBody.PrintName();
-            }
-
             this.coverage = coverage;
             this.scanType = scanType;
             this.targetBody = targetBody;
@@ -52,7 +47,24 @@ namespace ContractConfigurator.SCANsat
 
         protected override string GetTitle()
         {
-            return title;
+            string output;
+            if (string.IsNullOrEmpty(title))
+            {
+                string scanTypeName = nameRemap.ContainsKey(scanType.ToString()) ? nameRemap[scanType.ToString()] : scanType.ToString();
+                output = scanTypeName + " scan of " + targetBody.PrintName() + ": ";
+                if (currentCoverage > 0.0 && state != ParameterState.Complete)
+                {
+                    output += currentCoverage.ToString("N0") + "% / ";
+                }
+                output += coverage.ToString("N0") + "%";
+                titleTracker.Add(output);
+            }
+            else
+            {
+                output = title;
+            }
+
+            return output;
         }
 
         protected override void OnSave(ConfigNode node)
@@ -91,10 +103,10 @@ namespace ContractConfigurator.SCANsat
             {
                 lastRealUpdate = UnityEngine.Time.fixedTime;
                 lastGameTimeUpdate = Planetarium.GetUniversalTime();
-                double coverageInPercentage = SCANUtil.GetCoverage((int)scanType, targetBody);
+                currentCoverage = SCANUtil.GetCoverage((int)scanType, targetBody);
 
                 // Count the number of sucesses
-                if (coverageInPercentage > coverage)
+                if (currentCoverage > coverage)
                 {
                     consecutive_successes++;
                 }
@@ -108,6 +120,9 @@ namespace ContractConfigurator.SCANsat
                 {
                     SetComplete();
                 }
+
+                // Update contract window
+                titleTracker.UpdateContractWindow(GetTitle());
             }
         }
     }
