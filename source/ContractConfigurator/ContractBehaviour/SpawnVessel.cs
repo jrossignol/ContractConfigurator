@@ -33,6 +33,7 @@ namespace ContractConfigurator.Behaviour
             public Guid? id = null;
             public string craftURL = null;
             public string flagURL = null;
+            public VesselType vesselType = VesselType.Ship;
             public CelestialBody body = null;
             public Orbit orbit = null;
             public double latitude = 0.0;
@@ -49,6 +50,7 @@ namespace ContractConfigurator.Behaviour
                 id = vd.id;
                 craftURL = vd.craftURL;
                 flagURL = vd.flagURL;
+                vesselType = vd.vesselType;
                 body = vd.body;
                 orbit = vd.orbit;
                 latitude = vd.latitude;
@@ -97,6 +99,7 @@ namespace ContractConfigurator.Behaviour
                 // Get paths
                 vessel.craftURL = ConfigNodeUtil.ParseValue<string>(child, "craftURL");
                 vessel.flagURL = ConfigNodeUtil.ParseValue<string>(child, "flagURL", (string)null);
+                vessel.vesselType = ConfigNodeUtil.ParseValue<VesselType>(child, "vesselType", VesselType.Ship);
 
                 // Get celestial body
                 valid &= ConfigNodeUtil.ParseValue<CelestialBody>(child, "targetBody", ref vessel.body, factory, defaultBody, Validation.NotNull);
@@ -273,7 +276,7 @@ namespace ContractConfigurator.Behaviour
                 additionalNodes[0] = ProtoVessel.CreateDiscoveryNode(discoveryLevel, sizeClass, contract.TimeDeadline, contract.TimeDeadline);
 
                 // Create the config node representation of the ProtoVessel
-                ConfigNode protoVesselNode = ProtoVessel.CreateVesselNode(vesselData.name, VesselType.Ship, vesselData.orbit, 0, partNodes, additionalNodes);
+                ConfigNode protoVesselNode = ProtoVessel.CreateVesselNode(vesselData.name, vesselData.vesselType, vesselData.orbit, 0, partNodes, additionalNodes);
 
                 // Additional seetings for a landed vessel
                 if (vesselData.landed)
@@ -313,6 +316,7 @@ namespace ContractConfigurator.Behaviour
                 }
                 child.AddValue("craftURL", vd.craftURL);
                 child.AddValue("flagURL", vd.flagURL);
+                child.AddValue("vesselType", vd.vesselType);
                 child.AddValue("body", vd.body.name);
                 child.AddValue("lat", vd.latitude);
                 child.AddValue("lon", vd.longitude);
@@ -354,6 +358,7 @@ namespace ContractConfigurator.Behaviour
                 vd.id = ConfigNodeUtil.ParseValue<Guid?>(child, "id", (Guid?)null);
                 vd.craftURL = child.GetValue("craftURL");
                 vd.flagURL = ConfigNodeUtil.ParseValue<string>(child, "flagURL", (string)null);
+                vd.vesselType = ConfigNodeUtil.ParseValue<VesselType>(child, "vesselType");
                 vd.body = ConfigNodeUtil.ParseValue<CelestialBody>(child, "body");
                 vd.latitude = ConfigNodeUtil.ParseValue<double>(child, "lat");
                 vd.longitude = ConfigNodeUtil.ParseValue<double>(child, "lon");
