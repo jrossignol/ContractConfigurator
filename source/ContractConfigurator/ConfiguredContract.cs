@@ -39,9 +39,10 @@ namespace ContractConfigurator
             }
 
             // Set the contract expiry
-            if (contractType.minExpiry == 0.0f)
+            if (contractType.maxExpiry == 0.0f)
             {
                 SetExpiry();
+                expiryType = DeadlineType.None;
             }
             else
             {
