@@ -356,12 +356,6 @@ namespace ContractConfigurator
             return true;
         }
 
-        [Obsolete("ParseCelestialBody has been replaced by ParseValue<CelestialBody>")]
-        public static CelestialBody ParseCelestialBody(ConfigNode configNode, string key)
-        {
-            return ParseCelestialBodyValue(configNode, key);
-        }
-
         /*
          * Parses the CelestialBody from the given ConfigNode and key.
          */
@@ -378,12 +372,6 @@ namespace ContractConfigurator
             }
 
             throw new ArgumentException("'" + celestialName + "' is not a valid CelestialBody.");
-        }
-
-        [Obsolete("ParsePart has been replaced by ParseValue<AvailablePart>")]
-        public static AvailablePart ParsePart(ConfigNode configNode, string key)
-        {
-            return ParsePartValue(configNode, key);
         }
 
         /*
@@ -403,12 +391,6 @@ namespace ContractConfigurator
             }
 
             return part;
-        }
-
-        [Obsolete("ParseResource has been replaced by ParseValue<PartResourceDefinition>")]
-        public static PartResourceDefinition ParseResource(ConfigNode configNode, string key)
-        {
-            return ParseResourceValue(configNode, key);
         }
 
         /*

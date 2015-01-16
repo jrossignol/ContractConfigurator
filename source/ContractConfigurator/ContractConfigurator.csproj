@@ -75,10 +75,6 @@
     <Compile Include="ContractBehaviour\Expression.cs" />
     <Compile Include="ContractBehaviour\OrbitGenerator.cs" />
     <Compile Include="ContractBehaviour\WaypointGenerator.cs" />
-    <Compile Include="ContractParameter\VesselParameter\OrbitEccentricity.cs" />
-    <Compile Include="ContractParameter\VesselParameter\OrbitPeriapsis.cs" />
-    <Compile Include="ContractParameter\VesselParameter\OrbitApoapsis.cs" />
-    <Compile Include="ContractParameter\VesselParameter\OrbitInclination.cs" />
     <Compile Include="ContractParameter\VesselParameter\VisitWaypoint.cs" />
     <Compile Include="ContractParameter\SpecificOrbitWrapper.cs" />
     <Compile Include="ContractParameter\AlwaysTrue.cs" />
@@ -91,10 +87,6 @@
     <Compile Include="ContractBehaviour\SpawnKerbal.cs" />
     <Compile Include="IContractConfiguratorFactory.cs" />
     <Compile Include="LoggingUtil.cs" />
-    <Compile Include="ParameterFactory\OrbitEccentrictyFactory.cs" />
-    <Compile Include="ParameterFactory\OrbitPeriapsisFactory.cs" />
-    <Compile Include="ParameterFactory\OrbitApoapsisFactory.cs" />
-    <Compile Include="ParameterFactory\OrbitInclinationFactory.cs" />
     <Compile Include="ParameterFactory\VisitWaypointFactory.cs" />
     <Compile Include="ParameterFactory\ReachSpecificOrbitFactory.cs" />
     <Compile Include="ParameterFactory\VesselMassFactory.cs" />
@@ -103,8 +95,6 @@
     <Compile Include="ContractParameter\SequenceNode.cs" />
     <Compile Include="ContractParameter\Sequence.cs" />
     <Compile Include="ContractParameter\VesselParameter\HasResource.cs" />
-    <Compile Include="ContractParameter\VesselParameter\HasPartModule.cs" />
-    <Compile Include="ContractParameter\VesselParameter\HasPart.cs" />
     <Compile Include="ContractParameter\VesselParameter\ReturnHome.cs" />
     <Compile Include="ContractParameter\VesselParameter\HasCrew.cs" />
     <Compile Include="ContractParameter\VesselParameter\ReachBiomeCustom.cs" />
@@ -152,8 +142,6 @@
     <Compile Include="ParameterFactory\SequenceNodeFactory.cs" />
     <Compile Include="ParameterFactory\SequenceFactory.cs" />
     <Compile Include="ParameterFactory\HasResourceFactory.cs" />
-    <Compile Include="ParameterFactory\HasPartModuleFactory.cs" />
-    <Compile Include="ParameterFactory\HasPartFactory.cs" />
     <Compile Include="ParameterFactory\HasCrewFactory.cs" />
     <Compile Include="ParameterFactory\ReturnHomeFactory.cs" />
     <Compile Include="ParameterFactory\VesselHasVisitedFactory.cs" />
