@@ -1,4 +1,5 @@
-Contract Configurator <NEXT_VERSION_HERE>
+Contract Configurator 0.5.6
+- Changes for SCANsat 9.0
 - Fix display of year/years and day/days in time based parameters (thanks DBT85).
 
 Contract Configurator 0.5.5
