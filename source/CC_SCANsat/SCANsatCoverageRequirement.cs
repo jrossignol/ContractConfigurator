@@ -13,7 +13,7 @@ namespace ContractConfigurator.SCANsat
      */
     public class SCANsatCoverageRequirement : ContractRequirement
     {
-        protected string scanType;
+        protected SCANdata.SCANtype scanType;
         protected double minCoverage;
         protected double maxCoverage;
 
@@ -28,7 +28,7 @@ namespace ContractConfigurator.SCANsat
 
             valid &= ConfigNodeUtil.ParseValue<double>(configNode, "minCoverage", ref minCoverage, this, 0.0);
             valid &= ConfigNodeUtil.ParseValue<double>(configNode, "maxCoverage", ref maxCoverage, this, 100.0);
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "scanType", ref scanType, this, SCANsatUtil.ValidateSCANname);
+            valid &= ConfigNodeUtil.ParseValue<SCANdata.SCANtype>(configNode, "scanType", ref scanType, this);
             valid &= ValidateTargetBody(configNode);
 
             return valid;
@@ -36,7 +36,7 @@ namespace ContractConfigurator.SCANsat
 
         public override bool RequirementMet(ConfiguredContract contract)
         {
-            double coverageInPercentage = SCANUtil.GetCoverage(SCANUtil.GetSCANtype(scanType), targetBody);
+            double coverageInPercentage = SCANUtil.GetCoverage((int)scanType, targetBody);
             return coverageInPercentage >= minCoverage && coverageInPercentage <= maxCoverage;
         }
     }

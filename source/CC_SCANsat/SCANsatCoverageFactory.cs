@@ -12,7 +12,7 @@ namespace ContractConfigurator.SCANsat
 {
     public class SCANsatCoverageFactory : ParameterFactory
     {
-        protected string scanType;
+        protected SCANdata.SCANtype scanType;
         protected double coverage;
 
         public override bool Load(ConfigNode configNode)
@@ -21,7 +21,7 @@ namespace ContractConfigurator.SCANsat
             bool valid = base.Load(configNode);
 
             valid &= ConfigNodeUtil.ParseValue<double>(configNode, "coverage", ref coverage, this);
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "scanType", ref scanType, this, SCANsatUtil.ValidateSCANname);
+            valid &= ConfigNodeUtil.ParseValue<SCANdata.SCANtype>(configNode, "scanType", ref scanType, this);
             valid &= ValidateTargetBody(configNode);
 
             return valid;
@@ -29,7 +29,7 @@ namespace ContractConfigurator.SCANsat
 
         public override ContractParameter Generate(Contract contract)
         {
-            return new SCANsatCoverage(coverage, SCANUtil.GetSCANtype(scanType), targetBody, title);
+            return new SCANsatCoverage(coverage, scanType, targetBody, title);
         }
     }
 }
