@@ -69,7 +69,29 @@ namespace ContractConfigurator
             }
 
             // Special cases
-            if (typeof(T) == typeof(CelestialBody))
+            if (typeof(T).Name == "List`1")
+            {
+                // Create the list instance
+                T list = (T)Activator.CreateInstance(typeof(T));
+                int count = configNode.GetValues(key).Count();
+
+                // Create the generic methods
+                MethodInfo parseValueMethod = typeof(ConfigNodeUtil).GetMethod("ParseSingleValue",
+                    BindingFlags.NonPublic | BindingFlags.Static, null,
+                    new Type[] { typeof(string), typeof(string) }, null);
+                parseValueMethod = parseValueMethod.MakeGenericMethod(typeof(T).GetGenericArguments());
+                MethodInfo addMethod = typeof(T).GetMethod("Add");
+
+                // Populate the list
+                for (int i = 0; i < count; i++)
+                {
+                    string strVal = configNode.GetValue(key, i);
+                    addMethod.Invoke(list, new object[] { parseValueMethod.Invoke(null, new object[] { key, strVal }) });
+                }
+
+                return list;
+            }
+            else if (typeof(T) == typeof(CelestialBody))
             {
                 return (T)(object)ParseCelestialBodyValue(configNode, key);
             }
@@ -89,29 +111,21 @@ namespace ContractConfigurator
             {
                 return (T)(object)new Guid(configNode.GetValue(key));
             }
-            else if (typeof(T).Name == "List`1")
+            else if (typeof(T).Name == "Nullable`1")
             {
-                // Create the list instance
-                T list = (T) Activator.CreateInstance(typeof(T));
-                int count = configNode.GetValues(key).Count();
-
-                // Create the generic methods
-                MethodInfo parseValueMethod = typeof(ConfigNodeUtil).GetMethod("ParseSingleValue",
-                    BindingFlags.NonPublic | BindingFlags.Static, null,
-                    new Type[] { typeof(string), typeof(string) }, null);
-                parseValueMethod = parseValueMethod.MakeGenericMethod(typeof(T).GetGenericArguments());
-                MethodInfo addMethod = typeof(T).GetMethod("Add");
-
-                // Populate the list
-                for (int i = 0; i < count; i++)
+                // Let enum fall through to the ParseSingleValue method
+                if (!typeof(T).GetGenericArguments()[0].IsEnum)
                 {
-                    string strVal = configNode.GetValue(key, i);
-                    addMethod.Invoke(list, new object[] { parseValueMethod.Invoke(null, new object[] { key, strVal }) });
-                }
+                    // Create the generic method
+                    MethodInfo parseValueMethod = typeof(ConfigNodeUtil).GetMethod("ParseValue",
+                        BindingFlags.Static | BindingFlags.Public, null, new Type[] { typeof(ConfigNode), typeof(string) }, null);
+                    parseValueMethod = parseValueMethod.MakeGenericMethod(typeof(T).GetGenericArguments());
 
-                return list;
+                    // Call it
+                    return (T)parseValueMethod.Invoke(null, new object[] { configNode, key });
+                }
             }
-            
+
             // Get string value, pass to parse single value function
             string stringValue = configNode.GetValue(key);
             return ParseSingleValue<T>(key, stringValue);
@@ -180,8 +194,8 @@ namespace ContractConfigurator
             }
             catch (Exception e)
             {
-                LoggingUtil.LogError(obj, obj.ErrorPrefix(configNode) + ": Error parsing " + key + ": " + configNode.id + e.Message);
-                LoggingUtil.LogDebug(obj, e.StackTrace);
+                LoggingUtil.LogError(obj, obj.ErrorPrefix(configNode) + ": Error parsing " + key);
+                Debug.LogException(e);
                 return false;
             }
             finally
@@ -209,8 +223,8 @@ namespace ContractConfigurator
                 }
                 catch (Exception e)
                 {
-                    LoggingUtil.LogError(obj, obj.ErrorPrefix(configNode) + ": The value supplied for " + key + " (" + value + ") is invalid: " + e.Message);
-                    LoggingUtil.LogDebug(obj, e.StackTrace);
+                    LoggingUtil.LogError(obj, obj.ErrorPrefix(configNode) + ": The value supplied for " + key + " (" + value + ") is invalid.");
+                    Debug.LogException(e);
                     return false;
                 }
                 return true;
@@ -253,8 +267,8 @@ namespace ContractConfigurator
                 }
                 catch (Exception e)
                 {
-                    LoggingUtil.LogError(obj, obj.ErrorPrefix(configNode) + ": The value supplied for " + key + " (" + value + ") is invalid: " + e.Message);
-                    LoggingUtil.LogDebug(obj, e.StackTrace);
+                    LoggingUtil.LogError(obj, obj.ErrorPrefix(configNode) + ": The value supplied for " + key + " (" + value + ") is invalid.");
+                    Debug.LogException(e);
                     return false;
                 }
                 return true;
