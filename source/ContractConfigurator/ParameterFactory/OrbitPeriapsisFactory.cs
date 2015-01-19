@@ -29,7 +29,7 @@ namespace ContractConfigurator
             valid &= ConfigNodeUtil.AtLeastOne(configNode, new string[] { "minPeA", "maxPeA" }, this);
             valid &= ValidateTargetBody(configNode);
 
-            LoggingUtil.LogError(this, "OrbitPeriapsis is obsolete as of ContractConfigurator 0.5.0, please use Orbit instead.  OrbitPeriapsis will be removed in a future release.");
+            LoggingUtil.LogError(this, ErrorPrefix() + ": OrbitPeriapsis is obsolete as of ContractConfigurator 0.5.0, please use Orbit instead.  OrbitPeriapsis will be removed in a future release.");
             
             return valid;
         }

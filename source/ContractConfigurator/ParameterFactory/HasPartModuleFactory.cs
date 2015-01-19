@@ -29,7 +29,7 @@ namespace ContractConfigurator
             valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxCount", ref maxCount, this, int.MaxValue, x => Validation.GE(x, 0));
             valid &= ConfigNodeUtil.ParseValue<string>(configNode, "partModule", ref partModule, this, Validation.ValidatePartModule);
 
-            LoggingUtil.LogError(this, "HasPartModule is obsolete as of ContractConfigurator 0.5.0, please use PartValidation instead.  HasPartModule will be removed in a future release.");
+            LoggingUtil.LogError(this, ErrorPrefix() + ": HasPartModule is obsolete as of ContractConfigurator 0.5.0, please use PartValidation instead.  HasPartModule will be removed in a future release.");
 
             return valid;
         }

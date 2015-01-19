@@ -29,7 +29,7 @@ namespace ContractConfigurator
             valid &= ConfigNodeUtil.AtLeastOne(configNode, new string[] { "minInclination", "maxInclination" }, this);
             valid &= ValidateTargetBody(configNode);
 
-            LoggingUtil.LogError(this, "OrbitInclination is obsolete as of ContractConfigurator 0.5.0, please use Orbit instead.  OrbitInclination will be removed in a future release.");
+            LoggingUtil.LogError(this, ErrorPrefix() + ": OrbitInclination is obsolete as of ContractConfigurator 0.5.0, please use Orbit instead.  OrbitInclination will be removed in a future release.");
 
             return valid;
         }

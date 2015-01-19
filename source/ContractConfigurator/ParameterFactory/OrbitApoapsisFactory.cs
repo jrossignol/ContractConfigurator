@@ -29,7 +29,7 @@ namespace ContractConfigurator
             valid &= ConfigNodeUtil.AtLeastOne(configNode, new string[] { "minApA", "maxApA" }, this);
             valid &= ValidateTargetBody(configNode);
 
-            LoggingUtil.LogError(this, "OrbitApoapsis is obsolete as of ContractConfigurator 0.5.0, please use Orbit instead.  OrbitApoapsis will be removed in a future release.");
+            LoggingUtil.LogError(this, ErrorPrefix() + ": OrbitApoapsis is obsolete as of ContractConfigurator 0.5.0, please use Orbit instead.  OrbitApoapsis will be removed in a future release.");
 
             return valid;
         }

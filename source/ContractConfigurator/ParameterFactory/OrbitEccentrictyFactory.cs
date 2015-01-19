@@ -29,7 +29,7 @@ namespace ContractConfigurator
             valid &= ConfigNodeUtil.AtLeastOne(configNode, new string[] { "minEccentricity", "maxEccentricity" }, this);
             valid &= ValidateTargetBody(configNode);
 
-            LoggingUtil.LogError(this, "OrbitEccentricity is obsolete as of ContractConfigurator 0.5.0, please use Orbit instead.  OrbitEccentricity will be removed in a future release.");
+            LoggingUtil.LogError(this, ErrorPrefix() + ": OrbitEccentricity is obsolete as of ContractConfigurator 0.5.0, please use Orbit instead.  OrbitEccentricity will be removed in a future release.");
 
             return valid;
         }

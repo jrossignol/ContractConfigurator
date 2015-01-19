@@ -25,7 +25,7 @@ namespace ContractConfigurator
             // Get biome
             valid &= ConfigNodeUtil.ParseValue<string>(configNode, "biome", ref biome, this);
 
-            LoggingUtil.LogError(this, "ReachBiome is obsolete as of ContractConfigurator 0.5.3, please use ReachState instead.  ReachBiome will be removed in a future release.");
+            LoggingUtil.LogError(this, ErrorPrefix() + ": ReachBiome is obsolete as of ContractConfigurator 0.5.3, please use ReachState instead.  ReachBiome will be removed in a future release.");
 
             return valid;
         }
