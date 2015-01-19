@@ -578,10 +578,11 @@ namespace ContractConfigurator.Parameters
             return hashes;
         }
 
-        /*
-         * Checks whether the given vessel meets the condition, and completes the contract parameter as necessary.
-         */
-        protected virtual void CheckVessel(Vessel vessel)
+        /// <summary>
+        /// Checks whether the given vessel meets the condition, and completes the contract parameter as necessary.
+        /// </summary>
+        /// <param name="vessel">The vessel to check.</param>
+        protected virtual void CheckVessel(Vessel vessel, bool forceStateChange = false)
         {
             // No vessel to check.
             if (vessel == null)
@@ -605,7 +606,7 @@ namespace ContractConfigurator.Parameters
                 {
                     // Set the craft specific state
                     bool stateChanged = SetState(vessel, VesselMeetsCondition(vessel) ?
-                        Contracts.ParameterState.Complete : Contracts.ParameterState.Incomplete);
+                        Contracts.ParameterState.Complete : Contracts.ParameterState.Incomplete) || forceStateChange;
 
                     // Update the group
                     if (stateChanged)
@@ -637,9 +638,6 @@ namespace ContractConfigurator.Parameters
             LoggingUtil.LogVerbose(this, "<- CheckVessel");
         }
 
-        /*
-         * 
-         */
         protected IEnumerable<Vessel> GetVessels()
         {
             foreach (VesselInfo vi in vesselInfo.Values)
@@ -648,9 +646,11 @@ namespace ContractConfigurator.Parameters
             }
         }
 
-        /*
-         * Checks if this is one of the ignored vessel types.
-         */
+        /// <summary>
+        /// Checks if this is one of the ignored vessel types.
+        /// </summary>
+        /// <param name="vesselType">The type of vessel</param>
+        /// <returns>True if this type of vessel should be ignored.</returns>
         public static bool IsIgnoredVesselType(VesselType vesselType) 
         {
             switch (vesselType)

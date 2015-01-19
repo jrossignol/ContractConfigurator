@@ -8,9 +8,9 @@ using Contracts;
 
 namespace ContractConfigurator
 {
-    /*
-     * Class for generating ContractParameter objects.
-     */
+    /// <summary>
+    /// Class for generating ContractParameter objects.
+    /// </summary>
     public abstract class ParameterFactory : IContractConfiguratorFactory
     {
         private static Dictionary<string, Type> factories = new Dictionary<string, Type>();
@@ -26,23 +26,26 @@ namespace ContractConfigurator
         protected float failureFunds;
         protected bool optional;
         protected bool? disableOnStateChange;
+        protected ParameterFactory parent = null;
         protected virtual List<ParameterFactory> childNodes { get; set; }
         protected string title;
 
-        /*
-         * Loads the ParameterFactory from the given ConfigNode.  The base version performs the following:
-         *   - Loads and validates the values for
-         *       - rewardScience
-         *       - rewardReputation
-         *       - rewardFunds
-         *       - failureReputation
-         *       - failureFunds
-         *       - advanceFunds
-         *       - optional
-         *       - targetBody
-         *       - disableOnStateChange
-         *       - child PARAMETER nodes
-         */
+        /// <summary>
+        /// Loads the ParameterFactory from the given ConfigNode.  The base version performs the following:
+        ///   - Loads and validates the values for
+        ///     - rewardScience
+        ///     - rewardReputation
+        ///     - rewardFunds
+        ///     - failureReputation
+        ///     - failureFunds
+        ///     - advanceFunds
+        ///     - optional
+        ///     - targetBody
+        ///     - disableOnStateChange
+        ///     - child PARAMETER nodes
+        /// </summary>
+        /// <param name="configNode">The ConfigNode to load</param>
+        /// <returns>Whether the load was successful</returns>
         public virtual bool Load(ConfigNode configNode)
         {
             bool valid = true;
@@ -71,7 +74,7 @@ namespace ContractConfigurator
             childNodes = new List<ParameterFactory>();
             foreach (ConfigNode childNode in configNode.GetNodes("PARAMETER"))
             {
-                ParameterFactory child = ParameterFactory.GenerateParameterFactory(childNode, contractType);
+                ParameterFactory child = ParameterFactory.GenerateParameterFactory(childNode, contractType, this);
                 if (child != null)
                 {
                     childNodes.Add(child);
@@ -85,29 +88,34 @@ namespace ContractConfigurator
             return valid;
         }
 
-        /*
-         * Method for generating ContractParameter objects.  Each time it is called it should
-         * generate a new parameter for the given contract.  The parameter does not need to be
-         * added to the contract, as that gets done elsewhere (the contract is simply passed
-         * to be used in parameter generation logic).  The following members also do not need to
-         * be loaded for the ContractParameter (they get handled after this method returns):
-         *   - title
-         *   - rewardScience
-         *   - rewardReputation
-         *   - rewardFunds
-         *   - failureReputation
-         *   - failureFunds
-         *   - advanceFunds
-         *   - optional
-         *   - disableOnStateChange
-         *   - child PARAMETER nodes
-         */
+        /// <summary>
+        /// Method for generating ContractParameter objects.  Each time it is called it should
+        /// generate a new parameter for the given contract.  The parameter does not need to be
+        /// added to the contract, as that gets done elsewhere (the contract is simply passed
+        /// to be used in parameter generation logic).  The following members also do not need to
+        /// be loaded for the ContractParameter (they get handled after this method returns):
+        ///   - title
+        ///   - rewardScience
+        ///   - rewardReputation
+        ///   - rewardFunds
+        ///   - failureReputation
+        ///   - failureFunds
+        ///   - advanceFunds
+        ///   - optional
+        ///   - disableOnStateChange
+        ///   - child PARAMETER nodes
+        /// </summary>
+        /// <param name="contract">Contract to generate for</param>
+        /// <returns>The created ContractParameter</returns>
         public abstract ContractParameter Generate(Contract contract);
 
-        /*
-         * Method for generating ContractParameter objects.  This will call the Generate() method
-         * on the sub-class, load all common parameters and load child parameters.
-         */
+        /// <summary>
+        /// Method for generating ContractParameter objects.  This will call the Generate() method 
+        /// on the sub-class, load all common parameters and load child parameters.
+        /// </summary>
+        /// <param name="contract">Contract to generate for</param>
+        /// <param name="contractParamHost">Parent object for the ContractParameter</param>
+        /// <returns>Generated ContractParameter</returns>
         public virtual ContractParameter Generate(Contract contract, IContractParameterHost contractParamHost)
         {
             // Generate a parameter using the sub-class logic
@@ -135,10 +143,13 @@ namespace ContractConfigurator
             return parameter;
         }
 
-        /*
-         * Generates all the ContractParameter objects required for the array of ConfigNodes, and
-         * adds them to the host object.
-         */
+        /// <summary>
+        /// Generates all the ContractParameter objects required for the array of ConfigNodes, and 
+        /// adds them to the host object.
+        /// </summary>
+        /// <param name="contract">Contract to generate for</param>
+        /// <param name="contractParamHost">The object to use as a parent for ContractParameters</param>
+        /// <param name="paramFactories">The ParameterFactory objects to use to generate parameters.</param>
         public static void GenerateParameters(ConfiguredContract contract, IContractParameterHost contractParamHost, List<ParameterFactory> paramFactories)
         {
             foreach (ParameterFactory paramFactory in paramFactories)
@@ -150,9 +161,11 @@ namespace ContractConfigurator
             }
         }
 
-        /*
-         * Adds a new ParameterFactory to handle PARAMETER nodes with the given type.
-         */
+        /// <summary>
+        /// Adds a new ParameterFactory to handle PARAMETER nodes with the given type.
+        /// </summary>
+        /// <param name="factoryType">Type of factory to register.</param>
+        /// <param name="typeName">The name of the factory.</param>
         public static void Register(Type factoryType, string typeName)
         {
             LoggingUtil.LogDebug(typeof(ParameterFactory), "Registering parameter factory class " +
@@ -171,10 +184,13 @@ namespace ContractConfigurator
             }
         }
 
-        /*
-         * Generates a new ParameterFactory from the given ConfigNode.
-         */
-        public static ParameterFactory GenerateParameterFactory(ConfigNode parameterConfig, ContractType contractType)
+        /// <summary>
+        /// Generates a new ParameterFactory from the given ConfigNode.
+        /// </summary>
+        /// <param name="parameterConfig">ConfigNode to use in the generation.</param>
+        /// <param name="contractType">ContractType that this parameter factory falls under</param>
+        /// <returns>The ParameterFactory object.</returns>
+        public static ParameterFactory GenerateParameterFactory(ConfigNode parameterConfig, ContractType contractType, ParameterFactory parent = null)
         {
             // Get the type
             string type = parameterConfig.GetValue("type");
@@ -190,6 +206,7 @@ namespace ContractConfigurator
             ParameterFactory paramFactory = (ParameterFactory)Activator.CreateInstance(factories[type]);
 
             // Set attributes
+            paramFactory.parent = parent;
             paramFactory.contractType = contractType;
 
             // Load config
@@ -201,21 +218,32 @@ namespace ContractConfigurator
             return valid ? paramFactory : null;
         }
 
+        /// <summary>
+        /// Standard prefix used in error messages.
+        /// </summary>
+        /// <returns>Prefix for error messages.</returns>
         public string ErrorPrefix()
         {
             return (contractType != null ? "CONTRACT_TYPE '" + contractType.name + "', " : "") + 
                 "PARAMETER '" + name + "' of type '" + type + "'";
         }
 
+        /// <summary>
+        /// Standard prefix used in error messages.
+        /// </summary>
+        /// <param name="configNode">The ConfigNode to draw details from.</param>
+        /// <returns>Prefix for error messages.</returns>
         public string ErrorPrefix(ConfigNode configNode)
         {
             return (contractType != null ? "CONTRACT_TYPE '" + contractType.name + "', " : "") + 
                 "PARAMETER '" + configNode.GetValue("name") + "' of type '" + configNode.GetValue("type") + "'";
         }
 
-        /*
-         * Validates whether the targetBody valuehas been loaded.
-         */
+        /// <summary>
+        /// Validates whether the targetBody value has been loaded. 
+        /// </summary>
+        /// <param name="configNode">The ConfigNode to validate against</param>
+        /// <returns>True if the targetBody has been loaded, logs and error and returns false otherwise.</returns>
         protected virtual bool ValidateTargetBody(ConfigNode configNode)
         {
             if (targetBody == null)

@@ -1,5 +1,6 @@
 Contract Configurator 0.6.0
 - Added SpawnVessel behaviour.
+- Added Docking parameter.
 - Add situation filter to Orbit parameter.
 - SCANsat coverage parameter now displays the current scan percentage.
 - Fix display of year/years and day/days in time based parameters (thanks DBT85).

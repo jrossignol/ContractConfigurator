@@ -53,6 +53,7 @@
     <Compile Include="ContractBehaviour\SpawnVessel.cs" />
     <Compile Include="ContractParameter\Duration.cs" />
     <Compile Include="ContractParameter\ParameterDelegate.cs" />
+    <Compile Include="ContractParameter\VesselParameter\Docking.cs" />
     <Compile Include="ContractParameter\VesselParameter\OrbitParameter.cs" />
     <Compile Include="ContractParameter\VesselParameter\PartValidation.cs" />
     <Compile Include="ContractParameter\VesselParameter\HasPassengers.cs" />
@@ -63,6 +64,7 @@
     <Compile Include="ContractRequirement\ReputationRequirement.cs" />
     <Compile Include="ContractRequirement\FundsRequirement.cs" />
     <Compile Include="Extensions.cs" />
+    <Compile Include="ParameterFactory\DockingFactory.cs" />
     <Compile Include="ParameterFactory\ReachStateFactory.cs" />
     <Compile Include="ParameterFactory\OrbitFactory.cs" />
     <Compile Include="PartUtil.cs" />

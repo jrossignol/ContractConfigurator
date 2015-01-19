@@ -9,14 +9,16 @@ using Contracts.Parameters;
 
 namespace ContractConfigurator
 {
-    /*
-     * ParameterFactory to provide logic for a parameter that groups vessel related parameters together.
-     */
+    /// <summary>
+    /// ParameterFactory to provide logic for a parameter that groups vessel related parameters together.
+    /// </summary>
     public class VesselParameterGroupFactory : ParameterFactory
     {
         protected double duration;
         protected string define;
         protected List<string> vesselList;
+
+        public IEnumerable<string> Vessel { get { return vesselList; } }
 
         public override bool Load(ConfigNode configNode)
         {
