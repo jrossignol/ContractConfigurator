@@ -36,4 +36,4 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyFileVersion("0.5.5")]
 [assembly: KSPAssembly("CC_RemoteTech", 0, 5)]
 [assembly: KSPAssemblyDependency("ContractConfigurator", 0, 5)]
-[assembly: KSPAssemblyDependency("RemoteTech", 1, 5)]  // This really should be 1.6, but the RemoteTech guys didn't update it. :(
+[assembly: KSPAssemblyDependency("RemoteTech", 1, 6)]
