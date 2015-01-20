@@ -18,6 +18,7 @@ namespace ContractConfigurator.Parameters
         protected string title { get; set; }
         protected string define { get; set; }
         protected List<string> vesselList { get; set; }
+        public IEnumerable<string> VesselList { get { return vesselList;  } }
         protected double duration { get; set; }
         protected double completionTime { get; set; }
         protected bool waiting { get; set; }

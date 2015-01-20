@@ -73,6 +73,8 @@ namespace ContractConfigurator.Parameters
             this.matchType = matchType;
             this.trivial = trivial;
             disableOnStateChange = false;
+
+            OnRegister();
         }
 
         protected override string GetTitle()

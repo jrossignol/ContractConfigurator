@@ -106,6 +106,19 @@ namespace ContractConfigurator
         }
 
         /// <summary>
+        /// Gets all the keys associated to the given vessel.
+        /// </summary>
+        /// <param name="v">The vessel to check</param>
+        /// <returns>And enumeration of all keys</returns>
+        public IEnumerable<string> GetAssociatedKeys(Vessel v)
+        {
+            foreach (string key in vessels.Where(p => p.Value == v.id).Select(p => p.Key))
+            {
+                yield return key;
+            }
+        }
+
+        /// <summary>
         /// Gets the name that should be displayed to players for the given key.
         /// </summary>
         /// <param name="key">The key to check for.</param>
