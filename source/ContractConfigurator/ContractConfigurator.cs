@@ -128,6 +128,9 @@ namespace ContractConfigurator
             GUI.DragWindow();
         }
 
+        /// <summary>
+        /// Reloads all contract types from the config nodes.  Also re-runs ModuleManager if it is installed.
+        /// </summary>
         private IEnumerator<ContractType> ReloadContractTypes()
         {
             reloading = true;
@@ -193,10 +196,9 @@ namespace ContractConfigurator
             reloading = false;
         }
 
-
-        /*
-         * Registers all the out of the box ParameterFactory classes.
-         */
+        /// <summary>
+        /// Registers all the ParameterFactory classes.
+        /// </summary>
         void RegisterParameterFactories()
         {
             LoggingUtil.LogDebug(this.GetType(), "Start Registering ParameterFactories");
@@ -216,9 +218,9 @@ namespace ContractConfigurator
             LoggingUtil.LogInfo(this.GetType(), "Finished Registering ParameterFactories");
         }
 
-        /*
-         * Registers all the out of the box BehaviourFactory classes.
-         */
+        /// <summary>
+        /// Registers all the BehaviourFactory classes.
+        /// </summary>
         void RegisterBehaviourFactories()
         {
             LoggingUtil.LogDebug(this.GetType(), "Start Registering BehaviourFactories");
@@ -237,9 +239,9 @@ namespace ContractConfigurator
             LoggingUtil.LogInfo(this.GetType(), "Finished Registering BehaviourFactories");
         }
 
-        /*
-         * Registers all the out of the box ContractRequirement classes.
-         */
+        /// <summary>
+        /// Registers all the ContractRequirement classes.
+        /// </summary>
         void RegisterContractRequirements()
         {
             LoggingUtil.LogDebug(this.GetType(), "Start Registering ContractRequirements");
@@ -258,20 +260,67 @@ namespace ContractConfigurator
             LoggingUtil.LogInfo(this.GetType(), "Finished Registering ContractRequirements");
         }
 
-        /*
-         * Clears the contract configuration.
-         */
+        /// <summary>
+        /// Clears the contract configuration.
+        /// </summary>
         void ClearContractConfig()
         {
+            ContractGroup.contractGroups.Clear();
             ContractType.contractTypes.Clear();
             totalContracts = successContracts = 0;
         }
 
-        /*
-         * Loads all the contact configuration nodes and creates ContractType objects.
-         */
+        /// <summary>
+        /// Loads all the contact configuration nodes and creates ContractType objects.
+        /// </summary>
         void LoadContractConfig()
         {
+            // Load all the contract groups
+            LoggingUtil.LogDebug(this.GetType(), "Loading CONTRACT_GROUP nodes.");
+            ConfigNode[] contractGroups = GameDatabase.Instance.GetConfigNodes("CONTRACT_GROUP");
+
+            foreach (ConfigNode groupConfig in contractGroups)
+            {
+                // Create the group
+                string name = groupConfig.GetValue("name");
+                LoggingUtil.LogDebug(this.GetType(), "Loading group: '" + name + "'");
+                ContractGroup contractGroup = null;
+                try
+                {
+                    contractGroup = new ContractGroup(name);
+                }
+                catch (ArgumentException)
+                {
+                    LoggingUtil.LogError(this.GetType(), "Couldn't load CONTRACT_GROUP '" + name + "' due to a duplicate name.");
+                }
+
+                // Peform the actual load
+                if (contractGroup != null)
+                {
+                    bool success = false;
+                    try
+                    {
+                        if (contractGroup.Load(groupConfig))
+                        {
+                            successContracts++;
+                            success = true;
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Exception wrapper = new Exception("Error loading CONTRACT_GROUP '" + name + "'", e);
+                        Debug.LogException(wrapper);
+                    }
+                    finally
+                    {
+                        if (!success)
+                        {
+                            ContractGroup.contractGroups.Remove(name);
+                        }
+                    }
+                }
+            }
+
             LoggingUtil.LogDebug(this.GetType(), "Loading CONTRACT_TYPE nodes.");
             ConfigNode[] contractConfigs = GameDatabase.Instance.GetConfigNodes("CONTRACT_TYPE");
 
@@ -337,11 +386,12 @@ namespace ContractConfigurator
             }
         }
 
-        /*
-         * Performs adjustments to the contract type list.  Specifically, disables contract types
-         * as per configuration files and adds addtional ConfiguredContract instances based on the
-         * number on contract types.
-         */
+        /// <summary>
+        /// Performs adjustments to the contract type list.  Specifically, disables contract types
+        /// as per configuration files and adds addtional ConfiguredContract instances based on the
+        /// number on contract types.
+        /// </summary>
+        /// <returns>Whether the changes took place</returns>
         bool AdjustContractTypes()
         {
             // Don't do anything if the contract system has not yet loaded
@@ -408,7 +458,7 @@ namespace ContractConfigurator
 
         public static List<Type> GetAllTypes<T>()
         {
-            // Get everything that extends ParameterFactory
+            // Get everything that extends the given type
             List<Type> allTypes = new List<Type>();
             foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
             {

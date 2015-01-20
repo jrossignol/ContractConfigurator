@@ -11,6 +11,9 @@ using ContractConfigurator.Parameters;
 
 namespace ContractConfigurator
 {
+    /// <summary>
+    /// Utility class for dealing with ConfigNode objects.
+    /// </summary>
     public class ConfigNodeUtil
     {
         private static Dictionary<ConfigNode, Dictionary<string, int>> keysFound = new Dictionary<ConfigNode,Dictionary<string,int>>();
@@ -111,6 +114,15 @@ namespace ContractConfigurator
             {
                 return (T)(object)new Guid(configNode.GetValue(key));
             }
+            else if (typeof(T) == typeof(ContractGroup))
+            {
+                string group = configNode.GetValue(key);
+                if (!ContractGroup.contractGroups.ContainsKey(group))
+                {
+                    throw new ArgumentException("No contract group with name '" + group + "'");
+                }
+                return (T)(object)ContractGroup.contractGroups[group];
+            }
             else if (typeof(T).Name == "Nullable`1")
             {
                 // Let enum fall through to the ParseSingleValue method
@@ -204,10 +216,17 @@ namespace ContractConfigurator
             }
         }
 
-        /*
-         * Attempts to parse a value from the config node.  Validates return values using the
-         * given function.
-         */
+        /// <summary>
+        /// Attempts to parse a value from the config node.  Validates return values using the
+        /// given function
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="configNode"></param>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <param name="obj"></param>
+        /// <param name="validation"></param>
+        /// <returns></returns>
         public static bool ParseValue<T>(ConfigNode configNode, string key, ref T value, IContractConfiguratorFactory obj, Func<T, bool> validation)
         {
             if (ParseValue<T>(configNode, key, ref value, obj))
@@ -232,9 +251,16 @@ namespace ContractConfigurator
             return false;
         }
 
-        /*
-         * Attempts to parse a value from the config node.  Returns a default value if not found.
-         */
+        /// <summary>
+        /// Attempts to parse a value from the config node.  Returns a default value if not found.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="configNode"></param>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <param name="obj"></param>
+        /// <param name="defaultValue"></param>
+        /// <returns></returns>
         public static bool ParseValue<T>(ConfigNode configNode, string key, ref T value, IContractConfiguratorFactory obj, T defaultValue)
         {
             if (configNode.HasValue(key))
@@ -248,10 +274,18 @@ namespace ContractConfigurator
             }
         }
 
-        /*
-         * Attempts to parse a value from the config node.  Returns a default value if not found.
-         * Validates return values using the given function.
-         */
+        /// <summary>
+        /// Attempts to parse a value from the config node.  Returns a default value if not found.
+        /// Validates return values using the given function.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="configNode"></param>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <param name="obj"></param>
+        /// <param name="defaultValue"></param>
+        /// <param name="validation"></param>
+        /// <returns></returns>
         public static bool ParseValue<T>(ConfigNode configNode, string key, ref T value, IContractConfiguratorFactory obj, T defaultValue, Func<T, bool> validation)
         {
             if (ParseValue<T>(configNode, key, ref value, obj, defaultValue))
@@ -276,9 +310,13 @@ namespace ContractConfigurator
             return false;
         }
 
-        /*
-         * Ensures the given config node has at least one of the given values.
-         */
+        /// <summary>
+        /// Ensures the given config node has at least one of the given values.
+        /// </summary>
+        /// <param name="configNode"></param>
+        /// <param name="values"></param>
+        /// <param name="obj"></param>
+        /// <returns></returns>
         public static bool AtLeastOne(ConfigNode configNode, string[] values, IContractConfiguratorFactory obj)
         {
             string output = "";
@@ -370,9 +408,6 @@ namespace ContractConfigurator
             return true;
         }
 
-        /*
-         * Parses the CelestialBody from the given ConfigNode and key.
-         */
         protected static CelestialBody ParseCelestialBodyValue(ConfigNode configNode, string key)
         {
             string celestialName = configNode.GetValue(key);
@@ -388,9 +423,6 @@ namespace ContractConfigurator
             throw new ArgumentException("'" + celestialName + "' is not a valid CelestialBody.");
         }
 
-        /*
-         * Parses the AvailablePart from the given ConfigNode and key.
-         */
         protected static AvailablePart ParsePartValue(ConfigNode configNode, string key)
         {
             // Underscores in part names get replaced with spaces.  Nobody knows why.
@@ -407,9 +439,6 @@ namespace ContractConfigurator
             return part;
         }
 
-        /*
-         * Parses the PartResource from the given ConfigNode and key.
-         */
         protected static PartResourceDefinition ParseResourceValue(ConfigNode configNode, string key)
         {
             string name = configNode.GetValue(key);
@@ -422,9 +451,6 @@ namespace ContractConfigurator
             return resource;
         }
 
-        /*
-         * Parses the Agent from the given ConfigNode and key.
-         */
         protected static Agent ParseAgentValue(ConfigNode configNode, string key)
         {
             string name = configNode.GetValue(key);

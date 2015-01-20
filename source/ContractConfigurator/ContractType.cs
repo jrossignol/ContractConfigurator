@@ -9,9 +9,9 @@ using Contracts.Agents;
 
 namespace ContractConfigurator
 {
-    /*
-     * Class for capturing all contract type details.
-     */
+    /// <summary>
+    /// Class for capturing all contract type details.
+    /// </summary>
     public class ContractType : IContractConfiguratorFactory
     {
         public static Dictionary<string, ContractType> contractTypes = new Dictionary<string,ContractType>();
@@ -22,6 +22,7 @@ namespace ContractConfigurator
 
         // Contract attributes
         public string name;
+        public ContractGroup group;
         public string title;
         public string notes;
         public string description;
@@ -54,6 +55,7 @@ namespace ContractConfigurator
             contractTypes.Add(name, this);
 
             // Member defaults
+            group = null;
             agent = null;
             minExpiry = 0;
             maxExpiry = 0;
@@ -78,9 +80,11 @@ namespace ContractConfigurator
             contractTypes.Remove(name);
         }
 
-        /*
-         * Loads the contract type details from the given config node.
-         */
+        /// <summary>
+        /// Loads the contract type details from the given config node.
+        /// </summary>
+        /// <param name="configNode">The config node to load from.</param>
+        /// <returns>Whether the load was successful.</returns>
         public bool Load(ConfigNode configNode)
         {
             ConfigNodeUtil.ClearFoundCache();
@@ -89,6 +93,7 @@ namespace ContractConfigurator
             valid &= ConfigNodeUtil.ParseValue<string>(configNode, "name", ref name, this);
 
             // Load contract text details
+            valid &= ConfigNodeUtil.ParseValue<ContractGroup>(configNode, "group", ref group, this, (ContractGroup)null);
             valid &= ConfigNodeUtil.ParseValue<string>(configNode, "title", ref title, this);
             valid &= ConfigNodeUtil.ParseValue<string>(configNode, "description", ref description, this, (string)null);
             valid &= ConfigNodeUtil.ParseValue<string>(configNode, "topic", ref topic, this, (string)null);
@@ -181,25 +186,29 @@ namespace ContractConfigurator
             return valid;
         }
 
-        /*
-         * Generates and loads all the parameters required for the given contract.
-         */
+        /// <summary>
+        /// Generates and loads all the parameters required for the given contract.
+        /// </summary>
+        /// <param name="contract"></param>
         public void GenerateBehaviours(ConfiguredContract contract)
         {
             BehaviourFactory.GenerateBehaviours(contract, behaviourFactories);
         }
 
-        /*
-         * Generates and loads all the parameters required for the given contract.
-         */
+        /// <summary>
+        /// Generates and loads all the parameters required for the given contract.
+        /// </summary>
+        /// <param name="contract">Contract to load parameters for</param>
         public void GenerateParameters(ConfiguredContract contract)
         {
             ParameterFactory.GenerateParameters(contract, contract, paramFactories);
         }
 
-        /*
-         * Returns true if the contract can be offered.
-         */
+        /// <summary>
+        /// Tests whether a contract can be offered.
+        /// </summary>
+        /// <param name="contract">The contract</param>
+        /// <returns>Whether the contract can be offered.</returns>
         public bool MeetRequirements(ConfiguredContract contract)
         {
             // Check prestige
@@ -231,13 +240,35 @@ namespace ContractConfigurator
                 }
             }
 
+            // Check the group values
+            if (group != null)
+            {
+                // Check the group active limit
+                activeContracts = ContractSystem.Instance.GetCurrentContracts<ConfiguredContract>().Count(c => c.contractType.group == group);
+                if (group.maxSimultaneous != 0 && activeContracts >= group.maxSimultaneous)
+                {
+                    return false;
+                }
+
+                // Check the group completed limit
+                if (group.maxCompletions != 0)
+                {
+                    int finishedContracts = ContractSystem.Instance.GetCompletedContracts<ConfiguredContract>().Count(c => c.contractType.group == group);
+                    if (finishedContracts + activeContracts >= maxCompletions)
+                    {
+                        return false;
+                    }
+                }
+            }
+
             // Check the captured requirements
             return ContractRequirement.RequirementsMet(contract, this, requirements);
         }
 
-        /*
-         * Returns the name of the contract type.
-         */
+        /// <summary>
+        /// Gets the identifier for the contract type.
+        /// </summary>
+        /// <returns>String for the contract type.</returns>
         public override string ToString()
         {
             return "ContractType[" + name + "]";
