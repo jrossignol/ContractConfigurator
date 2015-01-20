@@ -26,7 +26,7 @@ namespace ContractConfigurator
 
             // Read min/max first
             valid &= ConfigNodeUtil.ParseValue<int>(configNode, "minCount", ref minCount, this,
-                configNode.HasNode("VALIDATE_ALL") || configNode.HasNode("NONE") ? 0 : 1, x => Validation.GE(x, 0));
+                configNode.HasNode("VALIDATE") || configNode.HasNode("VALIDATE_ALL") || configNode.HasNode("NONE") ? 0 : 1, x => Validation.GE(x, 0));
             valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxCount", ref maxCount, this, int.MaxValue, x => Validation.GE(x, 0));
 
             // Set the default match type
@@ -55,6 +55,10 @@ namespace ContractConfigurator
                 {
                     matchType = ParameterDelegateMatchType.FILTER;
                 }
+                else if (child.name == "VALIDATE")
+                {
+                    matchType = ParameterDelegateMatchType.VALIDATE;
+                }
                 else if (child.name == "VALIDATE_ALL")
                 {
                     matchType = ParameterDelegateMatchType.VALIDATE_ALL;
@@ -80,6 +84,13 @@ namespace ContractConfigurator
                 valid &= ConfigNodeUtil.ParseValue<List<string>>(child, "partModule", ref filter.partModules, this, new List<string>(), x => x.All(Validation.ValidatePartModule));
                 valid &= ConfigNodeUtil.ParseValue<PartCategories?>(child, "category", ref filter.category, this, (PartCategories?)null);
                 valid &= ConfigNodeUtil.ParseValue<string>(child, "manufacturer", ref filter.manufacturer, this, (string)null);
+
+                if (matchType == ParameterDelegateMatchType.VALIDATE)
+                {
+                    valid &= ConfigNodeUtil.ParseValue<int>(child, "minCount", ref filter.minCount, this, 1, x => Validation.GE(x, 0));
+                    valid &= ConfigNodeUtil.ParseValue<int>(child, "maxCount", ref filter.maxCount, this, int.MaxValue, x => Validation.GE(x, 0));
+                }
+
                 filters.Add(filter);
             }
 

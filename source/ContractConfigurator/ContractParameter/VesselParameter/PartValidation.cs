@@ -10,9 +10,9 @@ using Contracts.Parameters;
 
 namespace ContractConfigurator.Parameters
 {
-    /*
-     * Parameter for checking whether the parts in a vessel meet certain criteria.
-     */
+    /// <summary>
+    /// Parameter for checking whether the parts in a vessel meet certain criteria.
+    /// </summary>
     public class PartValidation : VesselParameter
     {
         public class Filter
@@ -22,6 +22,8 @@ namespace ContractConfigurator.Parameters
             public List<string> partModules = new List<string>();
             public PartCategories? category = null;
             public string manufacturer = null;
+            public int minCount = 1;
+            public int maxCount = int.MaxValue;
 
             public Filter() { }
             public Filter(ParameterDelegateMatchType type) { this.type = type; }
@@ -76,8 +78,16 @@ namespace ContractConfigurator.Parameters
                 // Filter by part name
                 if (filter.part != null)
                 {
-                    AddParameter(new ParameterDelegate<Part>(filter.type.Prefix() + "type: " + filter.part.title,
-                        p => p.partInfo.name == filter.part.name, filter.type));
+                    if (filter.type == ParameterDelegateMatchType.VALIDATE)
+                    {
+                        AddParameter(new CountParameterDelegate<Part>(filter.minCount, filter.maxCount, p => p.partInfo.name == filter.part.name,
+                            filter.part.title));
+                    }
+                    else
+                    {
+                        AddParameter(new ParameterDelegate<Part>(filter.type.Prefix() + "type: " + filter.part.title,
+                            p => p.partInfo.name == filter.part.name, filter.type));
+                    }
                 }
 
                 // Filter by part modules
@@ -150,6 +160,11 @@ namespace ContractConfigurator.Parameters
                 {
                     child.AddValue("manufacturer", filter.manufacturer);
                 }
+                if (filter.type == ParameterDelegateMatchType.VALIDATE)
+                {
+                    child.AddValue("minCount", filter.minCount);
+                    child.AddValue("maxCount", filter.maxCount);
+                }
 
                 node.AddNode(child);
             }
@@ -188,6 +203,8 @@ namespace ContractConfigurator.Parameters
                     filter.partModules = child.GetValues("partModule").ToList();
                     filter.category = ConfigNodeUtil.ParseValue<PartCategories?>(child, "category", (PartCategories?)null);
                     filter.manufacturer = ConfigNodeUtil.ParseValue<string>(child, "manufacturer", (string)null);
+                    filter.minCount = ConfigNodeUtil.ParseValue<int>(child, "minCount", 1);
+                    filter.maxCount = ConfigNodeUtil.ParseValue<int>(child, "maxCount", int.MaxValue);
 
                     filters.Add(filter);
                 }
@@ -209,9 +226,11 @@ namespace ContractConfigurator.Parameters
             CheckVessel(FlightGlobals.ActiveVessel);
         }
 
-        /*
-         * Whether this vessel meets the parameter condition.
-         */
+        /// <summary>
+        /// Whether this vessel meets the parameter condition.
+        /// </summary>
+        /// <param name="vessel">The vessel to check</param>
+        /// <returns>Whether the vessel meets the condition</returns>
         protected override bool VesselMeetsCondition(Vessel vessel)
         {
             LoggingUtil.LogVerbose(this, "Checking VesselMeetsCondition: " + vessel.id);

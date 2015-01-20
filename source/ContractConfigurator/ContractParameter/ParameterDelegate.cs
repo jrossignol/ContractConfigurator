@@ -22,6 +22,7 @@ namespace ContractConfigurator.Parameters
     public enum ParameterDelegateMatchType
     {
         FILTER,
+        VALIDATE,
         VALIDATE_ALL,
         NONE
     }
@@ -33,6 +34,8 @@ namespace ContractConfigurator.Parameters
             switch (type)
             {
                 case ParameterDelegateMatchType.FILTER:
+                    return "With ";
+                case ParameterDelegateMatchType.VALIDATE:
                     return "With ";
                 case ParameterDelegateMatchType.VALIDATE_ALL:
                     return "All have ";
@@ -275,16 +278,21 @@ namespace ContractConfigurator.Parameters
         private int minCount;
         private int maxCount;
 
-        public CountParameterDelegate(int minCount, int maxCount)
-            : base("", x => true)
+        public CountParameterDelegate(int minCount, int maxCount, string extraTitle = "")
+            : this(minCount, maxCount, DefaultFilter, extraTitle)
+        {
+        }
+
+        public CountParameterDelegate(int minCount, int maxCount, Func<T, bool> filterFunc, string extraTitle = "")
+            : base("", filterFunc)
         {
             this.minCount = minCount;
             this.maxCount = maxCount;
 
-            title = "Count: ";
+            title = filterFunc == DefaultFilter ? "Count: " : "";
             if (maxCount == 0)
             {
-                title += "None";
+                title += filterFunc == DefaultFilter ? "None" : "No";
             }
             else if (maxCount == int.MaxValue)
             {
@@ -302,12 +310,19 @@ namespace ContractConfigurator.Parameters
             {
                 title += "Between " + minCount + " and " + maxCount;
             }
+            title += " " + extraTitle;
+        }
+
+        private static bool DefaultFilter(T t)
+        {
+            return true;
         }
 
         protected override IEnumerable<T> SetState(IEnumerable<T> values, out bool fail, bool checkOnly = false)
         {
             // Set our state
-            int count = values.Count();
+            IEnumerable<T> newValues = values.Where(filterFunc);
+            int count = newValues.Count();
             bool conditionMet = count >= minCount && count <= maxCount;
             if (!checkOnly)
             {
