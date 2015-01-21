@@ -477,20 +477,15 @@ namespace ContractConfigurator.Parameters
             Dictionary<uint, uint> dockedParts = new Dictionary<uint, uint>();
             Queue<Part> otherVessel = new Queue<Part>();
 
-            LoggingUtil.LogVerbose(typeof(VesselParameter), "build up stuff");
-
             // Add the root
             queue.Enqueue(vessel.rootPart);
             visited[vessel.rootPart] = 1;
-
-            LoggingUtil.LogVerbose(typeof(VesselParameter), "added root");
 
             // Do a BFS of all parts.
             List<uint> hashes = new List<uint>();
             uint hash = 0;
             while (queue.Count > 0 || otherVessel.Count > 0)
             {
-                LoggingUtil.LogVerbose(typeof(VesselParameter), "    iterate");
                 bool decoupler = false;
 
                 // Start a new ship
@@ -523,7 +518,6 @@ namespace ContractConfigurator.Parameters
                 }
 
                 // Special handling of certain modules
-                LoggingUtil.LogVerbose(typeof(VesselParameter), "    examining PartModules");
                 for (int i = 0; i < p.Modules.Count; i++)
                 {
                     PartModule pm = p.Modules.GetModule(i);
