@@ -1,3 +1,7 @@
+Contract Configurator 0.5.8
+- Recompile for RemoteTech 1.6.1
+- Fix so that failing to load a contract is less destructive.
+
 Contract Configurator 0.5.7
 - Fix display of year/years and day/days in time based parameters (thanks DBT85).
 - Fix obsolete error messages to display contract type.

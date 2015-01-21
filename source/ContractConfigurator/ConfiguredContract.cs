@@ -142,11 +142,21 @@ namespace ContractConfigurator
         
         protected override void OnLoad(ConfigNode node)
         {
-            contractType = ContractType.contractTypes[node.GetValue("subtype")];
-            foreach (ConfigNode child in node.GetNodes("BEHAVIOUR"))
+            try
             {
-                ContractBehaviour behaviour = ContractBehaviour.LoadBehaviour(child, this);
-                behaviours.Add(behaviour);
+                contractType = ContractType.contractTypes[node.GetValue("subtype")];
+                foreach (ConfigNode child in node.GetNodes("BEHAVIOUR"))
+                {
+                    ContractBehaviour behaviour = ContractBehaviour.LoadBehaviour(child, this);
+                    behaviours.Add(behaviour);
+                }
+            }
+            catch (Exception e)
+            {
+                LoggingUtil.LogError(this, "Error loading contract from persistance file!");
+                Debug.LogException(e);
+
+                SetState(State.Failed);
             }
         }
 
