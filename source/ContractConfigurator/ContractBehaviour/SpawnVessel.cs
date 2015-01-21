@@ -12,7 +12,7 @@ namespace ContractConfigurator.Behaviour
     /// <summary>
     /// Behaviour class for spawning a vessel.
     /// </summary>
-    public class SpawnVessel : ContractBehaviour
+    public class SpawnVessel : ContractBehaviour, IHasKerbalBehaviour
     {
         private class CrewData
         {
@@ -66,6 +66,14 @@ namespace ContractConfigurator.Behaviour
             }
         }
         private List<VesselData> vessels = new List<VesselData>();
+
+        public int KerbalCount
+        {
+            get
+            {
+                return vessels.Sum(vd => vd.crew.Count);
+            }
+        }
 
         public SpawnVessel() {}
 
@@ -493,5 +501,22 @@ namespace ContractConfigurator.Behaviour
             p.Save(node);
             return node;
         }
+
+        public string GetKerbalName(int index)
+        {
+            int current = index;
+            foreach (VesselData vd in vessels)
+            {
+                if (current < vd.crew.Count)
+                {
+                    return vd.crew[current].name;
+                }
+                current -= vd.crew.Count;
+            }
+
+            throw new Exception("ContractConfigurator: index " + index +
+                " is out of range for number of Kerbals spawned (" + KerbalCount + ").");
+        }
+
     }
 }

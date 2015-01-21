@@ -48,8 +48,7 @@ namespace ContractConfigurator
             }
             else
             {
-                SpawnKerbal spawnKerbal = ((ConfiguredContract)contract).Behaviours.OfType<SpawnKerbal>().First<SpawnKerbal>();
-                kerbalName = spawnKerbal.GetKerbalName(index);
+                kerbalName = ((ConfiguredContract)contract).GetSpawnedKerbal(index);
             }
 
             contractParam.AddKerbal(kerbalName);

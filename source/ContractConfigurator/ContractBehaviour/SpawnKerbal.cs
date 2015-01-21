@@ -12,7 +12,7 @@ namespace ContractConfigurator.Behaviour
     /*
      * Class for spawning a Kerbal.
      */
-    public class SpawnKerbal : ContractBehaviour
+    public class SpawnKerbal : ContractBehaviour, IHasKerbalBehaviour
     {
         private class KerbalData
         {
@@ -43,6 +43,8 @@ namespace ContractConfigurator.Behaviour
             }
         }
         private List<KerbalData> kerbals = new List<KerbalData>();
+
+        public int KerbalCount { get { return kerbals.Count; } }
 
         public SpawnKerbal() {}
 
