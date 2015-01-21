@@ -15,24 +15,21 @@ namespace ContractConfigurator
      */
     public class HasPassengersFactory : ParameterFactory
     {
-        protected int minPassengers;
-        protected int maxPassengers;
+        protected int count;
 
         public override bool Load(ConfigNode configNode)
         {
             // Load base class
             bool valid = base.Load(configNode);
 
-            valid &= ConfigNodeUtil.ParseValue<int>(configNode, "minPassengers", ref minPassengers, this, 1, x => Validation.GE(x, 1));
-            valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxPassengers", ref maxPassengers, this, int.MaxValue, x => Validation.GE(x, 1));
-            valid &= ConfigNodeUtil.AtLeastOne(configNode, new string[] { "minPassengers", "maxPassengers" }, this);
+            valid &= ConfigNodeUtil.ParseValue<int>(configNode, "count", ref count, this, 1, x => Validation.GE(x, 1));
 
             return valid;
         }
 
         public override ContractParameter Generate(Contract contract)
         {
-            return new HasPassengers(title, minPassengers, maxPassengers);
+            return new HasPassengers(title, count);
         }
     }
 }

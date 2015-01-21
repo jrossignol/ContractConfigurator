@@ -110,6 +110,10 @@ namespace ContractConfigurator
             {
                 return (T)(object)ParseAgentValue(configNode, key);
             }
+            else if (typeof(T) == typeof(ProtoCrewMember))
+            {
+                return (T)(object)ParseProtoCrewMemberValue(configNode, key);
+            }
             else if (typeof(T) == typeof(Guid))
             {
                 return (T)(object)new Guid(configNode.GetValue(key));
@@ -461,6 +465,12 @@ namespace ContractConfigurator
             }
 
             return agent;
+        }
+
+        protected static ProtoCrewMember ParseProtoCrewMemberValue(ConfigNode configNode, string key)
+        {
+            string name = configNode.GetValue(key);
+            return HighLogic.CurrentGame.CrewRoster.AllKerbals().Where(pcm => pcm.name == name).First();
         }
 
         private static void AddFoundKey(ConfigNode configNode, string key)

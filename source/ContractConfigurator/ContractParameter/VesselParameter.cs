@@ -705,6 +705,12 @@ namespace ContractConfigurator.Parameters
                 VesselMeetsCondition(vessel);
             }
         }
+
+        /// <summary>
+        /// Whether this vessel meets the parameter condition.
+        /// </summary>
+        /// <param name="vessel">The vessel to check</param>
+        /// <returns>Whether the vessel meets the condition</returns>
         protected abstract bool VesselMeetsCondition(Vessel vessel);
     }
 }
