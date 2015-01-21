@@ -27,7 +27,7 @@ namespace ContractConfigurator
             valid &= ConfigNodeUtil.ParseValue<float>(configNode, "maxAltitude", ref maxAltitude, this, float.MaxValue, x => Validation.GE(x, 0.0f));
             valid &= ConfigNodeUtil.AtLeastOne(configNode, new string[] { "maxAltitude", "maxAltitude" }, this);
 
-            LoggingUtil.LogError(this, "ReachAltitudeEnvelope is obsolete as of ContractConfigurator 0.5.3, please use ReachState instead.  ReachAltitudeEnvelope will be removed in a future release.");
+            LoggingUtil.LogError(this, ErrorPrefix() + ": ReachAltitudeEnvelope is obsolete as of ContractConfigurator 0.5.3, please use ReachState instead.  ReachAltitudeEnvelope will be removed in a future release.");
 
             return valid;
         }

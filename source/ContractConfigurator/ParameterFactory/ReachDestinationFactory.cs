@@ -23,7 +23,7 @@ namespace ContractConfigurator
 
             valid &= ValidateTargetBody(configNode);
 
-            LoggingUtil.LogError(this, "ReachDestination is obsolete as of ContractConfigurator 0.5.3, please use ReachState instead.  ReachDestination will be removed in a future release.");
+            LoggingUtil.LogError(this, ErrorPrefix() + ": ReachDestination is obsolete as of ContractConfigurator 0.5.3, please use ReachState instead.  ReachDestination will be removed in a future release.");
 
             return valid;
         }

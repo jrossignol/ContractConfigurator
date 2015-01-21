@@ -27,7 +27,7 @@ namespace ContractConfigurator
             valid &= ConfigNodeUtil.ParseValue<double>(configNode, "maxSpeed", ref maxSpeed, this, double.MaxValue, x => Validation.GE(x, 0.0));
             valid &= ConfigNodeUtil.AtLeastOne(configNode, new string[] { "minSpeed", "maxSpeed" }, this);
 
-            LoggingUtil.LogError(this, "ReachSpeedEnvelope is obsolete as of ContractConfigurator 0.5.3, please use ReachState instead.  ReachSpeedEnvelope will be removed in a future release.");
+            LoggingUtil.LogError(this, ErrorPrefix() + ": ReachSpeedEnvelope is obsolete as of ContractConfigurator 0.5.3, please use ReachState instead.  ReachSpeedEnvelope will be removed in a future release.");
 
             return valid;
         }
