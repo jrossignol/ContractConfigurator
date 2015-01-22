@@ -30,6 +30,10 @@ namespace ContractConfigurator
         protected virtual List<ParameterFactory> childNodes { get; set; }
         protected string title;
 
+        public bool enabled = true;
+        public virtual IEnumerable<ParameterFactory> ChildParameters { get { return childNodes; } }
+        public string config = "";
+
         /// <summary>
         /// Loads the ParameterFactory from the given ConfigNode.  The base version performs the following:
         ///   - Loads and validates the values for
@@ -85,6 +89,7 @@ namespace ContractConfigurator
                 }
             }
 
+            config = configNode.ToString();
             return valid;
         }
 
@@ -154,10 +159,13 @@ namespace ContractConfigurator
         {
             foreach (ParameterFactory paramFactory in paramFactories)
             {
-                ContractParameter parameter = paramFactory.Generate(contract, contractParamHost);
+                if (paramFactory.enabled)
+                {
+                    ContractParameter parameter = paramFactory.Generate(contract, contractParamHost);
 
-                // Get the child parameters
-                GenerateParameters(contract, parameter, paramFactory.childNodes);
+                    // Get the child parameters
+                    GenerateParameters(contract, parameter, paramFactory.childNodes);
+                }
             }
         }
 
@@ -253,6 +261,15 @@ namespace ContractConfigurator
                 return false;
             }
             return true;
+        }
+
+        /// <summary>
+        /// Gets the identifier for the parameter.
+        /// </summary>
+        /// <returns>String for the parameter.</returns>
+        public override string ToString()
+        {
+            return "PARAMETER [" + type + "]" + (name != type ? ", (" + name + ")" : "");
         }
     }
 }

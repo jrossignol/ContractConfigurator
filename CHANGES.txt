@@ -8,8 +8,8 @@ Contract Configurator 0.6.0
 - Added CONTRACT_GROUP and extra logic for limiting contracts based on group.
 - SCANsat coverage parameter now displays the current scan percentage.
 - Improvements to HasPassengers (loads real passengers!)
-- Fix display of year/years and day/days in time based parameters (thanks DBT85).
 - Fix to how contract expiry is handled - setting to 0.0 will now give a contract that never expires, similar to the way the deadline works.
+- New debugging window that shows the underlying configurator and allows selectively disabling parts of the contract for testing.
 - Remove parameters that have been obsolete since Contract Configurator 0.5.0.
 
 Contract Configurator 0.5.8

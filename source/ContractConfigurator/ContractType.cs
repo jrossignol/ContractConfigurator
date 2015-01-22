@@ -20,6 +20,13 @@ namespace ContractConfigurator
         protected virtual List<BehaviourFactory> behaviourFactories { get; set; }
         protected virtual List<ContractRequirement> requirements { get; set; }
 
+        public IEnumerable<ParameterFactory> ParamFactories { get { return paramFactories; } }
+        public IEnumerable<BehaviourFactory> BehaviourFactories { get { return behaviourFactories; } }
+        public IEnumerable<ContractRequirement> Requirements { get { return requirements; } }
+
+        public bool expandInDebug = false;
+        public string config = "";
+
         // Contract attributes
         public string name;
         public ContractGroup group;
@@ -182,7 +189,7 @@ namespace ContractConfigurator
                 }
             }
 
-
+            config = configNode.ToString();
             return valid;
         }
 
@@ -271,7 +278,7 @@ namespace ContractConfigurator
         /// <returns>String for the contract type.</returns>
         public override string ToString()
         {
-            return "ContractType[" + name + "]";
+            return "CONTRACT_TYPE [" + name + "]";
         }
         
         public string ErrorPrefix()

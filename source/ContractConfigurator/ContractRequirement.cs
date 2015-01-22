@@ -24,8 +24,13 @@ namespace ContractConfigurator
         protected virtual List<ContractRequirement> childNodes { get; set; }
         protected virtual ContractType contractType { get; set; }
         protected CelestialBody targetBody;
-        protected bool invertRequirement;
+        public bool invertRequirement;
         protected bool checkOnActiveContract;
+
+        public bool enabled = true;
+        public bool? lastResult = null;
+        public virtual IEnumerable<ContractRequirement> ChildRequirements { get { return childNodes; } }
+        public string config = "";
 
         /*
          * Loads the ContractRequirement from the given ConfigNode.  The base version loads the following:
@@ -63,6 +68,7 @@ namespace ContractConfigurator
                 }
             }
 
+            config = configNode.ToString();
             return valid;
         }
 
@@ -87,11 +93,15 @@ namespace ContractConfigurator
                 LoggingUtil.LogVerbose(typeof(ContractRequirement), "Checking requirements for contract '" + contractType.name);
                 foreach (ContractRequirement requirement in contractRequirements)
                 {
-                    if (requirement.checkOnActiveContract || contract.ContractState != Contract.State.Active)
+                    if (requirement.enabled)
                     {
-                        bool nodeMet = requirement.RequirementMet(contract);
-                        LoggingUtil.LogVerbose(typeof(ContractRequirement), "Checked requirement '" + requirement.name + "' of type " + requirement.type + ": " + nodeMet);
-                        allReqMet = allReqMet && (requirement.invertRequirement ? !nodeMet : nodeMet);
+                        if (requirement.checkOnActiveContract || contract.ContractState != Contract.State.Active)
+                        {
+                            bool nodeMet = requirement.RequirementMet(contract);
+                            requirement.lastResult = requirement.invertRequirement ? !nodeMet : nodeMet;
+                            LoggingUtil.LogVerbose(typeof(ContractRequirement), "Checked requirement '" + requirement.name + "' of type " + requirement.type + ": " + nodeMet);
+                            allReqMet = allReqMet && (requirement.invertRequirement ? !nodeMet : nodeMet);
+                        }
                     }
                 }
 
@@ -189,6 +199,15 @@ namespace ContractConfigurator
                 return false;
             }
             return true;
+        }
+
+        /// <summary>
+        /// Gets the identifier for the parameter.
+        /// </summary>
+        /// <returns>String for the parameter.</returns>
+        public override string ToString()
+        {
+            return "REQUIREMENT [" + type + "]" + (name != type ? ", (" + name + ")" : "");
         }
     }
 }

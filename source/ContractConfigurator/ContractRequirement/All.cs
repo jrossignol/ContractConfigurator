@@ -18,9 +18,13 @@ namespace ContractConfigurator
             bool requirementMet = true;
             foreach (ContractRequirement requirement in childNodes)
             {
-                bool nodeMet = requirement.RequirementMet(contract);
-                LoggingUtil.LogVerbose(typeof(ContractRequirement), "Checked requirement '" + requirement.Name + "' of type " + requirement.Type + ": " + (requirement.InvertRequirement ? !nodeMet : nodeMet));
-                requirementMet &= (requirement.InvertRequirement ? !nodeMet : nodeMet);
+                if (requirement.enabled)
+                {
+                    bool nodeMet = requirement.RequirementMet(contract);
+                    requirement.lastResult = requirement.invertRequirement ? !nodeMet : nodeMet;
+                    LoggingUtil.LogVerbose(typeof(ContractRequirement), "Checked requirement '" + requirement.Name + "' of type " + requirement.Type + ": " + (requirement.InvertRequirement ? !nodeMet : nodeMet));
+                    requirementMet &= (requirement.InvertRequirement ? !nodeMet : nodeMet);
+                }
             }
             return requirementMet;
         }

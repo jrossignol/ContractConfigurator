@@ -21,6 +21,9 @@ namespace ContractConfigurator
         protected virtual ContractType contractType { get; set; }
         protected CelestialBody targetBody;
 
+        public bool enabled = true;
+        public string config = "";
+
         /*
          * Loads the BehaviourFactory from the given ConfigNode.
          */
@@ -35,6 +38,7 @@ namespace ContractConfigurator
             // Load targetBody
             valid &= ConfigNodeUtil.ParseValue<CelestialBody>(configNode, "targetBody", ref targetBody, this, contractType.targetBody);
 
+            config = configNode.ToString();
             return valid;
         }
 
@@ -54,14 +58,17 @@ namespace ContractConfigurator
         {
             foreach (BehaviourFactory behaviourFactory in behaviourNodes)
             {
-                ContractBehaviour behaviour = behaviourFactory.Generate(contract);
-                if (behaviour == null)
+                if (behaviourFactory.enabled)
                 {
-                    throw new Exception(behaviourFactory.GetType().FullName + ".Generate() returned a null ContractBehaviour!");
-                }
+                    ContractBehaviour behaviour = behaviourFactory.Generate(contract);
+                    if (behaviour == null)
+                    {
+                        throw new Exception(behaviourFactory.GetType().FullName + ".Generate() returned a null ContractBehaviour!");
+                    }
 
-                // Add ContractBehaviour to the host
-                contract.AddBehaviour(behaviour);
+                    // Add ContractBehaviour to the host
+                    contract.AddBehaviour(behaviour);
+                }
             }
         }
 
@@ -127,6 +134,15 @@ namespace ContractConfigurator
         {
             return (contractType != null ? "CONTRACT_TYPE '" + contractType.name + "', " : "") +
                 "BEHAVIOUR '" + configNode.GetValue("name") + "' of type '" + type ?? configNode.GetValue("type") + "'";
+        }
+
+        /// <summary>
+        /// Gets the identifier for the parameter.
+        /// </summary>
+        /// <returns>String for the parameter.</returns>
+        public override string ToString()
+        {
+            return "BEHAVIOUR [" + type + "]" + (name != type ? ", (" + name + ")" : "");
         }
     }
 }
