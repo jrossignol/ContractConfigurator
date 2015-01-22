@@ -491,11 +491,11 @@ namespace ContractConfigurator
             {
                 // Fetch the contractType
                 string name = contractConfig.GetValue("name");
-                ContractType contractType = ContractType.contractTypes[name];
                 bool success = false;
-                if (contractType != null)
+                if (ContractType.contractTypes.ContainsKey(name))
                 {
                     LoggingUtil.LogDebug(this.GetType(), "Loading CONTRACT_TYPE: '" + name + "'");
+                    ContractType contractType = ContractType.contractTypes[name];
                     // Perform the load
                     try
                     {
