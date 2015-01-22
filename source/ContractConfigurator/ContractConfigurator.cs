@@ -16,6 +16,7 @@ namespace ContractConfigurator
         static bool loaded = false;
         static bool contractTypesAdjusted = false;
 
+        private List<ContractType> guiContracts;
         private bool showGUI = false;
         private Rect windowPos = new Rect(580f, 160f, 240f, 40f);
         private Vector2 scrollPosition;
@@ -165,29 +166,32 @@ namespace ContractConfigurator
 
             // Display the listing of contracts
             scrollPosition = GUILayout.BeginScrollView(scrollPosition, GUILayout.Height(640));
-            if (!reloading)
+            if (Event.current.type == EventType.layout)
             {
-                foreach (ContractType contractType in ContractType.contractTypes.Values.ToList())
+                guiContracts = ContractType.contractTypes.Values.ToList();
+            }
+
+            foreach (ContractType contractType in guiContracts)
+            {
+                GUILayout.BeginHorizontal();
+                if (GUILayout.Button(contractType.expandInDebug ? "-" : "+", GUILayout.Width(20), GUILayout.Height(20)))
                 {
-                    GUILayout.BeginHorizontal();
-                    if (GUILayout.Button(contractType.expandInDebug ? "-" : "+", GUILayout.Width(20), GUILayout.Height(20)))
-                    {
-                        contractType.expandInDebug = !contractType.expandInDebug;
-                    }
-                    GUILayout.Label(new GUIContent(contractType.ToString(), contractType.config));
-                    GUILayout.EndHorizontal();
+                    contractType.expandInDebug = !contractType.expandInDebug;
+                }
+                GUILayout.Label(new GUIContent(contractType.ToString(), contractType.config));
+                GUILayout.EndHorizontal();
 
-                    if (contractType.expandInDebug)
-                    {
-                        // Output children
-                        ParamGui(contractType.ParamFactories);
-                        RequirementGui(contractType.Requirements);
-                        BehaviourGui(contractType.BehaviourFactories);
+                if (contractType.expandInDebug)
+                {
+                    // Output children
+                    ParamGui(contractType.ParamFactories);
+                    RequirementGui(contractType.Requirements);
+                    BehaviourGui(contractType.BehaviourFactories);
 
-                        GUILayout.Space(8);
-                    }
+                    GUILayout.Space(8);
                 }
             }
+
             GUILayout.EndScrollView();
 
             // Display the legend
