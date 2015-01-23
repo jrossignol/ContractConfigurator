@@ -1,5 +1,5 @@
 Contract Configurator 0.5.9
-- Fix for disableOnStateChange when there is no VesselGroupParameter.
+- Fix for disableOnStateChange when there is no VesselGroupParameter (thanks voidheart).
 
 Contract Configurator 0.5.8
 - Recompile for RemoteTech 1.6.1
