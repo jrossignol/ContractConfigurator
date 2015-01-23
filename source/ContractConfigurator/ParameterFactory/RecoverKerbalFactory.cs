@@ -23,9 +23,9 @@ namespace ContractConfigurator
             // Load base class
             bool valid = base.Load(configNode);
 
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "vessel", ref kerbal, this, (string)null);
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "kerbal", ref kerbal, this, (string)null);
             valid &= ConfigNodeUtil.ParseValue<int>(configNode, "index", ref index, this, -1);
-            valid &= ConfigNodeUtil.AtLeastOne(configNode, new string[] { "vessel", "index" }, this);
+            valid &= ConfigNodeUtil.AtLeastOne(configNode, new string[] { "kerbal", "index" }, this);
 
             // Manually validate, since the default is technically invalid
             if (kerbal == null)
@@ -40,7 +40,7 @@ namespace ContractConfigurator
         {
             RecoverKerbal contractParam = new RecoverKerbal(title);
 
-            // Add the vessel
+            // Add the kerbal
             string kerbalName;
             if (kerbal != null)
             {
