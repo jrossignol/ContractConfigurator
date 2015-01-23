@@ -6,22 +6,27 @@ using System.Linq;
 using System.Text;
 using ContractConfigurator;
 using UnityEngine;
-using SCANsat;
 
 namespace ContractConfigurator.SCANsat
 {
     public class SCANsatCoverageFactory : ParameterFactory
     {
-        protected SCANdata.SCANtype scanType;
+        protected string scanType;
         protected double coverage;
 
         public override bool Load(ConfigNode configNode)
         {
+            // Before loading, verify the SCANsat version
+            if (!SCANsatUtil.VerifySCANsatVersion())
+            {
+                return false;
+            }
+
             // Load base class
             bool valid = base.Load(configNode);
 
             valid &= ConfigNodeUtil.ParseValue<double>(configNode, "coverage", ref coverage, this);
-            valid &= ConfigNodeUtil.ParseValue<SCANdata.SCANtype>(configNode, "scanType", ref scanType, this);
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "scanType", ref scanType, this, SCANsatUtil.ValidateSCANname);
             valid &= ValidateTargetBody(configNode);
 
             return valid;

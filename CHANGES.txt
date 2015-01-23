@@ -1,4 +1,5 @@
 Contract Configurator 0.5.9
+- Changes for SCANsat 9.0
 - Fix for disableOnStateChange when there is no VesselGroupParameter (thanks voidheart).
 
 Contract Configurator 0.5.8

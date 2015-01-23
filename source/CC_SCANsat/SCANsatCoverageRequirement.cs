@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 using KSP;
-using SCANsat;
 
 namespace ContractConfigurator.SCANsat
 {
@@ -13,12 +12,18 @@ namespace ContractConfigurator.SCANsat
      */
     public class SCANsatCoverageRequirement : ContractRequirement
     {
-        protected SCANdata.SCANtype scanType;
+        protected string scanType;
         protected double minCoverage;
         protected double maxCoverage;
 
         public override bool Load(ConfigNode configNode)
         {
+            // Before loading, verify the SCANsat version
+            if (!SCANsatUtil.VerifySCANsatVersion())
+            {
+                return false;
+            }
+
             // Load base class
             bool valid = base.Load(configNode);
 
@@ -28,7 +33,7 @@ namespace ContractConfigurator.SCANsat
 
             valid &= ConfigNodeUtil.ParseValue<double>(configNode, "minCoverage", ref minCoverage, this, 0.0);
             valid &= ConfigNodeUtil.ParseValue<double>(configNode, "maxCoverage", ref maxCoverage, this, 100.0);
-            valid &= ConfigNodeUtil.ParseValue<SCANdata.SCANtype>(configNode, "scanType", ref scanType, this);
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "scanType", ref scanType, this, SCANsatUtil.ValidateSCANname);
             valid &= ValidateTargetBody(configNode);
 
             return valid;
@@ -36,7 +41,7 @@ namespace ContractConfigurator.SCANsat
 
         public override bool RequirementMet(ConfiguredContract contract)
         {
-            double coverageInPercentage = SCANUtil.GetCoverage((int)scanType, targetBody);
+            double coverageInPercentage = SCANsatUtil.GetCoverage(SCANsatUtil.GetSCANtype(scanType), targetBody);
             return coverageInPercentage >= minCoverage && coverageInPercentage <= maxCoverage;
         }
     }
