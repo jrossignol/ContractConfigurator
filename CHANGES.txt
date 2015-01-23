@@ -12,6 +12,10 @@ Contract Configurator 0.6.0
 - New debugging window that shows the underlying configurator and allows selectively disabling parts of the contract for testing.
 - Remove parameters that have been obsolete since Contract Configurator 0.5.0.
 
+Contract Configurator 0.5.9
+- Changes for SCANsat 9.0
+- Fix for disableOnStateChange when there is no VesselGroupParameter (thanks voidheart).
+
 Contract Configurator 0.5.8
 - Recompile for RemoteTech 1.6.1
 - Fix so that failing to load a contract is less destructive.

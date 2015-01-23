@@ -73,6 +73,12 @@ namespace ContractConfigurator.Parameters
                 return;
             }
 
+            if (disableOnStateChange)
+            {
+                disableOnStateChange = false;
+                allowStateReset = false;
+            }
+
             // Save state flag
             node.AddValue("allowStateReset", allowStateReset);
 
@@ -627,6 +633,10 @@ namespace ContractConfigurator.Parameters
                     if (VesselMeetsCondition(vessel))
                     {
                         SetComplete();
+                        if (!allowStateReset)
+                        {
+                            Disable();
+                        }
                     }
                     else
                     {

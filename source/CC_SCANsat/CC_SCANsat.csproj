@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -37,9 +37,6 @@
     <Reference Include="ContractConfigurator">
       <HintPath>..\ContractConfigurator\bin\Release\ContractConfigurator.dll</HintPath>
     </Reference>
-    <Reference Include="SCANsat">
-      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Kerbal Space Program\GameData\SCANsat\Plugins\SCANsat.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -55,6 +52,7 @@
     <Compile Include="SCANsatCoverage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SCANsatCoverageRequirement.cs" />
+    <Compile Include="SCANsatUtil.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
