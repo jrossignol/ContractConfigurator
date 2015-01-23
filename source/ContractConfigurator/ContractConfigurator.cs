@@ -118,7 +118,8 @@ namespace ContractConfigurator
 
         public void OnGUI()
         {
-            if (showGUI && (HighLogic.LoadedScene == GameScenes.SPACECENTER || HighLogic.LoadedScene == GameScenes.MAINMENU))
+            if (showGUI && HighLogic.LoadedScene != GameScenes.CREDITS && HighLogic.LoadedScene != GameScenes.LOADING &&
+                HighLogic.LoadedScene != GameScenes.LOADINGBUFFER && HighLogic.LoadedScene != GameScenes.SETTINGS)
             {
                 Version version = GetType().Assembly.GetName().Version;
                 string versionStr = version.Major + "." + version.Minor + "." + version.Revision;
