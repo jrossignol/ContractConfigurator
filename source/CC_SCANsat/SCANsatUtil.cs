@@ -10,8 +10,10 @@ namespace ContractConfigurator.SCANsat
     /// <summary>
     /// Utilities for interacting with SCANsat.
     /// </summary>
-    public class SCANsatUtil
+    public static class SCANsatUtil
     {
+        private static bool? versionOkay = null;
+
         /// <summary>
         /// Validates the given SCANname and sees if SCANsat has a SCANtype that matches it.
         /// </summary>
@@ -30,6 +32,20 @@ namespace ContractConfigurator.SCANsat
             }
 
             return true;
+        }
+
+        /// <summary>
+        /// Verifies that the SCANsat version the player has is compatible.
+        /// </summary>
+        /// <returns>Whether the check passed.</returns>
+        public static bool VerifySCANsatVersion()
+        {
+            string minVersion = "v9.0";
+            if (versionOkay == null)
+            {
+                versionOkay = ContractConfigurator.VerifyAssemblyVersion("SCANsat", minVersion);
+            }
+            return versionOkay.Value;
         }
     }
 }

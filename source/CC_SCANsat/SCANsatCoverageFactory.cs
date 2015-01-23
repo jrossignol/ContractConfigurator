@@ -17,6 +17,12 @@ namespace ContractConfigurator.SCANsat
 
         public override bool Load(ConfigNode configNode)
         {
+            // Before loading, verify the SCANsat version
+            if (!SCANsatUtil.VerifySCANsatVersion())
+            {
+                return false;
+            }
+
             // Load base class
             bool valid = base.Load(configNode);
 
