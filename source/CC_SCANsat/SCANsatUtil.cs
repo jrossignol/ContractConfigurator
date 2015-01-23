@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
-using SCANsat;
 using UnityEngine;
 
 namespace ContractConfigurator.SCANsat
@@ -12,7 +12,7 @@ namespace ContractConfigurator.SCANsat
     /// </summary>
     public static class SCANsatUtil
     {
-        private static bool? versionOkay = null;
+        public static Assembly SCANsatAssembly { get; private set; }
 
         /// <summary>
         /// Validates the given SCANname and sees if SCANsat has a SCANtype that matches it.
@@ -23,7 +23,7 @@ namespace ContractConfigurator.SCANsat
         {
             try
             {
-                SCANUtil.GetSCANtype(SCANname);
+                GetSCANtype(SCANname);
             }
             catch (Exception e)
             {
@@ -35,17 +35,43 @@ namespace ContractConfigurator.SCANsat
         }
 
         /// <summary>
+        /// Gets the SCANtype for the given SCANname.
+        /// </summary>
+        /// <param name="SCANname">The name of the SCAN type</param>
+        /// <returns>The integer SCANtype</returns>
+        public static int GetSCANtype(string SCANname)
+        {
+            Type scanUtil = SCANsatAssembly.GetType("SCANsat.SCANUtil");
+
+            // Get and invoke the method
+            MethodInfo methodGetSCANtype = scanUtil.GetMethod("GetSCANtype");
+            return (int)methodGetSCANtype.Invoke(null, new object[] { SCANname });
+        }
+
+        /// <summary>
+        /// Wrapper for SCANutil.GetCoverage
+        /// </summary>
+        public static double GetCoverage(int SCANtype, CelestialBody body)
+        {
+            Type scanUtil = SCANsatAssembly.GetType("SCANsat.SCANUtil");
+
+            // Get and invoke the method
+            MethodInfo methodGetCoverage = scanUtil.GetMethod("GetCoverage");
+            return (double)methodGetCoverage.Invoke(null, new object[] { SCANtype, body });
+        }
+
+        /// <summary>
         /// Verifies that the SCANsat version the player has is compatible.
         /// </summary>
         /// <returns>Whether the check passed.</returns>
         public static bool VerifySCANsatVersion()
         {
             string minVersion = "v9.0";
-            if (versionOkay == null)
+            if (SCANsatAssembly == null)
             {
-                versionOkay = ContractConfigurator.VerifyAssemblyVersion("SCANsat", minVersion);
+                SCANsatAssembly = ContractConfigurator.VerifyAssemblyVersion("SCANsat", minVersion);
             }
-            return versionOkay.Value;
+            return SCANsatAssembly != null;
         }
     }
 }

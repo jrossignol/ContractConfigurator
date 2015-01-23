@@ -434,8 +434,8 @@ namespace ContractConfigurator
         /// </summary>
         /// <param name="name">Assembly name</param>
         /// <param name="version">Minium version</param>
-        /// <returns>True if the version check was successful.  If not, logs and error and returns false.</returns>
-        public static bool VerifyAssemblyVersion(string name, string version)
+        /// <returns>The assembly if the version check was successful.  If not, logs and error and returns null.</returns>
+        public static Assembly VerifyAssemblyVersion(string name, string version)
         {
             // Logic courtesy of DMagic
             var assembly = AssemblyLoader.loadedAssemblies.SingleOrDefault(a => a.assembly.GetName().Name == name);
@@ -449,24 +449,24 @@ namespace ContractConfigurator
                     if (expected >= received)
                     {
                         LoggingUtil.LogVerbose(typeof(ContractConfigurator), "Version check for '" + name + "' passed.  Minimum required is " + version + ", version found was " + ainfoV.InformationalVersion);
-                        return true;
+                        return assembly.assembly;
                     }
                     else
                     {
                         LoggingUtil.LogError(typeof(ContractConfigurator), "Version check for '" + name + "' failed!  Minimum required is " + version + ", version found was " + ainfoV.InformationalVersion);
-                        return false;
+                        return null;
                     }
                 }
                 else
                 {
                     LoggingUtil.LogError(typeof(ContractConfigurator), "Couldn't determine version of '" + name + "' assembly!");
-                    return false;
+                    return null;
                 }
             }
             else
             {
                 LoggingUtil.LogError(typeof(ContractConfigurator), "Couldn't find assembly for '" + name + "'!");
-                return false;
+                return null;
             }
         }
 

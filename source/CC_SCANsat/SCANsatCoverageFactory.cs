@@ -6,7 +6,6 @@ using System.Linq;
 using System.Text;
 using ContractConfigurator;
 using UnityEngine;
-using SCANsat;
 
 namespace ContractConfigurator.SCANsat
 {
@@ -35,7 +34,7 @@ namespace ContractConfigurator.SCANsat
 
         public override ContractParameter Generate(Contract contract)
         {
-            return new SCANsatCoverage(coverage, SCANUtil.GetSCANtype(scanType), targetBody, title);
+            return new SCANsatCoverage(coverage, scanType, targetBody, title);
         }
     }
 }

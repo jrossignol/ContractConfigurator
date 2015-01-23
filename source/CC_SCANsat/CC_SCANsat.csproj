@@ -37,9 +37,6 @@
     <Reference Include="ContractConfigurator">
       <HintPath>..\ContractConfigurator\bin\Release\ContractConfigurator.dll</HintPath>
     </Reference>
-    <Reference Include="SCANsat">
-      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Kerbal Space Program\GameData\SCANsat\Plugins\SCANsat.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />

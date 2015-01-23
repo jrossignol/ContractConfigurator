@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 using KSP;
-using SCANsat;
 
 namespace ContractConfigurator.SCANsat
 {
@@ -42,7 +41,7 @@ namespace ContractConfigurator.SCANsat
 
         public override bool RequirementMet(ConfiguredContract contract)
         {
-            double coverageInPercentage = SCANUtil.GetCoverage(SCANUtil.GetSCANtype(scanType), targetBody);
+            double coverageInPercentage = SCANsatUtil.GetCoverage(SCANsatUtil.GetSCANtype(scanType), targetBody);
             return coverageInPercentage >= minCoverage && coverageInPercentage <= maxCoverage;
         }
     }
