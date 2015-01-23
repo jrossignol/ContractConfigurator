@@ -163,7 +163,7 @@ namespace ContractConfigurator
 
             if (logLevel >= logLevelCheckAgainst)
             {
-                message = "ContractConfigurator." + type + ": " + message;
+                message = type + ": " + message;
 
                 if (logLevel <= LogLevel.INFO) {
                     Debug.Log("[" + logLevel + "] " + message);
