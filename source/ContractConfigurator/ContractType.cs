@@ -14,7 +14,27 @@ namespace ContractConfigurator
     /// </summary>
     public class ContractType : IContractConfiguratorFactory
     {
-        public static Dictionary<string, ContractType> contractTypes = new Dictionary<string,ContractType>();
+        private static Dictionary<string, ContractType> contractTypes = new Dictionary<string,ContractType>();
+        public static IEnumerable<ContractType> AllContractTypes { get { return contractTypes.Values; } }
+        public static IEnumerable<ContractType> AllValidContractTypes
+        {
+            get
+            {
+                return contractTypes.Values.Where(ct => ct.enabled);
+            }
+        }
+        public static ContractType GetContractType(string name)
+        {
+            if (contractTypes.ContainsKey(name) && contractTypes[name].enabled)
+            {
+                return contractTypes[name];
+            }
+            return null;
+        }
+        public static void ClearContractTypes()
+        {
+            contractTypes.Clear();
+        }
 
         protected virtual List<ParameterFactory> paramFactories { get; set; }
         protected virtual List<BehaviourFactory> behaviourFactories { get; set; }
@@ -26,6 +46,7 @@ namespace ContractConfigurator
 
         public bool expandInDebug = false;
         public string config = "";
+        public bool enabled { get; private set; }
 
         // Contract attributes
         public string name;
@@ -80,6 +101,7 @@ namespace ContractConfigurator
             failureFunds = 0.0f;
             advanceFunds = 0.0f;
             weight = 1.0;
+            enabled = true;
         }
 
         /// <summary>
@@ -136,14 +158,11 @@ namespace ContractConfigurator
             paramFactories = new List<ParameterFactory>();
             foreach (ConfigNode contractParameter in configNode.GetNodes("PARAMETER"))
             {
-                ParameterFactory paramFactory = ParameterFactory.GenerateParameterFactory(contractParameter, this);
+                ParameterFactory paramFactory = null;
+                valid &= ParameterFactory.GenerateParameterFactory(contractParameter, this, out paramFactory);
                 if (paramFactory != null)
                 {
                     paramFactories.Add(paramFactory);
-                }
-                else
-                {
-                    valid = false;
                 }
             }
 
@@ -158,14 +177,11 @@ namespace ContractConfigurator
             behaviourFactories = new List<BehaviourFactory>();
             foreach (ConfigNode requirementNode in configNode.GetNodes("BEHAVIOUR"))
             {
-                BehaviourFactory behaviourFactory = BehaviourFactory.GenerateBehaviourFactory(requirementNode, this);
+                BehaviourFactory behaviourFactory = null;
+                valid &= BehaviourFactory.GenerateBehaviourFactory(requirementNode, this, out behaviourFactory);
                 if (behaviourFactory != null)
                 {
                     behaviourFactories.Add(behaviourFactory);
-                }
-                else
-                {
-                    valid = false;
                 }
             }
 
@@ -173,18 +189,16 @@ namespace ContractConfigurator
             requirements = new List<ContractRequirement>();
             foreach (ConfigNode requirementNode in configNode.GetNodes("REQUIREMENT"))
             {
-                ContractRequirement requirement = ContractRequirement.GenerateRequirement(requirementNode, this);
+                ContractRequirement requirement = null;
+                valid &= ContractRequirement.GenerateRequirement(requirementNode, this, out requirement);
                 if (requirement != null)
                 {
                     requirements.Add(requirement);
                 }
-                else
-                {
-                    valid = false;
-                }
             }
 
             config = configNode.ToString();
+            enabled = valid;
             return valid;
         }
 

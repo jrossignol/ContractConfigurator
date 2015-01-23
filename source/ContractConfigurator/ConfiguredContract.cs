@@ -145,7 +145,7 @@ namespace ContractConfigurator
         {
             try
             {
-                contractType = ContractType.contractTypes[node.GetValue("subtype")];
+                contractType = ContractType.GetContractType(node.GetValue("subtype"));
                 foreach (ConfigNode child in node.GetNodes("BEHAVIOUR"))
                 {
                     ContractBehaviour behaviour = ContractBehaviour.LoadBehaviour(child, this);
@@ -191,7 +191,7 @@ namespace ContractConfigurator
             // Build a weighted list of ContractTypes to choose from
             Dictionary<ContractType, double> validContractTypes = new Dictionary<ContractType, double>();
             double totalWeight = 0.0;
-            foreach (ContractType ct in ContractType.contractTypes.Values)
+            foreach (ContractType ct in ContractType.AllValidContractTypes)
             {
                 // Only add contract types that have their requirements met
                 if (ct.MeetRequirements(this))

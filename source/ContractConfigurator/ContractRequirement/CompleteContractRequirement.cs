@@ -30,7 +30,7 @@ namespace ContractConfigurator
             valid &= ConfigNodeUtil.ParseValue<string>(configNode, "contractType", ref contractType, this);
             if (valid)
             {
-                if (ContractType.contractTypes.Keys.Contains(contractType))
+                if (ContractType.GetContractType(contractType) != null)
                 {
                     ccType = contractType;
                 }

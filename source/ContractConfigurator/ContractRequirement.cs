@@ -57,14 +57,11 @@ namespace ContractConfigurator
             childNodes = new List<ContractRequirement>();
             foreach (ConfigNode childNode in configNode.GetNodes("REQUIREMENT"))
             {
-                ContractRequirement child = ContractRequirement.GenerateRequirement(childNode, contractType);
+                ContractRequirement child = null;
+                valid &= ContractRequirement.GenerateRequirement(childNode, contractType, out child);
                 if (child != null)
                 {
                     childNodes.Add(child);
-                }
-                else
-                {
-                    valid = false;
                 }
             }
 
@@ -144,10 +141,14 @@ namespace ContractConfigurator
             }
         }
 
-        /*
-         * Generates a ContractRequirement from a configuration node.
-         */
-        public static ContractRequirement GenerateRequirement(ConfigNode configNode, ContractType contractType)
+        /// <summary>
+        /// Generates a ContractRequirement from a configuration node.
+        /// </summary>
+        /// <param name="configNode">ConfigNode to use in the generation.</param>
+        /// <param name="contractType">ContractType that this requirement falls under</param>
+        /// <param name="requirement">The ContractRequirement object.</param>
+        /// <returns>Whether the load was successful</returns>
+        public static bool GenerateRequirement(ConfigNode configNode, ContractType contractType, out ContractRequirement requirement)
         {
             // Get the type
             string type = configNode.GetValue("type");
@@ -156,11 +157,12 @@ namespace ContractConfigurator
                 LoggingUtil.LogError(typeof(ParameterFactory), "CONTRACT_TYPE '" + contractType.name + "'," +
                     "REQUIREMENT '" + configNode.GetValue("name") + "' of type '" + configNode.GetValue("type") + "': " +
                     "No ContractRequirement has been registered for type '" + type + "'.");
-                return null;
+                requirement = null;
+                return false;
             }
 
             // Create an instance of the ContractRequirement
-            ContractRequirement requirement = (ContractRequirement)Activator.CreateInstance(requirementTypes[type]);
+            requirement = (ContractRequirement)Activator.CreateInstance(requirementTypes[type]);
 
             // Set attributes
             requirement.contractType = contractType;
@@ -171,8 +173,9 @@ namespace ContractConfigurator
 
             // Check for unexpected values - always do this last
             valid &= ConfigNodeUtil.ValidateUnexpectedValues(configNode, requirement);
+            requirement.enabled = valid;
 
-            return valid ? requirement : null;
+            return valid;
         }
 
         public string ErrorPrefix()

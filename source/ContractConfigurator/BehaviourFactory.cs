@@ -93,10 +93,14 @@ namespace ContractConfigurator
             }
         }
 
-        /*
-         * Generates a new BehaviourFactory from the given ConfigNode.
-         */
-        public static BehaviourFactory GenerateBehaviourFactory(ConfigNode behaviourConfig, ContractType contractType)
+        /// <summary>
+        /// Generates a BehaviourFactory from a configuration node.
+        /// </summary>
+        /// <param name="behaviourConfig">ConfigNode to use in the generation.</param>
+        /// <param name="contractType">ContractType that this behaviour falls under</param>
+        /// <param name="behaviourFactory">The BehaviourFactory object.</param>
+        /// <returns>Whether the load was successful</returns>
+        public static bool GenerateBehaviourFactory(ConfigNode behaviourConfig, ContractType contractType, out BehaviourFactory behaviourFactory)
         {
             // Get the type
             string type = behaviourConfig.GetValue("type");
@@ -105,11 +109,12 @@ namespace ContractConfigurator
                 LoggingUtil.LogError(typeof(ParameterFactory), "CONTRACT_TYPE '" + contractType.name + "'," +
                     "BEHAVIOUR '" + behaviourConfig.GetValue("name") + "' of type '" + behaviourConfig.GetValue("type") + "': " +
                     "No BehaviourFactory has been registered for type '" + type + "'.");
-                return null;
+                behaviourFactory = null;
+                return false;
             }
 
             // Create an instance of the factory
-            BehaviourFactory behaviourFactory = (BehaviourFactory)Activator.CreateInstance(factories[type]);
+            behaviourFactory = (BehaviourFactory)Activator.CreateInstance(factories[type]);
 
             // Set attributes
             behaviourFactory.contractType = contractType;
@@ -120,8 +125,9 @@ namespace ContractConfigurator
 
             // Check for unexpected values - always do this last
             valid &= ConfigNodeUtil.ValidateUnexpectedValues(behaviourConfig, behaviourFactory);
+            behaviourFactory.enabled = valid;
 
-            return valid ? behaviourFactory : null;
+            return valid;
         }
 
         public string ErrorPrefix()

@@ -17,7 +17,7 @@ namespace ContractConfigurator
         static bool loaded = false;
         static bool contractTypesAdjusted = false;
 
-        private List<ContractType> guiContracts;
+        private IEnumerable<ContractType> guiContracts;
         private bool showGUI = false;
         private Rect windowPos = new Rect(580f, 160f, 240f, 40f);
         private Vector2 scrollPosition;
@@ -170,7 +170,7 @@ namespace ContractConfigurator
             scrollPosition = GUILayout.BeginScrollView(scrollPosition, GUILayout.Height(640));
             if (Event.current.type == EventType.layout)
             {
-                guiContracts = ContractType.contractTypes.Values.ToList();
+                guiContracts = ContractType.AllContractTypes;
             }
 
             foreach (ContractType contractType in guiContracts)
@@ -180,15 +180,15 @@ namespace ContractConfigurator
                 {
                     contractType.expandInDebug = !contractType.expandInDebug;
                 }
-                GUILayout.Label(new GUIContent(contractType.ToString(), contractType.config));
+                GUILayout.Label(new GUIContent(contractType.ToString(), contractType.config), contractType.enabled ? GUI.skin.label : redLabel);
                 GUILayout.EndHorizontal();
 
                 if (contractType.expandInDebug)
                 {
                     // Output children
-                    ParamGui(contractType.ParamFactories);
-                    RequirementGui(contractType.Requirements);
-                    BehaviourGui(contractType.BehaviourFactories);
+                    ParamGui(contractType, contractType.ParamFactories);
+                    RequirementGui(contractType, contractType.Requirements);
+                    BehaviourGui(contractType, contractType.BehaviourFactories);
 
                     GUILayout.Space(8);
                 }
@@ -221,25 +221,28 @@ namespace ContractConfigurator
             GUI.DragWindow();
         }
 
-        private void ParamGui(IEnumerable<ParameterFactory> paramList, int indent = 1)
+        private void ParamGui(ContractType contractType, IEnumerable<ParameterFactory> paramList, int indent = 1)
         {
             foreach (ParameterFactory param in paramList)
             {
                 GUILayout.BeginHorizontal(GUILayout.ExpandWidth(false));
                 GUILayout.Space(28);
                 GUILayout.Label(new GUIContent(new string('\t', indent) + param, param.config), param.enabled ? GUI.skin.label : redLabel);
-                if (GUILayout.Button(param.enabled ? check : cross, GUILayout.ExpandWidth(false)))
+                if (contractType.enabled)
                 {
-                    param.enabled = !param.enabled;
+                    if (GUILayout.Button(param.enabled ? check : cross, GUILayout.ExpandWidth(false)))
+                    {
+                        param.enabled = !param.enabled;
+                    }
                 }
                 GUILayout.EndHorizontal();
 
-                ParamGui(param.ChildParameters, indent + 1);
-                RequirementGui(param.ChildRequirements, indent + 1);
+                ParamGui(contractType, param.ChildParameters, indent + 1);
+                RequirementGui(contractType, param.ChildRequirements, indent + 1);
             }
         }
 
-        private void RequirementGui(IEnumerable<ContractRequirement> requirementList, int indent = 1)
+        private void RequirementGui(ContractType contractType, IEnumerable<ContractRequirement> requirementList, int indent = 1)
         {
             foreach (ContractRequirement requirement in requirementList)
             {
@@ -247,26 +250,32 @@ namespace ContractConfigurator
                 GUILayout.Space(28);
                 GUIStyle style = requirement.lastResult == null ? GUI.skin.label : requirement.lastResult.Value ? greenLabel : yellowLabel;
                 GUILayout.Label(new GUIContent(new string('\t', indent) + requirement, requirement.config), requirement.enabled ? style : redLabel);
-                if (GUILayout.Button(requirement.enabled ? check : cross, GUILayout.ExpandWidth(false)))
+                if (contractType.enabled)
                 {
-                    requirement.enabled = !requirement.enabled;
+                    if (GUILayout.Button(requirement.enabled ? check : cross, GUILayout.ExpandWidth(false)))
+                    {
+                        requirement.enabled = !requirement.enabled;
+                    }
                 }
                 GUILayout.EndHorizontal();
 
-                RequirementGui(requirement.ChildRequirements, indent + 1);
+                RequirementGui(contractType, requirement.ChildRequirements, indent + 1);
             }
         }
 
-        private void BehaviourGui(IEnumerable<BehaviourFactory> behaviourList, int indent = 1)
+        private void BehaviourGui(ContractType contractType, IEnumerable<BehaviourFactory> behaviourList, int indent = 1)
         {
             foreach (BehaviourFactory behaviour in behaviourList)
             {
                 GUILayout.BeginHorizontal(GUILayout.ExpandWidth(false));
                 GUILayout.Space(28);
                 GUILayout.Label(new GUIContent(new string('\t', indent) + behaviour, behaviour.config), behaviour.enabled ? GUI.skin.label : redLabel);
-                if (GUILayout.Button(behaviour.enabled ? check : cross, GUILayout.ExpandWidth(false)))
+                if (contractType.enabled)
                 {
-                    behaviour.enabled = !behaviour.enabled;
+                    if (GUILayout.Button(behaviour.enabled ? check : cross, GUILayout.ExpandWidth(false)))
+                    {
+                        behaviour.enabled = !behaviour.enabled;
+                    }
                 }
                 GUILayout.EndHorizontal();
             }
@@ -412,7 +421,7 @@ namespace ContractConfigurator
         void ClearContractConfig()
         {
             ContractGroup.contractGroups.Clear();
-            ContractType.contractTypes.Clear();
+            ContractType.ClearContractTypes();
             totalContracts = successContracts = 0;
         }
 
@@ -487,10 +496,10 @@ namespace ContractConfigurator
                 // Fetch the contractType
                 string name = contractConfig.GetValue("name");
                 bool success = false;
-                if (ContractType.contractTypes.ContainsKey(name))
+                ContractType contractType = ContractType.GetContractType(name);
+                if (contractType != null)
                 {
                     LoggingUtil.LogDebug(this.GetType(), "Loading CONTRACT_TYPE: '" + name + "'");
-                    ContractType contractType = ContractType.contractTypes[name];
                     // Perform the load
                     try
                     {
@@ -501,18 +510,10 @@ namespace ContractConfigurator
                         Exception wrapper = new Exception("Error loading CONTRACT_TYPE '" + name + "'", e);
                         Debug.LogException(wrapper);
                     }
-                    finally
-                    {
-                        if (!success)
-                        {
-                            LoggingUtil.LogVerbose(this, "Removing contract type '" + name + "'");
-                            ContractType.contractTypes.Remove(name);
-                        }
-                    }
                 }
             }
 
-            successContracts = ContractType.contractTypes.Count;
+            successContracts = ContractType.AllValidContractTypes.Count();
             totalContracts = contractConfigs.Count();
 
             LoggingUtil.LogInfo(this.GetType(), "Loaded " + successContracts + " out of " + totalContracts + " CONTRACT_TYPE nodes.");
@@ -583,7 +584,7 @@ namespace ContractConfigurator
             LoggingUtil.LogInfo(this.GetType(), "Disabled " + disabledCounter + " ContractTypes.");
 
             // Now add the ConfiguredContract type
-            int count = (int)(ContractType.contractTypes.Count / 4.0 + 0.5);
+            int count = (int)(ContractType.AllValidContractTypes.Count() / 4.0 + 0.5);
             for (int i = 0; i < count; i++)
             {
                 ContractSystem.ContractTypes.Add(typeof(ConfiguredContract));

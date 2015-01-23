@@ -80,14 +80,11 @@ namespace ContractConfigurator
             childNodes = new List<ParameterFactory>();
             foreach (ConfigNode childNode in configNode.GetNodes("PARAMETER"))
             {
-                ParameterFactory child = ParameterFactory.GenerateParameterFactory(childNode, contractType, this);
+                ParameterFactory child = null;
+                valid &= ParameterFactory.GenerateParameterFactory(childNode, contractType, out child, this);
                 if (child != null)
                 {
                     childNodes.Add(child);
-                }
-                else
-                {
-                    valid = false;
                 }
             }
 
@@ -95,14 +92,11 @@ namespace ContractConfigurator
             requirements = new List<ContractRequirement>();
             foreach (ConfigNode childNode in configNode.GetNodes("REQUIREMENT"))
             {
-                ContractRequirement req = ContractRequirement.GenerateRequirement(childNode, contractType);
+                ContractRequirement req = null;
+                valid &= ContractRequirement.GenerateRequirement(childNode, contractType, out req);
                 if (req != null)
                 {
                     requirements.Add(req);
-                }
-                else
-                {
-                    valid = false;
                 }
             }
 
@@ -218,13 +212,16 @@ namespace ContractConfigurator
             }
         }
 
+
         /// <summary>
         /// Generates a new ParameterFactory from the given ConfigNode.
         /// </summary>
         /// <param name="parameterConfig">ConfigNode to use in the generation.</param>
         /// <param name="contractType">ContractType that this parameter factory falls under</param>
-        /// <returns>The ParameterFactory object.</returns>
-        public static ParameterFactory GenerateParameterFactory(ConfigNode parameterConfig, ContractType contractType, ParameterFactory parent = null)
+        /// <param name="paramFactory">The ParameterFactory object.</param>
+        /// <param name="parent">ParameterFactory to use as the parent</param>
+        /// <returns>Whether the load was successful</returns>
+        public static bool GenerateParameterFactory(ConfigNode parameterConfig, ContractType contractType, out ParameterFactory paramFactory, ParameterFactory parent = null)
         {
             // Get the type
             string type = parameterConfig.GetValue("type");
@@ -233,11 +230,12 @@ namespace ContractConfigurator
                 LoggingUtil.LogError(typeof(ParameterFactory), "CONTRACT_TYPE '" + contractType.name + "'," +
                     "PARAMETER '" + parameterConfig.GetValue("name") + "' of type '" + parameterConfig.GetValue("type") + "': " +
                     "No ParameterFactory has been registered for type '" + type + "'.");
-                return null;
+                paramFactory = null;
+                return false;
             }
 
             // Create an instance of the factory
-            ParameterFactory paramFactory = (ParameterFactory)Activator.CreateInstance(factories[type]);
+            paramFactory = (ParameterFactory)Activator.CreateInstance(factories[type]);
 
             // Set attributes
             paramFactory.parent = parent;
@@ -248,8 +246,9 @@ namespace ContractConfigurator
 
             // Check for unexpected values - always do this last
             valid &= ConfigNodeUtil.ValidateUnexpectedValues(parameterConfig, paramFactory);
+            paramFactory.enabled = valid;
 
-            return valid ? paramFactory : null;
+            return valid;
         }
 
         /// <summary>
