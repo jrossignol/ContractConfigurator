@@ -235,6 +235,7 @@ namespace ContractConfigurator
                 GUILayout.EndHorizontal();
 
                 ParamGui(param.ChildParameters, indent + 1);
+                RequirementGui(param.ChildRequirements, indent + 1);
             }
         }
 
@@ -445,11 +446,7 @@ namespace ContractConfigurator
                     bool success = false;
                     try
                     {
-                        if (contractGroup.Load(groupConfig))
-                        {
-                            successContracts++;
-                            success = true;
-                        }
+                        success = contractGroup.Load(groupConfig);
                     }
                     catch (Exception e)
                     {
@@ -472,9 +469,8 @@ namespace ContractConfigurator
             // First pass - create all the ContractType objects
             foreach (ConfigNode contractConfig in contractConfigs)
             {
-                totalContracts++;
-                LoggingUtil.LogVerbose(this.GetType(), "Pre-load for node: '" + contractConfig.GetValue("name") + "'");
                 // Create the initial contract type
+                LoggingUtil.LogVerbose(this.GetType(), "Pre-load for node: '" + contractConfig.GetValue("name") + "'");
                 try
                 {
                     ContractType contractType = new ContractType(contractConfig.GetValue("name"));
@@ -482,9 +478,6 @@ namespace ContractConfigurator
                 catch (ArgumentException)
                 {
                     LoggingUtil.LogError(this.GetType(), "Couldn't load CONTRACT_TYPE '" + contractConfig.GetValue("name") + "' due to a duplicate name.");
-
-                    // BUG: The same contract will get loaded twice, but just decrement the success counter so one shows as failed
-                    successContracts--;
                 }
             }
 
@@ -501,11 +494,7 @@ namespace ContractConfigurator
                     // Perform the load
                     try
                     {
-                        if (contractType.Load(contractConfig))
-                        {
-                            successContracts++;
-                            success = true;
-                        }
+                        success = contractType.Load(contractConfig);
                     }
                     catch (Exception e)
                     {
@@ -522,6 +511,9 @@ namespace ContractConfigurator
                     }
                 }
             }
+
+            successContracts = ContractType.contractTypes.Count;
+            totalContracts = contractConfigs.Count();
 
             LoggingUtil.LogInfo(this.GetType(), "Loaded " + successContracts + " out of " + totalContracts + " CONTRACT_TYPE nodes.");
 

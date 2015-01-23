@@ -28,10 +28,12 @@ namespace ContractConfigurator
         protected bool? disableOnStateChange;
         protected ParameterFactory parent = null;
         protected virtual List<ParameterFactory> childNodes { get; set; }
+        protected virtual List<ContractRequirement> requirements { get; set; }
         protected string title;
 
         public bool enabled = true;
         public virtual IEnumerable<ParameterFactory> ChildParameters { get { return childNodes; } }
+        public virtual IEnumerable<ContractRequirement> ChildRequirements { get { return requirements; } }
         public string config = "";
 
         /// <summary>
@@ -89,6 +91,21 @@ namespace ContractConfigurator
                 }
             }
 
+            // Load child requirements
+            requirements = new List<ContractRequirement>();
+            foreach (ConfigNode childNode in configNode.GetNodes("REQUIREMENT"))
+            {
+                ContractRequirement req = ContractRequirement.GenerateRequirement(childNode, contractType);
+                if (req != null)
+                {
+                    requirements.Add(req);
+                }
+                else
+                {
+                    valid = false;
+                }
+            }
+
             config = configNode.ToString();
             return valid;
         }
@@ -121,8 +138,14 @@ namespace ContractConfigurator
         /// <param name="contract">Contract to generate for</param>
         /// <param name="contractParamHost">Parent object for the ContractParameter</param>
         /// <returns>Generated ContractParameter</returns>
-        public virtual ContractParameter Generate(Contract contract, IContractParameterHost contractParamHost)
+        public virtual ContractParameter Generate(ConfiguredContract contract, IContractParameterHost contractParamHost)
         {
+            // First check any requirements
+            if (!ContractRequirement.RequirementsMet(contract, contract.contractType, requirements))
+            {
+                return null;
+            }
+
             // Generate a parameter using the sub-class logic
             ContractParameter parameter = Generate(contract);
             if (parameter == null)
@@ -164,7 +187,10 @@ namespace ContractConfigurator
                     ContractParameter parameter = paramFactory.Generate(contract, contractParamHost);
 
                     // Get the child parameters
-                    GenerateParameters(contract, parameter, paramFactory.childNodes);
+                    if (parameter != null)
+                    {
+                        GenerateParameters(contract, parameter, paramFactory.childNodes);
+                    }
                 }
             }
         }
