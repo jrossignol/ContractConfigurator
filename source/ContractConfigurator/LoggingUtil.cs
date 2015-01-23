@@ -18,6 +18,17 @@ namespace ContractConfigurator
         }
 
         public static LogLevel logLevel {set; get;}
+        private static bool captureLog = false;
+        public static bool CaptureLog
+        {
+            get { return captureLog; }
+            set
+            {
+                captureLog = value;
+                capturedLog = "";
+            }
+        }
+        public static string capturedLog = "";
 
         private static Dictionary<string, LogLevel> specificLogLevels = new Dictionary<string, LogLevel>();
 
@@ -164,6 +175,11 @@ namespace ContractConfigurator
             if (logLevel >= logLevelCheckAgainst)
             {
                 message = type + ": " + message;
+
+                if (captureLog)
+                {
+                    capturedLog += "[" + logLevel + "] " + message + "\n";
+                }
 
                 if (logLevel <= LogLevel.INFO) {
                     Debug.Log("[" + logLevel + "] " + message);

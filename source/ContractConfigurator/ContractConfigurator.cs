@@ -227,7 +227,8 @@ namespace ContractConfigurator
             {
                 GUILayout.BeginHorizontal(GUILayout.ExpandWidth(false));
                 GUILayout.Space(28);
-                GUILayout.Label(new GUIContent(new string('\t', indent) + param, param.config), param.enabled ? GUI.skin.label : redLabel);
+                GUILayout.Label(new GUIContent(new string('\t', indent) + param, param.config + "\n\n" + param.log),
+                    param.enabled ? GUI.skin.label : redLabel);
                 if (contractType.enabled)
                 {
                     if (GUILayout.Button(param.enabled ? check : cross, GUILayout.ExpandWidth(false)))
@@ -249,7 +250,8 @@ namespace ContractConfigurator
                 GUILayout.BeginHorizontal(GUILayout.ExpandWidth(false));
                 GUILayout.Space(28);
                 GUIStyle style = requirement.lastResult == null ? GUI.skin.label : requirement.lastResult.Value ? greenLabel : yellowLabel;
-                GUILayout.Label(new GUIContent(new string('\t', indent) + requirement, requirement.config), requirement.enabled ? style : redLabel);
+                GUILayout.Label(new GUIContent(new string('\t', indent) + requirement, requirement.config + "\n\n" + requirement.log),
+                    requirement.enabled ? style : redLabel);
                 if (contractType.enabled)
                 {
                     if (GUILayout.Button(requirement.enabled ? check : cross, GUILayout.ExpandWidth(false)))
@@ -269,7 +271,8 @@ namespace ContractConfigurator
             {
                 GUILayout.BeginHorizontal(GUILayout.ExpandWidth(false));
                 GUILayout.Space(28);
-                GUILayout.Label(new GUIContent(new string('\t', indent) + behaviour, behaviour.config), behaviour.enabled ? GUI.skin.label : redLabel);
+                GUILayout.Label(new GUIContent(new string('\t', indent) + behaviour, behaviour.config + "\n\n" + behaviour.log),
+                    behaviour.enabled ? GUI.skin.label : redLabel);
                 if (contractType.enabled)
                 {
                     if (GUILayout.Button(behaviour.enabled ? check : cross, GUILayout.ExpandWidth(false)))

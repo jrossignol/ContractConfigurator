@@ -23,6 +23,7 @@ namespace ContractConfigurator
 
         public bool enabled = true;
         public string config = "";
+        public string log;
 
         /*
          * Loads the BehaviourFactory from the given ConfigNode.
@@ -113,6 +114,9 @@ namespace ContractConfigurator
                 return false;
             }
 
+            // Logging on
+            LoggingUtil.CaptureLog = true;
+
             // Create an instance of the factory
             behaviourFactory = (BehaviourFactory)Activator.CreateInstance(factories[type]);
 
@@ -126,6 +130,8 @@ namespace ContractConfigurator
             // Check for unexpected values - always do this last
             valid &= ConfigNodeUtil.ValidateUnexpectedValues(behaviourConfig, behaviourFactory);
             behaviourFactory.enabled = valid;
+            behaviourFactory.log = LoggingUtil.capturedLog;
+            LoggingUtil.CaptureLog = false;
 
             return valid;
         }

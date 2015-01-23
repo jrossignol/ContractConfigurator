@@ -31,6 +31,7 @@ namespace ContractConfigurator
         public bool? lastResult = null;
         public virtual IEnumerable<ContractRequirement> ChildRequirements { get { return childNodes; } }
         public string config = "";
+        public string log;
 
         /*
          * Loads the ContractRequirement from the given ConfigNode.  The base version loads the following:
@@ -161,6 +162,9 @@ namespace ContractConfigurator
                 return false;
             }
 
+            // Logging on
+            LoggingUtil.CaptureLog = true;
+
             // Create an instance of the ContractRequirement
             requirement = (ContractRequirement)Activator.CreateInstance(requirementTypes[type]);
 
@@ -174,6 +178,8 @@ namespace ContractConfigurator
             // Check for unexpected values - always do this last
             valid &= ConfigNodeUtil.ValidateUnexpectedValues(configNode, requirement);
             requirement.enabled = valid;
+            requirement.log = LoggingUtil.capturedLog;
+            LoggingUtil.CaptureLog = false;
 
             return valid;
         }

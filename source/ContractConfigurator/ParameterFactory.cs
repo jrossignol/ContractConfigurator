@@ -30,6 +30,7 @@ namespace ContractConfigurator
         protected virtual List<ParameterFactory> childNodes { get; set; }
         protected virtual List<ContractRequirement> requirements { get; set; }
         protected string title;
+        public string log;
 
         public bool enabled = true;
         public virtual IEnumerable<ParameterFactory> ChildParameters { get { return childNodes; } }
@@ -234,6 +235,9 @@ namespace ContractConfigurator
                 return false;
             }
 
+            // Logging on
+            LoggingUtil.CaptureLog = true;
+
             // Create an instance of the factory
             paramFactory = (ParameterFactory)Activator.CreateInstance(factories[type]);
 
@@ -247,6 +251,8 @@ namespace ContractConfigurator
             // Check for unexpected values - always do this last
             valid &= ConfigNodeUtil.ValidateUnexpectedValues(parameterConfig, paramFactory);
             paramFactory.enabled = valid;
+            paramFactory.log = LoggingUtil.capturedLog;
+            LoggingUtil.CaptureLog = false;
 
             return valid;
         }
