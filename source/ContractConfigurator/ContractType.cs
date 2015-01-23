@@ -82,11 +82,6 @@ namespace ContractConfigurator
             weight = 1.0;
         }
 
-        ~ContractType()
-        {
-            contractTypes.Remove(name);
-        }
-
         /// <summary>
         /// Loads the contract type details from the given config node.
         /// </summary>

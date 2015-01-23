@@ -514,6 +514,7 @@ namespace ContractConfigurator
                     {
                         if (!success)
                         {
+                            LoggingUtil.LogVerbose(this, "Removing contract type '" + name + "'");
                             ContractType.contractTypes.Remove(name);
                         }
                     }
