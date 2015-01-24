@@ -26,7 +26,7 @@ namespace ContractConfigurator.SCANsat
         private Dictionary<string, string> nameRemap = new Dictionary<string, string>();
 
         public SCANsatCoverage()
-            : this(95.0f, "", null, "")
+            : base()
         {
         }
 
