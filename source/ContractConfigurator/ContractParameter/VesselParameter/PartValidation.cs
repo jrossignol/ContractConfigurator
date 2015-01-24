@@ -179,35 +179,19 @@ namespace ContractConfigurator.Parameters
 
             filters = new List<Filter>();
 
-            // Backwards compatibility from pre 0.5.3 release
-            if (node.HasValue("part") || node.HasValue("partModule") || node.HasValue("category") || node.HasValue("manufacturer"))
+            foreach (ConfigNode child in node.GetNodes("FILTER"))
             {
                 Filter filter = new Filter();
-                filter.type = ConfigNodeUtil.ParseValue<ParameterDelegateMatchType>(node, "type");
+                filter.type = ConfigNodeUtil.ParseValue<ParameterDelegateMatchType>(child, "type");
 
-                filter.part = ConfigNodeUtil.ParseValue<AvailablePart>(node, "part", (AvailablePart)null);
-                filter.partModules = node.GetValues("partModule").ToList();
-                filter.category = ConfigNodeUtil.ParseValue<PartCategories?>(node, "category", (PartCategories?)null);
-                filter.manufacturer = ConfigNodeUtil.ParseValue<string>(node, "manufacturer", (string)null);
+                filter.part = ConfigNodeUtil.ParseValue<AvailablePart>(child, "part", (AvailablePart)null);
+                filter.partModules = child.GetValues("partModule").ToList();
+                filter.category = ConfigNodeUtil.ParseValue<PartCategories?>(child, "category", (PartCategories?)null);
+                filter.manufacturer = ConfigNodeUtil.ParseValue<string>(child, "manufacturer", (string)null);
+                filter.minCount = ConfigNodeUtil.ParseValue<int>(child, "minCount", 1);
+                filter.maxCount = ConfigNodeUtil.ParseValue<int>(child, "maxCount", int.MaxValue);
 
                 filters.Add(filter);
-            }
-            else
-            {
-                foreach (ConfigNode child in node.GetNodes("FILTER"))
-                {
-                    Filter filter = new Filter();
-                    filter.type = ConfigNodeUtil.ParseValue<ParameterDelegateMatchType>(child, "type");
-
-                    filter.part = ConfigNodeUtil.ParseValue<AvailablePart>(child, "part", (AvailablePart)null);
-                    filter.partModules = child.GetValues("partModule").ToList();
-                    filter.category = ConfigNodeUtil.ParseValue<PartCategories?>(child, "category", (PartCategories?)null);
-                    filter.manufacturer = ConfigNodeUtil.ParseValue<string>(child, "manufacturer", (string)null);
-                    filter.minCount = ConfigNodeUtil.ParseValue<int>(child, "minCount", 1);
-                    filter.maxCount = ConfigNodeUtil.ParseValue<int>(child, "maxCount", int.MaxValue);
-
-                    filters.Add(filter);
-                }
             }
 
             ParameterDelegate<Part>.OnDelegateContainerLoad(node);
