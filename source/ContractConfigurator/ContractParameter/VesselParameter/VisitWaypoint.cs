@@ -11,9 +11,9 @@ using ContractConfigurator.Behaviour;
 
 namespace ContractConfigurator.Parameters
 {
-    /*
-     * Parameter for requiring a Kerbal to visit a waypoint.
-     */
+    /// <summary>
+    /// Parameter for requiring a Kerbal to visit a waypoint.
+    /// </summary>
     public class VisitWaypoint : VesselParameter
     {
         protected string title { get; set; }
@@ -69,17 +69,20 @@ namespace ContractConfigurator.Parameters
             waypointIndex = Convert.ToInt32(node.GetValue("waypointIndex"));
         }
 
-        /*
-         * Goes and finds the waypoint for our parameter.
-         */
+        /// <summary>
+        /// Goes and finds the waypoint for our parameter.
+        /// </summary>
+        /// <returns>The waypoint used by our parameter.</returns>
         protected Waypoint FetchWaypoint()
         {
             return FetchWaypoint(Root);
         }
 
-        /*
-         * Goes and finds the waypoint for our parameter.
-         */
+        /// <summary>
+        /// Goes and finds the waypoint for our parameter.
+        /// </summary>
+        /// <param name="c">The contract</param>
+        /// <returns>The waypoint used by our parameter.</returns>
         public Waypoint FetchWaypoint(Contract c)
         {
             // Get the WaypointGenerator behaviour
@@ -121,12 +124,15 @@ namespace ContractConfigurator.Parameters
             }
         }
 
-        /*
-         * Whether this vessel meets the parameter condition.
-         */
+        /// <summary>
+        /// Whether this vessel meets the parameter condition.
+        /// </summary>
+        /// <param name="vessel">The vessel to check</param>
+        /// <returns>Whether the vessel meets the condition</returns>
         protected override bool VesselMeetsCondition(Vessel vessel)
         {
             LoggingUtil.LogVerbose(this, "Checking VesselMeetsCondition: " + vessel.id);
+
             // Not even close
             if (vessel.mainBody.name != waypoint.celestialName)
             {
@@ -146,8 +152,14 @@ namespace ContractConfigurator.Parameters
                 }
             }
 
+            // Figure out the terrain height
+            double latRads = Math.PI / 180.0 * waypoint.latitude;
+            double lonRads = Math.PI / 180.0 * waypoint.longitude;
+            Vector3d radialVector = new Vector3d(Math.Cos(latRads) * Math.Cos(lonRads), Math.Sin(latRads), Math.Cos(latRads) * Math.Sin(lonRads));
+            double height = Math.Max(vessel.mainBody.pqsController.GetSurfaceHeight(radialVector) - vessel.mainBody.pqsController.radius, 0.0);
+
             // Calculate the distance
-            Vector3d waypointLocation = vessel.mainBody.GetRelSurfacePosition(waypoint.longitude, waypoint.latitude, waypoint.altitude);
+            Vector3d waypointLocation = vessel.mainBody.GetRelSurfacePosition(waypoint.longitude, waypoint.latitude, waypoint.altitude + height);
             Vector3d vesselLocation = vessel.mainBody.GetRelSurfacePosition(vessel.longitude, vessel.latitude, vessel.altitude);
             double actualDistance = Vector3d.Distance(vesselLocation, waypointLocation);
 
