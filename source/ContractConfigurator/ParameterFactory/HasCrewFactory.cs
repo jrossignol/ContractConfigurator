@@ -30,7 +30,7 @@ namespace ContractConfigurator
             valid &= ConfigNodeUtil.ParseValue<int>(configNode, "minExperience", ref minExperience, this, 0, x => Validation.Between(x, 0, 5));
             valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxExperience", ref maxExperience, this, 5, x => Validation.Between(x, 0, 5));
             valid &= ConfigNodeUtil.ParseValue<int>(configNode, "minCrew", ref minCrew, this, 1, x => Validation.GE(x, 0));
-            valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxCrew", ref maxCrew, this, int.MaxValue, x => Validation.GE(x, 0));
+            valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxCrew", ref maxCrew, this, int.MaxValue, x => Validation.GE(x, minCrew));
             valid &= ConfigNodeUtil.AtLeastOne(configNode, new string[] { "trait", "minExperience", "maxExperience", "minCrew", "maxCrew" }, this);
 
             return valid;
