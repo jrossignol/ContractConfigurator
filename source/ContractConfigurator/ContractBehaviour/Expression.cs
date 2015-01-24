@@ -9,9 +9,9 @@ using ContractConfigurator;
 
 namespace ContractConfigurator.Behaviour
 {
-    /*
-     * Class for spawning a Kerbal.
-     */
+    /// <summary>
+    /// Class for defining/running an expression.
+    /// </summary>
     public class Expression : ContractBehaviour
     {
         private class ExpVal
