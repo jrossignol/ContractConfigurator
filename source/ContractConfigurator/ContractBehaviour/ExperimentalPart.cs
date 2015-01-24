@@ -14,7 +14,7 @@ namespace ContractConfigurator.Behaviour
     /// </summary>
     public class ExperimentalPart : ContractBehaviour
     {
-        protected AvailablePart part;
+        protected List<AvailablePart> parts;
         protected bool add;
         protected bool remove;
 
@@ -23,9 +23,9 @@ namespace ContractConfigurator.Behaviour
         {
         }
 
-        public ExperimentalPart(AvailablePart part, bool add, bool remove)
+        public ExperimentalPart(List<AvailablePart> parts, bool add, bool remove)
         {
-            this.part = part;
+            this.parts = parts;
             this.add = add;
             this.remove = remove;
         }
@@ -34,7 +34,10 @@ namespace ContractConfigurator.Behaviour
         {
             if (add)
             {
-                ResearchAndDevelopment.AddExperimentalPart(part);
+                foreach (AvailablePart part in parts)
+                {
+                    ResearchAndDevelopment.AddExperimentalPart(part);
+                }
             }
         }
 
@@ -42,7 +45,10 @@ namespace ContractConfigurator.Behaviour
         {
             if (add)
             {
-                ResearchAndDevelopment.RemoveExperimentalPart(part);
+                foreach (AvailablePart part in parts)
+                {
+                    ResearchAndDevelopment.RemoveExperimentalPart(part);
+                }
             }
         }
 
@@ -50,7 +56,10 @@ namespace ContractConfigurator.Behaviour
         {
             if (add)
             {
-                ResearchAndDevelopment.RemoveExperimentalPart(part);
+                foreach (AvailablePart part in parts)
+                {
+                    ResearchAndDevelopment.RemoveExperimentalPart(part);
+                }
             }
         }
 
@@ -58,7 +67,10 @@ namespace ContractConfigurator.Behaviour
         {
             if (add)
             {
-                ResearchAndDevelopment.RemoveExperimentalPart(part);
+                foreach (AvailablePart part in parts)
+                {
+                    ResearchAndDevelopment.RemoveExperimentalPart(part);
+                }
             }
         }
 
@@ -66,20 +78,26 @@ namespace ContractConfigurator.Behaviour
         {
             if (remove)
             {
-                ResearchAndDevelopment.RemoveExperimentalPart(part);
+                foreach (AvailablePart part in parts)
+                {
+                    ResearchAndDevelopment.RemoveExperimentalPart(part);
+                }
             }
         }
 
         protected override void OnSave(ConfigNode configNode)
         {
-            configNode.AddValue("part", part.name);
+            foreach (AvailablePart part in parts)
+            {
+                configNode.AddValue("part", part.name);
+            }
             configNode.AddValue("add", add);
             configNode.AddValue("remove", remove);
         }
 
         protected override void OnLoad(ConfigNode configNode)
         {
-            part = ConfigNodeUtil.ParseValue<AvailablePart>(configNode, "part");
+            parts = ConfigNodeUtil.ParseValue<List<AvailablePart>>(configNode, "part");
             add = ConfigNodeUtil.ParseValue<bool>(configNode, "add");
             remove = ConfigNodeUtil.ParseValue<bool>(configNode, "remove");
         }

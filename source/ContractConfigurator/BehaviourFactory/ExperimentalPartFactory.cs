@@ -13,7 +13,7 @@ namespace ContractConfigurator.Behaviour
     /// </summary>
     public class ExperimentalPartFactory : BehaviourFactory
     {
-        protected AvailablePart part;
+        protected List<AvailablePart> parts;
         protected bool add;
         protected bool remove;
 
@@ -22,7 +22,7 @@ namespace ContractConfigurator.Behaviour
             // Load base class
             bool valid = base.Load(configNode);
 
-            valid &= ConfigNodeUtil.ParseValue<AvailablePart>(configNode, "part", ref part, this);
+            valid &= ConfigNodeUtil.ParseValue<List<AvailablePart>>(configNode, "part", ref parts, this);
             valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "add", ref add, this, true);
             valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "remove", ref remove, this, true);
 
@@ -31,7 +31,7 @@ namespace ContractConfigurator.Behaviour
 
         public override ContractBehaviour Generate(ConfiguredContract contract)
         {
-            return new ExperimentalPart(part, add, remove);
+            return new ExperimentalPart(parts, add, remove);
         }
     }
 }
