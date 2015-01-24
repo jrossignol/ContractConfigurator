@@ -1,5 +1,6 @@
 Contract Configurator 0.6.0
 - Added SpawnVessel behaviour.
+- Added ExperimentalPart behaviour.
 - Added Docking parameter.
 - Added TargetDestroyed parameter.
 - Added VesselNotDestroyed parameter.

@@ -47,10 +47,12 @@
   <ItemGroup>
     <Compile Include="BehaviourFactory\InvalidBehaviourFactory.cs" />
     <Compile Include="BehaviourFactory\ExpressionFactory.cs" />
+    <Compile Include="BehaviourFactory\ExperimentalPartFactory.cs" />
     <Compile Include="BehaviourFactory\OrbitGeneratorFactory.cs" />
     <Compile Include="BehaviourFactory\SpawnVesselFactory.cs" />
     <Compile Include="BehaviourFactory\WaypointGeneratorFactory.cs" />
     <Compile Include="BehaviourFactory\SpawnKerbalFactory.cs" />
+    <Compile Include="ContractBehaviour\ExperimentalPart.cs" />
     <Compile Include="ContractBehaviour\IHasKerbalBehaviour.cs" />
     <Compile Include="ContractBehaviour\SpawnVessel.cs" />
     <Compile Include="ContractParameter\Duration.cs" />
