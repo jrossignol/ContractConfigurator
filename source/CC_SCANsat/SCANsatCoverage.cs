@@ -29,11 +29,8 @@ namespace ContractConfigurator.SCANsat
         private TitleTracker titleTracker = new TitleTracker();
 
         public SCANsatCoverage()
-            : this(95.0f, "", null, "")
+            : base()
         {
-            // Re-label a couple of scan names to make them nicer
-            nameRemap["AltimetryLoRes"] = "Low resolution altimetry";
-            nameRemap["AltimetryHiRes"] = "High resolution altimetry";
         }
 
         public SCANsatCoverage(double coverage, string scanName, CelestialBody targetBody, string title)
@@ -52,6 +49,10 @@ namespace ContractConfigurator.SCANsat
             string output;
             if (string.IsNullOrEmpty(title))
             {
+                // Re-label a couple of scan names to make them nicer
+                nameRemap["AltimetryLoRes"] = "Low resolution altimetry";
+                nameRemap["AltimetryHiRes"] = "High resolution altimetry";
+
                 string scanTypeName = nameRemap.ContainsKey(scanName) ? nameRemap[scanName] : scanName;
                 output = scanTypeName + " scan of " + targetBody.PrintName() + ": ";
                 if (currentCoverage > 0.0 && state != ParameterState.Complete)
