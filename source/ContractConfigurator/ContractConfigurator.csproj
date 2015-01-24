@@ -45,6 +45,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BehaviourFactory\InvalidBehaviourFactory.cs" />
     <Compile Include="BehaviourFactory\ExpressionFactory.cs" />
     <Compile Include="BehaviourFactory\OrbitGeneratorFactory.cs" />
     <Compile Include="BehaviourFactory\SpawnVesselFactory.cs" />
@@ -62,12 +63,14 @@
     <Compile Include="ContractParameter\VesselParameter\HasPassengers.cs" />
     <Compile Include="ContractParameter\VesselParameter\IsNotVessel.cs" />
     <Compile Include="ContractParameter\VesselParameter\ReachState.cs" />
+    <Compile Include="ContractRequirement\InvalidContractRequirement.cs" />
     <Compile Include="ContractRequirement\PartModuleTypeUnlockedRequirement.cs" />
     <Compile Include="ContractRequirement\ScienceRequirement.cs" />
     <Compile Include="ContractRequirement\ReputationRequirement.cs" />
     <Compile Include="ContractRequirement\FundsRequirement.cs" />
     <Compile Include="ContractGroup.cs" />
     <Compile Include="Extensions.cs" />
+    <Compile Include="ParameterFactory\InvalidParameterFactory.cs" />
     <Compile Include="ParameterFactory\VesselNotDestroyedFactory.cs" />
     <Compile Include="ParameterFactory\TargetDestroyedFactory.cs" />
     <Compile Include="ParameterFactory\DockingFactory.cs" />

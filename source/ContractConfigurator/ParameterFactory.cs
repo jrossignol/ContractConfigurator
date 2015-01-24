@@ -58,8 +58,8 @@ namespace ContractConfigurator
             bool valid = true;
 
             // Get name and type
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "name", ref name, this, "unknown");
             valid &= ConfigNodeUtil.ParseValue<string>(configNode, "type", ref type, this);
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "name", ref name, this, type);
 
             valid &= ConfigNodeUtil.ParseValue<CelestialBody>(configNode, "targetBody", ref targetBody, this, contractType.targetBody);
 
@@ -224,6 +224,9 @@ namespace ContractConfigurator
         /// <returns>Whether the load was successful</returns>
         public static bool GenerateParameterFactory(ConfigNode parameterConfig, ContractType contractType, out ParameterFactory paramFactory, ParameterFactory parent = null)
         {
+            // Logging on
+            LoggingUtil.CaptureLog = true;
+
             // Get the type
             string type = parameterConfig.GetValue("type");
             if (!factories.ContainsKey(type))
@@ -231,15 +234,13 @@ namespace ContractConfigurator
                 LoggingUtil.LogError(typeof(ParameterFactory), "CONTRACT_TYPE '" + contractType.name + "'," +
                     "PARAMETER '" + parameterConfig.GetValue("name") + "' of type '" + parameterConfig.GetValue("type") + "': " +
                     "No ParameterFactory has been registered for type '" + type + "'.");
-                paramFactory = null;
-                return false;
+                paramFactory = new InvalidParameterFactory();
             }
-
-            // Logging on
-            LoggingUtil.CaptureLog = true;
-
-            // Create an instance of the factory
-            paramFactory = (ParameterFactory)Activator.CreateInstance(factories[type]);
+            else
+            {
+                // Create an instance of the factory
+                paramFactory = (ParameterFactory)Activator.CreateInstance(factories[type]);
+            }
 
             // Set attributes
             paramFactory.parent = parent;
@@ -249,7 +250,11 @@ namespace ContractConfigurator
             bool valid = paramFactory.Load(parameterConfig);
 
             // Check for unexpected values - always do this last
-            valid &= ConfigNodeUtil.ValidateUnexpectedValues(parameterConfig, paramFactory);
+            if (paramFactory.GetType() != typeof(InvalidParameterFactory))
+            {
+                valid &= ConfigNodeUtil.ValidateUnexpectedValues(parameterConfig, paramFactory);
+            }
+
             paramFactory.enabled = valid;
             paramFactory.log = LoggingUtil.capturedLog;
             LoggingUtil.CaptureLog = false;

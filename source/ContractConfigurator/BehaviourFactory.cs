@@ -5,6 +5,7 @@ using System.Text;
 using UnityEngine;
 using KSP;
 using Contracts;
+using ContractConfigurator.Behaviour;
 
 namespace ContractConfigurator
 {
@@ -33,8 +34,8 @@ namespace ContractConfigurator
             bool valid = true;
 
             // Get name and type
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "name", ref name, this, "unknown");
             valid &= ConfigNodeUtil.ParseValue<string>(configNode, "type", ref type, this);
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "name", ref name, this, type);
 
             // Load targetBody
             valid &= ConfigNodeUtil.ParseValue<CelestialBody>(configNode, "targetBody", ref targetBody, this, contractType.targetBody);
@@ -103,6 +104,9 @@ namespace ContractConfigurator
         /// <returns>Whether the load was successful</returns>
         public static bool GenerateBehaviourFactory(ConfigNode behaviourConfig, ContractType contractType, out BehaviourFactory behaviourFactory)
         {
+            // Logging on
+            LoggingUtil.CaptureLog = true;
+
             // Get the type
             string type = behaviourConfig.GetValue("type");
             if (!factories.ContainsKey(type))
@@ -110,15 +114,13 @@ namespace ContractConfigurator
                 LoggingUtil.LogError(typeof(ParameterFactory), "CONTRACT_TYPE '" + contractType.name + "'," +
                     "BEHAVIOUR '" + behaviourConfig.GetValue("name") + "' of type '" + behaviourConfig.GetValue("type") + "': " +
                     "No BehaviourFactory has been registered for type '" + type + "'.");
-                behaviourFactory = null;
-                return false;
+                behaviourFactory = new InvalidBehaviourFactory();
             }
-
-            // Logging on
-            LoggingUtil.CaptureLog = true;
-
-            // Create an instance of the factory
-            behaviourFactory = (BehaviourFactory)Activator.CreateInstance(factories[type]);
+            else
+            {
+                // Create an instance of the factory
+                behaviourFactory = (BehaviourFactory)Activator.CreateInstance(factories[type]);
+            }
 
             // Set attributes
             behaviourFactory.contractType = contractType;
@@ -128,7 +130,11 @@ namespace ContractConfigurator
             bool valid = behaviourFactory.Load(behaviourConfig);
 
             // Check for unexpected values - always do this last
-            valid &= ConfigNodeUtil.ValidateUnexpectedValues(behaviourConfig, behaviourFactory);
+            if (behaviourFactory.GetType() != typeof(InvalidBehaviourFactory))
+            {
+                valid &= ConfigNodeUtil.ValidateUnexpectedValues(behaviourConfig, behaviourFactory);
+            }
+
             behaviourFactory.enabled = valid;
             behaviourFactory.log = LoggingUtil.capturedLog;
             LoggingUtil.CaptureLog = false;

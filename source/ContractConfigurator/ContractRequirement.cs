@@ -43,8 +43,8 @@ namespace ContractConfigurator
             bool valid = true;
 
             // Get name and type
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "name", ref name, this, "unknown");
             valid &= ConfigNodeUtil.ParseValue<string>(configNode, "type", ref type, this);
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "name", ref name, this, type);
 
             valid &= ConfigNodeUtil.ParseValue<CelestialBody>(configNode, "targetBody", ref targetBody, this, contractType.targetBody);
 
@@ -151,6 +151,9 @@ namespace ContractConfigurator
         /// <returns>Whether the load was successful</returns>
         public static bool GenerateRequirement(ConfigNode configNode, ContractType contractType, out ContractRequirement requirement)
         {
+            // Logging on
+            LoggingUtil.CaptureLog = true;
+
             // Get the type
             string type = configNode.GetValue("type");
             if (!requirementTypes.ContainsKey(type))
@@ -158,15 +161,13 @@ namespace ContractConfigurator
                 LoggingUtil.LogError(typeof(ParameterFactory), "CONTRACT_TYPE '" + contractType.name + "'," +
                     "REQUIREMENT '" + configNode.GetValue("name") + "' of type '" + configNode.GetValue("type") + "': " +
                     "No ContractRequirement has been registered for type '" + type + "'.");
-                requirement = null;
-                return false;
+                requirement = new InvalidContractRequirement();
             }
-
-            // Logging on
-            LoggingUtil.CaptureLog = true;
-
-            // Create an instance of the ContractRequirement
-            requirement = (ContractRequirement)Activator.CreateInstance(requirementTypes[type]);
+            else
+            {
+                // Create an instance of the ContractRequirement
+                requirement = (ContractRequirement)Activator.CreateInstance(requirementTypes[type]);
+            }
 
             // Set attributes
             requirement.contractType = contractType;
@@ -176,7 +177,11 @@ namespace ContractConfigurator
             bool valid = requirement.Load(configNode);
 
             // Check for unexpected values - always do this last
-            valid &= ConfigNodeUtil.ValidateUnexpectedValues(configNode, requirement);
+            if (requirement.GetType() != typeof(InvalidContractRequirement))
+            {
+                valid &= ConfigNodeUtil.ValidateUnexpectedValues(configNode, requirement);
+            }
+
             requirement.enabled = valid;
             requirement.log = LoggingUtil.capturedLog;
             LoggingUtil.CaptureLog = false;
