@@ -11,9 +11,9 @@ using FinePrint.Utilities;
 
 namespace ContractConfigurator.Behaviour
 {
-    /*
-     * Class for spawning a waypoint.
-     */
+    /// <summary>
+    /// Class for spawning a waypoint.
+    /// </summary>
     public class WaypointGenerator : ContractBehaviour
     {
         private class WaypointData
@@ -25,6 +25,7 @@ namespace ContractConfigurator.Behaviour
             public bool forceEquatorial = false;
             public int nearIndex = -1;
             public double nearDistance = 0.0;
+            public PQSCity pqsCity = null;
 
             public WaypointData()
             {
@@ -56,6 +57,7 @@ namespace ContractConfigurator.Behaviour
                 forceEquatorial = orig.forceEquatorial;
                 nearIndex = orig.nearIndex;
                 nearDistance = orig.nearDistance;
+                pqsCity = orig.pqsCity;
                 
                 SetContract(contract);
             }
@@ -73,9 +75,9 @@ namespace ContractConfigurator.Behaviour
         
         public WaypointGenerator() {}
 
-        /*
-         * Copy constructor.
-         */
+        /// <summary>
+        /// Copy constructor.
+        /// </summary>
         public WaypointGenerator(WaypointGenerator orig, Contract contract)
             : base()
         {
@@ -103,7 +105,7 @@ namespace ContractConfigurator.Behaviour
                     valid &= ConfigNodeUtil.ParseValue<string>(child, "targetBody", ref wpData.waypoint.celestialName, factory, defaultBody != null ? defaultBody.name : null, Validation.NotNull);
                     valid &= ConfigNodeUtil.ParseValue<string>(child, "name", ref wpData.waypoint.name, factory, (string)null);
                     valid &= ConfigNodeUtil.ParseValue<string>(child, "icon", ref wpData.waypoint.id, factory);
-                    valid &= ConfigNodeUtil.ParseValue<double?>(child, "altitude", ref altitude, factory, (double?)null, x => Validation.GE(x.Value, 0.0));
+                    valid &= ConfigNodeUtil.ParseValue<double?>(child, "altitude", ref altitude, factory, (double?)null, x => x == null || Validation.GE(x.Value, 0.0));
 
                     // Track the index
                     wpData.waypoint.index = index++;
@@ -139,6 +141,26 @@ namespace ContractConfigurator.Behaviour
                         // Get near waypoint details
                         valid &= ConfigNodeUtil.ParseValue<int>(child, "nearIndex", ref wpData.nearIndex, factory, x => Validation.GE(x, 0));
                         valid &= ConfigNodeUtil.ParseValue<double>(child, "nearDistance", ref wpData.nearDistance, factory, x => Validation.GT(x, 0.0));
+                    }
+                    else if (child.name == "PQS_CITY")
+                    {
+                        wpData.randomAltitude = false;
+                        string pqsCity = null;
+                        valid &= ConfigNodeUtil.ParseValue<string>(child, "pqsCity", ref pqsCity, factory);
+                        if (pqsCity != null)
+                        {
+                            try
+                            {
+                                CelestialBody body = FlightGlobals.Bodies.Where(b => b.name == wpData.waypoint.celestialName).First();
+                                wpData.pqsCity = body.GetComponentsInChildren<PQSCity>(true).Where(pqs => pqs.name == pqsCity).First();
+                            }
+                            catch (Exception e)
+                            {
+                                LoggingUtil.LogError(typeof(WaypointGenerator), "Couldn't load PQSCity with name '" + pqsCity + "'");
+                                Debug.LogException(e);
+                                valid = false;
+                            }
+                        }
                     }
                     else
                     {
@@ -184,6 +206,13 @@ namespace ContractConfigurator.Behaviour
                     WaypointManager.ChooseRandomPositionNear(out wpData.waypoint.latitude, out wpData.waypoint.longitude,
                         nearWaypoint.latitude, nearWaypoint.longitude, wpData.waypoint.celestialName,
                         wpData.nearDistance, wpData.waterAllowed, random);
+                }
+                else if (wpData.type == "PQS_CITY")
+                {
+                    CelestialBody body = FlightGlobals.Bodies.Where(b => b.name == wpData.waypoint.celestialName).First();
+                    wpData.waypoint.latitude = body.GetLatitude(wpData.pqsCity.transform.position);
+                    wpData.waypoint.longitude = body.GetLongitude(wpData.pqsCity.transform.position);
+                    wpData.waypoint.altitude = 0.0;
                 }
 
                 // Set altitude
