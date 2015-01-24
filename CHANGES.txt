@@ -1,3 +1,6 @@
+Contract Configurator 0.5.11
+- Recompile for RemoteTech 1.6.2
+
 Contract Configurator 0.5.10
 - Fixed issue loading SCANsatCoverage parameter (thanks whiteout1911).
 
