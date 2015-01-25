@@ -97,10 +97,6 @@ namespace ContractConfigurator
             {
                 return (T)(object)ParseCelestialBodyValue(configNode, key);
             }
-            else if (typeof(T) == typeof(AvailablePart))
-            {
-                return (T)(object)ParsePartValue(configNode, key);
-            }
             else if (typeof(T) == typeof(PartResourceDefinition))
             {
                 return (T)(object)ParseResourceValue(configNode, key);
@@ -116,15 +112,6 @@ namespace ContractConfigurator
             else if (typeof(T) == typeof(Guid))
             {
                 return (T)(object)new Guid(configNode.GetValue(key));
-            }
-            else if (typeof(T) == typeof(ContractGroup))
-            {
-                string group = configNode.GetValue(key);
-                if (!ContractGroup.contractGroups.ContainsKey(group))
-                {
-                    throw new ArgumentException("No contract group with name '" + group + "'");
-                }
-                return (T)(object)ContractGroup.contractGroups[group];
             }
             else if (typeof(T).Name == "Nullable`1")
             {
@@ -165,6 +152,18 @@ namespace ContractConfigurator
                 {
                     return (T)Convert.ChangeType(stringValue, typeof(T).GetGenericArguments()[0]);
                 }
+            }
+            else if (typeof(T) == typeof(AvailablePart))
+            {
+                return (T)(object)ParsePartValue(stringValue);
+            }
+            else if (typeof(T) == typeof(ContractGroup))
+            {
+                if (!ContractGroup.contractGroups.ContainsKey(stringValue))
+                {
+                    throw new ArgumentException("No contract group with name '" + stringValue + "'");
+                }
+                return (T)(object)ContractGroup.contractGroups[stringValue];
             }
 
             // Do newline conversions
@@ -426,10 +425,9 @@ namespace ContractConfigurator
             throw new ArgumentException("'" + celestialName + "' is not a valid CelestialBody.");
         }
 
-        protected static AvailablePart ParsePartValue(ConfigNode configNode, string key)
+        protected static AvailablePart ParsePartValue(string partName)
         {
             // Underscores in part names get replaced with spaces.  Nobody knows why.
-            string partName = configNode.GetValue(key);
             partName = partName.Replace('_', '.');
 
             // Get the part
