@@ -107,6 +107,17 @@ namespace ContractConfigurator.Behaviour
                     valid &= ConfigNodeUtil.ParseValue<string>(child, "icon", ref wpData.waypoint.id, factory);
                     valid &= ConfigNodeUtil.ParseValue<double?>(child, "altitude", ref altitude, factory, (double?)null, x => x == null || Validation.GE(x.Value, 0.0));
 
+                    // The FinePrint logic is such that it will only look in Squad/Contracts/Icons for icons.
+                    // Cheat this by hacking the path in the game database.
+                    if (wpData.waypoint.id.Contains("/"))
+                    {
+                        GameDatabase.TextureInfo texInfo = GameDatabase.Instance.databaseTexture.Where(t => t.name == wpData.waypoint.id).FirstOrDefault();
+                        if (texInfo != null)
+                        {
+                            texInfo.name = "Squad/Contracts/Icons/" + wpData.waypoint.id;
+                        }
+                    }
+
                     // Track the index
                     wpData.waypoint.index = index++;
 
