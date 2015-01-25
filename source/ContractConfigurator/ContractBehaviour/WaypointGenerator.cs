@@ -168,7 +168,7 @@ namespace ContractConfigurator.Behaviour
                             catch (Exception e)
                             {
                                 LoggingUtil.LogError(typeof(WaypointGenerator), "Couldn't load PQSCity with name '" + pqsCity + "'");
-                                Debug.LogException(e);
+                                LoggingUtil.LogException(e);
                                 valid = false;
                             }
                         }

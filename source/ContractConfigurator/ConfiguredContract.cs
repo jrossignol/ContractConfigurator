@@ -75,7 +75,7 @@ namespace ContractConfigurator
             }
             catch (Exception e)
             {
-                Debug.LogException(new Exception("Failed generating parameters for " + contractType, e));
+                LoggingUtil.LogException(new Exception("Failed generating parameters for " + contractType, e));
                 return false;
             }
 
@@ -155,7 +155,7 @@ namespace ContractConfigurator
             catch (Exception e)
             {
                 LoggingUtil.LogError(this, "Error loading contract from persistance file!");
-                Debug.LogException(e);
+                LoggingUtil.LogException(e);
 
                 SetState(State.Failed);
             }

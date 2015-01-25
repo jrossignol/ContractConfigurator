@@ -51,7 +51,7 @@ namespace ContractConfigurator.SCANsat
                 catch (Exception e)
                 {
                     LoggingUtil.LogError(this, "Couldn't load PQSCity with name '" + pqsCity + "'");
-                    Debug.LogException(e);
+                    LoggingUtil.LogException(e);
                     valid = false;
                 }
             }

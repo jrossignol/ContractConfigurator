@@ -115,7 +115,7 @@ namespace ContractConfigurator
             }
             catch (Exception e)
             {
-                Debug.LogException(new Exception("ContractConfigurator: Exception checking requirements!", e));
+                LoggingUtil.LogException(new Exception("ContractConfigurator: Exception checking requirements!", e));
                 return false;
             }
             return allReqMet;

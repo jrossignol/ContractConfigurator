@@ -209,7 +209,7 @@ namespace ContractConfigurator
             catch (Exception e)
             {
                 LoggingUtil.LogError(obj, obj.ErrorPrefix(configNode) + ": Error parsing " + key);
-                Debug.LogException(e);
+                LoggingUtil.LogException(e);
                 return false;
             }
             finally
@@ -245,7 +245,7 @@ namespace ContractConfigurator
                 catch (Exception e)
                 {
                     LoggingUtil.LogError(obj, obj.ErrorPrefix(configNode) + ": The value supplied for " + key + " (" + value + ") is invalid.");
-                    Debug.LogException(e);
+                    LoggingUtil.LogException(e);
                     return false;
                 }
                 return true;
@@ -304,7 +304,7 @@ namespace ContractConfigurator
                 catch (Exception e)
                 {
                     LoggingUtil.LogError(obj, obj.ErrorPrefix(configNode) + ": The value supplied for " + key + " (" + value + ") is invalid.");
-                    Debug.LogException(e);
+                    LoggingUtil.LogException(e);
                     return false;
                 }
                 return true;

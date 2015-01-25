@@ -160,8 +160,19 @@ namespace ContractConfigurator
             LoggingUtil.Log(LogLevel.ERROR, obj.GetType(), message);
         }
 
-        public static void LogError(Type type, string message) {
+        public static void LogError(Type type, string message)
+        {
             LoggingUtil.Log(LogLevel.ERROR, type, message);
+        }
+
+        public static void LogException(Exception e)
+        {
+            if (captureLog)
+            {
+                capturedLog += "[EXCEPTION] " + e.Message + "\n" + e.StackTrace + "\n";
+            }
+
+            LoggingUtil.LogException(e);
         }
 
         public static void Log(LogLevel logLevel, Type type, string message)

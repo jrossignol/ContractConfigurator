@@ -27,7 +27,7 @@ namespace ContractConfigurator.SCANsat
             }
             catch (Exception e)
             {
-                Debug.LogException(e);
+                LoggingUtil.LogException(e);
                 return false;
             }
 

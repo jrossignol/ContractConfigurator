@@ -463,7 +463,7 @@ namespace ContractConfigurator
                     catch (Exception e)
                     {
                         Exception wrapper = new Exception("Error loading CONTRACT_GROUP '" + name + "'", e);
-                        Debug.LogException(wrapper);
+                        LoggingUtil.LogException(wrapper);
                     }
                     finally
                     {
@@ -511,7 +511,7 @@ namespace ContractConfigurator
                     catch (Exception e)
                     {
                         Exception wrapper = new Exception("Error loading CONTRACT_TYPE '" + name + "'", e);
-                        Debug.LogException(wrapper);
+                        LoggingUtil.LogException(wrapper);
                     }
                 }
             }
