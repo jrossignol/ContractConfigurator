@@ -20,7 +20,8 @@ namespace ContractConfigurator
         private IEnumerable<ContractType> guiContracts;
         private bool showGUI = false;
         private Rect windowPos = new Rect(580f, 160f, 240f, 40f);
-        private Vector2 scrollPosition;
+        private Vector2 scrollPosition, scrollPosition2;
+        private string tooltip = "";
 
         private int totalContracts = 0;
         private int successContracts = 0;
@@ -122,13 +123,12 @@ namespace ContractConfigurator
             if (showGUI && HighLogic.LoadedScene != GameScenes.CREDITS && HighLogic.LoadedScene != GameScenes.LOADING &&
                 HighLogic.LoadedScene != GameScenes.LOADINGBUFFER && HighLogic.LoadedScene != GameScenes.SETTINGS)
             {
-                Version version = GetType().Assembly.GetName().Version;
-                string versionStr = version.Major + "." + version.Minor + "." + version.Revision;
+                var ainfoV = Attribute.GetCustomAttribute(GetType().Assembly, typeof(AssemblyInformationalVersionAttribute)) as AssemblyInformationalVersionAttribute;
                 windowPos = GUILayout.Window(
                     GetType().FullName.GetHashCode(),
                     windowPos,
                     WindowGUI,
-                    "Contract Configurator " + versionStr);
+                    "Contract Configurator " + ainfoV.InformationalVersion);
             }
         }
 
@@ -180,7 +180,8 @@ namespace ContractConfigurator
                 {
                     contractType.expandInDebug = !contractType.expandInDebug;
                 }
-                GUILayout.Label(new GUIContent(contractType.ToString(), contractType.config), contractType.enabled ? GUI.skin.label : redLabel);
+                GUILayout.Label(new GUIContent(contractType.ToString(), contractType.config + "\n\n" + contractType.log),
+                    contractType.enabled ? GUI.skin.label : redLabel);
                 GUILayout.EndHorizontal();
 
                 if (contractType.expandInDebug)
@@ -213,11 +214,22 @@ namespace ContractConfigurator
             GUILayout.EndHorizontal();
 
             GUILayout.EndVertical();
+            
+            // The right column
+            GUILayout.BeginVertical();
+            scrollPosition2 = GUILayout.BeginScrollView(scrollPosition2, GUILayout.Width(500), GUILayout.ExpandHeight(true));
 
-            GUILayout.Label(GUI.tooltip, GUILayout.Width(500), GUILayout.ExpandHeight(true));
+            // Tooltip
+            if (!string.IsNullOrEmpty(GUI.tooltip))
+            {
+                tooltip = GUI.tooltip;
+            }
+            GUILayout.Label(tooltip);
+
+            GUILayout.EndScrollView();
+            GUILayout.EndVertical();
 
             GUILayout.EndHorizontal();
-
             GUI.DragWindow();
         }
 

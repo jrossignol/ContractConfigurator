@@ -46,6 +46,7 @@ namespace ContractConfigurator
 
         public bool expandInDebug = false;
         public string config = "";
+        public string log;
         public bool enabled { get; private set; }
 
         // Contract attributes
@@ -111,6 +112,9 @@ namespace ContractConfigurator
         /// <returns>Whether the load was successful.</returns>
         public bool Load(ConfigNode configNode)
         {
+            // Logging on
+            LoggingUtil.CaptureLog = true;
+
             ConfigNodeUtil.ClearFoundCache();
             bool valid = true;
 
@@ -154,6 +158,9 @@ namespace ContractConfigurator
             // Check for unexpected values - always do this last
             valid &= ConfigNodeUtil.ValidateUnexpectedValues(configNode, this);
 
+            log = LoggingUtil.capturedLog;
+            LoggingUtil.CaptureLog = false;
+
             // Load parameters
             paramFactories = new List<ParameterFactory>();
             foreach (ConfigNode contractParameter in configNode.GetNodes("PARAMETER"))
@@ -164,13 +171,6 @@ namespace ContractConfigurator
                 {
                     paramFactories.Add(paramFactory);
                 }
-            }
-
-            // Check we have at least one valid parameter
-            if (paramFactories.Count() == 0)
-            {
-                LoggingUtil.LogError(this.GetType(), ErrorPrefix() + ": Need at least one parameter for a contract!");
-                valid = false;
             }
 
             // Load behaviours
@@ -197,8 +197,21 @@ namespace ContractConfigurator
                 }
             }
 
+            // Logging on
+            LoggingUtil.CaptureLog = true;
+
+            // Check we have at least one valid parameter
+            if (paramFactories.Count() == 0)
+            {
+                LoggingUtil.LogError(this.GetType(), ErrorPrefix() + ": Need at least one parameter for a contract!");
+                valid = false;
+            }
+
             config = configNode.ToString();
             enabled = valid;
+            log += LoggingUtil.capturedLog;
+            LoggingUtil.CaptureLog = false;
+
             return valid;
         }
 
