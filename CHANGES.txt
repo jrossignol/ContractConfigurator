@@ -4,6 +4,7 @@ Contract Configurator 0.6.0
 - Added Docking parameter.
 - Added TargetDestroyed parameter.
 - Added VesselNotDestroyed parameter.
+- Added VesselIsType parameter.
 - Add situation filter to Orbit parameter.
 - Support for VALIDATION node in PartValidation to allow more terse validation for specific part recipes on a ship.
 - Added CONTRACT_GROUP and extra logic for limiting contracts based on group.

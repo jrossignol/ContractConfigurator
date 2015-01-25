@@ -58,6 +58,7 @@
     <Compile Include="ContractParameter\Duration.cs" />
     <Compile Include="ContractParameter\ParameterDelegate.cs" />
     <Compile Include="ContractParameter\TargetDestroyed.cs" />
+    <Compile Include="ContractParameter\VesselParameter\VesselIsType.cs" />
     <Compile Include="ContractParameter\VesselParameter\VesselNotDestroyed.cs" />
     <Compile Include="ContractParameter\VesselParameter\Docking.cs" />
     <Compile Include="ContractParameter\VesselParameter\OrbitParameter.cs" />
@@ -73,6 +74,7 @@
     <Compile Include="ContractGroup.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="ParameterFactory\InvalidParameterFactory.cs" />
+    <Compile Include="ParameterFactory\VesselIsTypeFactory.cs" />
     <Compile Include="ParameterFactory\VesselNotDestroyedFactory.cs" />
     <Compile Include="ParameterFactory\TargetDestroyedFactory.cs" />
     <Compile Include="ParameterFactory\DockingFactory.cs" />
