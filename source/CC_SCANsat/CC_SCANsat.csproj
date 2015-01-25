@@ -51,6 +51,7 @@
     <Compile Include="SCANsatCoverageFactory.cs" />
     <Compile Include="SCANsatCoverage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SCANsatLocationCoverageRequirement.cs" />
     <Compile Include="SCANsatCoverageRequirement.cs" />
     <Compile Include="SCANsatUtil.cs" />
   </ItemGroup>

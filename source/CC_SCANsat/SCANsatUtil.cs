@@ -61,6 +61,19 @@ namespace ContractConfigurator.SCANsat
         }
 
         /// <summary>
+        /// Wrapper for SCANutil.isCovered
+        /// </summary>
+        public static bool IsCovered(double lat, double lon, int SCANtype, CelestialBody body)
+        {
+            Type scanUtil = SCANsatAssembly.GetType("SCANsat.SCANUtil");
+
+            // Get and invoke the method
+            MethodInfo methodIsCovered = scanUtil.GetMethod("isCovered",
+                new Type[] {typeof(double), typeof(double), typeof(CelestialBody), typeof(int)});
+            return (bool)methodIsCovered.Invoke(null, new object[] { lat, lon, body, SCANtype });
+        }
+
+        /// <summary>
         /// Verifies that the SCANsat version the player has is compatible.
         /// </summary>
         /// <returns>Whether the check passed.</returns>
