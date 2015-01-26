@@ -172,7 +172,7 @@ namespace ContractConfigurator
                 capturedLog += "[EXCEPTION] " + e.Message + "\n" + e.StackTrace + "\n";
             }
 
-            LoggingUtil.LogException(e);
+            Debug.LogException(e);
         }
 
         public static void Log(LogLevel logLevel, Type type, string message)

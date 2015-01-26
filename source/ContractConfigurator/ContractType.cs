@@ -53,6 +53,7 @@ namespace ContractConfigurator
         public string name;
         public ContractGroup group;
         public string title;
+        public string tag;
         public string notes;
         public string description;
         public string topic;
@@ -123,6 +124,7 @@ namespace ContractConfigurator
             // Load contract text details
             valid &= ConfigNodeUtil.ParseValue<ContractGroup>(configNode, "group", ref group, this, (ContractGroup)null);
             valid &= ConfigNodeUtil.ParseValue<string>(configNode, "title", ref title, this);
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "tag", ref tag, this);
             valid &= ConfigNodeUtil.ParseValue<string>(configNode, "description", ref description, this, (string)null);
             valid &= ConfigNodeUtil.ParseValue<string>(configNode, "topic", ref topic, this, (string)null);
             valid &= ConfigNodeUtil.ParseValue<string>(configNode, "subject", ref subject, this, (string)null);
