@@ -19,6 +19,7 @@ namespace ContractConfigurator.Parameters
             private string contractTitle = "";
             private int passengerCount = 0;
             private HasPassengers parameterReference = null;
+            private bool uiHidden = false;
             private bool visible = false;
             private Rect windowPos = new Rect((Screen.width - 200) / 2, (Screen.height - 120) / 2, 200, 120);
 
@@ -44,17 +45,17 @@ namespace ContractConfigurator.Parameters
 
             public void OnHideUI()
             {
-                visible = false;
+                uiHidden = true;
             }
 
             public void OnShowUI()
             {
-                visible = true;
+                uiHidden = false;
             }
 
             public void OnGUI()
             {
-                if (visible)
+                if (visible && !uiHidden)
                 {
                     GUI.skin = HighLogic.Skin;
                     windowPos = GUILayout.Window(
