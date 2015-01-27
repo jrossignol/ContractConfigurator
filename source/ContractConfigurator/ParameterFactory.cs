@@ -162,6 +162,7 @@ namespace ContractConfigurator
             {
                 parameter.DisableOnStateChange = (bool)disableOnStateChange;
             }
+            parameter.ID = name;
 
             return parameter;
         }

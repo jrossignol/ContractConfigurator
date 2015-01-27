@@ -12,6 +12,9 @@ using System.Text.RegularExpressions;
 
 namespace ContractConfigurator
 {
+    /// <summary>
+    /// Class used for all Contract Configurator contracts.
+    /// </summary>
     public class ConfiguredContract : Contract
     {
         public ContractType contractType { get; private set; }
@@ -83,9 +86,10 @@ namespace ContractConfigurator
             return true;
         }
 
-        /*
-         * Adds a new behaviour to our list.
-         */
+        /// <summary>
+        /// Adds a new behaviour to our list.
+        /// </summary>
+        /// <param name="behaviour">The behaviour to add</param>
         public void AddBehaviour(ContractBehaviour behaviour)
         {
             behaviour.contract = this;

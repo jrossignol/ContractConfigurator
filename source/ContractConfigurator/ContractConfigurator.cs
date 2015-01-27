@@ -19,7 +19,7 @@ namespace ContractConfigurator
 
         private IEnumerable<ContractType> guiContracts;
         private bool showGUI = false;
-        private Rect windowPos = new Rect(580f, 160f, 240f, 40f);
+        private Rect windowPos = new Rect(580f, 200f, 240f, 40f);
         private Vector2 scrollPosition, scrollPosition2;
         private string tooltip = "";
 
@@ -142,12 +142,10 @@ namespace ContractConfigurator
                 double height = Math.Max(vessel.mainBody.pqsController.GetSurfaceHeight(radialVector) - vessel.mainBody.pqsController.radius, 0.0);
 
                 // Calculate the distance
-                if (Time.frameCount % 100 == 0)
+                if (Time.frameCount % 500 == 0)
                 {
                     LoggingUtil.LogVerbose(this, "latitude = " + vessel.latitude);
                     LoggingUtil.LogVerbose(this, "longitude = " + vessel.longitude);
-                    LoggingUtil.LogVerbose(this, "altitude = " + vessel.altitude);
-                    LoggingUtil.LogVerbose(this, "altitude = " + vessel.terrainAltitude);
                     LoggingUtil.LogVerbose(this, "altitude = " + (vessel.altitude - height));
                 }
             }
