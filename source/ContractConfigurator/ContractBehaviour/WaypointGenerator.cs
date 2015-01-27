@@ -105,7 +105,7 @@ namespace ContractConfigurator.Behaviour
                     valid &= ConfigNodeUtil.ParseValue<string>(child, "targetBody", ref wpData.waypoint.celestialName, factory, defaultBody != null ? defaultBody.name : null, Validation.NotNull);
                     valid &= ConfigNodeUtil.ParseValue<string>(child, "name", ref wpData.waypoint.name, factory, (string)null);
                     valid &= ConfigNodeUtil.ParseValue<string>(child, "icon", ref wpData.waypoint.id, factory);
-                    valid &= ConfigNodeUtil.ParseValue<double?>(child, "altitude", ref altitude, factory, (double?)null, x => x == null || Validation.GE(x.Value, 0.0));
+                    valid &= ConfigNodeUtil.ParseValue<double?>(child, "altitude", ref altitude, factory, (double?)null);
 
                     // The FinePrint logic is such that it will only look in Squad/Contracts/Icons for icons.
                     // Cheat this by hacking the path in the game database.
@@ -223,7 +223,6 @@ namespace ContractConfigurator.Behaviour
                     CelestialBody body = FlightGlobals.Bodies.Where(b => b.name == wpData.waypoint.celestialName).First();
                     wpData.waypoint.latitude = body.GetLatitude(wpData.pqsCity.transform.position);
                     wpData.waypoint.longitude = body.GetLongitude(wpData.pqsCity.transform.position);
-                    wpData.waypoint.altitude = 0.0;
                 }
 
                 // Set altitude
