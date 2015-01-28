@@ -45,7 +45,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BehaviourFactory\MessageBoxFactory.cs" />
+    <Compile Include="BehaviourFactory\MessageFactory.cs" />
     <Compile Include="BehaviourFactory\InvalidBehaviourFactory.cs" />
     <Compile Include="BehaviourFactory\ExpressionFactory.cs" />
     <Compile Include="BehaviourFactory\ExperimentalPartFactory.cs" />
@@ -53,7 +53,7 @@
     <Compile Include="BehaviourFactory\SpawnVesselFactory.cs" />
     <Compile Include="BehaviourFactory\WaypointGeneratorFactory.cs" />
     <Compile Include="BehaviourFactory\SpawnKerbalFactory.cs" />
-    <Compile Include="ContractBehaviour\MessageBox.cs" />
+    <Compile Include="ContractBehaviour\Message.cs" />
     <Compile Include="ContractBehaviour\ExperimentalPart.cs" />
     <Compile Include="ContractBehaviour\IHasKerbalBehaviour.cs" />
     <Compile Include="ContractBehaviour\SpawnVessel.cs" />

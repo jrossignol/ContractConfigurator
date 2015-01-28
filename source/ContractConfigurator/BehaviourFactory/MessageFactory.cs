@@ -9,11 +9,11 @@ using ContractConfigurator;
 namespace ContractConfigurator.Behaviour
 {
     /// <summary>
-    /// BehaviourFactory wrapper for MessageBox ContractBehaviour.
+    /// BehaviourFactory wrapper for Message ContractBehaviour.
     /// </summary>
-    public class MessageBoxFactory : BehaviourFactory
+    public class MessageFactory : BehaviourFactory
     {
-        protected List<MessageBox.ConditionDetail> conditions = new List<MessageBox.ConditionDetail>();
+        protected List<Message.ConditionDetail> conditions = new List<Message.ConditionDetail>();
         protected string title;
         protected string message;
 
@@ -27,8 +27,8 @@ namespace ContractConfigurator.Behaviour
 
             foreach (ConfigNode child in configNode.GetNodes("CONDITION"))
             {
-                MessageBox.ConditionDetail cd = new MessageBox.ConditionDetail();
-                valid &= ConfigNodeUtil.ParseValue<MessageBox.ConditionDetail.Condition>(child, "condition", ref cd.condition, this);
+                Message.ConditionDetail cd = new Message.ConditionDetail();
+                valid &= ConfigNodeUtil.ParseValue<Message.ConditionDetail.Condition>(child, "condition", ref cd.condition, this);
                 valid &= ConfigNodeUtil.ParseValue<string>(child, "parameter", ref cd.parameter, this, (string)null, x => ValidateMandatoryParameter(x, cd.condition));
                 conditions.Add(cd);
             }
@@ -37,10 +37,10 @@ namespace ContractConfigurator.Behaviour
             return valid;
         }
 
-        protected bool ValidateMandatoryParameter(string parameter, MessageBox.ConditionDetail.Condition condition)
+        protected bool ValidateMandatoryParameter(string parameter, Message.ConditionDetail.Condition condition)
         {
-            if (parameter == null && (condition == MessageBox.ConditionDetail.Condition.PARAMETER_COMPLETED ||
-                condition == MessageBox.ConditionDetail.Condition.PARAMETER_FAILED))
+            if (parameter == null && (condition == Message.ConditionDetail.Condition.PARAMETER_COMPLETED ||
+                condition == Message.ConditionDetail.Condition.PARAMETER_FAILED))
             {
                 throw new ArgumentException("Required if condition is PARAMETER_COMPLETED or PARAMETER_FAILED.");
             }
@@ -49,7 +49,7 @@ namespace ContractConfigurator.Behaviour
 
         public override ContractBehaviour Generate(ConfiguredContract contract)
         {
-            return new MessageBox(conditions, title, message);
+            return new Message(conditions, title, message);
         }
     }
 }
