@@ -57,7 +57,7 @@ namespace ContractConfigurator.Behaviour
 
             foreach (ConditionDetail cd in conditions.Where(cd => !cd.disabled && cd.condition == cond && cd.parameter == param.ID))
             {
-                DisplayMessage(title, message);
+                DisplayMessage(title, message, param.State == ParameterState.Complete ? MessageSystemButton.MessageButtonColor.GREEN : MessageSystemButton.MessageButtonColor.RED);
                 cd.disabled = true;
             }
         }
@@ -75,15 +75,14 @@ namespace ContractConfigurator.Behaviour
         {
             foreach (ConditionDetail cd in conditions.Where(cd => !cd.disabled && cd.condition == ConditionDetail.Condition.CONTRACT_FAILED))
             {
-                DisplayMessage(title, message);
+                DisplayMessage(title, message, MessageSystemButton.MessageButtonColor.RED);
                 cd.disabled = true;
             }
         }
 
-        protected void DisplayMessage(string title, string message)
+        protected void DisplayMessage(string title, string message, MessageSystemButton.MessageButtonColor color = MessageSystemButton.MessageButtonColor.GREEN)
         {
-            MessageSystem.Instance.AddMessage(new MessageSystem.Message(title, message,
-                MessageSystemButton.MessageButtonColor.GREEN,
+            MessageSystem.Instance.AddMessage(new MessageSystem.Message(title, message, color,
                 MessageSystemButton.ButtonIcons.MESSAGE));
         }
 
