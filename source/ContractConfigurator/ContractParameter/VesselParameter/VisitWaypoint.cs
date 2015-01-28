@@ -20,9 +20,10 @@ namespace ContractConfigurator.Parameters
         protected int waypointIndex { get; set; }
         protected Waypoint waypoint { get; set; }
         protected double distance { get; set; }
+        private double height = double.MaxValue;
 
         private float lastUpdate = 0.0f;
-        private const float UPDATE_FREQUENCY = 0.1f;
+        private const float UPDATE_FREQUENCY = 0.25f;
 
         public VisitWaypoint()
             : this(0, 0.0f, null)
@@ -170,10 +171,13 @@ namespace ContractConfigurator.Parameters
             CelestialBody celestialBody = vessel.mainBody;
 
             // Figure out the terrain height
-            double latRads = Math.PI / 180.0 * waypoint.latitude;
-            double lonRads = Math.PI / 180.0 * waypoint.longitude;
-            Vector3d radialVector = new Vector3d(Math.Cos(latRads) * Math.Cos(lonRads), Math.Sin(latRads), Math.Cos(latRads) * Math.Sin(lonRads));
-            double height = Math.Max(celestialBody.pqsController.GetSurfaceHeight(radialVector) - celestialBody.pqsController.radius, 0.0);
+            if (height == double.MaxValue)
+            {
+                double latRads = Math.PI / 180.0 * waypoint.latitude;
+                double lonRads = Math.PI / 180.0 * waypoint.longitude;
+                Vector3d radialVector = new Vector3d(Math.Cos(latRads) * Math.Cos(lonRads), Math.Sin(latRads), Math.Cos(latRads) * Math.Sin(lonRads));
+                height = Math.Max(celestialBody.pqsController.GetSurfaceHeight(radialVector) - celestialBody.pqsController.radius, 0.0);
+            }
 
             // Use the haversine formula to calculate great circle distance.
             double sin1 = Math.Sin(Math.PI / 180.0 * (vessel.latitude - waypoint.latitude) / 2);
