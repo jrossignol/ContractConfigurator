@@ -21,6 +21,9 @@ namespace ContractConfigurator
         private List<ContractBehaviour> behaviours = new List<ContractBehaviour>();
         public IEnumerable<ContractBehaviour> Behaviours { get { return behaviours.AsReadOnly(); } }
 
+        private static int lastGenerationFailure = 0;
+        private static Dictionary<ContractPrestige, int> lastSpecificGenerationFailure = new Dictionary<ContractPrestige, int>();
+
         protected override bool Generate()
         {
             // MeetsRequirement gets called first and sets the contract type, but check it and
@@ -192,13 +195,43 @@ namespace ContractConfigurator
 
         private bool SelectContractType()
         {
+            if (!lastSpecificGenerationFailure.ContainsKey(prestige))
+            {
+                lastSpecificGenerationFailure[prestige] = 0;
+            }
+
             // Build a weighted list of ContractTypes to choose from
             Dictionary<ContractType, double> validContractTypes = new Dictionary<ContractType, double>();
             double totalWeight = 0.0;
             foreach (ContractType ct in ContractType.AllValidContractTypes)
             {
-                validContractTypes.Add(ct, ct.weight);
-                totalWeight += ct.weight;
+                // KSP tries to generate new contracts *incessantly*, to the point where this becomes
+                // a real performance problem.  So if we run into a situation where we did not
+                // generate a contract and we are asked AGAIN after a very short time, then do
+                // some logic to prevent re-checking uselessly.
+
+                // If there was any generation failure within the last 100 frames, only look at
+                // contracts specific to that prestige level
+                if (lastGenerationFailure + 100 < Time.frameCount)
+                {
+                    // If there was a generation failure for this specific prestige level in
+                    // the last 100 frames, then just skip the checks entirely
+                    if (lastSpecificGenerationFailure[prestige] + 100 < Time.frameCount)
+                    {
+                        return false;
+                    }
+
+                    if (ct.prestige != null && ct.prestige.Value == prestige)
+                    {
+                        validContractTypes.Add(ct, ct.weight);
+                        totalWeight += ct.weight;
+                    }
+                }
+                else
+                {
+                    validContractTypes.Add(ct, ct.weight);
+                    totalWeight += ct.weight;
+                }
             }
 
             // Loop until we either run out of contracts in our list or make a selection
@@ -237,6 +270,10 @@ namespace ContractConfigurator
                     totalWeight -= selectedContractType.weight;
                 }
             }
+
+            // Set our failure markers
+            lastGenerationFailure = Time.frameCount;
+            lastSpecificGenerationFailure[prestige] = Time.frameCount;
 
             return false;
         }
