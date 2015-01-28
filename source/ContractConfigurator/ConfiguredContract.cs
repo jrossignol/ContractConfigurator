@@ -205,6 +205,7 @@ namespace ContractConfigurator
             double totalWeight = 0.0;
             foreach (ContractType ct in ContractType.AllValidContractTypes)
             {
+                LoggingUtil.LogVerbose(this, "Checking ContractType = " + ct.name);
                 // KSP tries to generate new contracts *incessantly*, to the point where this becomes
                 // a real performance problem.  So if we run into a situation where we did not
                 // generate a contract and we are asked AGAIN after a very short time, then do
@@ -212,11 +213,11 @@ namespace ContractConfigurator
 
                 // If there was any generation failure within the last 100 frames, only look at
                 // contracts specific to that prestige level
-                if (lastGenerationFailure + 100 < Time.frameCount)
+                if (lastGenerationFailure + 100 > Time.frameCount)
                 {
                     // If there was a generation failure for this specific prestige level in
                     // the last 100 frames, then just skip the checks entirely
-                    if (lastSpecificGenerationFailure[prestige] + 100 < Time.frameCount)
+                    if (lastSpecificGenerationFailure[prestige] + 100 > Time.frameCount)
                     {
                         return false;
                     }
