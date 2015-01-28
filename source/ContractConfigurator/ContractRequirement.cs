@@ -85,13 +85,27 @@ namespace ContractConfigurator
         public virtual bool RequirementMet(ConfiguredContract contract) { return true; }
 
         /// <summary>
+        /// Checks the requirement for the given contract.
+        /// </summary>
+        /// <param name="contract">Contract to check</param>
+        /// <returns>Whether the requirement is met</returns>
+        public virtual bool CheckRequirement(ConfiguredContract contract)
+        {
+            bool nodeMet = RequirementMet(contract);
+            nodeMet = invertRequirement ? !nodeMet : nodeMet;
+            lastResult = nodeMet;
+            LoggingUtil.LogVerbose(typeof(ContractRequirement), "Checked requirement '" + name + "' of type " + type + ": " + nodeMet);
+            return nodeMet;
+        }
+
+        /// <summary>
         /// Checks if all the given ContractRequirement meet the requirement.
         /// </summary>
         /// <param name="contract">Contract to check</param>
         /// <param name="contractType">Contract type of the contract (in case the contract type has not yet been assigned).</param>
         /// <param name="contractRequirements">The list of requirements to check</param>
         /// <returns>Whether the requirement is met or not.</returns>
-        public static bool RequirementsMet(ConfiguredContract contract, ContractType contractType, List<ContractRequirement> contractRequirements)
+        public static bool RequirementsMet(ConfiguredContract contract, ContractType contractType, IEnumerable<ContractRequirement> contractRequirements)
         {
             bool allReqMet = true;
             try
@@ -103,10 +117,7 @@ namespace ContractConfigurator
                     {
                         if (requirement.checkOnActiveContract || contract.ContractState != Contract.State.Active)
                         {
-                            bool nodeMet = requirement.RequirementMet(contract);
-                            requirement.lastResult = requirement.invertRequirement ? !nodeMet : nodeMet;
-                            LoggingUtil.LogVerbose(typeof(ContractRequirement), "Checked requirement '" + requirement.name + "' of type " + requirement.type + ": " + nodeMet);
-                            allReqMet = allReqMet && (requirement.invertRequirement ? !nodeMet : nodeMet);
+                            allReqMet = allReqMet && requirement.CheckRequirement(contract);
 
                             if (!allReqMet)
                             {

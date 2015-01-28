@@ -20,10 +20,7 @@ namespace ContractConfigurator
             {
                 if (requirement.enabled)
                 {
-                    bool nodeMet = requirement.RequirementMet(contract);
-                    requirement.lastResult = requirement.invertRequirement ? !nodeMet : nodeMet;
-                    LoggingUtil.LogVerbose(typeof(ContractRequirement), "Checked requirement '" + requirement.Name + "' of type " + requirement.Type + ": " + (requirement.InvertRequirement ? !nodeMet : nodeMet));
-                    requirementMet |= (requirement.InvertRequirement ? !nodeMet : nodeMet);
+                    requirementMet |= requirement.CheckRequirement(contract);
 
                     if (requirementMet)
                     {

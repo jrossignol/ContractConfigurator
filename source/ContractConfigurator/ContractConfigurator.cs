@@ -180,10 +180,19 @@ namespace ContractConfigurator
 
             GUILayout.BeginVertical(GUILayout.Width(500));
 
+            GUILayout.BeginHorizontal();
             if (GUILayout.Button("Reload Contracts"))
             {
                 StartCoroutine(ReloadContractTypes());
             }
+            if (HighLogic.LoadedScene != GameScenes.MAINMENU)
+            {
+                if (GUILayout.Button("Force Check Requirements"))
+                {
+                    CheckRequirements();
+                }
+            }
+            GUILayout.EndHorizontal();
 
             // Display the listing of contracts
             scrollPosition = GUILayout.BeginScrollView(scrollPosition, GUILayout.Height(640));
@@ -383,6 +392,39 @@ namespace ContractConfigurator
             yield return new WaitForEndOfFrame();
             reloading = false;
             scrollPosition = new Vector2();
+        }
+
+        /// <summary>
+        /// Does a forced check of all contract requirements
+        /// </summary>
+        void CheckRequirements()
+        {
+            foreach (ContractType contractType in ContractType.AllValidContractTypes)
+            {
+                foreach (ContractRequirement requirement in contractType.Requirements)
+                {
+                    CheckRequirement(requirement);
+                }
+            }
+        }
+        /// <summary>
+        /// Forced check of contract requirement and its children.
+        /// </summary>
+        void CheckRequirement(ContractRequirement requirement)
+        {
+            try
+            {
+                requirement.lastResult = requirement.RequirementMet(null);
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+            }
+
+            foreach (ContractRequirement child in requirement.ChildRequirements)
+            {
+                CheckRequirement(child);
+            }
         }
 
         /// <summary>
