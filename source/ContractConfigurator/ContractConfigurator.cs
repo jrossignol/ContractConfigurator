@@ -132,18 +132,18 @@ namespace ContractConfigurator
             }
 
             // TODO - remove
-            if (FlightGlobals.ActiveVessel != null)
+            if (FlightGlobals.ActiveVessel != null && FlightGlobals.ActiveVessel.mainBody.pqsController != null)
             {
-                Vessel vessel = FlightGlobals.ActiveVessel;
-                // Figure out the terrain height
-                double latRads = Math.PI / 180.0 * vessel.latitude;
-                double lonRads = Math.PI / 180.0 * vessel.longitude;
-                Vector3d radialVector = new Vector3d(Math.Cos(latRads) * Math.Cos(lonRads), Math.Sin(latRads), Math.Cos(latRads) * Math.Sin(lonRads));
-                double height = Math.Max(vessel.mainBody.pqsController.GetSurfaceHeight(radialVector) - vessel.mainBody.pqsController.radius, 0.0);
-
                 // Calculate the distance
                 if (Time.frameCount % 500 == 0)
                 {
+                    Vessel vessel = FlightGlobals.ActiveVessel;
+                    // Figure out the terrain height
+                    double latRads = Math.PI / 180.0 * vessel.latitude;
+                    double lonRads = Math.PI / 180.0 * vessel.longitude;
+                    Vector3d radialVector = new Vector3d(Math.Cos(latRads) * Math.Cos(lonRads), Math.Sin(latRads), Math.Cos(latRads) * Math.Sin(lonRads));
+                    double height = Math.Max(vessel.mainBody.pqsController.GetSurfaceHeight(radialVector) - vessel.mainBody.pqsController.radius, 0.0);
+
                     LoggingUtil.LogVerbose(this, "latitude = " + vessel.latitude);
                     LoggingUtil.LogVerbose(this, "longitude = " + vessel.longitude);
                     LoggingUtil.LogVerbose(this, "altitude = " + (vessel.altitude - height));

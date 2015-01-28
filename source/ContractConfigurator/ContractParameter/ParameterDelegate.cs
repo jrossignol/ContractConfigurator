@@ -278,6 +278,12 @@ namespace ContractConfigurator.Parameters
         private int minCount;
         private int maxCount;
 
+        public CountParameterDelegate()
+            : base()
+        {
+
+        }
+
         public CountParameterDelegate(int minCount, int maxCount, string extraTitle = "")
             : this(minCount, maxCount, DefaultFilter, extraTitle)
         {

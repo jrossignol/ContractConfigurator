@@ -213,7 +213,7 @@ namespace ContractConfigurator.RemoteTech
                     return;
                 }
             }
-            
+
             // Get the celestial body and index we'll be checking
             CelestialBody body = null;
             int i = 0;

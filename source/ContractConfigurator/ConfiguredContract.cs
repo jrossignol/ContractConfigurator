@@ -197,40 +197,48 @@ namespace ContractConfigurator
             double totalWeight = 0.0;
             foreach (ContractType ct in ContractType.AllValidContractTypes)
             {
-                // Only add contract types that have their requirements met
-                if (ct.MeetRequirements(this))
-                {
-                    validContractTypes.Add(ct, ct.weight);
-                    totalWeight += ct.weight;
-                }
+                validContractTypes.Add(ct, ct.weight);
+                totalWeight += ct.weight;
             }
 
-            // No contract to generate!
-            if (validContractTypes.Count == 0)
-            {
-                return false;
-            }
-
-            // Pick one of the contract types based on their weight
+            // Loop until we either run out of contracts in our list or make a selection
             System.Random generator = new System.Random(this.MissionSeed);
-            double value = generator.NextDouble() * totalWeight;
-            foreach (KeyValuePair<ContractType, double> pair in validContractTypes)
+            while (validContractTypes.Count > 0)
             {
-                value -= pair.Value;
-                if (value <= 0.0)
+                ContractType selectedContractType = null;
+                // Pick one of the contract types based on their weight
+                double value = generator.NextDouble() * totalWeight;
+                foreach (KeyValuePair<ContractType, double> pair in validContractTypes)
                 {
-                    contractType = pair.Key;
-                    break;
+                    value -= pair.Value;
+                    if (value <= 0.0)
+                    {
+                        selectedContractType = pair.Key;
+                        break;
+                    }
+                }
+
+                // Shouldn't happen, but floating point rounding could put us here
+                if (contractType == null)
+                {
+                    selectedContractType = validContractTypes.First().Key;
+                }
+
+                // Check the requirements for our selection
+                if (selectedContractType.MeetRequirements(this))
+                {
+                    contractType = selectedContractType;
+                    return true;
+                }
+                // Remote the selection, and try again
+                else
+                {
+                    validContractTypes.Remove(selectedContractType);
+                    totalWeight -= selectedContractType.weight;
                 }
             }
 
-            // Shouldn't happen, but floating point rounding could put us here
-            if (contractType == null)
-            {
-                contractType = validContractTypes.First().Key;
-            }
-
-            return true;
+            return false;
         }
 
         public override string MissionControlTextRich()

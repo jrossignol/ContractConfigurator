@@ -8,9 +8,9 @@ using KSPAchievements;
 
 namespace ContractConfigurator
 {
-    /*
-     * ContractRequirement set requirement.  Requirement is met if any child requirement is met.
-     */
+    /// <summary>
+    /// ContractRequirement set requirement.  Requirement is met if any child requirement is met.
+    /// </summary>
     public class AnyRequirement : ContractRequirement
     {
         public override bool RequirementMet(ConfiguredContract contract)
@@ -24,6 +24,11 @@ namespace ContractConfigurator
                     requirement.lastResult = requirement.invertRequirement ? !nodeMet : nodeMet;
                     LoggingUtil.LogVerbose(typeof(ContractRequirement), "Checked requirement '" + requirement.Name + "' of type " + requirement.Type + ": " + (requirement.InvertRequirement ? !nodeMet : nodeMet));
                     requirementMet |= (requirement.InvertRequirement ? !nodeMet : nodeMet);
+
+                    if (requirementMet)
+                    {
+                        return true;
+                    }
                 }
             }
             return requirementMet;

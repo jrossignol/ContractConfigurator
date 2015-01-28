@@ -8,9 +8,9 @@ using Contracts;
 
 namespace ContractConfigurator
 {
-    /*
-     * Class for capturing a requirement for making a contract available.
-     */
+    /// <summary>
+    /// Class for capturing a requirement for making a contract available.
+    /// </summary>
     public abstract class ContractRequirement : IContractConfiguratorFactory
     {
         private static Dictionary<string, Type> requirementTypes = new Dictionary<string, Type>();
@@ -33,11 +33,13 @@ namespace ContractConfigurator
         public string config = "";
         public string log;
 
-        /*
-         * Loads the ContractRequirement from the given ConfigNode.  The base version loads the following:
-         *     - child nodes
-         *     - invertRequirement
-         */
+        /// <summary>
+        /// Loads the ContractRequirement from the given ConfigNode.  The base version loads the following:
+        ///     - child nodes
+        ///     - invertRequirement
+        /// </summary>
+        /// <param name="configNode">Config node to load from</param>
+        /// <returns>Whether the load was successful or not.</returns>
         public virtual bool Load(ConfigNode configNode)
         {
             bool valid = true;
@@ -70,19 +72,25 @@ namespace ContractConfigurator
             return valid;
         }
 
-        /*
-         * Method for checking whether a contract meets the requirement to be offered.  When called
-         * it should check whether the requirement is met.  The passed contract can be used as part
-         * of the validation.
-         * 
-         * If child requirements are supported, then the class implementing this method is
-         * responsible for checking those requirements.
-         */
+        /// <summary>
+        /// Method for checking whether a contract meets the requirement to be offered.  When called
+        /// it should check whether the requirement is met.  The passed contract can be used as part
+        /// of the validation.
+        /// 
+        /// If child requirements are supported, then the class implementing this method is
+        /// responsible for checking those requirements.
+        /// </summary>
+        /// <param name="contract">Contract to check</param>
+        /// <returns>Whether the requirement is met for the given contract.</returns>
         public virtual bool RequirementMet(ConfiguredContract contract) { return true; }
 
-        /*
-         * Checks if all the given ContractRequirement meet the requirement.
-         */
+        /// <summary>
+        /// Checks if all the given ContractRequirement meet the requirement.
+        /// </summary>
+        /// <param name="contract">Contract to check</param>
+        /// <param name="contractType">Contract type of the contract (in case the contract type has not yet been assigned).</param>
+        /// <param name="contractRequirements">The list of requirements to check</param>
+        /// <returns>Whether the requirement is met or not.</returns>
         public static bool RequirementsMet(ConfiguredContract contract, ContractType contractType, List<ContractRequirement> contractRequirements)
         {
             bool allReqMet = true;
@@ -99,6 +107,11 @@ namespace ContractConfigurator
                             requirement.lastResult = requirement.invertRequirement ? !nodeMet : nodeMet;
                             LoggingUtil.LogVerbose(typeof(ContractRequirement), "Checked requirement '" + requirement.name + "' of type " + requirement.type + ": " + nodeMet);
                             allReqMet = allReqMet && (requirement.invertRequirement ? !nodeMet : nodeMet);
+
+                            if (!allReqMet)
+                            {
+                                break;
+                            }
                         }
                     }
                 }
@@ -121,9 +134,11 @@ namespace ContractConfigurator
             return allReqMet;
         }
 
-        /*
-         * Adds a new ContractRequirement to handle REQUIREMENT nodes with the given type.
-         */
+        /// <summary>
+        /// Adds a new ContractRequirement to handle REQUIREMENT nodes with the given type.
+        /// </summary>
+        /// <param name="crType">ContractRequirement type</param>
+        /// <param name="typeName">Name to associate to the type</param>
         public static void Register(Type crType, string typeName)
         {
             LoggingUtil.LogDebug(typeof(ContractRequirement), "Registering ContractRequirement class " +
@@ -201,9 +216,11 @@ namespace ContractConfigurator
                 "REQUIREMENT '" + configNode.GetValue("name") + "' of type '" + configNode.GetValue("type") + "'";
         }
 
-        /*
-         * Validates whether the targetBody valuehas been loaded.
-         */
+        /// <summary>
+        /// Validates whether the targetBody value has been loaded.
+        /// </summary>
+        /// <param name="configNode">ConfigNode to check</param>
+        /// <returns>True if the value is loaded, logs and error and returns false otherwise.</returns>
         protected virtual bool ValidateTargetBody(ConfigNode configNode)
         {
             if (targetBody == null)

@@ -15,6 +15,7 @@ Contract Configurator 0.6.0
 - Fix to how contract expiry is handled - setting to 0.0 will now give a contract that never expires, similar to the way the deadline works.
 - New debugging window that shows the underlying configurator and allows selectively disabling parts of the contract for testing.
 - Can now add REQUIREMENT nodes as children to PARAMETER nodes.
+- Performance fixes for requirement checks.
 - Remove parameters that have been obsolete since Contract Configurator 0.5.0.
 
 Contract Configurator 0.5.11

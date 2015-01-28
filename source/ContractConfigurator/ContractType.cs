@@ -248,26 +248,30 @@ namespace ContractConfigurator
                 return false;
             }
 
-            // Get the count of active contracts - excluding ours
-            int activeContracts = ContractSystem.Instance.GetCurrentContracts<ConfiguredContract>().Count(c => c.contractType == this);
-            if (contract.ContractState == Contract.State.Offered || contract.ContractState == Contract.State.Active)
+            // Checks for maxSimultaneous/maxCompletions
+            if (maxSimultaneous != 0 || maxCompletions != 0)
             {
-                activeContracts--;
-            }
+                // Get the count of active contracts - excluding ours
+                int activeContracts = ContractSystem.Instance.GetCurrentContracts<ConfiguredContract>().Count(c => c.contractType == this);
+                if (contract.ContractState == Contract.State.Offered || contract.ContractState == Contract.State.Active)
+                {
+                    activeContracts--;
+                }
 
-            // Check if we're breaching the active limit
-            if (maxSimultaneous != 0 && activeContracts >= maxSimultaneous)
-            {
-                return false;
-            }
-
-            // Check if we're breaching the completed limit
-            if (maxCompletions != 0)
-            {
-                int finishedContracts = ContractSystem.Instance.GetCompletedContracts<ConfiguredContract>().Count(c => c.contractType == this);
-                if (finishedContracts + activeContracts >= maxCompletions)
+                // Check if we're breaching the active limit
+                if (maxSimultaneous != 0 && activeContracts >= maxSimultaneous)
                 {
                     return false;
+                }
+
+                // Check if we're breaching the completed limit
+                if (maxCompletions != 0)
+                {
+                    int finishedContracts = ContractSystem.Instance.GetCompletedContracts<ConfiguredContract>().Count(c => c.contractType == this);
+                    if (finishedContracts + activeContracts >= maxCompletions)
+                    {
+                        return false;
+                    }
                 }
             }
 
@@ -275,7 +279,7 @@ namespace ContractConfigurator
             if (group != null)
             {
                 // Check the group active limit
-                activeContracts = ContractSystem.Instance.GetCurrentContracts<ConfiguredContract>().Count(c => c.contractType.group == group);
+                int activeContracts = ContractSystem.Instance.GetCurrentContracts<ConfiguredContract>().Count(c => c.contractType.group == group);
                 if (group.maxSimultaneous != 0 && activeContracts >= group.maxSimultaneous)
                 {
                     return false;
