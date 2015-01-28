@@ -155,7 +155,7 @@ namespace ContractConfigurator
             valid &= ConfigNodeUtil.ParseValue<float>(configNode, "advanceFunds", ref advanceFunds, this, 0.0f, x => Validation.GE(x, 0.0f));
 
             // Load other values
-            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "weight", ref weight, this, 1.0, x => Validation.GT(x, 0.0f));
+            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "weight", ref weight, this, 1.0, x => Validation.GE(x, 0.0f));
             
             // Check for unexpected values - always do this last
             valid &= ConfigNodeUtil.ValidateUnexpectedValues(configNode, this);
