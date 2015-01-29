@@ -76,7 +76,7 @@ namespace ContractConfigurator.Parameters
                         {
                             output += " OR ";
                         }
-                        output += vesselName;
+                        output += ContractVesselTracker.Instance.GetDisplayName(vesselName);
                         first = false;
                     }
                 }
