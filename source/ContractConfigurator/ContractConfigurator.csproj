@@ -57,6 +57,7 @@
     <Compile Include="ContractBehaviour\ExperimentalPart.cs" />
     <Compile Include="ContractBehaviour\IHasKerbalBehaviour.cs" />
     <Compile Include="ContractBehaviour\SpawnVessel.cs" />
+    <Compile Include="ContractParameter\InvisibleWrapper.cs" />
     <Compile Include="ContractParameter\Duration.cs" />
     <Compile Include="ContractParameter\ParameterDelegate.cs" />
     <Compile Include="ContractParameter\TargetDestroyed.cs" />

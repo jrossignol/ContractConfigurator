@@ -9,10 +9,10 @@ using Contracts.Parameters;
 
 namespace ContractConfigurator.Parameters
 {
-    /*
-     * Special parameter wrapper which is always completed, and invisible.  Use it to wrap other 
-     * parameters that need to be hidden and not impact the contract.
-     */
+    /// <summary>
+    /// Special parameter wrapper which is always completed, and invisible.  Use it to wrap other 
+    /// parameters that need to be hidden and not impact the contract.
+    /// </summary>
     public class AlwaysTrue : Contracts.ContractParameter
     {
         protected string title { get; set; }
@@ -22,7 +22,6 @@ namespace ContractConfigurator.Parameters
         {
             disableOnStateChange = false;
         }
-
 
         protected override string GetTitle()
         {

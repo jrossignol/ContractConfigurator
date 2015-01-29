@@ -9,14 +9,26 @@ using Contracts.Parameters;
 
 namespace ContractConfigurator
 {
-    /*
-     * ParameterFactory to provide logic for Sequence.
-     */
+    /// <summary>
+    /// ParameterFactory to provide logic for Sequence.
+    /// </summary>
     public class SequenceFactory : ParameterFactory
     {
+        protected List<string> hiddenParameters;
+
+        public override bool Load(ConfigNode configNode)
+        {
+            // Load base class
+            bool valid = base.Load(configNode);
+
+            valid &= ConfigNodeUtil.ParseValue<List<string>>(configNode, "hiddenParameter", ref hiddenParameters, this, new List<string>());
+
+            return valid;
+        }
+
         public override ContractParameter Generate(Contract contract)
         {
-            return new Parameters.Sequence(title);
+            return new Parameters.Sequence(hiddenParameters, title);
         }
     }
 }
