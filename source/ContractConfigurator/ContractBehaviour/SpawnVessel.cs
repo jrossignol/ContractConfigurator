@@ -66,6 +66,7 @@ namespace ContractConfigurator.Behaviour
             }
         }
         private List<VesselData> vessels = new List<VesselData>();
+        private bool vesselsCreated = false;
 
         public int KerbalCount
         {
@@ -154,8 +155,22 @@ namespace ContractConfigurator.Behaviour
             return valid ? spawnVessel : null;
         }
 
-        protected override void OnAccepted()
+        protected override void OnUpdate()
         {
+ 	        base.OnUpdate();
+            if (HighLogic.LoadedScene == GameScenes.FLIGHT || HighLogic.LoadedScene == GameScenes.TRACKSTATION)
+            {
+                CreateVessels();
+            }
+        }
+
+        protected void CreateVessels()
+        {
+            if (vesselsCreated)
+            {
+                return;
+            }
+
             String gameDataDir = KSPUtil.ApplicationRootPath;
             gameDataDir = gameDataDir.Replace("\\", "/");
             if (!gameDataDir.EndsWith("/"))
@@ -307,12 +322,15 @@ namespace ContractConfigurator.Behaviour
                 // Associate it so that it can be used in contract parameters
                 ContractVesselTracker.Instance.AssociateVessel(vesselData.name, protoVessel.vesselRef);
             }
+
+            vesselsCreated = true;
         }
 
         protected override void OnSave(ConfigNode configNode)
         {
             base.OnLoad(configNode);
-
+            configNode.AddValue("vesselsCreated", vesselsCreated);
+            
             foreach (VesselData vd in vessels)
             {
                 ConfigNode child = new ConfigNode("VESSEL_DETAIL");
@@ -357,6 +375,7 @@ namespace ContractConfigurator.Behaviour
         protected override void OnLoad(ConfigNode configNode)
         {
             base.OnLoad(configNode);
+            vesselsCreated = ConfigNodeUtil.ParseValue<bool>(configNode, "vesselsCreated");
 
             foreach (ConfigNode child in configNode.GetNodes("VESSEL_DETAIL"))
             {
