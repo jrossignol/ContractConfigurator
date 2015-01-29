@@ -18,6 +18,7 @@ namespace ContractConfigurator.Parameters
         protected List<string> hiddenParameters;
 
         private bool paramRemoved = false;
+        private bool firstRun = false;
 
         public Sequence()
             : base()
@@ -29,8 +30,6 @@ namespace ContractConfigurator.Parameters
         {
             this.title = title != null && title != "" ? title : "Complete the following in order";
             this.hiddenParameters = hiddenParameters;
-
-            SetupChildParameters();
         }
 
         protected override string GetTitle()
@@ -58,6 +57,17 @@ namespace ContractConfigurator.Parameters
             base.OnLoad(node);
             title = node.GetValue("title");
             hiddenParameters = ConfigNodeUtil.ParseValue<List<string>>(node, "hiddenParameter", new List<string>());
+        }
+
+        protected override void OnUpdate()
+        {
+            base.OnUpdate();
+
+            if (!firstRun)
+            {
+                SetupChildParameters();
+                firstRun = true;
+            }
         }
 
         protected override void OnParameterStateChange(ContractParameter contractParameter)
@@ -150,6 +160,11 @@ namespace ContractConfigurator.Parameters
                 }
 
                 i++;
+            }
+
+            if (paramRemoved)
+            {
+                ContractConfigurator.OnParameterChange.Fire(Root, this);
             }
         }
 
