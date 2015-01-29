@@ -1,3 +1,6 @@
+Contract Configurator 0.5.12
+- Fixed KSPAssemblyDepdency issue indirectly caused by SCANsat (but due to broken depdency checking logic in KSP).
+
 Contract Configurator 0.5.11
 - Recompile for RemoteTech 1.6.2
 
