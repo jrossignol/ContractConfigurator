@@ -161,7 +161,8 @@ namespace ContractConfigurator
 
             GUILayout.BeginVertical(GUILayout.Width(500));
 
-            GUILayout.Label("Sucessfully loaded " + successContracts + " out of " + totalContracts + " contracts.", yellowLabel);
+            GUILayout.Label("Sucessfully loaded " + successContracts + " out of " + totalContracts + " contracts.",
+                successContracts == totalContracts ? greenLabel : redLabel);
 
             GUILayout.BeginHorizontal();
             if (GUILayout.Button("Reload Contracts"))
