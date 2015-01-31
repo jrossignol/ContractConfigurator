@@ -113,6 +113,14 @@ namespace ContractConfigurator
             {
                 return (T)(object)new Guid(configNode.GetValue(key));
             }
+            else if (typeof(T) == typeof(Vessel))
+            {
+                return (T)(object)ParseVesselValue(configNode, key);
+            }
+            else if (typeof(T) == typeof(Vector3))
+            {
+                return (T)(object)ParseVesselValue(configNode, key);
+            }
             else if (typeof(T).Name == "Nullable`1")
             {
                 // Let enum fall through to the ParseSingleValue method
@@ -462,6 +470,12 @@ namespace ContractConfigurator
             }
 
             return agent;
+        }
+
+        protected static Vessel ParseVesselValue(ConfigNode configNode, string key)
+        {
+            Guid id = new Guid(configNode.GetValue(key));
+            return FlightGlobals.Vessels.Find(v => v.id == id);
         }
 
         protected static ProtoCrewMember ParseProtoCrewMemberValue(ConfigNode configNode, string key)
