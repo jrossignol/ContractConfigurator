@@ -164,7 +164,7 @@ namespace ContractConfigurator.Parameters
             // Is state change allowed?
             if (!checkOnly)
             {
-                SetState(result ? ParameterState.Complete : ParameterState.Failed);
+                SetState(result ? ParameterState.Complete : matchType != ParameterDelegateMatchType.FILTER ? ParameterState.Failed : ParameterState.Incomplete);
             }
 
             return result;
