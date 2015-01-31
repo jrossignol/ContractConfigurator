@@ -145,7 +145,7 @@ namespace ContractConfigurator.Parameters
                 foreach (ProtoCrewMember passenger in passengers)
                 {
                     AddParameter(new ParameterDelegate<Vessel>("On Board: " + passenger.name,
-                        v => v.GetVesselCrew().Contains(passenger)));
+                        v => v.GetVesselCrew().Contains(passenger), ParameterDelegateMatchType.VALIDATE_ALL));
                 }
             }
         }
