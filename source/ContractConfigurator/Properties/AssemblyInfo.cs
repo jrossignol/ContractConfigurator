@@ -36,4 +36,4 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyVersion("1.0")]
 [assembly: AssemblyFileVersion("0.6.0")]
 [assembly: AssemblyInformationalVersion("0.6.0")]
-[assembly: KSPAssembly("ContractConfigurator", 0, 6)]
+[assembly: KSPAssembly("ContractConfigurator", 1, 0)]
