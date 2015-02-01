@@ -269,7 +269,7 @@ namespace ContractConfigurator.Parameters
         {
             base.OnLoad(node);
             title = node.GetValue("title");
-            situation = ConfigNodeUtil.ParseValue<Vessel.Situations>(node, "situation");
+            situation = ConfigNodeUtil.ParseValue<Vessel.Situations>(node, "situation", Vessel.Situations.ORBITING);
             minAltitude = ConfigNodeUtil.ParseValue<double>(node, "minAltitude");
             maxAltitude = ConfigNodeUtil.ParseValue<double>(node, "maxAltitude", double.MaxValue);
             minApoapsis = ConfigNodeUtil.ParseValue<double>(node, "minApoapsis");
