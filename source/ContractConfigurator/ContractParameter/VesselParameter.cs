@@ -478,6 +478,11 @@ namespace ContractConfigurator.Parameters
         {
             LoggingUtil.LogVerbose(typeof(VesselParameter), "-> GetVesselHashes(" + vessel.id + ")");
 
+            if (vessel.rootPart == null)
+            {
+                return new List<uint>();
+            }
+
             Queue<Part> queue = new Queue<Part>();
             Dictionary<Part, int> visited = new Dictionary<Part, int>();
             Dictionary<uint, uint> dockedParts = new Dictionary<uint, uint>();

@@ -1,3 +1,6 @@
+Contract Configurator 0.6.2
+- Minor bug fixes.
+
 Contract Configurator 0.6.1
 - Fix for loading 0.5.x saves killing all contracts.
 
