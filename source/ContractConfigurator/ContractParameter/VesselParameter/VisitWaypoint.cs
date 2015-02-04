@@ -40,6 +40,11 @@ namespace ContractConfigurator.Parameters
 
         protected override string GetTitle()
         {
+            if (waypoint == null && Root != null)
+            {
+                waypoint = FetchWaypoint(Root, true);
+            }
+
             if (string.IsNullOrEmpty(title) && waypoint != null)
             {
                 if (waypoint.isOnSurface)
@@ -84,7 +89,7 @@ namespace ContractConfigurator.Parameters
         /// </summary>
         /// <param name="c">The contract</param>
         /// <returns>The waypoint used by our parameter.</returns>
-        public Waypoint FetchWaypoint(Contract c)
+        public Waypoint FetchWaypoint(Contract c, bool silent = false)
         {
             // Get the WaypointGenerator behaviour
             WaypointGenerator waypointGenerator = ((ConfiguredContract)c).Behaviours.OfType<WaypointGenerator>().First<WaypointGenerator>();

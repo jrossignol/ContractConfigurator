@@ -1,4 +1,5 @@
 Contract Configurator 0.6.2
+- Fixed issue where VisitWaypoint title didn't show up in mission control.
 - Fixed issue where doing a module manager reload can fail some active contracts (thanks Samapico).
 - Minor bug fixes.
 
