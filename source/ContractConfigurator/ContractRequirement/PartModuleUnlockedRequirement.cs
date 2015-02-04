@@ -8,9 +8,9 @@ using KSPAchievements;
 
 namespace ContractConfigurator
 {
-    /*
-     * ContractRequirement to provide requirement for player having unlocked a part with a particular module.
-     */
+    /// <summary>
+    /// ContractRequirement to provide requirement for player having unlocked a part with a particular module.
+    /// </summary>
     public class PartModuleUnlockedRequirement : ContractRequirement
     {
         protected string partModule;
@@ -20,8 +20,8 @@ namespace ContractConfigurator
             // Load base class
             bool valid = base.Load(configNode);
 
-            // Check on active contracts too
-            checkOnActiveContract = configNode.HasValue("checkOnActiveContract") ? checkOnActiveContract : true;
+            // Do not check on active contracts.
+            checkOnActiveContract = configNode.HasValue("checkOnActiveContract") ? checkOnActiveContract : false;
 
             valid &= ConfigNodeUtil.ParseValue<string>(configNode, "partModule", ref partModule, this, Validation.ValidatePartModule);
 
