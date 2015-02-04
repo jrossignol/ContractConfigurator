@@ -682,8 +682,9 @@ namespace ContractConfigurator
         /// </summary>
         /// <param name="name">Assembly name</param>
         /// <param name="version">Minium version</param>
+        /// <param name="silent">Silent mode</param>
         /// <returns>The assembly if the version check was successful.  If not, logs and error and returns null.</returns>
-        public static Assembly VerifyAssemblyVersion(string name, string version)
+        public static Assembly VerifyAssemblyVersion(string name, string version, bool silent=false)
         {
             // Logic courtesy of DMagic
             var assembly = AssemblyLoader.loadedAssemblies.SingleOrDefault(a => a.assembly.GetName().Name == name);
@@ -701,19 +702,19 @@ namespace ContractConfigurator
                     }
                     else
                     {
-                        LoggingUtil.LogError(typeof(ContractConfigurator), "Version check for '" + name + "' failed!  Minimum required is " + version + ", version found was " + ainfoV.InformationalVersion);
+                        LoggingUtil.Log(silent ? LoggingUtil.LogLevel.VERBOSE : LoggingUtil.LogLevel.ERROR, typeof(ContractConfigurator), "Version check for '" + name + "' failed!  Minimum required is " + version + ", version found was " + ainfoV.InformationalVersion);
                         return null;
                     }
                 }
                 else
                 {
-                    LoggingUtil.LogError(typeof(ContractConfigurator), "Couldn't determine version of '" + name + "' assembly!");
+                    LoggingUtil.Log(silent ? LoggingUtil.LogLevel.VERBOSE : LoggingUtil.LogLevel.ERROR, typeof(ContractConfigurator), "Couldn't determine version of '" + name + "' assembly!");
                     return null;
                 }
             }
             else
             {
-                LoggingUtil.LogError(typeof(ContractConfigurator), "Couldn't find assembly for '" + name + "'!");
+                LoggingUtil.Log(silent ? LoggingUtil.LogLevel.VERBOSE : LoggingUtil.LogLevel.ERROR, typeof(ContractConfigurator), "Couldn't find assembly for '" + name + "'!");
                 return null;
             }
         }

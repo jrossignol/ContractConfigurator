@@ -35,8 +35,9 @@ namespace ContractConfigurator
         /// the title once.
         /// </summary>
         /// <param name="newTitle">New title to display</param>
-        public void UpdateContractWindow(string newTitle)
+        public void UpdateContractWindow(ContractParameter param, string newTitle)
         {
+            LoggingUtil.LogDebug(this, "UpdateContractWindow!");
             // Every time the clock ticks over, make an attempt to update the contract window
             // title.  We do this because otherwise the window will only ever read the title once,
             // so this is the only way to get our fancy timer to work.
@@ -76,6 +77,10 @@ namespace ContractConfigurator
                 // Reposition items to account for items where the height increased or decreased
                 list.RepositionItems();
             }
+
+            // Contracts Window + update
+            LoggingUtil.LogDebug(this, "UpdateContractsWindow+!");
+            ContractsWindow.SetParameterTitle(param, newTitle);
         }
     }
 }

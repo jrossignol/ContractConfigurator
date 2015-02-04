@@ -151,7 +151,7 @@ namespace ContractConfigurator.Parameters
                 }
                 lastUpdate = Planetarium.GetUniversalTime();
 
-                titleTracker.UpdateContractWindow(GetTitle());
+                titleTracker.UpdateContractWindow(this, GetTitle());
                 resetClock = false;
             }
         }

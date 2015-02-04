@@ -127,7 +127,7 @@ namespace ContractConfigurator.SCANsat
                 }
 
                 // Update contract window
-                titleTracker.UpdateContractWindow(GetTitle());
+                titleTracker.UpdateContractWindow(this, GetTitle());
             }
         }
     }

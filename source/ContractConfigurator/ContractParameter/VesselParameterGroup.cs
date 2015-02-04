@@ -9,9 +9,9 @@ using Contracts.Parameters;
 
 namespace ContractConfigurator.Parameters
 {
-    /*
-     * ContractParameter that is successful when all child parameters are successful for a the same vessel over the given duration.
-     */
+    /// <summary>
+    /// ContractParameter that is successful when all child parameters are successful for a the same vessel over the given duration.
+    /// </summary>
     public class VesselParameterGroup : Contracts.ContractParameter
     {
         private const string notePrefix = "<#acfcff>[-] Note: ";
@@ -239,7 +239,6 @@ namespace ContractConfigurator.Parameters
             // Fire the parameter change event to account for all the changed child parameters.
             // We don't fire it for the child parameters, as any with a failed state will cause
             // the contract to fail, which we don't want.
-//            GameEvents.Contract.onParameterChange.Fire(this.Root, this);
             ContractConfigurator.OnParameterChange.Fire(this.Root, this);
 
             // Manually run the OnParameterStateChange
@@ -422,6 +421,8 @@ namespace ContractConfigurator.Parameters
             {
                 lastUpdate = Planetarium.GetUniversalTime();
 
+                string notes = GetNotes();
+
                 // Go through all the list items in the contracts window
                 UIScrollList list = ContractsApp.Instance.cascadingList.cascadingList;
                 for (int i = 0; i < list.Count; i++)
@@ -433,9 +434,11 @@ namespace ContractConfigurator.Parameters
                     {
                         // Clear the noteTracker, and replace the text
                         noteTracker.Clear();
-                        richText.Text = notePrefix + GetNotes();
+                        richText.Text = notePrefix + notes;
                     }
                 }
+
+                ContractsWindow.SetParameterNotes(this, notes);
             }
         }
 
@@ -460,9 +463,10 @@ namespace ContractConfigurator.Parameters
             }
         }
 
-        /*
-         * Set the state in all children to that of the given vessel.
-         */
+        /// <summary>
+        /// Set the state in all children to that of the given vessel.
+        /// </summary>
+        /// <param name="vessel">Vessel to use for the state change</param>
         protected void SetChildState(Vessel vessel)
         {
             foreach (VesselParameter p in AllDescendents<VesselParameter>())

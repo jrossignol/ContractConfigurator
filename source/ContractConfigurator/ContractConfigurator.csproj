@@ -85,7 +85,7 @@
     <Compile Include="ParameterFactory\DockingFactory.cs" />
     <Compile Include="ParameterFactory\ReachStateFactory.cs" />
     <Compile Include="ParameterFactory\OrbitFactory.cs" />
-    <Compile Include="Util\ContractWindow.cs" />
+    <Compile Include="Util\ContractsWindow.cs" />
     <Compile Include="Util\PartUtil.cs" />
     <Compile Include="Util\TitleTracker.cs" />
     <Compile Include="ParameterFactory\PartValidationFactory.cs" />

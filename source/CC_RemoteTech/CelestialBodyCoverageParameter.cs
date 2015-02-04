@@ -93,7 +93,7 @@ namespace ContractConfigurator.RemoteTech
                 }
 
                 // Update contract window
-                titleTracker.UpdateContractWindow(GetTitle());
+                titleTracker.UpdateContractWindow(this, GetTitle());
             }
         }
     }
