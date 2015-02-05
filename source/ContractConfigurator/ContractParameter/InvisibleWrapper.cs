@@ -13,10 +13,8 @@ namespace ContractConfigurator.Parameters
     /// Special parameter wrapper which is always incomplete, and invisible.  Use it to wrap other 
     /// parameters that need to be hidden temporarily.
     /// </summary>
-    public class InvisibleWrapper : Contracts.ContractParameter
+    public sealed class InvisibleWrapper : Contracts.ContractParameter
     {
-        protected string title { get; set; }
-
         public InvisibleWrapper()
             : base()
         {

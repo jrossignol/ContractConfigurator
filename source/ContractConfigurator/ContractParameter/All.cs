@@ -9,10 +9,10 @@ using Contracts.Parameters;
 
 namespace ContractConfigurator.Parameters
 {
-    /*
-     * ContractParameter that is successful when all child parameters are successful.
-     */
-    public class All : Contracts.ContractParameter
+    /// <summary>
+    /// ContractParameter that is successful when all child parameters are successful.
+    /// </summary>
+    public class All : ContractConfiguratorParameter
     {
         protected string title { get; set; }
 
@@ -64,15 +64,13 @@ namespace ContractConfigurator.Parameters
             return (this.Root.MissionSeed.ToString() + this.Root.DateAccepted.ToString() + this.ID);
         }
 
-        protected override void OnSave(ConfigNode node)
+        protected override void OnParameterSave(ConfigNode node)
         {
-            base.OnSave(node);
             node.AddValue("title", title);
         }
 
-        protected override void OnLoad(ConfigNode node)
+        protected override void OnParameterLoad(ConfigNode node)
         {
-            base.OnLoad(node);
             title = node.GetValue("title");
         }
 

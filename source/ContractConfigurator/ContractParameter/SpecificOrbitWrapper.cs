@@ -11,9 +11,10 @@ using FinePrint.Utilities;
 
 namespace ContractConfigurator.Parameters
 {
-    /*
-     * ContractParameter that is successful when all child parameters are successful.
-     */
+    /// <summary>
+    /// Special wrapper parameter for wrapping the stock SpecificOrbit parameter (necessary due to
+    /// how they use it for rendering).
+    /// </summary>
     public class SpecificOrbitWrapper : SpecificOrbitParameter
     {
         public SpecificOrbitWrapper()

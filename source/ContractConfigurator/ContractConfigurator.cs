@@ -130,6 +130,8 @@ namespace ContractConfigurator
                     WindowGUI,
                     "Contract Configurator " + ainfoV.InformationalVersion);
             }
+
+            ExceptionLogWindow.OnGUI();
         }
 
         protected void LoadTextures()
@@ -168,6 +170,17 @@ namespace ContractConfigurator
             if (GUILayout.Button("Reload Contracts"))
             {
                 StartCoroutine(ReloadContractTypes());
+            }
+            if (GUILayout.Button("Test Exception"))
+            {
+                try
+                {
+                    throw new Exception("this is a test exception");
+                }
+                catch (Exception e)
+                {
+                    ExceptionLogWindow.DisplayFatalException(ExceptionLogWindow.ExceptionSituation.OTHER, e);
+                }
             }
             if (HighLogic.LoadedScene != GameScenes.MAINMENU)
             {

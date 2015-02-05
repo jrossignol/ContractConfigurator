@@ -57,6 +57,7 @@
     <Compile Include="ContractBehaviour\ExperimentalPart.cs" />
     <Compile Include="ContractBehaviour\IHasKerbalBehaviour.cs" />
     <Compile Include="ContractBehaviour\SpawnVessel.cs" />
+    <Compile Include="ContractParameter\ContractConfiguratorParameter.cs" />
     <Compile Include="ContractParameter\InvisibleWrapper.cs" />
     <Compile Include="ContractParameter\Duration.cs" />
     <Compile Include="ContractParameter\ParameterDelegate.cs" />
@@ -76,6 +77,7 @@
     <Compile Include="ContractRequirement\ReputationRequirement.cs" />
     <Compile Include="ContractRequirement\FundsRequirement.cs" />
     <Compile Include="ContractGroup.cs" />
+    <Compile Include="Util\ExceptionLogWindow.cs" />
     <Compile Include="Util\Extensions.cs" />
     <Compile Include="ParameterFactory\RendezvousFactory.cs" />
     <Compile Include="ParameterFactory\InvalidParameterFactory.cs" />
@@ -118,16 +120,11 @@
     <Compile Include="ContractParameter\VesselParameter\HasResource.cs" />
     <Compile Include="ContractParameter\VesselParameter\ReturnHome.cs" />
     <Compile Include="ContractParameter\VesselParameter\HasCrew.cs" />
-    <Compile Include="ContractParameter\VesselParameter\ReachBiomeCustom.cs" />
     <Compile Include="ContractParameter\VesselParameter\VesselHasVisited.cs" />
-    <Compile Include="ContractParameter\VesselParameter\ReachSpeedEnvelopeCustom.cs" />
-    <Compile Include="ContractParameter\VesselParameter\ReachAltitudeEnvelopeCustom.cs" />
     <Compile Include="ContractBehaviour.cs" />
     <Compile Include="ContractRequirement\PartModuleUnlockedRequirement.cs" />
     <Compile Include="Util\DurationUtil.cs" />
-    <Compile Include="ContractParameter\VesselParameter\ReachSituationCustom.cs" />
     <Compile Include="ContractParameter\VesselParameter.cs" />
-    <Compile Include="ContractParameter\VesselParameter\ReachDestinationCustom.cs" />
     <Compile Include="ContractParameter\VesselParameterGroup.cs" />
     <Compile Include="ContractParameter\All.cs" />
     <Compile Include="ContractParameter\Any.cs" />
@@ -173,11 +170,6 @@
     <Compile Include="ParameterFactory\RecoverKerbalFactory.cs" />
     <Compile Include="ParameterFactory\BoardAnyVesselFactory.cs" />
     <Compile Include="ParameterFactory\ReachSpaceFactory.cs" />
-    <Compile Include="ParameterFactory\ReachSituationFactory.cs" />
-    <Compile Include="ParameterFactory\ReachDestinationFactory.cs" />
-    <Compile Include="ParameterFactory\ReachBiomeFactory.cs" />
-    <Compile Include="ParameterFactory\ReachSpeedEnvelopeFactory.cs" />
-    <Compile Include="ParameterFactory\ReachAltitudeEnvelopeFactory.cs" />
     <Compile Include="ParameterFactory\PlantFlagFactory.cs" />
     <Compile Include="ParameterFactory\LaunchVesselFactory.cs" />
     <Compile Include="ParameterFactory\LandOnBodyFactory.cs" />

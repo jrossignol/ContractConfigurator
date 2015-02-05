@@ -9,14 +9,14 @@ using Contracts.Parameters;
 
 namespace ContractConfigurator.Parameters
 {
-    /*
-     * Base class for parameters that support grouping via VesselParameterGroup.
-     */
-    public abstract class VesselParameter : Contracts.ContractParameter, ParameterDelegateContainer
+    /// <summary>
+    /// Base class for parameters that support grouping via VesselParameterGroup.
+    /// </summary>
+    public abstract class VesselParameter : ContractConfiguratorParameter, ParameterDelegateContainer
     {
-        /*
-         * Strength of the parameter - ie. how sure we are that we have completed the parameter.
-         */
+        /// <summary>
+        /// Strength of the parameter - ie. how sure we are that we have completed the parameter.
+        /// </summary>
         private enum ParamStrength
         {
             WEAK,   // A craft that once was docked with a craft that met the parameter
@@ -44,10 +44,10 @@ namespace ContractConfigurator.Parameters
 
         public bool ChildChanged { get; set; }
 
-        /*
-         * Set to true in child classes to fail instead of being incomplete when the parameter
-         * conditions are not met.
-         */
+        /// <summary>
+        /// Set to true in child classes to fail instead of being incomplete when the parameter
+        /// conditions are not met.
+        /// </summary>
         protected bool failWhenUnmet = false;
 
         public VesselParameter()
@@ -63,10 +63,8 @@ namespace ContractConfigurator.Parameters
             return (this.Root.MissionSeed.ToString() + this.Root.DateAccepted.ToString() + this.ID);
         }
 
-        protected override void OnSave(ConfigNode node)
+        protected override void OnParameterSave(ConfigNode node)
         {
-            base.OnSave(node);
-
             // Don't save all this stuff if the parameter is done
             if (!enabled)
             {
@@ -106,10 +104,8 @@ namespace ContractConfigurator.Parameters
             }
         }
 
-        protected override void OnLoad(ConfigNode node)
+        protected override void OnParameterLoad(ConfigNode node)
         {
-            base.OnLoad(node);
-
             // Load state flag
             allowStateReset = Convert.ToBoolean(node.GetValue("allowStateReset"));
 
@@ -141,10 +137,12 @@ namespace ContractConfigurator.Parameters
             }
         }
 
-        /*
-         * Sets the parameter state for the given vessel.  Returns true if a state change actually
-         * occurred.
-         */
+        /// <summary>
+        /// Sets the parameter state for the given vessel.  
+        /// </summary>
+        /// <param name="vessel">The vessel to set the state for.</param>
+        /// <param name="state">State to use.</param>
+        /// <returns>Returns true if a state change actually occurred.</returns>
         protected virtual bool SetState(Vessel vessel, Contracts.ParameterState state)
         {
             if (vessel == null)
@@ -197,9 +195,10 @@ namespace ContractConfigurator.Parameters
             return false;
         }
 
-        /*
-         * Sets the global parameter state to the one of the given vessel
-         */
+        /// <summary>
+        /// Sets the global parameter state to the one of the given vessel
+        /// </summary>
+        /// <param name="vessel">The vessel to use for the state change.</param>
         public virtual void SetState(Vessel vessel)
         {
             LoggingUtil.LogVerbose(this, "SetState to that of vessel " + (vessel != null ? vessel.id.ToString() : "null"));
@@ -214,9 +213,11 @@ namespace ContractConfigurator.Parameters
             }
         }
 
-        /*
-         * Gets the parameter state for the given vessel.
-         */
+        /// <summary>
+        /// Gets the parameter state for the given vessel.
+        /// </summary>
+        /// <param name="vessel">Vessel to get the state for</param>
+        /// <returns>Vessel state</returns>
         public virtual Contracts.ParameterState GetState(Vessel vessel)
         {
             if (vesselInfo.ContainsKey(vessel.id))
@@ -229,10 +230,12 @@ namespace ContractConfigurator.Parameters
             }
         }
 
-        /*
-         * Gets the completion time for the given vessel.  Returns zero if the vessel isn't
-         * currently completing the conditions.
-         */
+        /// <summary>
+        /// Gets the completion time for the given vessel.  Returns zero if the vessel isn't
+        /// currently completing the conditions.
+        /// </summary>
+        /// <param name="vessel">Vessel to check completion time for</param>
+        /// <returns>The time that the vessel completed the parameter</returns>
         public virtual double GetCompletionTime(Vessel vessel)
         {
             if (vesselInfo.ContainsKey(vessel.id))
@@ -245,9 +248,10 @@ namespace ContractConfigurator.Parameters
             }
         }
 
-        /*
-         * Gets all vessels that are currently completing the parameter.
-         */
+        /// <summary>
+        /// Gets all vessels that are currently completing the parameter.
+        /// </summary>
+        /// <returns>Iterator of vessels that meet the parameter</returns>
         public virtual IEnumerable<Vessel> GetCompletingVessels()
         {
             return vesselInfo.Where(p => p.Value.state == Contracts.ParameterState.Complete && p.Value.vessel != null).Select(p => p.Value.vessel);
@@ -455,10 +459,12 @@ namespace ContractConfigurator.Parameters
             }
         }
 
-        /*
-         * Saves all the sub-vessel information - breaking up the vessels into the smallest
-         * pieces possible.
-         */
+        /// <summary>
+        /// Saves all the sub-vessel information - breaking up the vessels into the smallest
+        /// pieces possible.
+        /// </summary>
+        /// <param name="vessel">The vessel to break up</param>
+        /// <param name="strength">The strength of the parameter</param>
         private void SaveSubVesselInfo(Vessel vessel, ParamStrength strength)
         {
             foreach (uint hash in GetVesselHashes(vessel))
@@ -471,9 +477,11 @@ namespace ContractConfigurator.Parameters
             }
         }
 
-        /*
-         * Create a hash of the vessel.
-         */
+        /// <summary>
+        /// Create a hash of the vessel.
+        /// </summary>
+        /// <param name="vessel">The vessel to hash</param>
+        /// <returns>A list of hashes for this vessel</returns>
         public static List<uint> GetVesselHashes(Vessel vessel)
         {
             LoggingUtil.LogVerbose(typeof(VesselParameter), "-> GetVesselHashes(" + vessel.id + ")");

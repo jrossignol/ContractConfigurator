@@ -9,9 +9,9 @@ using Contracts.Parameters;
 
 namespace ContractConfigurator.Parameters
 {
-    /*
-     * Parameter for checking whether a vessel has a crew.
-     */
+    /// <summary>
+    /// Parameter for checking whether a vessel has a crew.
+    /// </summary>
     public class HasCrew : VesselParameter
     {
         protected string title { get; set; }
@@ -98,9 +98,9 @@ namespace ContractConfigurator.Parameters
             return title;
         }
 
-        protected override void OnSave(ConfigNode node)
+        protected override void OnParameterSave(ConfigNode node)
         {
-            base.OnSave(node);
+            base.OnParameterSave(node);
             node.AddValue("title", title);
             if (trait != null)
             {
@@ -112,9 +112,9 @@ namespace ContractConfigurator.Parameters
             node.AddValue("maxExperience", maxExperience);
         }
 
-        protected override void OnLoad(ConfigNode node)
+        protected override void OnParameterLoad(ConfigNode node)
         {
-            base.OnLoad(node);
+            base.OnParameterLoad(node);
             title = node.GetValue("title");
             trait = ConfigNodeUtil.ParseValue<string>(node, "trait", (string)null);
             minExperience = Convert.ToInt32(node.GetValue("minExperience"));
@@ -155,9 +155,11 @@ namespace ContractConfigurator.Parameters
             CheckVessel(a.to.vessel);
         }
 
-        /*
-         * Whether this vessel meets the parameter condition.
-         */
+        /// <summary>
+        /// Whether this vessel meets the parameter condition.
+        /// </summary>
+        /// <param name="vessel">The vessel to check</param>
+        /// <returns>Whether the vessel meets the condition</returns>
         protected override bool VesselMeetsCondition(Vessel vessel)
         {
             LoggingUtil.LogVerbose(this, "Checking VesselMeetsCondition: " + vessel.id);

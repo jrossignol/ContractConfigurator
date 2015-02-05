@@ -144,9 +144,9 @@ namespace ContractConfigurator.RemoteTech
             }
         }
 
-        protected override void OnSave(ConfigNode node)
+        protected override void OnParameterSave(ConfigNode node)
         {
-            base.OnSave(node);
+            base.OnParameterSave(node);
             if (title != null)
             {
                 node.AddValue("title", title);
@@ -169,9 +169,9 @@ namespace ContractConfigurator.RemoteTech
             }
         }
 
-        protected override void OnLoad(ConfigNode node)
+        protected override void OnParameterLoad(ConfigNode node)
         {
-            base.OnLoad(node);
+            base.OnParameterLoad(node);
             title = ConfigNodeUtil.ParseValue<string>(node, "title", (string)null);
             minRange = ConfigNodeUtil.ParseValue<double>(node, "minRange");
             maxRange = ConfigNodeUtil.ParseValue<double>(node, "maxRange", double.MaxValue);

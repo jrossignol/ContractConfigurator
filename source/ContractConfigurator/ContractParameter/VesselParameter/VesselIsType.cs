@@ -43,16 +43,16 @@ namespace ContractConfigurator.Parameters
             return output;
         }
 
-        protected override void OnSave(ConfigNode node)
+        protected override void OnParameterSave(ConfigNode node)
         {
-            base.OnSave(node);
+            base.OnParameterSave(node);
             node.AddValue("title", title);
             node.AddValue("vesselType", vesselType);
         }
 
-        protected override void OnLoad(ConfigNode node)
+        protected override void OnParameterLoad(ConfigNode node)
         {
-            base.OnLoad(node);
+            base.OnParameterLoad(node);
             title = node.GetValue("title");
             vesselType = ConfigNodeUtil.ParseValue<VesselType>(node, "vesselType");
         }

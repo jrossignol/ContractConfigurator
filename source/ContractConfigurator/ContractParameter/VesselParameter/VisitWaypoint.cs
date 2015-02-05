@@ -59,17 +59,17 @@ namespace ContractConfigurator.Parameters
             return title;
         }
 
-        protected override void OnSave(ConfigNode node)
+        protected override void OnParameterSave(ConfigNode node)
         {
-            base.OnSave(node);
+            base.OnParameterSave(node);
             node.AddValue("title", title);
             node.AddValue("distance", distance);
             node.AddValue("waypointIndex", waypointIndex);
         }
 
-        protected override void OnLoad(ConfigNode node)
+        protected override void OnParameterLoad(ConfigNode node)
         {
-            base.OnLoad(node);
+            base.OnParameterLoad(node);
             title = node.GetValue("title");
             distance = Convert.ToDouble(node.GetValue("distance"));
             waypointIndex = Convert.ToInt32(node.GetValue("waypointIndex"));

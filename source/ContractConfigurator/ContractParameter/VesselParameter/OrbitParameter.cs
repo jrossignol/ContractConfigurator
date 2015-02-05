@@ -227,9 +227,9 @@ namespace ContractConfigurator.Parameters
             return inclination >= minInclination && inclination <= maxInclination;
         }
 
-        protected override void OnSave(ConfigNode node)
+        protected override void OnParameterSave(ConfigNode node)
         {
-            base.OnSave(node);
+            base.OnParameterSave(node);
             node.AddValue("title", title);
             node.AddValue("situation", situation);
             node.AddValue("targetBody", targetBody.name);
@@ -265,9 +265,9 @@ namespace ContractConfigurator.Parameters
             }
         }
 
-        protected override void OnLoad(ConfigNode node)
+        protected override void OnParameterLoad(ConfigNode node)
         {
-            base.OnLoad(node);
+            base.OnParameterLoad(node);
             title = node.GetValue("title");
             situation = ConfigNodeUtil.ParseValue<Vessel.Situations>(node, "situation", Vessel.Situations.ORBITING);
             minAltitude = ConfigNodeUtil.ParseValue<double>(node, "minAltitude");

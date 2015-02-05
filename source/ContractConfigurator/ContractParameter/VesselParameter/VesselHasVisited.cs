@@ -10,9 +10,9 @@ using Contracts.Parameters;
 
 namespace ContractConfigurator.Parameters
 {
-    /*
-     * Parameter for a vessel having visited a CelestialBody + Situation.
-     */
+    /// <summary>
+    /// Parameter for a vessel having visited a CelestialBody + Situation.
+    /// </summary>
     public class VesselHasVisited : VesselParameter
     {
         protected string title { get; set; }
@@ -94,17 +94,17 @@ namespace ContractConfigurator.Parameters
             return title;
         }
 
-        protected override void OnSave(ConfigNode node)
+        protected override void OnParameterSave(ConfigNode node)
         {
-            base.OnSave(node);
+            base.OnParameterSave(node);
             node.AddValue("title", title);
             node.AddValue("destination", destination.name);
             node.AddValue("entryType", entryType);
         }
 
-        protected override void OnLoad(ConfigNode node)
+        protected override void OnParameterLoad(ConfigNode node)
         {
-            base.OnLoad(node);
+            base.OnParameterLoad(node);
             title = node.GetValue("title");
             destination = ConfigNodeUtil.ParseValue<CelestialBody>(node, "destination");
             entryType = (FlightLog.EntryType)Enum.Parse(typeof(FlightLog.EntryType), node.GetValue("entryType"));
@@ -127,9 +127,11 @@ namespace ContractConfigurator.Parameters
             CheckVessel(pair.host);
         }
 
-        /*
-         * Whether this vessel meets the parameter condition.
-         */
+        /// <summary>
+        /// Whether this vessel meets the parameter condition.
+        /// </summary>
+        /// <param name="vessel">The vessel to check</param>
+        /// <returns>Whether the vessel meets the condition</returns>
         protected override bool VesselMeetsCondition(Vessel vessel)
         {
             return VesselTripLog.FromVessel(vessel).Log.HasEntry(entryType, destination.name);

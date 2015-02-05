@@ -9,10 +9,10 @@ using Contracts.Parameters;
 
 namespace ContractConfigurator.Parameters
 {
-    /*
-     * Special VesselParamete which delegates the actual checking to another parameter.  Use this
-     * to bring in parameters that were not meant to be used with VesselParameter.
-     */
+    /// <summary>
+    /// Special VesselParamete which delegates the actual checking to another parameter.  Use this
+    /// to bring in parameters that were not meant to be used with VesselParameter.
+    /// </summary>
     public class VesselParameterDelegator : VesselParameter
     {
         protected string title { get; set; }
@@ -45,16 +45,16 @@ namespace ContractConfigurator.Parameters
             }
         }
 
-        protected override void OnSave(ConfigNode node)
+        protected override void OnParameterSave(ConfigNode node)
         {
-            base.OnSave(node);
+            base.OnParameterSave(node);
             node.AddValue("title", title);
             node.AddValue("paramLocation", GetPathFromParam(delegateParam).Reverse().Aggregate<int, string>("", (s, i) => s + (s == "" ? "" : ",") + i));
         }
 
-        protected override void OnLoad(ConfigNode node)
+        protected override void OnParameterLoad(ConfigNode node)
         {
-            base.OnLoad(node);
+            base.OnParameterLoad(node);
             title = node.GetValue("title");
             delegateParam = GetParamFromPath(node.GetValue("paramLocation"));
         }
@@ -103,9 +103,11 @@ namespace ContractConfigurator.Parameters
             return h as ContractParameter;
         }
 
-        /*
-         * Whether this vessel meets the parameter condition.
-         */
+        /// <summary>
+        /// Whether this vessel meets the parameter condition.
+        /// </summary>
+        /// <param name="vessel">The vessel to check</param>
+        /// <returns>Whether the vessel meets the condition</returns>
         protected override bool VesselMeetsCondition(Vessel vessel)
         {
             if (vessel == FlightGlobals.ActiveVessel)

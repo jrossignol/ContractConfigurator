@@ -12,7 +12,7 @@ namespace ContractConfigurator.Parameters
     /// <summary>
     /// Parameter for ensuring that a certain time must elapse before the contract completes.
     /// </summary>
-    public class Duration : ContractParameter
+    public class Duration : ContractConfiguratorParameter
     {
         protected double duration { get; set; }
         protected double endTime { get; set; }
@@ -67,9 +67,8 @@ namespace ContractConfigurator.Parameters
             }
         }
 
-        protected override void OnSave(ConfigNode node)
+        protected override void OnParameterSave(ConfigNode node)
         {
-            base.OnSave(node);
             node.AddValue("duration", duration);
             node.AddValue("endTime", endTime);
             if (preWaitText != null)
@@ -86,9 +85,8 @@ namespace ContractConfigurator.Parameters
             }
         }
 
-        protected override void OnLoad(ConfigNode node)
+        protected override void OnParameterLoad(ConfigNode node)
         {
-            base.OnLoad(node);
             duration = Convert.ToDouble(node.GetValue("duration"));
             endTime = Convert.ToDouble(node.GetValue("endTime"));
             preWaitText = ConfigNodeUtil.ParseValue<string>(node, "preWaitText", (string)null);

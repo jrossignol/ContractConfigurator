@@ -79,9 +79,9 @@ namespace ContractConfigurator.Parameters
             return output;
         }
 
-        protected override void OnSave(ConfigNode node)
+        protected override void OnParameterSave(ConfigNode node)
         {
-            base.OnSave(node);
+            base.OnParameterSave(node);
             node.AddValue("title", title);
             foreach (string vessel in vessels)
             {
@@ -89,9 +89,9 @@ namespace ContractConfigurator.Parameters
             }
         }
 
-        protected override void OnLoad(ConfigNode node)
+        protected override void OnParameterLoad(ConfigNode node)
         {
-            base.OnLoad(node);
+            base.OnParameterLoad(node);
             title = node.GetValue("title");
             vessels = ConfigNodeUtil.ParseValue<List<string>>(node, "vessel", new List<string>());
         }

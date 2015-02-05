@@ -163,6 +163,7 @@ namespace ContractConfigurator
             {
                 LoggingUtil.LogError(this, "Error loading contract from persistance file!");
                 LoggingUtil.LogException(e);
+                ExceptionLogWindow.DisplayFatalException(ExceptionLogWindow.ExceptionSituation.CONTRACT_LOAD, e, this);
 
                 SetState(State.Failed);
             }
@@ -170,12 +171,23 @@ namespace ContractConfigurator
 
         protected override void OnSave(ConfigNode node)
         {
-            node.AddValue("subtype", contractType.name);
-            foreach (ContractBehaviour behaviour in behaviours)
+            try
             {
-                ConfigNode child = new ConfigNode("BEHAVIOUR");
-                behaviour.Save(child);
-                node.AddNode(child);
+                node.AddValue("subtype", contractType.name);
+                foreach (ContractBehaviour behaviour in behaviours)
+                {
+                    ConfigNode child = new ConfigNode("BEHAVIOUR");
+                    behaviour.Save(child);
+                    node.AddNode(child);
+                }
+            }
+            catch (Exception e)
+            {
+                LoggingUtil.LogError(this, "Error saving contract to persistance file!");
+                LoggingUtil.LogException(e);
+                ExceptionLogWindow.DisplayFatalException(ExceptionLogWindow.ExceptionSituation.CONTRACT_SAVE, e, this);
+
+                SetState(State.Failed);
             }
         }
 
@@ -445,6 +457,11 @@ namespace ContractConfigurator
             {
                 behaviour.Withdraw();
             }
+        }
+
+        public override string ToString()
+        {
+            return contractType.name;
         }
     }
 }

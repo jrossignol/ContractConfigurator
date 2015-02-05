@@ -12,7 +12,7 @@ namespace ContractConfigurator.Parameters
     /// <summary>
     /// ContractParameter that is successful when all child parameters are successful for a the same vessel over the given duration.
     /// </summary>
-    public class VesselParameterGroup : Contracts.ContractParameter
+    public class VesselParameterGroup : ContractConfiguratorParameter
     {
         private const string notePrefix = "<#acfcff>[-] Note: ";
         protected string title { get; set; }
@@ -247,9 +247,8 @@ namespace ContractConfigurator.Parameters
             LoggingUtil.LogVerbose(this, "<- UpdateState");
         }
 
-        protected override void OnSave(ConfigNode node)
+        protected override void OnParameterSave(ConfigNode node)
         {
-            base.OnSave(node);
             node.AddValue("title", title);
             node.AddValue("define", define);
             foreach (string vesselName in vesselList)
@@ -267,9 +266,8 @@ namespace ContractConfigurator.Parameters
             }
         }
 
-        protected override void OnLoad(ConfigNode node)
+        protected override void OnParameterLoad(ConfigNode node)
         {
-            base.OnLoad(node);
             title = node.GetValue("title");
             define = node.GetValue("define");
             duration = Convert.ToDouble(node.GetValue("duration"));

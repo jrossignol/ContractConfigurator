@@ -9,9 +9,9 @@ using Contracts.Parameters;
 
 namespace ContractConfigurator.Parameters
 {
-    /*
-     * Parameter for checking that a vessel is home.
-     */
+    /// <summary>
+    /// Parameter for checking that a vessel is home.
+    /// </summary>
     public class ReturnHome : VesselParameter
     {
         protected string title { get; set; }
@@ -32,15 +32,15 @@ namespace ContractConfigurator.Parameters
             return title;
         }
 
-        protected override void OnSave(ConfigNode node)
+        protected override void OnParameterSave(ConfigNode node)
         {
-            base.OnSave(node);
+            base.OnParameterSave(node);
             node.AddValue("title", title);
         }
 
-        protected override void OnLoad(ConfigNode node)
+        protected override void OnParameterLoad(ConfigNode node)
         {
-            base.OnLoad(node);
+            base.OnParameterLoad(node);
             title = node.GetValue("title");
         }
 
@@ -61,9 +61,11 @@ namespace ContractConfigurator.Parameters
             CheckVessel(pair.host);
         }
 
-        /*
-         * Whether this vessel meets the parameter condition.
-         */
+        /// <summary>
+        /// Whether this vessel meets the parameter condition.
+        /// </summary>
+        /// <param name="vessel">The vessel to check</param>
+        /// <returns>Whether the vessel meets the condition</returns>
         protected override bool VesselMeetsCondition(Vessel vessel)
         {
             LoggingUtil.LogVerbose(this, "Checking VesselMeetsCondition: " + vessel.id);

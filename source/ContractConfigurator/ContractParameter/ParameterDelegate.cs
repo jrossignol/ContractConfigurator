@@ -51,7 +51,7 @@ namespace ContractConfigurator.Parameters
     /// parameter classes MUST implement the ParameterDelegate.Container interface.
     /// </summary>
     /// <typeparam name="T">The type of item that will be validated.</typeparam>
-    public class ParameterDelegate<T> : ContractParameter
+    public class ParameterDelegate<T> : ContractConfiguratorParameter
     {
         protected string title;
         protected Func<T, bool> filterFunc;
@@ -85,15 +85,13 @@ namespace ContractConfigurator.Parameters
             return title;
         }
 
-        protected override void OnSave(ConfigNode node)
+        protected override void OnParameterSave(ConfigNode node)
         {
-            base.OnSave(node);
             node.AddValue("title", title);
         }
 
-        protected override void OnLoad(ConfigNode node)
+        protected override void OnParameterLoad(ConfigNode node)
         {
-            base.OnLoad(node);
             title = ConfigNodeUtil.ParseValue<string>(node, "title");
         }
 
@@ -171,7 +169,7 @@ namespace ContractConfigurator.Parameters
         }
 
         /// <summary>
-        /// To be called from the parent's OnLoad function.  Removes all child nodes, preventing
+        /// To be called from the parent's OnParameterLoad function.  Removes all child nodes, preventing
         /// stock logic from creating them.
         /// </summary>
         /// <param name="node">The config node to operate on.</param>

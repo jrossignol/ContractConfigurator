@@ -12,7 +12,7 @@ namespace ContractConfigurator.Parameters
     /// <summary>
     /// Parameter for checking whether a target vessel is destroyed or not.
     /// </summary>
-    public class TargetDestroyed : ContractParameter, ParameterDelegateContainer
+    public class TargetDestroyed : ContractConfiguratorParameter, ParameterDelegateContainer
     {
         protected string title { get; set; }
         protected List<string> vessels { get; set; }
@@ -63,9 +63,8 @@ namespace ContractConfigurator.Parameters
             return destroyedTargets.Contains(vessel);
         }
 
-        protected override void OnSave(ConfigNode node)
+        protected override void OnParameterSave(ConfigNode node)
         {
-            base.OnSave(node);
             node.AddValue("title", title);
             foreach (string vessel in vessels)
             {
@@ -77,9 +76,8 @@ namespace ContractConfigurator.Parameters
             }
         }
 
-        protected override void OnLoad(ConfigNode node)
+        protected override void OnParameterLoad(ConfigNode node)
         {
-            base.OnLoad(node);
             title = node.GetValue("title");
             vessels = ConfigNodeUtil.ParseValue<List<string>>(node, "vessel", new List<string>());
             destroyedTargets = ConfigNodeUtil.ParseValue<List<string>>(node, "destroyedTarget", new List<string>());

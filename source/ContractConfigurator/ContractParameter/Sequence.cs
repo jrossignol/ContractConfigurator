@@ -12,7 +12,7 @@ namespace ContractConfigurator.Parameters
     /// <summary>
     /// ContractParameter that is successful when all child parameters are completed in order.
     /// </summary>
-    public class Sequence : Contracts.ContractParameter
+    public class Sequence : ContractConfiguratorParameter
     {
         protected string title { get; set; }
         protected List<string> hiddenParameters;
@@ -42,9 +42,8 @@ namespace ContractConfigurator.Parameters
             return (this.Root.MissionSeed.ToString() + this.Root.DateAccepted.ToString() + this.ID);
         }
 
-        protected override void OnSave(ConfigNode node)
+        protected override void OnParameterSave(ConfigNode node)
         {
-            base.OnSave(node);
             node.AddValue("title", title);
             foreach (string param in hiddenParameters)
             {
@@ -52,9 +51,8 @@ namespace ContractConfigurator.Parameters
             }
         }
 
-        protected override void OnLoad(ConfigNode node)
+        protected override void OnParameterLoad(ConfigNode node)
         {
-            base.OnLoad(node);
             title = node.GetValue("title");
             hiddenParameters = ConfigNodeUtil.ParseValue<List<string>>(node, "hiddenParameter", new List<string>());
         }

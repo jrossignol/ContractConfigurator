@@ -12,7 +12,7 @@ namespace ContractConfigurator.Parameters
     /// <summary>
     /// Simple timer implementation.
     /// </summary>
-    public class Timer : ContractParameter
+    public class Timer : ContractConfiguratorParameter
     {
         protected double duration { get; set; }
         protected double endTime { get; set; }
@@ -57,16 +57,14 @@ namespace ContractConfigurator.Parameters
             }
         }
 
-        protected override void OnSave(ConfigNode node)
+        protected override void OnParameterSave(ConfigNode node)
         {
-            base.OnSave(node);
             node.AddValue("duration", duration);
             node.AddValue("endTime", endTime);
         }
 
-        protected override void OnLoad(ConfigNode node)
+        protected override void OnParameterLoad(ConfigNode node)
         {
-            base.OnLoad(node);
             duration = Convert.ToDouble(node.GetValue("duration"));
             endTime = Convert.ToDouble(node.GetValue("endTime"));
         }

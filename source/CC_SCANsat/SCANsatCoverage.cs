@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace ContractConfigurator.SCANsat
 {
-    public class SCANsatCoverage : Contracts.ContractParameter
+    public class SCANsatCoverage : ContractConfiguratorParameter
     {
         protected string title { get; set; }
         public double coverage { get; set; }
@@ -70,10 +70,8 @@ namespace ContractConfigurator.SCANsat
             return output;
         }
 
-        protected override void OnSave(ConfigNode node)
+        protected override void OnParameterSave(ConfigNode node)
         {
-            base.OnSave(node);
-
             node.AddValue("title", title);
             node.AddValue("coverage", coverage);
             node.AddValue("scanName", scanName);
@@ -81,10 +79,8 @@ namespace ContractConfigurator.SCANsat
             node.AddValue("targetBody", targetBody.name);
         }
 
-        protected override void OnLoad(ConfigNode node)
+        protected override void OnParameterLoad(ConfigNode node)
         {
-            base.OnLoad(node);
-
             title = node.GetValue("title");
             coverage = ConfigNodeUtil.ParseValue<double>(node, "coverage");
             scanType = ConfigNodeUtil.ParseValue<int>(node, "scanType");

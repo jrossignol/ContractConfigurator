@@ -9,11 +9,11 @@ using Contracts.Parameters;
 
 namespace ContractConfigurator.Parameters
 {
-    /*
-     * ContractParameter for use iwth the Sequence parameter.  Does not complete unless all
-     * previous items in the sequence have completed.
-     */
-    public class SequenceNode : Contracts.ContractParameter
+    /// <summary>
+    /// ContractParameter for use iwth the Sequence parameter.  Does not complete unless all
+    /// previous items in the sequence have completed.
+    /// </summary>
+    public class SequenceNode : ContractConfiguratorParameter
     {
         protected string title { get; set; }
 
@@ -60,22 +60,21 @@ namespace ContractConfigurator.Parameters
             return (this.Root.MissionSeed.ToString() + this.Root.DateAccepted.ToString() + this.ID);
         }
 
-        protected override void OnSave(ConfigNode node)
+        protected override void OnParameterSave(ConfigNode node)
         {
-            base.OnSave(node);
             node.AddValue("title", title);
         }
 
-        protected override void OnLoad(ConfigNode node)
+        protected override void OnParameterLoad(ConfigNode node)
         {
-            base.OnLoad(node);
             title = node.GetValue("title");
         }
 
-        /*
-         * Checks if this parameter is ready to complete - in other words, all previous parameters
-         * in the sequence have been completed.
-         */
+        /// <summary>
+        /// Checks if this parameter is ready to complete - in other words, all previous parameters
+        /// in the sequence have been completed.
+        /// </summary>
+        /// <returns>True if the parameter is ready to complete.</returns>
         private bool ReadyToComplete()
         {
             // Go through the parent's parameters
