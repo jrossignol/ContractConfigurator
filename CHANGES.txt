@@ -1,3 +1,6 @@
+Contract Configurator 0.6.3
+- Fixed bad exception on loading from previous broken release.
+
 Contract Configurator 0.6.2
 - New exception handling for contract load/save prevents KSP from borking up the whole contract system.
 - Fixed issue where VisitWaypoint title didn't show up in mission control.

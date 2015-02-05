@@ -18,7 +18,10 @@ namespace ContractConfigurator.Parameters
         {
             try
             {
-                node.AddValue("ContractIdentifier", Root.ToString());
+                if (Root != null)
+                {
+                    node.AddValue("ContractIdentifier", Root.ToString());
+                }
                 OnParameterSave(node);
             }
             catch (Exception e)
