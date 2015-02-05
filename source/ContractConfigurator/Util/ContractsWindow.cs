@@ -98,7 +98,7 @@ namespace ContractConfigurator
         /// <returns>Whether the check passed.</returns>
         private static bool VerifyVersion()
         {
-            string minVersion = "v3.3";
+            string minVersion = "v3.4";
             if (ContractsWindowAssembly == null && !StopChecking)
             {
                 ContractsWindowAssembly = ContractConfigurator.VerifyAssemblyVersion("ContractsWindow", minVersion, true);
