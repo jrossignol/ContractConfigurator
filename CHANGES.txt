@@ -1,3 +1,6 @@
+Contract Configurator 0.6.4
+- Replace buggy stock ReachSpace parameter with a custom one (thanks Yemo and SETI users).
+
 Contract Configurator 0.6.3
 - Fixed bad exception on loading from previous broken release.
 

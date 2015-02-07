@@ -62,6 +62,7 @@
     <Compile Include="ContractParameter\Duration.cs" />
     <Compile Include="ContractParameter\ParameterDelegate.cs" />
     <Compile Include="ContractParameter\TargetDestroyed.cs" />
+    <Compile Include="ContractParameter\ReachSpaceCustom.cs" />
     <Compile Include="ContractParameter\VesselParameter\Rendezvous.cs" />
     <Compile Include="ContractParameter\VesselParameter\VesselIsType.cs" />
     <Compile Include="ContractParameter\VesselParameter\VesselNotDestroyed.cs" />

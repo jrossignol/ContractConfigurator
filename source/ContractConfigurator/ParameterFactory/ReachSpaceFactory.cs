@@ -5,18 +5,18 @@ using System.Text;
 using UnityEngine;
 using KSP;
 using Contracts;
-using Contracts.Parameters;
+using ContractConfigurator.Parameters;
 
 namespace ContractConfigurator
 {
-    /*
-     * ParameterFactory wrapper for ReachSpace ContractParameter.
-     */
+    /// <summary>
+    /// ParameterFactory wrapper for ReachSpace ContractParameter.
+    /// </summary>
     public class ReachSpaceFactory : ParameterFactory
     {
         public override ContractParameter Generate(Contract contract)
         {
-            return new ReachSpace();
+            return new ReachSpaceCustom(title);
         }
     }
 }
