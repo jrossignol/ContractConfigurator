@@ -101,7 +101,7 @@ namespace ContractConfigurator
             string minVersion = "v3.4";
             if (ContractsWindowAssembly == null && !StopChecking)
             {
-                ContractsWindowAssembly = ContractConfigurator.VerifyAssemblyVersion("ContractsWindow", minVersion, true);
+                ContractsWindowAssembly = Util.Version.VerifyAssemblyVersion("ContractsWindow", minVersion, true);
                 StopChecking = true;
             }
             return ContractsWindowAssembly != null;

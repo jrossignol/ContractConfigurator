@@ -19,6 +19,9 @@ namespace ContractConfigurator.RemoteTech
             // Load base class
             bool valid = base.Load(configNode);
 
+            // Before loading, verify the RemoteTech version
+            valid &= Util.VerifyRemoteTechVersion();
+
             valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "hasConnectivity", ref hasConnectivity, this, true);
 
             return valid;

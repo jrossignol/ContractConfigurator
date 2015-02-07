@@ -82,7 +82,7 @@ namespace ContractConfigurator.SCANsat
             string minVersion = "v9.0";
             if (SCANsatAssembly == null)
             {
-                SCANsatAssembly = ContractConfigurator.VerifyAssemblyVersion("SCANsat", minVersion);
+                SCANsatAssembly = Util.Version.VerifyAssemblyVersion("SCANsat", minVersion);
             }
             return SCANsatAssembly != null;
         }

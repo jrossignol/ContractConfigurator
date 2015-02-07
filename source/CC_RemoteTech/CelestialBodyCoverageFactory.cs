@@ -19,6 +19,9 @@ namespace ContractConfigurator.RemoteTech
             // Load base class
             bool valid = base.Load(configNode);
 
+            // Before loading, verify the RemoteTech version
+            valid &= Util.VerifyRemoteTechVersion();
+
             valid &= ConfigNodeUtil.ParseValue<double>(configNode, "coverage", ref coverage, this, 1.0, x => Validation.BetweenInclusive(x, 0.0, 1.0));
             valid &= ValidateTargetBody(configNode);
 

@@ -24,7 +24,7 @@ namespace ContractConfigurator
 
         public bool enabled = true;
         public string config = "";
-        public string log;
+        public string log = "";
 
         /*
          * Loads the BehaviourFactory from the given ConfigNode.

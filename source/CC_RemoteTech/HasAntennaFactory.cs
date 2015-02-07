@@ -27,6 +27,9 @@ namespace ContractConfigurator.RemoteTech
             // Load base class
             bool valid = base.Load(configNode);
 
+            // Before loading, verify the RemoteTech version
+            valid &= Util.VerifyRemoteTechVersion();
+
             valid &= ConfigNodeUtil.ParseValue<int>(configNode, "minCount", ref minCount, this, 1, x => Validation.GE(x, 0));
             valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxCount", ref maxCount, this, int.MaxValue, x => Validation.GE(x, 0));
             valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "activeVessel", ref activeVessel, this, false);

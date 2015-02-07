@@ -21,7 +21,7 @@ namespace ContractConfigurator
         protected string type;
 
         public bool InvertRequirement { get { return invertRequirement; } }
-        protected virtual List<ContractRequirement> childNodes { get; set; }
+        protected List<ContractRequirement> childNodes = new List<ContractRequirement>();
         protected virtual ContractType contractType { get; set; }
         protected CelestialBody targetBody;
         public bool invertRequirement;
@@ -31,7 +31,7 @@ namespace ContractConfigurator
         public bool? lastResult = null;
         public virtual IEnumerable<ContractRequirement> ChildRequirements { get { return childNodes; } }
         public string config = "";
-        public string log;
+        public string log = "";
 
         /// <summary>
         /// Loads the ContractRequirement from the given ConfigNode.  The base version loads the following:
@@ -57,7 +57,6 @@ namespace ContractConfigurator
             valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "invertRequirement", ref invertRequirement, this, false);
 
             // Load child nodes
-            childNodes = new List<ContractRequirement>();
             foreach (ConfigNode childNode in configNode.GetNodes("REQUIREMENT"))
             {
                 ContractRequirement child = null;

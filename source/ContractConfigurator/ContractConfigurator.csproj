@@ -186,6 +186,7 @@
     <Compile Include="ParameterFactory\CollectScienceFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ContractVesselTracker.cs" />
+    <Compile Include="Util\Version.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

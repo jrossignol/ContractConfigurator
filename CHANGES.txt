@@ -1,6 +1,8 @@
 Contract Configurator 0.6.4
 - Replace buggy stock ReachSpace parameter with a custom one (thanks Yemo and SETI users).
 - Fix NullRef issue when using PartModule in PartValidation (thanks Yemo and SETI users).
+- Better reporting on RemoteTech version mismatch issues.
+- Fixed issues with dependency version check code.
 
 Contract Configurator 0.6.3
 - Fixed bad exception on loading from previous broken release.

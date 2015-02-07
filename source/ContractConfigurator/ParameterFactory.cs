@@ -30,7 +30,7 @@ namespace ContractConfigurator
         protected virtual List<ParameterFactory> childNodes { get; set; }
         protected virtual List<ContractRequirement> requirements { get; set; }
         protected string title;
-        public string log;
+        public string log = "";
 
         public bool enabled = true;
         public virtual IEnumerable<ParameterFactory> ChildParameters { get { return childNodes; } }

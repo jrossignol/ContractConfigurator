@@ -678,58 +678,5 @@ namespace ContractConfigurator
 
             return allTypes;
         }
-
-        /// <summary>
-        /// Verify the loaded assembly meets a minimum version number.
-        /// </summary>
-        /// <param name="name">Assembly name</param>
-        /// <param name="version">Minium version</param>
-        /// <param name="silent">Silent mode</param>
-        /// <returns>The assembly if the version check was successful.  If not, logs and error and returns null.</returns>
-        public static Assembly VerifyAssemblyVersion(string name, string version, bool silent=false)
-        {
-            // Logic courtesy of DMagic
-            var assembly = AssemblyLoader.loadedAssemblies.SingleOrDefault(a => a.assembly.GetName().Name == name);
-            if (assembly != null)
-            {
-                var ainfoV = Attribute.GetCustomAttribute(assembly.assembly, typeof(AssemblyInformationalVersionAttribute)) as AssemblyInformationalVersionAttribute;
-                if (ainfoV != null)
-                {
-                    Version expected = ParseVersion(version);
-                    Version received = ParseVersion(ainfoV.InformationalVersion);
-                    if (expected >= received)
-                    {
-                        LoggingUtil.LogVerbose(typeof(ContractConfigurator), "Version check for '" + name + "' passed.  Minimum required is " + version + ", version found was " + ainfoV.InformationalVersion);
-                        return assembly.assembly;
-                    }
-                    else
-                    {
-                        LoggingUtil.Log(silent ? LoggingUtil.LogLevel.VERBOSE : LoggingUtil.LogLevel.ERROR, typeof(ContractConfigurator), "Version check for '" + name + "' failed!  Minimum required is " + version + ", version found was " + ainfoV.InformationalVersion);
-                        return null;
-                    }
-                }
-                else
-                {
-                    LoggingUtil.Log(silent ? LoggingUtil.LogLevel.VERBOSE : LoggingUtil.LogLevel.ERROR, typeof(ContractConfigurator), "Couldn't determine version of '" + name + "' assembly!");
-                    return null;
-                }
-            }
-            else
-            {
-                LoggingUtil.Log(silent ? LoggingUtil.LogLevel.VERBOSE : LoggingUtil.LogLevel.ERROR, typeof(ContractConfigurator), "Couldn't find assembly for '" + name + "'!");
-                return null;
-            }
-        }
-
-        private static Version ParseVersion(string version)
-        {
-            Match m = Regex.Match(version, @"^[vV]?(\d)+(.(\d)+(.(\d)+(.(\d)+)?)?)?");
-            int major = m.Groups[1].Value.Equals("") ? 0 : Convert.ToInt32(m.Groups[1].Value);
-            int minor = m.Groups[3].Value.Equals("") ? 0 : Convert.ToInt32(m.Groups[3].Value);
-            int build = m.Groups[5].Value.Equals("") ? 0 : Convert.ToInt32(m.Groups[5].Value);
-            int revision = m.Groups[7].Value.Equals("") ? 0 : Convert.ToInt32(m.Groups[7].Value);
-
-            return new Version(major, minor, build, revision);
-        }
     }
 }
