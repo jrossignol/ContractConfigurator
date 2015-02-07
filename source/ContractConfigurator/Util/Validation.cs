@@ -99,17 +99,6 @@ namespace ContractConfigurator
             {
                 throw new ArgumentException("No PartModule class for '" + name + "'.");
             }
-            else
-            {
-                // One would think there's a better way than this to get a PartModule instance,
-                // but this is the best I've come up with
-                GameObject go = new GameObject();
-                PartModule partModule = (PartModule)go.AddComponent(classType);
-                if (partModule == null)
-                {
-                    throw new ArgumentException("Unable to instantiate PartModule '" + name + "'.");
-                }
-            }
 
             return true;
         }
