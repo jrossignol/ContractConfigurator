@@ -78,6 +78,7 @@
     <Compile Include="ContractRequirement\ReputationRequirement.cs" />
     <Compile Include="ContractRequirement\FundsRequirement.cs" />
     <Compile Include="ContractGroup.cs" />
+    <Compile Include="Util\DebugWindow.cs" />
     <Compile Include="Util\ExceptionLogWindow.cs" />
     <Compile Include="Util\Extensions.cs" />
     <Compile Include="ParameterFactory\RendezvousFactory.cs" />

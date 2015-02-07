@@ -13,35 +13,25 @@ namespace ContractConfigurator
     [KSPAddon(KSPAddon.Startup.MainMenu, true)]
     public class ContractConfigurator : MonoBehaviour
     {
+        private static ContractConfigurator Instance;
+
         static bool reloading = false;
         static bool loaded = false;
         static bool contractTypesAdjusted = false;
 
-        private IEnumerable<ContractType> guiContracts;
         private bool showGUI = false;
-        private Rect windowPos = new Rect(580f, 200f, 240f, 40f);
-        private Vector2 scrollPosition, scrollPosition2;
-        private string tooltip = "";
 
-        private int totalContracts = 0;
-        private int successContracts = 0;
+        public static int totalContracts = 0;
+        public static int successContracts = 0;
 
         private bool contractsAppVisible = false;
 
         public static EventData<Contract, ContractParameter> OnParameterChange = new EventData<Contract, ContractParameter>("OnParameterChange");
 
-        public static Texture2D check;
-        public static Texture2D cross;
-        public static GUIStyle greenLabel;
-        public static GUIStyle redLabel;
-        public static GUIStyle yellowLabel;
-        public static GUIStyle greenLegend;
-        public static GUIStyle redLegend;
-        public static GUIStyle yellowLegend;
-
         void Start()
         {
             DontDestroyOnLoad(this);
+            Instance = this;
             OnParameterChange.Add(new EventData<Contract, ContractParameter>.OnEvent(ParameterChange));
         }
 
@@ -60,7 +50,7 @@ namespace ContractConfigurator
                 RegisterBehaviourFactories();
                 RegisterContractRequirements();
                 LoadContractConfig();
-                LoadTextures();
+                DebugWindow.LoadTextures();
                 loaded = true;
             }
             // Try to disable the contract types
@@ -120,194 +110,19 @@ namespace ContractConfigurator
 
         public void OnGUI()
         {
-            if (showGUI && HighLogic.LoadedScene != GameScenes.CREDITS && HighLogic.LoadedScene != GameScenes.LOADING &&
-                HighLogic.LoadedScene != GameScenes.LOADINGBUFFER && HighLogic.LoadedScene != GameScenes.SETTINGS)
+            if (showGUI)
             {
-                var ainfoV = Attribute.GetCustomAttribute(GetType().Assembly, typeof(AssemblyInformationalVersionAttribute)) as AssemblyInformationalVersionAttribute;
-                windowPos = GUILayout.Window(
-                    GetType().FullName.GetHashCode(),
-                    windowPos,
-                    WindowGUI,
-                    "Contract Configurator " + ainfoV.InformationalVersion);
+                DebugWindow.OnGUI();
             }
-
             ExceptionLogWindow.OnGUI();
         }
 
-        protected void LoadTextures()
+        /// <summary>
+        /// Starts the contract reload process
+        /// </summary>
+        public static void StartReload()
         {
-            check = GameDatabase.Instance.GetTexture("ContractConfigurator/icons/check", false);
-            cross = GameDatabase.Instance.GetTexture("ContractConfigurator/icons/cross", false);
-        }
-
-        protected void WindowGUI(int windowID)
-        {
-            // Set up labels
-            if (greenLabel == null)
-            {
-                greenLabel = new GUIStyle(GUI.skin.label);
-                greenLabel.normal.textColor = Color.green;
-                redLabel = new GUIStyle(GUI.skin.label);
-                redLabel.normal.textColor = Color.red;
-                yellowLabel = new GUIStyle(GUI.skin.label);
-                yellowLabel.normal.textColor = Color.yellow;
-                greenLegend = new GUIStyle(redLabel);
-                greenLegend.alignment = TextAnchor.UpperCenter;
-                redLegend = new GUIStyle(redLabel);
-                redLegend.alignment = TextAnchor.UpperCenter;
-                yellowLegend = new GUIStyle(yellowLabel);
-                yellowLegend.alignment = TextAnchor.UpperCenter;
-            }
-
-            GUILayout.BeginHorizontal();
-
-            GUILayout.BeginVertical(GUILayout.Width(500));
-
-            GUILayout.Label("Sucessfully loaded " + successContracts + " out of " + totalContracts + " contracts.",
-                successContracts == totalContracts ? greenLabel : redLabel);
-
-            GUILayout.BeginHorizontal();
-            if (GUILayout.Button("Reload Contracts"))
-            {
-                StartCoroutine(ReloadContractTypes());
-            }
-            if (HighLogic.LoadedScene != GameScenes.MAINMENU)
-            {
-                if (GUILayout.Button("Force Check Requirements"))
-                {
-                    CheckRequirements();
-                }
-            }
-            GUILayout.EndHorizontal();
-
-            // Display the listing of contracts
-            scrollPosition = GUILayout.BeginScrollView(scrollPosition, GUILayout.Height(640));
-            if (Event.current.type == EventType.layout)
-            {
-                guiContracts = ContractType.AllContractTypes;
-            }
-
-            foreach (ContractType contractType in guiContracts)
-            {
-                GUILayout.BeginHorizontal();
-                if (GUILayout.Button(contractType.expandInDebug ? "-" : "+", GUILayout.Width(20), GUILayout.Height(20)))
-                {
-                    contractType.expandInDebug = !contractType.expandInDebug;
-                }
-                GUILayout.Label(new GUIContent(contractType.ToString(), contractType.config + "\n\n" + contractType.log),
-                    contractType.enabled ? GUI.skin.label : redLabel);
-                GUILayout.EndHorizontal();
-
-                if (contractType.expandInDebug)
-                {
-                    // Output children
-                    ParamGui(contractType, contractType.ParamFactories);
-                    RequirementGui(contractType, contractType.Requirements);
-                    BehaviourGui(contractType, contractType.BehaviourFactories);
-
-                    GUILayout.Space(8);
-                }
-            }
-
-            GUILayout.EndScrollView();
-
-            // Display the legend
-            GUILayout.Label("Legend:");
-            GUILayout.BeginHorizontal();
-            GUILayout.BeginVertical(GUILayout.ExpandWidth(true));
-            GUILayout.Label("Met Requirement", greenLabel, GUILayout.ExpandWidth(false));
-            GUILayout.EndVertical();
-            GUILayout.FlexibleSpace();
-            GUILayout.BeginVertical(GUILayout.ExpandWidth(true));
-            GUILayout.Label("Unmet Requirement", yellowLegend, GUILayout.ExpandWidth(false));
-            GUILayout.EndVertical();
-            GUILayout.FlexibleSpace();
-            GUILayout.BeginVertical(GUILayout.ExpandWidth(true));
-            GUILayout.Label("Disabled Item", redLegend, GUILayout.ExpandWidth(false));
-            GUILayout.EndVertical();
-            GUILayout.EndHorizontal();
-
-            GUILayout.EndVertical();
-            
-            // The right column
-            GUILayout.BeginVertical();
-            scrollPosition2 = GUILayout.BeginScrollView(scrollPosition2, GUILayout.Width(500), GUILayout.ExpandHeight(true));
-
-            // Tooltip
-            if (!string.IsNullOrEmpty(GUI.tooltip))
-            {
-                tooltip = GUI.tooltip;
-            }
-            GUILayout.Label(tooltip);
-
-            GUILayout.EndScrollView();
-            GUILayout.EndVertical();
-
-            GUILayout.EndHorizontal();
-            GUI.DragWindow();
-        }
-
-        private void ParamGui(ContractType contractType, IEnumerable<ParameterFactory> paramList, int indent = 1)
-        {
-            foreach (ParameterFactory param in paramList)
-            {
-                GUILayout.BeginHorizontal(GUILayout.ExpandWidth(false));
-                GUILayout.Space(28);
-                GUILayout.Label(new GUIContent(new string('\t', indent) + param, param.config + "\n\n" + param.log),
-                    param.enabled ? GUI.skin.label : redLabel);
-                if (contractType.enabled)
-                {
-                    if (GUILayout.Button(param.enabled ? check : cross, GUILayout.ExpandWidth(false)))
-                    {
-                        param.enabled = !param.enabled;
-                    }
-                }
-                GUILayout.EndHorizontal();
-
-                ParamGui(contractType, param.ChildParameters, indent + 1);
-                RequirementGui(contractType, param.ChildRequirements, indent + 1);
-            }
-        }
-
-        private void RequirementGui(ContractType contractType, IEnumerable<ContractRequirement> requirementList, int indent = 1)
-        {
-            foreach (ContractRequirement requirement in requirementList)
-            {
-                GUILayout.BeginHorizontal(GUILayout.ExpandWidth(false));
-                GUILayout.Space(28);
-                GUIStyle style = requirement.lastResult == null ? GUI.skin.label : requirement.lastResult.Value ? greenLabel : yellowLabel;
-                GUILayout.Label(new GUIContent(new string('\t', indent) + requirement, requirement.config + "\n\n" + requirement.log),
-                    requirement.enabled ? style : redLabel);
-                if (contractType.enabled)
-                {
-                    if (GUILayout.Button(requirement.enabled ? check : cross, GUILayout.ExpandWidth(false)))
-                    {
-                        requirement.enabled = !requirement.enabled;
-                    }
-                }
-                GUILayout.EndHorizontal();
-
-                RequirementGui(contractType, requirement.ChildRequirements, indent + 1);
-            }
-        }
-
-        private void BehaviourGui(ContractType contractType, IEnumerable<BehaviourFactory> behaviourList, int indent = 1)
-        {
-            foreach (BehaviourFactory behaviour in behaviourList)
-            {
-                GUILayout.BeginHorizontal(GUILayout.ExpandWidth(false));
-                GUILayout.Space(28);
-                GUILayout.Label(new GUIContent(new string('\t', indent) + behaviour, behaviour.config + "\n\n" + behaviour.log),
-                    behaviour.enabled ? GUI.skin.label : redLabel);
-                if (contractType.enabled)
-                {
-                    if (GUILayout.Button(behaviour.enabled ? check : cross, GUILayout.ExpandWidth(false)))
-                    {
-                        behaviour.enabled = !behaviour.enabled;
-                    }
-                }
-                GUILayout.EndHorizontal();
-            }
+            Instance.StartCoroutine(Instance.ReloadContractTypes());
         }
 
         /// <summary>
@@ -377,41 +192,10 @@ namespace ContractConfigurator
 
             yield return new WaitForEndOfFrame();
             reloading = false;
-            scrollPosition = new Vector2();
+            DebugWindow.scrollPosition = new Vector2();
+            DebugWindow.scrollPosition2 = new Vector2();
         }
 
-        /// <summary>
-        /// Does a forced check of all contract requirements
-        /// </summary>
-        void CheckRequirements()
-        {
-            foreach (ContractType contractType in ContractType.AllValidContractTypes)
-            {
-                foreach (ContractRequirement requirement in contractType.Requirements)
-                {
-                    CheckRequirement(requirement);
-                }
-            }
-        }
-        /// <summary>
-        /// Forced check of contract requirement and its children.
-        /// </summary>
-        void CheckRequirement(ContractRequirement requirement)
-        {
-            try
-            {
-                requirement.lastResult = requirement.RequirementMet(null);
-            }
-            catch (Exception e)
-            {
-                Debug.LogException(e);
-            }
-
-            foreach (ContractRequirement child in requirement.ChildRequirements)
-            {
-                CheckRequirement(child);
-            }
-        }
 
         /// <summary>
         /// Registers all the ParameterFactory classes.
