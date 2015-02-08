@@ -113,7 +113,7 @@ namespace ContractConfigurator.Parameters
             foreach (ConfigNode child in node.GetNodes("VESSEL_STATS"))
             {
                 Guid id = new Guid(child.GetValue("vessel"));
-                Vessel vessel = FlightGlobals.Vessels.Find(v => v.id == id);
+                Vessel vessel = FlightGlobals.Vessels.Find(v => v != null && v.id == id);
 
                 if (vessel != null || HighLogic.LoadedScene == GameScenes.EDITOR)
                 {
