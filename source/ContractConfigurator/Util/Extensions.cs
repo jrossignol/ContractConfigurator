@@ -23,7 +23,7 @@ namespace ContractConfigurator
         /// <returns>The name of the body, for printing purpose only.</returns>
         public static string PrintName(this CelestialBody body)
         {
-            return body.use_The_InName ? "the " : "" + body.name;
+            return (body.use_The_InName ? "the " : "") + body.name;
         }
 
         /// <summary>
