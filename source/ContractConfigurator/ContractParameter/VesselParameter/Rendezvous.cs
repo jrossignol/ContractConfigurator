@@ -14,7 +14,6 @@ namespace ContractConfigurator.Parameters
     /// </summary>
     public class Rendezvous : VesselParameter
     {
-        protected string title { get; set; }
         protected List<string> vessels { get; set; }
         protected double distance { get; set; }
 
@@ -23,12 +22,12 @@ namespace ContractConfigurator.Parameters
         private const float UPDATE_FREQUENCY = 0.50f;
 
         public Rendezvous()
-            : base()
+            : base(null)
         {
         }
 
         public Rendezvous(List<string> vessels, double distance, string title)
-            : base()
+            : base(title)
         {
             this.vessels = vessels;
             this.distance = distance;
@@ -76,7 +75,6 @@ namespace ContractConfigurator.Parameters
         protected override void OnParameterSave(ConfigNode node)
         {
             base.OnParameterSave(node);
-            node.AddValue("title", title);
             node.AddValue("distance", distance);
             foreach (string vessel in vessels)
             {
@@ -87,7 +85,6 @@ namespace ContractConfigurator.Parameters
         protected override void OnParameterLoad(ConfigNode node)
         {
             base.OnParameterLoad(node);
-            title = node.GetValue("title");
             vessels = ConfigNodeUtil.ParseValue<List<string>>(node, "vessel", new List<string>());
             distance = ConfigNodeUtil.ParseValue<double>(node, "distance");
         }

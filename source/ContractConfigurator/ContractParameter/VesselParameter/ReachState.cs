@@ -14,7 +14,6 @@ namespace ContractConfigurator.Parameters
     /// </summary>
     public class ReachState : VesselParameter
     {
-        protected string title { get; set; }
         protected CelestialBody targetBody { get; set; }
         protected string biome { get; set; }
         protected Vessel.Situations? situation { get; set; }
@@ -29,15 +28,14 @@ namespace ContractConfigurator.Parameters
         private Vessel.Situations[] landedSituations = new Vessel.Situations[] { Vessel.Situations.LANDED, Vessel.Situations.PRELAUNCH, Vessel.Situations.SPLASHED };
 
         public ReachState()
-            : base()
+            : base(null)
         {
         }
 
         public ReachState(CelestialBody targetBody, string biome, Vessel.Situations? situation, float minAltitude, float maxAltitude,
             double minSpeed, double maxSpeed, string title)
-            : base()
+            : base(title)
         {
-            this.title = title;
             this.targetBody = targetBody;
             this.biome = biome;
             this.situation = situation;
@@ -166,7 +164,6 @@ namespace ContractConfigurator.Parameters
         protected override void OnParameterSave(ConfigNode node)
         {
             base.OnParameterSave(node);
-            node.AddValue("title", title);
             // Can't be null
             node.AddValue("targetBody", targetBody.name);
             node.AddValue("biome", biome);
@@ -193,7 +190,6 @@ namespace ContractConfigurator.Parameters
         protected override void OnParameterLoad(ConfigNode node)
         {
             base.OnParameterLoad(node);
-            title = node.GetValue("title");
             targetBody = ConfigNodeUtil.ParseValue<CelestialBody>(node, "targetBody", (CelestialBody)null);
             biome = node.GetValue("biome");
             situation = ConfigNodeUtil.ParseValue<Vessel.Situations?>(node, "situation", (Vessel.Situations?)null);

@@ -14,19 +14,18 @@ namespace ContractConfigurator.Parameters
     /// </summary>
     public class Docking : VesselParameter
     {
-        protected string title { get; set; }
         protected List<string> vessels { get; set; }
         protected string defineDockedVessel { get; set; }
 
         private Vessel[] dockedVessels = new Vessel[2];
 
         public Docking()
-            : base()
+            : base(null)
         {
         }
 
         public Docking(List<string> vessels, string defineDockedVessel, string title)
-            : base()
+            : base(title)
         {
             this.vessels = vessels;
             this.defineDockedVessel = defineDockedVessel;

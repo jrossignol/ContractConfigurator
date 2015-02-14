@@ -93,21 +93,19 @@ namespace ContractConfigurator.Parameters
             }
         }
 
-        protected string title { get; set; }
         protected int count { get; set; }
 
         private List<ProtoCrewMember> passengers = new List<ProtoCrewMember>();
 
         public HasPassengers()
-            : base()
+            : base(null)
         {
         }
 
         public HasPassengers(string title, int minPassengers = 1)
-            : base()
+            : base(title)
         {
             this.count = minPassengers;
-            this.title = title;
 
             CreateDelegates();
         }
@@ -153,7 +151,6 @@ namespace ContractConfigurator.Parameters
         protected override void OnParameterSave(ConfigNode node)
         {
             base.OnParameterSave(node);
-            node.AddValue("title", title);
             node.AddValue("count", count);
 
             foreach (ProtoCrewMember passenger in passengers)
@@ -165,7 +162,6 @@ namespace ContractConfigurator.Parameters
         protected override void OnParameterLoad(ConfigNode node)
         {
             base.OnParameterLoad(node);
-            title = node.GetValue("title");
             count = Convert.ToInt32(node.GetValue("count"));
             passengers = ConfigNodeUtil.ParseValue<List<ProtoCrewMember>>(node, "passenger", new List<ProtoCrewMember>());
 

@@ -14,34 +14,25 @@ namespace ContractConfigurator.Parameters
     /// </summary>
     public class ReturnHome : VesselParameter
     {
-        protected string title { get; set; }
-
         public ReturnHome()
             : this(null)
         {
         }
 
         public ReturnHome(string title)
-            : base()
+            : base(title)
         {
             this.title = title != null ? title : "Return home";
-        }
-
-        protected override string GetTitle()
-        {
-            return title;
         }
 
         protected override void OnParameterSave(ConfigNode node)
         {
             base.OnParameterSave(node);
-            node.AddValue("title", title);
         }
 
         protected override void OnParameterLoad(ConfigNode node)
         {
             base.OnParameterLoad(node);
-            title = node.GetValue("title");
         }
 
         protected override void OnRegister()

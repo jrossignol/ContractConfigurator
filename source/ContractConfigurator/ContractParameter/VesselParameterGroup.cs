@@ -15,7 +15,6 @@ namespace ContractConfigurator.Parameters
     public class VesselParameterGroup : ContractConfiguratorParameter
     {
         private const string notePrefix = "<#acfcff>[-] Note: ";
-        protected string title { get; set; }
         protected string define { get; set; }
         protected List<string> vesselList { get; set; }
         public IEnumerable<string> VesselList { get { return vesselList;  } }
@@ -38,11 +37,10 @@ namespace ContractConfigurator.Parameters
         }
 
         public VesselParameterGroup(string title, string define, List<string> vesselList, double duration)
-            : base()
+            : base(title)
         {
             this.define = define;
             this.duration = duration;
-            this.title = title;
             this.vesselList = vesselList == null ? new List<string>() : vesselList;
             waiting = false;
         }
@@ -249,7 +247,6 @@ namespace ContractConfigurator.Parameters
 
         protected override void OnParameterSave(ConfigNode node)
         {
-            node.AddValue("title", title);
             node.AddValue("define", define);
             foreach (string vesselName in vesselList)
             {
@@ -268,7 +265,6 @@ namespace ContractConfigurator.Parameters
 
         protected override void OnParameterLoad(ConfigNode node)
         {
-            title = node.GetValue("title");
             define = node.GetValue("define");
             duration = Convert.ToDouble(node.GetValue("duration"));
             vesselList = ConfigNodeUtil.ParseValue<List<string>>(node, "vessel", new List<string>());

@@ -14,22 +14,20 @@ namespace ContractConfigurator.Parameters
     /// </summary>
     public class TargetDestroyed : ContractConfiguratorParameter, ParameterDelegateContainer
     {
-        protected string title { get; set; }
         protected List<string> vessels { get; set; }
 
         private List<string> destroyedTargets = new List<string>();
         public bool ChildChanged { get; set; }
 
         public TargetDestroyed()
-            : base()
+            : base(null)
         {
         }
 
         public TargetDestroyed(List<string> vessels, string title)
-            : base()
+            : base(title)
         {
             this.vessels = vessels;
-            this.title = title;
 
             CreateDelegates();
         }
@@ -65,7 +63,6 @@ namespace ContractConfigurator.Parameters
 
         protected override void OnParameterSave(ConfigNode node)
         {
-            node.AddValue("title", title);
             foreach (string vessel in vessels)
             {
                 node.AddValue("vessel", vessel);
@@ -78,7 +75,6 @@ namespace ContractConfigurator.Parameters
 
         protected override void OnParameterLoad(ConfigNode node)
         {
-            title = node.GetValue("title");
             vessels = ConfigNodeUtil.ParseValue<List<string>>(node, "vessel", new List<string>());
             destroyedTargets = ConfigNodeUtil.ParseValue<List<string>>(node, "destroyedTarget", new List<string>());
 

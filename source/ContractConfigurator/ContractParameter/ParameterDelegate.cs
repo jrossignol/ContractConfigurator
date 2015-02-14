@@ -53,7 +53,6 @@ namespace ContractConfigurator.Parameters
     /// <typeparam name="T">The type of item that will be validated.</typeparam>
     public class ParameterDelegate<T> : ContractConfiguratorParameter
     {
-        protected string title;
         protected Func<T, bool> filterFunc;
         protected ParameterDelegateMatchType matchType;
         protected bool trivial;
@@ -69,9 +68,8 @@ namespace ContractConfigurator.Parameters
         }
 
         public ParameterDelegate(string title, Func<T, bool> filterFunc, bool trivial, ParameterDelegateMatchType matchType = ParameterDelegateMatchType.FILTER)
-            : base()
+            : base(title)
         {
-            this.title = title;
             this.filterFunc = filterFunc;
             this.matchType = matchType;
             this.trivial = trivial;
@@ -80,19 +78,12 @@ namespace ContractConfigurator.Parameters
             OnRegister();
         }
 
-        protected override string GetTitle()
-        {
-            return title;
-        }
-
         protected override void OnParameterSave(ConfigNode node)
         {
-            node.AddValue("title", title);
         }
 
         protected override void OnParameterLoad(ConfigNode node)
         {
-            title = ConfigNodeUtil.ParseValue<string>(node, "title");
         }
 
         protected void SetState(ParameterState newState)

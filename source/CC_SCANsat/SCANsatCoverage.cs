@@ -11,7 +11,6 @@ namespace ContractConfigurator.SCANsat
 {
     public class SCANsatCoverage : ContractConfiguratorParameter
     {
-        protected string title { get; set; }
         public double coverage { get; set; }
         public CelestialBody targetBody { get; set;}
         public string scanName { get; set; }
@@ -29,15 +28,13 @@ namespace ContractConfigurator.SCANsat
         private TitleTracker titleTracker = new TitleTracker();
 
         public SCANsatCoverage()
-            : base()
+            : base(null)
         {
         }
 
         public SCANsatCoverage(double coverage, string scanName, CelestialBody targetBody, string title)
-            : base()
+            : base(title)
         {
-            this.title = title;
-
             this.coverage = coverage;
             this.scanName = scanName;
             this.scanType = SCANsatUtil.GetSCANtype(scanName);
@@ -72,7 +69,6 @@ namespace ContractConfigurator.SCANsat
 
         protected override void OnParameterSave(ConfigNode node)
         {
-            node.AddValue("title", title);
             node.AddValue("coverage", coverage);
             node.AddValue("scanName", scanName);
             node.AddValue("scanType", scanType);
@@ -81,7 +77,6 @@ namespace ContractConfigurator.SCANsat
 
         protected override void OnParameterLoad(ConfigNode node)
         {
-            title = node.GetValue("title");
             coverage = ConfigNodeUtil.ParseValue<double>(node, "coverage");
             scanType = ConfigNodeUtil.ParseValue<int>(node, "scanType");
             scanName = ConfigNodeUtil.ParseValue<string>(node, "scanType", "");

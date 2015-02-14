@@ -14,7 +14,6 @@ namespace ContractConfigurator.Parameters
     /// </summary>
     public class HasCrew : VesselParameter
     {
-        protected string title { get; set; }
         protected string trait { get; set; }
         protected int minCrew { get; set; }
         protected int maxCrew { get; set; }
@@ -27,7 +26,7 @@ namespace ContractConfigurator.Parameters
         }
 
         public HasCrew(string title, string trait, int minCrew = 1, int maxCrew = int.MaxValue, int minExperience = 0, int maxExperience = 5)
-            : base()
+            : base(title)
         {
             this.minCrew = minCrew;
             this.maxCrew = maxCrew;
@@ -45,7 +44,7 @@ namespace ContractConfigurator.Parameters
                 throw new ArgumentException("HasCrew parameter: minCrew must be less than maxCrew!");
             }
 
-            if (title == null)
+            if (string.IsNullOrEmpty(title))
             {
                 string traitString = String.IsNullOrEmpty(trait) ? "Kerbal" : trait;
 
@@ -93,15 +92,9 @@ namespace ContractConfigurator.Parameters
             }
         }
 
-        protected override string GetTitle()
-        {
-            return title;
-        }
-
         protected override void OnParameterSave(ConfigNode node)
         {
             base.OnParameterSave(node);
-            node.AddValue("title", title);
             if (trait != null)
             {
                 node.AddValue("trait", trait);
@@ -115,7 +108,6 @@ namespace ContractConfigurator.Parameters
         protected override void OnParameterLoad(ConfigNode node)
         {
             base.OnParameterLoad(node);
-            title = node.GetValue("title");
             trait = ConfigNodeUtil.ParseValue<string>(node, "trait", (string)null);
             minExperience = Convert.ToInt32(node.GetValue("minExperience"));
             maxExperience = Convert.ToInt32(node.GetValue("maxExperience"));

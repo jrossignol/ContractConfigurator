@@ -31,7 +31,7 @@ namespace ContractConfigurator.Parameters
         }
 
         public Duration(double duration, string preWaitText = null, string waitingText = null, string completionText = null)
-            : base()
+            : base("")
         {
             this.duration = duration;
             this.preWaitText = preWaitText;

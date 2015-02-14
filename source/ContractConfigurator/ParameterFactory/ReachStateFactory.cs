@@ -27,7 +27,7 @@ namespace ContractConfigurator
             // Load base class
             bool valid = base.Load(configNode);
 
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "biome", ref biome, this, (string)null);
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "biome", ref biome, this, "");
             valid &= ConfigNodeUtil.ParseValue<Vessel.Situations?>(configNode, "situation", ref situation, this, (Vessel.Situations?)null);
             valid &= ConfigNodeUtil.ParseValue<float>(configNode, "minAltitude", ref minAltitude, this, 0.0f, x => Validation.GE(x, 0.0f));
             valid &= ConfigNodeUtil.ParseValue<float>(configNode, "maxAltitude", ref maxAltitude, this, float.MaxValue, x => Validation.GE(x, 0.0f));

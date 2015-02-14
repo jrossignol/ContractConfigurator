@@ -15,7 +15,6 @@ namespace ContractConfigurator.RemoteTech
     /// </summary>
     public class VesselConnectivityParameter : RemoteTechParameter
     {
-        protected string title { get; set; }
         protected bool hasConnectivity { get; set; }
         protected string vesselKey { get; set; }
 
@@ -25,9 +24,8 @@ namespace ContractConfigurator.RemoteTech
         }
 
         public VesselConnectivityParameter(string vesselKey, bool hasConnectivity = true, string title = null)
-            : base()
+            : base(title)
         {
-            this.title = title;
             this.vesselKey = vesselKey;
             this.hasConnectivity = hasConnectivity;
         }
@@ -52,7 +50,6 @@ namespace ContractConfigurator.RemoteTech
         {
             base.OnParameterSave(node);
 
-            node.AddValue("title", title);
             node.AddValue("hasConnectivity", hasConnectivity);
             node.AddValue("vesselKey", vesselKey);
         }
@@ -61,7 +58,6 @@ namespace ContractConfigurator.RemoteTech
         {
             base.OnParameterLoad(node);
 
-            title = node.GetValue("title");
             hasConnectivity = ConfigNodeUtil.ParseValue<bool>(node, "hasConnectivity");
             vesselKey = node.GetValue("vesselKey");
         }
