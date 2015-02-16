@@ -1,4 +1,5 @@
 Contract Configurator 0.7.0
+- New debugging window feature - contract balancing mode.
 - Clean up "Input is null" warning messages from stock.
 
 Contract Configurator 0.6.5

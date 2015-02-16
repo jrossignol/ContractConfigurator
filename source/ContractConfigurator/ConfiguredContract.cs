@@ -295,6 +295,7 @@ namespace ContractConfigurator
         {
             // Remove the stuff that's supposed to be hidden from the mission control text
             string str = base.MissionControlTextRich();
+            Debug.Log(str);
             str = Regex.Replace(str, "\r", "");
             str = Regex.Replace(str, "<b><#......>:.*?\n\n", "", RegexOptions.Singleline);
             return str;
