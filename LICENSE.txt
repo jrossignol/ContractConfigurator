@@ -1,6 +1,6 @@
 Detailed license files are included under the GameData directory.  This file provides a summary of what falls under what license:
 
-- Contract Configurator (ContractConfigurator.dll) is licensed under CC-BY-NC-SA-4.0.
-- SCANsat integration (CC_SCANsat.dll) is licensed under CC-BY-NC-SA-4.0.
+- Contract Configurator (ContractConfigurator.dll) is licensed under the MIT License.
+- SCANsat integration (CC_SCANsat.dll) is licensed under the MIT License.
 - RemoteTech integration (CC_RemoteTech.dll) is licensed under GNU GPL v2.0.
-- Everything else not specified here falls under the main Contract Configurator license (CC-BY-NC-SA-4.0).
+- Everything else not specified here falls under the main Contract Configurator license (MIT).
