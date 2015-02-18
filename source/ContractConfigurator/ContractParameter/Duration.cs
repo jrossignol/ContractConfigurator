@@ -114,7 +114,12 @@ namespace ContractConfigurator.Parameters
                 bool completed = true;
                 foreach (ContractParameter child in Parent.GetChildren())
                 {
-                    if (child != this && child.State != ParameterState.Complete && !child.Optional)
+                    if (child == this)
+                    {
+                        break;
+                    }
+
+                    if (child.State != ParameterState.Complete && !child.Optional)
                     {
                         completed = false;
                         break;

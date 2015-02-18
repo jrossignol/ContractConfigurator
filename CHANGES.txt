@@ -1,3 +1,6 @@
+Contract Configurator 0.6.6
+- Minor bug fixes.
+
 Contract Configurator 0.6.5
 - Fix rare NullReference exception on VesselParameter save (thanks cupe).
 - Fix Sun and Mun appearing as simply "the" in some parameters (thanks Invader Myk).
