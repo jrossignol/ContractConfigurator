@@ -113,15 +113,14 @@ namespace ContractConfigurator.Parameters
                 ChildChanged = false;
                 if (success)
                 {
-                    SetComplete();
+                    SetState(ParameterState.Complete);
                 }
                 else
                 {
                     ContractConfigurator.OnParameterChange.Fire(Root, this);
                 }
             }
-
-
+            
             ContractConfigurator.OnParameterChange.Fire(Root, this);
         }
     }

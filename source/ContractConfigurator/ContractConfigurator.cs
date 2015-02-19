@@ -26,6 +26,8 @@ namespace ContractConfigurator
 
         private bool contractsAppVisible = false;
 
+        private List<Contract> contractsToUpdate = new List<Contract>();
+
         public static EventData<Contract, ContractParameter> OnParameterChange = new EventData<Contract, ContractParameter>("OnParameterChange");
 
         void Start()
@@ -68,7 +70,7 @@ namespace ContractConfigurator
                 showGUI = !showGUI;
             }
 
-            // Check if the ContractsApp has just become visible, and fire off an update event
+            // Check if the ContractsApp has just become visible
             if (!contractsAppVisible &&
                 ContractsApp.Instance != null &&
                 ContractsApp.Instance.appLauncherButton != null &&
@@ -76,16 +78,19 @@ namespace ContractConfigurator
                 ContractsApp.Instance.cascadingList.cascadingList.gameObject.activeInHierarchy)
             {
                 contractsAppVisible = true;
+            }
 
-                // Fire off an event for each contract
-                for (int i = 0; i < ContractSystem.Instance.Contracts.Count; i++)
+            // Fire update events
+            if (contractsAppVisible)
+            {
+                foreach (Contract contract in contractsToUpdate)
                 {
-                    Contract contract = ContractSystem.Instance.Contracts[i];
                     if (contract.ContractState == Contract.State.Active && contract.GetType() == typeof(ConfiguredContract))
                     {
                         GameEvents.Contract.onParameterChange.Fire(contract, contract.GetParameter(0));
                     }
                 }
+                contractsToUpdate.Clear();
             }
         }
 
@@ -97,8 +102,6 @@ namespace ContractConfigurator
                 ContractsApp.Instance.cascadingList.cascadingList != null &&
                 ContractsApp.Instance.cascadingList.cascadingList.gameObject.activeInHierarchy)
             {
-                // Just let the event flow through
-                GameEvents.Contract.onParameterChange.Fire(c, p);
                 contractsAppVisible = true;
             }
             // Not visible
@@ -106,6 +109,9 @@ namespace ContractConfigurator
             {
                 contractsAppVisible = false;
             }
+
+            // Add the contract to the list of ones to update
+            contractsToUpdate.AddUnique(c);
         }
 
         public void OnGUI()

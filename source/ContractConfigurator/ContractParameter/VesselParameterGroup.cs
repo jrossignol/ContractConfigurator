@@ -334,7 +334,7 @@ namespace ContractConfigurator.Parameters
                     // Fire the parameter change event to account for all the changed child parameters.
                     // We don't fire it for the child parameters, as any with a failed state will cause
                     // the contract to fail, which we don't want.
-                    GameEvents.Contract.onParameterChange.Fire(this.Root, this);
+                    ContractConfigurator.OnParameterChange.Fire(this.Root, this);
 
                     // Manually run the OnParameterStateChange
                     OnParameterStateChange(this);
@@ -382,7 +382,7 @@ namespace ContractConfigurator.Parameters
                     waiting = false;
                     if (state == ParameterState.Complete)
                     {
-                        SetIncomplete();
+                        SetState(ParameterState.Incomplete);
                     }
 
                     // Make sure no craft is matching the name
@@ -397,7 +397,7 @@ namespace ContractConfigurator.Parameters
                         ContractParameter param = GetParameter(i);
                         if (!param.GetType().IsSubclassOf(typeof(VesselParameter)) && param.State == ParameterState.Failed)
                         {
-                            SetFailed();
+                            SetState(ParameterState.Failed);
                             break;
                         }
                     }
@@ -410,7 +410,7 @@ namespace ContractConfigurator.Parameters
             if (waiting && Planetarium.GetUniversalTime() > completionTime)
             {
                 waiting = false;
-                SetComplete();
+                SetState(ParameterState.Complete);
             }
             // Every time the clock ticks over, make an attempt to update the contract window
             // notes.  We do this because otherwise the window will only ever read the notes once,

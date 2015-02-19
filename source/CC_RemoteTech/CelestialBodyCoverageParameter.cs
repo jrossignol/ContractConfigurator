@@ -79,12 +79,12 @@ namespace ContractConfigurator.RemoteTech
                 currentCoverage = RemoteTechProgressTracker.Instance.GetCoverage(targetBody);
                 if (currentCoverage >= coverage)
                 {
-                    SetComplete();
+                    SetState(ParameterState.Complete);
                     RemoteTechProgressTracker.Instance.RemoveFromPriorityList(targetBody);
                 }
                 else
                 {
-                    SetIncomplete();
+                    SetState(ParameterState.Incomplete);
                     RemoteTechProgressTracker.Instance.AddToPriorityList(targetBody);
                 }
 

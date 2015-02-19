@@ -87,14 +87,14 @@ namespace ContractConfigurator.Parameters
                         // If it's failed, just straight up fail the parameter
                         if (param.State == ParameterState.Failed)
                         {
-                            SetFailed();
+                            SetState(ParameterState.Failed);
                             return;
                         }
                     }
                     // We found a complete parameter after finding an incomplete one - failure condition
                     else if (foundNotComplete)
                     {
-                        SetFailed();
+                        SetState(ParameterState.Failed);
                         return;
                     }
                 }
@@ -102,7 +102,7 @@ namespace ContractConfigurator.Parameters
                 // Everything we found was complete
                 if (!foundNotComplete)
                 {
-                    SetComplete();
+                    SetState(ParameterState.Complete);
                 }
             }
         }

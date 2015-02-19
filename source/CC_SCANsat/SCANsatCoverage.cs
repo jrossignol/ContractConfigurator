@@ -119,7 +119,7 @@ namespace ContractConfigurator.SCANsat
                 // We've had enough successes to be sure that the scan is complete
                 if (consecutive_successes >= CONSECUTIVE_SUCCESSES_REQUIRED)
                 {
-                    SetComplete();
+                    SetState(ParameterState.Complete);
                 }
 
                 // Update contract window

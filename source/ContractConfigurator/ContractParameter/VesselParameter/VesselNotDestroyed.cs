@@ -124,7 +124,7 @@ namespace ContractConfigurator.Parameters
             {
                 LoggingUtil.LogVerbose(this, "Any vessel match, failing parameter.");
                 // Fail on any vessel
-                SetFailed();
+                SetState(ParameterState.Failed);
                 return;
             }
 
@@ -135,7 +135,7 @@ namespace ContractConfigurator.Parameters
                 if (keys.Contains(vessel))
                 {
                     LoggingUtil.LogVerbose(this, "Specific vessel match on '" + vessel + "', failing parameter.");
-                    SetFailed();
+                    SetState(ParameterState.Failed);
                     return;
                 }
             }

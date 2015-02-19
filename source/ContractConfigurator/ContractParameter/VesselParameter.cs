@@ -645,7 +645,7 @@ namespace ContractConfigurator.Parameters
                 {
                     if (VesselMeetsCondition(vessel))
                     {
-                        SetComplete();
+                        SetState(ParameterState.Complete);
                         if (!allowStateReset)
                         {
                             Disable();
@@ -653,7 +653,7 @@ namespace ContractConfigurator.Parameters
                     }
                     else
                     {
-                        SetIncomplete();
+                        SetState(ParameterState.Incomplete);
                     }
                 }
 
@@ -661,7 +661,7 @@ namespace ContractConfigurator.Parameters
                 if (ChildChanged)
                 {
                     LoggingUtil.LogVerbose(this, "Firing onParameterChange due to ChildChanged = true");
-                    GameEvents.Contract.onParameterChange.Fire(this.Root, this);
+                    ContractConfigurator.OnParameterChange.Fire(this.Root, this);
                     ChildChanged = false;
                 }
             }

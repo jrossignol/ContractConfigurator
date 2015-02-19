@@ -89,7 +89,7 @@ namespace ContractConfigurator.Parameters
                 endTime = Planetarium.GetUniversalTime() + duration;
                 
                 // We are completed...  until the time runs out
-                SetComplete();
+                SetState(ParameterState.Complete);
             }
         }
 
@@ -105,7 +105,7 @@ namespace ContractConfigurator.Parameters
                 // Boom!
                 if (Planetarium.GetUniversalTime() > endTime)
                 {
-                    SetFailed();
+                    SetState(ParameterState.Failed);
                 }
                 lastUpdate = Planetarium.GetUniversalTime();
 

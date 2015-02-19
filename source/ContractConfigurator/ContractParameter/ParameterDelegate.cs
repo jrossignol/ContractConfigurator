@@ -12,7 +12,7 @@ namespace ContractConfigurator.Parameters
     /// <summary>
     /// Parent classes must implement this interface, and should make the following call if
     /// ChildChanged is true:
-    ///     GameEvents.Contract.onParameterChange.Fire(this.Root, this);
+    ///     ContractConfigurator.OnParameterChange.Fire(this.Root, this);
     /// </summary>
     public interface ParameterDelegateContainer
     {
@@ -95,7 +95,7 @@ namespace ContractConfigurator.Parameters
             title = ConfigNodeUtil.ParseValue<string>(node, "title");
         }
 
-        protected void SetState(ParameterState newState)
+        protected new void SetState(ParameterState newState)
         {
             if (state != newState)
             {

@@ -69,7 +69,7 @@ namespace ContractConfigurator.Parameters
                 hfta.to == Vessel.Situations.ORBITING ||
                 hfta.to == Vessel.Situations.ESCAPING)
             {
-                SetComplete();
+                SetState(ParameterState.Complete);
             }
         }
     }

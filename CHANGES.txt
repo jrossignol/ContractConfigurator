@@ -1,4 +1,6 @@
 Contract Configurator 0.6.6
+- Changed to MIT license.
+- Performance fixes for stock contracts app (mainly affects contracts with lots and lots of parameters.
 - Bundled MiniAVC (1.0.3).
 - Minor bug fixes.
 
