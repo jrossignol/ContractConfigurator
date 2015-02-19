@@ -34,8 +34,8 @@ using System.Runtime.InteropServices;
 // übernehmen, indem Sie "*" eingeben:
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("1.0")]
-[assembly: AssemblyFileVersion("0.6.5")]
-[assembly: AssemblyInformationalVersion("0.6.5")]
+[assembly: AssemblyFileVersion("0.6.6")]
+[assembly: AssemblyInformationalVersion("0.6.6")]
 [assembly: KSPAssembly("CC_SCANsat", 1, 0)]
 [assembly: KSPAssemblyDependency("ContractConfigurator", 1, 0)]
 [assembly: KSPAssemblyDependency("SCANsat", 1, 0)]
