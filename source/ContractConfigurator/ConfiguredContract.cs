@@ -111,7 +111,7 @@ namespace ContractConfigurator
 
         protected override string GetHashString()
         {
-            return (this.contractType.name + this.MissionSeed.ToString() + this.DateAccepted.ToString());
+            return ((contractType != null ? contractType.name : "null") + MissionSeed.ToString() + DateAccepted.ToString());
         }
 
         protected override string GetTitle()
@@ -401,6 +401,14 @@ namespace ContractConfigurator
             }
         }
 
+        protected void OnParameterStateChange(Contract contract, ContractParameter param)
+        {
+            if (contract == this)
+            {
+                OnParameterStateChange(param);
+            }
+        }
+            
         protected override void OnParameterStateChange(ContractParameter param)
         {
             base.OnParameterStateChange(param);
@@ -427,6 +435,7 @@ namespace ContractConfigurator
         protected override void OnRegister()
         {
             base.OnRegister();
+            ContractConfigurator.OnParameterChange.Add(new EventData<Contract, ContractParameter>.OnEvent(OnParameterStateChange));
             foreach (ContractBehaviour behaviour in behaviours)
             {
                 behaviour.Register();
@@ -436,6 +445,7 @@ namespace ContractConfigurator
         protected override void OnUnregister()
         {
             base.OnUnregister();
+            ContractConfigurator.OnParameterChange.Remove(new EventData<Contract, ContractParameter>.OnEvent(OnParameterStateChange));
             foreach (ContractBehaviour behaviour in behaviours)
             {
                 behaviour.Unregister();

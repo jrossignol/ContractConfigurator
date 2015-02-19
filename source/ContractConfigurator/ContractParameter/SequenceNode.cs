@@ -100,16 +100,16 @@ namespace ContractConfigurator.Parameters
                 {
                     if (ReadyToComplete())
                     {
-                        SetComplete();
+                        SetState(ParameterState.Complete);
                     }
                     else
                     {
-                        SetIncomplete();
+                        SetState(ParameterState.Incomplete);
                     }
                 }
                 else if (AnyChildParametersFailed())
                 {
-                    SetFailed();
+                    SetState(ParameterState.Failed);
                 }
             }
         }

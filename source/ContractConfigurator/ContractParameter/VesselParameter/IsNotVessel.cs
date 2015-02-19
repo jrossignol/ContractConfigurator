@@ -89,7 +89,7 @@ namespace ContractConfigurator.Parameters
         {
             if (ContractVesselTracker.Instance.GetAssociatedVessel(vesselKey) == hft.host)
             {
-                GameEvents.Contract.onParameterChange.Fire(Root, this);
+                ContractConfigurator.OnParameterChange.Fire(Root, this);
             }
         }
 

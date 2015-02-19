@@ -79,5 +79,55 @@ namespace ContractConfigurator.Parameters
         /// </summary>
         /// <param name="configNode">The ConfigNode to laod from.</param>
         protected abstract void OnParameterLoad(ConfigNode node);
+
+        /// <summary>
+        /// Method to use in place of SetComplete/SetFailed/SetIncomplete.  Doesn't fire the stock change event because of 
+        /// performance issues with the stock contracts app.
+        /// </summary>
+        /// <param name="state">New parameter state</param>
+        protected virtual void SetState(ParameterState state)
+        {
+            if (this.state == state)
+            {
+                return;
+            }
+            this.state = state;
+
+            if (disableOnStateChange)
+            {
+                Disable();
+            }
+
+            if (state == ParameterState.Complete)
+            {
+                AwardCompletion();
+            }
+            else if (state == ParameterState.Failed)
+            {
+                PenalizeFailure();
+            }
+
+            OnStateChange.Fire(this, state);
+            ContractConfigurator.OnParameterChange.Fire(Root, this);
+            Parent.ParameterStateUpdate(this);
+        }
+
+        [Obsolete("Use SetState() instead.")]
+        new protected void SetComplete()
+        {
+            base.SetComplete();
+        }
+
+        [Obsolete("Use SetState() instead.")]
+        new protected void SetFailed()
+        {
+            base.SetFailed();
+        }
+
+        [Obsolete("Use SetState() instead.")]
+        new protected void SetIncomplete()
+        {
+            base.SetIncomplete();
+        }
     }
 }

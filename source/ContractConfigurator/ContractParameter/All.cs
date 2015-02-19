@@ -74,11 +74,13 @@ namespace ContractConfigurator.Parameters
         protected override void OnRegister()
         {
             GameEvents.Contract.onParameterChange.Add(new EventData<Contract, ContractParameter>.OnEvent(OnAnyContractParameterChange));
+            ContractConfigurator.OnParameterChange.Add(new EventData<Contract, ContractParameter>.OnEvent(OnAnyContractParameterChange));
         }
 
         protected override void OnUnregister()
         {
             GameEvents.Contract.onParameterChange.Remove(new EventData<Contract, ContractParameter>.OnEvent(OnAnyContractParameterChange));
+            ContractConfigurator.OnParameterChange.Remove(new EventData<Contract, ContractParameter>.OnEvent(OnAnyContractParameterChange));
         }
 
         protected void OnAnyContractParameterChange(Contract contract, ContractParameter contractParameter)
@@ -88,11 +90,11 @@ namespace ContractConfigurator.Parameters
                 LoggingUtil.LogVerbose(this, "OnAnyContractParameterChange");
                 if (this.GetChildren().All(p => p.State == ParameterState.Complete))
                 {
-                    SetComplete();
+                    SetState(ParameterState.Complete);
                 }
                 else
                 {
-                    SetIncomplete();
+                    SetState(ParameterState.Incomplete);
                 }
             }
         }
@@ -103,11 +105,11 @@ namespace ContractConfigurator.Parameters
             {
                 if (AllChildParametersComplete())
                 {
-                    SetComplete();
+                    SetState(ParameterState.Complete);
                 }
                 else if (AnyChildParametersFailed())
                 {
-                    SetFailed();
+                    SetState(ParameterState.Failed);
                 }
             }
         }

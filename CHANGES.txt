@@ -2,6 +2,12 @@ Contract Configurator 0.7.0
 - New debugging window feature - contract balancing mode.
 - Clean up "Input is null" warning messages from stock.
 
+Contract Configurator 0.6.6
+- Changed to MIT license.
+- Performance fixes for stock contracts app (mainly affects contracts with lots and lots of parameters.
+- Bundled MiniAVC (1.0.3).
+- Minor bug fixes.
+
 Contract Configurator 0.6.5
 - Fix rare NullReference exception on VesselParameter save (thanks cupe).
 - Fix Sun and Mun appearing as simply "the" in some parameters (thanks Invader Myk).

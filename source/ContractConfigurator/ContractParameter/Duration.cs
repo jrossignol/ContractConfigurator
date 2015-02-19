@@ -98,12 +98,14 @@ namespace ContractConfigurator.Parameters
         {
             base.OnRegister();
             GameEvents.Contract.onParameterChange.Add(new EventData<Contract, ContractParameter>.OnEvent(OnParameterChange));
+            ContractConfigurator.OnParameterChange.Add(new EventData<Contract, ContractParameter>.OnEvent(OnParameterChange));
         }
 
         protected override void OnUnregister()
         {
             base.OnUnregister();
             GameEvents.Contract.onParameterChange.Remove(new EventData<Contract, ContractParameter>.OnEvent(OnParameterChange));
+            ContractConfigurator.OnParameterChange.Remove(new EventData<Contract, ContractParameter>.OnEvent(OnParameterChange));
         }
 
         protected void OnParameterChange(Contract contract, ContractParameter param)
@@ -114,7 +116,12 @@ namespace ContractConfigurator.Parameters
                 bool completed = true;
                 foreach (ContractParameter child in Parent.GetChildren())
                 {
-                    if (child != this && child.State != ParameterState.Complete && !child.Optional)
+                    if (child == this)
+                    {
+                        break;
+                    }
+
+                    if (child.State != ParameterState.Complete && !child.Optional)
                     {
                         completed = false;
                         break;
@@ -145,7 +152,7 @@ namespace ContractConfigurator.Parameters
                 // Completed
                 if (endTime != 0.0 && Planetarium.GetUniversalTime() > endTime)
                 {
-                    SetComplete();
+                    SetState(ParameterState.Complete);
                 }
                 lastUpdate = Planetarium.GetUniversalTime();
 
