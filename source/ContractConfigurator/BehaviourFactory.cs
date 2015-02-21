@@ -9,9 +9,9 @@ using ContractConfigurator.Behaviour;
 
 namespace ContractConfigurator
 {
-    /*
-     * Class for generating ContractBehaviour objects.
-     */
+    /// <summary>
+    /// Class for generating ContractBehaviour objects.
+    /// </summary>
     public abstract class BehaviourFactory : IContractConfiguratorFactory
     {
         private static Dictionary<string, Type> factories = new Dictionary<string, Type>();
@@ -26,9 +26,11 @@ namespace ContractConfigurator
         public string config = "";
         public string log = "";
 
-        /*
-         * Loads the BehaviourFactory from the given ConfigNode.
-         */
+        /// <summary>
+        /// Loads the BehaviourFactory from the given ConfigNode.
+        /// </summary>
+        /// <param name="configNode">ConfigNode to load from</param>
+        /// <returns>Whether the load was successful</returns>
         public virtual bool Load(ConfigNode configNode)
         {
             bool valid = true;
@@ -44,18 +46,22 @@ namespace ContractConfigurator
             return valid;
         }
 
-        /*
-         * Method for generating ContractBehaviour objects.  Each time it is called it should
-         * generate a new object for the given contract.  The object does not need to be
-         * added to the contract, as that gets done elsewhere (the contract is simply passed
-         * to be used in behaviour generation logic).
-         */
+        /// <summary>
+        /// Method for generating ContractBehaviour objects.  Each time it is called it should
+        /// generate a new object for the given contract.  The object does not need to be
+        /// added to the contract, as that gets done elsewhere (the contract is simply passed
+        /// to be used in behaviour generation logic).
+        /// </summary>
+        /// <param name="contract">Contract to add behaviour to</param>
+        /// <returns>The behaviour object</returns>
         public abstract ContractBehaviour Generate(ConfiguredContract contract);
 
-        /*
-         * Generates all the ContractBehaviour objects required for the array of ConfigNodes, and
-         * adds them to the host object.
-         */
+        /// <summary>
+        /// Generates all the ContractBehaviour objects required for the array of ConfigNodes, and
+        /// adds them to the host object.
+        /// </summary>
+        /// <param name="contract">Contract to generate behaviours for</param>
+        /// <param name="behaviourNodes">The behaviour factories to use</param>
         public static void GenerateBehaviours(ConfiguredContract contract, List<BehaviourFactory> behaviourNodes)
         {
             foreach (BehaviourFactory behaviourFactory in behaviourNodes)
@@ -74,9 +80,11 @@ namespace ContractConfigurator
             }
         }
 
-        /*
-         * Adds a new BehaviourFactory to handle Behaviour nodes with the given type.
-         */
+        /// <summary>
+        /// Adds a new BehaviourFactory to handle Behaviour nodes with the given type.
+        /// </summary>
+        /// <param name="factoryType">Type of the factory</param>
+        /// <param name="typeName">Name to associate with the given type</param>
         public static void Register(Type factoryType, string typeName)
         {
             LoggingUtil.LogDebug(typeof(BehaviourFactory), "Registering behaviour factory class " +
@@ -106,6 +114,7 @@ namespace ContractConfigurator
         {
             // Logging on
             LoggingUtil.CaptureLog = true;
+            bool valid = true;
 
             // Get the type
             string type = behaviourConfig.GetValue("type");
@@ -115,6 +124,7 @@ namespace ContractConfigurator
                     "BEHAVIOUR '" + behaviourConfig.GetValue("name") + "' of type '" + behaviourConfig.GetValue("type") + "': " +
                     "No BehaviourFactory has been registered for type '" + type + "'.");
                 behaviourFactory = new InvalidBehaviourFactory();
+                valid = false;
             }
             else
             {
@@ -127,7 +137,7 @@ namespace ContractConfigurator
             behaviourFactory.targetBody = contractType.targetBody;
 
             // Load config
-            bool valid = behaviourFactory.Load(behaviourConfig);
+            valid &= behaviourFactory.Load(behaviourConfig);
 
             // Check for unexpected values - always do this last
             if (behaviourFactory.GetType() != typeof(InvalidBehaviourFactory))

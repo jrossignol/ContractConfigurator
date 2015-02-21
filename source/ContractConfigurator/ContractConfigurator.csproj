@@ -78,6 +78,11 @@
     <Compile Include="ContractRequirement\ReputationRequirement.cs" />
     <Compile Include="ContractRequirement\FundsRequirement.cs" />
     <Compile Include="ContractGroup.cs" />
+    <Compile Include="ExpressionParser\BooleanValueExpressionParser.cs" />
+    <Compile Include="ExpressionParser\NumericValueExpressionParser.cs" />
+    <Compile Include="ExpressionParser\ClassExpressionParser.cs" />
+    <Compile Include="ExpressionParser\ValueExpressionParser.cs" />
+    <Compile Include="ExpressionParser\ExpressionParser.cs" />
     <Compile Include="Util\DebugWindow.cs" />
     <Compile Include="Util\ExceptionLogWindow.cs" />
     <Compile Include="Util\Extensions.cs" />
@@ -108,7 +113,6 @@
     <Compile Include="ContractRequirement\ExpressionRequirement.cs" />
     <Compile Include="ContractRequirement\FacilityRequirement.cs" />
     <Compile Include="ContractRequirement\HasCrewRequirement.cs" />
-    <Compile Include="ExpressionParser.cs" />
     <Compile Include="ContractBehaviour\SpawnKerbal.cs" />
     <Compile Include="IContractConfiguratorFactory.cs" />
     <Compile Include="Util\LoggingUtil.cs" />

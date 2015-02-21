@@ -9,6 +9,18 @@ using Contracts;
 
 namespace ContractConfigurator
 {
+    public class DataStoreCastException : InvalidCastException
+    {
+        public Type FromType { get; private set; }
+        public Type ToType { get; private set; }
+
+        public DataStoreCastException(Type fromType, Type toType)
+        {
+            FromType = fromType;
+            ToType = toType;
+        }
+    }
+
     [KSPScenario(ScenarioCreationOptions.AddToExistingCareerGames | ScenarioCreationOptions.AddToNewCareerGames,
         GameScenes.FLIGHT, GameScenes.TRACKSTATION, GameScenes.SPACECENTER)]
     class PersistentDataStore : ScenarioModule
@@ -66,7 +78,14 @@ namespace ContractConfigurator
             {
                 return new T();
             }
+            try
+            {
             return (T)data[key];
+            }
+            catch (InvalidCastException e)
+            {
+                throw new DataStoreCastException(data[key].GetType(), typeof(T));
+            }
         }
 
         /*

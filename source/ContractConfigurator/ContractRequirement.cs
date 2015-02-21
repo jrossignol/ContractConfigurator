@@ -178,6 +178,7 @@ namespace ContractConfigurator
         {
             // Logging on
             LoggingUtil.CaptureLog = true;
+            bool valid = true;
 
             // Get the type
             string type = configNode.GetValue("type");
@@ -187,6 +188,7 @@ namespace ContractConfigurator
                     "REQUIREMENT '" + configNode.GetValue("name") + "' of type '" + configNode.GetValue("type") + "': " +
                     "No ContractRequirement has been registered for type '" + type + "'.");
                 requirement = new InvalidContractRequirement();
+                valid = false;
             }
             else
             {
@@ -199,7 +201,7 @@ namespace ContractConfigurator
             requirement.targetBody = contractType.targetBody;
 
             // Load config
-            bool valid = requirement.Load(configNode);
+            valid &= requirement.Load(configNode);
 
             // Check for unexpected values - always do this last
             if (requirement.GetType() != typeof(InvalidContractRequirement))
@@ -235,7 +237,7 @@ namespace ContractConfigurator
         {
             if (targetBody == null)
             {
-                Debug.LogError("ContractConfigurator: " + ErrorPrefix(configNode) +
+                LoggingUtil.LogError(this, ErrorPrefix(configNode) +
                     ": targetBody for " + GetType() + " must be specified.");
                 return false;
             }

@@ -6,6 +6,7 @@ using UnityEngine;
 using KSP;
 using Contracts;
 using ContractConfigurator;
+using ContractConfigurator.ExpressionParser;
 
 namespace ContractConfigurator.Behaviour
 {
@@ -29,6 +30,8 @@ namespace ContractConfigurator.Behaviour
         private List<ExpVal> onAcceptExpr = new List<ExpVal>();
         private List<ExpVal> onSuccessExpr = new List<ExpVal>();
         private List<ExpVal> onFailExpr = new List<ExpVal>();
+
+        private NumericValueExpressionParser<double> parser = new NumericValueExpressionParser<double>();
 
         private Dictionary<string, List<ExpVal>> map = new Dictionary<string, List<ExpVal>>();
 
@@ -92,7 +95,7 @@ namespace ContractConfigurator.Behaviour
         {
             foreach (ExpVal expVal in map[node])
             {
-                ExpressionParser.ExecuteExpression(expVal.key, expVal.val);
+                parser.ExecuteAndStoreExpression(expVal.key, expVal.val);
             }
         }
 
@@ -105,7 +108,7 @@ namespace ContractConfigurator.Behaviour
                     foreach (ConfigNode.Value pair in child.values)
                     {
                         // Parse the expression to validate
-                        ExpressionParser.ParseExpression(pair.value);
+                        parser.ParseExpression(pair.value);
 
                         // Store it for later
                         map[node].Add(new ExpVal(pair.name, pair.value));

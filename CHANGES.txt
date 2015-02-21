@@ -1,6 +1,7 @@
 Contract Configurator 0.7.0
 - New debugging window feature - contract balancing mode.
 - Clean up "Input is null" warning messages from stock.
+- Minor bug fixes.
 
 Contract Configurator 0.6.6
 - Changed to MIT license.

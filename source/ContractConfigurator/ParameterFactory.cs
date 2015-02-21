@@ -227,6 +227,7 @@ namespace ContractConfigurator
         {
             // Logging on
             LoggingUtil.CaptureLog = true;
+            bool valid = true;
 
             // Get the type
             string type = parameterConfig.GetValue("type");
@@ -236,6 +237,7 @@ namespace ContractConfigurator
                     "PARAMETER '" + parameterConfig.GetValue("name") + "' of type '" + parameterConfig.GetValue("type") + "': " +
                     "No ParameterFactory has been registered for type '" + type + "'.");
                 paramFactory = new InvalidParameterFactory();
+                valid = false;
             }
             else
             {
@@ -248,7 +250,7 @@ namespace ContractConfigurator
             paramFactory.contractType = contractType;
 
             // Load config
-            bool valid = paramFactory.Load(parameterConfig);
+            valid &= paramFactory.Load(parameterConfig);
 
             // Check for unexpected values - always do this last
             if (paramFactory.GetType() != typeof(InvalidParameterFactory))

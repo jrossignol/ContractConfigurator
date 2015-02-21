@@ -169,11 +169,23 @@ namespace ContractConfigurator
         {
             if (captureLog)
             {
-                capturedLog += "[EXCEPTION] " + e.Message + "\n" + e.StackTrace + "\n";
+                capturedLog += "[EXCEPTION] ";
+                CaptureException(e);
             }
 
             Debug.LogException(e);
         }
+
+        private static void CaptureException(Exception e)
+        {
+            if (e.InnerException != null)
+            {
+                CaptureException(e.InnerException);
+                capturedLog += "Rethrow as ";
+            }
+            capturedLog += e.GetType() + ": " + e.Message + "\n" + e.StackTrace + "\n";
+        }
+
 
         public static void Log(LogLevel logLevel, Type type, string message)
         {
