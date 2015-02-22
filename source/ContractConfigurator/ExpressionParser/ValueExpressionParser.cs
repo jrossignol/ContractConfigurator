@@ -18,7 +18,14 @@ namespace ContractConfigurator.ExpressionParser
 
         public void ExecuteAndStoreExpression(string key, string expression)
         {
-            PersistentDataStore.Instance.Store<T>(key, ExecuteExpression(expression));
+            if (PersistentDataStore.Instance != null)
+            {
+                PersistentDataStore.Instance.Store<T>(key, ExecuteExpression(expression));
+            }
+            else
+            {
+                LoggingUtil.LogWarning(this, "Unable to store value for '" + key + "' - PersistentDataStore is null.  This is likely caused by another ScenarioModule crashing, preventing others from loading.");
+            }
         }
 
         /// <summary>
@@ -30,7 +37,18 @@ namespace ContractConfigurator.ExpressionParser
         {
             if (typeof(T) == typeof(double))
             {
-                return parseMode ? default(T) : PersistentDataStore.Instance.Retrieve<T>(token.sval);
+                if (parseMode)
+                {
+                    return default(T);
+                }
+                else if (PersistentDataStore.Instance != null)
+                {
+                    return PersistentDataStore.Instance.Retrieve<T>(token.sval)
+                }
+                else
+                {
+                LoggingUtil.LogWarning(this, "Unable to retrieve value for '" + token.sval + "' - PersistentDataStore is null.  This is likely caused by another ScenarioModule crashing, preventing others from loading.");
+                }
             }
             else
             {
