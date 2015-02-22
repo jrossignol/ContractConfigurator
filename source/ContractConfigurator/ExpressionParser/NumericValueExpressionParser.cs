@@ -31,6 +31,20 @@ namespace ContractConfigurator.ExpressionParser
         public override bool NE(int a, int b) { return a != b; }
     }
 
+    public class UIntCalculator : Calculator<uint>
+    {
+        public override uint Negate(uint val)
+        {
+            throw new NotSupportedException("Negation (-) not supported for type " + typeof(uint));
+        }
+        public override uint Add(uint a, uint b) { return a + b; }
+        public override uint Sub(uint a, uint b) { return a - b; }
+        public override uint Mult(uint a, uint b) { return a * b; }
+        public override uint Div(uint a, uint b) { return a / b; }
+        public override bool EQ(uint a, uint b) { return a == b; }
+        public override bool NE(uint a, uint b) { return a != b; }
+    }
+
     public class FloatCalculator : Calculator<float>
     {
         public override float Negate(float val) { return -val; }
@@ -63,6 +77,10 @@ namespace ContractConfigurator.ExpressionParser
             if (typeof(T) == typeof(int))
             {
                 calculator = new IntCalculator() as Calculator<T>;
+            }
+            else if (typeof(T) == typeof(uint))
+            {
+                calculator = new UIntCalculator() as Calculator<T>;
             }
             else if (typeof(T) == typeof(float))
             {

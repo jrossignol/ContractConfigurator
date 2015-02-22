@@ -10,93 +10,6 @@ using ContractConfigurator.Parameters;
 
 namespace ContractConfigurator.ExpressionParser
 {
-    public enum TokenType
-    {
-        IDENTIFIER,
-        VALUE,
-        OPERATOR,
-        START_BRACKET,
-        END_BRACKET
-    }
-
-    public class Token
-    {
-        public TokenType tokenType;
-        public string sval;
-
-        public Token(TokenType type)
-        {
-            tokenType = type;
-
-            if (tokenType == TokenType.START_BRACKET)
-            {
-                sval = "(";
-            }
-            else if (tokenType == TokenType.END_BRACKET)
-            {
-                sval = ")";
-            }
-        }
-
-        public Token(TokenType type, string s)
-        {
-            tokenType = type;
-            sval = s;
-        }
-    }
-
-    public class ValueToken<T> : Token
-    {
-        public T val;
-
-        public ValueToken(T t)
-            : base(TokenType.VALUE)
-        {
-            val = t;
-            sval = t.ToString();
-        }
-    }
-
-    public static class ExpressionParserHelper
-    {
-        private static Dictionary<Type, Type> parserTypes = new Dictionary<Type, Type>();
-
-        static ExpressionParserHelper()
-        {
-            // Register expression parsers
-            RegisterParserType(typeof(bool), typeof(BooleanValueExpressionParser));
-            RegisterParserType(typeof(int), typeof(NumericValueExpressionParser<int>));
-            RegisterParserType(typeof(float), typeof(NumericValueExpressionParser<float>));
-            RegisterParserType(typeof(double), typeof(NumericValueExpressionParser<double>));
-            RegisterParserType(typeof(string), typeof(ComparableClassExpressionParser<string>));
-        }
-
-        /// <summary>
-        /// Registers a parser for the given type of object.
-        /// </summary>
-        /// <param name="objectType">Type of object that the given parser will handle expressions for.</param>
-        /// <param name="parserType">Type of the parser.</param>
-        public static void RegisterParserType(Type objectType, Type parserType)
-        {
-            parserTypes[objectType] = parserType;
-        }
-
-        /// <summary>
-        /// Gets an ExpressionParser for the given type.
-        /// </summary>
-        /// <typeparam name="T">The type to get a parser for</typeparam>
-        /// <returns>An instance of the expression parser, or null if none can be created</returns>
-        public static ExpressionParser<T> GetParser<T>()
-        {
-            if (parserTypes.ContainsKey(typeof(T)))
-            {
-                return (ExpressionParser<T>)Activator.CreateInstance(parserTypes[typeof(T)]);
-            }
-
-            return null;
-        }
-    }
-
     public abstract class ExpressionParser<T>
     {
         protected static char[] WHITESPACE_OR_OPERATOR =
@@ -142,14 +55,14 @@ namespace ContractConfigurator.ExpressionParser
 
         public static ExpressionParser<T> GetParser<U>(ExpressionParser<U> orig)
         {
-            ExpressionParser<T> newParser = ExpressionParserHelper.GetParser<T>();
+            ExpressionParser<T> newParser = ExpressionParserUtil.GetParser<T>();
 
             if (newParser == null)
             {
                 throw new NotSupportedException("Unsupported type: " + typeof(T));
             }
 
-            newParser.expression = orig.expression;
+            newParser.Init(orig.expression);
             newParser.parseMode = orig.parseMode;
 
             return newParser;
@@ -199,8 +112,6 @@ namespace ContractConfigurator.ExpressionParser
         protected T ParseAlternateStatement<U>()
         {
             ExpressionParser<U> parser = ExpressionParser<U>.GetParser<T>(this);
-            parser.Init(expression);
-            parser.parseMode = parseMode;
 
             U lval = parser.ParseSimpleStatement();
 
@@ -258,8 +169,6 @@ namespace ContractConfigurator.ExpressionParser
         protected T ParseAlternateStatementWithLval<U>(T lval)
         {
             ExpressionParser<U> parser = ExpressionParser<U>.GetParser<T>(this);
-            parser.Init(expression);
-            parser.parseMode = parseMode;
 
             // Get next token
             Token token = parser.ParseToken();
@@ -440,8 +349,6 @@ namespace ContractConfigurator.ExpressionParser
         protected T ParseAlternateSimpleStatement<U>()
         {
             ExpressionParser<U> parser = ExpressionParser<U>.GetParser<T>(this);
-            parser.Init(expression);
-            parser.parseMode = parseMode;
 
             // Get a token
             Token token = parser.ParseToken();

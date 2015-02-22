@@ -80,9 +80,9 @@ namespace ContractConfigurator
             }
             try
             {
-            return (T)data[key];
+                return (T)data[key];
             }
-            catch (InvalidCastException e)
+            catch (InvalidCastException)
             {
                 throw new DataStoreCastException(data[key].GetType(), typeof(T));
             }
