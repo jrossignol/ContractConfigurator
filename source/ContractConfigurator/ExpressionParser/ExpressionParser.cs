@@ -57,6 +57,46 @@ namespace ContractConfigurator.ExpressionParser
         }
     }
 
+    public static class ExpressionParserHelper
+    {
+        private static Dictionary<Type, Type> parserTypes = new Dictionary<Type, Type>();
+
+        static ExpressionParserHelper()
+        {
+            // Register expression parsers
+            RegisterParserType(typeof(bool), typeof(BooleanValueExpressionParser));
+            RegisterParserType(typeof(int), typeof(NumericValueExpressionParser<int>));
+            RegisterParserType(typeof(float), typeof(NumericValueExpressionParser<float>));
+            RegisterParserType(typeof(double), typeof(NumericValueExpressionParser<double>));
+            RegisterParserType(typeof(string), typeof(ComparableClassExpressionParser<string>));
+        }
+
+        /// <summary>
+        /// Registers a parser for the given type of object.
+        /// </summary>
+        /// <param name="objectType">Type of object that the given parser will handle expressions for.</param>
+        /// <param name="parserType">Type of the parser.</param>
+        public static void RegisterParserType(Type objectType, Type parserType)
+        {
+            parserTypes[objectType] = parserType;
+        }
+
+        /// <summary>
+        /// Gets an ExpressionParser for the given type.
+        /// </summary>
+        /// <typeparam name="T">The type to get a parser for</typeparam>
+        /// <returns>An instance of the expression parser, or null if none can be created</returns>
+        public static ExpressionParser<T> GetParser<T>()
+        {
+            if (parserTypes.ContainsKey(typeof(T)))
+            {
+                return (ExpressionParser<T>)Activator.CreateInstance(parserTypes[typeof(T)]);
+            }
+
+            return null;
+        }
+    }
+
     public abstract class ExpressionParser<T>
     {
         protected static char[] WHITESPACE_OR_OPERATOR =
@@ -74,23 +114,14 @@ namespace ContractConfigurator.ExpressionParser
             new string[] { "*", "/" }
         };
         protected static Dictionary<string, int> precedence = new Dictionary<string, int>();
-        private static bool initialized = false;
         protected string expression;
         protected bool parseMode = true;
         protected int readyForCast = 0;
 
-        public ExpressionParser()
-        {
-            if (!initialized)
-            {
-                StaticInit();
-            }
-        }
-
         /// <summary>
         /// Initialize global structures.
         /// </summary>
-        private static void StaticInit()
+        static ExpressionParser()
         {
             // Create the precendence map
             if (precedence.Count == 0)
@@ -105,32 +136,23 @@ namespace ContractConfigurator.ExpressionParser
             }
         }
 
-        public static ExpressionParser<T> GetParser()
+        public ExpressionParser()
         {
-            if (typeof(T) == typeof(bool))
-            {
-                return new BooleanValueExpressionParser() as ExpressionParser<T>;
-            }
-            else if (typeof(T) == typeof(int))
-            {
-                return new NumericValueExpressionParser<int>() as ExpressionParser<T>;
-            }
-            else if (typeof(T) == typeof(float))
-            {
-                return new NumericValueExpressionParser<float>() as ExpressionParser<T>;
-            }
-            else if (typeof(T) == typeof(double))
-            {
-                return new NumericValueExpressionParser<double>() as ExpressionParser<T>;
-            }
-            else if (typeof(T) == typeof(string))
-            {
-                return new ComparableClassExpressionParser<string>() as ExpressionParser<T>;
-            }
-            else
+        }
+
+        public static ExpressionParser<T> GetParser<U>(ExpressionParser<U> orig)
+        {
+            ExpressionParser<T> newParser = ExpressionParserHelper.GetParser<T>();
+
+            if (newParser == null)
             {
                 throw new NotSupportedException("Unsupported type: " + typeof(T));
             }
+
+            newParser.expression = orig.expression;
+            newParser.parseMode = orig.parseMode;
+
+            return newParser;
         }
 
         /// <summary>
@@ -176,7 +198,7 @@ namespace ContractConfigurator.ExpressionParser
 
         protected T ParseAlternateStatement<U>()
         {
-            ExpressionParser<U> parser = ExpressionParser<U>.GetParser();
+            ExpressionParser<U> parser = ExpressionParser<U>.GetParser<T>(this);
             parser.Init(expression);
             parser.parseMode = parseMode;
 
@@ -235,7 +257,7 @@ namespace ContractConfigurator.ExpressionParser
 
         protected T ParseAlternateStatementWithLval<U>(T lval)
         {
-            ExpressionParser<U> parser = ExpressionParser<U>.GetParser();
+            ExpressionParser<U> parser = ExpressionParser<U>.GetParser<T>(this);
             parser.Init(expression);
             parser.parseMode = parseMode;
 
@@ -417,7 +439,7 @@ namespace ContractConfigurator.ExpressionParser
 
         protected T ParseAlternateSimpleStatement<U>()
         {
-            ExpressionParser<U> parser = ExpressionParser<U>.GetParser();
+            ExpressionParser<U> parser = ExpressionParser<U>.GetParser<T>(this);
             parser.Init(expression);
             parser.parseMode = parseMode;
 
