@@ -17,7 +17,7 @@ namespace ContractConfigurator.Parameters
         private const string notePrefix = "<#acfcff>[-] Note: ";
         protected string define { get; set; }
         protected List<string> vesselList { get; set; }
-        public IEnumerable<string> VesselList { get { return vesselList;  } }
+        public IEnumerable<string> VesselList { get { return vesselList; } }
         protected double duration { get; set; }
         protected double completionTime { get; set; }
         protected bool waiting { get; set; }
@@ -74,7 +74,15 @@ namespace ContractConfigurator.Parameters
                         {
                             output += " OR ";
                         }
-                        output += ContractVesselTracker.Instance.GetDisplayName(vesselName);
+                        if (ContractVesselTracker.Instance != null)
+                        {
+                            output += ContractVesselTracker.Instance.GetDisplayName(vesselName);
+                        }
+                        else
+                        {
+                            LoggingUtil.LogWarning(this, "Unable to get vessel display name for '" + vesselName + "' - ContractVesselTracker is null.  This is likely caused by another ScenarioModule crashing, preventing others from loading.");
+                            output += vesselName;
+                        }
                         first = false;
                     }
                 }
@@ -301,7 +309,7 @@ namespace ContractConfigurator.Parameters
             ContractVesselTracker.OnVesselDisassociation.Remove(new EventData<GameEvents.HostTargetAction<Vessel, string>>.OnEvent(OnVesselDisassociation));
         }
 
-        protected void OnVesselAssociation(GameEvents.HostTargetAction<Vessel,string> hta)
+        protected void OnVesselAssociation(GameEvents.HostTargetAction<Vessel, string> hta)
         {
             // If it's a vessel we're looking for
             if (vesselList.Contains(hta.target))
@@ -436,7 +444,7 @@ namespace ContractConfigurator.Parameters
             }
         }
 
-        protected IEnumerable<T> AllDescendents<T>() where T : ContractParameter 
+        protected IEnumerable<T> AllDescendents<T>() where T : ContractParameter
         {
             return AllDescendents<T>(this);
         }
