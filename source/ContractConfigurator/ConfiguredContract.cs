@@ -265,7 +265,7 @@ namespace ContractConfigurator
                 }
 
                 // Shouldn't happen, but floating point rounding could put us here
-                if (contractType == null)
+                if (selectedContractType == null)
                 {
                     selectedContractType = validContractTypes.First().Key;
                 }
