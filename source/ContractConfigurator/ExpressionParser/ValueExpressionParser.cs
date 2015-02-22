@@ -43,7 +43,7 @@ namespace ContractConfigurator.ExpressionParser
                 }
                 else if (PersistentDataStore.Instance != null)
                 {
-                    return PersistentDataStore.Instance.Retrieve<T>(token.sval)
+                    return PersistentDataStore.Instance.Retrieve<T>(token.sval);
                 }
                 else
                 {
