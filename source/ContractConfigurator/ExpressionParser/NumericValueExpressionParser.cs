@@ -98,7 +98,7 @@ namespace ContractConfigurator.ExpressionParser
 
         protected override Token ParseNumericConstant()
         {
-            int index = expression.IndexOfAny(WHITESPACE_OR_OPERATOR, 0);
+            int index = expression.IndexOfAny(ExpressionParserUtil.WHITESPACE_OR_OPERATOR, 0);
 
             T val;
             if (index >= 0)

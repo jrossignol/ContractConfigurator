@@ -5,6 +5,9 @@ using System.Text;
 
 namespace ContractConfigurator.ExpressionParser
 {
+    /// <summary>
+    /// Types of expresion tokens.
+    /// </summary>
     public enum TokenType
     {
         IDENTIFIER,
@@ -14,6 +17,9 @@ namespace ContractConfigurator.ExpressionParser
         END_BRACKET
     }
 
+    /// <summary>
+    /// A parsed token.
+    /// </summary>
     public class Token
     {
         public TokenType tokenType;
@@ -40,6 +46,10 @@ namespace ContractConfigurator.ExpressionParser
         }
     }
 
+    /// <summary>
+    /// A token with a value type.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public class ValueToken<T> : Token
     {
         public T val;
@@ -52,12 +62,43 @@ namespace ContractConfigurator.ExpressionParser
         }
     }
 
+    /// <summary>
+    /// Utility class for holding non-type specific expression parser details.
+    /// </summary>
     public static class ExpressionParserUtil
     {
+        public static char[] WHITESPACE_OR_OPERATOR =
+        {
+            ' ', '\t', '\n', '|', '&', '+', '-', '!', '<', '>', '=', '*', '/', ')'
+        };
+
+        // List of tokens and their precedence
+        private static string[][] PRECENDENCE_CONSTS =
+        {
+            new string[] { "||" },
+            new string[] { "&&" },
+            new string[] { "!", "<", ">", "!=", "==", "<=", ">=" },
+            new string[] { "-", "+" },
+            new string[] { "*", "/" }
+        };
+        public static Dictionary<string, int> precedence = new Dictionary<string, int>();
+
         private static Dictionary<Type, Type> parserTypes = new Dictionary<Type, Type>();
 
         static ExpressionParserUtil()
         {
+            // Create the precendence map
+            if (precedence.Count == 0)
+            {
+                for (int i = 0; i < PRECENDENCE_CONSTS.Length; i++)
+                {
+                    foreach (string token in PRECENDENCE_CONSTS[i])
+                    {
+                        precedence[token] = i;
+                    }
+                }
+            }
+
             // Register expression parsers
             RegisterParserType(typeof(bool), typeof(BooleanValueExpressionParser));
             RegisterParserType(typeof(uint), typeof(NumericValueExpressionParser<uint>));
