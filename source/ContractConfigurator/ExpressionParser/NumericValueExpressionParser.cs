@@ -148,5 +148,46 @@ namespace ContractConfigurator.ExpressionParser
         {
             return calculator.NE(a, b);
         }
+
+        public void ExecuteAndStoreExpression(string key, string expression)
+        {
+            if (PersistentDataStore.Instance != null)
+            {
+                PersistentDataStore.Instance.Store<T>(key, ExecuteExpression(expression));
+            }
+            else
+            {
+                LoggingUtil.LogWarning(this, "Unable to store value for '" + key + "' - PersistentDataStore is null.  This is likely caused by another ScenarioModule crashing, preventing others from loading.");
+            }
+        }
+
+        /// <summary>
+        /// Parses an identifier for a value stored in the persistant data store.
+        /// </summary>
+        /// <param name="token">Token of the identifier to parse</param>
+        /// <returns>Value of the identifier</returns>
+        protected override T ParseIdentifier(Token token)
+        {
+            if (typeof(T) == typeof(double))
+            {
+                if (parseMode)
+                {
+                    return default(T);
+                }
+                else if (PersistentDataStore.Instance != null)
+                {
+                    return PersistentDataStore.Instance.Retrieve<T>(token.sval);
+                }
+                else
+                {
+                    LoggingUtil.LogWarning(this, "Unable to retrieve value for '" + token.sval + "' - PersistentDataStore is null.  This is likely caused by another ScenarioModule crashing, preventing others from loading.");
+                    return default(T);
+                }
+            }
+            else
+            {
+                return base.ParseIdentifier(token);
+            }
+        }
     }
 }

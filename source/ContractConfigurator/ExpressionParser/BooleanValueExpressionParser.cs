@@ -40,5 +40,26 @@ namespace ContractConfigurator.ExpressionParser
         {
             return a && b;
         }
+
+        /// <summary>
+        /// Parses an identifier for a value stored in the persistant data store.
+        /// </summary>
+        /// <param name="token">Token of the identifier to parse</param>
+        /// <returns>Value of the identifier</returns>
+        protected override bool ParseIdentifier(Token token)
+        {
+            if (string.Compare(token.sval, "true", true) == 0)
+            {
+                return true;
+            }
+            else if (string.Compare(token.sval, "false", true) == 0)
+            {
+                return false;
+            }
+            else
+            {
+                throw new NotSupportedException("Invalid boolean constant '" + token.sval + "'.");
+            }
+        }
     }
 }

@@ -43,7 +43,7 @@ namespace ContractConfigurator.ExpressionParser
         /// Initialize for parsing.
         /// </summary>
         /// <param name="expression">Expression being parsed</param>
-        private void Init(string expression)
+        protected void Init(string expression)
         {
             // Create a copy of the expression being parsed
             this.expression = string.Copy(expression);
@@ -59,6 +59,7 @@ namespace ContractConfigurator.ExpressionParser
             T val = default(T);
             try
             {
+                readyForCast = 0;
                 parseMode = false;
                 val = ParseExpression(expression);
             }

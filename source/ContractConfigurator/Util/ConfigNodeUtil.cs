@@ -6,6 +6,7 @@ using System.Text;
 using UnityEngine;
 using KSP;
 using Contracts.Agents;
+using ContractConfigurator.ExpressionParser;
 using ContractConfigurator.Parameters;
 
 namespace ContractConfigurator
@@ -61,10 +62,11 @@ namespace ContractConfigurator
         /// <typeparam name="T">The type to convert to.</typeparam>
         /// <param name="configNode">The ConfigNode to read from</param>
         /// <param name="key">The key to examine.</param>
+        /// <param name="allowExpression">Whether the read value can be an expression.</param>
         /// <returns>The parsed value</returns>
-        public static T ParseValue<T>(ConfigNode configNode, string key)
+        public static T ParseValue<T>(ConfigNode configNode, string key, bool allowExpression = false)
         {
-            // Check for requried value
+            // Check for required value
             if (!configNode.HasValue(key))
             {
                 throw new ArgumentException("Missing required value '" + key + "'.");
@@ -80,7 +82,7 @@ namespace ContractConfigurator
                 // Create the generic methods
                 MethodInfo parseValueMethod = typeof(ConfigNodeUtil).GetMethod("ParseSingleValue",
                     BindingFlags.NonPublic | BindingFlags.Static, null,
-                    new Type[] { typeof(string), typeof(string) }, null);
+                    new Type[] { typeof(string), typeof(string), typeof(bool)}, null);
                 parseValueMethod = parseValueMethod.MakeGenericMethod(typeof(T).GetGenericArguments());
                 MethodInfo addMethod = typeof(T).GetMethod("Add");
 
@@ -88,38 +90,10 @@ namespace ContractConfigurator
                 for (int i = 0; i < count; i++)
                 {
                     string strVal = configNode.GetValue(key, i);
-                    addMethod.Invoke(list, new object[] { parseValueMethod.Invoke(null, new object[] { key, strVal }) });
+                    addMethod.Invoke(list, new object[] { parseValueMethod.Invoke(null, new object[] { key, strVal, allowExpression }) });
                 }
 
                 return list;
-            }
-            else if (typeof(T) == typeof(CelestialBody))
-            {
-                return (T)(object)ParseCelestialBodyValue(configNode, key);
-            }
-            else if (typeof(T) == typeof(PartResourceDefinition))
-            {
-                return (T)(object)ParseResourceValue(configNode, key);
-            }
-            else if (typeof(T) == typeof(Agent))
-            {
-                return (T)(object)ParseAgentValue(configNode, key);
-            }
-            else if (typeof(T) == typeof(ProtoCrewMember))
-            {
-                return (T)(object)ParseProtoCrewMemberValue(configNode, key);
-            }
-            else if (typeof(T) == typeof(Guid))
-            {
-                return (T)(object)new Guid(configNode.GetValue(key));
-            }
-            else if (typeof(T) == typeof(Vessel))
-            {
-                return (T)(object)ParseVesselValue(configNode, key);
-            }
-            else if (typeof(T) == typeof(Vector3))
-            {
-                return (T)(object)ParseVesselValue(configNode, key);
             }
             else if (typeof(T).Name == "Nullable`1")
             {
@@ -128,21 +102,23 @@ namespace ContractConfigurator
                 {
                     // Create the generic method
                     MethodInfo parseValueMethod = typeof(ConfigNodeUtil).GetMethod("ParseValue",
-                        BindingFlags.Static | BindingFlags.Public, null, new Type[] { typeof(ConfigNode), typeof(string) }, null);
+                        BindingFlags.Static | BindingFlags.Public, null, new Type[] { typeof(ConfigNode), typeof(string), typeof(bool) }, null);
                     parseValueMethod = parseValueMethod.MakeGenericMethod(typeof(T).GetGenericArguments());
 
                     // Call it
-                    return (T)parseValueMethod.Invoke(null, new object[] { configNode, key });
+                    return (T)parseValueMethod.Invoke(null, new object[] { configNode, key, allowExpression });
                 }
             }
 
             // Get string value, pass to parse single value function
             string stringValue = configNode.GetValue(key);
-            return ParseSingleValue<T>(key, stringValue);
+            return ParseSingleValue<T>(key, stringValue, allowExpression);
         }
 
-        private static T ParseSingleValue<T>(string key, string stringValue)
+        private static T ParseSingleValue<T>(string key, string stringValue, bool allowExpression)
         {
+            ExpressionParser<T> parser = ExpressionParserUtil.GetParser<T>();
+
             // Enum parsing logic
             if (typeof(T).IsEnum)
             {
@@ -161,6 +137,10 @@ namespace ContractConfigurator
                     return (T)Convert.ChangeType(stringValue, typeof(T).GetGenericArguments()[0]);
                 }
             }
+            else if (allowExpression && parser != null)
+            {
+                return parser.ExecuteExpression(stringValue);
+            }
             else if (typeof(T) == typeof(AvailablePart))
             {
                 return (T)(object)ParsePartValue(stringValue);
@@ -172,6 +152,30 @@ namespace ContractConfigurator
                     throw new ArgumentException("No contract group with name '" + stringValue + "'");
                 }
                 return (T)(object)ContractGroup.contractGroups[stringValue];
+            }
+            else if (typeof(T) == typeof(CelestialBody))
+            {
+                return (T)(object)ParseCelestialBodyValue(stringValue);
+            }
+            else if (typeof(T) == typeof(PartResourceDefinition))
+            {
+                return (T)(object)ParseResourceValue(stringValue);
+            }
+            else if (typeof(T) == typeof(Agent))
+            {
+                return (T)(object)ParseAgentValue(stringValue);
+            }
+            else if (typeof(T) == typeof(ProtoCrewMember))
+            {
+                return (T)(object)ParseProtoCrewMemberValue(stringValue);
+            }
+            else if (typeof(T) == typeof(Guid))
+            {
+                return (T)(object)new Guid(stringValue);
+            }
+            else if (typeof(T) == typeof(Vessel))
+            {
+                return (T)(object)ParseVesselValue(stringValue);
             }
 
             // Do newline conversions
@@ -204,14 +208,20 @@ namespace ContractConfigurator
             }
         }
 
-        /*
-         * Attempts to parse a value from the config node.
-         */
+        /// <summary>
+        /// Attempts to parse a value from the config node.  Returns a default value if not found.
+        /// </summary>
+        /// <typeparam name="T">The type of value to convert to.</typeparam>
+        /// <param name="configNode">The ConfigNode to read from.</param>
+        /// <param name="key">The key to examine.</param>
+        /// <param name="obj">Factory object for error messages.</param>
+        /// <returns>The parsed value (or default value if not found)</returns>
+        /// <summary>
         public static bool ParseValue<T>(ConfigNode configNode, string key, ref T value, IContractConfiguratorFactory obj)
         {
             try
             {
-                value = ParseValue<T>(configNode, key);
+                value = ParseValue<T>(configNode, key, true);
                 return value != null;
             }
             catch (Exception e)
@@ -418,10 +428,8 @@ namespace ContractConfigurator
             return true;
         }
 
-        protected static CelestialBody ParseCelestialBodyValue(ConfigNode configNode, string key)
+        protected static CelestialBody ParseCelestialBodyValue(string celestialName)
         {
-            string celestialName = configNode.GetValue(key);
-
             foreach (CelestialBody body in FlightGlobals.Bodies)
             {
                 if (body.name.Equals(celestialName))
@@ -448,9 +456,8 @@ namespace ContractConfigurator
             return part;
         }
 
-        protected static PartResourceDefinition ParseResourceValue(ConfigNode configNode, string key)
+        protected static PartResourceDefinition ParseResourceValue(string name)
         {
-            string name = configNode.GetValue(key);
             PartResourceDefinition resource = PartResourceLibrary.Instance.resourceDefinitions.Where(prd => prd.name == name).First();
             if (resource == null)
             {
@@ -460,10 +467,9 @@ namespace ContractConfigurator
             return resource;
         }
 
-        protected static Agent ParseAgentValue(ConfigNode configNode, string key)
+        protected static Agent ParseAgentValue(string name)
         {
-            string name = configNode.GetValue(key);
-            Agent agent = AgentList.Instance.GetAgent(configNode.GetValue(key));
+            Agent agent = AgentList.Instance.GetAgent(name);
             if (agent == null)
             {
                 throw new ArgumentException("'" + name + "' is not a valid agent.");
@@ -472,15 +478,14 @@ namespace ContractConfigurator
             return agent;
         }
 
-        protected static Vessel ParseVesselValue(ConfigNode configNode, string key)
+        protected static Vessel ParseVesselValue(string name)
         {
-            Guid id = new Guid(configNode.GetValue(key));
+            Guid id = new Guid(name);
             return FlightGlobals.Vessels.Find(v => v.id == id);
         }
 
-        protected static ProtoCrewMember ParseProtoCrewMemberValue(ConfigNode configNode, string key)
+        protected static ProtoCrewMember ParseProtoCrewMemberValue(string name)
         {
-            string name = configNode.GetValue(key);
             return HighLogic.CurrentGame.CrewRoster.AllKerbals().Where(pcm => pcm.name == name).First();
         }
 
