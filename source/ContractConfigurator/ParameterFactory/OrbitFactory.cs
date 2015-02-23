@@ -34,26 +34,26 @@ namespace ContractConfigurator
             // Load base class
             bool valid = base.Load(configNode);
 
-            valid &= ConfigNodeUtil.ParseValue<Vessel.Situations>(configNode, "situation", ref situation, this, Vessel.Situations.ORBITING, ValidateSituations);
-            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "minAltitude", ref minAltitude, this, 0.0, x => Validation.GE(x, 0.0));
-            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "maxAltitude", ref maxAltitude, this, double.MaxValue, x => Validation.GE(x, 0.0));
-            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "minApA", ref minApoapsis, this, 0.0, x => Validation.GE(x, 0.0));
-            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "maxApA", ref maxApoapsis, this, double.MaxValue, x => Validation.GE(x, 0.0));
-            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "minPeA", ref minPeriapsis, this, 0.0, x => Validation.GE(x, 0.0));
-            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "maxPeA", ref maxPeriapsis, this, double.MaxValue, x => Validation.GE(x, 0.0));
-            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "minEccentricity", ref minEccentricity, this, 0.0, x => Validation.GE(x, 0.0));
-            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "maxEccentricity", ref maxEccentricity, this, double.MaxValue, x => Validation.GE(x, 0.0));
-            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "minInclination", ref minInclination, this, 0.0, x => Validation.Between(x, 0.0, 180.0));
-            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "maxInclination", ref maxInclination, this, 180.0, x => Validation.Between(x, 0.0, 180.0));
+            valid &= ConfigNodeUtil.ParseValue<Vessel.Situations>(configNode, "situation", x => situation = x, this, Vessel.Situations.ORBITING, ValidateSituations);
+            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "minAltitude", x => minAltitude = x, this, 0.0, x => Validation.GE(x, 0.0));
+            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "maxAltitude", x => maxAltitude = x, this, double.MaxValue, x => Validation.GE(x, 0.0));
+            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "minApA", x => minApoapsis = x, this, 0.0, x => Validation.GE(x, 0.0));
+            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "maxApA", x => maxApoapsis = x, this, double.MaxValue, x => Validation.GE(x, 0.0));
+            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "minPeA", x => minPeriapsis = x, this, 0.0, x => Validation.GE(x, 0.0));
+            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "maxPeA", x => maxPeriapsis = x, this, double.MaxValue, x => Validation.GE(x, 0.0));
+            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "minEccentricity", x => minEccentricity = x, this, 0.0, x => Validation.GE(x, 0.0));
+            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "maxEccentricity", x => maxEccentricity = x, this, double.MaxValue, x => Validation.GE(x, 0.0));
+            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "minInclination", x => minInclination = x, this, 0.0, x => Validation.Between(x, 0.0, 180.0));
+            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "maxInclination", x => maxInclination = x, this, 180.0, x => Validation.Between(x, 0.0, 180.0));
 
             // Get minPeriod
             string minPeriodStr = null;
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "minPeriod", ref minPeriodStr, this, (string)null);
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "minPeriod", x => minPeriodStr = x, this, (string)null);
             minPeriod = minPeriodStr != null ? DurationUtil.ParseDuration(minPeriodStr) : 0.0;
 
             // Get maxPeriod
             string maxPeriodStr = null;
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "maxPeriod", ref maxPeriodStr, this, (string)null);
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "maxPeriod", x => maxPeriodStr = x, this, (string)null);
             if (maxPeriodStr != null)
             {
                 maxPeriod = DurationUtil.ParseDuration(maxPeriodStr);

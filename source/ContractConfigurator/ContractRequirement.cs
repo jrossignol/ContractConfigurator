@@ -5,6 +5,7 @@ using System.Text;
 using UnityEngine;
 using KSP;
 using Contracts;
+using ContractConfigurator.ExpressionParser;
 
 namespace ContractConfigurator
 {
@@ -32,6 +33,7 @@ namespace ContractConfigurator
         public virtual IEnumerable<ContractRequirement> ChildRequirements { get { return childNodes; } }
         public string config = "";
         public string log = "";
+        public DataNode dataNode;
 
         /// <summary>
         /// Loads the ContractRequirement from the given ConfigNode.  The base version loads the following:
@@ -43,29 +45,19 @@ namespace ContractConfigurator
         public virtual bool Load(ConfigNode configNode)
         {
             bool valid = true;
+            ConfigNodeUtil.SetCurrentDataNode(dataNode);
 
             // Get name and type
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "type", ref type, this);
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "name", ref name, this, type);
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "type", x => type = x, this);
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "name", x => name = x, this, type);
 
-            valid &= ConfigNodeUtil.ParseValue<CelestialBody>(configNode, "targetBody", ref targetBody, this, contractType.targetBody);
+            valid &= ConfigNodeUtil.ParseValue<CelestialBody>(configNode, "targetBody", x => targetBody = x, this, contractType.targetBody);
 
             // By default, do not check the requirement for active contracts
-            valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "checkOnActiveContract", ref checkOnActiveContract, this, false);
+            valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "checkOnActiveContract", x => checkOnActiveContract = x, this, false);
 
             // Load invertRequirement flag
-            valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "invertRequirement", ref invertRequirement, this, false);
-
-            // Load child nodes
-            foreach (ConfigNode childNode in configNode.GetNodes("REQUIREMENT"))
-            {
-                ContractRequirement child = null;
-                valid &= ContractRequirement.GenerateRequirement(childNode, contractType, out child);
-                if (child != null)
-                {
-                    childNodes.Add(child);
-                }
-            }
+            valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "invertRequirement", x => invertRequirement = x, this, false);
 
             config = configNode.ToString();
             return valid;
@@ -199,6 +191,7 @@ namespace ContractConfigurator
             // Set attributes
             requirement.contractType = contractType;
             requirement.targetBody = contractType.targetBody;
+            requirement.dataNode = new DataNode(contractType.dataNode);
 
             // Load config
             valid &= requirement.Load(configNode);
@@ -207,6 +200,17 @@ namespace ContractConfigurator
             if (requirement.GetType() != typeof(InvalidContractRequirement))
             {
                 valid &= ConfigNodeUtil.ValidateUnexpectedValues(configNode, requirement);
+            }
+
+            // Load child nodes
+            foreach (ConfigNode childNode in configNode.GetNodes("REQUIREMENT"))
+            {
+                ContractRequirement child = null;
+                valid &= ContractRequirement.GenerateRequirement(childNode, contractType, out child);
+                if (child != null)
+                {
+                    requirement.childNodes.Add(child);
+                }
             }
 
             requirement.enabled = valid;

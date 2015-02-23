@@ -23,8 +23,8 @@ namespace ContractConfigurator.RemoteTech
             // Before loading, verify the RemoteTech version
             valid &= Util.VerifyRemoteTechVersion();
 
-            valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "hasConnectivity", ref hasConnectivity, this, true);
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "vesselKey", ref vesselKey, this);
+            valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "hasConnectivity", x => hasConnectivity = x, this, true);
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "vesselKey", x => vesselKey = x, this);
 
             return valid;
         }

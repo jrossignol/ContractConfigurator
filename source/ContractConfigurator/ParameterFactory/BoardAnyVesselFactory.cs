@@ -10,9 +10,9 @@ using ContractConfigurator.Behaviour;
 
 namespace ContractConfigurator
 {
-    /*
-     * ParameterFactory wrapper for BoardAnyVessel ContractParameter.
-     */
+    /// <summary>
+    /// ParameterFactory wrapper for BoardAnyVessel ContractParameter.
+    /// </summary>
     public class BoardAnyVesselFactory : ParameterFactory
     {
         protected string kerbal;
@@ -23,8 +23,8 @@ namespace ContractConfigurator
             // Load base class
             bool valid = base.Load(configNode);
 
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "kerbal", ref kerbal, this, (string)null);
-            valid &= ConfigNodeUtil.ParseValue<int>(configNode, "index", ref index, this, -1);
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "kerbal", x => kerbal = x, this, (string)null);
+            valid &= ConfigNodeUtil.ParseValue<int>(configNode, "index", x => index = x, this, -1);
             valid &= ConfigNodeUtil.AtLeastOne(configNode, new string[] { "kerbal", "index" }, this);
 
             // Manually validate, since the default is technically invalid

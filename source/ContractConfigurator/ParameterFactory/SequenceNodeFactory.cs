@@ -9,9 +9,9 @@ using Contracts.Parameters;
 
 namespace ContractConfigurator
 {
-    /*
-     * ParameterFactory to provide logic for SequenceNode.
-     */
+    /// <summary>
+    /// ParameterFactory to provide logic for SequenceNode.
+    /// </summary>
     public class SequenceNodeFactory : ParameterFactory
     {
         public override ContractParameter Generate(Contract contract)

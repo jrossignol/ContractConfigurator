@@ -19,6 +19,7 @@ namespace ContractConfigurator.ExpressionParser
         protected string expression;
         protected bool parseMode = true;
         protected int readyForCast = 0;
+        protected DataNode currentDataNode = null;
 
         public ExpressionParser()
         {
@@ -35,6 +36,7 @@ namespace ContractConfigurator.ExpressionParser
 
             newParser.Init(orig.expression);
             newParser.parseMode = orig.parseMode;
+            newParser.currentDataNode = orig.currentDataNode;
 
             return newParser;
         }
@@ -45,6 +47,8 @@ namespace ContractConfigurator.ExpressionParser
         /// <param name="expression">Expression being parsed</param>
         protected void Init(string expression)
         {
+            readyForCast = 0;
+
             // Create a copy of the expression being parsed
             this.expression = string.Copy(expression);
         }
@@ -53,19 +57,21 @@ namespace ContractConfigurator.ExpressionParser
         /// Executes the given expression.
         /// </summary>
         /// <param name="expression">The expression to execute</param>
+        /// <param name="dataNode">The data node that the expression may access</param>
         /// <returns>The result of executing the expression</returns>
-        public T ExecuteExpression(string expression)
+        public T ExecuteExpression(string expression, DataNode dataNode)
         {
             T val = default(T);
             try
             {
-                readyForCast = 0;
                 parseMode = false;
+                currentDataNode = dataNode;
                 val = ParseExpression(expression);
             }
             finally
             {
                 parseMode = true;
+                currentDataNode = null;
             }
 
             return val;
@@ -86,7 +92,7 @@ namespace ContractConfigurator.ExpressionParser
             catch (Exception e)
             {
                 throw new Exception("Error parsing statement.\nError occurred near '*':\n" +
-                    this.expression + "\n" +
+                    expression + "\n" +
                     new String(' ', expression.Length - this.expression.Length) + "* <-- HERE", e);
             }
         }
@@ -120,6 +126,7 @@ namespace ContractConfigurator.ExpressionParser
                         // Attempt to convert type
                         return (T)Convert.ChangeType(lval, typeof(U));
                     case TokenType.IDENTIFIER:
+                    case TokenType.SPECIAL_IDENTIFIER:
                     case TokenType.VALUE:
                         expression = parser.expression;
                         throw new ArgumentException("Unexpected value: " + token.sval);
@@ -167,6 +174,7 @@ namespace ContractConfigurator.ExpressionParser
                         expression = parser.expression;
                         return lval;
                     case TokenType.IDENTIFIER:
+                    case TokenType.SPECIAL_IDENTIFIER:
                     case TokenType.VALUE:
                         expression = parser.expression;
                         throw new ArgumentException("Unexpected value: " + token.sval);
@@ -249,6 +257,7 @@ namespace ContractConfigurator.ExpressionParser
                             expression = ")" + expression;
                             return lval;
                         case TokenType.IDENTIFIER:
+                        case TokenType.SPECIAL_IDENTIFIER:
                         case TokenType.VALUE:
                             throw new ArgumentException("Unexpected value: " + token.sval);
                         case TokenType.OPERATOR:
@@ -345,6 +354,9 @@ namespace ContractConfigurator.ExpressionParser
                 case TokenType.IDENTIFIER:
                     lval = parser.ParseIdentifier(token);
                     break;
+                case TokenType.SPECIAL_IDENTIFIER:
+                    lval = parser.ParseSpecialIdentifier(token);
+                    break;
                 case TokenType.OPERATOR:
                     switch (token.sval)
                     {
@@ -383,6 +395,8 @@ namespace ContractConfigurator.ExpressionParser
                     return val;
                 case TokenType.IDENTIFIER:
                     return ParseIdentifier(token);
+                case TokenType.SPECIAL_IDENTIFIER:
+                    return ParseSpecialIdentifier(token);
                 case TokenType.OPERATOR:
                     switch (token.sval)
                     {
@@ -440,6 +454,8 @@ namespace ContractConfigurator.ExpressionParser
                 case '*':
                 case '/':
                     return ParseOperator();
+                case '@':
+                    return ParseSpecialIdentifier();
             }
 
             // Try to parse an identifier
@@ -470,6 +486,36 @@ namespace ContractConfigurator.ExpressionParser
             throw new NotSupportedException("Can't parse identifier for type " + typeof(T) + " in class " + this.GetType() + " - not supported!");
         }
 
+        /// <summary>
+        /// Parses an identifier for a config node value.
+        /// </summary>
+        /// <param name="token">Token of the identifier to parse</param>
+        /// <returns>Value of the config node identifier</returns>
+        protected virtual T ParseSpecialIdentifier(Token token)
+        {
+            if (currentDataNode != null)
+            {
+                if (!currentDataNode.IsInitialized(token.sval))
+                {
+                    throw new DataNode.ValueNotInitialized(token.sval);
+                }
+
+                object o = currentDataNode[token.sval];
+                if (o.GetType() == typeof(T))
+                {
+                    return (T)o;
+                }
+                else
+                {
+                    throw new DataStoreCastException(o.GetType(), typeof(T));
+                }
+            }
+            else
+            {
+                throw new ArgumentException("Cannot get value for @" + token.sval + ": not available in this context.");
+            }
+        }
+
         protected Token ParseIdentifier()
         {
             Match m = Regex.Match(expression, "([A-Za-z][A-Za-z0-9_]*).*");
@@ -477,6 +523,15 @@ namespace ContractConfigurator.ExpressionParser
             expression = (expression.Length > identifier.Length ? expression.Substring(identifier.Length) : "");
 
             return new Token(TokenType.IDENTIFIER, identifier);
+        }
+
+        protected Token ParseSpecialIdentifier()
+        {
+            Match m = Regex.Match(expression, "@([A-Za-z][A-Za-z0-9_]*).*");
+            string identifier = m.Groups[1].Value;
+            expression = (expression.Length > identifier.Length+1 ? expression.Substring(identifier.Length+1) : "");
+
+            return new Token(TokenType.SPECIAL_IDENTIFIER, identifier);
         }
 
         private T ParseOperation(T lval, string op)
@@ -492,6 +547,7 @@ namespace ContractConfigurator.ExpressionParser
                 {
                     case TokenType.START_BRACKET:
                     case TokenType.IDENTIFIER:
+                    case TokenType.SPECIAL_IDENTIFIER:
                     case TokenType.VALUE:
                         throw new ArgumentException("Unexpected value: " + token.sval);
                     case TokenType.END_BRACKET:
@@ -530,6 +586,7 @@ namespace ContractConfigurator.ExpressionParser
                 {
                     case TokenType.START_BRACKET:
                     case TokenType.IDENTIFIER:
+                    case TokenType.SPECIAL_IDENTIFIER:
                     case TokenType.VALUE:
                         throw new ArgumentException("Unexpected value: " + token.sval);
                     case TokenType.END_BRACKET:
@@ -583,6 +640,7 @@ namespace ContractConfigurator.ExpressionParser
                 {
                     case TokenType.START_BRACKET:
                     case TokenType.IDENTIFIER:
+                    case TokenType.SPECIAL_IDENTIFIER:
                     case TokenType.VALUE:
                         throw new ArgumentException("Unexpected value: " + token.sval);
                     case TokenType.END_BRACKET:

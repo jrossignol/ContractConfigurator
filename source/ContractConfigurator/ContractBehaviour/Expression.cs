@@ -34,9 +34,16 @@ namespace ContractConfigurator.Behaviour
         private NumericValueExpressionParser<double> parser = new NumericValueExpressionParser<double>();
 
         private Dictionary<string, List<ExpVal>> map = new Dictionary<string, List<ExpVal>>();
+        private DataNode dataNode;
 
         public Expression()
+            : this((DataNode)null)
         {
+        }
+
+        public Expression(DataNode dataNode)
+        {
+            this.dataNode = dataNode;
             SetupMap();
         }
 
@@ -45,6 +52,7 @@ namespace ContractConfigurator.Behaviour
          */
         public Expression(Expression source)
         {
+            dataNode = source.dataNode;
             onAcceptExpr = new List<ExpVal>(source.onAcceptExpr);
             onSuccessExpr = new List<ExpVal>(source.onSuccessExpr);
             onFailExpr = new List<ExpVal>(source.onFailExpr);
@@ -58,9 +66,9 @@ namespace ContractConfigurator.Behaviour
             map["CONTRACT_COMPLETED_FAILURE"] = onFailExpr;
         }
 
-        public static Expression Parse(ConfigNode configNode)
+        public static Expression Parse(ConfigNode configNode, DataNode dataNode)
         {
-            Expression e = new Expression();
+            Expression e = new Expression(dataNode);
             e.Load(configNode);
 
             return e;
@@ -95,7 +103,7 @@ namespace ContractConfigurator.Behaviour
         {
             foreach (ExpVal expVal in map[node])
             {
-                parser.ExecuteAndStoreExpression(expVal.key, expVal.val);
+                parser.ExecuteAndStoreExpression(expVal.key, expVal.val, dataNode);
             }
         }
 

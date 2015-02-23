@@ -9,9 +9,9 @@ using Contracts.Parameters;
 
 namespace ContractConfigurator
 {
-    /*
-     * ParameterFactory wrapper for PlantFlag ContractParameter.
-     */
+    /// <summary>
+    /// ParameterFactory wrapper for PlantFlag ContractParameter.
+    /// </summary>
     public class PlantFlagFactory : ParameterFactory
     {
         public override bool Load(ConfigNode configNode)

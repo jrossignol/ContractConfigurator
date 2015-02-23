@@ -9,9 +9,9 @@ using Contracts.Parameters;
 
 namespace ContractConfigurator
 {
-    /*
-     * ParameterFactory wrapper for CollectScience ContractParameter.
-     */
+    /// <summary>
+    /// ParameterFactory wrapper for CollectScience ContractParameter.
+    /// </summary>
     public class CollectScienceFactory : ParameterFactory
     {
         protected BodyLocation location;
@@ -21,7 +21,7 @@ namespace ContractConfigurator
             // Load base class
             bool valid = base.Load(configNode);
 
-            valid &= ConfigNodeUtil.ParseValue<BodyLocation>(configNode, "location", ref location, this);
+            valid &= ConfigNodeUtil.ParseValue<BodyLocation>(configNode, "location", x => location = x, this);
             valid &= ValidateTargetBody(configNode);
 
             return valid;

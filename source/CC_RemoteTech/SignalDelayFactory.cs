@@ -23,8 +23,8 @@ namespace ContractConfigurator.RemoteTech
             // Before loading, verify the RemoteTech version
             valid &= Util.VerifyRemoteTechVersion();
 
-            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "minSignalDelay", ref minSignalDelay, this, 0.0, x => Validation.GE(x, 0.0));
-            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "maxSignalDelay", ref maxSignalDelay, this, double.MaxValue, x => Validation.GE(x, 0.0));
+            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "minSignalDelay", x => minSignalDelay = x, this, 0.0, x => Validation.GE(x, 0.0));
+            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "maxSignalDelay", x => maxSignalDelay = x, this, double.MaxValue, x => Validation.GE(x, 0.0));
             valid &= ConfigNodeUtil.AtLeastOne(configNode, new string[] { "minSignalDelay", "maxSignalDelay" }, this);
 
             return valid;

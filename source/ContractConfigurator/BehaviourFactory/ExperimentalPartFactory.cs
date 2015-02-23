@@ -22,9 +22,9 @@ namespace ContractConfigurator.Behaviour
             // Load base class
             bool valid = base.Load(configNode);
 
-            valid &= ConfigNodeUtil.ParseValue<List<AvailablePart>>(configNode, "part", ref parts, this);
-            valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "add", ref add, this, true);
-            valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "remove", ref remove, this, true);
+            valid &= ConfigNodeUtil.ParseValue<List<AvailablePart>>(configNode, "part", x => parts = x, this);
+            valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "add", x => add = x, this, true);
+            valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "remove", x => remove = x, this, true);
 
             return valid;
         }

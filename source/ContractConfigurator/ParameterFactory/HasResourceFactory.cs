@@ -10,9 +10,9 @@ using ContractConfigurator.Parameters;
 
 namespace ContractConfigurator
 {
-    /*
-     * ParameterFactory wrapper for HasResource ContractParameter.
-     */
+    /// <summary>
+    /// ParameterFactory wrapper for HasResource ContractParameter.
+    /// </summary>
     public class HasResourceFactory : ParameterFactory
     {
         protected double minQuantity;
@@ -24,9 +24,9 @@ namespace ContractConfigurator
             // Load base class
             bool valid = base.Load(configNode);
 
-            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "minQuantity", ref minQuantity, this, 0.01, x => Validation.GE(x, 0.0));
-            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "maxQuantity", ref maxQuantity, this, double.MaxValue, x => Validation.GE(x, 0.0));
-            valid &= ConfigNodeUtil.ParseValue<PartResourceDefinition>(configNode, "resource", ref resource, this);
+            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "minQuantity", x => minQuantity = x, this, 0.01, x => Validation.GE(x, 0.0));
+            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "maxQuantity", x => maxQuantity = x, this, double.MaxValue, x => Validation.GE(x, 0.0));
+            valid &= ConfigNodeUtil.ParseValue<PartResourceDefinition>(configNode, "resource", x => resource = x, this);
 
             return valid;
         }

@@ -10,9 +10,9 @@ using ContractConfigurator.Parameters;
 
 namespace ContractConfigurator
 {
-    /*
-     * ParameterFactory wrapper for HasPassengers ContractParameter.
-     */
+    /// <summary>
+    /// ParameterFactory wrapper for HasPassengers ContractParameter.
+    /// </summary>
     public class HasPassengersFactory : ParameterFactory
     {
         protected int count;
@@ -22,7 +22,7 @@ namespace ContractConfigurator
             // Load base class
             bool valid = base.Load(configNode);
 
-            valid &= ConfigNodeUtil.ParseValue<int>(configNode, "count", ref count, this, 1, x => Validation.GE(x, 1));
+            valid &= ConfigNodeUtil.ParseValue<int>(configNode, "count", x => count = x, this, 1, x => Validation.GE(x, 1));
 
             return valid;
         }

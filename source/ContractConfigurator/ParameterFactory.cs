@@ -5,6 +5,7 @@ using System.Text;
 using UnityEngine;
 using KSP;
 using Contracts;
+using ContractConfigurator.ExpressionParser;
 
 namespace ContractConfigurator
 {
@@ -27,15 +28,16 @@ namespace ContractConfigurator
         protected bool optional;
         protected bool? disableOnStateChange;
         protected ParameterFactory parent = null;
-        protected virtual List<ParameterFactory> childNodes { get; set; }
-        protected virtual List<ContractRequirement> requirements { get; set; }
+        protected List<ParameterFactory> childNodes = new List<ParameterFactory>();
+        protected List<ContractRequirement> requirements = new List<ContractRequirement>();
         protected string title;
-        public string log = "";
 
         public bool enabled = true;
         public virtual IEnumerable<ParameterFactory> ChildParameters { get { return childNodes; } }
         public virtual IEnumerable<ContractRequirement> ChildRequirements { get { return requirements; } }
         public string config = "";
+        public string log = "";
+        public DataNode dataNode;
 
         /// <summary>
         /// Loads the ParameterFactory from the given ConfigNode.  The base version performs the following:
@@ -56,50 +58,27 @@ namespace ContractConfigurator
         public virtual bool Load(ConfigNode configNode)
         {
             bool valid = true;
+            ConfigNodeUtil.SetCurrentDataNode(dataNode);
 
             // Get name and type
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "type", ref type, this);
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "name", ref name, this, type);
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "type", x => type = x, this);
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "name", x => name = x, this, type);
 
-            valid &= ConfigNodeUtil.ParseValue<CelestialBody>(configNode, "targetBody", ref targetBody, this, contractType.targetBody);
+            valid &= ConfigNodeUtil.ParseValue<CelestialBody>(configNode, "targetBody", x => targetBody = x, this, contractType.targetBody);
 
             // Load rewards
-            valid &= ConfigNodeUtil.ParseValue<float>(configNode, "rewardFunds", ref rewardFunds, this, 0.0f, x => Validation.GE(x, 0.0f));
-            valid &= ConfigNodeUtil.ParseValue<float>(configNode, "rewardReputation", ref rewardReputation, this, 0.0f, x => Validation.GE(x, 0.0f));
-            valid &= ConfigNodeUtil.ParseValue<float>(configNode, "rewardScience", ref rewardScience, this, 0.0f, x => Validation.GE(x, 0.0f));
-            valid &= ConfigNodeUtil.ParseValue<float>(configNode, "failureFunds", ref failureFunds, this, 0.0f, x => Validation.GE(x, 0.0f));
-            valid &= ConfigNodeUtil.ParseValue<float>(configNode, "failureReputation", ref failureReputation, this, 0.0f, x => Validation.GE(x, 0.0f));
+            valid &= ConfigNodeUtil.ParseValue<float>(configNode, "rewardFunds", x => rewardFunds = x, this, 0.0f, x => Validation.GE(x, 0.0f));
+            valid &= ConfigNodeUtil.ParseValue<float>(configNode, "rewardReputation", x => rewardReputation = x, this, 0.0f, x => Validation.GE(x, 0.0f));
+            valid &= ConfigNodeUtil.ParseValue<float>(configNode, "rewardScience", x => rewardScience = x, this, 0.0f, x => Validation.GE(x, 0.0f));
+            valid &= ConfigNodeUtil.ParseValue<float>(configNode, "failureFunds", x => failureFunds = x, this, 0.0f, x => Validation.GE(x, 0.0f));
+            valid &= ConfigNodeUtil.ParseValue<float>(configNode, "failureReputation", x => failureReputation = x, this, 0.0f, x => Validation.GE(x, 0.0f));
 
             // Load flags
-            valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "optional", ref optional, this, false);
-            valid &= ConfigNodeUtil.ParseValue<bool?>(configNode, "disableOnStateChange", ref disableOnStateChange, this, (bool?)null);
+            valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "optional", x => optional = x, this, false);
+            valid &= ConfigNodeUtil.ParseValue<bool?>(configNode, "disableOnStateChange", x => disableOnStateChange = x, this, (bool?)null);
 
             // Get title
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "title", ref title, this, (string)null);
-
-            // Load child nodes
-            childNodes = new List<ParameterFactory>();
-            foreach (ConfigNode childNode in configNode.GetNodes("PARAMETER"))
-            {
-                ParameterFactory child = null;
-                valid &= ParameterFactory.GenerateParameterFactory(childNode, contractType, out child, this);
-                if (child != null)
-                {
-                    childNodes.Add(child);
-                }
-            }
-
-            // Load child requirements
-            requirements = new List<ContractRequirement>();
-            foreach (ConfigNode childNode in configNode.GetNodes("REQUIREMENT"))
-            {
-                ContractRequirement req = null;
-                valid &= ContractRequirement.GenerateRequirement(childNode, contractType, out req);
-                if (req != null)
-                {
-                    requirements.Add(req);
-                }
-            }
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "title", x => title = x, this, (string)null);
 
             config = configNode.ToString();
             return valid;
@@ -248,6 +227,7 @@ namespace ContractConfigurator
             // Set attributes
             paramFactory.parent = parent;
             paramFactory.contractType = contractType;
+            paramFactory.dataNode = new DataNode(contractType.dataNode);
 
             // Load config
             valid &= paramFactory.Load(parameterConfig);
@@ -256,6 +236,28 @@ namespace ContractConfigurator
             if (paramFactory.GetType() != typeof(InvalidParameterFactory))
             {
                 valid &= ConfigNodeUtil.ValidateUnexpectedValues(parameterConfig, paramFactory);
+            }
+
+            // Load child nodes
+            foreach (ConfigNode childNode in parameterConfig.GetNodes("PARAMETER"))
+            {
+                ParameterFactory child = null;
+                valid &= ParameterFactory.GenerateParameterFactory(childNode, contractType, out child, paramFactory);
+                if (child != null)
+                {
+                    paramFactory.childNodes.Add(child);
+                }
+            }
+
+            // Load child requirements
+            foreach (ConfigNode childNode in parameterConfig.GetNodes("REQUIREMENT"))
+            {
+                ContractRequirement req = null;
+                valid &= ContractRequirement.GenerateRequirement(childNode, contractType, out req);
+                if (req != null)
+                {
+                    paramFactory.requirements.Add(req);
+                }
             }
 
             paramFactory.enabled = valid;

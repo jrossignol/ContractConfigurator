@@ -6,6 +6,7 @@ using UnityEngine;
 using KSP;
 using Contracts;
 using ContractConfigurator.Behaviour;
+using ContractConfigurator.ExpressionParser;
 
 namespace ContractConfigurator
 {
@@ -25,6 +26,7 @@ namespace ContractConfigurator
         public bool enabled = true;
         public string config = "";
         public string log = "";
+        public DataNode dataNode;
 
         /// <summary>
         /// Loads the BehaviourFactory from the given ConfigNode.
@@ -34,13 +36,14 @@ namespace ContractConfigurator
         public virtual bool Load(ConfigNode configNode)
         {
             bool valid = true;
+            ConfigNodeUtil.SetCurrentDataNode(dataNode);
 
             // Get name and type
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "type", ref type, this);
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "name", ref name, this, type);
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "type", x => type = x, this);
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "name", x => name = x, this, type);
 
             // Load targetBody
-            valid &= ConfigNodeUtil.ParseValue<CelestialBody>(configNode, "targetBody", ref targetBody, this, contractType.targetBody);
+            valid &= ConfigNodeUtil.ParseValue<CelestialBody>(configNode, "targetBody", x => targetBody = x, this, contractType.targetBody);
 
             config = configNode.ToString();
             return valid;
@@ -135,6 +138,7 @@ namespace ContractConfigurator
             // Set attributes
             behaviourFactory.contractType = contractType;
             behaviourFactory.targetBody = contractType.targetBody;
+            behaviourFactory.dataNode = new DataNode(contractType.dataNode);
 
             // Load config
             valid &= behaviourFactory.Load(behaviourConfig);

@@ -11,6 +11,7 @@ namespace ContractConfigurator.ExpressionParser
     public enum TokenType
     {
         IDENTIFIER,
+        SPECIAL_IDENTIFIER,
         VALUE,
         OPERATOR,
         START_BRACKET,

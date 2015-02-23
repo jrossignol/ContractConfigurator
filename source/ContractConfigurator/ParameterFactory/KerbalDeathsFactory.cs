@@ -9,10 +9,9 @@ using Contracts.Parameters;
 
 namespace ContractConfigurator
 {
-    /*
-     * ParameterFactory wrapper for KerbalDeaths ContractParameter.  Also, if you need a KSP themed
-     * band name, I think Kerbal Death Factory seems suitable...
-     */
+    /// <summary>
+    /// ParameterFactory wrapper for KerbalDeaths ContractParameter.
+    /// </summary>
     public class KerbalDeathsFactory : ParameterFactory
     {
         protected int countMax;
@@ -22,7 +21,7 @@ namespace ContractConfigurator
             // Load base class
             bool valid = base.Load(configNode);
 
-            valid &= ConfigNodeUtil.ParseValue<int>(configNode, "countMax", ref countMax, this, 1, x => Validation.GT(x, 0));
+            valid &= ConfigNodeUtil.ParseValue<int>(configNode, "countMax", x => countMax = x, this, 1, x => Validation.GT(x, 0));
 
             return valid;
         }

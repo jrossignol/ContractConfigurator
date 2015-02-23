@@ -25,8 +25,8 @@ namespace ContractConfigurator.SCANsat
             // Load base class
             bool valid = base.Load(configNode);
 
-            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "coverage", ref coverage, this);
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "scanType", ref scanType, this, SCANsatUtil.ValidateSCANname);
+            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "coverage", x => coverage = x, this);
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "scanType", x => scanType = x, this, SCANsatUtil.ValidateSCANname);
             valid &= ValidateTargetBody(configNode);
 
             return valid;

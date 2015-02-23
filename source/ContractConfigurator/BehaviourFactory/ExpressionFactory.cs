@@ -7,9 +7,9 @@ using KSP;
 
 namespace ContractConfigurator.Behaviour
 {
-    /*
-     * BehaviourFactory wrapper for Expression ContractBehaviour.
-     */
+    /// <summary>
+    /// BehaviourFactory wrapper for Expression ContractBehaviour.
+    /// </summary>
     public class ExpressionFactory : BehaviourFactory
     {
         Expression expression;
@@ -20,7 +20,7 @@ namespace ContractConfigurator.Behaviour
             bool valid = base.Load(configNode);
 
             // Call SpawnKerbal for load behaviour
-            expression = Expression.Parse(configNode);
+            expression = Expression.Parse(configNode, dataNode);
 
             return valid && expression != null;
         }

@@ -11,9 +11,9 @@ using ContractConfigurator.Behaviour;
 
 namespace ContractConfigurator
 {
-    /*
-     * ParameterFactory for a paramter for reaching a specific orbit.
-     */
+    /// <summary>
+    /// ParameterFactory for a paramter for reaching a specific orbit.
+    /// </summary>
     public class ReachSpecificOrbitFactory : ParameterFactory
     {
         protected int index;
@@ -25,8 +25,8 @@ namespace ContractConfigurator
             bool valid = base.Load(configNode);
 
             // Get orbit details from the OrbitGenerator behaviour
-            valid &= ConfigNodeUtil.ParseValue<int>(configNode, "index", ref index, this, 0, x => Validation.GE(x, 0));
-            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "deviationWindow", ref deviationWindow, this, 0.0, x => Validation.GE(x, 0.0));
+            valid &= ConfigNodeUtil.ParseValue<int>(configNode, "index", x => index = x, this, 0, x => Validation.GE(x, 0));
+            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "deviationWindow", x => deviationWindow = x, this, 0.0, x => Validation.GE(x, 0.0));
 
             return valid;
         }

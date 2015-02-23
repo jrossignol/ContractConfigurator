@@ -27,12 +27,12 @@ namespace ContractConfigurator
             // Load base class
             bool valid = base.Load(configNode);
 
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "biome", ref biome, this, "");
-            valid &= ConfigNodeUtil.ParseValue<Vessel.Situations?>(configNode, "situation", ref situation, this, (Vessel.Situations?)null);
-            valid &= ConfigNodeUtil.ParseValue<float>(configNode, "minAltitude", ref minAltitude, this, 0.0f, x => Validation.GE(x, 0.0f));
-            valid &= ConfigNodeUtil.ParseValue<float>(configNode, "maxAltitude", ref maxAltitude, this, float.MaxValue, x => Validation.GE(x, 0.0f));
-            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "minSpeed", ref minSpeed, this, 0.0, x => Validation.GE(x, 0.0));
-            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "maxSpeed", ref maxSpeed, this, double.MaxValue, x => Validation.GE(x, 0.0));
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "biome", x => biome = x, this, "");
+            valid &= ConfigNodeUtil.ParseValue<Vessel.Situations?>(configNode, "situation", x => situation = x, this, (Vessel.Situations?)null);
+            valid &= ConfigNodeUtil.ParseValue<float>(configNode, "minAltitude", x => minAltitude = x, this, 0.0f, x => Validation.GE(x, 0.0f));
+            valid &= ConfigNodeUtil.ParseValue<float>(configNode, "maxAltitude", x => maxAltitude = x, this, float.MaxValue, x => Validation.GE(x, 0.0f));
+            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "minSpeed", x => minSpeed = x, this, 0.0, x => Validation.GE(x, 0.0));
+            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "maxSpeed", x => maxSpeed = x, this, double.MaxValue, x => Validation.GE(x, 0.0));
 
             // Validate target body
             valid &= ValidateTargetBody(configNode);

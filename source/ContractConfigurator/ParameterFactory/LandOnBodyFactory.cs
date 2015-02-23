@@ -9,9 +9,9 @@ using Contracts.Parameters;
 
 namespace ContractConfigurator
 {
-    /*
-     * ParameterFactory wrapper for LandOnBody ContractParameter.
-     */
+    /// <summary>
+    /// ParameterFactory wrapper for LandOnBody ContractParameter.
+    /// </summary>
     public class LandOnBodyFactory : ParameterFactory
     {
         public override bool Load(ConfigNode configNode)

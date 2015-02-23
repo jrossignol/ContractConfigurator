@@ -39,12 +39,12 @@ namespace ContractConfigurator
         /// <returns>Whether we were successful.</returns>
         public bool Load(ConfigNode configNode)
         {
-            ConfigNodeUtil.ClearFoundCache();
+            ConfigNodeUtil.ClearCache();
             bool valid = true;
 
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "name", ref name, this);
-            valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxCompletions", ref maxCompletions, this, 0, x => Validation.GE(x, 0));
-            valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxSimultaneous", ref maxSimultaneous, this, 0, x => Validation.GE(x, 0));
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "name", x => name = x, this);
+            valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxCompletions", x => maxCompletions = x, this, 0, x => Validation.GE(x, 0));
+            valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxSimultaneous", x => maxSimultaneous = x, this, 0, x => Validation.GE(x, 0));
             
             // Check for unexpected values - always do this last
             valid &= ConfigNodeUtil.ValidateUnexpectedValues(configNode, this);

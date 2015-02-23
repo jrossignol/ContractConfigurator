@@ -149,11 +149,11 @@ namespace ContractConfigurator.ExpressionParser
             return calculator.NE(a, b);
         }
 
-        public void ExecuteAndStoreExpression(string key, string expression)
+        public void ExecuteAndStoreExpression(string key, string expression, DataNode dataNode)
         {
             if (PersistentDataStore.Instance != null)
             {
-                PersistentDataStore.Instance.Store<T>(key, ExecuteExpression(expression));
+                PersistentDataStore.Instance.Store<T>(key, ExecuteExpression(expression, dataNode));
             }
             else
             {

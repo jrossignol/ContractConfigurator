@@ -24,14 +24,14 @@ namespace ContractConfigurator
             bool valid = base.Load(configNode);
 
             // Get expression
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "expression", ref expression, this, x => parser.ParseExpression(x) || true);
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "expression", x => expression = x, this, x => parser.ParseExpression(x) || true);
 
             return valid;
         }
 
         public override bool RequirementMet(ConfiguredContract contract)
         {
-            return parser.ExecuteExpression(expression);
+            return parser.ExecuteExpression(expression, dataNode);
         }
     }
 }
