@@ -16,7 +16,7 @@ namespace ContractConfigurator
     /// </summary>
     public static class ConfigNodeUtil
     {
-        public class DeferredLoadObject<T>
+        private class DeferredLoadObject<T>
         {
             public string key;
             public ConfigNode configNode;
@@ -34,6 +34,27 @@ namespace ContractConfigurator
                 this.validation = validation;
             }
         }
+
+        private static class DeferredLoadUtil
+        {
+            public static bool ExecuteLoad<T>(DeferredLoadObject<T> loadObj)
+            {
+                return ParseValue<T>(loadObj.configNode, loadObj.key, loadObj.setter, loadObj.obj, loadObj.validation);
+            }
+
+            public static IEnumerable<string> GetDependencies<T>(DeferredLoadObject<T> loadObj)
+            {
+                return loadObj.dependencies;
+            }
+
+            public static void LogCicularDependencyError<T>(DeferredLoadObject<T> loadObj)
+            {
+                LoggingUtil.LogError(loadObj.obj, loadObj.obj.ErrorPrefix(loadObj.configNode) + ": Error parsing " + loadObj.key + ": " +
+                    "Circular dependency detected while parsing an expression (possible culprit(s): " +
+                    string.Join(", ", loadObj.dependencies.ToArray()) + ").");
+            }
+        }
+
         private static Dictionary<string, object> deferredLoads = new Dictionary<string, object>();
 
         private static Dictionary<ConfigNode, Dictionary<string, int>> keysFound = new Dictionary<ConfigNode,Dictionary<string,int>>();
@@ -578,31 +599,14 @@ namespace ContractConfigurator
             currentDataNode = dataNode;
         }
 
-        public static bool ExecuteLoad<T>(DeferredLoadObject<T> loadObj)
-        {
-            return ParseValue<T>(loadObj.configNode, loadObj.key, loadObj.setter, loadObj.obj, loadObj.validation);
-        }
-
-        public static IEnumerable<string> GetDependencies<T>(DeferredLoadObject<T> loadObj)
-        {
-            return loadObj.dependencies;
-        }
-
-        public static void LogCicularDependencyError<T>(DeferredLoadObject<T> loadObj)
-        {
-            LoggingUtil.LogError(loadObj.obj, loadObj.obj.ErrorPrefix(loadObj.configNode) + ": Error parsing " + loadObj.key + ": " +
-                "Circular dependency detected while parsing an expression (possible culprits : " +
-                string.Join(", ", loadObj.dependencies.ToArray()) + ").");
-        }
-
         private static bool ExecuteDeferredLoads()
         {
             bool valid = true;
 
             // Generic methods
-            MethodInfo dependenciesMethod = typeof(ConfigNodeUtil).GetMethods().Where(m => m.Name == "GetDependencies").First();
-            MethodInfo circularDependendencyMethod = typeof(ConfigNodeUtil).GetMethods().Where(m => m.Name == "LogCicularDependencyError").First();
-            MethodInfo executeMethod = typeof(ConfigNodeUtil).GetMethods().Where(m => m.Name == "ExecuteLoad").First();
+            MethodInfo dependenciesMethod = typeof(DeferredLoadUtil).GetMethods().Where(m => m.Name == "GetDependencies").First();
+            MethodInfo circularDependendencyMethod = typeof(DeferredLoadUtil).GetMethods().Where(m => m.Name == "LogCicularDependencyError").First();
+            MethodInfo executeMethod = typeof(DeferredLoadUtil).GetMethods().Where(m => m.Name == "ExecuteLoad").First();
 
             Dictionary<string, List<string>> dependencies = new Dictionary<string, List<string>>();
 

@@ -113,7 +113,7 @@ namespace ContractConfigurator.ExpressionParser
             {
                 // Attempt to convert type
                 expression = parser.expression;
-                return (T)Convert.ChangeType(lval, typeof(U));
+                return parser.ConvertType<T>(lval);
             }
 
             // Get next token
@@ -129,7 +129,7 @@ namespace ContractConfigurator.ExpressionParser
                     case TokenType.END_BRACKET:
                         parser.expression = ")" + parser.expression;
                         // Attempt to convert type
-                        return (T)Convert.ChangeType(lval, typeof(U));
+                        return parser.ConvertType<T>(lval);
                     case TokenType.IDENTIFIER:
                     case TokenType.SPECIAL_IDENTIFIER:
                     case TokenType.VALUE:
@@ -157,7 +157,7 @@ namespace ContractConfigurator.ExpressionParser
             }
 
             // Attempt to convert type
-            return (T)Convert.ChangeType(lval, typeof(U));
+            return parser.ConvertType<T>(lval);
         }
 
         protected T ParseAlternateStatementWithLval<U>(T lval)
@@ -384,7 +384,7 @@ namespace ContractConfigurator.ExpressionParser
 
             // Attempt to convert type
             expression = parser.expression;
-            return (T)Convert.ChangeType(lval, typeof(U));
+            return parser.ConvertType<T>(lval);
         }
 
         protected T ParseSimpleStatementInner()
@@ -512,7 +512,7 @@ namespace ContractConfigurator.ExpressionParser
                 }
                 else
                 {
-                    throw new DataStoreCastException(o.GetType(), typeof(T));
+                    return ConvertType(o);
                 }
             }
             else
@@ -786,6 +786,45 @@ namespace ContractConfigurator.ExpressionParser
                 default:
                     throw new ArgumentException("Unexpected operator:  '" + op);
             }
+        }
+
+        /// <summary>
+        /// Performs a data type conversion.
+        /// </summary>
+        /// <typeparam name="U">Type to convert to.</typeparam>
+        /// <param name="value">Value to convert from.</param>
+        /// <returns>The converted value.</returns>
+        protected virtual U ConvertType<U>(T value)
+        {
+            // Probably should never happen, but handle the basic case
+            if (typeof(T) == typeof(U))
+            {
+                return (U)(object)value;
+            }
+
+            // Try basic conversion
+            try
+            {
+                return (U)Convert.ChangeType(value, typeof(T));
+            }
+            catch
+            {
+                throw new DataStoreCastException(typeof(T), typeof(U));
+            }
+        }
+
+        protected T ConvertType(object value)
+        {
+            MethodInfo convertMethod = GetType().GetMethod("_ConvertType", BindingFlags.NonPublic | BindingFlags.Instance);
+            convertMethod = convertMethod.MakeGenericMethod(new Type[] { value.GetType() });
+
+            return (T)convertMethod.Invoke(this, new object[] { value });
+        }
+
+        protected T _ConvertType<U>(U value)
+        {
+            ExpressionParser<U> parser = ExpressionParser<U>.GetParser<T>(this);
+            return parser.ConvertType<T>(value);
         }
 
         protected bool IsBoolean(string op)
