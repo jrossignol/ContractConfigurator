@@ -83,6 +83,7 @@
     <Compile Include="ExpressionParser\ExpressionParserUtil.cs" />
     <Compile Include="ExpressionParser\NumericValueExpressionParser.cs" />
     <Compile Include="ExpressionParser\ClassExpressionParser.cs" />
+    <Compile Include="ExpressionParser\StringExpressionParser.cs" />
     <Compile Include="ExpressionParser\ValueExpressionParser.cs" />
     <Compile Include="ExpressionParser\ExpressionParser.cs" />
     <Compile Include="Util\DebugWindow.cs" />

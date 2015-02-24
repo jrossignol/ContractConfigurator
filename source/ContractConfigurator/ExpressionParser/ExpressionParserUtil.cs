@@ -106,6 +106,7 @@ namespace ContractConfigurator.ExpressionParser
             RegisterParserType(typeof(int), typeof(NumericValueExpressionParser<int>));
             RegisterParserType(typeof(float), typeof(NumericValueExpressionParser<float>));
             RegisterParserType(typeof(double), typeof(NumericValueExpressionParser<double>));
+            RegisterParserType(typeof(string), typeof(StringExpressionParser));
         }
 
         /// <summary>

@@ -199,7 +199,7 @@ namespace ContractConfigurator.ExpressionParser
             return lval;
         }
 
-        protected T ParseStatement()
+        protected virtual T ParseStatement()
         {
             string savedExpression = expression;
             try
