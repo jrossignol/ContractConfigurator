@@ -16,10 +16,25 @@ namespace ContractConfigurator
     /// </summary>
     public static class ConfigNodeUtil
     {
-/*        private class DeferredLoadObject
+        public class DeferredLoadObject<T>
         {
-            public ref object value
-        }*/
+            public string key;
+            public ConfigNode configNode;
+            public IContractConfiguratorFactory obj;
+            public Action<T> setter;
+            public Func<T, bool> validation;
+            public List<string> dependencies = new List<string>();
+
+            public DeferredLoadObject(ConfigNode configNode, string key, Action<T> setter, IContractConfiguratorFactory obj, Func<T, bool> validation)
+            {
+                this.key = key;
+                this.configNode = configNode;
+                this.setter = setter;
+                this.obj = obj;
+                this.validation = validation;
+            }
+        }
+        private static Dictionary<string, object> deferredLoads = new Dictionary<string, object>();
 
         private static Dictionary<ConfigNode, Dictionary<string, int>> keysFound = new Dictionary<ConfigNode,Dictionary<string,int>>();
         private static Dictionary<ConfigNode, ConfigNode> storedValues = new Dictionary<ConfigNode,ConfigNode>();
@@ -321,8 +336,35 @@ namespace ContractConfigurator
                 }
                 catch (Exception e)
                 {
+                    if (e.GetType() == typeof(DataNode.ValueNotInitialized))
+                    {
+                        string dependency = ((DataNode.ValueNotInitialized)e).key;
+
+                        // Defer loading this value
+                        DeferredLoadObject<T> loadObj = null;
+                        if (!deferredLoads.ContainsKey(key))
+                        {
+                            loadObj = new DeferredLoadObject<T>(configNode, key, setter, obj, validation);
+                            deferredLoads[key] = loadObj;
+                        }
+
+                        // New depdendency - try again
+                        if (!loadObj.dependencies.Contains(dependency))
+                        {
+                            loadObj.dependencies.Add(dependency);
+                            return true;
+                        }
+                    }
+
                     LoggingUtil.LogError(obj, obj.ErrorPrefix(configNode) + ": Error parsing " + key);
                     LoggingUtil.LogException(e);
+
+                    // Return immediately on deferred load error
+                    if (e.GetType() == typeof(DataNode.ValueNotInitialized))
+                    {
+                        return false;
+                    }
+
                     valid = false;
                 }
                 finally
@@ -522,8 +564,9 @@ namespace ContractConfigurator
         /// </summary>
         public static void ClearCache()
         {
-            keysFound = new Dictionary<ConfigNode, Dictionary<string, int>>();
-            storedValues = new Dictionary<ConfigNode, ConfigNode>();
+            keysFound.Clear();
+            storedValues.Clear();
+            deferredLoads.Clear();
         }
 
         /// <summary>
@@ -535,6 +578,95 @@ namespace ContractConfigurator
             currentDataNode = dataNode;
         }
 
+        public static bool ExecuteLoad<T>(DeferredLoadObject<T> loadObj)
+        {
+            return ParseValue<T>(loadObj.configNode, loadObj.key, loadObj.setter, loadObj.obj, loadObj.validation);
+        }
+
+        public static IEnumerable<string> GetDependencies<T>(DeferredLoadObject<T> loadObj)
+        {
+            return loadObj.dependencies;
+        }
+
+        public static void LogCicularDependencyError<T>(DeferredLoadObject<T> loadObj)
+        {
+            LoggingUtil.LogError(loadObj.obj, loadObj.obj.ErrorPrefix(loadObj.configNode) + ": Error parsing " + loadObj.key + ": " +
+                "Circular dependency detected while parsing an expression (possible culprits : " +
+                string.Join(", ", loadObj.dependencies.ToArray()) + ").");
+        }
+
+        private static bool ExecuteDeferredLoads()
+        {
+            bool valid = true;
+
+            // Generic methods
+            MethodInfo dependenciesMethod = typeof(ConfigNodeUtil).GetMethods().Where(m => m.Name == "GetDependencies").First();
+            MethodInfo circularDependendencyMethod = typeof(ConfigNodeUtil).GetMethods().Where(m => m.Name == "LogCicularDependencyError").First();
+            MethodInfo executeMethod = typeof(ConfigNodeUtil).GetMethods().Where(m => m.Name == "ExecuteLoad").First();
+
+            Dictionary<string, List<string>> dependencies = new Dictionary<string, List<string>>();
+
+            while (deferredLoads.Any())
+            {
+                string key = null;
+                int count = 0;
+                object loadObj = null;
+
+                // Rebuild the dependency tree
+                dependencies.Clear();
+                foreach (KeyValuePair<string, object> pair in deferredLoads)
+                {
+                    MethodInfo method = dependenciesMethod.MakeGenericMethod(pair.Value.GetType().GetGenericArguments());
+                    IEnumerable<string> localDependencies = (IEnumerable<string>)method.Invoke(null, new object[] { pair.Value });
+                    dependencies[pair.Key] = new List<string>();
+
+                    foreach (string dep in localDependencies)
+                    {
+                        // Only add dependencies that exist in the list
+                        if (deferredLoads.ContainsKey(dep))
+                        {
+                            dependencies[pair.Key].Add(dep);
+                        }
+                    }
+
+                    if (dependencies[pair.Key].Count() == 0)
+                    {
+                        count = localDependencies.Count();
+                        key = pair.Key;
+                        loadObj = pair.Value;
+                        break;
+                    }
+                }
+
+                // Didn't find anything valid.  The rest are circular dependencies
+                if (loadObj == null)
+                {
+                    valid = false;
+                    foreach (KeyValuePair<string, object> pair in deferredLoads)
+                    {
+                        MethodInfo method = circularDependendencyMethod.MakeGenericMethod(pair.Value.GetType().GetGenericArguments());
+                        method.Invoke(null, new object[] { pair.Value });
+                    }
+                    deferredLoads.Clear();
+                }
+                // Found something we can execute
+                else
+                {
+                    // Try parsing it
+                    MethodInfo method = executeMethod.MakeGenericMethod(loadObj.GetType().GetGenericArguments());
+                    valid &= (bool)method.Invoke(null, new object[] { loadObj });
+
+                    // If a dependency was not added, then remove from the list
+                    method = dependenciesMethod.MakeGenericMethod(loadObj.GetType().GetGenericArguments());
+                    if (count == ((IEnumerable<string>)method.Invoke(null, new object[] { loadObj })).Count())
+                    {
+                        deferredLoads.Remove(key);
+                    }
+                }
+            }
+
+            return valid;
+        }
 
         /// <summary>
         /// Performs validation to check if the given config node has values that were not expected.
@@ -544,6 +676,8 @@ namespace ContractConfigurator
         /// <returns>Always true, but logs a warning if unexpected keys were found</returns>
         public static bool ValidateUnexpectedValues(ConfigNode configNode, IContractConfiguratorFactory obj)
         {
+            bool valid = ExecuteDeferredLoads();
+
             if (!keysFound.ContainsKey(configNode))
             {
                 LoggingUtil.LogWarning(obj.GetType(), obj.ErrorPrefix() +
@@ -561,7 +695,7 @@ namespace ContractConfigurator
                 }
             }
 
-            return true;
+            return valid;
         }
     }
 }

@@ -89,6 +89,11 @@ namespace ContractConfigurator.ExpressionParser
             {
                 return ParseStatement();
             }
+            // Let this one flow through so it can be retried
+            catch (DataNode.ValueNotInitialized)
+            {
+                throw;
+            }
             catch (Exception e)
             {
                 throw new Exception("Error parsing statement.\nError occurred near '*':\n" +
