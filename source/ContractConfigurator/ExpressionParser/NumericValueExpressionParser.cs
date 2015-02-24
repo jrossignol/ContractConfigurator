@@ -9,6 +9,17 @@ using ContractConfigurator.Parameters;
 
 namespace ContractConfigurator.ExpressionParser
 {
+    public class ValueParserRegistrer : IExpressionParserRegistrer
+    {
+        public void RegisterExpressionParsers()
+        {
+            ExpressionParserUtil.RegisterParserType(typeof(uint), typeof(NumericValueExpressionParser<uint>));
+            ExpressionParserUtil.RegisterParserType(typeof(int), typeof(NumericValueExpressionParser<int>));
+            ExpressionParserUtil.RegisterParserType(typeof(float), typeof(NumericValueExpressionParser<float>));
+            ExpressionParserUtil.RegisterParserType(typeof(double), typeof(NumericValueExpressionParser<double>));
+        }
+    }
+
     public abstract class Calculator<T>
     {
         public abstract T Negate(T val);

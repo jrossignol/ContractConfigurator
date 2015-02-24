@@ -507,7 +507,7 @@ namespace ContractConfigurator
             return true;
         }
 
-        private static CelestialBody ParseCelestialBodyValue(string celestialName)
+        public static CelestialBody ParseCelestialBodyValue(string celestialName)
         {
             foreach (CelestialBody body in FlightGlobals.Bodies)
             {

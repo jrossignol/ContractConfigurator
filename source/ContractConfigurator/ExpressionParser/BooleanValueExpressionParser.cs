@@ -9,8 +9,13 @@ using ContractConfigurator.Parameters;
 
 namespace ContractConfigurator.ExpressionParser
 {
-    public class BooleanValueExpressionParser : ValueExpressionParser<bool>
+    public class BooleanValueExpressionParser : ValueExpressionParser<bool>, IExpressionParserRegistrer
     {
+        public void RegisterExpressionParsers()
+        {
+            ExpressionParserUtil.RegisterParserType(typeof(bool), typeof(BooleanValueExpressionParser));
+        }
+
         public BooleanValueExpressionParser()
             : base()
         {

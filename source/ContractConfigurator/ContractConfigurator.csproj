@@ -79,8 +79,10 @@
     <Compile Include="ContractRequirement\FundsRequirement.cs" />
     <Compile Include="ContractGroup.cs" />
     <Compile Include="ExpressionParser\BooleanValueExpressionParser.cs" />
+    <Compile Include="ExpressionParser\CelestialBodyParser.cs" />
     <Compile Include="ExpressionParser\DataNode.cs" />
     <Compile Include="ExpressionParser\ExpressionParserUtil.cs" />
+    <Compile Include="ExpressionParser\IExpressionParserRegistrer.cs" />
     <Compile Include="ExpressionParser\NumericValueExpressionParser.cs" />
     <Compile Include="ExpressionParser\ClassExpressionParser.cs" />
     <Compile Include="ExpressionParser\StringExpressionParser.cs" />

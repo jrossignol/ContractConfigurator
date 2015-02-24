@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
+using UnityEngine;
 
 namespace ContractConfigurator.ExpressionParser
 {
@@ -100,13 +102,18 @@ namespace ContractConfigurator.ExpressionParser
                 }
             }
 
-            // Register expression parsers
-            RegisterParserType(typeof(bool), typeof(BooleanValueExpressionParser));
-            RegisterParserType(typeof(uint), typeof(NumericValueExpressionParser<uint>));
-            RegisterParserType(typeof(int), typeof(NumericValueExpressionParser<int>));
-            RegisterParserType(typeof(float), typeof(NumericValueExpressionParser<float>));
-            RegisterParserType(typeof(double), typeof(NumericValueExpressionParser<double>));
-            RegisterParserType(typeof(string), typeof(StringExpressionParser));
+            // Register each type of expression parser
+            Debug.Log("Registring dudes");
+            foreach (Type subclass in ContractConfigurator.GetAllTypes<IExpressionParserRegistrer>())
+            {
+                if (subclass.IsClass && !subclass.IsAbstract)
+                {
+                    Debug.Log("Registring dude: " + subclass);
+                    IExpressionParserRegistrer r = Activator.CreateInstance(subclass) as IExpressionParserRegistrer;
+                    var method = subclass.GetMethod("RegisterExpressionParsers");
+                    method.Invoke(r, new object[] { });
+                }
+            }
         }
 
         /// <summary>

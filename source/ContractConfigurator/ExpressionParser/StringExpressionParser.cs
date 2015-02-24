@@ -8,8 +8,13 @@ namespace ContractConfigurator.ExpressionParser
     /// <summary>
     /// Expression parser subclass for strings
     /// </summary>
-    public class StringExpressionParser : ClassExpressionParser<string>
+    public class StringExpressionParser : ClassExpressionParser<string>, IExpressionParserRegistrer
     {
+        public void RegisterExpressionParsers()
+        {
+            ExpressionParserUtil.RegisterParserType(typeof(string), typeof(StringExpressionParser));
+        }
+
         public StringExpressionParser()
         {
         }
