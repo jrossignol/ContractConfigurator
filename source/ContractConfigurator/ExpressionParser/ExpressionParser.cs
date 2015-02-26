@@ -41,6 +41,29 @@ namespace ContractConfigurator.ExpressionParser
             return newParser;
         }
 
+        protected object GetParser(Type type)
+        {
+            MethodInfo getParserMethod = type.GetMethod("GetParser", BindingFlags.NonPublic | BindingFlags.Static);
+            getParserMethod = getParserMethod.MakeGenericMethod(new Type[] { GetType() });
+
+            return getParserMethod.Invoke(null, new object[] { this });
+        }
+
+
+        /// <summary>
+        /// Registers a method that can be called on the given type.
+        /// </summary>
+        /// <param name="method">The callable method.</param>
+        protected static void RegisterMethod(Method<T> method)
+        {
+            if (!classMethods.ContainsKey(method.Name))
+            {
+                classMethods[method.Name] = new List<Method<T>>();
+            }
+            classMethods[method.Name].Add(method);
+        }
+        protected static Dictionary<string, List<Method<T>>> classMethods = new Dictionary<string, List<Method<T>>>();
+
         /// <summary>
         /// Initialize for parsing.
         /// </summary>
@@ -98,7 +121,7 @@ namespace ContractConfigurator.ExpressionParser
             {
                 throw new Exception("Error parsing statement.\nError occurred near '*':\n" +
                     expression + "\n" +
-                    new String(' ', expression.Length - this.expression.Length) + "* <-- HERE", e);
+                    new String('.', expression.Length - this.expression.Length) + "* <-- HERE", e);
             }
         }
 
@@ -437,6 +460,9 @@ namespace ContractConfigurator.ExpressionParser
                 case ')':
                     expression = expression.Substring(1);
                     return new Token(TokenType.END_BRACKET);
+                case ',':
+                    expression = expression.Substring(1);
+                    return new Token(TokenType.COMMA);
                 case '1':
                 case '2':
                 case '3':
@@ -461,6 +487,8 @@ namespace ContractConfigurator.ExpressionParser
                     return ParseOperator();
                 case '@':
                     return ParseSpecialIdentifier();
+                case '.':
+                    return ParseMethod();
             }
 
             // Try to parse an identifier
@@ -470,6 +498,44 @@ namespace ContractConfigurator.ExpressionParser
             }
 
             throw new ArgumentException("Expected a valid expression, found: '" + c + "'");
+        }
+
+        protected Token ParseMethodToken()
+        {
+            Token token = ParseToken();
+
+            if (token == null)
+            {
+                return null;
+            }
+
+            if (token.tokenType == TokenType.METHOD)
+            {
+                return token;
+            }
+
+            expression = token.sval + expression;
+            return null;
+        }
+
+        protected Token ParseMethodEndToken()
+        {
+            Token token = ParseToken();
+
+            if (token == null)
+            {
+                return null;
+            }
+
+            if (token.tokenType == TokenType.END_BRACKET || token.tokenType == TokenType.COMMA)
+            {
+                return token;
+            }
+            else
+            {
+                expression = token.sval + expression;
+                return null;
+            }
         }
 
         protected void ParseToken(string expected)
@@ -491,6 +557,162 @@ namespace ContractConfigurator.ExpressionParser
             throw new NotSupportedException("Can't parse identifier for type " + typeof(T) + " in class " + this.GetType() + " - not supported!");
         }
 
+        protected T _ParseMethod<U>(Token token, U obj)
+        {
+            ExpressionParser<U> parser = ExpressionParser<U>.GetParser<T>(this);
+            try
+            {
+                T result = parser.ParseMethod<T>(token, obj);
+                return result;
+            }
+            finally
+            {
+                expression = parser.expression;
+            }
+        }
+
+        protected U ParseMethod<U>(Token token, T obj)
+        {
+            if (!classMethods.ContainsKey(token.sval))
+            {
+                throw new MissingMethodException("Cannot find method '" + token.sval + "' for class '" + typeof(T).Name + "'.");
+            }
+
+            // Start with method call
+            ParseToken("(");
+
+            List<Method<T>> methods = classMethods[token.sval].ToList();
+            List<object> parameters = new List<object>();
+            Method<T> selectedMethod = null;
+
+            while (true)
+            {
+                // Get some basic statistics
+                int minParam = int.MaxValue;
+                int maxParam = 0;
+                List<Type> paramTypes = new List<Type>();
+                for (int i = 0; i < methods.Count; i++)
+                {
+                    Method<T> method = methods[i];
+                    int paramCount = method.ParameterCount();
+                    minParam = Math.Min(minParam, paramCount);
+                    maxParam = Math.Max(maxParam, paramCount);
+                    for (int j = 0; j < paramCount; j++)
+                    {
+                        if (paramTypes.Count <= j)
+                        {
+                            paramTypes[j] = method.ParameterType(j);
+                        }
+                        else if (paramTypes[j] != method.ParameterType(j))
+                        {
+                            paramTypes[j] = null;
+                        }
+                    }
+                }
+
+                // Try to end it
+                Token endToken = ParseMethodEndToken();
+                if (endToken != null)
+                {
+                    // End statement
+                    if (endToken.tokenType == TokenType.END_BRACKET)
+                    {
+                        // Find the method that matched
+                        foreach (Method<T> method in methods)
+                        {
+                            int paramCount = method.ParameterCount();
+                            if (paramCount == parameters.Count)
+                            {
+                                bool found = true;
+                                for (int j = 0; j < paramCount; j++)
+                                {
+                                    if (parameters[j].GetType() != method.ParameterType(j))
+                                    {
+                                        found = false;
+                                    }
+                                }
+
+                                if (found)
+                                {
+                                    selectedMethod = method;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (selectedMethod != null)
+                        {
+                            break;
+                        }
+
+                        // End bracket, but no matching method!
+                        throw new MethodMismatch(classMethods[token.sval].Cast<Function>());
+                    }
+                    else if (endToken.tokenType == TokenType.COMMA)
+                    {
+                        if (parameters.Count() == 0)
+                        {
+                            throw new ArgumentException("Expected " + (minParam == 0 ? "')'" : "an expression") + ", got: ','.");
+                        }
+                    }
+                    else
+                    {
+                        throw new ArgumentException("Expected ')', got: " + token.sval);
+                    }
+                }
+                else if (parameters.Count() != 0)
+                {
+                    throw new ArgumentException("Expected ','");
+                }
+
+                // Check for end of statement
+                if (expression.Trim() == "")
+                {
+                    throw new ArgumentException("Expected an expression, got end of statement");
+                }
+
+                Type paramType = paramTypes[parameters.Count];
+                // Easy - we have the type!
+                if (paramType != null)
+                {
+                    object parser = GetParser(paramType);
+
+                    MethodInfo parseMethod = parser.GetType().GetMethod("ParseStatement", BindingFlags.NonPublic | BindingFlags.Instance,
+                        null, System.Type.EmptyTypes, null);
+                    object value = parseMethod.Invoke(parser, new object[] { });
+                    parameters.Add(value);
+                }
+                else
+                {
+                    // TODO - implement once there's a use case for more complex overloading
+                }
+            }
+
+            // Add object to the parameter list
+            List<object> newParam = new List<object>();
+            newParam.Add(obj);
+            newParam.AddRange(parameters);
+            parameters = newParam;
+
+            // Invoke the method
+            object result = selectedMethod.Invoke(parameters.ToArray());
+
+            // Check for a method call before we return
+            Token methodToken = ParseMethodToken();
+            ExpressionParser<U> retValParser = ExpressionParser<U>.GetParser<T>(this);
+            if (methodToken != null)
+            {
+                MethodInfo parseMethod = retValParser.GetType().GetMethod("_ParseMethod", BindingFlags.NonPublic | BindingFlags.Instance);
+                parseMethod = parseMethod.MakeGenericMethod(new Type[] { result.GetType() });
+
+                result = parseMethod.Invoke(retValParser, new object[] { methodToken, result });
+                expression = retValParser.expression;
+            }
+
+            // No method, return the result
+            return retValParser.ConvertType(result);
+        }
+
         /// <summary>
         /// Parses an identifier for a config node value.
         /// </summary>
@@ -506,6 +728,18 @@ namespace ContractConfigurator.ExpressionParser
                 }
 
                 object o = currentDataNode[token.sval];
+
+                // Check for a method call before we start messing with types
+                Token methodToken = ParseMethodToken();
+                if (methodToken != null)
+                {
+                    MethodInfo parseMethod = GetType().GetMethod("_ParseMethod", BindingFlags.NonPublic | BindingFlags.Instance);
+                    parseMethod = parseMethod.MakeGenericMethod(new Type[] { o.GetType() });
+
+                    return (T)parseMethod.Invoke(this, new object[] { methodToken, o });
+                }
+
+                // No method, try type conversion or straight return
                 if (o.GetType() == typeof(T))
                 {
                     return (T)o;
@@ -534,9 +768,24 @@ namespace ContractConfigurator.ExpressionParser
         {
             Match m = Regex.Match(expression, "@([A-Za-z][A-Za-z0-9_]*).*");
             string identifier = m.Groups[1].Value;
-            expression = (expression.Length > identifier.Length+1 ? expression.Substring(identifier.Length+1) : "");
+            expression = (expression.Length > identifier.Length + 1 ? expression.Substring(identifier.Length + 1) : "");
 
             return new Token(TokenType.SPECIAL_IDENTIFIER, identifier);
+        }
+
+        protected Token ParseMethod()
+        {
+            Match m = Regex.Match(expression, "\\.([A-Za-z][A-Za-z0-9_]*).*");
+            string identifier = m.Groups[1].Value;
+
+            if (string.IsNullOrEmpty(identifier))
+            {
+                return null;
+            }
+
+            expression = (expression.Length > identifier.Length + 1 ? expression.Substring(identifier.Length + 1) : "");
+
+            return new Token(TokenType.METHOD, identifier);
         }
 
         private T ParseOperation(T lval, string op)
@@ -805,7 +1054,7 @@ namespace ContractConfigurator.ExpressionParser
             // Try basic conversion
             try
             {
-                return (U)Convert.ChangeType(value, typeof(T));
+                return (U)Convert.ChangeType(value, typeof(U));
             }
             catch
             {

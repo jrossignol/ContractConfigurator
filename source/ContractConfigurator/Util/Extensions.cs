@@ -16,17 +16,6 @@ namespace ContractConfigurator
     public static class Extensions
     {
         /// <summary>
-        /// Returns the name that should be printed for celestial bodies.  Basically just changes
-        /// Mun to "the Mun", because it sounds better.
-        /// </summary>
-        /// <param name="body">The celestial body to print the name for.</param>
-        /// <returns>The name of the body, for printing purpose only.</returns>
-        public static string PrintName(this CelestialBody body)
-        {
-            return (body.use_The_InName ? "the " : "") + body.name;
-        }
-
-        /// <summary>
         /// Gets all the parameter's descendents
         /// </summary>
         /// <param name="p">Contract parameter</param>

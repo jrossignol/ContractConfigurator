@@ -70,7 +70,7 @@ namespace ContractConfigurator.Parameters
             // Filter for celestial bodies
             if (targetBody != null)
             {
-                AddParameter(new ParameterDelegate<Vessel>("Destination: " + targetBody.PrintName(),
+                AddParameter(new ParameterDelegate<Vessel>("Destination: " + targetBody.theName,
                     v => v.mainBody == targetBody, true));
             }
 

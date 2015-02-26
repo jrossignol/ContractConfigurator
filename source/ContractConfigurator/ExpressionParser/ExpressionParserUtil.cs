@@ -17,7 +17,9 @@ namespace ContractConfigurator.ExpressionParser
         VALUE,
         OPERATOR,
         START_BRACKET,
-        END_BRACKET
+        END_BRACKET,
+        COMMA,
+        METHOD
     }
 
     /// <summary>
@@ -39,6 +41,10 @@ namespace ContractConfigurator.ExpressionParser
             else if (tokenType == TokenType.END_BRACKET)
             {
                 sval = ")";
+            }
+            else if (tokenType == TokenType.COMMA)
+            {
+                sval = ",";
             }
         }
 
@@ -103,12 +109,10 @@ namespace ContractConfigurator.ExpressionParser
             }
 
             // Register each type of expression parser
-            Debug.Log("Registring dudes");
             foreach (Type subclass in ContractConfigurator.GetAllTypes<IExpressionParserRegistrer>())
             {
                 if (subclass.IsClass && !subclass.IsAbstract)
                 {
-                    Debug.Log("Registring dude: " + subclass);
                     IExpressionParserRegistrer r = Activator.CreateInstance(subclass) as IExpressionParserRegistrer;
                     var method = subclass.GetMethod("RegisterExpressionParsers");
                     method.Invoke(r, new object[] { });

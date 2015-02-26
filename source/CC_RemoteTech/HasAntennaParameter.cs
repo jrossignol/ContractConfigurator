@@ -98,7 +98,7 @@ namespace ContractConfigurator.RemoteTech
             // Filter for celestial bodies
             else if (targetBody != null)
             {
-                AddParameter(new ParameterDelegate<IAntenna>("Target: " + targetBody.PrintName(),
+                AddParameter(new ParameterDelegate<IAntenna>("Target: " + targetBody.theName,
                     a => a.Target == targetBody.Guid(), matchType));
             }
 
@@ -131,7 +131,7 @@ namespace ContractConfigurator.RemoteTech
             if (!activeVessel && targetBody != null)
             {
                 double distance = (Planetarium.fetch.Home.position - targetBody.position).magnitude;
-                AddParameter(new ParameterDelegate<IAntenna>("Range: In range of " + targetBody.PrintName(),
+                AddParameter(new ParameterDelegate<IAntenna>("Range: In range of " + targetBody.theName,
                     a => Math.Max(a.Omni, a.Dish) >= distance, matchType, true));
             }
 

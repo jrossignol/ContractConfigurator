@@ -83,6 +83,8 @@
     <Compile Include="ExpressionParser\DataNode.cs" />
     <Compile Include="ExpressionParser\ExpressionParserUtil.cs" />
     <Compile Include="ExpressionParser\IExpressionParserRegistrer.cs" />
+    <Compile Include="ExpressionParser\Function.cs" />
+    <Compile Include="ExpressionParser\Method.cs" />
     <Compile Include="ExpressionParser\NumericValueExpressionParser.cs" />
     <Compile Include="ExpressionParser\ClassExpressionParser.cs" />
     <Compile Include="ExpressionParser\StringExpressionParser.cs" />
