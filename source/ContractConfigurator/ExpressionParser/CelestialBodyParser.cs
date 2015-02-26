@@ -27,7 +27,9 @@ namespace ContractConfigurator.ExpressionParser
             RegisterMethod(new Method<CelestialBody, bool>("HasSurface", cb => cb.pqsController != null));
 
             RegisterMethod(new Method<CelestialBody, double>("Radius", cb => cb.Radius));
-
+            RegisterMethod(new Method<CelestialBody, float>("AtmosphereAltitude", cb => cb.maxAtmosphereAltitude));
+            RegisterMethod(new Method<CelestialBody, double>("SphereOfInfluence", cb => cb.sphereOfInfluence));
+            
             RegisterMethod(new Method<CelestialBody, CelestialBody>("Parent", cb => cb.referenceBody));
             RegisterMethod(new Method<CelestialBody, List<CelestialBody>>("Children", cb => cb.orbitingBodies));
         }
