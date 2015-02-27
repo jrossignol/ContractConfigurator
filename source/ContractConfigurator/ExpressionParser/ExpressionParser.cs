@@ -14,7 +14,7 @@ namespace ContractConfigurator.ExpressionParser
     /// Class for parsing an expression
     /// </summary>
     /// <typeparam name="T">The type of value to return for the expression.</typeparam>
-    public abstract class ExpressionParser<T>
+    public abstract class ExpressionParser<T> : BaseParser
     {
         protected string expression;
         protected bool parseMode = true;
@@ -27,7 +27,7 @@ namespace ContractConfigurator.ExpressionParser
 
         protected static ExpressionParser<T> GetParser<U>(ExpressionParser<U> orig)
         {
-            ExpressionParser<T> newParser = ExpressionParserUtil.GetParser<T>();
+            ExpressionParser<T> newParser = BaseParser.GetParser<T>();
 
             if (newParser == null)
             {
@@ -808,7 +808,7 @@ namespace ContractConfigurator.ExpressionParser
                         expression = token.sval + expression;
                         return ApplyOperator(lval, op, rval);
                     case TokenType.OPERATOR:
-                        if (ExpressionParserUtil.precedence[op] >= ExpressionParserUtil.precedence[token.sval])
+                        if (precedence[op] >= precedence[token.sval])
                         {
                             expression = token.sval + expression;
                             return ApplyOperator(lval, op, rval);
@@ -848,7 +848,7 @@ namespace ContractConfigurator.ExpressionParser
                         throw new Exception("ackbar");
                     //return ApplyOperator(lval, op, rval);
                     case TokenType.OPERATOR:
-                        if (ExpressionParserUtil.precedence[op] >= ExpressionParserUtil.precedence[token.sval])
+                        if (precedence[op] >= precedence[token.sval])
                         {
                             expression = token.sval + expression;
                             throw new Exception("backbar");
@@ -901,7 +901,7 @@ namespace ContractConfigurator.ExpressionParser
                         expression = token.sval + expression;
                         return ApplyBooleanOperator(lval, op, rval);
                     case TokenType.OPERATOR:
-                        if (ExpressionParserUtil.precedence[op] >= ExpressionParserUtil.precedence[token.sval])
+                        if (precedence[op] >= precedence[token.sval])
                         {
                             expression = token.sval + expression;
                             return ApplyBooleanOperator(lval, op, rval);

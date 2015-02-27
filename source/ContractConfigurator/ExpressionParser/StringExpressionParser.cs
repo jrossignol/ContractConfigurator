@@ -12,7 +12,7 @@ namespace ContractConfigurator.ExpressionParser
     {
         public void RegisterExpressionParsers()
         {
-            ExpressionParserUtil.RegisterParserType(typeof(string), typeof(StringExpressionParser));
+            RegisterParserType(typeof(string), typeof(StringExpressionParser));
         }
 
         public StringExpressionParser()

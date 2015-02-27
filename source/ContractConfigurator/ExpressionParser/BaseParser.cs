@@ -1,82 +1,80 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Text;
-using UnityEngine;
 
 namespace ContractConfigurator.ExpressionParser
 {
     /// <summary>
-    /// Types of expresion tokens.
+    /// Common base class (without typing) for all expression parsers.
     /// </summary>
-    public enum TokenType
+    public class BaseParser
     {
-        IDENTIFIER,
-        SPECIAL_IDENTIFIER,
-        VALUE,
-        OPERATOR,
-        START_BRACKET,
-        END_BRACKET,
-        COMMA,
-        METHOD
-    }
-
-    /// <summary>
-    /// A parsed token.
-    /// </summary>
-    public class Token
-    {
-        public TokenType tokenType;
-        public string sval;
-
-        public Token(TokenType type)
+        /// <summary>
+        /// Types of expresion tokens.
+        /// </summary>
+        protected enum TokenType
         {
-            tokenType = type;
+            IDENTIFIER,
+            SPECIAL_IDENTIFIER,
+            VALUE,
+            OPERATOR,
+            START_BRACKET,
+            END_BRACKET,
+            COMMA,
+            METHOD
+        }
 
-            if (tokenType == TokenType.START_BRACKET)
+        /// <summary>
+        /// A parsed token.
+        /// </summary>
+        protected class Token
+        {
+            public TokenType tokenType;
+            public string sval;
+
+            public Token(TokenType type)
             {
-                sval = "(";
+                tokenType = type;
+
+                if (tokenType == TokenType.START_BRACKET)
+                {
+                    sval = "(";
+                }
+                else if (tokenType == TokenType.END_BRACKET)
+                {
+                    sval = ")";
+                }
+                else if (tokenType == TokenType.COMMA)
+                {
+                    sval = ",";
+                }
             }
-            else if (tokenType == TokenType.END_BRACKET)
+
+            public Token(TokenType type, string s)
             {
-                sval = ")";
-            }
-            else if (tokenType == TokenType.COMMA)
-            {
-                sval = ",";
+                tokenType = type;
+                sval = s;
             }
         }
 
-        public Token(TokenType type, string s)
+        /// <summary>
+        /// A token with a value type.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        protected class ValueToken<T> : Token
         {
-            tokenType = type;
-            sval = s;
+            public T val;
+
+            public ValueToken(T t)
+                : base(TokenType.VALUE)
+            {
+                val = t;
+                sval = t.ToString();
+            }
         }
-    }
 
-    /// <summary>
-    /// A token with a value type.
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public class ValueToken<T> : Token
-    {
-        public T val;
-
-        public ValueToken(T t)
-            : base(TokenType.VALUE)
-        {
-            val = t;
-            sval = t.ToString();
-        }
-    }
-
-    /// <summary>
-    /// Utility class for holding non-type specific expression parser details.
-    /// </summary>
-    public static class ExpressionParserUtil
-    {
-        public static char[] WHITESPACE_OR_OPERATOR =
+                public static char[] WHITESPACE_OR_OPERATOR =
         {
             ' ', '\t', '\n', '|', '&', '+', '-', '!', '<', '>', '=', '*', '/', ')'
         };
@@ -94,7 +92,7 @@ namespace ContractConfigurator.ExpressionParser
 
         private static Dictionary<Type, Type> parserTypes = new Dictionary<Type, Type>();
 
-        static ExpressionParserUtil()
+        static BaseParser()
         {
             // Create the precendence map
             if (precedence.Count == 0)

@@ -13,7 +13,7 @@ namespace ContractConfigurator.ExpressionParser
     {
         public void RegisterExpressionParsers()
         {
-            ExpressionParserUtil.RegisterParserType(typeof(bool), typeof(BooleanValueExpressionParser));
+            BaseParser.RegisterParserType(typeof(bool), typeof(BooleanValueExpressionParser));
         }
 
         public BooleanValueExpressionParser()

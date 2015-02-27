@@ -17,7 +17,7 @@ namespace ContractConfigurator.ExpressionParser
 
         public void RegisterExpressionParsers()
         {
-            ExpressionParserUtil.RegisterParserType(typeof(CelestialBody), typeof(CelestialBodyParser));
+            BaseParser.RegisterParserType(typeof(CelestialBody), typeof(CelestialBodyParser));
         }
 
         protected static void RegisterMethods()

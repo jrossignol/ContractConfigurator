@@ -160,7 +160,7 @@ namespace ContractConfigurator
 
         private static T ParseSingleValue<T>(string key, string stringValue, bool allowExpression)
         {
-            ExpressionParser<T> parser = ExpressionParserUtil.GetParser<T>();
+            ExpressionParser<T> parser = BaseParser.GetParser<T>();
             T value;
 
             // Enum parsing logic

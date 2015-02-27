@@ -16,7 +16,7 @@ namespace ContractConfigurator
     public class ExpressionRequirement : ContractRequirement
     {
         protected string expression;
-        protected ExpressionParser<bool> parser = ExpressionParserUtil.GetParser<bool>();
+        protected ExpressionParser<bool> parser = BaseParser.GetParser<bool>();
 
         public override bool Load(ConfigNode configNode)
         {

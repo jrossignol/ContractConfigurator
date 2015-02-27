@@ -13,10 +13,10 @@ namespace ContractConfigurator.ExpressionParser
     {
         public void RegisterExpressionParsers()
         {
-            ExpressionParserUtil.RegisterParserType(typeof(uint), typeof(NumericValueExpressionParser<uint>));
-            ExpressionParserUtil.RegisterParserType(typeof(int), typeof(NumericValueExpressionParser<int>));
-            ExpressionParserUtil.RegisterParserType(typeof(float), typeof(NumericValueExpressionParser<float>));
-            ExpressionParserUtil.RegisterParserType(typeof(double), typeof(NumericValueExpressionParser<double>));
+            BaseParser.RegisterParserType(typeof(uint), typeof(NumericValueExpressionParser<uint>));
+            BaseParser.RegisterParserType(typeof(int), typeof(NumericValueExpressionParser<int>));
+            BaseParser.RegisterParserType(typeof(float), typeof(NumericValueExpressionParser<float>));
+            BaseParser.RegisterParserType(typeof(double), typeof(NumericValueExpressionParser<double>));
         }
     }
 
@@ -109,7 +109,7 @@ namespace ContractConfigurator.ExpressionParser
 
         protected override Token ParseNumericConstant()
         {
-            int index = expression.IndexOfAny(ExpressionParserUtil.WHITESPACE_OR_OPERATOR, 0);
+            int index = expression.IndexOfAny(WHITESPACE_OR_OPERATOR, 0);
 
             T val;
             if (index >= 0)
