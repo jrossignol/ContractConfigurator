@@ -184,7 +184,6 @@ namespace ContractConfigurator.ExpressionParser
         }
         
         protected static Dictionary<string, List<Function>> globalFunctions = new Dictionary<string, List<Function>>();
-        protected int readyForCast = 0;
         public string expression;
         protected bool parseMode = true;
         protected DataNode currentDataNode = null;
@@ -196,8 +195,6 @@ namespace ContractConfigurator.ExpressionParser
         /// <param name="expression">Expression being parsed</param>
         protected void Init(string expression)
         {
-            readyForCast = 0;
-
             // Create a copy of the expression being parsed
             this.expression = string.Copy(expression);
         }

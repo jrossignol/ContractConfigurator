@@ -127,106 +127,29 @@ namespace ContractConfigurator.ExpressionParser
         {
             ExpressionParser<U> parser = GetParser<U>(this);
 
-            U lval = parser.ParseSimpleStatement();
-
-            // End of statement
-            if (parser.expression.Length == 0)
+            try
             {
-                // Attempt to convert type
+                U val = parser.ParseStatement();
+                return parser.ConvertType<T>(val);
+            }
+            finally
+            {
                 expression = parser.expression;
-                return parser.ConvertType<T>(lval);
             }
-
-            // Get next token
-            Token token = parser.ParseToken();
-
-            while (token != null)
-            {
-                try
-                {
-                    switch (token.tokenType)
-                    {
-                        case TokenType.END_BRACKET:
-                            parser.expression = token.sval + parser.expression;
-                            // Attempt to convert type
-                            return parser.ConvertType<T>(lval);
-                        case TokenType.COMMA:
-                            parser.expression = token.sval + parser.expression;
-                            // Attempt to convert type
-                            return parser.ConvertType<T>(lval);
-                        case TokenType.OPERATOR:
-                            if (typeof(T) == typeof(bool) && IsBoolean(token.sval))
-                            {
-                                T lvalT = (T)(object)parser.ParseBooleanOperation(lval, token.sval);
-                                expression = parser.expression;
-                                return ParseStatement(lvalT);
-                            }
-                            else
-                            {
-                                lval = parser.ParseOperation(lval, token.sval);
-                                break;
-                            }
-                        case TokenType.TERNARY_START:
-                            expression = parser.expression;
-                            return ParseTernary(parser.ConvertType<bool>(lval));
-                        default:
-                            parser.expression = token.sval + parser.expression;
-                            throw new ArgumentException("Unexpected value: " + token.sval);
-                    }
-                }
-                finally
-                {
-                    expression = parser.expression;
-                }
-
-                // Get next token
-                token = parser.ParseToken();
-            }
-
-            // Attempt to convert type
-            return parser.ConvertType<T>(lval);
         }
 
         protected T ParseAlternateStatementWithLval<U>(T lval)
         {
             ExpressionParser<U> parser = GetParser<U>(this);
 
-            // Get next token
-            Token token = parser.ParseToken();
-
-            while (token != null)
+            try
             {
-                try
-                {
-                    switch (token.tokenType)
-                    {
-                        case TokenType.START_BRACKET:
-                            throw new ArgumentException("Unexpected value: " + token.sval);
-                        case TokenType.END_BRACKET:
-                            parser.expression = token.sval + parser.expression;
-                            return lval;
-                        case TokenType.COMMA:
-                            parser.expression = token.sval + parser.expression;
-                            return lval;
-                        case TokenType.OPERATOR:
-                            lval = parser.ParseOperation<T>(lval, token.sval);
-                            break;
-                        default:
-                            parser.expression = token.sval + parser.expression;
-                            throw new ArgumentException("Unexpected value: " + token.sval);
-                    }
-                }
-                finally
-                {
-                    expression = parser.expression;
-                }
-
-                // Get next token
-                token = parser.ParseToken();
+                return parser.ParseStatement<T>(lval);
             }
-
-            expression = parser.expression;
-            return lval;
+            finally
+            {
+                expression = parser.expression;
+            }
         }
 
         protected virtual T ParseStatement()
@@ -234,19 +157,12 @@ namespace ContractConfigurator.ExpressionParser
             string savedExpression = expression;
             try
             {
-                readyForCast++;
                 T lval = ParseSimpleStatement();
                 lval = ParseStatement(lval);
-                readyForCast--;
                 return lval;
             }
             catch (DataStoreCastException e)
             {
-                if (--readyForCast != 0)
-                {
-                    throw;
-                }
-
                 // Create the generic methods
                 MethodInfo parseMethod = GetType().GetMethod("ParseAlternateStatement", BindingFlags.Instance | BindingFlags.NonPublic);
                 parseMethod = parseMethod.MakeGenericMethod(new Type[] { e.FromType });
@@ -256,11 +172,6 @@ namespace ContractConfigurator.ExpressionParser
             }
             catch (NotSupportedException)
             {
-                if (--readyForCast != 0)
-                {
-                    throw;
-                }
-
                 expression = savedExpression;
                 return ParseAlternateStatement<double>();
             }
@@ -277,8 +188,6 @@ namespace ContractConfigurator.ExpressionParser
             string savedExpression = expression;
             try
             {
-                readyForCast++;
-
                 // Get next token
                 Token token = ParseToken();
 
@@ -305,16 +214,10 @@ namespace ContractConfigurator.ExpressionParser
                     token = ParseToken();
                 }
 
-                readyForCast--;
                 return lval;
             }
             catch (DataStoreCastException e)
             {
-                if (--readyForCast != 0)
-                {
-                    throw;
-                }
-
                 // Create the generic methods
                 MethodInfo parseMethod = GetType().GetMethod("ParseAlternateStatementWithLval", BindingFlags.Instance | BindingFlags.NonPublic);
                 parseMethod = parseMethod.MakeGenericMethod(new Type[] { e.FromType });
@@ -324,15 +227,68 @@ namespace ContractConfigurator.ExpressionParser
             }
             catch (NotSupportedException)
             {
-                if (--readyForCast != 0)
-                {
-                    throw;
-                }
-
                 expression = savedExpression;
                 return ParseAlternateStatementWithLval<double>(lval);
             }
+        }
 
+        protected U ParseStatement<U>(U lval)
+        {
+            ExpressionParser<U> parser = GetParser<U>(this);
+
+            // End of statement
+            if (expression.Length == 0)
+            {
+                return lval;
+            }
+
+            string savedExpression = expression;
+            try
+            {
+                // Get next token
+                Token token = ParseToken();
+
+                while (token != null)
+                {
+                    switch (token.tokenType)
+                    {
+                        case TokenType.END_BRACKET:
+                        case TokenType.TERNARY_END:
+                        case TokenType.COMMA:
+                            expression = token.sval + expression;
+                            return lval;
+                        case TokenType.OPERATOR:
+                            parser.expression = expression;
+                            lval = parser.ParseOperation(lval, token.sval);
+                            break;
+                        case TokenType.TERNARY_START:
+                            parser.expression = expression;
+                            return parser.ParseTernary(parser.ConvertType<bool>(lval));
+                        default:
+                            throw new ArgumentException("Unexpected value: " + token.sval);
+                    }
+
+                    // Get next token
+                    token = ParseToken();
+                }
+
+                return lval;
+            }
+            catch (DataStoreCastException e)
+            {
+                // Create the generic methods
+                MethodInfo parseMethod = GetType().GetMethod("ParseAlternateStatementWithLval", BindingFlags.Instance | BindingFlags.NonPublic);
+                parseMethod = parseMethod.MakeGenericMethod(new Type[] { e.FromType });
+
+                expression = savedExpression;
+                return (U)parseMethod.Invoke(this, new object[] { lval });
+            }
+            catch (NotSupportedException)
+            {
+                expression = savedExpression;
+                ExpressionParser<double> doubleParser = GetParser<double>(this);
+                return doubleParser.ParseStatement<U>(lval);
+            }
         }
 
         protected T ParseSimpleStatement()
@@ -340,18 +296,11 @@ namespace ContractConfigurator.ExpressionParser
             string savedExpression = expression;
             try
             {
-                readyForCast++;
                 T lval = ParseSimpleStatementInner();
-                readyForCast--;
                 return lval;
             }
             catch (DataStoreCastException e)
             {
-                if (--readyForCast != 0)
-                {
-                    throw;
-                }
-
                 // Create the generic methods
                 MethodInfo parseMethod = GetType().GetMethod("ParseAlternateSimpleStatement", BindingFlags.Instance | BindingFlags.NonPublic);
                 parseMethod = parseMethod.MakeGenericMethod(new Type[] { e.FromType });
@@ -361,11 +310,6 @@ namespace ContractConfigurator.ExpressionParser
             }
             catch (NotSupportedException)
             {
-                if (--readyForCast != 0)
-                {
-                    throw;
-                }
-
                 expression = savedExpression;
                 return ParseAlternateSimpleStatement<double>();
             }
@@ -375,50 +319,15 @@ namespace ContractConfigurator.ExpressionParser
         {
             ExpressionParser<U> parser = GetParser<U>(this);
 
-            // Get a token
-            Token token = parser.ParseToken();
-
-            U lval;
-            switch (token.tokenType)
+            try
             {
-                case TokenType.START_BRACKET:
-                    lval = parser.ParseStatement();
-                    ParseToken(")");
-                    break;
-                case TokenType.IDENTIFIER:
-                    lval = parser.ParseIdentifier(token);
-                    break;
-                case TokenType.FUNCTION:
-                    lval = parser.ParseFunction(token);
-                    break;
-                case TokenType.SPECIAL_IDENTIFIER:
-                    lval = parser.ParseSpecialIdentifier(token);
-                    break;
-                case TokenType.OPERATOR:
-                    switch (token.sval)
-                    {
-                        case "-":
-                            lval = parser.Negate(parser.ParseSimpleStatement());
-                            break;
-                        case "!":
-                            lval = parser.Not(parser.ParseSimpleStatement());
-                            break;
-                        default:
-                            expression = token.sval + expression;
-                            throw new ArgumentException("Unexpected operator: " + token.sval);
-                    }
-                    break;
-                case TokenType.VALUE:
-                    lval = (token as ValueToken<U>).val;
-                    break;
-                default:
-                    expression = token.sval + expression;
-                    throw new ArgumentException("Unexpected value: " + token.sval);
+                U val = parser.ParseSimpleStatement();
+                return parser.ConvertType<T>(val);
             }
-
-            // Attempt to convert type
-            expression = parser.expression;
-            return parser.ConvertType<T>(lval);
+            finally
+            {
+                expression = parser.expression;
+            }
         }
 
         protected T ParseSimpleStatementInner()
@@ -899,7 +808,14 @@ namespace ContractConfigurator.ExpressionParser
                         if (precedence[op] >= precedence[token.sval])
                         {
                             expression = token.sval + expression;
-                            throw new Exception("backbar");
+                            if (typeof(U) == typeof(Boolean) && typeof(T) == typeof(Boolean) && IsBoolean(token.sval))
+                            {
+                                return (U)(object)ApplyBooleanOperator((T)(object)lval, op, rval);
+                            }
+                            else
+                            {
+                                throw new Exception("backbar");
+                            }
                             //return ApplyOperator(lval, op, rval);
                         }
                         else
