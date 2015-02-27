@@ -25,7 +25,9 @@ namespace ContractConfigurator.ExpressionParser
             END_BRACKET,
             COMMA,
             FUNCTION,
-            METHOD
+            METHOD,
+            TERNARY_START,
+            TERNARY_END,
         }
 
         /// <summary>
@@ -51,6 +53,14 @@ namespace ContractConfigurator.ExpressionParser
                 else if (tokenType == TokenType.COMMA)
                 {
                     sval = ",";
+                }
+                else if (tokenType == TokenType.TERNARY_START)
+                {
+                    sval = "?";
+                }
+                else if (tokenType == TokenType.TERNARY_END)
+                {
+                    sval = ":";
                 }
             }
 
@@ -85,6 +95,7 @@ namespace ContractConfigurator.ExpressionParser
         // List of tokens and their precedence
         private static string[][] PRECENDENCE_CONSTS =
         {
+            new string[] { "?", ":"},
             new string[] { "||" },
             new string[] { "&&" },
             new string[] { "!", "<", ">", "!=", "==", "<=", ">=" },

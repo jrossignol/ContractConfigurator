@@ -15,7 +15,12 @@ namespace ContractConfigurator
         public Type ToType { get; private set; }
 
         public DataStoreCastException(Type fromType, Type toType)
-            : base("Cannot cast from " + fromType + " to " + toType + ".")
+            : this(fromType, toType, null)
+        {
+        }
+
+        public DataStoreCastException(Type fromType, Type toType, Exception inner)
+            : base("Cannot cast from " + fromType + " to " + toType + ".", inner)
         {
             FromType = fromType;
             ToType = toType;

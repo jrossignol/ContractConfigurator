@@ -116,9 +116,10 @@ namespace ContractConfigurator.ExpressionParser
             }
             catch (Exception e)
             {
+                int count = expression.Length - this.expression.Length;
                 throw new Exception("Error parsing statement.\nError occurred near '*':\n" +
                     expression + "\n" +
-                    new String('.', expression.Length - this.expression.Length) + "* <-- HERE", e);
+                    (count > 0 ? new String('.', count) : "") + "* <-- HERE", e);
             }
         }
 
@@ -141,39 +142,41 @@ namespace ContractConfigurator.ExpressionParser
 
             while (token != null)
             {
-                switch (token.tokenType)
+                try
                 {
-                    case TokenType.START_BRACKET:
-                        expression = parser.expression;
-                        throw new ArgumentException("Unexpected value: " + token.sval);
-                    case TokenType.END_BRACKET:
-                        expression = token.sval + expression;
-                        // Attempt to convert type
-                        return parser.ConvertType<T>(lval);
-                    case TokenType.COMMA:
-                        expression = token.sval + expression;
-                        // Attempt to convert type
-                        return parser.ConvertType<T>(lval);
-                    case TokenType.IDENTIFIER:
-                    case TokenType.SPECIAL_IDENTIFIER:
-                    case TokenType.VALUE:
-                        expression = parser.expression;
-                        throw new ArgumentException("Unexpected value: " + token.sval);
-                    case TokenType.OPERATOR:
-                        if (typeof(T) == typeof(bool) && IsBoolean(token.sval))
-                        {
-                            T lvalT = (T)(object)parser.ParseBooleanOperation(lval, token.sval);
+                    switch (token.tokenType)
+                    {
+                        case TokenType.END_BRACKET:
+                            parser.expression = token.sval + parser.expression;
+                            // Attempt to convert type
+                            return parser.ConvertType<T>(lval);
+                        case TokenType.COMMA:
+                            parser.expression = token.sval + parser.expression;
+                            // Attempt to convert type
+                            return parser.ConvertType<T>(lval);
+                        case TokenType.OPERATOR:
+                            if (typeof(T) == typeof(bool) && IsBoolean(token.sval))
+                            {
+                                T lvalT = (T)(object)parser.ParseBooleanOperation(lval, token.sval);
+                                expression = parser.expression;
+                                return ParseStatement(lvalT);
+                            }
+                            else
+                            {
+                                lval = parser.ParseOperation(lval, token.sval);
+                                break;
+                            }
+                        case TokenType.TERNARY_START:
                             expression = parser.expression;
-                            return ParseStatement(lvalT);
-                        }
-                        else
-                        {
-                            lval = parser.ParseOperation(lval, token.sval);
-                            expression = parser.expression;
-                            break;
-                        }
-                    default:
-                        throw new ArgumentException("Unexpected value: " + token.sval);
+                            return ParseTernary(parser.ConvertType<bool>(lval));
+                        default:
+                            parser.expression = token.sval + parser.expression;
+                            throw new ArgumentException("Unexpected value: " + token.sval);
+                    }
+                }
+                finally
+                {
+                    expression = parser.expression;
                 }
 
                 // Get next token
@@ -193,30 +196,29 @@ namespace ContractConfigurator.ExpressionParser
 
             while (token != null)
             {
-                switch (token.tokenType)
+                try
                 {
-                    case TokenType.START_BRACKET:
-                        expression = parser.expression;
-                        throw new ArgumentException("Unexpected value: " + token.sval);
-                    case TokenType.END_BRACKET:
-                        parser.expression = token.sval + parser.expression;
-                        expression = parser.expression;
-                        return lval;
-                    case TokenType.COMMA:
-                        parser.expression = token.sval + parser.expression;
-                        expression = parser.expression;
-                        return lval;
-                    case TokenType.IDENTIFIER:
-                    case TokenType.SPECIAL_IDENTIFIER:
-                    case TokenType.VALUE:
-                        expression = parser.expression;
-                        throw new ArgumentException("Unexpected value: " + token.sval);
-                    case TokenType.OPERATOR:
-                        lval = parser.ParseOperation<T>(lval, token.sval);
-                        expression = parser.expression;
-                        break;
-                    default:
-                        throw new ArgumentException("Unexpected value: " + token.sval);
+                    switch (token.tokenType)
+                    {
+                        case TokenType.START_BRACKET:
+                            throw new ArgumentException("Unexpected value: " + token.sval);
+                        case TokenType.END_BRACKET:
+                            parser.expression = token.sval + parser.expression;
+                            return lval;
+                        case TokenType.COMMA:
+                            parser.expression = token.sval + parser.expression;
+                            return lval;
+                        case TokenType.OPERATOR:
+                            lval = parser.ParseOperation<T>(lval, token.sval);
+                            break;
+                        default:
+                            parser.expression = token.sval + parser.expression;
+                            throw new ArgumentException("Unexpected value: " + token.sval);
+                    }
+                }
+                finally
+                {
+                    expression = parser.expression;
                 }
 
                 // Get next token
@@ -284,22 +286,18 @@ namespace ContractConfigurator.ExpressionParser
                 {
                     switch (token.tokenType)
                     {
-                        case TokenType.START_BRACKET:
-                            throw new ArgumentException("Unexpected value: " + token.sval);
                         case TokenType.END_BRACKET:
-                            expression = token.sval + expression;
-                            return lval;
+                        case TokenType.TERNARY_END:
                         case TokenType.COMMA:
                             expression = token.sval + expression;
                             return lval;
-                        case TokenType.IDENTIFIER:
-                        case TokenType.SPECIAL_IDENTIFIER:
-                        case TokenType.VALUE:
-                            throw new ArgumentException("Unexpected value: " + token.sval);
                         case TokenType.OPERATOR:
                             lval = ParseOperation(lval, token.sval);
                             break;
+                        case TokenType.TERNARY_START:
+                            return ParseTernary(ConvertType<bool>(lval));
                         default:
+                            expression = token.sval + expression;
                             throw new ArgumentException("Unexpected value: " + token.sval);
                     }
 
@@ -406,6 +404,7 @@ namespace ContractConfigurator.ExpressionParser
                             lval = parser.Not(parser.ParseSimpleStatement());
                             break;
                         default:
+                            expression = token.sval + expression;
                             throw new ArgumentException("Unexpected operator: " + token.sval);
                     }
                     break;
@@ -413,6 +412,7 @@ namespace ContractConfigurator.ExpressionParser
                     lval = (token as ValueToken<U>).val;
                     break;
                 default:
+                    expression = token.sval + expression;
                     throw new ArgumentException("Unexpected value: " + token.sval);
             }
 
@@ -446,11 +446,13 @@ namespace ContractConfigurator.ExpressionParser
                         case "!":
                             return Not(ParseSimpleStatement());
                         default:
+                            expression = token.sval + expression;
                             throw new ArgumentException("Unexpected operator: " + token.sval);
                     }
                 case TokenType.VALUE:
                     return (token as ValueToken<T>).val;
                 default:
+                    expression = token.sval + expression;
                     throw new ArgumentException("Unexpected value: " + token.sval);
             }
         }
@@ -476,6 +478,12 @@ namespace ContractConfigurator.ExpressionParser
                 case ',':
                     expression = expression.Substring(1);
                     return new Token(TokenType.COMMA);
+                case '?':
+                    expression = expression.Substring(1);
+                    return new Token(TokenType.TERNARY_START);
+                case ':':
+                    expression = expression.Substring(1);
+                    return new Token(TokenType.TERNARY_END);
                 case '1':
                 case '2':
                 case '3':
@@ -838,16 +846,12 @@ namespace ContractConfigurator.ExpressionParser
 
             while (token != null)
             {
+                Debug.Log("parsing operation, op is '" + op + "', token is '" + token.sval + "', type is " + typeof(T));
                 switch (token.tokenType)
                 {
-                    case TokenType.START_BRACKET:
-                    case TokenType.IDENTIFIER:
-                    case TokenType.SPECIAL_IDENTIFIER:
-                    case TokenType.VALUE:
-                        throw new ArgumentException("Unexpected value: " + token.sval);
                     case TokenType.END_BRACKET:
-                        expression = token.sval + expression;
-                        return ApplyOperator(lval, op, rval);
+                    case TokenType.TERNARY_START:
+                    case TokenType.TERNARY_END:
                     case TokenType.COMMA:
                         expression = token.sval + expression;
                         return ApplyOperator(lval, op, rval);
@@ -864,6 +868,7 @@ namespace ContractConfigurator.ExpressionParser
                         }
                         break;
                     default:
+                        expression = token.sval + expression;
                         throw new ArgumentException("Unexpected value: " + token.sval);
                 }
             }
@@ -882,11 +887,6 @@ namespace ContractConfigurator.ExpressionParser
             {
                 switch (token.tokenType)
                 {
-                    case TokenType.START_BRACKET:
-                    case TokenType.IDENTIFIER:
-                    case TokenType.SPECIAL_IDENTIFIER:
-                    case TokenType.VALUE:
-                        throw new ArgumentException("Unexpected value: " + token.sval);
                     case TokenType.END_BRACKET:
                         expression = token.sval + expression;
                         throw new Exception("ackbar");
@@ -916,6 +916,7 @@ namespace ContractConfigurator.ExpressionParser
                         }
                         break;
                     default:
+                        expression = token.sval + expression;
                         throw new ArgumentException("Unexpected value: " + token.sval);
                 }
 
@@ -934,20 +935,14 @@ namespace ContractConfigurator.ExpressionParser
 
             return ParseBooleanOperation(lval, op, token, rval);
         }
+
         private bool ParseBooleanOperation(T lval, string op, Token token, T rval)
         {
             while (token != null)
             {
                 switch (token.tokenType)
                 {
-                    case TokenType.START_BRACKET:
-                    case TokenType.IDENTIFIER:
-                    case TokenType.SPECIAL_IDENTIFIER:
-                    case TokenType.VALUE:
-                        throw new ArgumentException("Unexpected value: " + token.sval);
                     case TokenType.END_BRACKET:
-                        expression = token.sval + expression;
-                        return ApplyBooleanOperator(lval, op, rval);
                     case TokenType.COMMA:
                         expression = token.sval + expression;
                         return ApplyBooleanOperator(lval, op, rval);
@@ -964,6 +959,7 @@ namespace ContractConfigurator.ExpressionParser
                         }
                         break;
                     default:
+                    expression = token.sval + expression;
                         throw new ArgumentException("Unexpected value: " + token.sval);
                 }
             }
@@ -974,6 +970,15 @@ namespace ContractConfigurator.ExpressionParser
         protected virtual Token ParseNumericConstant()
         {
             throw new NotSupportedException("Numeric constants not supported for type " + typeof(T));
+        }
+
+        protected T ParseTernary(bool lval)
+        {
+            T val1 = ParseStatement();
+            ParseToken(":");
+            T val2 = ParseStatement();
+
+            return lval ? val1 : val2;
         }
 
         protected Token ParseOperator()
@@ -1118,7 +1123,20 @@ namespace ContractConfigurator.ExpressionParser
             MethodInfo convertMethod = GetType().GetMethod("_ConvertType", BindingFlags.NonPublic | BindingFlags.Instance);
             convertMethod = convertMethod.MakeGenericMethod(new Type[] { value.GetType() });
 
-            return (T)convertMethod.Invoke(this, new object[] { value });
+            try
+            {
+                T result = (T)convertMethod.Invoke(this, new object[] { value });
+                return result;
+            }
+            catch (TargetInvocationException e)
+            {
+                if (e.InnerException.GetType() == typeof(DataStoreCastException))
+                {
+                    DataStoreCastException orig = (DataStoreCastException)e.InnerException;
+                    throw new DataStoreCastException(orig.FromType, orig.ToType, e);
+                }
+                throw;
+            }
         }
 
         protected T _ConvertType<U>(U value)
