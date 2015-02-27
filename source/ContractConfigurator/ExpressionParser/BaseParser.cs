@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
+using UnityEngine;
 
 namespace ContractConfigurator.ExpressionParser
 {
     /// <summary>
     /// Common base class (without typing) for all expression parsers.
     /// </summary>
-    public class BaseParser
+    public abstract class BaseParser
     {
         /// <summary>
         /// Types of expresion tokens.
@@ -22,6 +24,7 @@ namespace ContractConfigurator.ExpressionParser
             START_BRACKET,
             END_BRACKET,
             COMMA,
+            FUNCTION,
             METHOD
         }
 
@@ -74,9 +77,9 @@ namespace ContractConfigurator.ExpressionParser
             }
         }
 
-                public static char[] WHITESPACE_OR_OPERATOR =
+        public static char[] WHITESPACE_OR_OPERATOR =
         {
-            ' ', '\t', '\n', '|', '&', '+', '-', '!', '<', '>', '=', '*', '/', ')'
+            ' ', '\t', '\n', '|', '&', '+', '-', '!', '<', '>', '=', '*', '/', '(', ')', ',', '?', ':'
         };
 
         // List of tokens and their precedence
@@ -142,5 +145,62 @@ namespace ContractConfigurator.ExpressionParser
 
             return null;
         }
+
+        protected static ExpressionParser<T> GetParser<T>(BaseParser orig)
+        {
+            ExpressionParser<T> newParser = GetParser<T>();
+
+            if (newParser == null)
+            {
+                throw new NotSupportedException("Unsupported type: " + typeof(T));
+            }
+
+            newParser.Init(orig.expression);
+            newParser.parseMode = orig.parseMode;
+            newParser.currentDataNode = orig.currentDataNode;
+
+            return newParser;
+        }
+
+        protected BaseParser GetParser(Type type)
+        {
+            MethodInfo getParserMethod = GetType().GetMethods(BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy).
+                Where(m => m.Name == "GetParser").Single();
+            getParserMethod = getParserMethod.MakeGenericMethod(new Type[] { type });
+
+            return (BaseParser)getParserMethod.Invoke(null, new object[] { this });
+        }
+        
+        protected static Dictionary<string, List<Function>> globalFunctions = new Dictionary<string, List<Function>>();
+        protected int readyForCast = 0;
+        public string expression;
+        protected bool parseMode = true;
+        protected DataNode currentDataNode = null;
+
+        /// <summary>
+        /// Initialize for parsing.
+        /// </summary>
+        /// <param name="expression">Expression being parsed</param>
+        protected void Init(string expression)
+        {
+            readyForCast = 0;
+
+            // Create a copy of the expression being parsed
+            this.expression = string.Copy(expression);
+        }
+
+        /// <summary>
+        /// Registers a function that is available globally.
+        /// </summary>
+        /// <param name="method">The callable function.</param>
+        protected static void RegisterGlobalFunction(Function function)
+        {
+            if (!globalFunctions.ContainsKey(function.Name))
+            {
+                globalFunctions[function.Name] = new List<Function>();
+            }
+            globalFunctions[function.Name].Add(function);
+        }
+
     }
 }

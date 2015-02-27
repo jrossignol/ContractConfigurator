@@ -17,7 +17,7 @@ namespace ContractConfigurator.ExpressionParser
 
         public void RegisterExpressionParsers()
         {
-            BaseParser.RegisterParserType(typeof(CelestialBody), typeof(CelestialBodyParser));
+            RegisterParserType(typeof(CelestialBody), typeof(CelestialBodyParser));
         }
 
         protected static void RegisterMethods()
@@ -25,6 +25,9 @@ namespace ContractConfigurator.ExpressionParser
             RegisterMethod(new Method<CelestialBody, bool>("HasAtmosphere", cb => cb.atmosphere));
             RegisterMethod(new Method<CelestialBody, bool>("HasOcean", cb => cb.ocean));
             RegisterMethod(new Method<CelestialBody, bool>("HasSurface", cb => cb.pqsController != null));
+            RegisterMethod(new Method<CelestialBody, bool>("IsHomeWorld", cb => cb.isHomeWorld));
+            RegisterMethod(new Method<CelestialBody, bool>("IsPlanet", cb => cb.referenceBody != null && cb.referenceBody.referenceBody == null));
+            RegisterMethod(new Method<CelestialBody, bool>("IsMoon", cb => cb.referenceBody != null && cb.referenceBody.referenceBody != null));
 
             RegisterMethod(new Method<CelestialBody, double>("Radius", cb => cb.Radius));
             RegisterMethod(new Method<CelestialBody, float>("AtmosphereAltitude", cb => cb.maxAtmosphereAltitude));
@@ -32,6 +35,8 @@ namespace ContractConfigurator.ExpressionParser
             
             RegisterMethod(new Method<CelestialBody, CelestialBody>("Parent", cb => cb.referenceBody));
             RegisterMethod(new Method<CelestialBody, List<CelestialBody>>("Children", cb => cb.orbitingBodies));
+
+            RegisterGlobalFunction(new Function<CelestialBody>("HomeWorld", () => FlightGlobals.Bodies.Where(cb => cb.isHomeWorld).First()));
         }
 
         public CelestialBodyParser()

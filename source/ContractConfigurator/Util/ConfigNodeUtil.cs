@@ -365,11 +365,11 @@ namespace ContractConfigurator
                         DeferredLoadObject<T> loadObj = null;
                         if (!deferredLoads.ContainsKey(key))
                         {
-                            loadObj = new DeferredLoadObject<T>(configNode, key, setter, obj, validation);
-                            deferredLoads[key] = loadObj;
+                            deferredLoads[key] = new DeferredLoadObject<T>(configNode, key, setter, obj, validation);
                         }
+                        loadObj = (DeferredLoadObject<T>)deferredLoads[key];
 
-                        // New depdendency - try again
+                        // New dependency - try again
                         if (!loadObj.dependencies.Contains(dependency))
                         {
                             loadObj.dependencies.Add(dependency);

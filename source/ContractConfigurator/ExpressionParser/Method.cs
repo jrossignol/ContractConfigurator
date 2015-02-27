@@ -5,14 +5,7 @@ using System.Text;
 
 namespace ContractConfigurator.ExpressionParser
 {
-    /// <summary>
-    /// Public interface for defining a method.
-    /// </summary>
-    public interface Method<C> : Function
-    {
-    }
-
-    public class Method<C, TResult> : Method<C>
+    public class Method<C, TResult> : Function
     {
         public string Name { get; set; }
         protected Func<C, TResult> MethodBody;
@@ -44,7 +37,7 @@ namespace ContractConfigurator.ExpressionParser
         }
     }
 
-    public class Method<C, T, TResult> : Method<C>
+    public class Method<C, T, TResult> : Function
     {
         public string Name { get; set; }
         protected Func<C, T, TResult> MethodBody;
@@ -82,7 +75,7 @@ namespace ContractConfigurator.ExpressionParser
         }
     }
 
-    public class Method<C, T1, T2, TResult> : Method<C>
+    public class Method<C, T1, T2, TResult> : Function
     {
         public string Name { get; set; }
         protected Func<C, T1, T2, TResult> MethodBody;

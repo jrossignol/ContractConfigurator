@@ -80,10 +80,15 @@ namespace ContractConfigurator.ExpressionParser
 
     public class NumericValueExpressionParser<T> : ComparableValueExpressionParser<T> where T : struct, IComparable<T>
     {
-        private Calculator<T> calculator;
+        private static Calculator<T> calculator;
+        private static System.Random random = new System.Random();
 
-        public NumericValueExpressionParser()
-            : base()
+        static NumericValueExpressionParser()
+        {
+            RegisterMethods();
+        }
+    
+        protected static void RegisterMethods()
         {
             if (typeof(T) == typeof(int))
             {
@@ -101,7 +106,16 @@ namespace ContractConfigurator.ExpressionParser
             {
                 calculator = new DoubleCalculator() as Calculator<T>;
             }
-            else
+
+            RegisterLocalFunction(new Function<T>("Random", () => (T)Convert.ChangeType(random.NextDouble(), typeof(T))));
+            RegisterLocalFunction(new Function<T, T, T>("Random", (min, max) =>
+                calculator.Add(calculator.Mult((T)Convert.ChangeType(random.NextDouble(), typeof(T)), calculator.Sub(max, min)), min)));
+        }
+
+        public NumericValueExpressionParser()
+            : base()
+        {
+            if (calculator == null)
             {
                 throw new NotSupportedException("Type " + typeof(T) + " is not supported!");
             }
