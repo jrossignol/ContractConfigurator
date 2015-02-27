@@ -158,6 +158,7 @@ namespace ContractConfigurator.ExpressionParser
             newParser.Init(orig.expression);
             newParser.parseMode = orig.parseMode;
             newParser.currentDataNode = orig.currentDataNode;
+            newParser.currentKey = orig.currentKey;
 
             return newParser;
         }
@@ -176,6 +177,7 @@ namespace ContractConfigurator.ExpressionParser
         public string expression;
         protected bool parseMode = true;
         protected DataNode currentDataNode = null;
+        protected string currentKey = null;
 
         /// <summary>
         /// Initialize for parsing.

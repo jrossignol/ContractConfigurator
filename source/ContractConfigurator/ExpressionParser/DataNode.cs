@@ -11,6 +11,18 @@ namespace ContractConfigurator.ExpressionParser
     /// </summary>
     public class DataNode
     {
+        public class Value
+        {
+            public object value;
+            public bool deterministic;
+
+            public Value(object v, bool d = true)
+            {
+                value = v;
+                deterministic = d;
+            }
+        }
+
         public class ValueNotInitialized : Exception
         {
             public string key;
@@ -22,20 +34,47 @@ namespace ContractConfigurator.ExpressionParser
             }
         }
 
-        protected Dictionary<string, object> data = new Dictionary<string, object>();
+        protected Dictionary<string, Value> data = new Dictionary<string, Value>();
         private DataNode parent;
         private List<DataNode> children = new List<DataNode>();
+        public List<ConfigNodeUtil.DeferredLoadBase> deferredLoads = new List<ConfigNodeUtil.DeferredLoadBase>();
 
         public object this[string s]
         {
             get
             {
-                return data[s];
+                return data[s].value;
             }
             set
             {
-                data[s] = value;
+                if (!data.ContainsKey(s))
+                {
+                    data[s] = new Value(value);
+                }
+                else
+                {
+                    data[s].value = value;
+                }
             }
+        }
+
+        public bool IsDeterministic(string s)
+        {
+            if (!data.ContainsKey(s))
+            {
+                return true;
+            }
+
+            return data[s].deterministic;
+        }
+
+        public void SetDeterministic(string s, bool value)
+        {
+            if (!data.ContainsKey(s))
+            {
+                data[s] = new Value(null);
+            }
+            data[s].deterministic = value;
         }
 
         /// <summary>

@@ -65,12 +65,19 @@ namespace ContractConfigurator
         /// </summary>
         /// <param name="contract">Contract to generate behaviours for</param>
         /// <param name="behaviourNodes">The behaviour factories to use</param>
-        public static void GenerateBehaviours(ConfiguredContract contract, List<BehaviourFactory> behaviourNodes)
+        /// <return>Whether generation was successful or not</return>
+        public static bool GenerateBehaviours(ConfiguredContract contract, List<BehaviourFactory> behaviourNodes)
         {
             foreach (BehaviourFactory behaviourFactory in behaviourNodes)
             {
                 if (behaviourFactory.enabled)
                 {
+                    // Try to refresh non-deterministic values
+                    if (!ConfigNodeUtil.UpdateNonDeterministicValues(behaviourFactory.dataNode))
+                    {
+                        return false;
+                    }
+
                     ContractBehaviour behaviour = behaviourFactory.Generate(contract);
                     if (behaviour == null)
                     {
@@ -81,6 +88,8 @@ namespace ContractConfigurator
                     contract.AddBehaviour(behaviour);
                 }
             }
+
+            return false;
         }
 
         /// <summary>

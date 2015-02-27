@@ -7,13 +7,15 @@ namespace ContractConfigurator.ExpressionParser
 {
     public class Method<C, TResult> : Function
     {
-        public string Name { get; set; }
+        public string Name { get; private set; }
+        public bool Deterministic { get; private set; }
         protected Func<C, TResult> MethodBody;
 
-        public Method(string name, Func<C, TResult> methodBody)
+        public Method(string name, Func<C, TResult> methodBody, bool deterministic = true)
         {
             Name = name;
             MethodBody = methodBody;
+            Deterministic = deterministic;
         }
 
         public object Invoke(object[] parameters)
@@ -39,13 +41,15 @@ namespace ContractConfigurator.ExpressionParser
 
     public class Method<C, T, TResult> : Function
     {
-        public string Name { get; set; }
+        public string Name { get; private set; }
+        public bool Deterministic { get; private set; }
         protected Func<C, T, TResult> MethodBody;
 
-        public Method(string name, Func<C, T, TResult> methodBody)
+        public Method(string name, Func<C, T, TResult> methodBody, bool deterministic = true)
         {
             Name = name;
             MethodBody = methodBody;
+            Deterministic = deterministic;
         }
 
         public object Invoke(object[] parameters)
@@ -77,13 +81,15 @@ namespace ContractConfigurator.ExpressionParser
 
     public class Method<C, T1, T2, TResult> : Function
     {
-        public string Name { get; set; }
+        public string Name { get; private set; }
+        public bool Deterministic { get; private set; }
         protected Func<C, T1, T2, TResult> MethodBody;
 
-        public Method(string name, Func<C, T1, T2, TResult> methodBody)
+        public Method(string name, Func<C, T1, T2, TResult> methodBody, bool deterministic = true)
         {
             Name = name;
             MethodBody = methodBody;
+            Deterministic = deterministic;
         }
 
         public object Invoke(object[] parameters)

@@ -16,14 +16,18 @@ namespace ContractConfigurator
     /// </summary>
     public static class ConfigNodeUtil
     {
-        private class DeferredLoadObject<T>
+        public class DeferredLoadBase
         {
             public string key;
             public ConfigNode configNode;
             public IContractConfiguratorFactory obj;
+            public List<string> dependencies = new List<string>();
+        }
+
+        public class DeferredLoadObject<T> : DeferredLoadBase
+        {
             public Action<T> setter;
             public Func<T, bool> validation;
-            public List<string> dependencies = new List<string>();
 
             public DeferredLoadObject(ConfigNode configNode, string key, Action<T> setter, IContractConfiguratorFactory obj, Func<T, bool> validation)
             {
@@ -55,10 +59,10 @@ namespace ContractConfigurator
             }
         }
 
-        private static Dictionary<string, object> deferredLoads = new Dictionary<string, object>();
+        private static Dictionary<string, DeferredLoadBase> deferredLoads = new Dictionary<string, DeferredLoadBase>();
 
-        private static Dictionary<ConfigNode, Dictionary<string, int>> keysFound = new Dictionary<ConfigNode,Dictionary<string,int>>();
-        private static Dictionary<ConfigNode, ConfigNode> storedValues = new Dictionary<ConfigNode,ConfigNode>();
+        private static Dictionary<ConfigNode, Dictionary<string, int>> keysFound = new Dictionary<ConfigNode, Dictionary<string, int>>();
+        private static Dictionary<ConfigNode, ConfigNode> storedValues = new Dictionary<ConfigNode, ConfigNode>();
         private static DataNode currentDataNode;
 
         /// <summary>
@@ -182,7 +186,7 @@ namespace ContractConfigurator
             }
             else if (allowExpression && parser != null)
             {
-                value = parser.ExecuteExpression(stringValue, currentDataNode);
+                value = parser.ExecuteExpression(key, stringValue, currentDataNode);
             }
             else if (typeof(T) == typeof(AvailablePart))
             {
@@ -398,6 +402,11 @@ namespace ContractConfigurator
             if (currentDataNode != null)
             {
                 currentDataNode[key] = value;
+
+                if (!currentDataNode.IsDeterministic(key))
+                {
+                    currentDataNode.deferredLoads.Add(new DeferredLoadObject<T>(configNode, key, setter, obj, validation));
+                }
             }
 
             // Invoke the setter function
@@ -502,6 +511,36 @@ namespace ContractConfigurator
             {
                 LoggingUtil.LogError(obj, obj.ErrorPrefix(configNode) + ": The values " + group1String + " and " + group2String + " are mutually exclusive.");
                 return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Re-executes all non-deterministic values for the given node, providing new values.
+        /// </summary>
+        /// <param name="node">The node that should be re-executed</param>
+        /// <returns>True if it was successful, false otherwise</returns>
+        public static bool UpdateNonDeterministicValues(DataNode node)
+        {
+            if (node == null)
+            {
+                return true;
+            }
+
+            // Execute each deferred load
+            MethodInfo executeMethod = typeof(DeferredLoadUtil).GetMethods().Where(m => m.Name == "ExecuteLoad").First();
+            foreach (DeferredLoadBase loadObj in node.deferredLoads)
+            {
+                LoggingUtil.LogVerbose(typeof(ConfigNodeUtil), "Doing non-deterministic load for key '" + loadObj.key + "'");
+
+                MethodInfo method = executeMethod.MakeGenericMethod(loadObj.GetType().GetGenericArguments());
+                bool valid = (bool)method.Invoke(null, new object[] { loadObj });
+
+                if (!valid)
+                {
+                    return false;
+                }
             }
 
             return true;
@@ -618,7 +657,7 @@ namespace ContractConfigurator
 
                 // Rebuild the dependency tree
                 dependencies.Clear();
-                foreach (KeyValuePair<string, object> pair in deferredLoads)
+                foreach (KeyValuePair<string, DeferredLoadBase> pair in deferredLoads)
                 {
                     MethodInfo method = dependenciesMethod.MakeGenericMethod(pair.Value.GetType().GetGenericArguments());
                     IEnumerable<string> localDependencies = (IEnumerable<string>)method.Invoke(null, new object[] { pair.Value });
@@ -646,7 +685,7 @@ namespace ContractConfigurator
                 if (loadObj == null)
                 {
                     valid = false;
-                    foreach (KeyValuePair<string, object> pair in deferredLoads)
+                    foreach (KeyValuePair<string, DeferredLoadBase> pair in deferredLoads)
                     {
                         MethodInfo method = circularDependendencyMethod.MakeGenericMethod(pair.Value.GetType().GetGenericArguments());
                         method.Invoke(null, new object[] { pair.Value });

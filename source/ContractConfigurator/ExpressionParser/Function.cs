@@ -10,7 +10,8 @@ namespace ContractConfigurator.ExpressionParser
     /// </summary>
     public interface Function
     {
-        string Name { get; set; }
+        string Name { get; }
+        bool Deterministic { get; }
 
         object Invoke(object[] parameters);
         int ParameterCount();
@@ -52,13 +53,15 @@ namespace ContractConfigurator.ExpressionParser
 
     public class Function<TResult> : Function
     {
-        public string Name { get; set; }
+        public string Name { get; private set; }
+        public bool Deterministic { get; private set; }
         protected Func<TResult> Func;
 
-        public Function(string name, Func<TResult> function)
+        public Function(string name, Func<TResult> function, bool deterministic = true)
         {
             Name = name;
             Func = function;
+            Deterministic = deterministic;
         }
 
         public object Invoke(object[] parameters)
@@ -84,13 +87,15 @@ namespace ContractConfigurator.ExpressionParser
 
     public class Function<T, TResult> : Function
     {
-        public string Name { get; set; }
+        public string Name { get; private set; }
+        public bool Deterministic { get; private set; }
         protected Func<T, TResult> Func;
 
-        public Function(string name, Func<T, TResult> function)
+        public Function(string name, Func<T, TResult> function, bool deterministic = true)
         {
             Name = name;
             Func = function;
+            Deterministic = deterministic;
         }
 
         public object Invoke(object[] parameters)
@@ -122,13 +127,15 @@ namespace ContractConfigurator.ExpressionParser
 
     public class Function<T1, T2, TResult> : Function
     {
-        public string Name { get; set; }
+        public string Name { get; private set; }
+        public bool Deterministic { get; private set; }
         protected Func<T1, T2, TResult> Func;
 
-        public Function(string name, Func<T1, T2, TResult> function)
+        public Function(string name, Func<T1, T2, TResult> function, bool deterministic = true)
         {
             Name = name;
             Func = function;
+            Deterministic = deterministic;
         }
 
         public object Invoke(object[] parameters)

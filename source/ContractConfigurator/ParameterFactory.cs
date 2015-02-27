@@ -120,6 +120,12 @@ namespace ContractConfigurator
                 return null;
             }
 
+            // Try to refresh non-deterministic values
+            if (!ConfigNodeUtil.UpdateNonDeterministicValues(dataNode))
+            {
+                return null;
+            }
+
             // Generate a parameter using the sub-class logic
             ContractParameter parameter = Generate(contract);
             if (parameter == null)
@@ -153,7 +159,8 @@ namespace ContractConfigurator
         /// <param name="contract">Contract to generate for</param>
         /// <param name="contractParamHost">The object to use as a parent for ContractParameters</param>
         /// <param name="paramFactories">The ParameterFactory objects to use to generate parameters.</param>
-        public static void GenerateParameters(ConfiguredContract contract, IContractParameterHost contractParamHost, List<ParameterFactory> paramFactories)
+        /// <returns>Whether the generation was successful.</returns>
+        public static bool GenerateParameters(ConfiguredContract contract, IContractParameterHost contractParamHost, List<ParameterFactory> paramFactories)
         {
             foreach (ParameterFactory paramFactory in paramFactories)
             {
@@ -164,10 +171,19 @@ namespace ContractConfigurator
                     // Get the child parameters
                     if (parameter != null)
                     {
-                        GenerateParameters(contract, parameter, paramFactory.childNodes);
+                        if (!GenerateParameters(contract, parameter, paramFactory.childNodes))
+                        {
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        return false;
                     }
                 }
             }
+
+            return true;
         }
 
         /// <summary>

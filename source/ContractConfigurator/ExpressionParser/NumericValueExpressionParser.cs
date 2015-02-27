@@ -107,9 +107,9 @@ namespace ContractConfigurator.ExpressionParser
                 calculator = new DoubleCalculator() as Calculator<T>;
             }
 
-            RegisterLocalFunction(new Function<T>("Random", () => (T)Convert.ChangeType(random.NextDouble(), typeof(T))));
+            RegisterLocalFunction(new Function<T>("Random", () => (T)Convert.ChangeType(random.NextDouble(), typeof(T)), false));
             RegisterLocalFunction(new Function<T, T, T>("Random", (min, max) =>
-                calculator.Add(calculator.Mult((T)Convert.ChangeType(random.NextDouble(), typeof(T)), calculator.Sub(max, min)), min)));
+                calculator.Add(calculator.Mult((T)Convert.ChangeType(random.NextDouble(), typeof(T)), calculator.Sub(max, min)), min), false));
         }
 
         public NumericValueExpressionParser()
@@ -178,7 +178,7 @@ namespace ContractConfigurator.ExpressionParser
         {
             if (PersistentDataStore.Instance != null)
             {
-                PersistentDataStore.Instance.Store<T>(key, ExecuteExpression(expression, dataNode));
+                PersistentDataStore.Instance.Store<T>(key, ExecuteExpression("", expression, dataNode));
             }
             else
             {

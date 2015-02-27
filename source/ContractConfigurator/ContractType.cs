@@ -227,18 +227,20 @@ namespace ContractConfigurator
         /// Generates and loads all the parameters required for the given contract.
         /// </summary>
         /// <param name="contract"></param>
-        public void GenerateBehaviours(ConfiguredContract contract)
+        /// <returns>Whether the generation was successful.</returns>
+        public bool GenerateBehaviours(ConfiguredContract contract)
         {
-            BehaviourFactory.GenerateBehaviours(contract, behaviourFactories);
+            return BehaviourFactory.GenerateBehaviours(contract, behaviourFactories);
         }
 
         /// <summary>
         /// Generates and loads all the parameters required for the given contract.
         /// </summary>
         /// <param name="contract">Contract to load parameters for</param>
-        public void GenerateParameters(ConfiguredContract contract)
+        /// <returns>Whether the generation was successful.</returns>
+        public bool GenerateParameters(ConfiguredContract contract)
         {
-            ParameterFactory.GenerateParameters(contract, contract, paramFactories);
+            return ParameterFactory.GenerateParameters(contract, contract, paramFactories);
         }
 
         /// <summary>

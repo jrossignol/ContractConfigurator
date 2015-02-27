@@ -31,7 +31,7 @@ namespace ContractConfigurator
 
         public override bool RequirementMet(ConfiguredContract contract)
         {
-            return parser.ExecuteExpression(expression, dataNode);
+            return parser.ExecuteExpression("", expression, dataNode);
         }
     }
 }

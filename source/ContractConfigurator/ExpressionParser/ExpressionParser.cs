@@ -78,13 +78,14 @@ namespace ContractConfigurator.ExpressionParser
         /// <param name="expression">The expression to execute</param>
         /// <param name="dataNode">The data node that the expression may access</param>
         /// <returns>The result of executing the expression</returns>
-        public T ExecuteExpression(string expression, DataNode dataNode)
+        public T ExecuteExpression(string key, string expression, DataNode dataNode)
         {
             T val = default(T);
             try
             {
                 parseMode = false;
                 currentDataNode = dataNode;
+                currentKey = key;
                 val = ParseExpression(expression);
             }
             finally
@@ -720,6 +721,11 @@ namespace ContractConfigurator.ExpressionParser
             // Invoke the method
             object result = selectedMethod.Invoke(parameters.ToArray());
 
+            if (!selectedMethod.Deterministic && currentDataNode != null)
+            {
+                currentDataNode.SetDeterministic(currentKey, false);
+            }
+
             // Check for a method call before we return
             Token methodToken = ParseMethodToken();
             ExpressionParser<U> retValParser = GetParser<U>(this);
@@ -756,6 +762,10 @@ namespace ContractConfigurator.ExpressionParser
                 }
 
                 object o = currentDataNode[token.sval];
+                if (!currentDataNode.IsDeterministic(token.sval))
+                {
+                    currentDataNode.SetDeterministic(currentKey, false);
+                }
 
                 // Check for a method call before we start messing with types
                 Token methodToken = ParseMethodToken();
