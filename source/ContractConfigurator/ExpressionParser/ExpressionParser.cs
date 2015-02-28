@@ -126,238 +126,281 @@ namespace ContractConfigurator.ExpressionParser
         protected virtual TResult ParseStatement<TResult>()
         {
             LogEntryDebug<TResult>("ParseStatement");
-
-            string savedExpression = expression;
             try
             {
-                TResult result = ParseStatementInner<TResult>();
-                LogExitDebug<TResult>("ParseStatement", result);
-                return result;
-            }
-            catch (Exception e)
-            {
-                Type type = GetRequiredType(e);
-                if (type == null)
+                string savedExpression = expression;
+                try
                 {
-                    throw;
+                    TResult result = ParseStatementInner<TResult>();
+                    LogExitDebug<TResult>("ParseStatement", result);
+                    return result;
                 }
+                catch (Exception e)
+                {
+                    Type type = GetRequiredType(e);
+                    if (type == null)
+                    {
+                        throw;
+                    }
 
-                expression = savedExpression;
-                BaseParser altParser = GetParser(type);
+                    expression = savedExpression;
+                    BaseParser altParser = GetParser(type);
 
-                // Call the method on the alternate parser
-                MethodInfo method = altParser.GetType().GetMethods(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy).
-                    Where(m => m.Name == "ParseStatementInner").Single();
-                method = method.MakeGenericMethod(new Type[] { typeof(TResult) });
-                TResult result = (TResult)method.Invoke(altParser, new object[] { });
-                expression = altParser.expression;
-                LogExitDebug<TResult>("ParseStatement", result);
-                return result;
+                    // Call the method on the alternate parser
+                    MethodInfo method = altParser.GetType().GetMethods(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy).
+                        Where(m => m.Name == "ParseStatementInner").Single();
+                    method = method.MakeGenericMethod(new Type[] { typeof(TResult) });
+                    try
+                    {
+                        TResult result = (TResult)method.Invoke(altParser, new object[] { });
+                        LogExitDebug<TResult>("ParseStatement", result);
+                        return result;
+                    }
+                    finally
+                    {
+                        expression = altParser.expression;
+                    }
+                }
+            }
+            catch
+            {
+                LogException<TResult>("ParseStatement");
+                throw;
             }
         }
 
         protected virtual TResult ParseStatementInner<TResult>()
         {
             LogEntryDebug<TResult>("ParseStatementInner");
-            T lval = ParseSimpleStatement<T>();
-            TResult result = ParseStatement<TResult>(lval);
-            LogExitDebug<TResult>("ParseStatementInner", result);
-            return result;
+            try
+            {
+                T lval = ParseSimpleStatement<T>();
+                TResult result = ParseStatement<TResult>(lval);
+                LogExitDebug<TResult>("ParseStatementInner", result);
+                return result;
+            }
+            catch
+            {
+                LogException<TResult>("ParseStatementInner");
+                throw;
+            }
         }
 
         protected TResult ParseStatement<TResult>(T lval)
         {
             LogEntryDebug<TResult>("ParseStatement", lval.ToString());
-            ExpressionParser<TResult> parser = GetParser<TResult>(this);
-
-            // End of statement
-            TResult result;
-            if (expression.Length == 0)
+            try
             {
+                ExpressionParser<TResult> parser = GetParser<TResult>(this);
+
+                // End of statement
+                TResult result;
+                if (expression.Length == 0)
+                {
+                    result = ConvertType<TResult>(lval);
+                    LogExitDebug<TResult>("ParseStatement", result);
+                    return result;
+                }
+
+                // Get next token
+                Token token = ParseToken();
+
+                while (token != null)
+                {
+                    string savedExpression = expression;
+                    switch (token.tokenType)
+                    {
+                        case TokenType.END_BRACKET:
+                        case TokenType.TERNARY_END:
+                        case TokenType.COMMA:
+                            expression = token.sval + expression;
+                            result = ConvertType<TResult>(lval);
+                            LogExitDebug<TResult>("ParseStatement", result);
+                            return result;
+                        case TokenType.OPERATOR:
+                            try
+                            {
+                                lval = ParseOperation<T>(lval, token.sval);
+                                break;
+                            }
+                            catch (Exception e)
+                            {
+                                Type type = GetRequiredType(e);
+                                if (type == null || typeof(T) == typeof(TResult))
+                                {
+                                    throw;
+                                }
+
+                                // Parse under the return type
+                                expression = savedExpression;
+                                TResult val = ParseOperation<TResult>(lval, token.sval);
+                                parser.expression = expression;
+                                try
+                                {
+                                    result = parser.ParseStatement<TResult>(val);
+                                    LogExitDebug<TResult>("ParseStatement", result);
+                                    return result;
+                                }
+                                finally
+                                {
+                                    expression = parser.expression;
+                                }
+                            }
+                        case TokenType.TERNARY_START:
+                            lval = ParseTernary<T>(ConvertType<bool>(lval));
+                            break;
+                        default:
+                            expression = token.sval + expression;
+                            throw new ArgumentException("Unexpected value: " + token.sval);
+                    }
+
+                    // Get next token
+                    token = ParseToken();
+                }
+
                 result = ConvertType<TResult>(lval);
                 LogExitDebug<TResult>("ParseStatement", result);
                 return result;
             }
-
-            // Get next token
-            Token token = ParseToken();
-
-            while (token != null)
+            catch
             {
-                string savedExpression = expression;
-                switch (token.tokenType)
-                {
-                    case TokenType.END_BRACKET:
-                    case TokenType.TERNARY_END:
-                    case TokenType.COMMA:
-                        expression = token.sval + expression;
-                        result = ConvertType<TResult>(lval);
-                        LogExitDebug<TResult>("ParseStatement", result);
-                        return result;
-                    case TokenType.OPERATOR:
-                        try
-                        {
-                            lval = ParseOperation<T>(lval, token.sval);
-                            break;
-                        }
-                        catch (Exception e)
-                        {
-                            Type type = GetRequiredType(e);
-                            if (type == null || typeof(T) == typeof(TResult))
-                            {
-                                throw;
-                            }
-
-                            // Parse under the return type
-                            expression = savedExpression;
-                            TResult val = ParseOperation<TResult>(lval, token.sval);
-                            parser.expression = expression;
-                            try
-                            {
-                                result = parser.ParseStatement<TResult>(val);
-                                LogExitDebug<TResult>("ParseStatement", result);
-                                return result;
-                            }
-                            finally
-                            {
-                                expression = parser.expression;
-                            }
-                        }
-                    case TokenType.TERNARY_START:
-                        lval = ParseTernary<T>(ConvertType<bool>(lval));
-                        break;
-                    default:
-                        expression = token.sval + expression;
-                        throw new ArgumentException("Unexpected value: " + token.sval);
-                }
-
-                // Get next token
-                token = ParseToken();
+                LogException<TResult>("ParseStatement");
+                throw;
             }
-
-            result = ConvertType<TResult>(lval);
-            LogExitDebug<TResult>("ParseStatement", result);
-            return result;
         }
 
         protected TResult ParseSimpleStatement<TResult>()
         {
             LogEntryDebug<TResult>("ParseSimpleStatement");
-
-            // Get a token
-            Token token = ParseToken();
-
-            ExpressionParser<TResult> parser = GetParser<TResult>(this);
-
             try
             {
-                TResult result;
-                switch (token.tokenType)
+                // Get a token
+                Token token = ParseToken();
+
+                ExpressionParser<TResult> parser = GetParser<TResult>(this);
+
+                try
                 {
-                    case TokenType.START_BRACKET:
-                        result = ParseStatement<TResult>();
-                        ParseToken(")");
-                        LogExitDebug<TResult>("ParseSimpleStatement", result);
-                        return result;
-                    case TokenType.IDENTIFIER:
-                        result = parser.ParseIdentifier(token);
-                        LogExitDebug<TResult>("ParseSimpleStatement", result);
-                        return result;
-                    case TokenType.FUNCTION:
-                        result = parser.ParseFunction(token);
-                        LogExitDebug<TResult>("ParseSimpleStatement", result);
-                        return result;
-                    case TokenType.SPECIAL_IDENTIFIER:
-                        result = parser.ParseSpecialIdentifier(token);
-                        LogExitDebug<TResult>("ParseSimpleStatement", result);
-                        return result;
-                    case TokenType.OPERATOR:
-                        switch (token.sval)
-                        {
-                            case "-":
-                                {
-                                    TResult value = ParseSimpleStatement<TResult>();
-                                    parser.expression = expression;
-                                    result = parser.Negate(value);
-                                    LogExitDebug<TResult>("ParseSimpleStatement", result);
-                                    return result;
-                                }
-                            case "!":
-                                {
-                                    TResult value = ParseSimpleStatement<TResult>();
-                                    parser.expression = expression;
-                                    result = parser.Not(value);
-                                    LogExitDebug<TResult>("ParseSimpleStatement", result);
-                                    return result;
-                                }
-                            default:
-                                expression = token.sval + expression;
-                                throw new ArgumentException("Unexpected operator: " + token.sval);
-                        }
-                    case TokenType.VALUE:
-                        result = ConvertType<TResult>((token as ValueToken<T>).val);
-                        LogExitDebug<TResult>("ParseSimpleStatement", result);
-                        return result;
-                    default:
-                        expression = token.sval + expression;
-                        throw new ArgumentException("Unexpected value: " + token.sval);
+                    TResult result;
+                    switch (token.tokenType)
+                    {
+                        case TokenType.START_BRACKET:
+                            result = ParseStatement<TResult>();
+                            ParseToken(")");
+                            LogExitDebug<TResult>("ParseSimpleStatement", result);
+                            return result;
+                        case TokenType.IDENTIFIER:
+                            result = parser.ParseIdentifier(token);
+                            LogExitDebug<TResult>("ParseSimpleStatement", result);
+                            return result;
+                        case TokenType.FUNCTION:
+                            result = parser.ParseFunction(token);
+                            LogExitDebug<TResult>("ParseSimpleStatement", result);
+                            return result;
+                        case TokenType.SPECIAL_IDENTIFIER:
+                            result = parser.ParseSpecialIdentifier(token);
+                            LogExitDebug<TResult>("ParseSimpleStatement", result);
+                            return result;
+                        case TokenType.OPERATOR:
+                            switch (token.sval)
+                            {
+                                case "-":
+                                    {
+                                        TResult value = ParseSimpleStatement<TResult>();
+                                        parser.expression = expression;
+                                        result = parser.Negate(value);
+                                        LogExitDebug<TResult>("ParseSimpleStatement", result);
+                                        return result;
+                                    }
+                                case "!":
+                                    {
+                                        TResult value = ParseSimpleStatement<TResult>();
+                                        parser.expression = expression;
+                                        result = parser.Not(value);
+                                        LogExitDebug<TResult>("ParseSimpleStatement", result);
+                                        return result;
+                                    }
+                                default:
+                                    expression = token.sval + expression;
+                                    throw new ArgumentException("Unexpected operator: " + token.sval);
+                            }
+                        case TokenType.VALUE:
+                            result = ConvertType<TResult>((token as ValueToken<T>).val);
+                            LogExitDebug<TResult>("ParseSimpleStatement", result);
+                            return result;
+                        default:
+                            expression = token.sval + expression;
+                            throw new ArgumentException("Unexpected value: " + token.sval);
+                    }
+                }
+                finally
+                {
+                    expression = parser.expression;
                 }
             }
-            finally
+            catch
             {
-                expression = parser.expression;
+                LogException<TResult>("ParseSimpleStatement");
+                throw;
             }
         }
 
         private TResult ParseOperation<TResult>(T lval, string op)
         {
             LogEntryDebug<TResult>("ParseOperation", lval.ToString(), op);
-
-            // Get the right side of the operation
-            T rval = GetRval();
-
-            // Get a token
-            Token token = ParseToken();
-
-            TResult result;
-            while (token != null)
+            try
             {
-                switch (token.tokenType)
+                // Get the right side of the operation
+                T rval = GetRval();
+
+                // Get a token
+                Token token = ParseToken();
+
+                TResult result;
+                while (token != null)
                 {
-                    case TokenType.END_BRACKET:
-                    case TokenType.TERNARY_END:
-                    case TokenType.COMMA:
-                        expression = token.sval + expression;
-                        result = ApplyOperator<TResult>(lval, op, rval);
-                        LogExitDebug<TResult>("ParseOperation", result);
-                        return result;
-                    case TokenType.TERNARY_START:
-                        result = ParseTernary<TResult>(ApplyOperator<bool>(lval, op, rval));
-                        LogExitDebug<TResult>("ParseOperation", result);
-                        return result;
-                    case TokenType.OPERATOR:
-                        if (precedence[op] >= precedence[token.sval])
-                        {
+                    switch (token.tokenType)
+                    {
+                        case TokenType.END_BRACKET:
+                        case TokenType.TERNARY_END:
+                        case TokenType.COMMA:
                             expression = token.sval + expression;
                             result = ApplyOperator<TResult>(lval, op, rval);
                             LogExitDebug<TResult>("ParseOperation", result);
                             return result;
-                        }
-                        else
-                        {
-                            rval = ParseOperation<T>(rval, token.sval);
-                            token = ParseToken();
-                        }
-                        break;
-                    default:
-                        expression = token.sval + expression;
-                        throw new ArgumentException("Unexpected value: " + token.sval);
+                        case TokenType.TERNARY_START:
+                            result = ParseTernary<TResult>(ApplyOperator<bool>(lval, op, rval));
+                            LogExitDebug<TResult>("ParseOperation", result);
+                            return result;
+                        case TokenType.OPERATOR:
+                            if (precedence[op] >= precedence[token.sval])
+                            {
+                                expression = token.sval + expression;
+                                result = ApplyOperator<TResult>(lval, op, rval);
+                                LogExitDebug<TResult>("ParseOperation", result);
+                                return result;
+                            }
+                            else
+                            {
+                                rval = ParseOperation<T>(rval, token.sval);
+                                token = ParseToken();
+                            }
+                            break;
+                        default:
+                            expression = token.sval + expression;
+                            throw new ArgumentException("Unexpected value: " + token.sval);
+                    }
                 }
-            }
 
-            result = ApplyOperator<TResult>(lval, op, rval);
-            LogExitDebug<TResult>("ParseOperation", result);
-            return result;
+                result = ApplyOperator<TResult>(lval, op, rval);
+                LogExitDebug<TResult>("ParseOperation", result);
+                return result;
+            }
+            catch
+            {
+                LogException<TResult>("ParseOperation");
+                throw;
+            }
         }
 
         private T GetRval()
@@ -390,11 +433,22 @@ namespace ContractConfigurator.ExpressionParser
 
         protected TResult ParseTernary<TResult>(bool lval)
         {
-            TResult val1 = ParseStatement<TResult>();
-            ParseToken(":");
-            TResult val2 = ParseStatement<TResult>();
+            LogEntryDebug<TResult>("ParseTernary", lval.ToString());
+            try
+            {
+                TResult val1 = ParseStatement<TResult>();
+                ParseToken(":");
+                TResult val2 = ParseStatement<TResult>();
 
-            return lval ? val1 : val2;
+                TResult result = lval ? val1 : val2;
+                LogExitDebug<TResult>("ParseTernary", result);
+                return result;
+            }
+            catch
+            {
+                LogException<TResult>("ParseTernary");
+                throw;
+            }
         }
 
         protected Token ParseToken()
@@ -535,163 +589,171 @@ namespace ContractConfigurator.ExpressionParser
         protected TResult ParseMethod<TResult>(Token token, T obj, bool isFunction = false)
         {
             LogEntryDebug<TResult>("ParseMethod", token.sval, obj != null ? obj.ToString() : "null", isFunction.ToString());
-            IEnumerable<Function> methods = isFunction ? GetFunctions(token.sval) : classMethods[token.sval].ToList();
-
-            if (!methods.Any())
+            try
             {
-                throw new MissingMethodException("Cannot find " + (isFunction ? "function" : "method") + " '" + token.sval + "' for class '" + typeof(T).Name + "'.");
-            }
+                IEnumerable<Function> methods = isFunction ? GetFunctions(token.sval) : classMethods[token.sval].ToList();
 
-            // Start with method call
-            ParseToken("(");
-
-            List<object> parameters = new List<object>();
-            Function selectedMethod = null;
-
-            while (true)
-            {
-                // Get some basic statistics
-                int minParam = int.MaxValue;
-                int maxParam = 0;
-                List<Type> paramTypes = new List<Type>();
-                foreach (Function method in methods)
+                if (!methods.Any())
                 {
-                    int paramCount = method.ParameterCount();
-                    minParam = Math.Min(minParam, paramCount);
-                    maxParam = Math.Max(maxParam, paramCount);
-                    for (int j = 0; j < paramCount; j++)
-                    {
-                        if (paramTypes.Count <= j)
-                        {
-                            paramTypes.Add(method.ParameterType(j));
-                        }
-                        else if (paramTypes[j] != method.ParameterType(j))
-                        {
-                            paramTypes[j] = null;
-                        }
-                    }
+                    throw new MissingMethodException("Cannot find " + (isFunction ? "function" : "method") + " '" + token.sval + "' for class '" + typeof(T).Name + "'.");
                 }
 
-                // Try to end it
-                Token endToken = ParseMethodEndToken();
-                if (endToken != null)
-                {
-                    // End statement
-                    if (endToken.tokenType == TokenType.END_BRACKET)
-                    {
-                        // Find the method that matched
-                        foreach (Function method in methods)
-                        {
-                            int paramCount = method.ParameterCount();
-                            if (paramCount == parameters.Count)
-                            {
-                                bool found = true;
-                                for (int j = 0; j < paramCount; j++)
-                                {
-                                    if (parameters[j].GetType() != method.ParameterType(j))
-                                    {
-                                        found = false;
-                                    }
-                                }
+                // Start with method call
+                ParseToken("(");
 
-                                if (found)
-                                {
-                                    selectedMethod = method;
-                                    break;
-                                }
+                List<object> parameters = new List<object>();
+                Function selectedMethod = null;
+
+                while (true)
+                {
+                    // Get some basic statistics
+                    int minParam = int.MaxValue;
+                    int maxParam = 0;
+                    List<Type> paramTypes = new List<Type>();
+                    foreach (Function method in methods)
+                    {
+                        int paramCount = method.ParameterCount();
+                        minParam = Math.Min(minParam, paramCount);
+                        maxParam = Math.Max(maxParam, paramCount);
+                        for (int j = 0; j < paramCount; j++)
+                        {
+                            if (paramTypes.Count <= j)
+                            {
+                                paramTypes.Add(method.ParameterType(j));
+                            }
+                            else if (paramTypes[j] != method.ParameterType(j))
+                            {
+                                paramTypes[j] = null;
                             }
                         }
-
-                        if (selectedMethod != null)
-                        {
-                            break;
-                        }
-
-                        // End bracket, but no matching method!
-                        throw new MethodMismatch(methods);
                     }
-                    else if (endToken.tokenType == TokenType.COMMA)
+
+                    // Try to end it
+                    Token endToken = ParseMethodEndToken();
+                    if (endToken != null)
                     {
-                        if (parameters.Count() == 0)
+                        // End statement
+                        if (endToken.tokenType == TokenType.END_BRACKET)
                         {
-                            throw new ArgumentException("Expected " + (minParam == 0 ? "')'" : "an expression") + ", got: ','.");
+                            // Find the method that matched
+                            foreach (Function method in methods)
+                            {
+                                int paramCount = method.ParameterCount();
+                                if (paramCount == parameters.Count)
+                                {
+                                    bool found = true;
+                                    for (int j = 0; j < paramCount; j++)
+                                    {
+                                        if (parameters[j].GetType() != method.ParameterType(j))
+                                        {
+                                            found = false;
+                                        }
+                                    }
+
+                                    if (found)
+                                    {
+                                        selectedMethod = method;
+                                        break;
+                                    }
+                                }
+                            }
+
+                            if (selectedMethod != null)
+                            {
+                                break;
+                            }
+
+                            // End bracket, but no matching method!
+                            throw new MethodMismatch(methods);
+                        }
+                        else if (endToken.tokenType == TokenType.COMMA)
+                        {
+                            if (parameters.Count() == 0)
+                            {
+                                throw new ArgumentException("Expected " + (minParam == 0 ? "')'" : "an expression") + ", got: ','.");
+                            }
+                        }
+                        else
+                        {
+                            throw new ArgumentException("Expected ')', got: " + endToken.sval);
+                        }
+                    }
+                    else if (parameters.Count() != 0)
+                    {
+                        token = ParseToken();
+                        throw new ArgumentException("Expected ',', got: " + token.sval);
+                    }
+
+                    // Check for end of statement
+                    if (expression.Trim() == "")
+                    {
+                        throw new ArgumentException("Expected an expression, got end of statement");
+                    }
+
+                    Type paramType = paramTypes[parameters.Count];
+                    // Easy - we have the type!
+                    if (paramType != null)
+                    {
+                        BaseParser parser = GetParser(paramType);
+
+                        try
+                        {
+                            MethodInfo method = parser.GetType().GetMethods(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy).
+                                Where(m => m.Name == "ParseStatement" && m.GetParameters().Count() == 0).Single();
+                            method = method.MakeGenericMethod(new Type[] { paramType });
+                            object value = method.Invoke(parser, new object[] { });
+                            parameters.Add(value);
+                        }
+                        finally
+                        {
+                            expression = parser.expression;
                         }
                     }
                     else
                     {
-                        throw new ArgumentException("Expected ')', got: " + endToken.sval);
+                        // TODO - implement once there's a use case for more complex overloading
                     }
                 }
-                else if (parameters.Count() != 0)
+
+                // Add object to the parameter list
+                if (!isFunction)
                 {
-                    token = ParseToken();
-                    throw new ArgumentException("Expected ',', got: " + token.sval);
+                    List<object> newParam = new List<object>();
+                    newParam.Add(obj);
+                    newParam.AddRange(parameters);
+                    parameters = newParam;
                 }
 
-                // Check for end of statement
-                if (expression.Trim() == "")
+                // Invoke the method
+                object result = selectedMethod.Invoke(parameters.ToArray());
+
+                if (!selectedMethod.Deterministic && currentDataNode != null)
                 {
-                    throw new ArgumentException("Expected an expression, got end of statement");
+                    currentDataNode.SetDeterministic(currentKey, false);
                 }
 
-                Type paramType = paramTypes[parameters.Count];
-                // Easy - we have the type!
-                if (paramType != null)
+                // Check for a method call before we return
+                Token methodToken = ParseMethodToken();
+                ExpressionParser<TResult> retValParser = GetParser<TResult>(this);
+                if (methodToken != null)
                 {
-                    BaseParser parser = GetParser(paramType);
+                    MethodInfo parseMethod = retValParser.GetType().GetMethod("_ParseMethod", BindingFlags.NonPublic | BindingFlags.Instance);
+                    parseMethod = parseMethod.MakeGenericMethod(new Type[] { result.GetType() });
 
-                    try
-                    {
-                        MethodInfo method = parser.GetType().GetMethods(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy).
-                            Where(m => m.Name == "ParseStatement" && m.GetParameters().Count() == 0).Single();
-                        method = method.MakeGenericMethod(new Type[] { paramType });
-                        object value = method.Invoke(parser, new object[] { });
-                        parameters.Add(value);
-                    }
-                    finally
-                    {
-                        expression = parser.expression;
-                    }
+                    result = parseMethod.Invoke(retValParser, new object[] { methodToken, result });
+                    expression = retValParser.expression;
                 }
-                else
-                {
-                    // TODO - implement once there's a use case for more complex overloading
-                }
+
+                // No method, return the result
+                TResult retVal = retValParser.ConvertType(result);
+                LogExitDebug<TResult>("ParseOperation", retVal);
+                return retVal;
             }
-
-            // Add object to the parameter list
-            if (!isFunction)
+            catch
             {
-                List<object> newParam = new List<object>();
-                newParam.Add(obj);
-                newParam.AddRange(parameters);
-                parameters = newParam;
+                LogException<TResult>("ParseMethod");
+                throw;
             }
-
-            // Invoke the method
-            object result = selectedMethod.Invoke(parameters.ToArray());
-
-            if (!selectedMethod.Deterministic && currentDataNode != null)
-            {
-                currentDataNode.SetDeterministic(currentKey, false);
-            }
-
-            // Check for a method call before we return
-            Token methodToken = ParseMethodToken();
-            ExpressionParser<TResult> retValParser = GetParser<TResult>(this);
-            if (methodToken != null)
-            {
-                MethodInfo parseMethod = retValParser.GetType().GetMethod("_ParseMethod", BindingFlags.NonPublic | BindingFlags.Instance);
-                parseMethod = parseMethod.MakeGenericMethod(new Type[] { result.GetType() });
-
-                result = parseMethod.Invoke(retValParser, new object[] { methodToken, result });
-                expression = retValParser.expression;
-            }
-
-            // No method, return the result
-            TResult retVal = retValParser.ConvertType(result);
-            LogExitDebug<TResult>("ParseOperation", retVal);
-            return retVal;
         }
 
         protected T ParseFunction(Token token)

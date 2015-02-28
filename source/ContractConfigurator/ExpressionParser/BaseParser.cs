@@ -182,6 +182,7 @@ namespace ContractConfigurator.ExpressionParser
             newParser.parseMode = orig.parseMode;
             newParser.currentDataNode = orig.currentDataNode;
             newParser.currentKey = orig.currentKey;
+            newParser.spacing = orig.spacing;
 
             return newParser;
         }
@@ -251,7 +252,7 @@ namespace ContractConfigurator.ExpressionParser
             spacing++;
         }
 
-        protected void LogExitDebug<TResult>(string function, TResult result)
+        protected void LogExitDebug<TResult>(string function, string result)
         {
             spacing--;
             string log = (spacing > 0 ? new String(' ', spacing * 2) : "");
@@ -260,6 +261,16 @@ namespace ContractConfigurator.ExpressionParser
             log += result;
             log += ", expression = " + expression;
             LoggingUtil.LogVerbose(typeof(BaseParser), log);
+        }
+
+        protected void LogExitDebug<TResult>(string function, TResult result)
+        {
+            LogExitDebug<TResult>(function, result.ToString());
+        }
+
+        protected void LogException<TResult>(string function)
+        {
+            LogExitDebug<TResult>(function, "(EXCEPTION)");
         }
     }
 }
