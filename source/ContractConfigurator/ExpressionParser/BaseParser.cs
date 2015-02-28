@@ -12,6 +12,17 @@ namespace ContractConfigurator.ExpressionParser
     /// </summary>
     public abstract class BaseParser
     {
+        public class WrongDataType : Exception
+        {
+            public Type expected { get; private set; }
+
+            public WrongDataType(Type exp, Type got)
+                : base("Expected " + exp + " got " + got)
+            {
+                expected = exp;
+            }
+        }
+
         /// <summary>
         /// Types of expresion tokens.
         /// </summary>
@@ -105,6 +116,7 @@ namespace ContractConfigurator.ExpressionParser
         public static Dictionary<string, int> precedence = new Dictionary<string, int>();
 
         private static Dictionary<Type, Type> parserTypes = new Dictionary<Type, Type>();
+        protected int spacing = 0;
 
         static BaseParser()
         {
@@ -212,5 +224,42 @@ namespace ContractConfigurator.ExpressionParser
             globalFunctions[function.Name].Add(function);
         }
 
+        protected static Type GetRequiredType(Exception e)
+        {
+            if (e.GetType() == typeof(WrongDataType))
+            {
+                WrongDataType ex = (WrongDataType)e;
+                return ex.expected;
+            }
+            else if (e.GetType() == typeof(DataStoreCastException))
+            {
+                DataStoreCastException ex = (DataStoreCastException)e;
+                return ex.FromType;
+            }
+
+            return null;
+        }
+
+        protected void LogEntryDebug<TResult>(string function, params string[] args)
+        {
+            string log = (spacing > 0 ? new String(' ', spacing * 2) : "");
+            log += "-> " + GetType().Name + (GetType().IsGenericType ? "[" + GetType().GetGenericArguments()[0].Name + "]" : "");
+            log += "." + function + "<" + typeof(TResult).Name + ">(";
+            log += string.Join(", ", args);
+            log += "), expression = " + expression;
+            LoggingUtil.LogVerbose(typeof(BaseParser), log);
+            spacing++;
+        }
+
+        protected void LogExitDebug<TResult>(string function, TResult result)
+        {
+            spacing--;
+            string log = (spacing > 0 ? new String(' ', spacing * 2) : "");
+            log += "<- " + GetType().Name + (GetType().IsGenericType ? "[" + GetType().GetGenericArguments()[0].Name + "]" : "");
+            log += "." + function + "<" + typeof(TResult).Name + ">() = ";
+            log += result;
+            log += ", expression = " + expression;
+            LoggingUtil.LogVerbose(typeof(BaseParser), log);
+        }
     }
 }

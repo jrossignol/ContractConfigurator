@@ -24,7 +24,7 @@ namespace ContractConfigurator.ExpressionParser
         /// @identifier nodes, with the rest treated as a string literal.
         /// </summary>
         /// <returns>The full string after parsing</returns>
-        protected override string ParseStatement()
+        protected override TResult ParseStatement<TResult>()
         {
             string value = "";
             while (expression.Length > 0)
@@ -45,7 +45,7 @@ namespace ContractConfigurator.ExpressionParser
 
             value = value.Replace("\\n", "\n");
 
-            return value;
+            return (TResult)(object)value;
         }
     }
 }

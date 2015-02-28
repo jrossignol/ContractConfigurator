@@ -63,7 +63,8 @@ namespace ContractConfigurator.ExpressionParser
             }
             else
             {
-                throw new NotSupportedException("Invalid boolean constant '" + token.sval + "'.");
+                expression = token.sval + expression;
+                throw new WrongDataType(typeof(double), typeof(bool));
             }
         }
     }

@@ -15,6 +15,16 @@ namespace ContractConfigurator.ExpressionParser
             : base()
         {
         }
+
+        protected override bool EQ(T a, T b)
+        {
+            return a == b;
+        }
+
+        protected override bool NE(T a, T b)
+        {
+            return a != b;
+        }
     }
 
     public class ComparableClassExpressionParser<T> : ClassExpressionParser<T> where T : class, IComparable<T>
