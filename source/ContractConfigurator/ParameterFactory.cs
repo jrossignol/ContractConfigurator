@@ -35,9 +35,9 @@ namespace ContractConfigurator
         public bool enabled = true;
         public virtual IEnumerable<ParameterFactory> ChildParameters { get { return childNodes; } }
         public virtual IEnumerable<ContractRequirement> ChildRequirements { get { return requirements; } }
-        public string config = "";
-        public string log = "";
-        public DataNode dataNode;
+        public string config { get; private set; }
+        public string log { get; private set; }
+        public DataNode dataNode { get; private set; }
 
         /// <summary>
         /// Loads the ParameterFactory from the given ConfigNode.  The base version performs the following:
@@ -117,12 +117,14 @@ namespace ContractConfigurator
             // First check any requirements
             if (!ContractRequirement.RequirementsMet(contract, contract.contractType, requirements))
             {
+                LoggingUtil.LogVerbose(typeof(ParameterFactory), "Returning null for " + contract.contractType.name + "." + name + ": requirements not met.");
                 return null;
             }
 
             // Try to refresh non-deterministic values
             if (!ConfigNodeUtil.UpdateNonDeterministicValues(dataNode))
             {
+                LoggingUtil.LogVerbose(typeof(ParameterFactory), "Returning null for " + contract.contractType.name + "." + name + ": non-deterministic func failure.");
                 return null;
             }
 

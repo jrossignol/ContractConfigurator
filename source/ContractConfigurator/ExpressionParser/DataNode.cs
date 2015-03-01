@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using UnityEngine;
 
 namespace ContractConfigurator.ExpressionParser
 {
@@ -38,6 +39,7 @@ namespace ContractConfigurator.ExpressionParser
         private DataNode parent;
         private List<DataNode> children = new List<DataNode>();
         public List<ConfigNodeUtil.DeferredLoadBase> deferredLoads = new List<ConfigNodeUtil.DeferredLoadBase>();
+        public double lastModified = Time.fixedTime;
 
         public object this[string s]
         {
@@ -47,6 +49,7 @@ namespace ContractConfigurator.ExpressionParser
             }
             set
             {
+                lastModified = Time.fixedTime;
                 if (!data.ContainsKey(s))
                 {
                     data[s] = new Value(value);
@@ -110,6 +113,16 @@ namespace ContractConfigurator.ExpressionParser
             {
                 parent.children.Add(this);
             }
+        }
+
+        public string DebugString()
+        {
+            string result = "";
+            foreach (KeyValuePair<string, Value> pair in data)
+            {
+                result += "    <color=lime>" + pair.Key + "</color> = " + pair.Value.value + "\n"; ;
+            }
+            return result;
         }
     }
 }

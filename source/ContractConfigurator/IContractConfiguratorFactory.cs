@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using ContractConfigurator.ExpressionParser;
 
 namespace ContractConfigurator
 {
@@ -9,5 +10,9 @@ namespace ContractConfigurator
     {
         string ErrorPrefix();
         string ErrorPrefix(ConfigNode configNode);
+
+        string config { get; }
+        string log { get; }
+        DataNode dataNode { get; }
     }
 }

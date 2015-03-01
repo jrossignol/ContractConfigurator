@@ -220,19 +220,7 @@ namespace ContractConfigurator.ExpressionParser
                         case TokenType.OPERATOR:
                             try
                             {
-                                lval = ParseOperation<T>(lval, token.sval);
-                                break;
-                            }
-                            catch (Exception e)
-                            {
-                                Type type = GetRequiredType(e);
-                                if (type == null || typeof(T) == typeof(TResult))
-                                {
-                                    throw;
-                                }
-
                                 // Parse under the return type
-                                expression = savedExpression;
                                 TResult val = ParseOperation<TResult>(lval, token.sval);
                                 parser.expression = expression;
                                 try
@@ -245,6 +233,19 @@ namespace ContractConfigurator.ExpressionParser
                                 {
                                     expression = parser.expression;
                                 }
+
+                            }
+                            catch (Exception e)
+                            {
+                                Type type = GetRequiredType(e);
+                                if (type == null || typeof(T) == typeof(TResult))
+                                {
+                                    throw;
+                                }
+
+                                expression = savedExpression;
+                                lval = ParseOperation<T>(lval, token.sval);
+                                break;
                             }
                         case TokenType.TERNARY_START:
                             lval = ParseTernary<T>(ConvertType<bool>(lval));

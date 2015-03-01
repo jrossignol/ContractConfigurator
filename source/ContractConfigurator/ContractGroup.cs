@@ -6,6 +6,7 @@ using UnityEngine;
 using KSP;
 using Contracts;
 using Contracts.Agents;
+using ContractConfigurator.ExpressionParser;
 
 namespace ContractConfigurator
 {
@@ -20,6 +21,10 @@ namespace ContractConfigurator
         public string name;
         public int maxCompletions;
         public int maxSimultaneous;
+
+        public string config { get; private set; }
+        public string log { get; private set; }
+        public DataNode dataNode { get; private set; }
 
         public ContractGroup(string name)
         {
@@ -71,5 +76,13 @@ namespace ContractConfigurator
             return ErrorPrefix();
         }
 
+        /// <summary>
+        /// Outputs the debugging info for the debug window.
+        /// </summary>
+        /// <returns>Debug info for the debug window</returns>
+        public string DebugInfo()
+        {
+            return "";
+        }
     }
 }

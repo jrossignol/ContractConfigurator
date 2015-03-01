@@ -35,6 +35,7 @@ namespace ContractConfigurator
         private static GUIStyle headerLabel;
         private static GUIStyle headerLabelCenter;
         private static GUIStyle headerLabelRight;
+        private static GUIStyle bigTipStyle;
         private static GUIStyle tipStyle;
 
         private static Rect tooltipPosition;
@@ -108,6 +109,9 @@ namespace ContractConfigurator
                 headerLabelRight = new GUIStyle(headerLabel);
                 headerLabelRight.alignment = TextAnchor.UpperRight;
 
+                bigTipStyle = new GUIStyle(GUI.skin.label);
+                bigTipStyle.richText = true;
+
                 tipStyle = new GUIStyle(GUI.skin.box);
                 tipStyle.wordWrap = true;
                 tipStyle.stretchHeight = true;
@@ -150,7 +154,7 @@ namespace ContractConfigurator
                 {
                     contractType.expandInDebug = !contractType.expandInDebug;
                 }
-                GUILayout.Label(new GUIContent(contractType.ToString(), contractType.config + "\n\n" + contractType.log),
+                GUILayout.Label(new GUIContent(contractType.ToString(), DebugInfo(contractType)),
                     contractType.enabled ? GUI.skin.label : redLabel);
                 GUILayout.EndHorizontal();
 
@@ -199,7 +203,7 @@ namespace ContractConfigurator
             {
                 GUILayout.BeginHorizontal(GUILayout.ExpandWidth(false));
                 GUILayout.Space(28);
-                GUILayout.Label(new GUIContent(new string('\t', indent) + param, param.config + "\n\n" + param.log),
+                GUILayout.Label(new GUIContent(new string('\t', indent) + param, DebugInfo(param)),
                     param.enabled ? GUI.skin.label : redLabel);
                 if (contractType.enabled)
                 {
@@ -222,7 +226,7 @@ namespace ContractConfigurator
                 GUILayout.BeginHorizontal(GUILayout.ExpandWidth(false));
                 GUILayout.Space(28);
                 GUIStyle style = requirement.lastResult == null ? GUI.skin.label : requirement.lastResult.Value ? greenLabel : yellowLabel;
-                GUILayout.Label(new GUIContent(new string('\t', indent) + requirement, requirement.config + "\n\n" + requirement.log),
+                GUILayout.Label(new GUIContent(new string('\t', indent) + requirement, DebugInfo(requirement)),
                     requirement.enabled ? style : redLabel);
                 if (contractType.enabled)
                 {
@@ -243,7 +247,7 @@ namespace ContractConfigurator
             {
                 GUILayout.BeginHorizontal(GUILayout.ExpandWidth(false));
                 GUILayout.Space(28);
-                GUILayout.Label(new GUIContent(new string('\t', indent) + behaviour, behaviour.config + "\n\n" + behaviour.log),
+                GUILayout.Label(new GUIContent(new string('\t', indent) + behaviour, DebugInfo(behaviour)),
                     behaviour.enabled ? GUI.skin.label : redLabel);
                 if (contractType.enabled)
                 {
@@ -283,7 +287,7 @@ namespace ContractConfigurator
                 {
                     tooltip = GUI.tooltip;
                 }
-                GUILayout.Label(tooltip);
+                GUILayout.Label(tooltip, bigTipStyle);
                 GUILayout.EndScrollView();
             }
             else if (selectedPane == SelectedPane.BALANCE_MODE)
@@ -472,5 +476,32 @@ namespace ContractConfigurator
                 CheckRequirement(child);
             }
         }
+
+        private static Dictionary<IContractConfiguratorFactory, KeyValuePair<double, string>> toolTipCache =
+            new Dictionary<IContractConfiguratorFactory, KeyValuePair<double, string>>();
+
+        /// <summary>
+        /// Outputs the debugging info for the debug window.
+        /// </summary>
+        static string DebugInfo(IContractConfiguratorFactory obj)
+        {
+            if (!toolTipCache.ContainsKey(obj) || toolTipCache[obj].Key != obj.dataNode.lastModified)
+            {
+                string result = "";
+                result += "<b><color=white>Config Node Details</color></b>\n";
+                result += obj.config;
+                result += "\n\n";
+                result += "<b><color=white>Config Details After Expressions</color></b>\n";
+                result += obj.dataNode.DebugString();
+                result += "\n\n";
+                result += "<b><color=white>Log Details</color></b>\n";
+                result += obj.log;
+
+                toolTipCache[obj] = new KeyValuePair<double,string>(obj.dataNode.lastModified, result);
+            }
+
+            return toolTipCache[obj].Value;
+        }
+
     }
 }

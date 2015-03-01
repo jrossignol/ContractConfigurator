@@ -48,11 +48,10 @@ namespace ContractConfigurator
         public IEnumerable<ContractRequirement> Requirements { get { return requirements; } }
 
         public bool expandInDebug = false;
-        public string config = "";
-        public string log;
         public bool enabled { get; private set; }
-
-        public DataNode dataNode = new DataNode();
+        public string config { get; private set; }
+        public string log { get; private set; }
+        public DataNode dataNode { get; private set; }
 
         // Contract attributes
         public string name;
@@ -120,6 +119,8 @@ namespace ContractConfigurator
         {
             // Logging on
             LoggingUtil.CaptureLog = true;
+
+            dataNode = new DataNode();
 
             ConfigNodeUtil.ClearCache();
             ConfigNodeUtil.SetCurrentDataNode(dataNode);
@@ -326,6 +327,5 @@ namespace ContractConfigurator
         {
             return ErrorPrefix();
         }
-
     }
 }

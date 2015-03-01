@@ -31,9 +31,9 @@ namespace ContractConfigurator
         public bool enabled = true;
         public bool? lastResult = null;
         public virtual IEnumerable<ContractRequirement> ChildRequirements { get { return childNodes; } }
-        public string config = "";
-        public string log = "";
-        public DataNode dataNode;
+        public string config { get; private set; }
+        public string log { get; private set; }
+        public DataNode dataNode { get; private set; }
 
         /// <summary>
         /// Loads the ContractRequirement from the given ConfigNode.  The base version loads the following:

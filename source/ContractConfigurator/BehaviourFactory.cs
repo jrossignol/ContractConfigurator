@@ -24,9 +24,9 @@ namespace ContractConfigurator
         protected CelestialBody targetBody;
 
         public bool enabled = true;
-        public string config = "";
-        public string log = "";
-        public DataNode dataNode;
+        public string config { get; private set; }
+        public string log { get; private set; }
+        public DataNode dataNode { get; private set; }
 
         /// <summary>
         /// Loads the BehaviourFactory from the given ConfigNode.
@@ -75,6 +75,7 @@ namespace ContractConfigurator
                     // Try to refresh non-deterministic values
                     if (!ConfigNodeUtil.UpdateNonDeterministicValues(behaviourFactory.dataNode))
                     {
+                        LoggingUtil.LogVerbose(typeof(ParameterFactory), "Returning null for " + contract.contractType.name + "." + behaviourFactory.name + ": non-deterministic func failure.");
                         return false;
                     }
 
@@ -89,7 +90,7 @@ namespace ContractConfigurator
                 }
             }
 
-            return false;
+            return true;
         }
 
         /// <summary>
