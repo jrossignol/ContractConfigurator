@@ -212,6 +212,7 @@ namespace ContractConfigurator.ExpressionParser
                     {
                         case TokenType.END_BRACKET:
                         case TokenType.TERNARY_END:
+                        case TokenType.LIST_END:
                         case TokenType.COMMA:
                             expression = token.sval + expression;
                             result = ConvertType<TResult>(lval);
@@ -289,6 +290,12 @@ namespace ContractConfigurator.ExpressionParser
                             result = ParseStatement<TResult>();
                             ParseToken(")");
                             LogExitDebug<TResult>("ParseSimpleStatement", result);
+                            parser.expression = expression;
+                            return result;
+                        case TokenType.LIST_START:
+                            result = ParseList<TResult>();
+                            LogExitDebug<TResult>("ParseSimpleStatement", result);
+                            parser.expression = expression;
                             return result;
                         case TokenType.IDENTIFIER:
                             result = parser.ParseIdentifier(token);
@@ -404,6 +411,64 @@ namespace ContractConfigurator.ExpressionParser
             }
         }
 
+        private TResult ParseList<TResult>()
+        {
+            LogEntryDebug<TResult>("ParseList");
+            try
+            {
+                List<T> values = new List<T>();
+                values.Add(ParseStatement<T>());
+
+                Token token = null;
+                while (token == null)
+                {
+                    token = ParseToken();
+                    if (token == null)
+                    {
+                        throw new ArgumentException("Expected ',' or ']', got end of statement.");
+                    }
+
+                    switch (token.tokenType)
+                    {
+                        case TokenType.COMMA:
+                            values.Add(ParseStatement<T>());
+                            token = null;
+                            break;
+                        case TokenType.LIST_END:
+                            break;
+                        default:
+                            expression = token.sval + expression;
+                            throw new ArgumentException("Unexpected value: " + token.sval);
+                    }
+                }
+
+                token = ParseMethodToken();
+                if (token == null)
+                {
+                    // Will throw an exception
+                    ParseToken(".");
+                }
+
+                // Parse a method call
+                ExpressionParser<List<T>> parser = GetParser<List<T>>(this);
+                try
+                {
+                    TResult result = parser.ParseMethod<TResult>(token, values);
+                    LogExitDebug<TResult>("ParseList", result);
+                    return result;
+                }
+                finally
+                {
+                    expression = parser.expression;
+                }
+            }
+            catch
+            {
+                LogException<TResult>("ParseList");
+                throw;
+            }
+        }
+
         private T GetRval()
         {
             string savedExpression = expression;
@@ -479,6 +544,12 @@ namespace ContractConfigurator.ExpressionParser
                 case ':':
                     expression = expression.Substring(1);
                     return new Token(TokenType.TERNARY_END);
+                case '[':
+                    expression = expression.Substring(1);
+                    return new Token(TokenType.LIST_START);
+                case ']':
+                    expression = expression.Substring(1);
+                    return new Token(TokenType.LIST_END);
                 case '1':
                 case '2':
                 case '3':
@@ -782,11 +853,17 @@ namespace ContractConfigurator.ExpressionParser
                     currentDataNode.SetDeterministic(currentKey, false);
                 }
 
+                // Check for null value
+                if (o == null)
+                {
+                    throw new ArgumentNullException("@" + token.sval, "Null value for expression!");
+                }
+
                 // Check for a method call before we start messing with types
                 Token methodToken = ParseMethodToken();
                 if (methodToken != null)
                 {
-                    MethodInfo parseMethod = GetType().GetMethod("_ParseMethod", BindingFlags.NonPublic | BindingFlags.Instance);
+                    MethodInfo parseMethod = GetType().GetMethod("_ParseMethod", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
                     parseMethod = parseMethod.MakeGenericMethod(new Type[] { o.GetType() });
 
                     return (T)parseMethod.Invoke(this, new object[] { methodToken, o });
