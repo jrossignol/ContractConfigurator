@@ -39,6 +39,8 @@ namespace ContractConfigurator.ExpressionParser
             METHOD,
             TERNARY_START,
             TERNARY_END,
+            LIST_START,
+            LIST_END,
         }
 
         /// <summary>
@@ -73,6 +75,14 @@ namespace ContractConfigurator.ExpressionParser
                 {
                     sval = ":";
                 }
+                else if (tokenType == TokenType.LIST_START)
+                {
+                    sval = "[";
+                }
+                else if (tokenType == TokenType.LIST_END)
+                {
+                    sval = "]";
+                }
             }
 
             public Token(TokenType type, string s)
@@ -100,7 +110,7 @@ namespace ContractConfigurator.ExpressionParser
 
         public static char[] WHITESPACE_OR_OPERATOR =
         {
-            ' ', '\t', '\n', '|', '&', '+', '-', '!', '<', '>', '=', '*', '/', '(', ')', ',', '?', ':'
+            ' ', '\t', '\n', '|', '&', '+', '-', '!', '<', '>', '=', '*', '/', '(', ')', ',', '?', ':', '[', ']'
         };
 
         // List of tokens and their precedence
@@ -152,6 +162,11 @@ namespace ContractConfigurator.ExpressionParser
         public static void RegisterParserType(Type objectType, Type parserType)
         {
             parserTypes[objectType] = parserType;
+
+            // Also add the list type
+            Type listType = typeof(List<>).MakeGenericType(new Type[] {objectType});
+            Type listParserType = typeof(ListExpressionParser<>).MakeGenericType(new Type[] { objectType });
+            parserTypes[listType] = listParserType;
         }
 
         /// <summary>

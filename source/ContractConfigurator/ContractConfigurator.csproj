@@ -80,6 +80,7 @@
     <Compile Include="ContractGroup.cs" />
     <Compile Include="ExpressionParser\BaseParser.cs" />
     <Compile Include="ExpressionParser\BooleanValueExpressionParser.cs" />
+    <Compile Include="ExpressionParser\ListExpressionParser.cs" />
     <Compile Include="ExpressionParser\CelestialBodyParser.cs" />
     <Compile Include="ExpressionParser\DataNode.cs" />
     <Compile Include="ExpressionParser\IExpressionParserRegistrer.cs" />
