@@ -26,8 +26,8 @@ namespace ContractConfigurator.ExpressionParser
             RegisterMethod(new Method<CelestialBody, bool>("HasOcean", cb => cb.ocean));
             RegisterMethod(new Method<CelestialBody, bool>("HasSurface", cb => cb.pqsController != null));
             RegisterMethod(new Method<CelestialBody, bool>("IsHomeWorld", cb => cb.isHomeWorld));
-            RegisterMethod(new Method<CelestialBody, bool>("IsPlanet", cb => cb.referenceBody != null && cb.referenceBody.referenceBody == null));
-            RegisterMethod(new Method<CelestialBody, bool>("IsMoon", cb => cb.referenceBody != null && cb.referenceBody.referenceBody != null));
+            RegisterMethod(new Method<CelestialBody, bool>("IsPlanet", cb => cb.referenceBody != null && cb != FlightGlobals.Bodies[0] && cb.referenceBody == FlightGlobals.Bodies[0]));
+            RegisterMethod(new Method<CelestialBody, bool>("IsMoon", cb => cb.referenceBody != null && cb != FlightGlobals.Bodies[0] && cb.referenceBody != FlightGlobals.Bodies[0]));
 
             RegisterMethod(new Method<CelestialBody, double>("Radius", cb => cb.Radius));
             RegisterMethod(new Method<CelestialBody, float>("AtmosphereAltitude", cb => cb.maxAtmosphereAltitude));
