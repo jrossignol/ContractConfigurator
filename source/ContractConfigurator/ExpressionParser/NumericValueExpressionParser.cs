@@ -88,7 +88,7 @@ namespace ContractConfigurator.ExpressionParser
             RegisterMethods();
         }
     
-        protected static void RegisterMethods()
+        internal static void RegisterMethods()
         {
             if (typeof(T) == typeof(int))
             {
@@ -121,7 +121,7 @@ namespace ContractConfigurator.ExpressionParser
             }
         }
 
-        protected override Token ParseNumericConstant()
+        internal override Token ParseNumericConstant()
         {
             int index = expression.IndexOfAny(WHITESPACE_OR_OPERATOR, 0);
 
@@ -139,37 +139,37 @@ namespace ContractConfigurator.ExpressionParser
             return new ValueToken<T>(val);
         }
 
-        protected override T Negate(T val)
+        internal override T Negate(T val)
         {
             return calculator.Negate(val);
         }
 
-        protected override T Add(T a, T b)
+        internal override T Add(T a, T b)
         {
             return calculator.Add(a, b);
         }
 
-        protected override T Sub(T a, T b)
+        internal override T Sub(T a, T b)
         {
             return calculator.Sub(a, b);
         }
 
-        protected override T Mult(T a, T b)
+        internal override T Mult(T a, T b)
         {
             return calculator.Mult(a, b);
         }
 
-        protected override T Div(T a, T b)
+        internal override T Div(T a, T b)
         {
             return calculator.Div(a, b);
         }
 
-        protected override bool EQ(T a, T b)
+        internal override bool EQ(T a, T b)
         {
             return calculator.EQ(a, b);
         }
 
-        protected override bool NE(T a, T b)
+        internal override bool NE(T a, T b)
         {
             return calculator.NE(a, b);
         }
@@ -191,7 +191,7 @@ namespace ContractConfigurator.ExpressionParser
         /// </summary>
         /// <param name="token">Token of the identifier to parse</param>
         /// <returns>Value of the identifier</returns>
-        protected override T ParseIdentifier(Token token)
+        internal override T ParseIdentifier(Token token)
         {
             if (typeof(T) == typeof(double))
             {

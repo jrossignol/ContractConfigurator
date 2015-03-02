@@ -24,7 +24,7 @@ namespace ContractConfigurator.ExpressionParser
         /// @identifier nodes, with the rest treated as a string literal.
         /// </summary>
         /// <returns>The full string after parsing</returns>
-        protected override TResult ParseStatement<TResult>()
+        internal override TResult ParseStatement<TResult>()
         {
             string value = "";
             while (expression.Length > 0)

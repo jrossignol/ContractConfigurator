@@ -26,7 +26,7 @@ namespace ContractConfigurator.ExpressionParser
         /// <summary>
         /// Types of expresion tokens.
         /// </summary>
-        protected enum TokenType
+        internal enum TokenType
         {
             IDENTIFIER,
             SPECIAL_IDENTIFIER,
@@ -46,7 +46,7 @@ namespace ContractConfigurator.ExpressionParser
         /// <summary>
         /// A parsed token.
         /// </summary>
-        protected class Token
+        internal class Token
         {
             public TokenType tokenType;
             public string sval;
@@ -96,7 +96,7 @@ namespace ContractConfigurator.ExpressionParser
         /// A token with a value type.
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        protected class ValueToken<T> : Token
+        internal class ValueToken<T> : Token
         {
             public T val;
 
@@ -127,9 +127,14 @@ namespace ContractConfigurator.ExpressionParser
 
         private static Dictionary<Type, Type> parserTypes = new Dictionary<Type, Type>();
         protected int spacing = 0;
+        protected static bool verbose;
+
+        protected static Dictionary<string, object> tempVariables = new Dictionary<string, object>();
 
         static BaseParser()
         {
+            verbose = LoggingUtil.GetLogLevel(typeof(BaseParser)) == LoggingUtil.LogLevel.VERBOSE;
+
             // Create the precendence map
             if (precedence.Count == 0)
             {
@@ -256,18 +261,25 @@ namespace ContractConfigurator.ExpressionParser
             return null;
         }
 
-        protected void LogEntryDebug<TResult>(string function, params string[] args)
+        protected bool LogEntryDebug<TResult>(string function, params object[] args)
         {
             string log = (spacing > 0 ? new String(' ', spacing * 2) : "");
             log += "-> " + GetType().Name + (GetType().IsGenericType ? "[" + GetType().GetGenericArguments()[0].Name + "]" : "");
             log += "." + function + "<" + typeof(TResult).Name + ">(";
-            log += string.Join(", ", args);
+            List<string> stringArg = new List<string>();
+            foreach (object arg in args)
+            {
+                stringArg.Add(arg != null ? arg.ToString() : "null");
+            }
+            log += string.Join(", ", stringArg.ToArray());
             log += "), expression = " + expression;
             LoggingUtil.LogVerbose(typeof(BaseParser), log);
             spacing++;
+
+            return true;
         }
 
-        protected void LogExitDebug<TResult>(string function, string result)
+        protected bool LogExitDebug<TResult>(string function, string result)
         {
             spacing--;
             string log = (spacing > 0 ? new String(' ', spacing * 2) : "");
@@ -276,16 +288,18 @@ namespace ContractConfigurator.ExpressionParser
             log += result;
             log += ", expression = " + expression;
             LoggingUtil.LogVerbose(typeof(BaseParser), log);
+
+            return true;
         }
 
-        protected void LogExitDebug<TResult>(string function, TResult result)
+        protected bool LogExitDebug<TResult>(string function, TResult result)
         {
-            LogExitDebug<TResult>(function, result.ToString());
+            return LogExitDebug<TResult>(function, (result != null ? result.ToString() : "null"));
         }
 
-        protected void LogException<TResult>(string function)
+        protected bool LogException<TResult>(string function)
         {
-            LogExitDebug<TResult>(function, "(EXCEPTION)");
+            return LogExitDebug<TResult>(function, "(EXCEPTION)");
         }
     }
 }

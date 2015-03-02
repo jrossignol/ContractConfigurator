@@ -16,12 +16,12 @@ namespace ContractConfigurator.ExpressionParser
         {
         }
 
-        protected override bool EQ(T a, T b)
+        internal override bool EQ(T a, T b)
         {
             return a == b;
         }
 
-        protected override bool NE(T a, T b)
+        internal override bool NE(T a, T b)
         {
             return a != b;
         }
@@ -34,32 +34,32 @@ namespace ContractConfigurator.ExpressionParser
         {
         }
 
-        protected override bool LT(T a, T b)
+        internal override bool LT(T a, T b)
         {
             return a.CompareTo(b) < 0;
         }
 
-        protected override bool LE(T a, T b)
+        internal override bool LE(T a, T b)
         {
             return a.CompareTo(b) <= 0;
         }
 
-        protected override bool EQ(T a, T b)
+        internal override bool EQ(T a, T b)
         {
             return a.CompareTo(b) == 0;
         }
 
-        protected override bool NE(T a, T b)
+        internal override bool NE(T a, T b)
         {
             return a.CompareTo(b) != 0;
         }
 
-        protected override bool GE(T a, T b)
+        internal override bool GE(T a, T b)
         {
             return a.CompareTo(b) >= 0;
         }
 
-        protected override bool GT(T a, T b)
+        internal override bool GT(T a, T b)
         {
             return a.CompareTo(b) > 0;
         }

@@ -21,27 +21,27 @@ namespace ContractConfigurator.ExpressionParser
         {
         }
 
-        protected override bool EQ(bool a, bool b)
+        internal override bool EQ(bool a, bool b)
         {
             return a == b;
         }
 
-        protected override bool NE(bool a, bool b)
+        internal override bool NE(bool a, bool b)
         {
             return a != b;
         }
 
-        protected override bool Not(bool val)
+        internal override bool Not(bool val)
         {
             return !val;
         }
 
-        protected override bool Or(bool a, bool b)
+        internal override bool Or(bool a, bool b)
         {
             return a || b;
         }
 
-        protected override bool And(bool a, bool b)
+        internal override bool And(bool a, bool b)
         {
             return a && b;
         }
@@ -51,7 +51,7 @@ namespace ContractConfigurator.ExpressionParser
         /// </summary>
         /// <param name="token">Token of the identifier to parse</param>
         /// <returns>Value of the identifier</returns>
-        protected override bool ParseIdentifier(Token token)
+        internal override bool ParseIdentifier(Token token)
         {
             if (string.Compare(token.sval, "true", true) == 0)
             {

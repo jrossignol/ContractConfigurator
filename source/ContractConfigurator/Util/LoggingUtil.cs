@@ -116,6 +116,12 @@ namespace ContractConfigurator
             }
         }
 
+        public static LogLevel GetLogLevel(Type t)
+        {
+            return specificLogLevels.ContainsKey(t.Name) ? specificLogLevels[t.Name] : logLevel;
+        }
+
+
         public static void LogVerbose(System.Object obj, string message)
         {
             LoggingUtil.Log(LogLevel.VERBOSE, obj.GetType(), message);

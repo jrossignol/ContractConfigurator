@@ -20,14 +20,14 @@ namespace ContractConfigurator.ExpressionParser
         {
         }
 
-        protected static Dictionary<string, List<Function>> classMethods = new Dictionary<string, List<Function>>();
-        protected static Dictionary<string, List<Function>> classFunctions = new Dictionary<string, List<Function>>();
+        internal static Dictionary<string, List<Function>> classMethods = new Dictionary<string, List<Function>>();
+        internal static Dictionary<string, List<Function>> classFunctions = new Dictionary<string, List<Function>>();
 
         /// <summary>
         /// Registers a method that can be called on the given type.
         /// </summary>
         /// <param name="method">The callable method.</param>
-        protected static void RegisterMethod(Function method)
+        internal static void RegisterMethod(Function method)
         {
             if (!classMethods.ContainsKey(method.Name))
             {
@@ -40,7 +40,7 @@ namespace ContractConfigurator.ExpressionParser
         /// Registers a function that is only available in the contract of the given type.
         /// </summary>
         /// <param name="method">The callable function.</param>
-        protected static void RegisterLocalFunction(Function function)
+        internal static void RegisterLocalFunction(Function function)
         {
             if (!classFunctions.ContainsKey(function.Name))
             {
@@ -54,7 +54,7 @@ namespace ContractConfigurator.ExpressionParser
         /// </summary>
         /// <param name="name">Name of the function</param>
         /// <returns>Enumeration of functions</returns>
-        protected IEnumerable<Function> GetFunctions(string name)
+        internal IEnumerable<Function> GetFunctions(string name)
         {
             if (classFunctions.ContainsKey(name))
             {
@@ -108,6 +108,7 @@ namespace ContractConfigurator.ExpressionParser
             spacing = 0;
 
             Init(expression);
+            tempVariables.Clear();
             try
             {
                 return ParseStatement<T>();
@@ -123,16 +124,16 @@ namespace ContractConfigurator.ExpressionParser
             }
         }
 
-        protected virtual TResult ParseStatement<TResult>()
+        internal virtual TResult ParseStatement<TResult>()
         {
-            LogEntryDebug<TResult>("ParseStatement");
+            verbose &= LogEntryDebug<TResult>("ParseStatement");
             try
             {
                 string savedExpression = expression;
                 try
                 {
                     TResult result = ParseStatementInner<TResult>();
-                    LogExitDebug<TResult>("ParseStatement", result);
+                    verbose &= LogExitDebug<TResult>("ParseStatement", result);
                     return result;
                 }
                 catch (Exception e)
@@ -153,7 +154,7 @@ namespace ContractConfigurator.ExpressionParser
                     try
                     {
                         TResult result = (TResult)method.Invoke(altParser, new object[] { });
-                        LogExitDebug<TResult>("ParseStatement", result);
+                        verbose &= LogExitDebug<TResult>("ParseStatement", result);
                         return result;
                     }
                     finally
@@ -164,31 +165,31 @@ namespace ContractConfigurator.ExpressionParser
             }
             catch
             {
-                LogException<TResult>("ParseStatement");
+                verbose &= LogException<TResult>("ParseStatement");
                 throw;
             }
         }
 
-        protected virtual TResult ParseStatementInner<TResult>()
+        internal virtual TResult ParseStatementInner<TResult>()
         {
-            LogEntryDebug<TResult>("ParseStatementInner");
+            verbose &= LogEntryDebug<TResult>("ParseStatementInner");
             try
             {
                 T lval = ParseSimpleStatement<T>();
                 TResult result = ParseStatement<TResult>(lval);
-                LogExitDebug<TResult>("ParseStatementInner", result);
+                verbose &= LogExitDebug<TResult>("ParseStatementInner", result);
                 return result;
             }
             catch
             {
-                LogException<TResult>("ParseStatementInner");
+                verbose &= LogException<TResult>("ParseStatementInner");
                 throw;
             }
         }
 
-        protected TResult ParseStatement<TResult>(T lval)
+        internal TResult ParseStatement<TResult>(T lval)
         {
-            LogEntryDebug<TResult>("ParseStatement", lval.ToString());
+            verbose &= LogEntryDebug<TResult>("ParseStatement", lval);
             try
             {
                 ExpressionParser<TResult> parser = GetParser<TResult>(this);
@@ -198,7 +199,7 @@ namespace ContractConfigurator.ExpressionParser
                 if (expression.Length == 0)
                 {
                     result = ConvertType<TResult>(lval);
-                    LogExitDebug<TResult>("ParseStatement", result);
+                    verbose &= LogExitDebug<TResult>("ParseStatement", result);
                     return result;
                 }
 
@@ -216,8 +217,21 @@ namespace ContractConfigurator.ExpressionParser
                         case TokenType.COMMA:
                             expression = token.sval + expression;
                             result = ConvertType<TResult>(lval);
-                            LogExitDebug<TResult>("ParseStatement", result);
+                            verbose &= LogExitDebug<TResult>("ParseStatement", result);
                             return result;
+                        case TokenType.METHOD:
+                            result = ParseMethod<TResult>(token, lval);
+                            parser.expression = expression;
+                            try
+                            {
+                                result = parser.ParseStatement<TResult>(result);
+                                verbose &= LogExitDebug<TResult>("ParseStatement", result);
+                                return result;
+                            }
+                            finally
+                            {
+                                expression = parser.expression;
+                            }
                         case TokenType.OPERATOR:
                             try
                             {
@@ -227,14 +241,13 @@ namespace ContractConfigurator.ExpressionParser
                                 try
                                 {
                                     result = parser.ParseStatement<TResult>(val);
-                                    LogExitDebug<TResult>("ParseStatement", result);
+                                    verbose &= LogExitDebug<TResult>("ParseStatement", result);
                                     return result;
                                 }
                                 finally
                                 {
                                     expression = parser.expression;
                                 }
-
                             }
                             catch (Exception e)
                             {
@@ -261,19 +274,19 @@ namespace ContractConfigurator.ExpressionParser
                 }
 
                 result = ConvertType<TResult>(lval);
-                LogExitDebug<TResult>("ParseStatement", result);
+                verbose &= LogExitDebug<TResult>("ParseStatement", result);
                 return result;
             }
             catch
             {
-                LogException<TResult>("ParseStatement");
+                verbose &= LogException<TResult>("ParseStatement");
                 throw;
             }
         }
 
-        protected TResult ParseSimpleStatement<TResult>()
+        internal TResult ParseSimpleStatement<TResult>()
         {
-            LogEntryDebug<TResult>("ParseSimpleStatement");
+            verbose &= LogEntryDebug<TResult>("ParseSimpleStatement");
             try
             {
                 // Get a token
@@ -289,25 +302,25 @@ namespace ContractConfigurator.ExpressionParser
                         case TokenType.START_BRACKET:
                             result = ParseStatement<TResult>();
                             ParseToken(")");
-                            LogExitDebug<TResult>("ParseSimpleStatement", result);
+                            verbose &= LogExitDebug<TResult>("ParseSimpleStatement", result);
                             parser.expression = expression;
                             return result;
                         case TokenType.LIST_START:
                             result = ParseList<TResult>();
-                            LogExitDebug<TResult>("ParseSimpleStatement", result);
+                            verbose &= LogExitDebug<TResult>("ParseSimpleStatement", result);
                             parser.expression = expression;
                             return result;
                         case TokenType.IDENTIFIER:
-                            result = parser.ParseIdentifier(token);
-                            LogExitDebug<TResult>("ParseSimpleStatement", result);
+                            result = parser.ParseVarOrIdentifier(token);
+                            verbose &= LogExitDebug<TResult>("ParseSimpleStatement", result);
                             return result;
                         case TokenType.FUNCTION:
                             result = parser.ParseFunction(token);
-                            LogExitDebug<TResult>("ParseSimpleStatement", result);
+                            verbose &= LogExitDebug<TResult>("ParseSimpleStatement", result);
                             return result;
                         case TokenType.SPECIAL_IDENTIFIER:
                             result = parser.ParseSpecialIdentifier(token);
-                            LogExitDebug<TResult>("ParseSimpleStatement", result);
+                            verbose &= LogExitDebug<TResult>("ParseSimpleStatement", result);
                             return result;
                         case TokenType.OPERATOR:
                             switch (token.sval)
@@ -317,7 +330,7 @@ namespace ContractConfigurator.ExpressionParser
                                         TResult value = ParseSimpleStatement<TResult>();
                                         parser.expression = expression;
                                         result = parser.Negate(value);
-                                        LogExitDebug<TResult>("ParseSimpleStatement", result);
+                                        verbose &= LogExitDebug<TResult>("ParseSimpleStatement", result);
                                         return result;
                                     }
                                 case "!":
@@ -325,7 +338,7 @@ namespace ContractConfigurator.ExpressionParser
                                         TResult value = ParseSimpleStatement<TResult>();
                                         parser.expression = expression;
                                         result = parser.Not(value);
-                                        LogExitDebug<TResult>("ParseSimpleStatement", result);
+                                        verbose &= LogExitDebug<TResult>("ParseSimpleStatement", result);
                                         return result;
                                     }
                                 default:
@@ -334,7 +347,7 @@ namespace ContractConfigurator.ExpressionParser
                             }
                         case TokenType.VALUE:
                             result = ConvertType<TResult>((token as ValueToken<T>).val);
-                            LogExitDebug<TResult>("ParseSimpleStatement", result);
+                            verbose &= LogExitDebug<TResult>("ParseSimpleStatement", result);
                             return result;
                         default:
                             expression = token.sval + expression;
@@ -348,14 +361,14 @@ namespace ContractConfigurator.ExpressionParser
             }
             catch
             {
-                LogException<TResult>("ParseSimpleStatement");
+                verbose &= LogException<TResult>("ParseSimpleStatement");
                 throw;
             }
         }
 
         private TResult ParseOperation<TResult>(T lval, string op)
         {
-            LogEntryDebug<TResult>("ParseOperation", lval.ToString(), op);
+            verbose &= LogEntryDebug<TResult>("ParseOperation", lval, op);
             try
             {
                 // Get the right side of the operation
@@ -374,18 +387,18 @@ namespace ContractConfigurator.ExpressionParser
                         case TokenType.COMMA:
                             expression = token.sval + expression;
                             result = ApplyOperator<TResult>(lval, op, rval);
-                            LogExitDebug<TResult>("ParseOperation", result);
+                            verbose &= LogExitDebug<TResult>("ParseOperation", result);
                             return result;
                         case TokenType.TERNARY_START:
                             result = ParseTernary<TResult>(ApplyOperator<bool>(lval, op, rval));
-                            LogExitDebug<TResult>("ParseOperation", result);
+                            verbose &= LogExitDebug<TResult>("ParseOperation", result);
                             return result;
                         case TokenType.OPERATOR:
                             if (precedence[op] >= precedence[token.sval])
                             {
                                 expression = token.sval + expression;
                                 result = ApplyOperator<TResult>(lval, op, rval);
-                                LogExitDebug<TResult>("ParseOperation", result);
+                                verbose &= LogExitDebug<TResult>("ParseOperation", result);
                                 return result;
                             }
                             else
@@ -401,19 +414,19 @@ namespace ContractConfigurator.ExpressionParser
                 }
 
                 result = ApplyOperator<TResult>(lval, op, rval);
-                LogExitDebug<TResult>("ParseOperation", result);
+                verbose &= LogExitDebug<TResult>("ParseOperation", result);
                 return result;
             }
             catch
             {
-                LogException<TResult>("ParseOperation");
+                verbose &= LogException<TResult>("ParseOperation");
                 throw;
             }
         }
 
         private TResult ParseList<TResult>()
         {
-            LogEntryDebug<TResult>("ParseList");
+            verbose &= LogEntryDebug<TResult>("ParseList");
             try
             {
                 List<T> values = new List<T>();
@@ -454,7 +467,7 @@ namespace ContractConfigurator.ExpressionParser
                 try
                 {
                     TResult result = parser.ParseMethod<TResult>(token, values);
-                    LogExitDebug<TResult>("ParseList", result);
+                    verbose &= LogExitDebug<TResult>("ParseList", result);
                     return result;
                 }
                 finally
@@ -464,7 +477,7 @@ namespace ContractConfigurator.ExpressionParser
             }
             catch
             {
-                LogException<TResult>("ParseList");
+                verbose &= LogException<TResult>("ParseList");
                 throw;
             }
         }
@@ -497,9 +510,9 @@ namespace ContractConfigurator.ExpressionParser
             }
         }
 
-        protected TResult ParseTernary<TResult>(bool lval)
+        internal TResult ParseTernary<TResult>(bool lval)
         {
-            LogEntryDebug<TResult>("ParseTernary", lval.ToString());
+            verbose &= LogEntryDebug<TResult>("ParseTernary", lval);
             try
             {
                 TResult val1 = ParseStatement<TResult>();
@@ -507,17 +520,17 @@ namespace ContractConfigurator.ExpressionParser
                 TResult val2 = ParseStatement<TResult>();
 
                 TResult result = lval ? val1 : val2;
-                LogExitDebug<TResult>("ParseTernary", result);
+                verbose &= LogExitDebug<TResult>("ParseTernary", result);
                 return result;
             }
             catch
             {
-                LogException<TResult>("ParseTernary");
+                verbose &= LogException<TResult>("ParseTernary");
                 throw;
             }
         }
 
-        protected Token ParseToken()
+        internal Token ParseToken()
         {
             expression = expression.Trim();
 
@@ -587,7 +600,7 @@ namespace ContractConfigurator.ExpressionParser
             throw new ArgumentException("Expected a valid expression, found: '" + c + "'");
         }
 
-        protected Token ParseMethodToken()
+        internal Token ParseMethodToken()
         {
             Token token = ParseToken();
 
@@ -605,7 +618,7 @@ namespace ContractConfigurator.ExpressionParser
             return null;
         }
 
-        protected Token ParseMethodEndToken()
+        internal Token ParseMethodEndToken()
         {
             Token token = ParseToken();
 
@@ -625,7 +638,7 @@ namespace ContractConfigurator.ExpressionParser
             }
         }
 
-        protected void ParseToken(string expected)
+        internal void ParseToken(string expected)
         {
             Token token = ParseToken();
             if (token.sval != expected)
@@ -634,17 +647,29 @@ namespace ContractConfigurator.ExpressionParser
             }
         }
 
+        internal virtual T ParseVarOrIdentifier(Token token)
+        {
+            // Look it up in temporary variables
+            if (tempVariables.ContainsKey(token.sval))
+            {
+                object value = tempVariables[token.sval];
+                return ConvertType(value);
+            }
+
+            return ParseIdentifier(token);
+        }
+
         /// <summary>
         /// Parses an identifier for a value stored in the persistant data store.
         /// </summary>
         /// <param name="token">Token of the identifier to parse</param>
         /// <returns>Value of the identifier</returns>
-        protected virtual T ParseIdentifier(Token token)
+        internal virtual T ParseIdentifier(Token token)
         {
             throw new NotSupportedException("Can't parse identifier for type " + typeof(T) + " in class " + this.GetType() + " - not supported!");
         }
 
-        protected T _ParseMethod<U>(Token token, U obj)
+        internal T _ParseMethod<U>(Token token, U obj)
         {
             ExpressionParser<U> parser = GetParser<U>(this);
             try
@@ -658,134 +683,16 @@ namespace ContractConfigurator.ExpressionParser
             }
         }
 
-        protected TResult ParseMethod<TResult>(Token token, T obj, bool isFunction = false)
+        internal virtual TResult ParseMethod<TResult>(Token token, T obj, bool isFunction = false)
         {
-            LogEntryDebug<TResult>("ParseMethod", token.sval, obj != null ? obj.ToString() : "null", isFunction.ToString());
+            verbose &= LogEntryDebug<TResult>("ParseMethod", token.sval, obj, isFunction);
             try
             {
-                IEnumerable<Function> methods = isFunction ? GetFunctions(token.sval) : classMethods[token.sval].ToList();
-
-                if (!methods.Any())
-                {
-                    throw new MissingMethodException("Cannot find " + (isFunction ? "function" : "method") + " '" + token.sval + "' for class '" + typeof(T).Name + "'.");
-                }
-
                 // Start with method call
                 ParseToken("(");
 
-                List<object> parameters = new List<object>();
                 Function selectedMethod = null;
-
-                while (true)
-                {
-                    // Get some basic statistics
-                    int minParam = int.MaxValue;
-                    int maxParam = 0;
-                    List<Type> paramTypes = new List<Type>();
-                    foreach (Function method in methods)
-                    {
-                        int paramCount = method.ParameterCount();
-                        minParam = Math.Min(minParam, paramCount);
-                        maxParam = Math.Max(maxParam, paramCount);
-                        for (int j = 0; j < paramCount; j++)
-                        {
-                            if (paramTypes.Count <= j)
-                            {
-                                paramTypes.Add(method.ParameterType(j));
-                            }
-                            else if (paramTypes[j] != method.ParameterType(j))
-                            {
-                                paramTypes[j] = null;
-                            }
-                        }
-                    }
-
-                    // Try to end it
-                    Token endToken = ParseMethodEndToken();
-                    if (endToken != null)
-                    {
-                        // End statement
-                        if (endToken.tokenType == TokenType.END_BRACKET)
-                        {
-                            // Find the method that matched
-                            foreach (Function method in methods)
-                            {
-                                int paramCount = method.ParameterCount();
-                                if (paramCount == parameters.Count)
-                                {
-                                    bool found = true;
-                                    for (int j = 0; j < paramCount; j++)
-                                    {
-                                        if (parameters[j].GetType() != method.ParameterType(j))
-                                        {
-                                            found = false;
-                                        }
-                                    }
-
-                                    if (found)
-                                    {
-                                        selectedMethod = method;
-                                        break;
-                                    }
-                                }
-                            }
-
-                            if (selectedMethod != null)
-                            {
-                                break;
-                            }
-
-                            // End bracket, but no matching method!
-                            throw new MethodMismatch(methods);
-                        }
-                        else if (endToken.tokenType == TokenType.COMMA)
-                        {
-                            if (parameters.Count() == 0)
-                            {
-                                throw new ArgumentException("Expected " + (minParam == 0 ? "')'" : "an expression") + ", got: ','.");
-                            }
-                        }
-                        else
-                        {
-                            throw new ArgumentException("Expected ')', got: " + endToken.sval);
-                        }
-                    }
-                    else if (parameters.Count() != 0)
-                    {
-                        token = ParseToken();
-                        throw new ArgumentException("Expected ',', got: " + token.sval);
-                    }
-
-                    // Check for end of statement
-                    if (expression.Trim() == "")
-                    {
-                        throw new ArgumentException("Expected an expression, got end of statement");
-                    }
-
-                    Type paramType = paramTypes[parameters.Count];
-                    // Easy - we have the type!
-                    if (paramType != null)
-                    {
-                        BaseParser parser = GetParser(paramType);
-
-                        try
-                        {
-                            MethodInfo method = parser.GetType().GetMethods(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy).
-                                Where(m => m.Name == "ParseStatement" && m.GetParameters().Count() == 0).Single();
-                            method = method.MakeGenericMethod(new Type[] { paramType });
-                            object value = method.Invoke(parser, new object[] { });
-                            parameters.Add(value);
-                        }
-                        finally
-                        {
-                            expression = parser.expression;
-                        }
-                    }
-                    else
-                    {
-                        // TODO - implement once there's a use case for more complex overloading
-                    }
-                }
+                List<object> parameters = GetCalledFunction(token.sval, ref selectedMethod, isFunction);
 
                 // Add object to the parameter list
                 if (!isFunction)
@@ -818,17 +725,141 @@ namespace ContractConfigurator.ExpressionParser
 
                 // No method, return the result
                 TResult retVal = retValParser.ConvertType(result);
-                LogExitDebug<TResult>("ParseOperation", retVal);
+                verbose &= LogExitDebug<TResult>("ParseMethod", retVal);
                 return retVal;
             }
             catch
             {
-                LogException<TResult>("ParseMethod");
+                verbose &= LogException<TResult>("ParseMethod");
                 throw;
             }
         }
 
-        protected T ParseFunction(Token token)
+        internal List<object> GetCalledFunction(string functionName, ref Function selectedMethod, bool isFunction = false)
+        {
+            IEnumerable<Function> methods = isFunction ? GetFunctions(functionName) : classMethods[functionName].ToList();
+            List<object> parameters = new List<object>();
+
+            if (!methods.Any())
+            {
+                throw new MissingMethodException("Cannot find " + (isFunction ? "function" : "method") + " '" + functionName + "' for class '" + typeof(T).Name + "'.");
+            }
+
+            while (true)
+            {
+                // Get some basic statistics
+                int minParam = int.MaxValue;
+                int maxParam = 0;
+                List<Type> paramTypes = new List<Type>();
+                foreach (Function method in methods)
+                {
+                    int paramCount = method.ParameterCount();
+                    minParam = Math.Min(minParam, paramCount);
+                    maxParam = Math.Max(maxParam, paramCount);
+                    for (int j = 0; j < paramCount; j++)
+                    {
+                        if (paramTypes.Count <= j)
+                        {
+                            paramTypes.Add(method.ParameterType(j));
+                        }
+                        else if (paramTypes[j] != method.ParameterType(j))
+                        {
+                            paramTypes[j] = null;
+                        }
+                    }
+                }
+
+                // Try to end it
+                Token endToken = ParseMethodEndToken();
+                if (endToken != null)
+                {
+                    // End statement
+                    if (endToken.tokenType == TokenType.END_BRACKET)
+                    {
+                        // Find the method that matched
+                        foreach (Function method in methods)
+                        {
+                            int paramCount = method.ParameterCount();
+                            if (paramCount == parameters.Count)
+                            {
+                                bool found = true;
+                                for (int j = 0; j < paramCount; j++)
+                                {
+                                    if (parameters[j].GetType() != method.ParameterType(j))
+                                    {
+                                        found = false;
+                                    }
+                                }
+
+                                if (found)
+                                {
+                                    selectedMethod = method;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (selectedMethod != null)
+                        {
+                            break;
+                        }
+
+                        // End bracket, but no matching method!
+                        throw new MethodMismatch(methods);
+                    }
+                    else if (endToken.tokenType == TokenType.COMMA)
+                    {
+                        if (parameters.Count() == 0)
+                        {
+                            throw new ArgumentException("Expected " + (minParam == 0 ? "')'" : "an expression") + ", got: ','.");
+                        }
+                    }
+                    else
+                    {
+                        throw new ArgumentException("Expected ')', got: " + endToken.sval);
+                    }
+                }
+                else if (parameters.Count() != 0)
+                {
+                    Token token = ParseToken();
+                    throw new ArgumentException("Expected ',', got: " + token.sval);
+                }
+
+                // Check for end of statement
+                if (expression.Trim() == "")
+                {
+                    throw new ArgumentException("Expected an expression, got end of statement");
+                }
+
+                Type paramType = paramTypes[parameters.Count];
+                // Easy - we have the type!
+                if (paramType != null)
+                {
+                    BaseParser parser = GetParser(paramType);
+
+                    try
+                    {
+                        MethodInfo method = parser.GetType().GetMethods(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy).
+                            Where(m => m.Name == "ParseStatement" && m.GetParameters().Count() == 0).Single();
+                        method = method.MakeGenericMethod(new Type[] { paramType });
+                        object value = method.Invoke(parser, new object[] { });
+                        parameters.Add(value);
+                    }
+                    finally
+                    {
+                        expression = parser.expression;
+                    }
+                }
+                else
+                {
+                    // TODO - implement once there's a use case for more complex overloading
+                }
+            }
+
+            return parameters;
+        }
+
+        internal T ParseFunction(Token token)
         {
             return ParseMethod<T>(token, default(T), true);
         }
@@ -838,7 +869,7 @@ namespace ContractConfigurator.ExpressionParser
         /// </summary>
         /// <param name="token">Token of the identifier to parse</param>
         /// <returns>Value of the config node identifier</returns>
-        protected virtual T ParseSpecialIdentifier(Token token)
+        internal virtual T ParseSpecialIdentifier(Token token)
         {
             if (currentDataNode != null)
             {
@@ -885,7 +916,7 @@ namespace ContractConfigurator.ExpressionParser
             }
         }
 
-        protected Token ParseIdentifier()
+        internal Token ParseIdentifier()
         {
             Match m = Regex.Match(expression, "([A-Za-z][A-Za-z0-9_]*).*");
             string identifier = m.Groups[1].Value;
@@ -897,7 +928,7 @@ namespace ContractConfigurator.ExpressionParser
             return new Token(type, identifier);
         }
 
-        protected Token ParseSpecialIdentifier()
+        internal Token ParseSpecialIdentifier()
         {
             Match m = Regex.Match(expression, "@([A-Za-z][A-Za-z0-9_]*).*");
             string identifier = m.Groups[1].Value;
@@ -906,7 +937,7 @@ namespace ContractConfigurator.ExpressionParser
             return new Token(TokenType.SPECIAL_IDENTIFIER, identifier);
         }
 
-        protected Token ParseMethod()
+        internal Token ParseMethod()
         {
             Match m = Regex.Match(expression, "\\.([A-Za-z][A-Za-z0-9_]*).*");
             string identifier = m.Groups[1].Value;
@@ -922,12 +953,12 @@ namespace ContractConfigurator.ExpressionParser
         }
 
 
-        protected virtual Token ParseNumericConstant()
+        internal virtual Token ParseNumericConstant()
         {
             throw new WrongDataType(typeof(double), typeof(T));
         }
 
-        protected Token ParseOperator()
+        internal Token ParseOperator()
         {
             char[] chars = expression.Substring(0, 2).ToCharArray();
             switch (chars[0])
@@ -972,7 +1003,7 @@ namespace ContractConfigurator.ExpressionParser
             throw new ArgumentException("Expected an operator, found: " + expression.Substring(0, 2));
         }
 
-        protected Token ParseOperator(string op)
+        internal Token ParseOperator(string op)
         {
             if (expression.Substring(0, op.Length) == op)
             {
@@ -985,7 +1016,7 @@ namespace ContractConfigurator.ExpressionParser
             }
         }
 
-        protected TResult ApplyOperator<TResult>(T lval, string op, T rval)
+        internal TResult ApplyOperator<TResult>(T lval, string op, T rval)
         {
             if (IsBoolean(op))
             {
@@ -1014,7 +1045,7 @@ namespace ContractConfigurator.ExpressionParser
             }
         }
 
-        protected bool ApplyBooleanOperator(T lval, string op, T rval)
+        internal bool ApplyBooleanOperator(T lval, string op, T rval)
         {
             switch (op)
             {
@@ -1045,7 +1076,7 @@ namespace ContractConfigurator.ExpressionParser
         /// <typeparam name="U">Type to convert to.</typeparam>
         /// <param name="value">Value to convert from.</param>
         /// <returns>The converted value.</returns>
-        protected virtual U ConvertType<U>(T value)
+        internal virtual U ConvertType<U>(T value)
         {
             // Probably should never happen, but handle the basic case
             if (typeof(T) == typeof(U))
@@ -1064,7 +1095,7 @@ namespace ContractConfigurator.ExpressionParser
             }
         }
 
-        protected T ConvertType(object value)
+        internal T ConvertType(object value)
         {
             MethodInfo convertMethod = GetType().GetMethod("_ConvertType", BindingFlags.NonPublic | BindingFlags.Instance);
             convertMethod = convertMethod.MakeGenericMethod(new Type[] { value.GetType() });
@@ -1085,84 +1116,84 @@ namespace ContractConfigurator.ExpressionParser
             }
         }
 
-        protected T _ConvertType<U>(U value)
+        internal T _ConvertType<U>(U value)
         {
             ExpressionParser<U> parser = GetParser<U>(this);
             return parser.ConvertType<T>(value);
         }
 
-        protected bool IsBoolean(string op)
+        internal bool IsBoolean(string op)
         {
             string[] booleans = { "!", "||", "&&", "<", "<=", "==", "!=", ">", ">=" };
             return booleans.Contains(op);
         }
 
-        protected virtual T Negate(T val)
+        internal virtual T Negate(T val)
         {
             throw new NotSupportedException("Negation (-) not supported for type " + typeof(T));
         }
 
-        protected virtual T Add(T a, T b)
+        internal virtual T Add(T a, T b)
         {
             throw new NotSupportedException("Addition (+) not supported for type " + typeof(T));
         }
 
-        protected virtual T Sub(T a, T b)
+        internal virtual T Sub(T a, T b)
         {
             throw new NotSupportedException("Subtraction (-) not supported for type " + typeof(T));
         }
 
-        protected virtual T Mult(T a, T b)
+        internal virtual T Mult(T a, T b)
         {
             throw new NotSupportedException("Multiplication (*) not supported for type " + typeof(T));
         }
 
-        protected virtual T Div(T a, T b)
+        internal virtual T Div(T a, T b)
         {
             throw new NotSupportedException("Division (/) not supported for type " + typeof(T));
         }
 
-        protected virtual T Not(T val)
+        internal virtual T Not(T val)
         {
             throw new NotSupportedException("Logical NOT (!) is not supported for type " + typeof(T));
         }
 
-        protected virtual bool Or(T a, T b)
+        internal virtual bool Or(T a, T b)
         {
             throw new NotSupportedException("Logical OR (||) not supported for type " + typeof(T));
         }
 
-        protected virtual bool And(T a, T b)
+        internal virtual bool And(T a, T b)
         {
             throw new NotSupportedException("Logical AND (&&) not supported for type " + typeof(T));
         }
 
-        protected virtual bool LT(T a, T b)
+        internal virtual bool LT(T a, T b)
         {
             throw new NotSupportedException("Less than (<) not supported for type " + typeof(T));
         }
 
-        protected virtual bool LE(T a, T b)
+        internal virtual bool LE(T a, T b)
         {
             throw new NotSupportedException("Less than or equal (<=) not supported for type " + typeof(T));
         }
 
-        protected virtual bool EQ(T a, T b)
+        internal virtual bool EQ(T a, T b)
         {
             throw new NotSupportedException("Equal (==) not supported for type " + typeof(T));
         }
 
-        protected virtual bool NE(T a, T b)
+        internal virtual bool NE(T a, T b)
         {
             throw new NotSupportedException("Equal (==) not supported for type " + typeof(T));
         }
 
-        protected virtual bool GE(T a, T b)
+        internal virtual bool GE(T a, T b)
         {
             throw new NotSupportedException("Greater than or equal (>=) not supported for type " + typeof(T));
         }
 
-        protected virtual bool GT(T a, T b)
+        internal virtual bool GT(T a, T b)
         {
             throw new NotSupportedException("Greater than (>) not supported for type " + typeof(T));
         }

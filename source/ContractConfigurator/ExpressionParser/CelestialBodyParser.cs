@@ -20,7 +20,7 @@ namespace ContractConfigurator.ExpressionParser
             RegisterParserType(typeof(CelestialBody), typeof(CelestialBodyParser));
         }
 
-        protected static void RegisterMethods()
+        internal static void RegisterMethods()
         {
             RegisterMethod(new Method<CelestialBody, bool>("HasAtmosphere", cb => cb.atmosphere));
             RegisterMethod(new Method<CelestialBody, bool>("HasOcean", cb => cb.ocean));
@@ -37,13 +37,14 @@ namespace ContractConfigurator.ExpressionParser
             RegisterMethod(new Method<CelestialBody, List<CelestialBody>>("Children", cb => cb.orbitingBodies));
 
             RegisterGlobalFunction(new Function<CelestialBody>("HomeWorld", () => FlightGlobals.Bodies.Where(cb => cb.isHomeWorld).First()));
+            RegisterGlobalFunction(new Function<List<CelestialBody>>("AllBodies", () => FlightGlobals.Bodies));
         }
 
         public CelestialBodyParser()
         {
         }
 
-        protected override U ConvertType<U>(CelestialBody value)
+        internal override U ConvertType<U>(CelestialBody value)
         {
             if (typeof(U) == typeof(string))
             {
@@ -52,7 +53,7 @@ namespace ContractConfigurator.ExpressionParser
             return base.ConvertType<U>(value);
         }
 
-        protected override CelestialBody ParseIdentifier(Token token)
+        internal override CelestialBody ParseIdentifier(Token token)
         {
             return ConfigNodeUtil.ParseCelestialBodyValue(token.sval);
         }
