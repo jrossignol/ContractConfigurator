@@ -40,7 +40,7 @@ namespace ContractConfigurator.Parameters
             {
                 if (passengers.Count == 0)
                 {
-                    output = "Load " + count + " passenger" + (count > 1 ? "s" : "") + " while on the launchpad/runway";
+                    output = "Load " + (count == 0 ? "all" : count.ToString()) + " passenger" + (count != 1 ? "s" : "") + " while on the launchpad/runway";
                 }
                 else if (state == ParameterState.Complete)
                 {
@@ -112,6 +112,7 @@ namespace ContractConfigurator.Parameters
         {
             if (contract == Root)
             {
+                int count = this.count == 0 ? ((ConfiguredContract)contract).GetSpawnedKerbalCount() : this.count;
                 for (int i = 0; i < count; i++)
                 {
                     ProtoCrewMember kerbal = ((ConfiguredContract)contract).GetSpawnedKerbal(index+i);
