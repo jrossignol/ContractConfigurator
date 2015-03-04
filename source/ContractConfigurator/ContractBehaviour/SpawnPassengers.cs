@@ -12,7 +12,7 @@ namespace ContractConfigurator.Behaviour
     /// <summary>
     /// Class for spawning passengers.
     /// </summary>
-    public class SpawnPassenger : ContractBehaviour, IHasKerbalBehaviour
+    public class SpawnPassengers : ContractBehaviour, IHasKerbalBehaviour
     {
         public static EventVoid onPassengersLoaded = new EventVoid("onPassengersLoaded");
 
@@ -20,7 +20,7 @@ namespace ContractConfigurator.Behaviour
         {
             private string contractTitle = "";
             private int passengerCount = 0;
-            private SpawnPassenger behaviourReference = null;
+            private SpawnPassengers behaviourReference = null;
             private bool uiHidden = false;
             private bool visible = false;
             private Rect windowPos = new Rect((Screen.width - 200) / 2, (Screen.height - 120) / 2, 200, 120);
@@ -37,7 +37,7 @@ namespace ContractConfigurator.Behaviour
                 GameEvents.onShowUI.Remove(OnShowUI);
             }
 
-            public void Show(SpawnPassenger parameterReference, string contractTitle, int passengerCount)
+            public void Show(SpawnPassengers parameterReference, string contractTitle, int passengerCount)
             {
                 visible = true;
                 this.behaviourReference = parameterReference;
@@ -103,9 +103,9 @@ namespace ContractConfigurator.Behaviour
 
         public int KerbalCount { get { return passengers.Count; } }
 
-        public SpawnPassenger() {}
+        public SpawnPassengers() {}
 
-        public SpawnPassenger(List<string> passengerNames, int minPassengers = 1)
+        public SpawnPassengers(List<string> passengerNames, int minPassengers = 1)
         {
             this.passengerNames = passengerNames;
             this.count = passengerNames.Count != 0 ? passengerNames.Count : minPassengers;

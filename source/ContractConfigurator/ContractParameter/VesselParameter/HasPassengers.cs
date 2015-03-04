@@ -97,7 +97,7 @@ namespace ContractConfigurator.Parameters
             base.OnRegister();
             GameEvents.onCrewTransferred.Add(new EventData<GameEvents.HostedFromToAction<ProtoCrewMember, Part>>.OnEvent(OnCrewTransferred));
             GameEvents.Contract.onAccepted.Add(new EventData<Contract>.OnEvent(OnContractAccepted));
-            SpawnPassenger.onPassengersLoaded.Add(new EventVoid.OnEvent(OnPassengersLoaded));
+            SpawnPassengers.onPassengersLoaded.Add(new EventVoid.OnEvent(OnPassengersLoaded));
         }
 
         protected override void OnUnregister()
@@ -105,7 +105,7 @@ namespace ContractConfigurator.Parameters
             base.OnUnregister();
             GameEvents.onCrewTransferred.Remove(new EventData<GameEvents.HostedFromToAction<ProtoCrewMember, Part>>.OnEvent(OnCrewTransferred));
             GameEvents.Contract.onAccepted.Remove(new EventData<Contract>.OnEvent(OnContractAccepted));
-            SpawnPassenger.onPassengersLoaded.Remove(new EventVoid.OnEvent(OnPassengersLoaded));
+            SpawnPassengers.onPassengersLoaded.Remove(new EventVoid.OnEvent(OnPassengersLoaded));
         }
 
         protected void OnContractAccepted(Contract contract)

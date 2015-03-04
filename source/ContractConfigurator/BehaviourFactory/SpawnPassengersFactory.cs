@@ -9,9 +9,9 @@ using ContractConfigurator;
 namespace ContractConfigurator.Behaviour
 {
     /// <summary>
-    /// BehaviourFactory wrapper for SpawnPassenger ContractBehaviour.
+    /// BehaviourFactory wrapper for SpawnPassengers ContractBehaviour.
     /// </summary>
-    public class SpawnPassengerFactory : BehaviourFactory
+    public class SpawnPassengersFactory : BehaviourFactory
     {
         protected int count;
         protected List<string> passengerName;
@@ -29,7 +29,7 @@ namespace ContractConfigurator.Behaviour
 
         public override ContractBehaviour Generate(ConfiguredContract contract)
         {
-            return new SpawnPassenger(passengerName, count);
+            return new SpawnPassengers(passengerName, count);
         }
     }
 }

@@ -50,7 +50,7 @@
     <Compile Include="BehaviourFactory\ExpressionFactory.cs" />
     <Compile Include="BehaviourFactory\ExperimentalPartFactory.cs" />
     <Compile Include="BehaviourFactory\OrbitGeneratorFactory.cs" />
-    <Compile Include="BehaviourFactory\SpawnPassengerFactory.cs" />
+    <Compile Include="BehaviourFactory\SpawnPassengersFactory.cs" />
     <Compile Include="BehaviourFactory\SpawnVesselFactory.cs" />
     <Compile Include="BehaviourFactory\WaypointGeneratorFactory.cs" />
     <Compile Include="BehaviourFactory\SpawnKerbalFactory.cs" />
