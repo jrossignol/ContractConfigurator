@@ -9,9 +9,9 @@ using ContractConfigurator;
 
 namespace ContractConfigurator.Behaviour
 {
-    /*
-     * Class for spawning a Kerbal.
-     */
+    /// <summary>
+    /// Class for spawning a Kerbal.
+    /// </summary>
     public class SpawnKerbal : ContractBehaviour, IHasKerbalBehaviour
     {
         private class KerbalData
@@ -48,9 +48,10 @@ namespace ContractConfigurator.Behaviour
 
         public SpawnKerbal() {}
 
-        /*
-         * Copy constructor.
-         */
+        /// <summary>
+        /// Copy constructor.
+        /// </summary>
+        /// <param name="orig"></param>
         public SpawnKerbal(SpawnKerbal orig)
         {
             foreach (KerbalData kerbal in orig.kerbals)
@@ -161,7 +162,7 @@ namespace ContractConfigurator.Behaviour
 
         protected override void OnSave(ConfigNode configNode)
         {
-            base.OnLoad(configNode);
+            base.OnSave(configNode);
 
             foreach (KerbalData kd in kerbals)
             {
@@ -302,7 +303,7 @@ namespace ContractConfigurator.Behaviour
             }
         }
 
-        public string GetKerbalName(int index)
+        public ProtoCrewMember GetKerbal(int index)
         {
             if (index < 0 || index >= kerbals.Count)
             {
@@ -310,7 +311,7 @@ namespace ContractConfigurator.Behaviour
                     " is out of range for number of Kerbals spawned (" + kerbals.Count + ").");
             }
 
-            return kerbals[index].name;
+            return kerbals[index].crewMember;
         }
     }
 }

@@ -48,7 +48,7 @@ namespace ContractConfigurator
             }
             else
             {
-                kerbalName = ((ConfiguredContract)contract).GetSpawnedKerbal(index);
+                kerbalName = ((ConfiguredContract)contract).GetSpawnedKerbal(index).name;
             }
 
             contractParam.AddKerbal(kerbalName);

@@ -4,34 +4,32 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 using KSP;
-using Contracts;
-using Contracts.Parameters;
-using ContractConfigurator.Parameters;
+using ContractConfigurator;
 
-namespace ContractConfigurator
+namespace ContractConfigurator.Behaviour
 {
     /// <summary>
-    /// ParameterFactory wrapper for HasPassengers ContractParameter.
+    /// BehaviourFactory wrapper for SpawnPassenger ContractBehaviour.
     /// </summary>
-    public class HasPassengersFactory : ParameterFactory
+    public class SpawnPassengerFactory : BehaviourFactory
     {
-        protected int index;
         protected int count;
+        protected List<string> passengerName;
 
         public override bool Load(ConfigNode configNode)
         {
             // Load base class
             bool valid = base.Load(configNode);
 
-            valid &= ConfigNodeUtil.ParseValue<int>(configNode, "index", x => index = x, this, 0, x => Validation.GE(x, 0));
             valid &= ConfigNodeUtil.ParseValue<int>(configNode, "count", x => count = x, this, 1, x => Validation.GE(x, 1));
+            valid &= ConfigNodeUtil.ParseValue<List<string>>(configNode, "passengerName", x => passengerName = x, this, new List<string>());
 
             return valid;
         }
 
-        public override ContractParameter Generate(Contract contract)
+        public override ContractBehaviour Generate(ConfiguredContract contract)
         {
-            return new HasPassengers(title, index, count);
+            return new SpawnPassenger(passengerName, count);
         }
     }
 }

@@ -8,9 +8,9 @@ using ContractConfigurator;
 
 namespace ContractConfigurator.Behaviour
 {
-    /*
-     * BehaviourFactory wrapper for WaypointGenerator ContractBehaviour.
-     */
+    /// <summary>
+    /// BehaviourFactory wrapper for WaypointGenerator ContractBehaviour.
+    /// </summary>
     public class WaypointGeneratorFactory : BehaviourFactory
     {
         WaypointGenerator waypointGenerator;

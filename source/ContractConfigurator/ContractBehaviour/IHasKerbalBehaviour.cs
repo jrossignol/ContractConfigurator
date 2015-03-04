@@ -9,12 +9,12 @@ namespace ContractConfigurator
     public interface IHasKerbalBehaviour
     {
         int KerbalCount { get; }
-        string GetKerbalName(int index);
+        ProtoCrewMember GetKerbal(int index);
     }
 
     public static class IHasKerbalBehaviourExtensions
     {
-        public static string GetSpawnedKerbal(this ConfiguredContract contract, int index)
+        public static ProtoCrewMember GetSpawnedKerbal(this ConfiguredContract contract, int index)
         {
             int current = index;
             int total = 0;
@@ -23,7 +23,7 @@ namespace ContractConfigurator
                 total += b.KerbalCount;
                 if (current < b.KerbalCount)
                 {
-                    return b.GetKerbalName(current);
+                    return b.GetKerbal(current);
                 }
                 current -= b.KerbalCount;
             }

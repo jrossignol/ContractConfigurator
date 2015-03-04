@@ -8,9 +8,9 @@ using ContractConfigurator;
 
 namespace ContractConfigurator.Behaviour
 {
-    /*
-     * BehaviourFactory wrapper for SpawnKerbal ContractBehaviour.
-     */
+    /// <summary>
+    /// BehaviourFactory wrapper for SpawnKerbal ContractBehaviour.
+    /// </summary>
     public class SpawnKerbalFactory : BehaviourFactory
     {
         SpawnKerbal spawnKerbal;

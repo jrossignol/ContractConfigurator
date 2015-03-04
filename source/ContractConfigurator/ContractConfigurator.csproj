@@ -50,12 +50,14 @@
     <Compile Include="BehaviourFactory\ExpressionFactory.cs" />
     <Compile Include="BehaviourFactory\ExperimentalPartFactory.cs" />
     <Compile Include="BehaviourFactory\OrbitGeneratorFactory.cs" />
+    <Compile Include="BehaviourFactory\SpawnPassengerFactory.cs" />
     <Compile Include="BehaviourFactory\SpawnVesselFactory.cs" />
     <Compile Include="BehaviourFactory\WaypointGeneratorFactory.cs" />
     <Compile Include="BehaviourFactory\SpawnKerbalFactory.cs" />
     <Compile Include="ContractBehaviour\Message.cs" />
     <Compile Include="ContractBehaviour\ExperimentalPart.cs" />
     <Compile Include="ContractBehaviour\IHasKerbalBehaviour.cs" />
+    <Compile Include="ContractBehaviour\SpawnPassengers.cs" />
     <Compile Include="ContractBehaviour\SpawnVessel.cs" />
     <Compile Include="ContractParameter\ContractConfiguratorParameter.cs" />
     <Compile Include="ContractParameter\InvisibleWrapper.cs" />

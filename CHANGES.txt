@@ -1,5 +1,7 @@
 Contract Configurator 0.7.0
 - New debugging window feature - contract balancing mode.
+- Support for expressions in config nodes.
+- SpawnPassenger behaviour.
 - Clean up "Input is null" warning messages from stock.
 - Minor bug fixes.
 

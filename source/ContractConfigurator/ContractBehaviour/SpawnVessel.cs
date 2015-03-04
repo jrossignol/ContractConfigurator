@@ -521,14 +521,14 @@ namespace ContractConfigurator.Behaviour
             return node;
         }
 
-        public string GetKerbalName(int index)
+        public ProtoCrewMember GetKerbal(int index)
         {
             int current = index;
             foreach (VesselData vd in vessels)
             {
                 if (current < vd.crew.Count)
                 {
-                    return vd.crew[current].name;
+                    return HighLogic.CurrentGame.CrewRoster.AllKerbals().Where(cm => cm.name == vd.crew[current].name).First();
                 }
                 current -= vd.crew.Count;
             }
