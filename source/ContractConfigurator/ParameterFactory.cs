@@ -228,6 +228,7 @@ namespace ContractConfigurator
 
             // Get the type
             string type = parameterConfig.GetValue("type");
+            string name = parameterConfig.HasValue("name") ? parameterConfig.GetValue("name") : type;
             if (!factories.ContainsKey(type))
             {
                 LoggingUtil.LogError(typeof(ParameterFactory), "CONTRACT_TYPE '" + contractType.name + "'," +
@@ -245,7 +246,7 @@ namespace ContractConfigurator
             // Set attributes
             paramFactory.parent = parent;
             paramFactory.contractType = contractType;
-            paramFactory.dataNode = new DataNode(contractType.dataNode);
+            paramFactory.dataNode = new DataNode(name, contractType.dataNode);
 
             // Load config
             valid &= paramFactory.Load(parameterConfig);

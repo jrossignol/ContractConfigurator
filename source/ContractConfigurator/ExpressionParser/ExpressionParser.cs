@@ -84,9 +84,7 @@ namespace ContractConfigurator.ExpressionParser
             try
             {
                 parseMode = false;
-                currentDataNode = dataNode;
-                currentKey = key;
-                val = ParseExpression(expression);
+                val = ParseExpression(key, expression, dataNode);
             }
             finally
             {
@@ -102,12 +100,14 @@ namespace ContractConfigurator.ExpressionParser
         /// </summary>
         /// <param name="expression">The expression to parse</param>
         /// <returns>The result of parsing the expression</returns>
-        public T ParseExpression(string expression)
+        public T ParseExpression(string key, string expression, DataNode dataNode)
         {
             LoggingUtil.LogVerbose(typeof(BaseParser), "Parsing expression: " + expression);
             spacing = 0;
 
             Init(expression);
+            currentKey = key;
+            currentDataNode = dataNode;
             tempVariables.Clear();
             try
             {
@@ -873,15 +873,50 @@ namespace ContractConfigurator.ExpressionParser
         {
             if (currentDataNode != null)
             {
-                if (!currentDataNode.IsInitialized(token.sval))
+                Debug.Log("token value is: '" + token.sval + "'");
+
+                string identifier = token.sval;
+                DataNode dataNode = currentDataNode;
+                while (identifier.Contains("/"))
                 {
-                    throw new DataNode.ValueNotInitialized(token.sval);
+                    Debug.Log("   iterate, token value is: '" + identifier + "'");
+                    if (identifier[0] == '/')
+                    {
+                        identifier = identifier.Substring(1);
+                        dataNode = dataNode.Root;
+                        continue;
+                    }
+                    else if (identifier.StartsWith(".."))
+                    {
+                        identifier = identifier.Substring(2);
+                        dataNode = dataNode.Parent;
+                        continue;
+                    }
+                    else
+                    {
+                        int index = identifier.IndexOf('/');
+                        string currentIdentifier = identifier.Substring(0, index);
+                        identifier = identifier.Substring(index + 1);
+                        DataNode newNode = dataNode.Children.Where(dn => dn.Name == currentIdentifier).FirstOrDefault();
+
+                        if (newNode == null)
+                        {
+                            throw new DataNode.ValueNotInitialized(dataNode.Path() + currentIdentifier + "/" + identifier);
+                        }
+                        dataNode = newNode;
+                    }
+                }
+                Debug.Log("end, token value is: '" + identifier + "'");
+
+                if (!dataNode.IsInitialized(identifier))
+                {
+                    throw new DataNode.ValueNotInitialized(dataNode.Path() + identifier);
                 }
 
-                object o = currentDataNode[token.sval];
-                if (!currentDataNode.IsDeterministic(token.sval))
+                object o = dataNode[identifier];
+                if (!dataNode.IsDeterministic(identifier))
                 {
-                    currentDataNode.SetDeterministic(currentKey, false);
+                    dataNode.SetDeterministic(currentKey, false);
                 }
 
                 // Check for null value
@@ -918,7 +953,7 @@ namespace ContractConfigurator.ExpressionParser
 
         internal Token ParseIdentifier()
         {
-            Match m = Regex.Match(expression, "([A-Za-z][A-Za-z0-9_]*).*");
+            Match m = Regex.Match(expression, @"([A-Za-z][\w\d]*).*");
             string identifier = m.Groups[1].Value;
             expression = (expression.Length > identifier.Length ? expression.Substring(identifier.Length) : "");
 
@@ -930,7 +965,7 @@ namespace ContractConfigurator.ExpressionParser
 
         internal Token ParseSpecialIdentifier()
         {
-            Match m = Regex.Match(expression, "@([A-Za-z][A-Za-z0-9_]*).*");
+            Match m = Regex.Match(expression, @"^@(/?(?>([A-Za-z][\w\d]*|\.\.)/)*[A-Za-z][\w\d]*).*");
             string identifier = m.Groups[1].Value;
             expression = (expression.Length > identifier.Length + 1 ? expression.Substring(identifier.Length + 1) : "");
 

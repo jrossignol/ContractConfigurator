@@ -36,9 +36,11 @@ namespace ContractConfigurator.ExpressionParser
         }
 
         protected Dictionary<string, Value> data = new Dictionary<string, Value>();
+        private DataNode root;
         private DataNode parent;
         private List<DataNode> children = new List<DataNode>();
-        public List<ConfigNodeUtil.DeferredLoadBase> deferredLoads = new List<ConfigNodeUtil.DeferredLoadBase>();
+        private string name;
+        private List<ConfigNodeUtil.DeferredLoadBase> deferredLoads = new List<ConfigNodeUtil.DeferredLoadBase>();
         public double lastModified = Time.fixedTime;
 
         public object this[string s]
@@ -59,6 +61,11 @@ namespace ContractConfigurator.ExpressionParser
                     data[s].value = value;
                 }
             }
+        }
+
+        public List<ConfigNodeUtil.DeferredLoadBase> DeferredLoads
+        {
+            get { return Root.deferredLoads; }
         }
 
         public bool IsDeterministic(string s)
@@ -96,22 +103,40 @@ namespace ContractConfigurator.ExpressionParser
             private set { parent = value; }
         }
 
+        public DataNode Root
+        {
+            get { return root; }
+            private set { root = value; }
+        }
+
+        public string Name
+        {
+            get { return name; }
+            private set { name = value; }
+        }
+
         public IEnumerable<DataNode> Children
         {
             get { return children.AsEnumerable(); }
         }
 
-        public DataNode()
-            : this(null)
+        public DataNode(string name)
+            : this(name, null)
         {
         }
 
-        public DataNode(DataNode parent)
+        public DataNode(string name, DataNode parent)
         {
             this.parent = parent;
+            this.name = name;
             if (parent != null)
             {
                 parent.children.Add(this);
+                root = parent.root;
+            }
+            else
+            {
+                root = this;
             }
         }
 
@@ -123,6 +148,20 @@ namespace ContractConfigurator.ExpressionParser
                 result += "    <color=lime>" + pair.Key + "</color> = " + pair.Value.value + "\n"; ;
             }
             return result;
+        }
+
+        public string Path()
+        {
+            string path = "";
+
+            DataNode node = this;
+            while (node != Root)
+            {
+                path = node.name + "/" + path;
+                node = node.parent;
+            }
+
+            return "/" + path;
         }
     }
 }

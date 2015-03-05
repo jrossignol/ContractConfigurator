@@ -19,8 +19,17 @@ namespace ContractConfigurator.Behaviour
             // Load base class
             bool valid = base.Load(configNode);
 
-            // Call SpawnKerbal for load behaviour
-            expression = Expression.Parse(configNode, dataNode);
+            // Call Expression for load behaviour
+            try
+            {
+                expression = Expression.Parse(configNode, dataNode);
+            }
+            catch (Exception e)
+            {
+                valid = false;
+                LoggingUtil.LogError(this, ErrorPrefix(configNode) + ": Couldn't load expression.");
+                LoggingUtil.LogException(e);
+            }
 
             return valid && expression != null;
         }

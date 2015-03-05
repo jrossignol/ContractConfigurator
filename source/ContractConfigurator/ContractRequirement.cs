@@ -180,6 +180,7 @@ namespace ContractConfigurator
 
             // Get the type
             string type = configNode.GetValue("type");
+            string name = configNode.HasValue("name") ? configNode.GetValue("name") : type;
             if (!requirementTypes.ContainsKey(type))
             {
                 LoggingUtil.LogError(typeof(ParameterFactory), "CONTRACT_TYPE '" + contractType.name + "'," +
@@ -197,7 +198,7 @@ namespace ContractConfigurator
             // Set attributes
             requirement.contractType = contractType;
             requirement.targetBody = contractType.targetBody;
-            requirement.dataNode = new DataNode(contractType.dataNode);
+            requirement.dataNode = new DataNode(name, contractType.dataNode);
 
             // Load config
             valid &= requirement.Load(configNode);

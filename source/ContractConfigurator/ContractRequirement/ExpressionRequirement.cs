@@ -24,7 +24,8 @@ namespace ContractConfigurator
             bool valid = base.Load(configNode);
 
             // Get expression
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "expression", x => expression = x, this, x => parser.ParseExpression(x) || true);
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "expression", x => expression = x, this,
+                x => parser.ParseExpression("expression", x, dataNode) || true);
 
             return valid;
         }

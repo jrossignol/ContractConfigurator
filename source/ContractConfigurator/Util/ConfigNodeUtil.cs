@@ -28,14 +28,17 @@ namespace ContractConfigurator
         {
             public Action<T> setter;
             public Func<T, bool> validation;
+            public DataNode dataNode;
 
-            public DeferredLoadObject(ConfigNode configNode, string key, Action<T> setter, IContractConfiguratorFactory obj, Func<T, bool> validation)
+            public DeferredLoadObject(ConfigNode configNode, string key, Action<T> setter, IContractConfiguratorFactory obj, Func<T, bool> validation,
+                DataNode dataNode)
             {
                 this.key = key;
                 this.configNode = configNode;
                 this.setter = setter;
                 this.obj = obj;
                 this.validation = validation;
+                this.dataNode = dataNode;
             }
         }
 
@@ -43,6 +46,7 @@ namespace ContractConfigurator
         {
             public static bool ExecuteLoad<T>(DeferredLoadObject<T> loadObj)
             {
+                SetCurrentDataNode(loadObj.dataNode);
                 return ParseValue<T>(loadObj.configNode, loadObj.key, loadObj.setter, loadObj.obj, loadObj.validation);
             }
 
@@ -369,7 +373,7 @@ namespace ContractConfigurator
                         DeferredLoadObject<T> loadObj = null;
                         if (!deferredLoads.ContainsKey(key))
                         {
-                            deferredLoads[key] = new DeferredLoadObject<T>(configNode, key, setter, obj, validation);
+                            deferredLoads[key] = new DeferredLoadObject<T>(configNode, key, setter, obj, validation, currentDataNode);
                         }
                         loadObj = (DeferredLoadObject<T>)deferredLoads[key];
 
@@ -405,7 +409,7 @@ namespace ContractConfigurator
 
                 if (!currentDataNode.IsDeterministic(key))
                 {
-                    currentDataNode.deferredLoads.Add(new DeferredLoadObject<T>(configNode, key, setter, obj, validation));
+                    currentDataNode.DeferredLoads.Add(new DeferredLoadObject<T>(configNode, key, setter, obj, validation, currentDataNode));
                 }
             }
 
@@ -530,7 +534,7 @@ namespace ContractConfigurator
 
             // Execute each deferred load
             MethodInfo executeMethod = typeof(DeferredLoadUtil).GetMethods().Where(m => m.Name == "ExecuteLoad").First();
-            foreach (DeferredLoadBase loadObj in node.deferredLoads)
+            foreach (DeferredLoadBase loadObj in node.DeferredLoads)
             {
                 LoggingUtil.LogVerbose(typeof(ConfigNodeUtil), "Doing non-deterministic load for key '" + loadObj.key + "'");
 
@@ -622,11 +626,15 @@ namespace ContractConfigurator
         /// <summary>
         /// Clears the cache of found keys.
         /// </summary>
-        public static void ClearCache()
+        /// <param name="firstNode">Whether we are looking at the root node and should do additional clearing</param>
+        public static void ClearCache(bool firstNode = false)
         {
             keysFound.Clear();
             storedValues.Clear();
-            deferredLoads.Clear();
+            if (firstNode)
+            {
+                deferredLoads.Clear();
+            }
         }
 
         /// <summary>
@@ -638,7 +646,11 @@ namespace ContractConfigurator
             currentDataNode = dataNode;
         }
 
-        private static bool ExecuteDeferredLoads()
+        /// <summary>
+        /// Execute all deferred loads.
+        /// </summary>
+        /// <returns>Whether we were successful</returns>
+        public static bool ExecuteDeferredLoads()
         {
             bool valid = true;
 
@@ -719,7 +731,7 @@ namespace ContractConfigurator
         /// <returns>Always true, but logs a warning if unexpected keys were found</returns>
         public static bool ValidateUnexpectedValues(ConfigNode configNode, IContractConfiguratorFactory obj)
         {
-            bool valid = ExecuteDeferredLoads();
+            bool valid = true;
 
             if (!keysFound.ContainsKey(configNode))
             {

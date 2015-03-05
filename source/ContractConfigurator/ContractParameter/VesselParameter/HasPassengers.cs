@@ -44,7 +44,7 @@ namespace ContractConfigurator.Parameters
                 }
                 else if (state == ParameterState.Complete)
                 {
-                    output = "Passengers: " + count;
+                    output = "Passengers: " + passengers.Count;
                 }
                 else
                 {

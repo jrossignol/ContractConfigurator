@@ -116,7 +116,7 @@ namespace ContractConfigurator.Behaviour
                     foreach (ConfigNode.Value pair in child.values)
                     {
                         // Parse the expression to validate
-                        parser.ParseExpression(pair.value);
+                        parser.ParseExpression(pair.name, pair.value, dataNode);
 
                         // Store it for later
                         map[node].Add(new ExpVal(pair.name, pair.value));

@@ -120,9 +120,9 @@ namespace ContractConfigurator
             // Logging on
             LoggingUtil.CaptureLog = true;
 
-            dataNode = new DataNode();
+            dataNode = new DataNode(configNode.GetValue("name"));
 
-            ConfigNodeUtil.ClearCache();
+            ConfigNodeUtil.ClearCache(true);
             ConfigNodeUtil.SetCurrentDataNode(dataNode);
             bool valid = true;
 
@@ -215,6 +215,9 @@ namespace ContractConfigurator
                 LoggingUtil.LogError(this.GetType(), ErrorPrefix() + ": Need at least one parameter for a contract!");
                 valid = false;
             }
+
+            // Do the deferred loads
+            valid &= ConfigNodeUtil.ExecuteDeferredLoads();
 
             config = configNode.ToString();
             enabled = valid;
