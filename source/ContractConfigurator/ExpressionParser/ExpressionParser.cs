@@ -602,10 +602,12 @@ namespace ContractConfigurator.ExpressionParser
 
         internal Token ParseMethodToken()
         {
+            string savedExpression = expression;
             Token token = ParseToken();
 
             if (token == null)
             {
+                expression = savedExpression;
                 return null;
             }
 
@@ -614,7 +616,7 @@ namespace ContractConfigurator.ExpressionParser
                 return token;
             }
 
-            expression = token.sval + expression;
+            expression = savedExpression;
             return null;
         }
 
