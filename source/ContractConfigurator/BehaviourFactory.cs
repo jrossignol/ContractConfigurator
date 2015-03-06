@@ -72,13 +72,6 @@ namespace ContractConfigurator
             {
                 if (behaviourFactory.enabled)
                 {
-                    // Try to refresh non-deterministic values
-                    if (!ConfigNodeUtil.UpdateNonDeterministicValues(behaviourFactory.dataNode))
-                    {
-                        LoggingUtil.LogVerbose(typeof(ParameterFactory), "Returning null for " + contract.contractType.name + "." + behaviourFactory.name + ": non-deterministic func failure.");
-                        return false;
-                    }
-
                     ContractBehaviour behaviour = behaviourFactory.Generate(contract);
                     if (behaviour == null)
                     {

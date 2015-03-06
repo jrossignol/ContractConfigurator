@@ -68,6 +68,7 @@ namespace ContractConfigurator
         private static Dictionary<ConfigNode, Dictionary<string, int>> keysFound = new Dictionary<ConfigNode, Dictionary<string, int>>();
         private static Dictionary<ConfigNode, ConfigNode> storedValues = new Dictionary<ConfigNode, ConfigNode>();
         private static DataNode currentDataNode;
+        private static bool initialLoad = true;
 
         /// <summary>
         /// Checks whether the mandatory field exists, and if not logs and error.  Returns true
@@ -405,9 +406,10 @@ namespace ContractConfigurator
             // Store the value
             if (currentDataNode != null)
             {
+                LoggingUtil.LogVerbose(typeof(ConfigNodeUtil), "DataNode[" + currentDataNode.Name + "], storing " + key + " = " + value);
                 currentDataNode[key] = value;
 
-                if (!currentDataNode.IsDeterministic(key))
+                if (!currentDataNode.IsDeterministic(key) && initialLoad)
                 {
                     currentDataNode.DeferredLoads.Add(new DeferredLoadObject<T>(configNode, key, setter, obj, validation, currentDataNode));
                 }
@@ -532,22 +534,31 @@ namespace ContractConfigurator
                 return true;
             }
 
-            // Execute each deferred load
-            MethodInfo executeMethod = typeof(DeferredLoadUtil).GetMethods().Where(m => m.Name == "ExecuteLoad").First();
-            foreach (DeferredLoadBase loadObj in node.DeferredLoads)
+            initialLoad = false;
+
+            try
             {
-                LoggingUtil.LogVerbose(typeof(ConfigNodeUtil), "Doing non-deterministic load for key '" + loadObj.key + "'");
-
-                MethodInfo method = executeMethod.MakeGenericMethod(loadObj.GetType().GetGenericArguments());
-                bool valid = (bool)method.Invoke(null, new object[] { loadObj });
-
-                if (!valid)
+                // Execute each deferred load
+                MethodInfo executeMethod = typeof(DeferredLoadUtil).GetMethods().Where(m => m.Name == "ExecuteLoad").First();
+                foreach (DeferredLoadBase loadObj in node.DeferredLoads)
                 {
-                    return false;
-                }
-            }
+                    LoggingUtil.LogVerbose(typeof(ConfigNodeUtil), "Doing non-deterministic load for key '" + loadObj.key + "'");
 
-            return true;
+                    MethodInfo method = executeMethod.MakeGenericMethod(loadObj.GetType().GetGenericArguments());
+                    bool valid = (bool)method.Invoke(null, new object[] { loadObj });
+
+                    if (!valid)
+                    {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+            finally
+            {
+                initialLoad = true;
+            }
         }
 
         public static CelestialBody ParseCelestialBodyValue(string celestialName)

@@ -873,79 +873,91 @@ namespace ContractConfigurator.ExpressionParser
         /// <returns>Value of the config node identifier</returns>
         internal virtual T ParseSpecialIdentifier(Token token)
         {
-            if (currentDataNode != null)
+            verbose &= LogEntryDebug<T>("ParseSpecialIdentifier", token);
+            try
             {
-                string identifier = token.sval;
-                DataNode dataNode = currentDataNode;
-                while (identifier.Contains("/"))
+                if (currentDataNode != null)
                 {
-                    if (identifier[0] == '/')
+                    string identifier = token.sval;
+                    DataNode dataNode = currentDataNode;
+                    while (identifier.Contains("/"))
                     {
-                        identifier = identifier.Substring(1);
-                        dataNode = dataNode.Root;
-                        continue;
+                        if (identifier[0] == '/')
+                        {
+                            identifier = identifier.Substring(1);
+                            dataNode = dataNode.Root;
+                            continue;
+                        }
+                        else if (identifier.StartsWith(".."))
+                        {
+                            identifier = identifier.Substring(2);
+                            dataNode = dataNode.Parent;
+                            continue;
+                        }
+                        else
+                        {
+                            int index = identifier.IndexOf('/');
+                            string currentIdentifier = identifier.Substring(0, index);
+                            identifier = identifier.Substring(index + 1);
+                            DataNode newNode = dataNode.Children.Where(dn => dn.Name == currentIdentifier).FirstOrDefault();
+
+                            if (newNode == null)
+                            {
+                                throw new DataNode.ValueNotInitialized(dataNode.Path() + currentIdentifier + "/" + identifier);
+                            }
+                            dataNode = newNode;
+                        }
                     }
-                    else if (identifier.StartsWith(".."))
+
+                    if (!dataNode.IsInitialized(identifier))
                     {
-                        identifier = identifier.Substring(2);
-                        dataNode = dataNode.Parent;
-                        continue;
+                        throw new DataNode.ValueNotInitialized(dataNode.Path() + identifier);
+                    }
+
+                    object o = dataNode[identifier];
+                    if (!dataNode.IsDeterministic(identifier))
+                    {
+                        currentDataNode.SetDeterministic(currentKey, false);
+                    }
+
+                    // Check for null value
+                    if (o == null)
+                    {
+                        throw new ArgumentNullException("@" + token.sval, "Null value for expression!");
+                    }
+
+                    // Check for a method call before we start messing with types
+                    Token methodToken = ParseMethodToken();
+                    if (methodToken != null)
+                    {
+                        MethodInfo parseMethod = GetType().GetMethod("_ParseMethod", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
+                        parseMethod = parseMethod.MakeGenericMethod(new Type[] { o.GetType() });
+
+                        return (T)parseMethod.Invoke(this, new object[] { methodToken, o });
+                    }
+
+                    // No method, try type conversion or straight return
+                    T result;
+                    if (o.GetType() == typeof(T))
+                    {
+                        result = (T)o;
                     }
                     else
                     {
-                        int index = identifier.IndexOf('/');
-                        string currentIdentifier = identifier.Substring(0, index);
-                        identifier = identifier.Substring(index + 1);
-                        DataNode newNode = dataNode.Children.Where(dn => dn.Name == currentIdentifier).FirstOrDefault();
-
-                        if (newNode == null)
-                        {
-                            throw new DataNode.ValueNotInitialized(dataNode.Path() + currentIdentifier + "/" + identifier);
-                        }
-                        dataNode = newNode;
+                        result = ConvertType(o);
                     }
-                }
-
-                if (!dataNode.IsInitialized(identifier))
-                {
-                    throw new DataNode.ValueNotInitialized(dataNode.Path() + identifier);
-                }
-
-                object o = dataNode[identifier];
-                if (!dataNode.IsDeterministic(identifier))
-                {
-                    dataNode.SetDeterministic(currentKey, false);
-                }
-
-                // Check for null value
-                if (o == null)
-                {
-                    throw new ArgumentNullException("@" + token.sval, "Null value for expression!");
-                }
-
-                // Check for a method call before we start messing with types
-                Token methodToken = ParseMethodToken();
-                if (methodToken != null)
-                {
-                    MethodInfo parseMethod = GetType().GetMethod("_ParseMethod", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
-                    parseMethod = parseMethod.MakeGenericMethod(new Type[] { o.GetType() });
-
-                    return (T)parseMethod.Invoke(this, new object[] { methodToken, o });
-                }
-
-                // No method, try type conversion or straight return
-                if (o.GetType() == typeof(T))
-                {
-                    return (T)o;
+                    verbose &= LogExitDebug<T>("ParseSpecialIdentifier", result);
+                    return result;
                 }
                 else
                 {
-                    return ConvertType(o);
+                    throw new ArgumentException("Cannot get value for @" + token.sval + ": not available in this context.");
                 }
             }
-            else
+            catch
             {
-                throw new ArgumentException("Cannot get value for @" + token.sval + ": not available in this context.");
+                verbose &= LogException<T>("ParseSpecialIdentifier");
+                throw;
             }
         }
 

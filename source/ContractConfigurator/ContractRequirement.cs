@@ -108,12 +108,6 @@ namespace ContractConfigurator
                     {
                         if (requirement.checkOnActiveContract || contract.ContractState != Contract.State.Active)
                         {
-                            // Try to refresh non-deterministic values
-                            if (!ConfigNodeUtil.UpdateNonDeterministicValues(requirement.dataNode))
-                            {
-                                return false;
-                            }
-
                             allReqMet = allReqMet && requirement.CheckRequirement(contract);
 
                             if (!allReqMet)

@@ -145,7 +145,7 @@ namespace ContractConfigurator.ExpressionParser
             string result = "";
             foreach (KeyValuePair<string, Value> pair in data)
             {
-                result += "    <color=lime>" + pair.Key + "</color> = " + pair.Value.value + "\n"; ;
+                result += "    <color=lime>" + pair.Key + "</color> = " + pair.Value.value + ", deterministic = " + pair.Value.deterministic + "\n"; ;
             }
             return result;
         }

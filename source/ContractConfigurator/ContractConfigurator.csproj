@@ -63,6 +63,7 @@
     <Compile Include="ContractParameter\InvisibleWrapper.cs" />
     <Compile Include="ContractParameter\Duration.cs" />
     <Compile Include="ContractParameter\ParameterDelegate.cs" />
+    <Compile Include="ContractParameter\RecoverKerbalCustom.cs" />
     <Compile Include="ContractParameter\TargetDestroyed.cs" />
     <Compile Include="ContractParameter\ReachSpaceCustom.cs" />
     <Compile Include="ContractParameter\VesselParameter\Rendezvous.cs" />

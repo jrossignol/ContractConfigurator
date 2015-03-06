@@ -35,6 +35,7 @@ namespace ContractConfigurator.Behaviour
 
         private Dictionary<string, List<ExpVal>> map = new Dictionary<string, List<ExpVal>>();
         private DataNode dataNode;
+        private ExpressionFactory factory;
 
         public Expression()
             : this((DataNode)null)
@@ -47,9 +48,10 @@ namespace ContractConfigurator.Behaviour
             SetupMap();
         }
 
-        /*
-         * Copy constructor.
-         */
+        /// <summary>
+        /// Copy constructor. 
+        /// </summary>
+        /// <param name="source"></param>
         public Expression(Expression source)
         {
             dataNode = source.dataNode;
@@ -66,10 +68,12 @@ namespace ContractConfigurator.Behaviour
             map["CONTRACT_COMPLETED_FAILURE"] = onFailExpr;
         }
 
-        public static Expression Parse(ConfigNode configNode, DataNode dataNode)
+        public static Expression Parse(ConfigNode configNode, DataNode dataNode, ExpressionFactory factory)
         {
             Expression e = new Expression(dataNode);
+            e.factory = factory;
             e.Load(configNode);
+            e.factory = null;
 
             return e;
         }
@@ -115,11 +119,17 @@ namespace ContractConfigurator.Behaviour
                 {
                     foreach (ConfigNode.Value pair in child.values)
                     {
+                        ExpVal expVal = new ExpVal(pair.name, pair.value);
+                        if (factory != null)
+                        {
+                            ConfigNodeUtil.ParseValue<string>(child, pair.name, x => expVal.val = x, factory);
+                        }
+
                         // Parse the expression to validate
-                        parser.ParseExpression(pair.name, pair.value, dataNode);
+                        parser.ParseExpression(pair.name, expVal.val, dataNode);
 
                         // Store it for later
-                        map[node].Add(new ExpVal(pair.name, pair.value));
+                        map[node].Add(expVal);
                     }
                 }
             }

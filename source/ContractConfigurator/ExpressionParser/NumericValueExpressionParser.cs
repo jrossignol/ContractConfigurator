@@ -108,8 +108,7 @@ namespace ContractConfigurator.ExpressionParser
             }
 
             RegisterLocalFunction(new Function<T>("Random", () => (T)Convert.ChangeType(random.NextDouble(), typeof(T)), false));
-            RegisterLocalFunction(new Function<T, T, T>("Random", (min, max) =>
-                calculator.Add(calculator.Mult((T)Convert.ChangeType(random.NextDouble(), typeof(T)), calculator.Sub(max, min)), min), false));
+            RegisterLocalFunction(new Function<T, T, T>("Random", RandomMinMax, false));
 
             RegisterMethod(new Method<T, string>("Print", (tval) =>
             {
@@ -129,6 +128,18 @@ namespace ContractConfigurator.ExpressionParser
                 }
                 return tval.ToString();
             }));
+        }
+
+        private static T RandomMinMax(T min, T max)
+        {
+            Debug.Log("generating a random number in range(" + min + ", " + max + ")");
+
+            double dmin = (double)Convert.ChangeType(min, typeof(double));
+            double dmax = (double)Convert.ChangeType(max, typeof(double));
+
+            double val = random.NextDouble() * (dmax - dmin) + dmin;
+            Debug.Log("generated " + val + ", casted to " + (T)Convert.ChangeType(val, typeof(T)));
+            return (T)Convert.ChangeType(val, typeof(T));
         }
 
         public NumericValueExpressionParser()

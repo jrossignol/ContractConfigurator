@@ -121,13 +121,6 @@ namespace ContractConfigurator
                 return null;
             }
 
-            // Try to refresh non-deterministic values
-            if (!ConfigNodeUtil.UpdateNonDeterministicValues(dataNode))
-            {
-                LoggingUtil.LogVerbose(typeof(ParameterFactory), "Returning null for " + contract.contractType.name + "." + name + ": non-deterministic func failure.");
-                return null;
-            }
-
             // Generate a parameter using the sub-class logic
             ContractParameter parameter = Generate(contract);
             if (parameter == null)

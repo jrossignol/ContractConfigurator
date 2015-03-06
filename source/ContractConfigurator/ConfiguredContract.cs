@@ -41,6 +41,7 @@ namespace ContractConfigurator
             // Try to refresh non-deterministic values
             if (!ConfigNodeUtil.UpdateNonDeterministicValues(contractType.dataNode))
             {
+                LoggingUtil.LogVerbose(this, "Returning null for " + contractType.name + ": non-deterministic function failure.");
                 return false;
             }
 

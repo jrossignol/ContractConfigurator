@@ -22,7 +22,7 @@ namespace ContractConfigurator.Behaviour
             // Call Expression for load behaviour
             try
             {
-                expression = Expression.Parse(configNode, dataNode);
+                expression = Expression.Parse(configNode, dataNode, this);
             }
             catch (Exception e)
             {
