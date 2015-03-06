@@ -14,27 +14,20 @@ namespace ContractConfigurator.Parameters
     /// </summary>
     public class Sequence : ContractConfiguratorParameter
     {
-        protected string title { get; set; }
         protected List<string> hiddenParameters;
 
         private bool paramRemoved = false;
         private bool firstRun = false;
 
         public Sequence()
-            : base()
+            : base(null)
         {
         }
 
         public Sequence(List<string> hiddenParameters, string title)
-            : base()
+            : base(title ?? "Complete the following in order")
         {
-            this.title = title != null && title != "" ? title : "Complete the following in order";
             this.hiddenParameters = hiddenParameters;
-        }
-
-        protected override string GetTitle()
-        {
-            return title;
         }
 
         protected override string GetHashString()
@@ -44,7 +37,6 @@ namespace ContractConfigurator.Parameters
 
         protected override void OnParameterSave(ConfigNode node)
         {
-            node.AddValue("title", title);
             foreach (string param in hiddenParameters)
             {
                 node.AddValue("hiddenParameter", param);
@@ -53,7 +45,6 @@ namespace ContractConfigurator.Parameters
 
         protected override void OnParameterLoad(ConfigNode node)
         {
-            title = node.GetValue("title");
             hiddenParameters = ConfigNodeUtil.ParseValue<List<string>>(node, "hiddenParameter", new List<string>());
         }
 

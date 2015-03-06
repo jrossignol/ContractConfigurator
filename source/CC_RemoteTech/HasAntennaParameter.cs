@@ -23,7 +23,6 @@ namespace ContractConfigurator.RemoteTech
             Omni
         };
 
-        protected string title { get; set; }
         protected int minCount { get; set; }
         protected int maxCount { get; set; }
         protected CelestialBody targetBody { get; set; }
@@ -33,13 +32,13 @@ namespace ContractConfigurator.RemoteTech
         protected double maxRange { get; set; }
 
         public HasAntennaParameter()
-            : base()
+            : base(null)
         {
         }
 
         public HasAntennaParameter(int minCount = 1, int maxCount = int.MaxValue, CelestialBody targetBody = null,
             bool activeVessel = false, AntennaType? antennaType = null, double minRange = 0.0, double maxRange = double.MaxValue, string title = null)
-            : base()
+            : base(title)
         {
             this.minCount = minCount;
             this.maxCount = maxCount;
@@ -48,7 +47,6 @@ namespace ContractConfigurator.RemoteTech
             this.antennaType = antennaType;
             this.minRange = minRange;
             this.maxRange = maxRange;
-            this.title = title;
 
             CreateDelegates();
         }
@@ -100,7 +98,7 @@ namespace ContractConfigurator.RemoteTech
             // Filter for celestial bodies
             else if (targetBody != null)
             {
-                AddParameter(new ParameterDelegate<IAntenna>("Target: " + targetBody.PrintName(),
+                AddParameter(new ParameterDelegate<IAntenna>("Target: " + targetBody.theName,
                     a => a.Target == targetBody.Guid(), matchType));
             }
 
@@ -133,7 +131,7 @@ namespace ContractConfigurator.RemoteTech
             if (!activeVessel && targetBody != null)
             {
                 double distance = (Planetarium.fetch.Home.position - targetBody.position).magnitude;
-                AddParameter(new ParameterDelegate<IAntenna>("Range: In range of " + targetBody.PrintName(),
+                AddParameter(new ParameterDelegate<IAntenna>("Range: In range of " + targetBody.theName,
                     a => Math.Max(a.Omni, a.Dish) >= distance, matchType, true));
             }
 
@@ -147,10 +145,6 @@ namespace ContractConfigurator.RemoteTech
         protected override void OnParameterSave(ConfigNode node)
         {
             base.OnParameterSave(node);
-            if (title != null)
-            {
-                node.AddValue("title", title);
-            }
             node.AddValue("minRange", minRange);
             if (maxRange != double.MaxValue)
             {
@@ -172,7 +166,6 @@ namespace ContractConfigurator.RemoteTech
         protected override void OnParameterLoad(ConfigNode node)
         {
             base.OnParameterLoad(node);
-            title = ConfigNodeUtil.ParseValue<string>(node, "title", (string)null);
             minRange = ConfigNodeUtil.ParseValue<double>(node, "minRange");
             maxRange = ConfigNodeUtil.ParseValue<double>(node, "maxRange", double.MaxValue);
             targetBody = ConfigNodeUtil.ParseValue<CelestialBody>(node, "targetBody", (CelestialBody)null);

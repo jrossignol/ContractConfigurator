@@ -13,7 +13,6 @@ namespace ContractConfigurator.RemoteTech
 {
     public class KSCConnectivityParameter : RemoteTechParameter
     {
-        protected string title { get; set; }
         public bool hasConnectivity { get; set; }
 
         public KSCConnectivityParameter()
@@ -22,22 +21,16 @@ namespace ContractConfigurator.RemoteTech
         }
 
         public KSCConnectivityParameter(bool hasConnectivity, string title)
-            : base()
+            : base(title)
         {
             this.title = string.IsNullOrEmpty(title) ? (hasConnectivity ? "Connected to KSC" : " Not connected to KSC") : title;
             this.hasConnectivity = hasConnectivity;
-        }
-
-        protected override string GetTitle()
-        {
-            return title;
         }
 
         protected override void OnParameterSave(ConfigNode node)
         {
             base.OnParameterSave(node);
 
-            node.AddValue("title", title);
             node.AddValue("hasConnectivity", hasConnectivity);
         }
 
@@ -45,7 +38,6 @@ namespace ContractConfigurator.RemoteTech
         {
             base.OnParameterLoad(node);
 
-            title = node.GetValue("title");
             hasConnectivity = ConfigNodeUtil.ParseValue<bool>(node, "hasConnectivity");
         }
 

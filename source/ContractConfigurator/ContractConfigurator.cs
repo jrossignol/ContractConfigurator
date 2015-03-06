@@ -455,7 +455,7 @@ namespace ContractConfigurator
             {
                 try
                 {
-                    foreach (Type t in from type in assembly.GetTypes() where type.IsSubclassOf(typeof(T)) select type)
+                    foreach (Type t in from type in assembly.GetTypes() where (type.IsSubclassOf(typeof(T)) || type.GetInterface(typeof(T).Name) != null) select type)
                     {
                         allTypes.Add(t);
                     }

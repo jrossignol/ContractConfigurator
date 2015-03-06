@@ -32,15 +32,15 @@ namespace ContractConfigurator.SCANsat
             // contract is invalidated, which is usually not what's meant.
             checkOnActiveContract = false;
 
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "scanType", ref scanType, this, "Anomaly", SCANsatUtil.ValidateSCANname);
-            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "latitude", ref latitude, this, 0.0);
-            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "longitude", ref longitude, this, 0.0);
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "scanType", x => scanType = x, this, "Anomaly", SCANsatUtil.ValidateSCANname);
+            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "latitude", x => latitude = x, this, 0.0);
+            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "longitude", x => longitude = x, this, 0.0);
 
             valid &= ConfigNodeUtil.MutuallyExclusive(configNode, new string[] { "latitude", "longitude" }, new string[] { "pqsCity" }, this);
             valid &= ValidateTargetBody(configNode);
 
             string pqsName = null;
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "pqsCity", ref pqsName, this, (string)null);
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "pqsCity", x => pqsName = x, this, (string)null);
             if (pqsName != null)
             {
                 try

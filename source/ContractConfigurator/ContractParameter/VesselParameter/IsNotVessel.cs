@@ -14,7 +14,6 @@ namespace ContractConfigurator.Parameters
     /// </summary>
     public class IsNotVessel : VesselParameter
     {
-        protected string title { get; set; }
         protected string vesselKey { get; set; }
 
         public IsNotVessel()
@@ -23,7 +22,7 @@ namespace ContractConfigurator.Parameters
         }
 
         public IsNotVessel(string vesselKey, string title)
-            : base()
+            : base(title)
         {
             // Should fail if we are the wrong vessel
             failWhenUnmet = true;
@@ -49,14 +48,12 @@ namespace ContractConfigurator.Parameters
         protected override void OnParameterSave(ConfigNode node)
         {
             base.OnParameterSave(node);
-            node.AddValue("title", title);
             node.AddValue("vesselKey", vesselKey);
         }
 
         protected override void OnParameterLoad(ConfigNode node)
         {
             base.OnParameterLoad(node);
-            title = node.GetValue("title");
             vesselKey = node.GetValue("vesselKey");
         }
 

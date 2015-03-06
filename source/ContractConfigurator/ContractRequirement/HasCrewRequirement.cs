@@ -25,11 +25,11 @@ namespace ContractConfigurator
             // Load base class
             bool valid = base.Load(configNode);
 
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "trait", ref trait, this, (string)null);
-            valid &= ConfigNodeUtil.ParseValue<int>(configNode, "minExperience", ref minExperience, this, 0, x => Validation.Between(x, 0, 5));
-            valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxExperience", ref maxExperience, this, 5, x => Validation.Between(x, 0, 5));
-            valid &= ConfigNodeUtil.ParseValue<int>(configNode, "minCount", ref minCount, this, 1, x => Validation.GE(x, 0));
-            valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxCount", ref maxCount, this, int.MaxValue, x => Validation.GE(x, 0));
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "trait", x => trait = x, this, (string)null);
+            valid &= ConfigNodeUtil.ParseValue<int>(configNode, "minExperience", x => minExperience = x, this, 0, x => Validation.Between(x, 0, 5));
+            valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxExperience", x => maxExperience = x, this, 5, x => Validation.Between(x, 0, 5));
+            valid &= ConfigNodeUtil.ParseValue<int>(configNode, "minCount", x => minCount = x, this, 1, x => Validation.GE(x, 0));
+            valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxCount", x => maxCount = x, this, int.MaxValue, x => Validation.GE(x, 0));
             valid &= ConfigNodeUtil.AtLeastOne(configNode, new string[] { "minExperience", "maxExperience", "minCount", "maxCount" }, this);
 
             return valid;

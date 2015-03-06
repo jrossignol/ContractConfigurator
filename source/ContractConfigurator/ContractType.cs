@@ -6,6 +6,7 @@ using UnityEngine;
 using KSP;
 using Contracts;
 using Contracts.Agents;
+using ContractConfigurator.ExpressionParser;
 
 namespace ContractConfigurator
 {
@@ -23,6 +24,7 @@ namespace ContractConfigurator
                 return contractTypes.Values.Where(ct => ct.enabled);
             }
         }
+
         public static ContractType GetContractType(string name)
         {
             if (contractTypes.ContainsKey(name) && contractTypes[name].enabled)
@@ -31,6 +33,7 @@ namespace ContractConfigurator
             }
             return null;
         }
+
         public static void ClearContractTypes()
         {
             contractTypes.Clear();
@@ -45,9 +48,10 @@ namespace ContractConfigurator
         public IEnumerable<ContractRequirement> Requirements { get { return requirements; } }
 
         public bool expandInDebug = false;
-        public string config = "";
-        public string log;
         public bool enabled { get; private set; }
+        public string config { get; private set; }
+        public string log { get; private set; }
+        public DataNode dataNode { get; private set; }
 
         // Contract attributes
         public string name;
@@ -116,46 +120,49 @@ namespace ContractConfigurator
             // Logging on
             LoggingUtil.CaptureLog = true;
 
-            ConfigNodeUtil.ClearFoundCache();
+            dataNode = new DataNode(configNode.GetValue("name"));
+
+            ConfigNodeUtil.ClearCache(true);
+            ConfigNodeUtil.SetCurrentDataNode(dataNode);
             bool valid = true;
 
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "name", ref name, this);
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "name", x => name = x, this);
 
             // Load contract text details
-            valid &= ConfigNodeUtil.ParseValue<ContractGroup>(configNode, "group", ref group, this, (ContractGroup)null);
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "title", ref title, this);
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "tag", ref tag, this, "");
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "description", ref description, this, (string)null);
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "topic", ref topic, this, (string)null);
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "subject", ref subject, this, (string)null);
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "motivation", ref motivation, this, (string)null);
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "notes", ref notes, this, (string)null);
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "synopsis", ref synopsis, this);
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "completedMessage", ref completedMessage, this);
+            valid &= ConfigNodeUtil.ParseValue<ContractGroup>(configNode, "group", x => group = x, this, (ContractGroup)null);
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "title", x => title = x, this);
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "tag", x => tag = x, this, "");
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "description", x => description = x, this, (string)null);
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "topic", x => topic = x, this, (string)null);
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "subject", x => subject = x, this, (string)null);
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "motivation", x => motivation = x, this, (string)null);
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "notes", x => notes = x, this, (string)null);
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "synopsis", x => synopsis = x, this);
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "completedMessage", x => completedMessage = x, this);
 
             // Load optional attributes
-            valid &= ConfigNodeUtil.ParseValue<Agent>(configNode, "agent", ref agent, this, (Agent)null);
-            valid &= ConfigNodeUtil.ParseValue<float>(configNode, "minExpiry", ref minExpiry, this, 1.0f, x => Validation.GE(x, 0.0f));
-            valid &= ConfigNodeUtil.ParseValue<float>(configNode, "maxExpiry", ref maxExpiry, this, 7.0f, x => Validation.GE(x, minExpiry));
-            valid &= ConfigNodeUtil.ParseValue<float>(configNode, "deadline", ref deadline, this, 0.0f, x => Validation.GE(x, 0.0f));
-            valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "cancellable", ref cancellable, this, true);
-            valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "declinable", ref declinable, this, true);
-            valid &= ConfigNodeUtil.ParseValue<Contract.ContractPrestige?>(configNode, "prestige", ref prestige, this, (Contract.ContractPrestige?)null);
-            valid &= ConfigNodeUtil.ParseValue<CelestialBody>(configNode, "targetBody", ref targetBody, this, (CelestialBody)null);
+            valid &= ConfigNodeUtil.ParseValue<Agent>(configNode, "agent", x => agent = x, this, (Agent)null);
+            valid &= ConfigNodeUtil.ParseValue<float>(configNode, "minExpiry", x => minExpiry = x, this, 1.0f, x => Validation.GE(x, 0.0f));
+            valid &= ConfigNodeUtil.ParseValue<float>(configNode, "maxExpiry", x => maxExpiry = x, this, 7.0f, x => Validation.GE(x, minExpiry));
+            valid &= ConfigNodeUtil.ParseValue<float>(configNode, "deadline", x => deadline = x, this, 0.0f, x => Validation.GE(x, 0.0f));
+            valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "cancellable", x => cancellable = x, this, true);
+            valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "declinable", x => declinable = x, this, true);
+            valid &= ConfigNodeUtil.ParseValue<Contract.ContractPrestige?>(configNode, "prestige", x => prestige = x, this, (Contract.ContractPrestige?)null);
+            valid &= ConfigNodeUtil.ParseValue<CelestialBody>(configNode, "targetBody", x => targetBody = x, this, (CelestialBody)null);
             
-            valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxCompletions", ref maxCompletions, this, 0, x => Validation.GE(x, 0));
-            valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxSimultaneous", ref maxSimultaneous, this, 0, x => Validation.GE(x, 0));
+            valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxCompletions", x => maxCompletions = x, this, 0, x => Validation.GE(x, 0));
+            valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxSimultaneous", x => maxSimultaneous = x, this, 0, x => Validation.GE(x, 0));
 
             // Load rewards
-            valid &= ConfigNodeUtil.ParseValue<float>(configNode, "rewardFunds", ref rewardFunds, this, 0.0f, x => Validation.GE(x, 0.0f));
-            valid &= ConfigNodeUtil.ParseValue<float>(configNode, "rewardReputation", ref rewardReputation, this, 0.0f, x => Validation.GE(x, 0.0f));
-            valid &= ConfigNodeUtil.ParseValue<float>(configNode, "rewardScience", ref rewardScience, this, 0.0f, x => Validation.GE(x, 0.0f));
-            valid &= ConfigNodeUtil.ParseValue<float>(configNode, "failureFunds", ref failureFunds, this, 0.0f, x => Validation.GE(x, 0.0f));
-            valid &= ConfigNodeUtil.ParseValue<float>(configNode, "failureReputation", ref failureReputation, this, 0.0f, x => Validation.GE(x, 0.0f));
-            valid &= ConfigNodeUtil.ParseValue<float>(configNode, "advanceFunds", ref advanceFunds, this, 0.0f, x => Validation.GE(x, 0.0f));
+            valid &= ConfigNodeUtil.ParseValue<float>(configNode, "rewardFunds", x => rewardFunds = x, this, 0.0f, x => Validation.GE(x, 0.0f));
+            valid &= ConfigNodeUtil.ParseValue<float>(configNode, "rewardReputation", x => rewardReputation = x, this, 0.0f, x => Validation.GE(x, 0.0f));
+            valid &= ConfigNodeUtil.ParseValue<float>(configNode, "rewardScience", x => rewardScience = x, this, 0.0f, x => Validation.GE(x, 0.0f));
+            valid &= ConfigNodeUtil.ParseValue<float>(configNode, "failureFunds", x => failureFunds = x, this, 0.0f, x => Validation.GE(x, 0.0f));
+            valid &= ConfigNodeUtil.ParseValue<float>(configNode, "failureReputation", x => failureReputation = x, this, 0.0f, x => Validation.GE(x, 0.0f));
+            valid &= ConfigNodeUtil.ParseValue<float>(configNode, "advanceFunds", x => advanceFunds = x, this, 0.0f, x => Validation.GE(x, 0.0f));
 
             // Load other values
-            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "weight", ref weight, this, 1.0, x => Validation.GE(x, 0.0f));
+            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "weight", x => weight = x, this, 1.0, x => Validation.GE(x, 0.0f));
             
             // Check for unexpected values - always do this last
             valid &= ConfigNodeUtil.ValidateUnexpectedValues(configNode, this);
@@ -209,6 +216,9 @@ namespace ContractConfigurator
                 valid = false;
             }
 
+            // Do the deferred loads
+            valid &= ConfigNodeUtil.ExecuteDeferredLoads();
+
             config = configNode.ToString();
             enabled = valid;
             log += LoggingUtil.capturedLog;
@@ -221,18 +231,20 @@ namespace ContractConfigurator
         /// Generates and loads all the parameters required for the given contract.
         /// </summary>
         /// <param name="contract"></param>
-        public void GenerateBehaviours(ConfiguredContract contract)
+        /// <returns>Whether the generation was successful.</returns>
+        public bool GenerateBehaviours(ConfiguredContract contract)
         {
-            BehaviourFactory.GenerateBehaviours(contract, behaviourFactories);
+            return BehaviourFactory.GenerateBehaviours(contract, behaviourFactories);
         }
 
         /// <summary>
         /// Generates and loads all the parameters required for the given contract.
         /// </summary>
         /// <param name="contract">Contract to load parameters for</param>
-        public void GenerateParameters(ConfiguredContract contract)
+        /// <returns>Whether the generation was successful.</returns>
+        public bool GenerateParameters(ConfiguredContract contract)
         {
-            ParameterFactory.GenerateParameters(contract, contract, paramFactories);
+            return ParameterFactory.GenerateParameters(contract, contract, paramFactories);
         }
 
         /// <summary>
@@ -318,6 +330,5 @@ namespace ContractConfigurator
         {
             return ErrorPrefix();
         }
-
     }
 }

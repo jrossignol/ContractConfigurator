@@ -13,7 +13,6 @@ namespace ContractConfigurator.RemoteTech
 {
     public class SignalDelayParameter : RemoteTechParameter
     {
-        protected string title { get; set; }
         public double minSignalDelay { get; set; }
         public double maxSignalDelay { get; set; }
 
@@ -23,7 +22,7 @@ namespace ContractConfigurator.RemoteTech
         }
 
         public SignalDelayParameter(double minSignalDelay, double maxSignalDelay, string title)
-            : base()
+            : base(title)
         {
             if (string.IsNullOrEmpty(title))
             {
@@ -51,16 +50,10 @@ namespace ContractConfigurator.RemoteTech
             this.maxSignalDelay = maxSignalDelay;
         }
 
-        protected override string GetTitle()
-        {
-            return title;
-        }
-
         protected override void OnParameterSave(ConfigNode node)
         {
             base.OnParameterSave(node);
 
-            node.AddValue("title", title);
             node.AddValue("minSignalDelay", minSignalDelay);
             node.AddValue("maxSignalDelay", maxSignalDelay);
         }
@@ -69,7 +62,6 @@ namespace ContractConfigurator.RemoteTech
         {
             base.OnParameterLoad(node);
 
-            title = node.GetValue("title");
             minSignalDelay = ConfigNodeUtil.ParseValue<double>(node, "minSignalDelay");
             maxSignalDelay = ConfigNodeUtil.ParseValue<double>(node, "maxSignalDelay");
         }

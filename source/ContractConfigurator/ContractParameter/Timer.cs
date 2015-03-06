@@ -27,7 +27,7 @@ namespace ContractConfigurator.Parameters
         }
 
         public Timer(double duration)
-            : base()
+            : base("")
         {
             this.duration = duration;
             endTime = 0.0;

@@ -27,7 +27,7 @@ namespace ContractConfigurator
 
             // Get type
             string contractType = null;
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "contractType", ref contractType, this);
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "contractType", x => contractType = x, this);
             if (valid)
             {
                 if (ContractType.GetContractType(contractType) != null)
@@ -58,12 +58,12 @@ namespace ContractConfigurator
                 }
             }
 
-            valid &= ConfigNodeUtil.ParseValue<uint>(configNode, "minCount", ref minCount, this, 1);
-            valid &= ConfigNodeUtil.ParseValue<uint>(configNode, "maxCount", ref maxCount, this, UInt32.MaxValue);
+            valid &= ConfigNodeUtil.ParseValue<uint>(configNode, "minCount", x => minCount = x, this, 1);
+            valid &= ConfigNodeUtil.ParseValue<uint>(configNode, "maxCount", x => maxCount = x, this, UInt32.MaxValue);
 
             // Get cooldown
             string cooldownStr = null;
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "cooldownDuration", ref cooldownStr, this, "");
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "cooldownDuration", x => cooldownStr = x, this, "");
             if (cooldownStr != null)
             {
                 cooldown = cooldownStr != "" ? DurationUtil.ParseDuration(cooldownStr) : 0.0;

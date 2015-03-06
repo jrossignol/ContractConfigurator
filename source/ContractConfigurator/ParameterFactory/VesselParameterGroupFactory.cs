@@ -27,14 +27,14 @@ namespace ContractConfigurator
 
             // Get duration
             string durationStr = null;
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "duration", ref durationStr, this, "");
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "duration", x => durationStr = x, this, "");
             if (durationStr != null)
             {
                 duration = durationStr != "" ? DurationUtil.ParseDuration(durationStr) : 0.0;
             }
 
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "define", ref define, this, (string)null);
-            valid &= ConfigNodeUtil.ParseValue<List<string>>(configNode, "vessel", ref vesselList, this, new List<string>());
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "define", x => define = x, this, (string)null);
+            valid &= ConfigNodeUtil.ParseValue<List<string>>(configNode, "vessel", x => vesselList = x, this, new List<string>());
 
             return valid;
         }

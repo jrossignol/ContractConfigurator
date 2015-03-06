@@ -6,6 +6,7 @@ using UnityEngine;
 using KSP;
 using Contracts;
 using ContractConfigurator;
+using ContractConfigurator.ExpressionParser;
 
 namespace ContractConfigurator.Behaviour
 {
@@ -30,10 +31,19 @@ namespace ContractConfigurator.Behaviour
         private List<ExpVal> onSuccessExpr = new List<ExpVal>();
         private List<ExpVal> onFailExpr = new List<ExpVal>();
 
+        private NumericValueExpressionParser<double> parser = new NumericValueExpressionParser<double>();
+
         private Dictionary<string, List<ExpVal>> map = new Dictionary<string, List<ExpVal>>();
+        private DataNode dataNode;
 
         public Expression()
+            : this((DataNode)null)
         {
+        }
+
+        public Expression(DataNode dataNode)
+        {
+            this.dataNode = dataNode;
             SetupMap();
         }
 
@@ -42,6 +52,7 @@ namespace ContractConfigurator.Behaviour
          */
         public Expression(Expression source)
         {
+            dataNode = source.dataNode;
             onAcceptExpr = new List<ExpVal>(source.onAcceptExpr);
             onSuccessExpr = new List<ExpVal>(source.onSuccessExpr);
             onFailExpr = new List<ExpVal>(source.onFailExpr);
@@ -55,9 +66,9 @@ namespace ContractConfigurator.Behaviour
             map["CONTRACT_COMPLETED_FAILURE"] = onFailExpr;
         }
 
-        public static Expression Parse(ConfigNode configNode)
+        public static Expression Parse(ConfigNode configNode, DataNode dataNode)
         {
-            Expression e = new Expression();
+            Expression e = new Expression(dataNode);
             e.Load(configNode);
 
             return e;
@@ -92,7 +103,7 @@ namespace ContractConfigurator.Behaviour
         {
             foreach (ExpVal expVal in map[node])
             {
-                ExpressionParser.ExecuteExpression(expVal.key, expVal.val);
+                parser.ExecuteAndStoreExpression(expVal.key, expVal.val, dataNode);
             }
         }
 
@@ -105,7 +116,7 @@ namespace ContractConfigurator.Behaviour
                     foreach (ConfigNode.Value pair in child.values)
                     {
                         // Parse the expression to validate
-                        ExpressionParser.ParseExpression(pair.value);
+                        parser.ParseExpression(pair.name, pair.value, dataNode);
 
                         // Store it for later
                         map[node].Add(new ExpVal(pair.name, pair.value));

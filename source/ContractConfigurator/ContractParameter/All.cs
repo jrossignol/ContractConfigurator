@@ -14,17 +14,14 @@ namespace ContractConfigurator.Parameters
     /// </summary>
     public class All : ContractConfiguratorParameter
     {
-        protected string title { get; set; }
-
         public All()
-            : this(null)
+            : base(null)
         {
         }
 
         public All(string title)
-            : base()
+            : base(title)
         {
-            this.title = title;
         }
 
         protected override string GetTitle()

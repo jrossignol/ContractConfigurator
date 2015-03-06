@@ -15,7 +15,6 @@ namespace ContractConfigurator.RemoteTech
     /// </summary>
     public class CelestialBodyCoverageParameter : ContractConfiguratorParameter
     {
-        protected string title { get; set; }
         protected double coverage { get; set; }
         protected CelestialBody targetBody { get; set; }
         private double currentCoverage = -1.0;
@@ -28,9 +27,8 @@ namespace ContractConfigurator.RemoteTech
         }
 
         public CelestialBodyCoverageParameter(double coverage, CelestialBody targetBody, string title = null)
-            : base()
+            : base(title)
         {
-            this.title = title;
             this.coverage = coverage;
             this.targetBody = targetBody;
             disableOnStateChange = false;
@@ -59,14 +57,12 @@ namespace ContractConfigurator.RemoteTech
 
         protected override void OnParameterSave(ConfigNode node)
         {
-            node.AddValue("title", title);
             node.AddValue("coverage", coverage);
             node.AddValue("targetBody", targetBody.name);
         }
 
         protected override void OnParameterLoad(ConfigNode node)
         {
-            title = node.GetValue("title");
             coverage = ConfigNodeUtil.ParseValue<double>(node, "coverage");
             targetBody = ConfigNodeUtil.ParseValue<CelestialBody>(node, "targetBody");
         }

@@ -21,7 +21,7 @@ namespace ContractConfigurator
             // Load base class
             bool valid = base.Load(configNode);
 
-            valid &= ConfigNodeUtil.ParseValue<List<string>>(configNode, "hiddenParameter", ref hiddenParameters, this, new List<string>());
+            valid &= ConfigNodeUtil.ParseValue<List<string>>(configNode, "hiddenParameter", x => hiddenParameters = x, this, new List<string>());
 
             return valid;
         }

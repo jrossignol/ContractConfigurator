@@ -22,7 +22,7 @@ namespace ContractConfigurator
             // Load base class
             bool valid = base.Load(configNode);
 
-            valid &= ConfigNodeUtil.ParseValue<VesselType>(configNode, "vesselType", ref vesselType, this);
+            valid &= ConfigNodeUtil.ParseValue<VesselType>(configNode, "vesselType", x => vesselType = x, this);
 
             return valid;
         }

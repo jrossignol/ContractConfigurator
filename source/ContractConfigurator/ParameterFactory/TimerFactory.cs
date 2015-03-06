@@ -9,9 +9,9 @@ using ContractConfigurator.Parameters;
 
 namespace ContractConfigurator
 {
-    /*
-     * ParameterFactory wrapper for Timer ContractParameter.
-     */
+    /// <summary>
+    /// ParameterFactory wrapper for Timer ContractParameter.
+    /// </summary>
     public class TimerFactory : ParameterFactory
     {
         protected double duration;
@@ -23,7 +23,7 @@ namespace ContractConfigurator
 
             // Get duration
             string durationStr = null;
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "duration", ref durationStr, this, "");
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "duration", x => durationStr = x, this, "");
             if (durationStr != null)
             {
                 duration = durationStr != "" ? DurationUtil.ParseDuration(durationStr) : 0.0;

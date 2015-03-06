@@ -6,12 +6,13 @@ using UnityEngine;
 using KSP;
 using Contracts;
 using ContractConfigurator.Behaviour;
+using ContractConfigurator.ExpressionParser;
 
 namespace ContractConfigurator
 {
-    /*
-     * Class for generating ContractBehaviour objects.
-     */
+    /// <summary>
+    /// Class for generating ContractBehaviour objects.
+    /// </summary>
     public abstract class BehaviourFactory : IContractConfiguratorFactory
     {
         private static Dictionary<string, Type> factories = new Dictionary<string, Type>();
@@ -23,45 +24,61 @@ namespace ContractConfigurator
         protected CelestialBody targetBody;
 
         public bool enabled = true;
-        public string config = "";
-        public string log = "";
+        public string config { get; private set; }
+        public string log { get; private set; }
+        public DataNode dataNode { get; private set; }
 
-        /*
-         * Loads the BehaviourFactory from the given ConfigNode.
-         */
+        /// <summary>
+        /// Loads the BehaviourFactory from the given ConfigNode.
+        /// </summary>
+        /// <param name="configNode">ConfigNode to load from</param>
+        /// <returns>Whether the load was successful</returns>
         public virtual bool Load(ConfigNode configNode)
         {
             bool valid = true;
+            ConfigNodeUtil.SetCurrentDataNode(dataNode);
 
             // Get name and type
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "type", ref type, this);
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "name", ref name, this, type);
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "type", x => type = x, this);
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "name", x => name = x, this, type);
 
             // Load targetBody
-            valid &= ConfigNodeUtil.ParseValue<CelestialBody>(configNode, "targetBody", ref targetBody, this, contractType.targetBody);
+            valid &= ConfigNodeUtil.ParseValue<CelestialBody>(configNode, "targetBody", x => targetBody = x, this, contractType.targetBody);
 
             config = configNode.ToString();
             return valid;
         }
 
-        /*
-         * Method for generating ContractBehaviour objects.  Each time it is called it should
-         * generate a new object for the given contract.  The object does not need to be
-         * added to the contract, as that gets done elsewhere (the contract is simply passed
-         * to be used in behaviour generation logic).
-         */
+        /// <summary>
+        /// Method for generating ContractBehaviour objects.  Each time it is called it should
+        /// generate a new object for the given contract.  The object does not need to be
+        /// added to the contract, as that gets done elsewhere (the contract is simply passed
+        /// to be used in behaviour generation logic).
+        /// </summary>
+        /// <param name="contract">Contract to add behaviour to</param>
+        /// <returns>The behaviour object</returns>
         public abstract ContractBehaviour Generate(ConfiguredContract contract);
 
-        /*
-         * Generates all the ContractBehaviour objects required for the array of ConfigNodes, and
-         * adds them to the host object.
-         */
-        public static void GenerateBehaviours(ConfiguredContract contract, List<BehaviourFactory> behaviourNodes)
+        /// <summary>
+        /// Generates all the ContractBehaviour objects required for the array of ConfigNodes, and
+        /// adds them to the host object.
+        /// </summary>
+        /// <param name="contract">Contract to generate behaviours for</param>
+        /// <param name="behaviourNodes">The behaviour factories to use</param>
+        /// <return>Whether generation was successful or not</return>
+        public static bool GenerateBehaviours(ConfiguredContract contract, List<BehaviourFactory> behaviourNodes)
         {
             foreach (BehaviourFactory behaviourFactory in behaviourNodes)
             {
                 if (behaviourFactory.enabled)
                 {
+                    // Try to refresh non-deterministic values
+                    if (!ConfigNodeUtil.UpdateNonDeterministicValues(behaviourFactory.dataNode))
+                    {
+                        LoggingUtil.LogVerbose(typeof(ParameterFactory), "Returning null for " + contract.contractType.name + "." + behaviourFactory.name + ": non-deterministic func failure.");
+                        return false;
+                    }
+
                     ContractBehaviour behaviour = behaviourFactory.Generate(contract);
                     if (behaviour == null)
                     {
@@ -72,11 +89,15 @@ namespace ContractConfigurator
                     contract.AddBehaviour(behaviour);
                 }
             }
+
+            return true;
         }
 
-        /*
-         * Adds a new BehaviourFactory to handle Behaviour nodes with the given type.
-         */
+        /// <summary>
+        /// Adds a new BehaviourFactory to handle Behaviour nodes with the given type.
+        /// </summary>
+        /// <param name="factoryType">Type of the factory</param>
+        /// <param name="typeName">Name to associate with the given type</param>
         public static void Register(Type factoryType, string typeName)
         {
             LoggingUtil.LogDebug(typeof(BehaviourFactory), "Registering behaviour factory class " +
@@ -106,15 +127,18 @@ namespace ContractConfigurator
         {
             // Logging on
             LoggingUtil.CaptureLog = true;
+            bool valid = true;
 
             // Get the type
             string type = behaviourConfig.GetValue("type");
+            string name = behaviourConfig.HasValue("name") ? behaviourConfig.GetValue("name") : type;
             if (!factories.ContainsKey(type))
             {
                 LoggingUtil.LogError(typeof(ParameterFactory), "CONTRACT_TYPE '" + contractType.name + "'," +
                     "BEHAVIOUR '" + behaviourConfig.GetValue("name") + "' of type '" + behaviourConfig.GetValue("type") + "': " +
                     "No BehaviourFactory has been registered for type '" + type + "'.");
                 behaviourFactory = new InvalidBehaviourFactory();
+                valid = false;
             }
             else
             {
@@ -125,9 +149,10 @@ namespace ContractConfigurator
             // Set attributes
             behaviourFactory.contractType = contractType;
             behaviourFactory.targetBody = contractType.targetBody;
+            behaviourFactory.dataNode = new DataNode(name, contractType.dataNode);
 
             // Load config
-            bool valid = behaviourFactory.Load(behaviourConfig);
+            valid &= behaviourFactory.Load(behaviourConfig);
 
             // Check for unexpected values - always do this last
             if (behaviourFactory.GetType() != typeof(InvalidBehaviourFactory))

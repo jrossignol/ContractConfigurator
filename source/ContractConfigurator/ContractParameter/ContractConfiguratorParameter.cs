@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using UnityEngine;
 using Contracts;
 using ContractConfigurator;
 
@@ -12,7 +13,22 @@ namespace ContractConfigurator.Parameters
     /// </summary>
     public abstract class ContractConfiguratorParameter : ContractParameter
     {
-        public ContractConfiguratorParameter() { }
+        protected string title;
+
+        public ContractConfiguratorParameter()
+            : this(null)
+        {
+        }
+
+        public ContractConfiguratorParameter(string title)
+        {
+            this.title = title;
+        }
+
+        protected override string GetTitle()
+        {
+            return title;
+        }
 
         protected sealed override void OnSave(ConfigNode node)
         {
@@ -22,6 +38,7 @@ namespace ContractConfigurator.Parameters
                 {
                     node.AddValue("ContractIdentifier", Root.ToString());
                 }
+                node.AddValue("title", title ?? "");
                 OnParameterSave(node);
             }
             catch (Exception e)
@@ -41,6 +58,7 @@ namespace ContractConfigurator.Parameters
         {
             try
             {
+                title = ConfigNodeUtil.ParseValue<string>(node, "title", "");
                 OnParameterLoad(node);
             }
             catch (Exception e)

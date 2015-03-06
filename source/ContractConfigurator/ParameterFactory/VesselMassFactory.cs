@@ -10,9 +10,9 @@ using ContractConfigurator.Parameters;
 
 namespace ContractConfigurator
 {
-    /*
-     * ParameterFactory wrapper for VesselMass ContractParameter.
-     */
+    /// <summary>
+    /// ParameterFactory wrapper for VesselMass ContractParameter.
+    /// </summary>
     public class VesselMassFactory : ParameterFactory
     {
         protected float minMass;
@@ -23,8 +23,8 @@ namespace ContractConfigurator
             // Load base class
             bool valid = base.Load(configNode);
 
-            valid &= ConfigNodeUtil.ParseValue<float>(configNode, "minMass", ref minMass, this, 0.0f, x => Validation.GE(x, 0.0f));
-            valid &= ConfigNodeUtil.ParseValue<float>(configNode, "maxMass", ref maxMass, this, float.MaxValue, x => Validation.GE(x, 0.0f));
+            valid &= ConfigNodeUtil.ParseValue<float>(configNode, "minMass", x => minMass = x, this, 0.0f, x => Validation.GE(x, 0.0f));
+            valid &= ConfigNodeUtil.ParseValue<float>(configNode, "maxMass", x => maxMass = x, this, float.MaxValue, x => Validation.GE(x, 0.0f));
             valid &= ConfigNodeUtil.AtLeastOne(configNode, new string[] { "minMass", "maxMass" }, this);
 
             return valid;

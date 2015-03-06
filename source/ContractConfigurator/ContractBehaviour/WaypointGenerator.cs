@@ -102,10 +102,10 @@ namespace ContractConfigurator.Behaviour
                     double? altitude = null;
                     WaypointData wpData = new WaypointData(child.name);
 
-                    valid &= ConfigNodeUtil.ParseValue<string>(child, "targetBody", ref wpData.waypoint.celestialName, factory, defaultBody != null ? defaultBody.name : null, Validation.NotNull);
-                    valid &= ConfigNodeUtil.ParseValue<string>(child, "name", ref wpData.waypoint.name, factory, (string)null);
-                    valid &= ConfigNodeUtil.ParseValue<string>(child, "icon", ref wpData.waypoint.id, factory);
-                    valid &= ConfigNodeUtil.ParseValue<double?>(child, "altitude", ref altitude, factory, (double?)null);
+                    valid &= ConfigNodeUtil.ParseValue<string>(child, "targetBody", x => wpData.waypoint.celestialName = x, factory, defaultBody != null ? defaultBody.name : null, Validation.NotNull);
+                    valid &= ConfigNodeUtil.ParseValue<string>(child, "name", x => wpData.waypoint.name = x, factory, (string)null);
+                    valid &= ConfigNodeUtil.ParseValue<string>(child, "icon", x => wpData.waypoint.id = x, factory);
+                    valid &= ConfigNodeUtil.ParseValue<double?>(child, "altitude", x => altitude = x, factory, (double?)null);
 
                     // The FinePrint logic is such that it will only look in Squad/Contracts/Icons for icons.
                     // Cheat this by hacking the path in the game database.
@@ -135,29 +135,29 @@ namespace ContractConfigurator.Behaviour
                     // Get settings that differ by type
                     if (child.name == "WAYPOINT")
                     {
-                        valid &= ConfigNodeUtil.ParseValue<double>(child, "latitude", ref wpData.waypoint.latitude, factory);
-                        valid &= ConfigNodeUtil.ParseValue<double>(child, "longitude", ref wpData.waypoint.longitude, factory);
+                        valid &= ConfigNodeUtil.ParseValue<double>(child, "latitude", x => wpData.waypoint.latitude = x, factory);
+                        valid &= ConfigNodeUtil.ParseValue<double>(child, "longitude", x => wpData.waypoint.longitude = x, factory);
                     }
                     else if (child.name == "RANDOM_WAYPOINT")
                     {
                         // Get settings for randomization
-                        valid &= ConfigNodeUtil.ParseValue<bool>(child, "waterAllowed", ref wpData.waterAllowed, factory, true);
-                        valid &= ConfigNodeUtil.ParseValue<bool>(child, "forceEquatorial", ref wpData.forceEquatorial, factory, false);
+                        valid &= ConfigNodeUtil.ParseValue<bool>(child, "waterAllowed", x => wpData.waterAllowed = x, factory, true);
+                        valid &= ConfigNodeUtil.ParseValue<bool>(child, "forceEquatorial", x => wpData.forceEquatorial = x, factory, false);
                     }
                     else if (child.name == "RANDOM_WAYPOINT_NEAR")
                     {
                         // Get settings for randomization
-                        valid &= ConfigNodeUtil.ParseValue<bool>(child, "waterAllowed", ref wpData.waterAllowed, factory, true);
+                        valid &= ConfigNodeUtil.ParseValue<bool>(child, "waterAllowed", x => wpData.waterAllowed = x, factory, true);
 
                         // Get near waypoint details
-                        valid &= ConfigNodeUtil.ParseValue<int>(child, "nearIndex", ref wpData.nearIndex, factory, x => Validation.GE(x, 0));
-                        valid &= ConfigNodeUtil.ParseValue<double>(child, "nearDistance", ref wpData.nearDistance, factory, x => Validation.GT(x, 0.0));
+                        valid &= ConfigNodeUtil.ParseValue<int>(child, "nearIndex", x => wpData.nearIndex = x, factory, x => Validation.GE(x, 0));
+                        valid &= ConfigNodeUtil.ParseValue<double>(child, "nearDistance", x => wpData.nearDistance = x, factory, x => Validation.GT(x, 0.0));
                     }
                     else if (child.name == "PQS_CITY")
                     {
                         wpData.randomAltitude = false;
                         string pqsCity = null;
-                        valid &= ConfigNodeUtil.ParseValue<string>(child, "pqsCity", ref pqsCity, factory);
+                        valid &= ConfigNodeUtil.ParseValue<string>(child, "pqsCity", x => pqsCity = x, factory);
                         if (pqsCity != null)
                         {
                             try

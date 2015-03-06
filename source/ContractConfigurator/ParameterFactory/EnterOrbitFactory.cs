@@ -9,9 +9,9 @@ using Contracts.Parameters;
 
 namespace ContractConfigurator
 {
-    /*
-     * ParameterFactory wrapper for EnterOrbit ContractParameter.
-     */
+    /// <summary>
+    /// ParameterFactory wrapper for EnterOrbit ContractParameter.
+    /// </summary>
     public class EnterOrbitFactory : ParameterFactory
     {
         public override bool Load(ConfigNode configNode)

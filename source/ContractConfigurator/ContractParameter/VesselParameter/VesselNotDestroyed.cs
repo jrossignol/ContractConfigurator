@@ -14,19 +14,17 @@ namespace ContractConfigurator.Parameters
     /// </summary>
     public class VesselNotDestroyed : VesselParameter
     {
-        protected string title { get; set; }
         protected List<string> vessels { get; set; }
 
         public VesselNotDestroyed()
-            : base()
+            : base(null)
         {
         }
 
         public VesselNotDestroyed(List<string> vessels, string title)
-            : base()
+            : base(title)
         {
             this.vessels = vessels;
-            this.title = title;
             this.state = ParameterState.Complete;
         }
 
@@ -82,7 +80,6 @@ namespace ContractConfigurator.Parameters
         protected override void OnParameterSave(ConfigNode node)
         {
             base.OnParameterSave(node);
-            node.AddValue("title", title);
             foreach (string vessel in vessels)
             {
                 node.AddValue("vessel", vessel);
@@ -92,7 +89,6 @@ namespace ContractConfigurator.Parameters
         protected override void OnParameterLoad(ConfigNode node)
         {
             base.OnParameterLoad(node);
-            title = node.GetValue("title");
             vessels = ConfigNodeUtil.ParseValue<List<string>>(node, "vessel", new List<string>());
         }
 

@@ -15,10 +15,9 @@ namespace ContractConfigurator.Parameters
     public class VesselParameterGroup : ContractConfiguratorParameter
     {
         private const string notePrefix = "<#acfcff>[-] Note: ";
-        protected string title { get; set; }
         protected string define { get; set; }
         protected List<string> vesselList { get; set; }
-        public IEnumerable<string> VesselList { get { return vesselList;  } }
+        public IEnumerable<string> VesselList { get { return vesselList; } }
         protected double duration { get; set; }
         protected double completionTime { get; set; }
         protected bool waiting { get; set; }
@@ -30,7 +29,7 @@ namespace ContractConfigurator.Parameters
 
         private double lastUpdate = 0.0f;
 
-        private Dictionary<string, string> noteTracker = new Dictionary<string, string>();
+        private TitleTracker titleTracker = new TitleTracker();
 
         public VesselParameterGroup()
             : this(null, null, null, 0.0)
@@ -38,11 +37,10 @@ namespace ContractConfigurator.Parameters
         }
 
         public VesselParameterGroup(string title, string define, List<string> vesselList, double duration)
-            : base()
+            : base(title)
         {
             this.define = define;
             this.duration = duration;
-            this.title = title;
             this.vesselList = vesselList == null ? new List<string>() : vesselList;
             waiting = false;
         }
@@ -76,7 +74,15 @@ namespace ContractConfigurator.Parameters
                         {
                             output += " OR ";
                         }
-                        output += ContractVesselTracker.Instance.GetDisplayName(vesselName);
+                        if (ContractVesselTracker.Instance != null)
+                        {
+                            output += ContractVesselTracker.Instance.GetDisplayName(vesselName);
+                        }
+                        else
+                        {
+                            LoggingUtil.LogWarning(this, "Unable to get vessel display name for '" + vesselName + "' - ContractVesselTracker is null.  This is likely caused by another ScenarioModule crashing, preventing others from loading.");
+                            output += vesselName;
+                        }
                         first = false;
                     }
                 }
@@ -90,7 +96,11 @@ namespace ContractConfigurator.Parameters
             if (state != ParameterState.Complete)
             {
                 // Add duration
-                if (duration > 0.0)
+                if (completionTime > 0.0)
+                {
+                    output += "; Time Remaining: " + DurationUtil.StringValue(completionTime - Planetarium.GetUniversalTime());
+                }
+                else if (duration > 0.0)
                 {
                     output += "; Duration: " + DurationUtil.StringValue(duration);
                 }
@@ -103,6 +113,11 @@ namespace ContractConfigurator.Parameters
                     return GetParameter(0).Title;
                 }
             }
+
+            // Add the string that we returned to the titleTracker.  This is used to update
+            // the contract title element in the GUI directly, as it does not support dynamic
+            // text.
+            titleTracker.Add(output);
 
             return output;
         }
@@ -121,15 +136,7 @@ namespace ContractConfigurator.Parameters
                 }
                 else
                 {
-                    string note = "Time remaining for " + trackedVessel.vesselName + ": " +
-                        DurationUtil.StringValue(completionTime - Planetarium.GetUniversalTime());
-
-                    // Add the string that we returned to the noteTracker.  This is used to update
-                    // the contract notes element in the GUI directly, as it does support dynamic
-                    // text.
-                    noteTracker[notePrefix + note] = note;
-
-                    return note;
+                    return "Waiting for completion time for " + trackedVessel.vesselName + ".";
                 }
             }
 
@@ -249,7 +256,6 @@ namespace ContractConfigurator.Parameters
 
         protected override void OnParameterSave(ConfigNode node)
         {
-            node.AddValue("title", title);
             node.AddValue("define", define);
             foreach (string vesselName in vesselList)
             {
@@ -268,7 +274,6 @@ namespace ContractConfigurator.Parameters
 
         protected override void OnParameterLoad(ConfigNode node)
         {
-            title = node.GetValue("title");
             define = node.GetValue("define");
             duration = Convert.ToDouble(node.GetValue("duration"));
             vesselList = ConfigNodeUtil.ParseValue<List<string>>(node, "vessel", new List<string>());
@@ -305,7 +310,7 @@ namespace ContractConfigurator.Parameters
             ContractVesselTracker.OnVesselDisassociation.Remove(new EventData<GameEvents.HostTargetAction<Vessel, string>>.OnEvent(OnVesselDisassociation));
         }
 
-        protected void OnVesselAssociation(GameEvents.HostTargetAction<Vessel,string> hta)
+        protected void OnVesselAssociation(GameEvents.HostTargetAction<Vessel, string> hta)
         {
             // If it's a vessel we're looking for
             if (vesselList.Contains(hta.target))
@@ -419,28 +424,11 @@ namespace ContractConfigurator.Parameters
             {
                 lastUpdate = Planetarium.GetUniversalTime();
 
-                string notes = GetNotes();
-
-                // Go through all the list items in the contracts window
-                UIScrollList list = ContractsApp.Instance.cascadingList.cascadingList;
-                for (int i = 0; i < list.Count; i++)
-                {
-                    // Try to find a rich text control that matches the expected text
-                    UIListItemContainer listObject = (UIListItemContainer)list.GetItem(i);
-                    SpriteTextRich richText = listObject.GetComponentInChildren<SpriteTextRich>();
-                    if (richText != null && noteTracker.ContainsKey(richText.Text))
-                    {
-                        // Clear the noteTracker, and replace the text
-                        noteTracker.Clear();
-                        richText.Text = notePrefix + notes;
-                    }
-                }
-
-                ContractsWindow.SetParameterNotes(this, notes);
+                titleTracker.UpdateContractWindow(this, GetTitle());
             }
         }
 
-        protected IEnumerable<T> AllDescendents<T>() where T : ContractParameter 
+        protected IEnumerable<T> AllDescendents<T>() where T : ContractParameter
         {
             return AllDescendents<T>(this);
         }

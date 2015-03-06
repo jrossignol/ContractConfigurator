@@ -21,8 +21,8 @@ namespace ContractConfigurator
             // Load base class
             bool valid = base.Load(configNode);
 
-            valid &= ConfigNodeUtil.ParseValue<float>(configNode, "minScience", ref minScience, this, 0.0f, x => Validation.GE(x, 0.0f));
-            valid &= ConfigNodeUtil.ParseValue<float>(configNode, "maxScience", ref maxScience, this, float.MaxValue, x => Validation.GE(x, 0.0f));
+            valid &= ConfigNodeUtil.ParseValue<float>(configNode, "minScience", x => minScience = x, this, 0.0f, x => Validation.GE(x, 0.0f));
+            valid &= ConfigNodeUtil.ParseValue<float>(configNode, "maxScience", x => maxScience = x, this, float.MaxValue, x => Validation.GE(x, 0.0f));
             valid &= ConfigNodeUtil.AtLeastOne(configNode, new string[] { "minScience", "maxScience" }, this);
 
             return valid;

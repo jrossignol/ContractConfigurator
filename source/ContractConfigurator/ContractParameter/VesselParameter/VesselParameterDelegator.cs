@@ -15,7 +15,6 @@ namespace ContractConfigurator.Parameters
     /// </summary>
     public class VesselParameterDelegator : VesselParameter
     {
-        protected string title { get; set; }
         protected ContractParameter delegateParam { get; set; }
 
         private float lastUpdate = 0.0f;
@@ -27,9 +26,8 @@ namespace ContractConfigurator.Parameters
         }
 
         public VesselParameterDelegator(ContractParameter delegateParam, string title = null)
-            : base()
+            : base(title)
         {
-            this.title = title;
             this.delegateParam = delegateParam;
         }
 
@@ -48,14 +46,12 @@ namespace ContractConfigurator.Parameters
         protected override void OnParameterSave(ConfigNode node)
         {
             base.OnParameterSave(node);
-            node.AddValue("title", title);
             node.AddValue("paramLocation", GetPathFromParam(delegateParam).Reverse().Aggregate<int, string>("", (s, i) => s + (s == "" ? "" : ",") + i));
         }
 
         protected override void OnParameterLoad(ConfigNode node)
         {
             base.OnParameterLoad(node);
-            title = node.GetValue("title");
             delegateParam = GetParamFromPath(node.GetValue("paramLocation"));
         }
 

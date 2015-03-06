@@ -132,8 +132,8 @@ namespace ContractConfigurator.Behaviour
                     }
                     else if (child.name == "RANDOM_ORBIT")
                     {
-                        valid &= ConfigNodeUtil.ParseValue<OrbitType>(child, "type", ref obData.orbitType, factory);
-                        valid &= ConfigNodeUtil.ParseValue<double>(configNode, "difficulty", ref obData.difficulty, factory, 1.0, x => Validation.GE(x, 0.0));
+                        valid &= ConfigNodeUtil.ParseValue<OrbitType>(child, "type", x => obData.orbitType = x, factory);
+                        valid &= ConfigNodeUtil.ParseValue<double>(configNode, "difficulty", x => obData.difficulty = x, factory, 1.0, x => Validation.GE(x, 0.0));
                     }
                     else
                     {
@@ -141,7 +141,7 @@ namespace ContractConfigurator.Behaviour
                     }
 
                     // Get target body
-                    valid &= ConfigNodeUtil.ParseValue<CelestialBody>(child, "targetBody", ref obData.orbit.referenceBody, factory, defaultBody, Validation.NotNull);
+                    valid &= ConfigNodeUtil.ParseValue<CelestialBody>(child, "targetBody", x => obData.orbit.referenceBody = x, factory, defaultBody, Validation.NotNull);
                     
                     // Add to the list
                     obGenerator.orbits.Add(obData);

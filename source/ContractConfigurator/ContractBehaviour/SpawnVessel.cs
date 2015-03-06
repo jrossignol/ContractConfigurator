@@ -111,7 +111,7 @@ namespace ContractConfigurator.Behaviour
                 vessel.vesselType = ConfigNodeUtil.ParseValue<VesselType>(child, "vesselType", VesselType.Ship);
 
                 // Get celestial body
-                valid &= ConfigNodeUtil.ParseValue<CelestialBody>(child, "targetBody", ref vessel.body, factory, defaultBody, Validation.NotNull);
+                valid &= ConfigNodeUtil.ParseValue<CelestialBody>(child, "targetBody", x => vessel.body = x, factory, defaultBody, Validation.NotNull);
 
                 // Get orbit
                 valid &= ConfigNodeUtil.ValidateMandatoryChild(child, "ORBIT", factory);
@@ -121,27 +121,27 @@ namespace ContractConfigurator.Behaviour
                 // Get landed stuff
                 if (child.HasValue("lat") && child.HasValue("lon") && child.HasValue("alt"))
                 {
-                    valid &= ConfigNodeUtil.ParseValue<double>(child, "lat", ref vessel.latitude, factory);
-                    valid &= ConfigNodeUtil.ParseValue<double>(child, "lon", ref vessel.longitude, factory);
-                    valid &= ConfigNodeUtil.ParseValue<double>(child, "alt", ref vessel.altitude, factory);
+                    valid &= ConfigNodeUtil.ParseValue<double>(child, "lat", x => vessel.latitude = x, factory);
+                    valid &= ConfigNodeUtil.ParseValue<double>(child, "lon", x => vessel.longitude = x, factory);
+                    valid &= ConfigNodeUtil.ParseValue<double>(child, "alt", x => vessel.altitude = x, factory);
                     vessel.landed = true;
                 }
 
                 // Get additional flags
-                valid &= ConfigNodeUtil.ParseValue<bool>(child, "owned", ref vessel.owned, factory, false);
+                valid &= ConfigNodeUtil.ParseValue<bool>(child, "owned", x => vessel.owned = x, factory, false);
 
                 // Handle the CREW nodes
                 foreach (ConfigNode crewNode in child.GetNodes("CREW"))
                 {
                     int count = 1;
-                    valid &= ConfigNodeUtil.ParseValue<int>(crewNode, "count", ref count, factory, 1);
+                    valid &= ConfigNodeUtil.ParseValue<int>(crewNode, "count", x => count = x, factory, 1);
                     for (int i = 0; i < count; i++)
                     {
                         CrewData cd = new CrewData();
 
                         // Read crew details
-                        valid &= ConfigNodeUtil.ParseValue<string>(crewNode, "name", ref cd.name, factory, (string)null);
-                        valid &= ConfigNodeUtil.ParseValue<bool>(crewNode, "addToRoster", ref cd.addToRoster, factory, true);
+                        valid &= ConfigNodeUtil.ParseValue<string>(crewNode, "name", x => cd.name = x, factory, (string)null);
+                        valid &= ConfigNodeUtil.ParseValue<bool>(crewNode, "addToRoster", x => cd.addToRoster = x, factory, true);
 
                         // Add the record
                         vessel.crew.Add(cd);
@@ -521,14 +521,14 @@ namespace ContractConfigurator.Behaviour
             return node;
         }
 
-        public string GetKerbalName(int index)
+        public ProtoCrewMember GetKerbal(int index)
         {
             int current = index;
             foreach (VesselData vd in vessels)
             {
                 if (current < vd.crew.Count)
                 {
-                    return vd.crew[current].name;
+                    return HighLogic.CurrentGame.CrewRoster.AllKerbals().Where(cm => cm.name == vd.crew[current].name).First();
                 }
                 current -= vd.crew.Count;
             }

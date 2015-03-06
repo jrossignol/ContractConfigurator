@@ -29,18 +29,17 @@ namespace ContractConfigurator.Parameters
             public Filter(ParameterDelegateMatchType type) { this.type = type; }
         }
 
-        protected string title { get; set; }
         protected List<Filter> filters { get; set; }
         protected int minCount { get; set; }
         protected int maxCount { get; set; }
 
         public PartValidation()
-            : base()
+            : base(null)
         {
         }
 
         public PartValidation(List<Filter> filters, int minCount = 1, int maxCount = int.MaxValue, string title = null)
-            : base()
+            : base(title)
         {
             // Vessels should fail if they don't meet the part conditions
             failWhenUnmet = true;
@@ -48,7 +47,6 @@ namespace ContractConfigurator.Parameters
             this.filters = filters;
             this.minCount = minCount;
             this.maxCount = maxCount;
-            this.title = title;
 
             CreateDelegates();
         }
@@ -135,7 +133,6 @@ namespace ContractConfigurator.Parameters
         protected override void OnParameterSave(ConfigNode node)
         {
             base.OnParameterSave(node);
-            node.AddValue("title", title);
             node.AddValue("minCount", minCount);
             node.AddValue("maxCount", maxCount);
 
@@ -173,7 +170,6 @@ namespace ContractConfigurator.Parameters
         protected override void OnParameterLoad(ConfigNode node)
         {
             base.OnParameterLoad(node);
-            title = node.GetValue("title");
             minCount = Convert.ToInt32(node.GetValue("minCount"));
             maxCount = Convert.ToInt32(node.GetValue("maxCount"));
 

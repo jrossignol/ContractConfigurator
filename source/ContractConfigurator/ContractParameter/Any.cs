@@ -14,17 +14,14 @@ namespace ContractConfigurator.Parameters
     /// </summary>
     public class Any : ContractConfiguratorParameter
     {
-        protected string title { get; set; }
-
         public Any()
             : this(null)
         {
         }
 
         public Any(string title)
-            : base()
+            : base(title)
         {
-            this.title = title;
         }
 
         protected override string GetTitle()
@@ -61,12 +58,10 @@ namespace ContractConfigurator.Parameters
         
         protected override void OnParameterSave(ConfigNode node)
         {
-            node.AddValue("title", title);
         }
 
         protected override void OnParameterLoad(ConfigNode node)
         {
-            title = node.GetValue("title");
         }
 
         protected override void OnRegister()

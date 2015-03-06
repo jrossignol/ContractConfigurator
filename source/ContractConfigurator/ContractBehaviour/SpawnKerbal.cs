@@ -9,9 +9,9 @@ using ContractConfigurator;
 
 namespace ContractConfigurator.Behaviour
 {
-    /*
-     * Class for spawning a Kerbal.
-     */
+    /// <summary>
+    /// Class for spawning a Kerbal.
+    /// </summary>
     public class SpawnKerbal : ContractBehaviour, IHasKerbalBehaviour
     {
         private class KerbalData
@@ -48,9 +48,10 @@ namespace ContractConfigurator.Behaviour
 
         public SpawnKerbal() {}
 
-        /*
-         * Copy constructor.
-         */
+        /// <summary>
+        /// Copy constructor.
+        /// </summary>
+        /// <param name="orig"></param>
         public SpawnKerbal(SpawnKerbal orig)
         {
             foreach (KerbalData kerbal in orig.kerbals)
@@ -91,7 +92,7 @@ namespace ContractConfigurator.Behaviour
                 }
 
                 // Get celestial body
-                valid &= ConfigNodeUtil.ParseValue<CelestialBody>(child, "targetBody", ref kerbal.body, factory, defaultBody, Validation.NotNull);
+                valid &= ConfigNodeUtil.ParseValue<CelestialBody>(child, "targetBody", x => kerbal.body = x, factory, defaultBody, Validation.NotNull);
 
                 // Get orbit
                 valid &= ConfigNodeUtil.ValidateMandatoryChild(child, "ORBIT", factory);
@@ -101,15 +102,15 @@ namespace ContractConfigurator.Behaviour
                 // Get landed stuff
                 if (child.HasValue("lat") && child.HasValue("lon") && child.HasValue("alt"))
                 {
-                    valid &= ConfigNodeUtil.ParseValue<double>(child, "lat", ref kerbal.latitude, factory);
-                    valid &= ConfigNodeUtil.ParseValue<double>(child, "lon", ref kerbal.longitude, factory);
-                    valid &= ConfigNodeUtil.ParseValue<double>(child, "alt", ref kerbal.altitude, factory);
+                    valid &= ConfigNodeUtil.ParseValue<double>(child, "lat", x => kerbal.latitude = x, factory);
+                    valid &= ConfigNodeUtil.ParseValue<double>(child, "lon", x => kerbal.longitude = x, factory);
+                    valid &= ConfigNodeUtil.ParseValue<double>(child, "alt", x => kerbal.altitude = x, factory);
                     kerbal.landed = true;
                 }
 
                 // Get additional flags
-                valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "owned", ref kerbal.owned, factory, false);
-                valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "addToRoster", ref kerbal.addToRoster, factory, true);
+                valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "owned", x => kerbal.owned = x, factory, false);
+                valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "addToRoster", x => kerbal.addToRoster = x, factory, true);
 
                 // Add to the list
                 spawnKerbal.kerbals.Add(kerbal);
@@ -161,7 +162,7 @@ namespace ContractConfigurator.Behaviour
 
         protected override void OnSave(ConfigNode configNode)
         {
-            base.OnLoad(configNode);
+            base.OnSave(configNode);
 
             foreach (KerbalData kd in kerbals)
             {
@@ -302,7 +303,7 @@ namespace ContractConfigurator.Behaviour
             }
         }
 
-        public string GetKerbalName(int index)
+        public ProtoCrewMember GetKerbal(int index)
         {
             if (index < 0 || index >= kerbals.Count)
             {
@@ -310,7 +311,7 @@ namespace ContractConfigurator.Behaviour
                     " is out of range for number of Kerbals spawned (" + kerbals.Count + ").");
             }
 
-            return kerbals[index].name;
+            return kerbals[index].crewMember;
         }
     }
 }

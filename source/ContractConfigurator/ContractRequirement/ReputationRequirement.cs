@@ -21,8 +21,8 @@ namespace ContractConfigurator
             // Load base class
             bool valid = base.Load(configNode);
 
-            valid &= ConfigNodeUtil.ParseValue<float>(configNode, "minReputation", ref minReputation, this, -1000.0f, x => Validation.Between(x, -1000.0f, 1000.0f));
-            valid &= ConfigNodeUtil.ParseValue<float>(configNode, "maxReputation", ref maxReputation, this, 1000.0f, x => Validation.Between(x, -1000.0f, 1000.0f));
+            valid &= ConfigNodeUtil.ParseValue<float>(configNode, "minReputation", x => minReputation = x, this, -1000.0f, x => Validation.Between(x, -1000.0f, 1000.0f));
+            valid &= ConfigNodeUtil.ParseValue<float>(configNode, "maxReputation", x => maxReputation = x, this, 1000.0f, x => Validation.Between(x, -1000.0f, 1000.0f));
             valid &= ConfigNodeUtil.AtLeastOne(configNode, new string[] { "minReputation", "maxReputation" }, this);
 
             return valid;

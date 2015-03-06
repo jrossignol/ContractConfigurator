@@ -10,9 +10,9 @@ using ContractConfigurator.Parameters;
 
 namespace ContractConfigurator
 {
-    /*
-     * ParameterFactory wrapper for VesselHasVisited ContractParameter.
-     */
+    /// <summary>
+    /// ParameterFactory wrapper for VesselHasVisited ContractParameter.
+    /// </summary>
     public class VesselHasVisitedFactory : ParameterFactory
     {
         protected FlightLog.EntryType situation;
@@ -22,7 +22,7 @@ namespace ContractConfigurator
             // Load base class
             bool valid = base.Load(configNode);
 
-            valid &= ConfigNodeUtil.ParseValue<FlightLog.EntryType>(configNode, "situation", ref situation, this);
+            valid &= ConfigNodeUtil.ParseValue<FlightLog.EntryType>(configNode, "situation", x => situation = x, this);
             valid &= ValidateTargetBody(configNode);
 
             return valid;

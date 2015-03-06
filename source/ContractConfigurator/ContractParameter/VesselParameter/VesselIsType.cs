@@ -14,16 +14,15 @@ namespace ContractConfigurator.Parameters
     /// </summary>
     public class VesselIsType : VesselParameter
     {
-        protected string title { get; set; }
         protected VesselType vesselType { get; set; }
 
         public VesselIsType()
-            : base()
+            : base(null)
         {
         }
 
         public VesselIsType(VesselType vesselType, string title = null)
-            : base()
+            : base(title)
         {
             this.vesselType = vesselType;
             this.title = title;
@@ -46,14 +45,12 @@ namespace ContractConfigurator.Parameters
         protected override void OnParameterSave(ConfigNode node)
         {
             base.OnParameterSave(node);
-            node.AddValue("title", title);
             node.AddValue("vesselType", vesselType);
         }
 
         protected override void OnParameterLoad(ConfigNode node)
         {
             base.OnParameterLoad(node);
-            title = node.GetValue("title");
             vesselType = ConfigNodeUtil.ParseValue<VesselType>(node, "vesselType");
         }
 

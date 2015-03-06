@@ -14,7 +14,6 @@ namespace ContractConfigurator.Parameters
     /// </summary>
     public class OrbitParameter : VesselParameter
     {
-        protected string title { get; set; }
         protected Vessel.Situations situation { get; set; }
         protected double minAltitude { get; set; }
         protected double maxAltitude { get; set; }
@@ -34,16 +33,15 @@ namespace ContractConfigurator.Parameters
         private const float UPDATE_FREQUENCY = 0.25f;
 
         public OrbitParameter()
-            : base()
+            : base(null)
         {
         }
 
         public OrbitParameter(Vessel.Situations situation, double minAltitude, double maxAltitude, double minApoapsis, double maxApoapsis, double minPeriapsis, double maxPeriapsis,
             double minEccentricity, double maxEccentricity, double minInclination, double maxInclination, double minPeriod, double maxPeriod, 
             CelestialBody targetBody, string title = null)
-            : base()
+            : base(title)
         {
-            this.title = title;
             this.situation = situation;
             this.targetBody = targetBody;
             this.minAltitude = minAltitude;
@@ -85,7 +83,7 @@ namespace ContractConfigurator.Parameters
             // Filter for celestial bodies
             if (targetBody != null)
             {
-                AddParameter(new ParameterDelegate<Vessel>("Destination: " + targetBody.PrintName(),
+                AddParameter(new ParameterDelegate<Vessel>("Destination: " + targetBody.theName,
                     v => v.mainBody == targetBody, true));
             }
 
@@ -230,7 +228,6 @@ namespace ContractConfigurator.Parameters
         protected override void OnParameterSave(ConfigNode node)
         {
             base.OnParameterSave(node);
-            node.AddValue("title", title);
             node.AddValue("situation", situation);
             node.AddValue("targetBody", targetBody.name);
             node.AddValue("minAltitude", minAltitude);
@@ -268,7 +265,6 @@ namespace ContractConfigurator.Parameters
         protected override void OnParameterLoad(ConfigNode node)
         {
             base.OnParameterLoad(node);
-            title = node.GetValue("title");
             situation = ConfigNodeUtil.ParseValue<Vessel.Situations>(node, "situation", Vessel.Situations.ORBITING);
             minAltitude = ConfigNodeUtil.ParseValue<double>(node, "minAltitude");
             maxAltitude = ConfigNodeUtil.ParseValue<double>(node, "maxAltitude", double.MaxValue);

@@ -6,6 +6,7 @@ using System.Text;
 using UnityEngine;
 using KSP;
 using Contracts.Agents;
+using ContractConfigurator.ExpressionParser;
 using ContractConfigurator.Parameters;
 
 namespace ContractConfigurator
@@ -13,9 +14,60 @@ namespace ContractConfigurator
     /// <summary>
     /// Utility class for dealing with ConfigNode objects.
     /// </summary>
-    public class ConfigNodeUtil
+    public static class ConfigNodeUtil
     {
-        private static Dictionary<ConfigNode, Dictionary<string, int>> keysFound = new Dictionary<ConfigNode,Dictionary<string,int>>();
+        public class DeferredLoadBase
+        {
+            public string key;
+            public ConfigNode configNode;
+            public IContractConfiguratorFactory obj;
+            public List<string> dependencies = new List<string>();
+        }
+
+        public class DeferredLoadObject<T> : DeferredLoadBase
+        {
+            public Action<T> setter;
+            public Func<T, bool> validation;
+            public DataNode dataNode;
+
+            public DeferredLoadObject(ConfigNode configNode, string key, Action<T> setter, IContractConfiguratorFactory obj, Func<T, bool> validation,
+                DataNode dataNode)
+            {
+                this.key = key;
+                this.configNode = configNode;
+                this.setter = setter;
+                this.obj = obj;
+                this.validation = validation;
+                this.dataNode = dataNode;
+            }
+        }
+
+        private static class DeferredLoadUtil
+        {
+            public static bool ExecuteLoad<T>(DeferredLoadObject<T> loadObj)
+            {
+                SetCurrentDataNode(loadObj.dataNode);
+                return ParseValue<T>(loadObj.configNode, loadObj.key, loadObj.setter, loadObj.obj, loadObj.validation);
+            }
+
+            public static IEnumerable<string> GetDependencies<T>(DeferredLoadObject<T> loadObj)
+            {
+                return loadObj.dependencies;
+            }
+
+            public static void LogCicularDependencyError<T>(DeferredLoadObject<T> loadObj)
+            {
+                LoggingUtil.LogError(loadObj.obj, loadObj.obj.ErrorPrefix(loadObj.configNode) + ": Error parsing " + loadObj.key + ": " +
+                    "Circular dependency detected while parsing an expression (possible culprit(s): " +
+                    string.Join(", ", loadObj.dependencies.ToArray()) + ").");
+            }
+        }
+
+        private static Dictionary<string, DeferredLoadBase> deferredLoads = new Dictionary<string, DeferredLoadBase>();
+
+        private static Dictionary<ConfigNode, Dictionary<string, int>> keysFound = new Dictionary<ConfigNode, Dictionary<string, int>>();
+        private static Dictionary<ConfigNode, ConfigNode> storedValues = new Dictionary<ConfigNode, ConfigNode>();
+        private static DataNode currentDataNode;
 
         /// <summary>
         /// Checks whether the mandatory field exists, and if not logs and error.  Returns true
@@ -61,10 +113,11 @@ namespace ContractConfigurator
         /// <typeparam name="T">The type to convert to.</typeparam>
         /// <param name="configNode">The ConfigNode to read from</param>
         /// <param name="key">The key to examine.</param>
+        /// <param name="allowExpression">Whether the read value can be an expression.</param>
         /// <returns>The parsed value</returns>
-        public static T ParseValue<T>(ConfigNode configNode, string key)
+        public static T ParseValue<T>(ConfigNode configNode, string key, bool allowExpression = false)
         {
-            // Check for requried value
+            // Check for required value
             if (!configNode.HasValue(key))
             {
                 throw new ArgumentException("Missing required value '" + key + "'.");
@@ -80,7 +133,7 @@ namespace ContractConfigurator
                 // Create the generic methods
                 MethodInfo parseValueMethod = typeof(ConfigNodeUtil).GetMethod("ParseSingleValue",
                     BindingFlags.NonPublic | BindingFlags.Static, null,
-                    new Type[] { typeof(string), typeof(string) }, null);
+                    new Type[] { typeof(string), typeof(string), typeof(bool)}, null);
                 parseValueMethod = parseValueMethod.MakeGenericMethod(typeof(T).GetGenericArguments());
                 MethodInfo addMethod = typeof(T).GetMethod("Add");
 
@@ -88,38 +141,10 @@ namespace ContractConfigurator
                 for (int i = 0; i < count; i++)
                 {
                     string strVal = configNode.GetValue(key, i);
-                    addMethod.Invoke(list, new object[] { parseValueMethod.Invoke(null, new object[] { key, strVal }) });
+                    addMethod.Invoke(list, new object[] { parseValueMethod.Invoke(null, new object[] { key, strVal, allowExpression }) });
                 }
 
                 return list;
-            }
-            else if (typeof(T) == typeof(CelestialBody))
-            {
-                return (T)(object)ParseCelestialBodyValue(configNode, key);
-            }
-            else if (typeof(T) == typeof(PartResourceDefinition))
-            {
-                return (T)(object)ParseResourceValue(configNode, key);
-            }
-            else if (typeof(T) == typeof(Agent))
-            {
-                return (T)(object)ParseAgentValue(configNode, key);
-            }
-            else if (typeof(T) == typeof(ProtoCrewMember))
-            {
-                return (T)(object)ParseProtoCrewMemberValue(configNode, key);
-            }
-            else if (typeof(T) == typeof(Guid))
-            {
-                return (T)(object)new Guid(configNode.GetValue(key));
-            }
-            else if (typeof(T) == typeof(Vessel))
-            {
-                return (T)(object)ParseVesselValue(configNode, key);
-            }
-            else if (typeof(T) == typeof(Vector3))
-            {
-                return (T)(object)ParseVesselValue(configNode, key);
             }
             else if (typeof(T).Name == "Nullable`1")
             {
@@ -128,42 +153,48 @@ namespace ContractConfigurator
                 {
                     // Create the generic method
                     MethodInfo parseValueMethod = typeof(ConfigNodeUtil).GetMethod("ParseValue",
-                        BindingFlags.Static | BindingFlags.Public, null, new Type[] { typeof(ConfigNode), typeof(string) }, null);
+                        BindingFlags.Static | BindingFlags.Public, null, new Type[] { typeof(ConfigNode), typeof(string), typeof(bool) }, null);
                     parseValueMethod = parseValueMethod.MakeGenericMethod(typeof(T).GetGenericArguments());
 
                     // Call it
-                    return (T)parseValueMethod.Invoke(null, new object[] { configNode, key });
+                    return (T)parseValueMethod.Invoke(null, new object[] { configNode, key, allowExpression });
                 }
             }
 
             // Get string value, pass to parse single value function
             string stringValue = configNode.GetValue(key);
-            return ParseSingleValue<T>(key, stringValue);
+            return ParseSingleValue<T>(key, stringValue, allowExpression);
         }
 
-        private static T ParseSingleValue<T>(string key, string stringValue)
+        private static T ParseSingleValue<T>(string key, string stringValue, bool allowExpression)
         {
+            ExpressionParser<T> parser = BaseParser.GetParser<T>();
+            T value;
+
             // Enum parsing logic
             if (typeof(T).IsEnum)
             {
-                return (T)Enum.Parse(typeof(T), stringValue);
+                value = (T)Enum.Parse(typeof(T), stringValue);
             }
-
             // Handle nullable
-            if (typeof(T).Name == "Nullable`1")
+            else if (typeof(T).Name == "Nullable`1")
             {
                 if (typeof(T).GetGenericArguments()[0].IsEnum)
                 {
-                    return (T)Enum.Parse(typeof(T).GetGenericArguments()[0], stringValue);
+                    value = (T)Enum.Parse(typeof(T).GetGenericArguments()[0], stringValue);
                 }
                 else
                 {
-                    return (T)Convert.ChangeType(stringValue, typeof(T).GetGenericArguments()[0]);
+                    value = (T)Convert.ChangeType(stringValue, typeof(T).GetGenericArguments()[0]);
                 }
+            }
+            else if (allowExpression && parser != null)
+            {
+                value = parser.ExecuteExpression(key, stringValue, currentDataNode);
             }
             else if (typeof(T) == typeof(AvailablePart))
             {
-                return (T)(object)ParsePartValue(stringValue);
+                value = (T)(object)ParsePartValue(stringValue);
             }
             else if (typeof(T) == typeof(ContractGroup))
             {
@@ -171,17 +202,44 @@ namespace ContractConfigurator
                 {
                     throw new ArgumentException("No contract group with name '" + stringValue + "'");
                 }
-                return (T)(object)ContractGroup.contractGroups[stringValue];
+                value = (T)(object)ContractGroup.contractGroups[stringValue];
             }
-
-            // Do newline conversions
-            if (typeof(T) == typeof(string))
+            else if (typeof(T) == typeof(CelestialBody))
             {
-                stringValue = stringValue.Replace("\\n", "\n");
+                value = (T)(object)ParseCelestialBodyValue(stringValue);
+            }
+            else if (typeof(T) == typeof(PartResourceDefinition))
+            {
+                value = (T)(object)ParseResourceValue(stringValue);
+            }
+            else if (typeof(T) == typeof(Agent))
+            {
+                value = (T)(object)ParseAgentValue(stringValue);
+            }
+            else if (typeof(T) == typeof(ProtoCrewMember))
+            {
+                value = (T)(object)ParseProtoCrewMemberValue(stringValue);
+            }
+            else if (typeof(T) == typeof(Guid))
+            {
+                value = (T)(object)new Guid(stringValue);
+            }
+            else if (typeof(T) == typeof(Vessel))
+            {
+                value = (T)(object)ParseVesselValue(stringValue);
+            }
+            // Do newline conversions
+            else if (typeof(T) == typeof(string))
+            {
+                value = (T)(object)stringValue.Replace("\\n", "\n");
+            }
+            // Try a basic type
+            else
+            {
+                value = (T)Convert.ChangeType(stringValue, typeof(T));
             }
 
-            // Try a basic type
-            return (T)Convert.ChangeType(stringValue, typeof(T));
+            return value;
         }
 
         /// <summary>
@@ -204,120 +262,164 @@ namespace ContractConfigurator
             }
         }
 
-        /*
-         * Attempts to parse a value from the config node.
-         */
-        public static bool ParseValue<T>(ConfigNode configNode, string key, ref T value, IContractConfiguratorFactory obj)
-        {
-            try
-            {
-                value = ParseValue<T>(configNode, key);
-                return value != null;
-            }
-            catch (Exception e)
-            {
-                LoggingUtil.LogError(obj, obj.ErrorPrefix(configNode) + ": Error parsing " + key);
-                LoggingUtil.LogException(e);
-                return false;
-            }
-            finally
-            {
-                AddFoundKey(configNode, key);
-            }
-        }
-
         /// <summary>
-        /// Attempts to parse a value from the config node.  Validates return values using the
-        /// given function
+        /// Attempts to parse a value from the config node.  Returns a default value if not found.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="configNode"></param>
-        /// <param name="key"></param>
-        /// <param name="value"></param>
-        /// <param name="obj"></param>
-        /// <param name="validation"></param>
-        /// <returns></returns>
-        public static bool ParseValue<T>(ConfigNode configNode, string key, ref T value, IContractConfiguratorFactory obj, Func<T, bool> validation)
+        /// <typeparam name="T">The type of value to convert to.</typeparam>
+        /// <param name="configNode">The ConfigNode to read from.</param>
+        /// <param name="key">The key to examine.</param>
+        /// <param name="setter">Function used to set the output value</param>
+        /// <param name="obj">Factory object for error messages.</param>
+        /// <returns>The parsed value (or default value if not found)</returns>
+        public static bool ParseValue<T>(ConfigNode configNode, string key, Action<T> setter, IContractConfiguratorFactory obj)
         {
-            if (ParseValue<T>(configNode, key, ref value, obj))
+            // Check for required value
+            if (!configNode.HasValue(key))
             {
-                try
-                {
-                    if (!validation.Invoke(value))
-                    {
-                        // In general, the validation function should throw an exception and give a much better message
-                        LoggingUtil.LogError(obj, obj.ErrorPrefix(configNode) + ": The value supplied for " + key + " (" + value + ") is invalid.");
-                        return false;
-                    }
-                }
-                catch (Exception e)
-                {
-                    LoggingUtil.LogError(obj, obj.ErrorPrefix(configNode) + ": The value supplied for " + key + " (" + value + ") is invalid.");
-                    LoggingUtil.LogException(e);
-                    return false;
-                }
-                return true;
+                throw new ArgumentException("Missing required value '" + key + "'.");
             }
-            return false;
+
+            return ParseValue<T>(configNode, key, setter, obj, default(T), x => true);
         }
 
         /// <summary>
         /// Attempts to parse a value from the config node.  Returns a default value if not found.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="configNode"></param>
-        /// <param name="key"></param>
-        /// <param name="value"></param>
-        /// <param name="obj"></param>
-        /// <param name="defaultValue"></param>
-        /// <returns></returns>
-        public static bool ParseValue<T>(ConfigNode configNode, string key, ref T value, IContractConfiguratorFactory obj, T defaultValue)
+        /// <typeparam name="T">The type of value to convert to.</typeparam>
+        /// <param name="configNode">The ConfigNode to read from.</param>
+        /// <param name="key">The key to examine.</param>
+        /// <param name="setter">Function used to set the output value</param>
+        /// <param name="obj">Factory object for error messages.</param>
+        /// <param name="defaultValue">Default value to use if there is no key in the config node</param>
+        /// <returns>The parsed value (or default value if not found)</returns>
+        public static bool ParseValue<T>(ConfigNode configNode, string key, Action<T> setter, IContractConfiguratorFactory obj, T defaultValue)
         {
-            if (configNode.HasValue(key))
+            return ParseValue<T>(configNode, key, setter, obj, defaultValue, x => true);
+        }
+
+        /// <summary>
+        /// Attempts to parse a value from the config node.  Validates return values using the
+        /// given function.
+        /// </summary>
+        /// <typeparam name="T">The type of value to convert to.</typeparam>
+        /// <param name="configNode">The ConfigNode to read from.</param>
+        /// <param name="key">The key to examine.</param>
+        /// <param name="setter">Function used to set the output value</param>
+        /// <param name="obj">Factory object for error messages.</param>
+        /// <param name="validation">Validation function to run against the returned value</param>
+        /// <returns>The parsed value (or default value if not found)</returns>
+        public static bool ParseValue<T>(ConfigNode configNode, string key, Action<T> setter, IContractConfiguratorFactory obj, Func<T, bool> validation)
+        {
+            // Check for required value
+            if (!configNode.HasValue(key))
             {
-                return ParseValue<T>(configNode, key, ref value, obj);
+                throw new ArgumentException("Missing required value '" + key + "'.");
             }
-            else
-            {
-                value = defaultValue;
-                return true;
-            }
+
+            return ParseValue<T>(configNode, key, setter, obj, default(T), validation);
         }
 
         /// <summary>
         /// Attempts to parse a value from the config node.  Returns a default value if not found.
         /// Validates return values using the given function.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="configNode"></param>
-        /// <param name="key"></param>
-        /// <param name="value"></param>
-        /// <param name="obj"></param>
-        /// <param name="defaultValue"></param>
-        /// <param name="validation"></param>
-        /// <returns></returns>
-        public static bool ParseValue<T>(ConfigNode configNode, string key, ref T value, IContractConfiguratorFactory obj, T defaultValue, Func<T, bool> validation)
+        /// <typeparam name="T">The type of value to convert to.</typeparam>
+        /// <param name="configNode">The ConfigNode to read from.</param>
+        /// <param name="key">The key to examine.</param>
+        /// <param name="setter">Function used to set the output value</param>
+        /// <param name="obj">Factory object for error messages.</param>
+        /// <param name="defaultValue">Default value to use if there is no key in the config node</param>
+        /// <param name="validation">Validation function to run against the returned value</param>
+        /// <returns>The parsed value (or default value if not found)</returns>
+        public static bool ParseValue<T>(ConfigNode configNode, string key, Action<T> setter, IContractConfiguratorFactory obj, T defaultValue, Func<T, bool> validation)
         {
-            if (ParseValue<T>(configNode, key, ref value, obj, defaultValue))
+            bool valid = true;
+            T value = defaultValue;
+            if (configNode.HasValue(key))
             {
                 try
                 {
-                    if (!validation.Invoke(value))
+                    // Load value
+                    value = ParseValue<T>(configNode, key, true);
+
+                    // If value was non-null, run validation
+                    valid = (value != null);
+                    if (valid)
                     {
-                        // In general, the validation function should throw an exception and give a much better message
-                        LoggingUtil.LogError(obj, obj.ErrorPrefix(configNode) + ": The value supplied for " + key + " (" + value + ") is invalid.");
-                        return false;
+                        try
+                        {
+                            valid = validation.Invoke(value);
+                            if (!valid)
+                            {
+                                // In general, the validation function should throw an exception and give a much better message
+                                LoggingUtil.LogError(obj, obj.ErrorPrefix(configNode) + ": The value supplied for " + key + " (" + value + ") is invalid.");
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            LoggingUtil.LogError(obj, obj.ErrorPrefix(configNode) + ": The value supplied for " + key + " (" + value + ") is invalid.");
+                            LoggingUtil.LogException(e);
+                            valid = false;
+                        }
                     }
                 }
                 catch (Exception e)
                 {
-                    LoggingUtil.LogError(obj, obj.ErrorPrefix(configNode) + ": The value supplied for " + key + " (" + value + ") is invalid.");
+                    if (e.GetType() == typeof(DataNode.ValueNotInitialized))
+                    {
+                        string dependency = ((DataNode.ValueNotInitialized)e).key;
+
+                        // Defer loading this value
+                        DeferredLoadObject<T> loadObj = null;
+                        if (!deferredLoads.ContainsKey(key))
+                        {
+                            deferredLoads[key] = new DeferredLoadObject<T>(configNode, key, setter, obj, validation, currentDataNode);
+                        }
+                        loadObj = (DeferredLoadObject<T>)deferredLoads[key];
+
+                        // New dependency - try again
+                        if (!loadObj.dependencies.Contains(dependency))
+                        {
+                            loadObj.dependencies.Add(dependency);
+                            return true;
+                        }
+                    }
+
+                    LoggingUtil.LogError(obj, obj.ErrorPrefix(configNode) + ": Error parsing " + key);
                     LoggingUtil.LogException(e);
-                    return false;
+
+                    // Return immediately on deferred load error
+                    if (e.GetType() == typeof(DataNode.ValueNotInitialized))
+                    {
+                        return false;
+                    }
+
+                    valid = false;
                 }
-                return true;
+                finally
+                {
+                    AddFoundKey(configNode, key);
+                }
             }
-            return false;
+
+            // Store the value
+            if (currentDataNode != null)
+            {
+                currentDataNode[key] = value;
+
+                if (!currentDataNode.IsDeterministic(key))
+                {
+                    currentDataNode.DeferredLoads.Add(new DeferredLoadObject<T>(configNode, key, setter, obj, validation, currentDataNode));
+                }
+            }
+
+            // Invoke the setter function
+            if (valid)
+            {
+                setter.Invoke(value);
+            }
+
+            return valid;
         }
 
         /// <summary>
@@ -418,10 +520,38 @@ namespace ContractConfigurator
             return true;
         }
 
-        protected static CelestialBody ParseCelestialBodyValue(ConfigNode configNode, string key)
+        /// <summary>
+        /// Re-executes all non-deterministic values for the given node, providing new values.
+        /// </summary>
+        /// <param name="node">The node that should be re-executed</param>
+        /// <returns>True if it was successful, false otherwise</returns>
+        public static bool UpdateNonDeterministicValues(DataNode node)
         {
-            string celestialName = configNode.GetValue(key);
+            if (node == null)
+            {
+                return true;
+            }
 
+            // Execute each deferred load
+            MethodInfo executeMethod = typeof(DeferredLoadUtil).GetMethods().Where(m => m.Name == "ExecuteLoad").First();
+            foreach (DeferredLoadBase loadObj in node.DeferredLoads)
+            {
+                LoggingUtil.LogVerbose(typeof(ConfigNodeUtil), "Doing non-deterministic load for key '" + loadObj.key + "'");
+
+                MethodInfo method = executeMethod.MakeGenericMethod(loadObj.GetType().GetGenericArguments());
+                bool valid = (bool)method.Invoke(null, new object[] { loadObj });
+
+                if (!valid)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        public static CelestialBody ParseCelestialBodyValue(string celestialName)
+        {
             foreach (CelestialBody body in FlightGlobals.Bodies)
             {
                 if (body.name.Equals(celestialName))
@@ -433,7 +563,7 @@ namespace ContractConfigurator
             throw new ArgumentException("'" + celestialName + "' is not a valid CelestialBody.");
         }
 
-        protected static AvailablePart ParsePartValue(string partName)
+        private static AvailablePart ParsePartValue(string partName)
         {
             // Underscores in part names get replaced with spaces.  Nobody knows why.
             partName = partName.Replace('_', '.');
@@ -448,9 +578,8 @@ namespace ContractConfigurator
             return part;
         }
 
-        protected static PartResourceDefinition ParseResourceValue(ConfigNode configNode, string key)
+        private static PartResourceDefinition ParseResourceValue(string name)
         {
-            string name = configNode.GetValue(key);
             PartResourceDefinition resource = PartResourceLibrary.Instance.resourceDefinitions.Where(prd => prd.name == name).First();
             if (resource == null)
             {
@@ -460,10 +589,9 @@ namespace ContractConfigurator
             return resource;
         }
 
-        protected static Agent ParseAgentValue(ConfigNode configNode, string key)
+        private static Agent ParseAgentValue(string name)
         {
-            string name = configNode.GetValue(key);
-            Agent agent = AgentList.Instance.GetAgent(configNode.GetValue(key));
+            Agent agent = AgentList.Instance.GetAgent(name);
             if (agent == null)
             {
                 throw new ArgumentException("'" + name + "' is not a valid agent.");
@@ -472,15 +600,14 @@ namespace ContractConfigurator
             return agent;
         }
 
-        protected static Vessel ParseVesselValue(ConfigNode configNode, string key)
+        private static Vessel ParseVesselValue(string name)
         {
-            Guid id = new Guid(configNode.GetValue(key));
+            Guid id = new Guid(name);
             return FlightGlobals.Vessels.Find(v => v.id == id);
         }
 
-        protected static ProtoCrewMember ParseProtoCrewMemberValue(ConfigNode configNode, string key)
+        private static ProtoCrewMember ParseProtoCrewMemberValue(string name)
         {
-            string name = configNode.GetValue(key);
             return HighLogic.CurrentGame.CrewRoster.AllKerbals().Where(pcm => pcm.name == name).First();
         }
 
@@ -499,9 +626,101 @@ namespace ContractConfigurator
         /// <summary>
         /// Clears the cache of found keys.
         /// </summary>
-        public static void ClearFoundCache()
+        /// <param name="firstNode">Whether we are looking at the root node and should do additional clearing</param>
+        public static void ClearCache(bool firstNode = false)
         {
-            keysFound = new Dictionary<ConfigNode, Dictionary<string, int>>();
+            keysFound.Clear();
+            storedValues.Clear();
+            if (firstNode)
+            {
+                deferredLoads.Clear();
+            }
+        }
+
+        /// <summary>
+        /// Sets the currently active data node for expressions.
+        /// </summary>
+        /// <param name="dataNode">The DataNode to use as the current data node.</param>
+        public static void SetCurrentDataNode(DataNode dataNode)
+        {
+            currentDataNode = dataNode;
+        }
+
+        /// <summary>
+        /// Execute all deferred loads.
+        /// </summary>
+        /// <returns>Whether we were successful</returns>
+        public static bool ExecuteDeferredLoads()
+        {
+            bool valid = true;
+
+            // Generic methods
+            MethodInfo dependenciesMethod = typeof(DeferredLoadUtil).GetMethods().Where(m => m.Name == "GetDependencies").First();
+            MethodInfo circularDependendencyMethod = typeof(DeferredLoadUtil).GetMethods().Where(m => m.Name == "LogCicularDependencyError").First();
+            MethodInfo executeMethod = typeof(DeferredLoadUtil).GetMethods().Where(m => m.Name == "ExecuteLoad").First();
+
+            Dictionary<string, List<string>> dependencies = new Dictionary<string, List<string>>();
+
+            while (deferredLoads.Any())
+            {
+                string key = null;
+                int count = 0;
+                object loadObj = null;
+
+                // Rebuild the dependency tree
+                dependencies.Clear();
+                foreach (KeyValuePair<string, DeferredLoadBase> pair in deferredLoads)
+                {
+                    MethodInfo method = dependenciesMethod.MakeGenericMethod(pair.Value.GetType().GetGenericArguments());
+                    IEnumerable<string> localDependencies = (IEnumerable<string>)method.Invoke(null, new object[] { pair.Value });
+                    dependencies[pair.Key] = new List<string>();
+
+                    foreach (string dep in localDependencies)
+                    {
+                        // Only add dependencies that exist in the list
+                        if (deferredLoads.ContainsKey(dep))
+                        {
+                            dependencies[pair.Key].Add(dep);
+                        }
+                    }
+
+                    if (dependencies[pair.Key].Count() == 0)
+                    {
+                        count = localDependencies.Count();
+                        key = pair.Key;
+                        loadObj = pair.Value;
+                        break;
+                    }
+                }
+
+                // Didn't find anything valid.  The rest are circular dependencies
+                if (loadObj == null)
+                {
+                    valid = false;
+                    foreach (KeyValuePair<string, DeferredLoadBase> pair in deferredLoads)
+                    {
+                        MethodInfo method = circularDependendencyMethod.MakeGenericMethod(pair.Value.GetType().GetGenericArguments());
+                        method.Invoke(null, new object[] { pair.Value });
+                    }
+                    deferredLoads.Clear();
+                }
+                // Found something we can execute
+                else
+                {
+                    // Try parsing it
+                    MethodInfo method = executeMethod.MakeGenericMethod(loadObj.GetType().GetGenericArguments());
+                    valid &= (bool)method.Invoke(null, new object[] { loadObj });
+
+                    // If a dependency was not added, then remove from the list
+                    method = dependenciesMethod.MakeGenericMethod(loadObj.GetType().GetGenericArguments());
+                    if (count == ((IEnumerable<string>)method.Invoke(null, new object[] { loadObj })).Count())
+                    {
+                        deferredLoads.Remove(key);
+                    }
+                }
+            }
+
+            return valid;
         }
 
         /// <summary>
@@ -512,6 +731,8 @@ namespace ContractConfigurator
         /// <returns>Always true, but logs a warning if unexpected keys were found</returns>
         public static bool ValidateUnexpectedValues(ConfigNode configNode, IContractConfiguratorFactory obj)
         {
+            bool valid = true;
+
             if (!keysFound.ContainsKey(configNode))
             {
                 LoggingUtil.LogWarning(obj.GetType(), obj.ErrorPrefix() +
@@ -529,7 +750,7 @@ namespace ContractConfigurator
                 }
             }
 
-            return true;
+            return valid;
         }
     }
 }

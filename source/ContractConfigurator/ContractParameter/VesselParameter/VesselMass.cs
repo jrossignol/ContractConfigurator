@@ -14,7 +14,6 @@ namespace ContractConfigurator.Parameters
     /// </summary>
     public class VesselMass : VesselParameter
     {
-        protected string title { get; set; }
         protected float minMass { get; set; }
         protected float maxMass { get; set; }
 
@@ -27,7 +26,7 @@ namespace ContractConfigurator.Parameters
         }
 
         public VesselMass(float minMass = 0.0f, float maxMass = float.MaxValue, string title = null)
-            : base()
+            : base(title)
         {
             // Show as failed when mass incorrect
             failWhenUnmet = true;
@@ -57,15 +56,9 @@ namespace ContractConfigurator.Parameters
             }
         }
 
-        protected override string GetTitle()
-        {
-            return title;
-        }
-
         protected override void OnParameterSave(ConfigNode node)
         {
             base.OnParameterSave(node);
-            node.AddValue("title", title);
             node.AddValue("minMass", minMass);
             if (maxMass != double.MaxValue)
             {
@@ -76,7 +69,6 @@ namespace ContractConfigurator.Parameters
         protected override void OnParameterLoad(ConfigNode node)
         {
             base.OnParameterLoad(node);
-            title = node.GetValue("title");
             minMass = (float)Convert.ToDouble(node.GetValue("minMass"));
             maxMass = node.HasValue("maxMass") ? (float)Convert.ToDouble(node.GetValue("maxMass")) : float.MaxValue;
         }

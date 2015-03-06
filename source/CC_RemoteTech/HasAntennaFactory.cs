@@ -30,12 +30,12 @@ namespace ContractConfigurator.RemoteTech
             // Before loading, verify the RemoteTech version
             valid &= Util.VerifyRemoteTechVersion();
 
-            valid &= ConfigNodeUtil.ParseValue<int>(configNode, "minCount", ref minCount, this, 1, x => Validation.GE(x, 0));
-            valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxCount", ref maxCount, this, int.MaxValue, x => Validation.GE(x, 0));
-            valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "activeVessel", ref activeVessel, this, false);
-            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "minRange", ref minRange, this, 0.0, x => Validation.GE(x, 0.0));
-            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "maxRange", ref maxRange, this, double.MaxValue, x => Validation.GE(x, 0.0));
-            valid &= ConfigNodeUtil.ParseValue<HasAntennaParameter.AntennaType?>(configNode, "antennaType", ref antennaType, this, (HasAntennaParameter.AntennaType?)null);
+            valid &= ConfigNodeUtil.ParseValue<int>(configNode, "minCount", x => minCount = x, this, 1, x => Validation.GE(x, 0));
+            valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxCount", x => maxCount = x, this, int.MaxValue, x => Validation.GE(x, 0));
+            valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "activeVessel", x => activeVessel = x, this, false);
+            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "minRange", x => minRange = x, this, 0.0, x => Validation.GE(x, 0.0));
+            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "maxRange", x => maxRange = x, this, double.MaxValue, x => Validation.GE(x, 0.0));
+            valid &= ConfigNodeUtil.ParseValue<HasAntennaParameter.AntennaType?>(configNode, "antennaType", x => antennaType = x, this, (HasAntennaParameter.AntennaType?)null);
             valid &= ConfigNodeUtil.MutuallyExclusive(configNode, new string[] { "activeVessel" }, new string[] { "targetBody" }, this);
 
             return valid;

@@ -25,9 +25,9 @@ namespace ContractConfigurator
             bool valid = base.Load(configNode);
 
             // Read min/max first
-            valid &= ConfigNodeUtil.ParseValue<int>(configNode, "minCount", ref minCount, this,
+            valid &= ConfigNodeUtil.ParseValue<int>(configNode, "minCount", x => minCount = x, this,
                 configNode.HasNode("VALIDATE") || configNode.HasNode("VALIDATE_ALL") || configNode.HasNode("NONE") ? 0 : 1, x => Validation.GE(x, 0));
-            valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxCount", ref maxCount, this, int.MaxValue, x => Validation.GE(x, 0));
+            valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxCount", x => maxCount = x, this, int.MaxValue, x => Validation.GE(x, 0));
 
             // Set the default match type
             ParameterDelegateMatchType defaultMatch = ParameterDelegateMatchType.FILTER;
@@ -40,10 +40,10 @@ namespace ContractConfigurator
             if (configNode.HasValue("part") || configNode.HasValue("partModule") || configNode.HasValue("category") || configNode.HasValue("manufacturer"))
             {
                 PartValidation.Filter filter = new PartValidation.Filter(defaultMatch);
-                valid &= ConfigNodeUtil.ParseValue<AvailablePart>(configNode, "part", ref filter.part, this, (AvailablePart)null);
-                valid &= ConfigNodeUtil.ParseValue<List<string>>(configNode, "partModule", ref filter.partModules, this, new List<string>(), x => x.All(Validation.ValidatePartModule));
-                valid &= ConfigNodeUtil.ParseValue<PartCategories?>(configNode, "category", ref filter.category, this, (PartCategories?)null);
-                valid &= ConfigNodeUtil.ParseValue<string>(configNode, "manufacturer", ref filter.manufacturer, this, (string)null);
+                valid &= ConfigNodeUtil.ParseValue<AvailablePart>(configNode, "part", x => filter.part = x, this, (AvailablePart)null);
+                valid &= ConfigNodeUtil.ParseValue<List<string>>(configNode, "partModule", x => filter.partModules = x, this, new List<string>(), x => x.All(Validation.ValidatePartModule));
+                valid &= ConfigNodeUtil.ParseValue<PartCategories?>(configNode, "category", x => filter.category = x, this, (PartCategories?)null);
+                valid &= ConfigNodeUtil.ParseValue<string>(configNode, "manufacturer", x => filter.manufacturer = x, this, (string)null);
                 filters.Add(filter);
             }
 
@@ -80,15 +80,15 @@ namespace ContractConfigurator
                 }
 
                 PartValidation.Filter filter = new PartValidation.Filter(matchType);
-                valid &= ConfigNodeUtil.ParseValue<AvailablePart>(child, "part", ref filter.part, this, (AvailablePart)null);
-                valid &= ConfigNodeUtil.ParseValue<List<string>>(child, "partModule", ref filter.partModules, this, new List<string>(), x => x.All(Validation.ValidatePartModule));
-                valid &= ConfigNodeUtil.ParseValue<PartCategories?>(child, "category", ref filter.category, this, (PartCategories?)null);
-                valid &= ConfigNodeUtil.ParseValue<string>(child, "manufacturer", ref filter.manufacturer, this, (string)null);
+                valid &= ConfigNodeUtil.ParseValue<AvailablePart>(child, "part", x => filter.part = x, this, (AvailablePart)null);
+                valid &= ConfigNodeUtil.ParseValue<List<string>>(child, "partModule", x => filter.partModules = x, this, new List<string>(), x => x.All(Validation.ValidatePartModule));
+                valid &= ConfigNodeUtil.ParseValue<PartCategories?>(child, "category", x => filter.category = x, this, (PartCategories?)null);
+                valid &= ConfigNodeUtil.ParseValue<string>(child, "manufacturer", x => filter.manufacturer = x, this, (string)null);
 
                 if (matchType == ParameterDelegateMatchType.VALIDATE)
                 {
-                    valid &= ConfigNodeUtil.ParseValue<int>(child, "minCount", ref filter.minCount, this, 1, x => Validation.GE(x, 0));
-                    valid &= ConfigNodeUtil.ParseValue<int>(child, "maxCount", ref filter.maxCount, this, int.MaxValue, x => Validation.GE(x, 0));
+                    valid &= ConfigNodeUtil.ParseValue<int>(child, "minCount", x => filter.minCount = x, this, 1, x => Validation.GE(x, 0));
+                    valid &= ConfigNodeUtil.ParseValue<int>(child, "maxCount", x => filter.maxCount = x, this, int.MaxValue, x => Validation.GE(x, 0));
                 }
 
                 filters.Add(filter);

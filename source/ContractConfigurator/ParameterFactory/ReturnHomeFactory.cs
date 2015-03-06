@@ -9,9 +9,9 @@ using ContractConfigurator.Parameters;
 
 namespace ContractConfigurator
 {
-    /*
-     * ParameterFactory wrapper for ReturnHome ContractParameter.
-     */
+    /// <summary>
+    /// ParameterFactory wrapper for ReturnHome ContractParameter.
+    /// </summary>
     public class ReturnHomeFactory : ParameterFactory
     {
         public override ContractParameter Generate(Contract contract)

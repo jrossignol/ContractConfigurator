@@ -23,7 +23,7 @@ namespace ContractConfigurator
             // Check on active contracts too
             checkOnActiveContract = configNode.HasValue("checkOnActiveContract") ? checkOnActiveContract : true;
 
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "tech", ref tech, this);
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "tech", x => tech = x, this);
 
             return valid;
         }

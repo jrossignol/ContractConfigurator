@@ -9,9 +9,9 @@ using Contracts.Parameters;
 
 namespace ContractConfigurator
 {
-    /*
-     * ParameterFactory to provide logic for All.
-     */
+    /// <summary>
+    /// ParameterFactory to provide logic for All.
+    /// </summary>
     public class AllFactory : ParameterFactory
     {
         public override ContractParameter Generate(Contract contract)

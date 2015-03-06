@@ -9,9 +9,9 @@ using Contracts.Parameters;
 
 namespace ContractConfigurator
 {
-    /*
-     * ParameterFactory wrapper for LaunchVessel ContractParameter.
-     */
+    /// <summary>
+    /// ParameterFactory wrapper for LaunchVessel ContractParameter.
+    /// </summary>
     public class LaunchVesselFactory : ParameterFactory
     {
         public override ContractParameter Generate(Contract contract)

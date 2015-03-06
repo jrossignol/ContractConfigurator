@@ -6,15 +6,17 @@ using UnityEngine;
 using KSP;
 using KSPAchievements;
 using Contracts;
+using ContractConfigurator.ExpressionParser;
 
 namespace ContractConfigurator
 {
-    /*
-     * ContractRequirement that executes an expression.
-     */
+    /// <summary>
+    /// ContractRequirement that executes an expression.
+    /// </summary>
     public class ExpressionRequirement : ContractRequirement
     {
         protected string expression;
+        protected ExpressionParser<bool> parser = BaseParser.GetParser<bool>();
 
         public override bool Load(ConfigNode configNode)
         {
@@ -22,14 +24,15 @@ namespace ContractConfigurator
             bool valid = base.Load(configNode);
 
             // Get expression
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "expression", ref expression, this, x => ExpressionParser.ParseExpression(x) == 0.0 || true);
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "expression", x => expression = x, this,
+                x => parser.ParseExpression("expression", x, dataNode) || true);
 
             return valid;
         }
 
         public override bool RequirementMet(ConfiguredContract contract)
         {
-            return ExpressionParser.ExecuteExpression(expression) != 0.0;
+            return parser.ExecuteExpression("", expression, dataNode);
         }
     }
 }

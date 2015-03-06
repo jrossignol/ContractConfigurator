@@ -9,9 +9,9 @@ using Contracts.Parameters;
 
 namespace ContractConfigurator
 {
-    /*
-     * ParameterFactory wrapper for AltitudeRecord ContractParameter.
-     */
+    /// <summary>
+    /// ParameterFactory wrapper for AltitudeRecord ContractParameter.
+    /// </summary>
     public class AltitudeRecordFactory : ParameterFactory
     {
         protected double altitude;
@@ -22,7 +22,7 @@ namespace ContractConfigurator
             bool valid = base.Load(configNode);
 
             // Get altitude
-            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "altitude", ref altitude, this, x => Validation.GT(x, 0.0));
+            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "altitude", x => altitude = x, this, x => Validation.GT(x, 0.0));
 
             return valid;
         }

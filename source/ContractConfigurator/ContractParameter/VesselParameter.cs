@@ -50,8 +50,10 @@ namespace ContractConfigurator.Parameters
         /// </summary>
         protected bool failWhenUnmet = false;
 
-        public VesselParameter()
-            : base()
+        public VesselParameter() : this(null) { }
+
+        public VesselParameter(string title)
+            : base(title)
         {
             vesselInfo = new Dictionary<Guid, VesselInfo>();
             dockedVesselStrength = new Dictionary<uint, ParamStrength>();

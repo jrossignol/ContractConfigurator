@@ -9,9 +9,9 @@ using Contracts.Parameters;
 
 namespace ContractConfigurator
 {
-    /*
-     * ParameterFactory wrapper for EnterSOI ContractParameter.
-     */
+    /// <summary>
+    /// ParameterFactory wrapper for EnterSOI ContractParameter.
+    /// </summary>
     public class EnterSOIFactory : ParameterFactory
     {
         public override bool Load(ConfigNode configNode)

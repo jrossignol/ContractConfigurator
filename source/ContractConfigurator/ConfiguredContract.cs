@@ -38,6 +38,12 @@ namespace ContractConfigurator
 
             LoggingUtil.LogDebug(this.GetType(), "Generating contract: " + contractType);
 
+            // Try to refresh non-deterministic values
+            if (!ConfigNodeUtil.UpdateNonDeterministicValues(contractType.dataNode))
+            {
+                return false;
+            }
+
             // Set the agent
             if (contractType.agent != null)
             {
@@ -72,12 +78,18 @@ namespace ContractConfigurator
 
             // Generate behaviours
             behaviours = new List<ContractBehaviour>();
-            contractType.GenerateBehaviours(this);
+            if (!contractType.GenerateBehaviours(this))
+            {
+                return false;
+            }
 
             // Generate parameters
             try
             {
-                contractType.GenerateParameters(this);
+                if (!contractType.GenerateParameters(this))
+                {
+                    return false;
+                }
             }
             catch (Exception e)
             {
@@ -265,7 +277,7 @@ namespace ContractConfigurator
                 }
 
                 // Shouldn't happen, but floating point rounding could put us here
-                if (contractType == null)
+                if (selectedContractType == null)
                 {
                     selectedContractType = validContractTypes.First().Key;
                 }

@@ -16,7 +16,6 @@ namespace ContractConfigurator.Parameters
     /// </summary>
     public class VisitWaypoint : VesselParameter
     {
-        protected string title { get; set; }
         protected int waypointIndex { get; set; }
         protected Waypoint waypoint { get; set; }
         protected double distance { get; set; }
@@ -31,9 +30,8 @@ namespace ContractConfigurator.Parameters
         }
 
         public VisitWaypoint(int waypointIndex, double distance, string title)
-            : base()
+            : base(title)
         {
-            this.title = title;
             this.distance = distance;
             this.waypointIndex = waypointIndex;
         }
@@ -62,7 +60,6 @@ namespace ContractConfigurator.Parameters
         protected override void OnParameterSave(ConfigNode node)
         {
             base.OnParameterSave(node);
-            node.AddValue("title", title);
             node.AddValue("distance", distance);
             node.AddValue("waypointIndex", waypointIndex);
         }
@@ -70,7 +67,6 @@ namespace ContractConfigurator.Parameters
         protected override void OnParameterLoad(ConfigNode node)
         {
             base.OnParameterLoad(node);
-            title = node.GetValue("title");
             distance = Convert.ToDouble(node.GetValue("distance"));
             waypointIndex = Convert.ToInt32(node.GetValue("waypointIndex"));
         }

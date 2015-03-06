@@ -31,9 +31,9 @@ namespace ContractConfigurator.SCANsat
             // contract is invalidated, which is usually not what's meant.
             checkOnActiveContract = false;
 
-            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "minCoverage", ref minCoverage, this, 0.0);
-            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "maxCoverage", ref maxCoverage, this, 100.0);
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "scanType", ref scanType, this, SCANsatUtil.ValidateSCANname);
+            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "minCoverage", x => minCoverage = x, this, 0.0);
+            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "maxCoverage", x => maxCoverage = x, this, 100.0);
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "scanType", x => scanType = x, this, SCANsatUtil.ValidateSCANname);
             valid &= ValidateTargetBody(configNode);
 
             return valid;

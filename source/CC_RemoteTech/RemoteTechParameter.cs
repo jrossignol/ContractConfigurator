@@ -12,8 +12,8 @@ namespace ContractConfigurator.RemoteTech
 {
     public abstract class RemoteTechParameter : VesselParameter
     {
-        public RemoteTechParameter()
-            : base()
+        public RemoteTechParameter(string title)
+            : base(title)
         {
         }
 

@@ -14,17 +14,14 @@ namespace ContractConfigurator.Parameters
     /// </summary>
     public class ReachSpaceCustom : ContractConfiguratorParameter
     {
-        protected string title { get; set; }
-
         public ReachSpaceCustom()
-            : base()
+            : base(null)
         {
         }
 
         public ReachSpaceCustom(string title)
-            : base()
+            : base(title)
         {
-            this.title = title;
         }
 
         protected override string GetTitle()
@@ -43,12 +40,10 @@ namespace ContractConfigurator.Parameters
 
         protected override void OnParameterSave(ConfigNode node)
         {
-            node.AddValue("title", title);
         }
 
         protected override void OnParameterLoad(ConfigNode node)
         {
-            title = ConfigNodeUtil.ParseValue<string>(node, "title");
         }
 
         protected override void OnRegister()

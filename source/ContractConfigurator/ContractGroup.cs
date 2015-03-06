@@ -6,6 +6,7 @@ using UnityEngine;
 using KSP;
 using Contracts;
 using Contracts.Agents;
+using ContractConfigurator.ExpressionParser;
 
 namespace ContractConfigurator
 {
@@ -20,6 +21,10 @@ namespace ContractConfigurator
         public string name;
         public int maxCompletions;
         public int maxSimultaneous;
+
+        public string config { get; private set; }
+        public string log { get; private set; }
+        public DataNode dataNode { get; private set; }
 
         public ContractGroup(string name)
         {
@@ -39,12 +44,12 @@ namespace ContractConfigurator
         /// <returns>Whether we were successful.</returns>
         public bool Load(ConfigNode configNode)
         {
-            ConfigNodeUtil.ClearFoundCache();
+            ConfigNodeUtil.ClearCache();
             bool valid = true;
 
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "name", ref name, this);
-            valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxCompletions", ref maxCompletions, this, 0, x => Validation.GE(x, 0));
-            valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxSimultaneous", ref maxSimultaneous, this, 0, x => Validation.GE(x, 0));
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "name", x => name = x, this);
+            valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxCompletions", x => maxCompletions = x, this, 0, x => Validation.GE(x, 0));
+            valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxSimultaneous", x => maxSimultaneous = x, this, 0, x => Validation.GE(x, 0));
             
             // Check for unexpected values - always do this last
             valid &= ConfigNodeUtil.ValidateUnexpectedValues(configNode, this);
@@ -71,5 +76,13 @@ namespace ContractConfigurator
             return ErrorPrefix();
         }
 
+        /// <summary>
+        /// Outputs the debugging info for the debug window.
+        /// </summary>
+        /// <returns>Debug info for the debug window</returns>
+        public string DebugInfo()
+        {
+            return "";
+        }
     }
 }

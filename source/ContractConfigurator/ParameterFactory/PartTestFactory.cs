@@ -9,9 +9,9 @@ using Contracts.Parameters;
 
 namespace ContractConfigurator
 {
-    /*
-     * ParameterFactory wrapper for PartTest ContractParameter.
-     */
+    /// <summary>
+    /// ParameterFactory wrapper for PartTest ContractParameter.
+    /// </summary>
     public class PartTestFactory : ParameterFactory
     {
         protected AvailablePart part;
@@ -22,8 +22,8 @@ namespace ContractConfigurator
             // Load base class
             bool valid = base.Load(configNode);
 
-            valid &= ConfigNodeUtil.ParseValue<AvailablePart>(configNode, "part", ref part, this);
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "notes", ref notes, this, (string)null);
+            valid &= ConfigNodeUtil.ParseValue<AvailablePart>(configNode, "part", x => part = x, this);
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "notes", x => notes = x, this, (string)null);
 
             return valid;
         }

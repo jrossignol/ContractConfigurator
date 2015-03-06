@@ -5,6 +5,7 @@ using System.Text;
 using UnityEngine;
 using KSP;
 using Contracts;
+using ContractConfigurator.ExpressionParser;
 
 namespace ContractConfigurator
 {
@@ -30,8 +31,9 @@ namespace ContractConfigurator
         public bool enabled = true;
         public bool? lastResult = null;
         public virtual IEnumerable<ContractRequirement> ChildRequirements { get { return childNodes; } }
-        public string config = "";
-        public string log = "";
+        public string config { get; private set; }
+        public string log { get; private set; }
+        public DataNode dataNode { get; private set; }
 
         /// <summary>
         /// Loads the ContractRequirement from the given ConfigNode.  The base version loads the following:
@@ -43,29 +45,19 @@ namespace ContractConfigurator
         public virtual bool Load(ConfigNode configNode)
         {
             bool valid = true;
+            ConfigNodeUtil.SetCurrentDataNode(dataNode);
 
             // Get name and type
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "type", ref type, this);
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "name", ref name, this, type);
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "type", x => type = x, this);
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "name", x => name = x, this, type);
 
-            valid &= ConfigNodeUtil.ParseValue<CelestialBody>(configNode, "targetBody", ref targetBody, this, contractType.targetBody);
+            valid &= ConfigNodeUtil.ParseValue<CelestialBody>(configNode, "targetBody", x => targetBody = x, this, contractType.targetBody);
 
             // By default, do not check the requirement for active contracts
-            valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "checkOnActiveContract", ref checkOnActiveContract, this, false);
+            valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "checkOnActiveContract", x => checkOnActiveContract = x, this, false);
 
             // Load invertRequirement flag
-            valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "invertRequirement", ref invertRequirement, this, false);
-
-            // Load child nodes
-            foreach (ConfigNode childNode in configNode.GetNodes("REQUIREMENT"))
-            {
-                ContractRequirement child = null;
-                valid &= ContractRequirement.GenerateRequirement(childNode, contractType, out child);
-                if (child != null)
-                {
-                    childNodes.Add(child);
-                }
-            }
+            valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "invertRequirement", x => invertRequirement = x, this, false);
 
             config = configNode.ToString();
             return valid;
@@ -116,6 +108,12 @@ namespace ContractConfigurator
                     {
                         if (requirement.checkOnActiveContract || contract.ContractState != Contract.State.Active)
                         {
+                            // Try to refresh non-deterministic values
+                            if (!ConfigNodeUtil.UpdateNonDeterministicValues(requirement.dataNode))
+                            {
+                                return false;
+                            }
+
                             allReqMet = allReqMet && requirement.CheckRequirement(contract);
 
                             if (!allReqMet)
@@ -178,15 +176,18 @@ namespace ContractConfigurator
         {
             // Logging on
             LoggingUtil.CaptureLog = true;
+            bool valid = true;
 
             // Get the type
             string type = configNode.GetValue("type");
+            string name = configNode.HasValue("name") ? configNode.GetValue("name") : type;
             if (!requirementTypes.ContainsKey(type))
             {
                 LoggingUtil.LogError(typeof(ParameterFactory), "CONTRACT_TYPE '" + contractType.name + "'," +
                     "REQUIREMENT '" + configNode.GetValue("name") + "' of type '" + configNode.GetValue("type") + "': " +
                     "No ContractRequirement has been registered for type '" + type + "'.");
                 requirement = new InvalidContractRequirement();
+                valid = false;
             }
             else
             {
@@ -197,14 +198,26 @@ namespace ContractConfigurator
             // Set attributes
             requirement.contractType = contractType;
             requirement.targetBody = contractType.targetBody;
+            requirement.dataNode = new DataNode(name, contractType.dataNode);
 
             // Load config
-            bool valid = requirement.Load(configNode);
+            valid &= requirement.Load(configNode);
 
             // Check for unexpected values - always do this last
             if (requirement.GetType() != typeof(InvalidContractRequirement))
             {
                 valid &= ConfigNodeUtil.ValidateUnexpectedValues(configNode, requirement);
+            }
+
+            // Load child nodes
+            foreach (ConfigNode childNode in configNode.GetNodes("REQUIREMENT"))
+            {
+                ContractRequirement child = null;
+                valid &= ContractRequirement.GenerateRequirement(childNode, contractType, out child);
+                if (child != null)
+                {
+                    requirement.childNodes.Add(child);
+                }
             }
 
             requirement.enabled = valid;
@@ -235,7 +248,7 @@ namespace ContractConfigurator
         {
             if (targetBody == null)
             {
-                Debug.LogError("ContractConfigurator: " + ErrorPrefix(configNode) +
+                LoggingUtil.LogError(this, ErrorPrefix(configNode) +
                     ": targetBody for " + GetType() + " must be specified.");
                 return false;
             }

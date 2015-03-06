@@ -1,3 +1,10 @@
+Contract Configurator 0.7.0
+- New debugging window feature - contract balancing mode.
+- Support for expressions in config nodes.
+- SpawnPassenger behaviour.
+- Clean up "Input is null" warning messages from stock.
+- Minor bug fixes.
+
 Contract Configurator 0.6.6
 - Changed to MIT license.
 - Performance fixes for stock contracts app (mainly affects contracts with lots and lots of parameters.

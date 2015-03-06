@@ -26,9 +26,9 @@ namespace ContractConfigurator
             // Check on active contracts too
             checkOnActiveContract = configNode.HasValue("checkOnActiveContract") ? checkOnActiveContract : true;
 
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "facility", ref facility, this);
-            valid &= ConfigNodeUtil.ParseValue<int>(configNode, "minLevel", ref minLevel, this, 1, x => Validation.Between(x, 0, 3));
-            valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxLevel", ref maxLevel, this, 3, x => Validation.Between(x, 0, 3));
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "facility", x => facility = x, this);
+            valid &= ConfigNodeUtil.ParseValue<int>(configNode, "minLevel", x => minLevel = x, this, 1, x => Validation.Between(x, 0, 3));
+            valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxLevel", x => maxLevel = x, this, 3, x => Validation.Between(x, 0, 3));
             valid &= ConfigNodeUtil.AtLeastOne(configNode, new string[] { "minLevel", "maxLevel" }, this);
 
             return valid;
