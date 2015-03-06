@@ -110,6 +110,25 @@ namespace ContractConfigurator.ExpressionParser
             RegisterLocalFunction(new Function<T>("Random", () => (T)Convert.ChangeType(random.NextDouble(), typeof(T)), false));
             RegisterLocalFunction(new Function<T, T, T>("Random", (min, max) =>
                 calculator.Add(calculator.Mult((T)Convert.ChangeType(random.NextDouble(), typeof(T)), calculator.Sub(max, min)), min), false));
+
+            RegisterMethod(new Method<T, string>("Print", (tval) =>
+            {
+                int val = (int)(object)tval;
+                if (calculator.EQ((T)(object)val, tval))
+                {
+                    if (val == 0) return "zero";
+                    if (val == 1) return "one";
+                    if (val == 2) return "two";
+                    if (val == 3) return "three";
+                    if (val == 4) return "four";
+                    if (val == 5) return "five";
+                    if (val == 6) return "six";
+                    if (val == 7) return "seven";
+                    if (val == 8) return "eight";
+                    if (val == 9) return "nine";
+                }
+                return tval.ToString();
+            }));
         }
 
         public NumericValueExpressionParser()

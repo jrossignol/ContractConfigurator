@@ -602,10 +602,12 @@ namespace ContractConfigurator.ExpressionParser
 
         internal Token ParseMethodToken()
         {
+            string savedExpression = expression;
             Token token = ParseToken();
 
             if (token == null)
             {
+                expression = savedExpression;
                 return null;
             }
 
@@ -614,7 +616,7 @@ namespace ContractConfigurator.ExpressionParser
                 return token;
             }
 
-            expression = token.sval + expression;
+            expression = savedExpression;
             return null;
         }
 
@@ -873,13 +875,10 @@ namespace ContractConfigurator.ExpressionParser
         {
             if (currentDataNode != null)
             {
-                Debug.Log("token value is: '" + token.sval + "'");
-
                 string identifier = token.sval;
                 DataNode dataNode = currentDataNode;
                 while (identifier.Contains("/"))
                 {
-                    Debug.Log("   iterate, token value is: '" + identifier + "'");
                     if (identifier[0] == '/')
                     {
                         identifier = identifier.Substring(1);
@@ -906,7 +905,6 @@ namespace ContractConfigurator.ExpressionParser
                         dataNode = newNode;
                     }
                 }
-                Debug.Log("end, token value is: '" + identifier + "'");
 
                 if (!dataNode.IsInitialized(identifier))
                 {
