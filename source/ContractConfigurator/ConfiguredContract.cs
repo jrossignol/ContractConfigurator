@@ -173,7 +173,7 @@ namespace ContractConfigurator
 
         protected override string GetNotes()
         {
-            return notes != null ? notes + "\n" : "";
+            return string.IsNullOrEmpty(notes) ? "" : notes + "\n";
         }
         
         protected override void OnLoad(ConfigNode node)
