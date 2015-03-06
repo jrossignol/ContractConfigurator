@@ -619,7 +619,7 @@ namespace ContractConfigurator
 
         private static ProtoCrewMember ParseProtoCrewMemberValue(string name)
         {
-            return HighLogic.CurrentGame.CrewRoster.AllKerbals().Where(pcm => pcm.name == name).First();
+            return HighLogic.CurrentGame.CrewRoster.AllKerbals().Where(pcm => pcm.name == name).FirstOrDefault();
         }
 
         private static void AddFoundKey(ConfigNode configNode, string key)

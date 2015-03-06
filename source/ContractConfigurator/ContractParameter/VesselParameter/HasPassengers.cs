@@ -65,8 +65,11 @@ namespace ContractConfigurator.Parameters
             {
                 foreach (ProtoCrewMember passenger in passengers)
                 {
-                    AddParameter(new ParameterDelegate<Vessel>("On Board: " + passenger.name,
-                        v => v.GetVesselCrew().Contains(passenger), ParameterDelegateMatchType.VALIDATE_ALL));
+                    if (passenger != null)
+                    {
+                        AddParameter(new ParameterDelegate<Vessel>("On Board: " + passenger.name,
+                            v => v.GetVesselCrew().Contains(passenger), ParameterDelegateMatchType.VALIDATE_ALL));
+                    }
                 }
             }
         }
@@ -78,7 +81,10 @@ namespace ContractConfigurator.Parameters
 
             foreach (ProtoCrewMember passenger in passengers)
             {
-                node.AddValue("passenger", passenger.name);
+                if (passenger != null)
+                {
+                    node.AddValue("passenger", passenger.name);
+                }
             }
         }
 

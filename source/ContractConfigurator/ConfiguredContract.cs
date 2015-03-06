@@ -21,6 +21,12 @@ namespace ContractConfigurator
         private List<ContractBehaviour> behaviours = new List<ContractBehaviour>();
         public IEnumerable<ContractBehaviour> Behaviours { get { return behaviours.AsReadOnly(); } }
 
+        protected string title;
+        protected string description;
+        protected string synopsis;
+        protected string completedMessage;
+        protected string notes;
+
         private static int lastGenerationFailure = 0;
         private static Dictionary<ContractPrestige, int> lastSpecificGenerationFailure = new Dictionary<ContractPrestige, int>();
 
@@ -77,6 +83,24 @@ namespace ContractConfigurator
             SetReputation(contractType.rewardReputation, contractType.failureReputation, contractType.targetBody);
             SetFunds(contractType.advanceFunds, contractType.rewardFunds, contractType.failureFunds, contractType.targetBody);
 
+            // Copy text from contract type
+            title = contractType.title;
+            synopsis = contractType.synopsis;
+            completedMessage = contractType.completedMessage;
+            notes = contractType.notes;
+
+            // Set description
+            if (string.IsNullOrEmpty(contractType.description))
+            {
+                // Generate the contract description
+                description = TextGen.GenerateBackStories(agent.Name, agent.GetMindsetString(),
+                    contractType.topic, contractType.subject, contractType.motivation, MissionSeed);
+            }
+            else
+            {
+                description = contractType.description;
+            }
+
             // Generate behaviours
             behaviours = new List<ContractBehaviour>();
             if (!contractType.GenerateBehaviours(this))
@@ -129,36 +153,27 @@ namespace ContractConfigurator
 
         protected override string GetTitle()
         {
-            return contractType.title;
+            return title;
         }
 
         protected override string GetDescription()
         {
-            if (contractType.description == null || contractType.description == "")
-            {
-                // Generate the contract description
-                return TextGen.GenerateBackStories(agent.Name, agent.GetMindsetString(),
-                    contractType.topic, contractType.subject, contractType.motivation, MissionSeed);
-            }
-            else
-            {
-                return contractType.description;
-            }
+            return description;
         }
 
         protected override string GetSynopsys()
         {
-            return contractType.synopsis != null ? contractType.synopsis : "";
+            return synopsis ?? "";
         }
 
         protected override string MessageCompleted()
         {
-            return contractType.completedMessage != null ? contractType.completedMessage + "\n" : "";
+            return completedMessage ?? "";
         }
 
         protected override string GetNotes()
         {
-            return contractType.notes != null ? contractType.notes + "\n" : "";
+            return notes != null ? notes + "\n" : "";
         }
         
         protected override void OnLoad(ConfigNode node)
@@ -166,6 +181,12 @@ namespace ContractConfigurator
             try
             {
                 contractType = ContractType.GetContractType(node.GetValue("subtype"));
+                title = ConfigNodeUtil.ParseValue<string>(node, "title", contractType.title);
+                description = ConfigNodeUtil.ParseValue<string>(node, "description", contractType.description);
+                synopsis = ConfigNodeUtil.ParseValue<string>(node, "synopsis", contractType.synopsis);
+                completedMessage = ConfigNodeUtil.ParseValue<string>(node, "completedMessage", contractType.completedMessage);
+                notes = ConfigNodeUtil.ParseValue<string>(node, "notes", contractType.notes);
+
                 foreach (ConfigNode child in node.GetNodes("BEHAVIOUR"))
                 {
                     ContractBehaviour behaviour = ContractBehaviour.LoadBehaviour(child, this);
@@ -187,6 +208,12 @@ namespace ContractConfigurator
             try
             {
                 node.AddValue("subtype", contractType.name);
+                node.AddValue("title", title);
+                node.AddValue("description", description);
+                node.AddValue("synopsis", synopsis);
+                node.AddValue("completedMessage", completedMessage);
+                node.AddValue("notes", notes);
+
                 foreach (ContractBehaviour behaviour in behaviours)
                 {
                     ConfigNode child = new ConfigNode("BEHAVIOUR");

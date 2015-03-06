@@ -157,7 +157,11 @@ namespace ContractConfigurator.Behaviour
                         ProtoCrewMember passenger = passengers.Where(pcm => pcm.name == name).FirstOrDefault();
                         if (passenger != null)
                         {
-                            HighLogic.CurrentGame.CrewRoster.Remove(passenger);
+                            // I would like to remove the passengers from existance, but then there
+                            // is a small chance of KSP failing if the passengers did something
+                            // noteworthy to get themselves in the achievement log.  So we leave them
+                            // to clutter up the save file.
+                            //HighLogic.CurrentGame.CrewRoster.Remove(passenger);
                             passengers.Remove(passenger);
                         }
                     }
