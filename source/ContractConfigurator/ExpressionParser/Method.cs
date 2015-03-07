@@ -37,6 +37,11 @@ namespace ContractConfigurator.ExpressionParser
         {
             throw new NotSupportedException();
         }
+
+        public Type ReturnType()
+        {
+            return typeof(TResult);
+        }
     }
 
     public class Method<C, T, TResult> : Function
@@ -76,6 +81,11 @@ namespace ContractConfigurator.ExpressionParser
                 default:
                     throw new NotSupportedException();
             }
+        }
+
+        public Type ReturnType()
+        {
+            return typeof(TResult);
         }
     }
 
@@ -118,6 +128,11 @@ namespace ContractConfigurator.ExpressionParser
                 default:
                     throw new NotSupportedException();
             }
+        }
+
+        public Type ReturnType()
+        {
+            return typeof(TResult);
         }
     }
 }

@@ -129,7 +129,7 @@ namespace ContractConfigurator.ExpressionParser
         protected int spacing = 0;
         protected static bool verbose;
 
-        protected static Dictionary<string, object> tempVariables = new Dictionary<string, object>();
+        protected static Dictionary<string, KeyValuePair<object, Type>> tempVariables = new Dictionary<string, KeyValuePair<object, Type>>();
 
         static BaseParser()
         {
@@ -184,6 +184,11 @@ namespace ContractConfigurator.ExpressionParser
             if (parserTypes.ContainsKey(typeof(T)))
             {
                 return (ExpressionParser<T>)Activator.CreateInstance(parserTypes[typeof(T)]);
+            }
+            else if (typeof(T).IsEnum)
+            {
+                Type enumParser = typeof(EnumExpressionParser<>).MakeGenericType(new Type[] { typeof(T) });
+                return (ExpressionParser<T>)Activator.CreateInstance(enumParser);
             }
 
             return null;

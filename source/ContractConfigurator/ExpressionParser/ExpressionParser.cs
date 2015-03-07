@@ -89,7 +89,6 @@ namespace ContractConfigurator.ExpressionParser
             finally
             {
                 parseMode = true;
-                currentDataNode = null;
             }
 
             return val;
@@ -109,6 +108,7 @@ namespace ContractConfigurator.ExpressionParser
             currentKey = key;
             currentDataNode = dataNode;
             tempVariables.Clear();
+
             try
             {
                 return ParseStatement<T>();
@@ -121,6 +121,11 @@ namespace ContractConfigurator.ExpressionParser
                 throw new Exception("Error parsing statement.\nError occurred near '*':\n" +
                     expression + "\n" +
                     (count > 0 ? new String('.', count) : "") + "* <-- HERE", e);
+            }
+            finally
+            {
+                currentKey = null;
+                currentDataNode = null;
             }
         }
 
@@ -156,6 +161,15 @@ namespace ContractConfigurator.ExpressionParser
                         TResult result = (TResult)method.Invoke(altParser, new object[] { });
                         verbose &= LogExitDebug<TResult>("ParseStatement", result);
                         return result;
+                    }
+                    catch (TargetInvocationException tie)
+                    {
+                        e = ExceptionUtil.UnwrapTargetInvokationException(tie);
+                        if (e != null)
+                        {
+                            throw e;
+                        }
+                        throw;
                     }
                     finally
                     {
@@ -482,7 +496,7 @@ namespace ContractConfigurator.ExpressionParser
             }
         }
 
-        private T GetRval()
+        internal T GetRval()
         {
             string savedExpression = expression;
             try
@@ -504,9 +518,24 @@ namespace ContractConfigurator.ExpressionParser
                 MethodInfo method = altParser.GetType().GetMethods(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy).
                     Where(m => m.Name == "ParseStatementInner").Single();
                 method = method.MakeGenericMethod(new Type[] { typeof(T) });
-                T result = (T)method.Invoke(altParser, new object[] { });
-                expression = altParser.expression;
-                return result;
+                try
+                {
+                    T result = (T)method.Invoke(altParser, new object[] { });
+                    return result;
+                }
+                catch (TargetInvocationException tie)
+                {
+                    e = ExceptionUtil.UnwrapTargetInvokationException(tie);
+                    if (e != null)
+                    {
+                        throw e;
+                    }
+                    throw;
+                }
+                finally
+                {
+                    expression = altParser.expression;
+                }
             }
         }
 
@@ -654,8 +683,8 @@ namespace ContractConfigurator.ExpressionParser
             // Look it up in temporary variables
             if (tempVariables.ContainsKey(token.sval))
             {
-                object value = tempVariables[token.sval];
-                return ConvertType(value);
+                KeyValuePair<object, Type> pair = tempVariables[token.sval];
+                return ConvertType(pair.Key, pair.Value);
             }
 
             return ParseIdentifier(token);
@@ -714,19 +743,69 @@ namespace ContractConfigurator.ExpressionParser
                 }
 
                 // Check for a method call before we return
-                Token methodToken = ParseMethodToken();
+                string savedExpression = expression;
+                token = ParseToken();
                 ExpressionParser<TResult> retValParser = GetParser<TResult>(this);
-                if (methodToken != null)
+                if (token != null && token.tokenType == TokenType.METHOD)
                 {
                     MethodInfo parseMethod = retValParser.GetType().GetMethod("_ParseMethod", BindingFlags.NonPublic | BindingFlags.Instance);
                     parseMethod = parseMethod.MakeGenericMethod(new Type[] { result.GetType() });
 
-                    result = parseMethod.Invoke(retValParser, new object[] { methodToken, result });
-                    expression = retValParser.expression;
+                    try
+                    {
+                        result = parseMethod.Invoke(retValParser, new object[] { token, result });
+                    }
+                    catch (TargetInvocationException tie)
+                    {
+                        Exception e = ExceptionUtil.UnwrapTargetInvokationException(tie);
+                        if (e != null)
+                        {
+                            throw e;
+                        }
+                        throw;
+                    }
+                    finally
+                    {
+                        expression = retValParser.expression;
+                    }
+                }
+                // Special handling for boolean return
+                else if (token != null && token.tokenType == TokenType.OPERATOR && IsBoolean(token.sval) &&
+                    typeof(TResult) == typeof(bool) && selectedMethod.ReturnType() != typeof(bool))
+                {
+                    BaseParser parser = GetParser(selectedMethod.ReturnType());
+
+                    MethodInfo getRval = parser.GetType().GetMethod("GetRval",
+                        BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
+                    MethodInfo applyBooleanOperator = parser.GetType().GetMethod("ApplyBooleanOperator",
+                        BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
+
+                    try
+                    {
+                        object rval = getRval.Invoke(parser, new object[] { });
+                        result = applyBooleanOperator.Invoke(parser, new object[] { result, token.sval, rval });
+                    }
+                    catch (TargetInvocationException tie)
+                    {
+                        Exception e = ExceptionUtil.UnwrapTargetInvokationException(tie);
+                        if (e != null)
+                        {
+                            throw e;
+                        }
+                        throw;
+                    }
+                    finally
+                    {
+                        expression = parser.expression;
+                    }
+                }
+                else
+                {
+                    expression = savedExpression;
                 }
 
-                // No method, return the result
-                TResult retVal = retValParser.ConvertType(result);
+                // Return the result
+                TResult retVal = retValParser.ConvertType(result, selectedMethod.ReturnType());
                 verbose &= LogExitDebug<TResult>("ParseMethod", retVal);
                 return retVal;
             }
@@ -739,13 +818,30 @@ namespace ContractConfigurator.ExpressionParser
 
         internal List<object> GetCalledFunction(string functionName, ref Function selectedMethod, bool isFunction = false)
         {
-            IEnumerable<Function> methods = isFunction ? GetFunctions(functionName) : classMethods[functionName].ToList();
-            List<object> parameters = new List<object>();
+            IEnumerable<Function> methods;
+            
+            if (isFunction)
+            {
+                methods = GetFunctions(functionName);
+            }
+            else
+            {
+                if (classMethods.ContainsKey(functionName))
+                {
+                    methods = classMethods[functionName].ToList();
+                }
+                else
+                {
+                    methods = Enumerable.Empty<Function>();
+                }
+            }
 
             if (!methods.Any())
             {
                 throw new MissingMethodException("Cannot find " + (isFunction ? "function" : "method") + " '" + functionName + "' for class '" + typeof(T).Name + "'.");
             }
+
+            List<object> parameters = new List<object>();
 
             while (true)
             {
@@ -847,6 +943,15 @@ namespace ContractConfigurator.ExpressionParser
                         object value = method.Invoke(parser, new object[] { });
                         parameters.Add(value);
                     }
+                    catch (TargetInvocationException tie)
+                    {
+                        Exception e = ExceptionUtil.UnwrapTargetInvokationException(tie);
+                        if (e != null)
+                        {
+                            throw e;
+                        }
+                        throw;
+                    }
                     finally
                     {
                         expression = parser.expression;
@@ -920,25 +1025,33 @@ namespace ContractConfigurator.ExpressionParser
                         currentDataNode.SetDeterministic(currentKey, false);
                     }
 
-                    // Check for null value
-                    if (o == null)
-                    {
-                        throw new ArgumentNullException("@" + token.sval, "Null value for expression!");
-                    }
+                    Type dataType = dataNode.GetType(identifier);
 
                     // Check for a method call before we start messing with types
                     Token methodToken = ParseMethodToken();
                     if (methodToken != null)
                     {
                         MethodInfo parseMethod = GetType().GetMethod("_ParseMethod", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
-                        parseMethod = parseMethod.MakeGenericMethod(new Type[] { o.GetType() });
+                        parseMethod = parseMethod.MakeGenericMethod(new Type[] { dataType });
 
-                        return (T)parseMethod.Invoke(this, new object[] { methodToken, o });
+                        try
+                        {
+                            return (T)parseMethod.Invoke(this, new object[] { methodToken, o });
+                        }
+                        catch (TargetInvocationException tie)
+                        {
+                            Exception e = ExceptionUtil.UnwrapTargetInvokationException(tie);
+                            if (e != null)
+                            {
+                                throw e;
+                            }
+                            throw;
+                        }
                     }
 
                     // No method, try type conversion or straight return
                     T result;
-                    if (o.GetType() == typeof(T))
+                    if (dataType == typeof(T))
                     {
                         result = (T)o;
                     }
@@ -1142,7 +1255,35 @@ namespace ContractConfigurator.ExpressionParser
 
         internal T ConvertType(object value)
         {
-            MethodInfo convertMethod = GetType().GetMethod("_ConvertType", BindingFlags.NonPublic | BindingFlags.Instance);
+            // Handle null input values
+            if (value == null)
+            {
+                if (typeof(T) == typeof(string))
+                {
+                    return (T)(object)"";
+                }
+                throw new ArgumentNullException();
+            }
+
+            return ConvertType(value, value.GetType());
+        }
+
+
+        internal T ConvertType(object value, Type type)
+        {
+            if (value == null)
+            {
+                try
+                {
+                    return (T)(object)value;
+                }
+                catch
+                {
+                    throw new DataStoreCastException(type, typeof(T));
+                }
+            }
+
+            MethodInfo convertMethod = GetType().GetMethod("_ConvertType", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
             convertMethod = convertMethod.MakeGenericMethod(new Type[] { value.GetType() });
 
             try
@@ -1150,12 +1291,12 @@ namespace ContractConfigurator.ExpressionParser
                 T result = (T)convertMethod.Invoke(this, new object[] { value });
                 return result;
             }
-            catch (TargetInvocationException e)
+            catch (TargetInvocationException tie)
             {
-                if (e.InnerException.GetType() == typeof(DataStoreCastException))
+                Exception e = ExceptionUtil.UnwrapTargetInvokationException(tie);
+                if (e != null)
                 {
-                    DataStoreCastException orig = (DataStoreCastException)e.InnerException;
-                    throw new DataStoreCastException(orig.FromType, orig.ToType, e);
+                    throw e;
                 }
                 throw;
             }

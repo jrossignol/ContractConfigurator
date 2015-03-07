@@ -16,11 +16,21 @@ namespace ContractConfigurator.ExpressionParser
         {
             public object value;
             public bool deterministic;
+            public bool initialized;
+            public Type type;
+
+            public Value(Type type)
+            {
+                this.type = type;
+                deterministic = true;
+                initialized = false;
+            }
 
             public Value(object v, bool d = true)
             {
                 value = v;
                 deterministic = d;
+                initialized = true;
             }
         }
 
@@ -29,7 +39,12 @@ namespace ContractConfigurator.ExpressionParser
             public string key;
 
             public ValueNotInitialized(string key)
-                : base("Value @" + key + " has not yet been initialized.")
+                : this(key, null)
+            {
+            }
+
+            public ValueNotInitialized(string key, Exception e)
+                : base("Value @" + key + " has not yet been initialized.", e)
             {
                 this.key = key;
             }
@@ -59,6 +74,7 @@ namespace ContractConfigurator.ExpressionParser
                 else
                 {
                     data[s].value = value;
+                    data[s].initialized = true;
                 }
             }
         }
@@ -83,6 +99,7 @@ namespace ContractConfigurator.ExpressionParser
             if (!data.ContainsKey(s))
             {
                 data[s] = new Value(null);
+                data[s].initialized = false;
             }
             data[s].deterministic = value;
         }
@@ -94,7 +111,20 @@ namespace ContractConfigurator.ExpressionParser
         /// <returns>True if the value has been read</returns>
         public bool IsInitialized(string key)
         {
-            return data.ContainsKey(key) && data[key] != null;
+            return data.ContainsKey(key) && data[key] != null && data[key].initialized;
+        }
+
+        public void BlankInit(string key, Type type)
+        {
+            if (!data.ContainsKey(key))
+            {
+                data[key] = new Value(type);
+            }
+        }
+
+        public Type GetType(string key)
+        {
+            return data.ContainsKey(key) && data[key] != null ? data[key].type : null;
         }
 
         public DataNode Parent

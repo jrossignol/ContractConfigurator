@@ -73,6 +73,7 @@ namespace ContractConfigurator
         public bool declinable;
         public Contract.ContractPrestige? prestige;
         public CelestialBody targetBody;
+        protected Vessel targetVessel;
         public int maxCompletions;
         public int maxSimultaneous;
         public float rewardScience;
@@ -97,7 +98,6 @@ namespace ContractConfigurator
             cancellable = true;
             declinable = true;
             prestige = null;
-            targetBody = null;
             maxCompletions = 0;
             maxSimultaneous = 0;
             rewardScience = 0.0f;
@@ -149,6 +149,7 @@ namespace ContractConfigurator
             valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "declinable", x => declinable = x, this, true);
             valid &= ConfigNodeUtil.ParseValue<Contract.ContractPrestige?>(configNode, "prestige", x => prestige = x, this, (Contract.ContractPrestige?)null);
             valid &= ConfigNodeUtil.ParseValue<CelestialBody>(configNode, "targetBody", x => targetBody = x, this, (CelestialBody)null);
+            valid &= ConfigNodeUtil.ParseValue<Vessel>(configNode, "targetVessel", x => targetVessel = x, this, (Vessel)null);
             
             valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxCompletions", x => maxCompletions = x, this, 0, x => Validation.GE(x, 0));
             valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxSimultaneous", x => maxSimultaneous = x, this, 0, x => Validation.GE(x, 0));

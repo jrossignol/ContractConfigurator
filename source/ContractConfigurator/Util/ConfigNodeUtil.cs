@@ -142,7 +142,19 @@ namespace ContractConfigurator
                 for (int i = 0; i < count; i++)
                 {
                     string strVal = configNode.GetValue(key, i);
-                    addMethod.Invoke(list, new object[] { parseValueMethod.Invoke(null, new object[] { key, strVal, allowExpression }) });
+                    try
+                    {
+                        addMethod.Invoke(list, new object[] { parseValueMethod.Invoke(null, new object[] { key, strVal, allowExpression }) });
+                    }
+                    catch (TargetInvocationException tie)
+                    {
+                        Exception e = ExceptionUtil.UnwrapTargetInvokationException(tie);
+                        if (e != null)
+                        {
+                            throw e;
+                        }
+                        throw;
+                    }
                 }
 
                 return list;
@@ -158,7 +170,19 @@ namespace ContractConfigurator
                     parseValueMethod = parseValueMethod.MakeGenericMethod(typeof(T).GetGenericArguments());
 
                     // Call it
-                    return (T)parseValueMethod.Invoke(null, new object[] { configNode, key, allowExpression });
+                    try
+                    {
+                        return (T)parseValueMethod.Invoke(null, new object[] { configNode, key, allowExpression });
+                    }
+                    catch (TargetInvocationException tie)
+                    {
+                        Exception e = ExceptionUtil.UnwrapTargetInvokationException(tie);
+                        if (e != null)
+                        {
+                            throw e;
+                        }
+                        throw;
+                    }
                 }
             }
 
@@ -191,7 +215,14 @@ namespace ContractConfigurator
             }
             else if (allowExpression && parser != null)
             {
-                value = parser.ExecuteExpression(key, stringValue, currentDataNode);
+                if (initialLoad)
+                {
+                    value = parser.ParseExpression(key, stringValue, currentDataNode);
+                }
+                else
+                {
+                    value = parser.ExecuteExpression(key, stringValue, currentDataNode);
+                }
             }
             else if (typeof(T) == typeof(AvailablePart))
             {
@@ -334,6 +365,12 @@ namespace ContractConfigurator
         /// <returns>The parsed value (or default value if not found)</returns>
         public static bool ParseValue<T>(ConfigNode configNode, string key, Action<T> setter, IContractConfiguratorFactory obj, T defaultValue, Func<T, bool> validation)
         {
+            // Initialize the data type of the expression
+            if (currentDataNode != null && !currentDataNode.IsInitialized(key))
+            {
+                currentDataNode.BlankInit(key, typeof(T));
+            }
+
             bool valid = true;
             T value = defaultValue;
             if (configNode.HasValue(key))
@@ -369,14 +406,15 @@ namespace ContractConfigurator
                     if (e.GetType() == typeof(DataNode.ValueNotInitialized))
                     {
                         string dependency = ((DataNode.ValueNotInitialized)e).key;
+                        string path = currentDataNode.Path() + key;
 
                         // Defer loading this value
                         DeferredLoadObject<T> loadObj = null;
-                        if (!deferredLoads.ContainsKey(key))
+                        if (!deferredLoads.ContainsKey(path))
                         {
-                            deferredLoads[key] = new DeferredLoadObject<T>(configNode, key, setter, obj, validation, currentDataNode);
+                            deferredLoads[path] = new DeferredLoadObject<T>(configNode, key, setter, obj, validation, currentDataNode);
                         }
-                        loadObj = (DeferredLoadObject<T>)deferredLoads[key];
+                        loadObj = (DeferredLoadObject<T>)deferredLoads[path];
 
                         // New dependency - try again
                         if (!loadObj.dependencies.Contains(dependency))

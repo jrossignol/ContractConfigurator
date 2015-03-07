@@ -83,6 +83,8 @@
     <Compile Include="ContractGroup.cs" />
     <Compile Include="ExpressionParser\BaseParser.cs" />
     <Compile Include="ExpressionParser\BooleanValueExpressionParser.cs" />
+    <Compile Include="ExpressionParser\EnumExpressionParser.cs" />
+    <Compile Include="ExpressionParser\VesselParser.cs" />
     <Compile Include="ExpressionParser\ListExpressionParser.cs" />
     <Compile Include="ExpressionParser\CelestialBodyParser.cs" />
     <Compile Include="ExpressionParser\DataNode.cs" />
@@ -96,6 +98,7 @@
     <Compile Include="ExpressionParser\ExpressionParser.cs" />
     <Compile Include="Util\DebugWindow.cs" />
     <Compile Include="Util\ExceptionLogWindow.cs" />
+    <Compile Include="Util\ExceptionUtil.cs" />
     <Compile Include="Util\Extensions.cs" />
     <Compile Include="ParameterFactory\RendezvousFactory.cs" />
     <Compile Include="ParameterFactory\InvalidParameterFactory.cs" />

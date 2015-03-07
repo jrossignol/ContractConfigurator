@@ -16,6 +16,7 @@ namespace ContractConfigurator.ExpressionParser
         object Invoke(object[] parameters);
         int ParameterCount();
         Type ParameterType(int i);
+        Type ReturnType();
     }
 
     public class MethodMismatch : Exception
@@ -83,6 +84,11 @@ namespace ContractConfigurator.ExpressionParser
         {
             throw new NotSupportedException();
         }
+
+        public Type ReturnType()
+        {
+            return typeof(TResult);
+        }
     }
 
     public class Function<T, TResult> : Function
@@ -122,6 +128,11 @@ namespace ContractConfigurator.ExpressionParser
                 default:
                     throw new NotSupportedException();
             }
+        }
+
+        public Type ReturnType()
+        {
+            return typeof(TResult);
         }
     }
 
@@ -164,6 +175,11 @@ namespace ContractConfigurator.ExpressionParser
                 default:
                     throw new NotSupportedException();
             }
+        }
+
+        public Type ReturnType()
+        {
+            return typeof(TResult);
         }
     }
 }

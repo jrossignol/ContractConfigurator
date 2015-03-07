@@ -132,13 +132,10 @@ namespace ContractConfigurator.ExpressionParser
 
         private static T RandomMinMax(T min, T max)
         {
-            Debug.Log("generating a random number in range(" + min + ", " + max + ")");
-
             double dmin = (double)Convert.ChangeType(min, typeof(double));
             double dmax = (double)Convert.ChangeType(max, typeof(double));
 
             double val = random.NextDouble() * (dmax - dmin) + dmin;
-            Debug.Log("generated " + val + ", casted to " + (T)Convert.ChangeType(val, typeof(T)));
             return (T)Convert.ChangeType(val, typeof(T));
         }
 

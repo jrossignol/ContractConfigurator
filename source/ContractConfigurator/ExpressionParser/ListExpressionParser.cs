@@ -26,7 +26,7 @@ namespace ContractConfigurator.ExpressionParser
 
         internal static void RegisterMethods()
         {
-            RegisterMethod(new Method<List<T>, T>("Random", l => l.Skip(r.Next(l.Count)).First()));
+            RegisterMethod(new Method<List<T>, T>("Random", l => l.Any() ? l.Skip(r.Next(l.Count)).First() : default(T)));
         }
 
         public ListExpressionParser()
@@ -54,23 +54,24 @@ namespace ContractConfigurator.ExpressionParser
                 ParseToken("(");
 
                 // Get the identifier for the object
-                Match m = Regex.Match(expression, @"([A-Za-z][A-Za-z0-9_]*)[\s]*=>[\s]*(.*)");
+                Match m = Regex.Match(expression, @"([A-Za-z][\w\d]*)[\s]*=>[\s]*(.*)");
                 string identifier = m.Groups[1].Value;
                 expression = (string.IsNullOrEmpty(identifier) ? expression : m.Groups[2].Value);
 
+                List<T> values = parseMode || obj.Count == 0 ? new T[] { default(T) }.ToList() : obj;
                 List<T> filteredList = new List<T>();
 
                 // Save the expression, then execute for each value
                 string savedExpression = expression;
                 try
                 {
-                    foreach (T value in obj)
+                    foreach (T value in values)
                     {
                         expression = savedExpression;
-                        tempVariables[identifier] = value;
+                        tempVariables[identifier] = new KeyValuePair<object, Type>(value, typeof(T));
                         ExpressionParser<T> parser = GetParser<T>(this);
                         bool keep = parser.ParseStatement<bool>();
-                        if (keep)
+                        if (keep && obj.Count != 0)
                         {
                             filteredList.Add(value);
                         }
