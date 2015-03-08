@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using UnityEngine;
 
 namespace ContractConfigurator.ExpressionParser
 {
@@ -34,15 +35,47 @@ namespace ContractConfigurator.ExpressionParser
 
             RegisterMethod(new Method<Vessel, double>("Altitude", v => v == null ? 0.0 : v.altitude));
 
-            RegisterMethod(new Method<Vessel, int>("CrewCount", v => v == null ? 0 : v.GetCrewCount()));
-            RegisterMethod(new Method<Vessel, int>("CrewCapacity", v => v == null ? 0 : v.GetCrewCapacity()));
-            RegisterMethod(new Method<Vessel, int>("EmptyCrewSpace", v => v == null ? 0 : (v.GetCrewCount() - v.GetCrewCapacity())));
+            RegisterMethod(new Method<Vessel, int>("CrewCount", GetCrewCount));
+            RegisterMethod(new Method<Vessel, int>("CrewCapacity", GetCrewCapacity));
+            RegisterMethod(new Method<Vessel, int>("EmptyCrewSpace", v => GetCrewCount(v) + GetCrewCapacity(v)));
 
             RegisterGlobalFunction(new Function<List<Vessel>>("AllVessels", () => FlightGlobals.Vessels, false));
         }
 
         public VesselParser()
         {
+        }
+
+        /// <summary>
+        /// Gets the crew count, as the methods provided on vessel only return valid values for
+        /// loaded vessels.
+        /// </summary>
+        /// <param name="v">The vessel to check.</param>
+        /// <returns>The number of crew members on board</returns>
+        static int GetCrewCount(Vessel v)
+        {
+            if (v == null)
+            {
+                return 0;
+            }
+
+            return v.protoVessel.protoPartSnapshots.Sum(pps => pps.protoModuleCrew.Capacity);
+        }
+
+        /// <summary>
+        /// Gets the crew capacity, as the methods provided on vessel only return valid values for
+        /// loaded vessels.
+        /// </summary>
+        /// <param name="v">The vessel to check.</param>
+        /// <returns>The number of crew space</returns>
+        static int GetCrewCapacity(Vessel v)
+        {
+            if (v == null)
+            {
+                return 0;
+            }
+
+            return v.protoVessel.protoPartSnapshots.Sum(pps => pps.protoModuleCrew.Count);
         }
 
         internal override U ConvertType<U>(Vessel value)
