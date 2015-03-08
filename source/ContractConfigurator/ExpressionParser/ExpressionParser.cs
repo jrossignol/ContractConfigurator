@@ -700,20 +700,6 @@ namespace ContractConfigurator.ExpressionParser
             throw new NotSupportedException("Can't parse identifier for type " + typeof(T) + " in class " + this.GetType() + " - not supported!");
         }
 
-        internal T _ParseMethod<U>(Token token, U obj)
-        {
-            ExpressionParser<U> parser = GetParser<U>(this);
-            try
-            {
-                T result = parser.ParseMethod<T>(token, obj);
-                return result;
-            }
-            finally
-            {
-                expression = parser.expression;
-            }
-        }
-
         internal virtual TResult ParseMethod<TResult>(Token token, T obj, bool isFunction = false)
         {
             verbose &= LogEntryDebug<TResult>("ParseMethod", token.sval, obj, isFunction);
@@ -745,15 +731,17 @@ namespace ContractConfigurator.ExpressionParser
                 // Check for a method call before we return
                 string savedExpression = expression;
                 token = ParseToken();
-                ExpressionParser<TResult> retValParser = GetParser<TResult>(this);
                 if (token != null && token.tokenType == TokenType.METHOD)
                 {
-                    MethodInfo parseMethod = retValParser.GetType().GetMethod("_ParseMethod", BindingFlags.NonPublic | BindingFlags.Instance);
-                    parseMethod = parseMethod.MakeGenericMethod(new Type[] { result.GetType() });
+                    BaseParser methodParser = GetParser(result.GetType());
+
+                    MethodInfo parseMethod = methodParser.GetType().GetMethods(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy).
+                        Where(m => m.Name == "ParseMethod" && m.GetParameters().Count() == 3).Single();
+                    parseMethod = parseMethod.MakeGenericMethod(new Type[] { typeof(TResult) });
 
                     try
                     {
-                        result = parseMethod.Invoke(retValParser, new object[] { token, result });
+                        result = parseMethod.Invoke(methodParser, new object[] { token, result, false });
                     }
                     catch (TargetInvocationException tie)
                     {
@@ -766,7 +754,7 @@ namespace ContractConfigurator.ExpressionParser
                     }
                     finally
                     {
-                        expression = retValParser.expression;
+                        expression = methodParser.expression;
                     }
                 }
                 // Special handling for boolean return
@@ -805,6 +793,7 @@ namespace ContractConfigurator.ExpressionParser
                 }
 
                 // Return the result
+                ExpressionParser<TResult> retValParser = GetParser<TResult>(this);
                 TResult retVal = retValParser.ConvertType(result, selectedMethod.ReturnType());
                 verbose &= LogExitDebug<TResult>("ParseMethod", retVal);
                 return retVal;
