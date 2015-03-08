@@ -1020,12 +1020,15 @@ namespace ContractConfigurator.ExpressionParser
                     Token methodToken = ParseMethodToken();
                     if (methodToken != null)
                     {
-                        MethodInfo parseMethod = GetType().GetMethod("_ParseMethod", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
-                        parseMethod = parseMethod.MakeGenericMethod(new Type[] { dataType });
+                        BaseParser methodParser = GetParser(dataType);
+
+                        MethodInfo parseMethod = methodParser.GetType().GetMethods(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy).
+                            Where(m => m.Name == "ParseMethod" && m.GetParameters().Count() == 3).Single();
+                        parseMethod = parseMethod.MakeGenericMethod(new Type[] { typeof(T) });
 
                         try
                         {
-                            return (T)parseMethod.Invoke(this, new object[] { methodToken, o });
+                            return (T)parseMethod.Invoke(methodParser, new object[] { methodToken, o, false });
                         }
                         catch (TargetInvocationException tie)
                         {
@@ -1036,6 +1039,10 @@ namespace ContractConfigurator.ExpressionParser
                             }
                             throw;
                         }
+                        finally
+                        {
+                            expression = methodParser.expression;
+                        } 
                     }
 
                     // No method, try type conversion or straight return

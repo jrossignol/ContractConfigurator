@@ -309,8 +309,7 @@ namespace ContractConfigurator
         {
             if (targetBody == null)
             {
-                Debug.LogError("ContractConfigurator: " + ErrorPrefix(configNode) +
-                    ": targetBody for " + GetType() + " must be specified.");
+                LoggingUtil.LogError(this, ErrorPrefix(configNode) + ": targetBody for " + GetType() + " must be specified.");
                 return false;
             }
             return true;

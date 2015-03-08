@@ -308,7 +308,8 @@ namespace ContractConfigurator
             // Check for required value
             if (!configNode.HasValue(key))
             {
-                throw new ArgumentException("Missing required value '" + key + "'.");
+                LoggingUtil.LogError(obj, obj.ErrorPrefix(configNode) + ": Missing required value '" + key + "'.");
+                return false;
             }
 
             return ParseValue<T>(configNode, key, setter, obj, default(T), x => true);
@@ -345,7 +346,8 @@ namespace ContractConfigurator
             // Check for required value
             if (!configNode.HasValue(key))
             {
-                throw new ArgumentException("Missing required value '" + key + "'.");
+                LoggingUtil.LogError(obj, obj.ErrorPrefix(configNode) + ": Missing required value '" + key + "'.");
+                return false;
             }
 
             return ParseValue<T>(configNode, key, setter, obj, default(T), validation);
@@ -381,8 +383,7 @@ namespace ContractConfigurator
                     value = ParseValue<T>(configNode, key, true);
 
                     // If value was non-null, run validation
-                    valid = (value != null);
-                    if (valid)
+                    if (value != null)
                     {
                         try
                         {
