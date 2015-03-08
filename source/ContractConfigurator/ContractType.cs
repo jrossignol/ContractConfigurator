@@ -309,6 +309,13 @@ namespace ContractConfigurator
                 }
             }
 
+            // Check special values are not null
+            if (targetVessel == null && !dataNode.IsDeterministic("targetVessel"))
+            {
+                LoggingUtil.LogDebug(this, "Didn't generate contract type " + name + ", targetVessel is null.");
+                return false;
+            }
+
             // Check the captured requirements
             return ContractRequirement.RequirementsMet(contract, this, requirements);
         }

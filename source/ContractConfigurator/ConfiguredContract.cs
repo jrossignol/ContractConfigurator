@@ -44,13 +44,6 @@ namespace ContractConfigurator
 
             LoggingUtil.LogDebug(this.GetType(), "Generating contract: " + contractType);
 
-            // Try to refresh non-deterministic values
-            if (!ConfigNodeUtil.UpdateNonDeterministicValues(contractType.dataNode))
-            {
-                LoggingUtil.LogVerbose(this, "Returning null for " + contractType.name + ": non-deterministic function failure.");
-                return false;
-            }
-
             // Set the agent
             if (contractType.agent != null)
             {
@@ -308,6 +301,14 @@ namespace ContractConfigurator
                 if (selectedContractType == null)
                 {
                     selectedContractType = validContractTypes.First().Key;
+                }
+
+                // Try to refresh non-deterministic values before we check requirements
+                if (!ConfigNodeUtil.UpdateNonDeterministicValues(selectedContractType.dataNode))
+                {
+                    LoggingUtil.LogVerbose(this, selectedContractType.name + " was not generated: non-deterministic expression failure.");
+                    validContractTypes.Remove(selectedContractType);
+                    totalWeight -= selectedContractType.weight;
                 }
 
                 // Check the requirements for our selection
