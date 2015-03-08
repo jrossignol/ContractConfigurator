@@ -37,7 +37,7 @@ namespace ContractConfigurator.ExpressionParser
 
             RegisterMethod(new Method<Vessel, int>("CrewCount", GetCrewCount));
             RegisterMethod(new Method<Vessel, int>("CrewCapacity", GetCrewCapacity));
-            RegisterMethod(new Method<Vessel, int>("EmptyCrewSpace", v => GetCrewCount(v) + GetCrewCapacity(v)));
+            RegisterMethod(new Method<Vessel, int>("EmptyCrewSpace", v => GetCrewCapacity(v) - GetCrewCount(v)));
 
             RegisterGlobalFunction(new Function<List<Vessel>>("AllVessels", () => FlightGlobals.Vessels, false));
         }
@@ -59,7 +59,7 @@ namespace ContractConfigurator.ExpressionParser
                 return 0;
             }
 
-            return v.protoVessel.protoPartSnapshots.Sum(pps => pps.protoModuleCrew.Capacity);
+            return v.protoVessel.protoPartSnapshots.Sum(pps => pps.protoModuleCrew.Count);
         }
 
         /// <summary>
@@ -75,7 +75,7 @@ namespace ContractConfigurator.ExpressionParser
                 return 0;
             }
 
-            return v.protoVessel.protoPartSnapshots.Sum(pps => pps.protoModuleCrew.Count);
+            return v.protoVessel.protoPartSnapshots.Sum(pps => pps.partInfo.partPrefab.CrewCapacity);
         }
 
         internal override U ConvertType<U>(Vessel value)
