@@ -234,7 +234,12 @@ namespace ContractConfigurator
             else 
             {
                 // ContractType already chosen, check if still meets requirements.
-                return contractType.MeetRequirements(this);
+                bool meets = contractType.MeetRequirements(this);
+                if (ContractState == State.Active && !meets)
+                {
+                    LoggingUtil.LogWarning(this, "Removed contract '" + title + "', as it no longer meets the requirements.");
+                }
+                return meets;
             }
         }
 

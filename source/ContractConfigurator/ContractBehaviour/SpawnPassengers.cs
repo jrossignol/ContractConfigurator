@@ -125,7 +125,7 @@ namespace ContractConfigurator.Behaviour
 
         protected void OnFlightReady()
         {
-            // Checks for dispalying the dialog box
+            // Checks for displaying the dialog box
             Vessel v = FlightGlobals.ActiveVessel;
             if (v != null && v.situation == Vessel.Situations.PRELAUNCH &&
                 !passengersLoaded &&

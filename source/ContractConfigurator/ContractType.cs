@@ -310,10 +310,14 @@ namespace ContractConfigurator
             }
 
             // Check special values are not null
-            if (targetVessel == null && !dataNode.IsDeterministic("targetVessel"))
+            if (contract.ContractState != Contract.State.Active)
             {
-                LoggingUtil.LogDebug(this, "Didn't generate contract type " + name + ", targetVessel is null.");
-                return false;
+                // Target Vessel
+                if (targetVessel == null && !dataNode.IsDeterministic("targetVessel"))
+                {
+                    LoggingUtil.LogDebug(this, "Didn't generate contract type " + name + ", targetVessel is null.");
+                    return false;
+                }
             }
 
             // Check the captured requirements
