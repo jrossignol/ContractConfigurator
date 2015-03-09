@@ -10,9 +10,10 @@ using Contracts.Parameters;
 namespace ContractConfigurator.Parameters
 {
     /// <summary>
-    /// ContractParameter for use iwth the Sequence parameter.  Does not complete unless all
+    /// ContractParameter for use with the Sequence parameter.  Does not complete unless all
     /// previous items in the sequence have completed.
     /// </summary>
+    [Obsolete("Obsolete as of Contract Configurator 0.6.7, please use the completeInSequence attribute instead.")]
     public class SequenceNode : ContractConfiguratorParameter
     {
         public SequenceNode()

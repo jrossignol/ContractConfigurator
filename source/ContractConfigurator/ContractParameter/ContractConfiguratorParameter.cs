@@ -14,6 +14,7 @@ namespace ContractConfigurator.Parameters
     public abstract class ContractConfiguratorParameter : ContractParameter
     {
         protected string title;
+        public bool completeInSequence;
 
         public ContractConfiguratorParameter()
             : this(null)
@@ -81,16 +82,56 @@ namespace ContractConfigurator.Parameters
         protected abstract void OnParameterLoad(ConfigNode node);
 
         /// <summary>
+        /// Checks if this parameter is ready to complete.  If the completeInSequence flag is set,
+        /// it will check if all previous parameters in the sequence have been completed.
+        /// </summary>
+        /// <returns>True if the parameter is ready to complete.</returns>
+        private bool ReadyToComplete()
+        {
+            if (!completeInSequence)
+            {
+                return true;
+            }
+
+            // Go through the parent's parameters
+            for (int i = 0; i < Parent.ParameterCount; i++)
+            {
+                ContractParameter param = Parent.GetParameter(i);
+                // If we've made it all the way to us, we're ready
+                if (System.Object.ReferenceEquals(param, this))
+                {
+                    return true;
+                }
+                else if (param.State != ParameterState.Complete)
+                {
+                    return false;
+                }
+            }
+
+            // Shouldn't get here unless things are really messed up
+            LoggingUtil.LogWarning(this.GetType(), "Unexpected state for SequenceNode parameter.  Log a GitHub issue!");
+            return false;
+        }
+
+        /// <summary>
         /// Method to use in place of SetComplete/SetFailed/SetIncomplete.  Doesn't fire the stock change event because of 
         /// performance issues with the stock contracts app.
         /// </summary>
         /// <param name="state">New parameter state</param>
         protected virtual void SetState(ParameterState state)
         {
+            // State already set
             if (this.state == state)
             {
                 return;
             }
+
+            // Check if the transition is allowed
+            if (state == ParameterState.Complete && !ReadyToComplete())
+            {
+                return;
+            }
+
             this.state = state;
 
             if (disableOnStateChange)

@@ -6,6 +6,7 @@ using UnityEngine;
 using KSP;
 using Contracts;
 using ContractConfigurator.ExpressionParser;
+using ContractConfigurator.Parameters;
 
 namespace ContractConfigurator
 {
@@ -27,6 +28,7 @@ namespace ContractConfigurator
         protected float failureFunds;
         protected bool optional;
         protected bool? disableOnStateChange;
+        protected bool completeInSequence;
         protected ParameterFactory parent = null;
         protected List<ParameterFactory> childNodes = new List<ParameterFactory>();
         protected List<ContractRequirement> requirements = new List<ContractRequirement>();
@@ -76,6 +78,7 @@ namespace ContractConfigurator
             // Load flags
             valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "optional", x => optional = x, this, false);
             valid &= ConfigNodeUtil.ParseValue<bool?>(configNode, "disableOnStateChange", x => disableOnStateChange = x, this, (bool?)null);
+            valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "completeInSequence", x => completeInSequence = x, this, false);
 
             // Get title
             valid &= ConfigNodeUtil.ParseValue<string>(configNode, "title", x => title = x, this, (string)null);
@@ -99,6 +102,7 @@ namespace ContractConfigurator
         ///   - advanceFunds
         ///   - optional
         ///   - disableOnStateChange
+        ///   - completeInSequence
         ///   - child PARAMETER nodes
         /// </summary>
         /// <param name="contract">Contract to generate for</param>
@@ -143,6 +147,14 @@ namespace ContractConfigurator
                 parameter.DisableOnStateChange = (bool)disableOnStateChange;
             }
             parameter.ID = name;
+
+            // Special stuff for contract configurator parameters
+            if (parameter is ContractConfiguratorParameter)
+            {
+                ContractConfiguratorParameter ccParam = (ContractConfiguratorParameter)parameter;
+
+                ccParam.completeInSequence = completeInSequence;
+            }
 
             return parameter;
         }

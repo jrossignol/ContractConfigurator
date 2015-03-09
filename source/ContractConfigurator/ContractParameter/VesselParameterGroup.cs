@@ -106,7 +106,7 @@ namespace ContractConfigurator.Parameters
                 }
             }
             // If we're complete and a custom title hasn't been provided, try to get a better title
-            else if (!string.IsNullOrEmpty(title))
+            else if (string.IsNullOrEmpty(title))
             {
                 if (ParameterCount == 1)
                 {
