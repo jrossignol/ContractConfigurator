@@ -71,7 +71,7 @@ namespace ContractConfigurator.Parameters
             if (targetBody != null)
             {
                 AddParameter(new ParameterDelegate<Vessel>("Destination: " + targetBody.theName,
-                    v => v.mainBody == targetBody, true));
+                    v => v.mainBody == targetBody, ((ConfiguredContract)Root).contractType.targetBody == targetBody));
             }
 
             // Filter for biome
