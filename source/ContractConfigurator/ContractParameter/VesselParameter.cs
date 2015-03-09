@@ -39,7 +39,7 @@ namespace ContractConfigurator.Parameters
             }
         }
         private Dictionary<Guid, VesselInfo> vesselInfo;
-        private Dictionary<uint, ParamStrength> dockedVesselStrength;
+        private Dictionary<uint, KeyValuePair<ParamStrength, double>> dockedVesselInfo;
         private bool allowStateReset = true;
 
         public bool ChildChanged { get; set; }
@@ -54,7 +54,7 @@ namespace ContractConfigurator.Parameters
             : base()
         {
             vesselInfo = new Dictionary<Guid, VesselInfo>();
-            dockedVesselStrength = new Dictionary<uint, ParamStrength>();
+            dockedVesselInfo = new Dictionary<uint, KeyValuePair<ParamStrength, double>>();
             disableOnStateChange = false;
         }
 
@@ -95,11 +95,12 @@ namespace ContractConfigurator.Parameters
             }
 
             // Save docked sub-vessels
-            foreach (KeyValuePair<uint, ParamStrength> p in dockedVesselStrength)
+            foreach (KeyValuePair<uint, KeyValuePair<ParamStrength, double>> p in dockedVesselInfo)
             {
                 ConfigNode child = new ConfigNode("DOCKED_SUB_VESSEL");
                 child.AddValue("hash", p.Key);
-                child.AddValue("strength", p.Value);
+                child.AddValue("strength", p.Value.Key);
+                child.AddValue("completionTime", p.Value.Value);
                 node.AddNode(child);
             }
         }
@@ -118,12 +119,9 @@ namespace ContractConfigurator.Parameters
                 if (vessel != null || HighLogic.LoadedScene == GameScenes.EDITOR)
                 {
                     VesselInfo info = new VesselInfo(id, vessel);
-                    info.state = (ParameterState)Enum.Parse(typeof(ParameterState), child.GetValue("state"));
-                    info.strength = (ParamStrength)Enum.Parse(typeof(ParamStrength), child.GetValue("strength"));
-                    if (state == ParameterState.Complete)
-                    {
-                        info.completionTime = Convert.ToDouble(child.GetValue("completionTime"));
-                    }
+                    info.state = ConfigNodeUtil.ParseValue<ParameterState>(child, "state");
+                    info.strength = ConfigNodeUtil.ParseValue<ParamStrength>(child, "strength");
+                    info.completionTime = ConfigNodeUtil.ParseValue<double>(child, "completionTime", 0.0);
                     vesselInfo[id] = info;
                 }
             }
@@ -132,8 +130,9 @@ namespace ContractConfigurator.Parameters
             foreach (ConfigNode child in node.GetNodes("DOCKED_SUB_VESSEL"))
             {
                 uint hash = Convert.ToUInt32(child.GetValue("hash"));
-                ParamStrength strength = (ParamStrength)Enum.Parse(typeof(ParamStrength), child.GetValue("strength"));
-                dockedVesselStrength[hash] = strength;
+                ParamStrength strength = ConfigNodeUtil.ParseValue<ParamStrength>(child, "strength");
+                double completionTime = ConfigNodeUtil.ParseValue<double>(child, "completionTime", 0.0);
+                dockedVesselInfo[hash] = new KeyValuePair<ParamStrength,double>(strength, completionTime);
             }
         }
 
@@ -265,6 +264,7 @@ namespace ContractConfigurator.Parameters
             GameEvents.onVesselChange.Add(new EventData<Vessel>.OnEvent(OnVesselChange));
             GameEvents.onPartJointBreak.Add(new EventData<PartJoint>.OnEvent(OnPartJointBreak));
             GameEvents.onPartAttach.Add(new EventData<GameEvents.HostTargetAction<Part, Part>>.OnEvent(OnPartAttach));
+            GameEvents.onCrewTransferred.Add(new EventData<GameEvents.HostedFromToAction<ProtoCrewMember, Part>>.OnEvent(OnCrewTransferred));
         }
 
         protected override void OnUnregister()
@@ -275,6 +275,67 @@ namespace ContractConfigurator.Parameters
             GameEvents.onVesselChange.Remove(new EventData<Vessel>.OnEvent(OnVesselChange));
             GameEvents.onPartJointBreak.Remove(new EventData<PartJoint>.OnEvent(OnPartJointBreak));
             GameEvents.onPartAttach.Remove(new EventData<GameEvents.HostTargetAction<Part, Part>>.OnEvent(OnPartAttach));
+            GameEvents.onCrewTransferred.Remove(new EventData<GameEvents.HostedFromToAction<ProtoCrewMember, Part>>.OnEvent(OnCrewTransferred));
+        }
+
+        protected void OnCrewTransferred(GameEvents.HostedFromToAction<ProtoCrewMember, Part> a)
+        {
+            // Note that the VesselType of the Kerbal coming out is set to debris initially!  This is
+            // probably a bug in stock, and is unreliable in my opinion.  But we can't check that the
+            // other is a vessel, as it may be a station or something else.  So we check for both
+            // debris or eva, in case this behaviour changes in future.
+
+            // Kerbal going on EVA
+            if (a.to.vesselType == VesselType.EVA || a.to.vesselType == VesselType.Debris)
+            {
+                NewEVA(a.from.vessel, a.to.vessel);
+            }
+
+            // Kerbal coming home
+            if (a.from.vesselType == VesselType.EVA || a.from.vesselType == VesselType.Debris)
+            {
+                ReturnEVA(a.to.vessel, a.from.vessel);
+            }
+        }
+
+        protected void NewEVA(Vessel parent, Vessel eva)
+        {
+            // Check if there's anything for the parent
+            if (vesselInfo.ContainsKey(parent.id))
+            {
+                // If there's a completion, transfer that to the EVA
+                VesselInfo vi = vesselInfo[parent.id];
+                if (vi.state == ParameterState.Complete && vi.strength != ParamStrength.WEAK)
+                {
+                    VesselInfo viEVA = new VesselInfo(eva.id, eva);
+                    viEVA.completionTime = vi.completionTime;
+                    viEVA.state = vi.state;
+                    vesselInfo[eva.id] = viEVA;
+                }
+            }
+        }
+
+        protected void ReturnEVA(Vessel parent, Vessel eva)
+        {
+            // Check if the EVA is interesting...
+            if (vesselInfo.ContainsKey(eva.id))
+            {
+                // Initialize parent
+                if (!vesselInfo.ContainsKey(parent.id))
+                {
+                    vesselInfo[parent.id] = new VesselInfo(parent.id, parent);
+                }
+
+                // Copy to parent vessel
+                VesselInfo vi = vesselInfo[parent.id];
+                VesselInfo viEVA = vesselInfo[eva.id];
+                if (viEVA.state == ParameterState.Complete && vi.state != ParameterState.Complete)
+                {
+                    vi.state = viEVA.state;
+                    vi.strength = ParamStrength.WEAK;
+                    vi.completionTime = viEVA.completionTime;
+                }
+            }
         }
 
         protected virtual void OnFlightReady()
@@ -302,27 +363,28 @@ namespace ContractConfigurator.Parameters
             LoggingUtil.LogVerbose(this, "OnVesselCreate(" + vessel.id + ")");
 
             // Go through the hashes to try to set the parameters for this vessel
-            ParamStrength? strength = null;
+            KeyValuePair<ParamStrength, double>? dockedInfo = null;
             foreach (uint hash in GetVesselHashes(vessel))
             {
-                if (dockedVesselStrength.ContainsKey(hash))
+                if (dockedVesselInfo.ContainsKey(hash))
                 {
-                    if (strength == null)
+                    if (dockedInfo == null)
                     {
-                        strength = dockedVesselStrength[hash];
+                        dockedInfo = dockedVesselInfo[hash];
                     }
                     else
                     {
-                        strength = dockedVesselStrength[hash] > strength ? dockedVesselStrength[hash] : strength;
+                        dockedInfo = dockedVesselInfo[hash].Key > dockedInfo.Value.Key ? dockedVesselInfo[hash] : dockedInfo;
                     }
                 }
             }
 
             // Found one
-            if (strength != null)
+            if (dockedInfo != null)
             {
                 VesselInfo v = new VesselInfo(vessel.id, vessel);
-                v.strength = (ParamStrength)strength;
+                v.strength = dockedInfo.Value.Key;
+                v.completionTime = dockedInfo.Value.Value;
                 v.state = ParameterState.Complete;
                 vesselInfo[vessel.id] = v;
             }
@@ -354,11 +416,11 @@ namespace ContractConfigurator.Parameters
                     strength = null;
                     foreach (uint hash in GetVesselHashes(p.Parent.vessel))
                     {
-                        if (dockedVesselStrength.ContainsKey(hash))
+                        if (dockedVesselInfo.ContainsKey(hash))
                         {
-                            if (strength == null || strength == dockedVesselStrength[hash])
+                            if (strength == null || strength == dockedVesselInfo[hash].Key)
                             {
-                                dockedVesselStrength[hash] = dockedVesselStrength[hash];
+                                dockedVesselInfo[hash] = dockedVesselInfo[hash];
                             }
                             else
                             {
@@ -379,13 +441,14 @@ namespace ContractConfigurator.Parameters
                 else if (strength == ParamStrength.STRONG)
                 {
                     // Save the sub vessel info
-                    SaveSubVesselInfo(p.Parent.vessel, ParamStrength.STRONG);
+                    SaveSubVesselInfo(p.Parent.vessel, ParamStrength.STRONG, vesselInfo[p.Parent.vessel.id].completionTime);
                 }
             }
         }
 
         protected virtual void OnPartAttach(GameEvents.HostTargetAction<Part, Part> e)
         {
+        
             if (HighLogic.LoadedScene == GameScenes.EDITOR || e.host.vessel == null || e.target.vessel == null)
             {
                 return;
@@ -420,8 +483,8 @@ namespace ContractConfigurator.Parameters
             else if (v1.state == v2.state)
             {
                 // Save the subvessel info
-                SaveSubVesselInfo(v1.vessel, v1.strength == ParamStrength.STRONG ? ParamStrength.STRONG : ParamStrength.WEAK);
-                SaveSubVesselInfo(v2.vessel, v2.strength == ParamStrength.STRONG ? ParamStrength.STRONG : ParamStrength.WEAK);
+                SaveSubVesselInfo(v1.vessel, v1.strength == ParamStrength.STRONG ? ParamStrength.STRONG : ParamStrength.WEAK, v1.completionTime);
+                SaveSubVesselInfo(v2.vessel, v2.strength == ParamStrength.STRONG ? ParamStrength.STRONG : ParamStrength.WEAK, v2.completionTime);
 
                 // Minimize completion time
                 v1.completionTime = v2.completionTime = Math.Min(v1.completionTime, v2.completionTime);
@@ -444,13 +507,13 @@ namespace ContractConfigurator.Parameters
                 }
 
                 // Save the subvessel info for v1 only
-                SaveSubVesselInfo(v1.vessel, v1.strength == ParamStrength.STRONG ? ParamStrength.STRONG : ParamStrength.WEAK);
+                SaveSubVesselInfo(v1.vessel, v1.strength == ParamStrength.STRONG ? ParamStrength.STRONG : ParamStrength.WEAK, v1.completionTime);
 
                 // v1 is complete - transfer parameter state only if strength is not weak
                 if (v1.strength != ParamStrength.WEAK)
                 {
                     // Save sub-vessel info for v2
-                    SaveSubVesselInfo(v2.vessel, ParamStrength.WEAK);
+                    SaveSubVesselInfo(v2.vessel, ParamStrength.WEAK, v1.completionTime);
 
                     v2.completionTime = v1.completionTime;
                     v2.state = v1.state;
@@ -465,14 +528,15 @@ namespace ContractConfigurator.Parameters
         /// </summary>
         /// <param name="vessel">The vessel to break up</param>
         /// <param name="strength">The strength of the parameter</param>
-        private void SaveSubVesselInfo(Vessel vessel, ParamStrength strength)
+        /// <param name="completionTime">The completion time</param>
+        private void SaveSubVesselInfo(Vessel vessel, ParamStrength strength, double completionTime)
         {
             foreach (uint hash in GetVesselHashes(vessel))
             {
-                if (!dockedVesselStrength.ContainsKey(hash) ||
-                    dockedVesselStrength[hash] < strength)
+                if (!dockedVesselInfo.ContainsKey(hash) ||
+                    dockedVesselInfo[hash].Key < strength)
                 {
-                    dockedVesselStrength[hash] = strength;
+                    dockedVesselInfo[hash] = new KeyValuePair<ParamStrength, double>(strength, completionTime);
                 }
             }
         }

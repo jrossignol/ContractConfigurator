@@ -1,5 +1,6 @@
 Contract Configurator 0.6.7
 - Added support for completeInSequence attribute (all parameters).
+- The state of vessel parameters may now be "transferred" via EVA Kerbals.  This allows a ship to land on the Mun, have the Kerbal EVA from the ship to a new ship, and have the new ship still complete the "land on Mun" parameter.
 - Minor bug fixes.
 
 Contract Configurator 0.6.6
