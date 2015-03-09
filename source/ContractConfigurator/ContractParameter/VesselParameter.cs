@@ -278,7 +278,7 @@ namespace ContractConfigurator.Parameters
             GameEvents.onCrewTransferred.Remove(new EventData<GameEvents.HostedFromToAction<ProtoCrewMember, Part>>.OnEvent(OnCrewTransferred));
         }
 
-        protected void OnCrewTransferred(GameEvents.HostedFromToAction<ProtoCrewMember, Part> a)
+        protected virtual void OnCrewTransferred(GameEvents.HostedFromToAction<ProtoCrewMember, Part> a)
         {
             // Note that the VesselType of the Kerbal coming out is set to debris initially!  This is
             // probably a bug in stock, and is unreliable in my opinion.  But we can't check that the

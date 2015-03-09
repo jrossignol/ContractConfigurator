@@ -147,8 +147,10 @@ namespace ContractConfigurator.Parameters
             CheckVessel(FlightGlobals.ActiveVessel);
         }
 
-        protected void OnCrewTransferred(GameEvents.HostedFromToAction<ProtoCrewMember, Part> a)
+        protected override void OnCrewTransferred(GameEvents.HostedFromToAction<ProtoCrewMember, Part> a)
         {
+            base.OnCrewTransferred(a);
+
             // Check both, as the Kerbal/ship swap spots depending on whether the vessel is
             // incoming or outgoing
             CheckVessel(a.from.vessel);
