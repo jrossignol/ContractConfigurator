@@ -75,8 +75,11 @@ namespace ContractConfigurator.Behaviour
                     List<SpawnPassengers> passengerList = new List<SpawnPassengers>();
                     foreach (SpawnPassengers sp in contract.Behaviours.Where(x => x.GetType() == typeof(SpawnPassengers)))
                     {
-                        passengerCount += sp.count;
-                        passengerList.Add(sp);
+                        if (!sp.passengersLoaded)
+                        {
+                            passengerCount += sp.count;
+                            passengerList.Add(sp);
+                        }
                     }
 
                     if (passengerCount > 0)
@@ -257,7 +260,6 @@ namespace ContractConfigurator.Behaviour
                             // noteworthy to get themselves in the achievement log.  So we leave them
                             // to clutter up the save file.
                             //HighLogic.CurrentGame.CrewRoster.Remove(passenger);
-                            passenger.rosterStatus = ProtoCrewMember.RosterStatus.Missing;
                             passengers.Remove(passenger);
                         }
                     }
@@ -272,9 +274,15 @@ namespace ContractConfigurator.Behaviour
                 ProtoCrewMember passenger = passengers.Where(pcm => pcm == crewMember).FirstOrDefault();
                 if (passenger != null)
                 {
-                    HighLogic.CurrentGame.CrewRoster.Remove(passenger);
+                    //HighLogic.CurrentGame.CrewRoster.Remove(passenger);
                     passengers.Remove(passenger);
                 }
+            }
+
+            // Allows for recovery and retry on the pad
+            if (passengers.Count == 0)
+            {
+                passengersLoaded = false;
             }
         }
 
