@@ -18,12 +18,31 @@ namespace ContractConfigurator.Behaviour
 
         private class PassengerLoader : MonoBehaviour
         {
-            private string contractTitle = "";
-            private int passengerCount = 0;
-            private SpawnPassengers behaviourReference = null;
+            private class PassengerDetail
+            {
+                public string contractTitle;
+                public int passengerCount;
+                public List<SpawnPassengers> behaviourList;
+                public bool selected = false;
+
+                public PassengerDetail(string contractTitle, int passengerCount, List<SpawnPassengers> behaviourList)
+                {
+                    this.contractTitle = contractTitle;
+                    this.passengerCount = passengerCount;
+                    this.behaviourList = behaviourList;
+                }
+            }
+            List<PassengerDetail> passengerDetails = new List<PassengerDetail>();
+            int totalPassengers;
+            int selectedPassengers;
+
+            private static bool stylesSetup = false;
+            private static GUIStyle redLabel;
+            private static GUIStyle disabledButton;
+
             private bool uiHidden = false;
             private bool visible = false;
-            private Rect windowPos = new Rect((Screen.width - 200) / 2, (Screen.height - 120) / 2, 200, 120);
+            private Rect windowPos = new Rect((Screen.width - 480) / 2, (Screen.height - 600) / 2, 480, 600);
 
             protected void Start()
             {
@@ -37,12 +56,44 @@ namespace ContractConfigurator.Behaviour
                 GameEvents.onShowUI.Remove(OnShowUI);
             }
 
-            public void Show(SpawnPassengers parameterReference, string contractTitle, int passengerCount)
+            public void Show()
             {
+                if (visible)
+                {
+                    return;
+                }
+
                 visible = true;
-                this.behaviourReference = parameterReference;
-                this.contractTitle = contractTitle;
-                this.passengerCount = passengerCount;
+                passengerDetails.Clear();
+                selectedPassengers = totalPassengers = 0;
+                int capacity = FlightGlobals.ActiveVessel.GetCrewCapacity() - FlightGlobals.ActiveVessel.GetCrewCount();
+
+                foreach (ConfiguredContract contract in ContractSystem.Instance.GetCurrentActiveContracts<ConfiguredContract>())
+                {
+                    string contractTitle = contract.Title;
+                    int passengerCount = 0;
+                    List<SpawnPassengers> passengerList = new List<SpawnPassengers>();
+                    foreach (SpawnPassengers sp in contract.Behaviours.Where(x => x.GetType() == typeof(SpawnPassengers)))
+                    {
+                        passengerCount += sp.count;
+                        passengerList.Add(sp);
+                    }
+
+                    if (passengerCount > 0)
+                    {
+                        totalPassengers += passengerCount;
+                        PassengerDetail pd = new PassengerDetail(contractTitle, passengerCount, passengerList);
+
+                        if (capacity >= passengerCount)
+                        {
+                            pd.selected = true;
+                            selectedPassengers += passengerCount;
+                            capacity -= passengerCount;
+                        }
+
+                        passengerDetails.Add(pd);
+                    }
+                }
             }
 
             public void OnHideUI()
@@ -60,31 +111,75 @@ namespace ContractConfigurator.Behaviour
                 if (visible && !uiHidden)
                 {
                     GUI.skin = HighLogic.Skin;
+                    if (!stylesSetup)
+                    {
+                        stylesSetup = true;
+
+                        redLabel = new GUIStyle(GUI.skin.label);
+                        redLabel.normal.textColor = Color.red;
+                        disabledButton = new GUIStyle(GUI.skin.button);
+                        disabledButton.normal.textColor = new Color(0.2f, 0.2f, 0.2f);
+                        disabledButton.focused = disabledButton.normal;
+                        disabledButton.hover = disabledButton.normal;
+                    }
+
                     windowPos = GUILayout.Window(
                         GetType().FullName.GetHashCode(),
                         windowPos,
                         PassengerDialog,
                         "Load Passengers?",
-                        GUILayout.Width(320),
+                        GUILayout.Width(480),
                         GUILayout.Height(120));
                 }
             }
 
             void PassengerDialog(int windowID)
             {
+                Vessel v = FlightGlobals.ActiveVessel;
+                int emptySeats = v.GetCrewCapacity() - v.GetCrewCount();
+
                 GUILayout.BeginVertical();
 
-                GUILayout.Label("The contract '" + contractTitle + "' requires " + passengerCount +
-                    " passenger" + (passengerCount > 1 ? "s" : "") + ".  Would you like to load them onto this vessel?");
+                GUILayout.Label("One or more contracts require passengers to be loaded.  Would you like to load them onto this vessel?");
+                GUILayout.BeginHorizontal();
+                GUILayout.Label("Passengers to load:");
+                GUILayout.Label(selectedPassengers.ToString(), (selectedPassengers > emptySeats ? redLabel : GUI.skin.label));
+                GUILayout.EndHorizontal();
+                GUILayout.Label("Empty seats on vessel: " + emptySeats);
 
-                if (GUILayout.Button("Yes"))
+                GUILayout.BeginVertical(GUI.skin.box);
+
+                int count = 0;
+                selectedPassengers = 0;
+                foreach (PassengerDetail pd in passengerDetails)
                 {
-                    behaviourReference.AddPassengersToActiveVessel();
+                    pd.selected = GUILayout.Toggle(pd.selected, pd.passengerCount + " passenger" + (pd.passengerCount > 1 ? "s: " : ": ") + pd.contractTitle);
+                    if (pd.selected)
+                    {
+                        count += pd.passengerCount;
+                        selectedPassengers += pd.passengerCount;
+                    }
+                }
+
+                GUILayout.EndVertical();
+
+                if (GUILayout.Button("Load passengers", (count > emptySeats ? disabledButton : GUI.skin.button)) && count <= emptySeats)
+                {
+                    foreach (PassengerDetail pd in passengerDetails)
+                    {
+                        if (pd.selected)
+                        {
+                            foreach (SpawnPassengers sp in pd.behaviourList)
+                            {
+                                sp.AddPassengersToActiveVessel();
+                            }
+                        }
+                    }
                     visible = false;
                     Destroy(this);
                 }
 
-                if (GUILayout.Button("No"))
+                if (GUILayout.Button("No passengers"))
                 {
                     visible = false;
                     Destroy(this);
@@ -138,7 +233,7 @@ namespace ContractConfigurator.Behaviour
                     loader = MapView.MapCamera.gameObject.AddComponent<PassengerLoader>();
                 }
 
-                loader.Show(this, contract.Title, count);
+                loader.Show();
             }
         }
 
@@ -162,6 +257,7 @@ namespace ContractConfigurator.Behaviour
                             // noteworthy to get themselves in the achievement log.  So we leave them
                             // to clutter up the save file.
                             //HighLogic.CurrentGame.CrewRoster.Remove(passenger);
+                            passenger.rosterStatus = ProtoCrewMember.RosterStatus.Missing;
                             passengers.Remove(passenger);
                         }
                     }
