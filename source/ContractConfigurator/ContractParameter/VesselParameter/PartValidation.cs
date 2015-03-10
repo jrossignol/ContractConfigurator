@@ -38,12 +38,9 @@ namespace ContractConfigurator.Parameters
         {
         }
 
-        public PartValidation(List<Filter> filters, bool failWhenUnmet, int minCount = 1, int maxCount = int.MaxValue, string title = null)
+        public PartValidation(List<Filter> filters, int minCount = 1, int maxCount = int.MaxValue, string title = null)
             : base(title)
         {
-            // Vessels should fail if they don't meet the part conditions
-            this.failWhenUnmet = failWhenUnmet;
-
             this.filters = filters;
             this.minCount = minCount;
             this.maxCount = maxCount;

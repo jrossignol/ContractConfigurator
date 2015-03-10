@@ -28,9 +28,6 @@ namespace ContractConfigurator.Parameters
         public VesselMass(float minMass = 0.0f, float maxMass = float.MaxValue, string title = null)
             : base(title)
         {
-            // Show as failed when mass incorrect
-            failWhenUnmet = true;
-
             this.minMass = minMass;
             this.maxMass = maxMass;
             if (title == null)

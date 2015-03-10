@@ -29,9 +29,6 @@ namespace ContractConfigurator.Parameters
         public HasResource(PartResourceDefinition resource, double minQuantity = 0.01, double maxQuantity = double.MaxValue, string title = null)
             : base(title)
         {
-            // Vessels should fail if they don't meet the part conditions
-            failWhenUnmet = true;
-
             this.resource = resource;
             this.minQuantity = minQuantity;
             this.maxQuantity = maxQuantity;

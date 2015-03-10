@@ -24,9 +24,6 @@ namespace ContractConfigurator.Parameters
         public IsNotVessel(string vesselKey, string title)
             : base(title)
         {
-            // Should fail if we are the wrong vessel
-            failWhenUnmet = true;
-
             this.vesselKey = vesselKey;
         }
 
