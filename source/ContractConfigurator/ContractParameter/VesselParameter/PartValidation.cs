@@ -38,11 +38,11 @@ namespace ContractConfigurator.Parameters
         {
         }
 
-        public PartValidation(List<Filter> filters, int minCount = 1, int maxCount = int.MaxValue, string title = null)
+        public PartValidation(List<Filter> filters, bool failWhenUnmet, int minCount = 1, int maxCount = int.MaxValue, string title = null)
             : base(title)
         {
             // Vessels should fail if they don't meet the part conditions
-            failWhenUnmet = true;
+            this.failWhenUnmet = failWhenUnmet;
 
             this.filters = filters;
             this.minCount = minCount;
@@ -128,6 +128,23 @@ namespace ContractConfigurator.Parameters
                 }
             }
             return false;
+        }
+
+        protected override void OnRegister()
+        {
+            base.OnRegister();
+            GameEvents.onVesselWasModified.Add(new EventData<Vessel>.OnEvent(OnVesselWasModified));
+        }
+
+        protected override void OnUnregister()
+        {
+            base.OnUnregister();
+            GameEvents.onVesselWasModified.Remove(new EventData<Vessel>.OnEvent(OnVesselWasModified));
+        }
+
+        protected void OnVesselWasModified(Vessel v)
+        {
+            CheckVessel(v);
         }
 
         protected override void OnParameterSave(ConfigNode node)

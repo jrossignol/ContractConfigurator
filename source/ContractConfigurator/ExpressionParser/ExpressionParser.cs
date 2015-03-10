@@ -632,7 +632,16 @@ namespace ContractConfigurator.ExpressionParser
         internal Token ParseMethodToken()
         {
             string savedExpression = expression;
-            Token token = ParseToken();
+            Token token;
+            try
+            {
+                token = ParseToken();
+            }
+            catch (ArgumentException)
+            {
+                expression = savedExpression;
+                return null;
+            }
 
             if (token == null)
             {

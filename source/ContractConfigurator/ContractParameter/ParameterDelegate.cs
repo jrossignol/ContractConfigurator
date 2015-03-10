@@ -279,7 +279,7 @@ namespace ContractConfigurator.Parameters
         }
 
         public CountParameterDelegate(int minCount, int maxCount, Func<T, bool> filterFunc, string extraTitle = "")
-            : base("", filterFunc)
+            : base("", filterFunc, (minCount == 1 && maxCount == int.MaxValue))
         {
             this.minCount = minCount;
             this.maxCount = maxCount;

@@ -18,11 +18,14 @@ namespace ContractConfigurator
         protected int minCount;
         protected int maxCount;
         protected List<PartValidation.Filter> filters = new List<PartValidation.Filter>();
+        protected bool failWhenUnmet;
 
         public override bool Load(ConfigNode configNode)
         {
             // Load base class
             bool valid = base.Load(configNode);
+
+            valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "failWhenUnmet", x => failWhenUnmet = x, this, false, x => true);
 
             // Read min/max first
             valid &= ConfigNodeUtil.ParseValue<int>(configNode, "minCount", x => minCount = x, this,
@@ -99,7 +102,7 @@ namespace ContractConfigurator
 
         public override ContractParameter Generate(Contract contract)
         {
-            return new PartValidation(filters, minCount, maxCount, title);
+            return new PartValidation(filters, failWhenUnmet, minCount, maxCount, title);
         }
     }
 }
