@@ -30,6 +30,8 @@ namespace ContractConfigurator
         private static int lastGenerationFailure = 0;
         private static Dictionary<ContractPrestige, int> lastSpecificGenerationFailure = new Dictionary<ContractPrestige, int>();
 
+        public static ConfiguredContract currentContract = null;
+
         protected override bool Generate()
         {
             // MeetsRequirement gets called first and sets the contract type, but check it and
@@ -272,7 +274,7 @@ namespace ContractConfigurator
                         return false;
                     }
 
-                    if (ct.prestige != null && ct.prestige.Value == prestige)
+                    if (ct.prestige.Count > 0 && ct.prestige.Contains(prestige))
                     {
                         validContractTypes.Add(ct, ct.weight);
                         totalWeight += ct.weight;
@@ -309,12 +311,14 @@ namespace ContractConfigurator
                 }
 
                 // Try to refresh non-deterministic values before we check requirements
+                currentContract = this;
                 if (!ConfigNodeUtil.UpdateNonDeterministicValues(selectedContractType.dataNode))
                 {
                     LoggingUtil.LogVerbose(this, selectedContractType.name + " was not generated: non-deterministic expression failure.");
                     validContractTypes.Remove(selectedContractType);
                     totalWeight -= selectedContractType.weight;
                 }
+                currentContract = null;
 
                 // Check the requirements for our selection
                 if (selectedContractType.MeetRequirements(this))

@@ -362,16 +362,16 @@ namespace ContractConfigurator
 
         static GUIContent CurrencyGUIContent(Currency currency, ContractType contractType, double baseValue)
         {
-            // Figure out the mulitplier
+            // Figure out the multiplier
             double multiplier = 1.0;
             if (GameVariables.Instance != null && contractType.targetBody != null)
             {
                 multiplier *= GameVariables.Instance.GetContractDestinationWeight(contractType.targetBody);
             }
             string multInfo = baseValue.ToString("N0") + " (base) * " + multiplier.ToString("F1") + " (body)";
-            if (GameVariables.Instance != null && contractType.prestige != null)
+            if (GameVariables.Instance != null && contractType.prestige.Count > 0)
             {
-                double val = GameVariables.Instance.GetContractPrestigeFactor(contractType.prestige.Value);
+                double val = GameVariables.Instance.GetContractPrestigeFactor(contractType.prestige.First());
                 multiplier *= val;
                 multInfo += " * " + val.ToString("F2") + " (prestige)";
             }

@@ -21,7 +21,11 @@ namespace ContractConfigurator
         protected string type;
 
         protected virtual ContractType contractType { get; set; }
-        protected CelestialBody targetBody;
+        protected CelestialBody _targetBody = null;
+        protected CelestialBody targetBody
+        {
+            get { return _targetBody ?? contractType.targetBody; }
+        }
 
         public bool enabled = true;
         public string config { get; private set; }
@@ -43,7 +47,7 @@ namespace ContractConfigurator
             valid &= ConfigNodeUtil.ParseValue<string>(configNode, "name", x => name = x, this, type);
 
             // Load targetBody
-            valid &= ConfigNodeUtil.ParseValue<CelestialBody>(configNode, "targetBody", x => targetBody = x, this, contractType.targetBody);
+            valid &= ConfigNodeUtil.ParseValue<CelestialBody>(configNode, "targetBody", x => _targetBody = x, this, (CelestialBody)null);
 
             config = configNode.ToString();
             return valid;
@@ -141,7 +145,6 @@ namespace ContractConfigurator
 
             // Set attributes
             behaviourFactory.contractType = contractType;
-            behaviourFactory.targetBody = contractType.targetBody;
             behaviourFactory.dataNode = new DataNode(name, contractType.dataNode);
 
             // Load config

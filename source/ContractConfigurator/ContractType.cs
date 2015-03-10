@@ -71,7 +71,7 @@ namespace ContractConfigurator
         public float deadline;
         public bool cancellable;
         public bool declinable;
-        public Contract.ContractPrestige? prestige;
+        public List<Contract.ContractPrestige> prestige;
         public CelestialBody targetBody;
         protected Vessel targetVessel;
         public int maxCompletions;
@@ -97,7 +97,7 @@ namespace ContractConfigurator
             deadline = 0;
             cancellable = true;
             declinable = true;
-            prestige = null;
+            prestige = new List<Contract.ContractPrestige>();
             maxCompletions = 0;
             maxSimultaneous = 0;
             rewardScience = 0.0f;
@@ -147,7 +147,7 @@ namespace ContractConfigurator
             valid &= ConfigNodeUtil.ParseValue<float>(configNode, "deadline", x => deadline = x, this, 0.0f, x => Validation.GE(x, 0.0f));
             valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "cancellable", x => cancellable = x, this, true);
             valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "declinable", x => declinable = x, this, true);
-            valid &= ConfigNodeUtil.ParseValue<Contract.ContractPrestige?>(configNode, "prestige", x => prestige = x, this, (Contract.ContractPrestige?)null);
+            valid &= ConfigNodeUtil.ParseValue<List<Contract.ContractPrestige>>(configNode, "prestige", x => prestige = x, this, new List<Contract.ContractPrestige>());
             valid &= ConfigNodeUtil.ParseValue<CelestialBody>(configNode, "targetBody", x => targetBody = x, this, (CelestialBody)null);
             valid &= ConfigNodeUtil.ParseValue<Vessel>(configNode, "targetVessel", x => targetVessel = x, this, (Vessel)null);
             
@@ -256,7 +256,7 @@ namespace ContractConfigurator
         public bool MeetRequirements(ConfiguredContract contract)
         {
             // Check prestige
-            if (prestige != null && contract.Prestige != prestige)
+            if (prestige.Count > 0 && !prestige.Contains(contract.Prestige))
             {
                 return false;
             }

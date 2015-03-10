@@ -20,7 +20,11 @@ namespace ContractConfigurator
         protected string name;
         protected string type;
         protected virtual ContractType contractType { get; set; }
-        protected CelestialBody targetBody;
+        protected CelestialBody _targetBody = null;
+        protected CelestialBody targetBody
+        {
+            get { return _targetBody ?? contractType.targetBody; }
+        }
         protected float rewardScience;
         protected float rewardReputation;
         protected float rewardFunds;
@@ -66,7 +70,7 @@ namespace ContractConfigurator
             valid &= ConfigNodeUtil.ParseValue<string>(configNode, "type", x => type = x, this);
             valid &= ConfigNodeUtil.ParseValue<string>(configNode, "name", x => name = x, this, type);
 
-            valid &= ConfigNodeUtil.ParseValue<CelestialBody>(configNode, "targetBody", x => targetBody = x, this, contractType.targetBody);
+            valid &= ConfigNodeUtil.ParseValue<CelestialBody>(configNode, "targetBody", x => _targetBody = x, this, (CelestialBody)null);
 
             // Load rewards
             valid &= ConfigNodeUtil.ParseValue<float>(configNode, "rewardFunds", x => rewardFunds = x, this, 0.0f, x => Validation.GE(x, 0.0f));

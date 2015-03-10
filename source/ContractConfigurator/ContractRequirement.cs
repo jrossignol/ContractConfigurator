@@ -24,7 +24,11 @@ namespace ContractConfigurator
         public bool InvertRequirement { get { return invertRequirement; } }
         protected List<ContractRequirement> childNodes = new List<ContractRequirement>();
         protected virtual ContractType contractType { get; set; }
-        protected CelestialBody targetBody;
+        protected CelestialBody _targetBody = null;
+        protected CelestialBody targetBody
+        {
+            get { return _targetBody ?? contractType.targetBody; }
+        }
         public bool invertRequirement;
         protected bool checkOnActiveContract;
 
@@ -51,7 +55,7 @@ namespace ContractConfigurator
             valid &= ConfigNodeUtil.ParseValue<string>(configNode, "type", x => type = x, this);
             valid &= ConfigNodeUtil.ParseValue<string>(configNode, "name", x => name = x, this, type);
 
-            valid &= ConfigNodeUtil.ParseValue<CelestialBody>(configNode, "targetBody", x => targetBody = x, this, contractType.targetBody);
+            valid &= ConfigNodeUtil.ParseValue<CelestialBody>(configNode, "targetBody", x => _targetBody = x, this, (CelestialBody)null);
 
             // By default, do not check the requirement for active contracts
             valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "checkOnActiveContract", x => checkOnActiveContract = x, this, false);
@@ -191,7 +195,6 @@ namespace ContractConfigurator
 
             // Set attributes
             requirement.contractType = contractType;
-            requirement.targetBody = contractType.targetBody;
             requirement.dataNode = new DataNode(name, contractType.dataNode);
 
             // Load config
