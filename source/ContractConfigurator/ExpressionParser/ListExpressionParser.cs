@@ -26,7 +26,13 @@ namespace ContractConfigurator.ExpressionParser
 
         internal static void RegisterMethods()
         {
-            RegisterMethod(new Method<List<T>, T>("Random", l => l.Any() ? l.Skip(r.Next(l.Count)).First() : default(T)));
+            RegisterMethod(new Method<List<T>, T>("Random", l => l.Any() ? l.Skip(r.Next(l.Count)).First() : default(T), false));
+            RegisterMethod(new Method<List<T>, T>("First", l => l.FirstOrDefault()));
+            RegisterMethod(new Method<List<T>, T>("Last", l => l.LastOrDefault()));
+
+            RegisterMethod(new Method<List<T>, T, bool>("Contains", (l, o) => l.Contains(o)));
+
+            RegisterMethod(new Method<List<T>, int>("Count", l => l.Count));
         }
 
         public ListExpressionParser()
