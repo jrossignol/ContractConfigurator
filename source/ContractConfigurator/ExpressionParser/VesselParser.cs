@@ -38,6 +38,7 @@ namespace ContractConfigurator.ExpressionParser
             RegisterMethod(new Method<Vessel, int>("CrewCount", GetCrewCount));
             RegisterMethod(new Method<Vessel, int>("CrewCapacity", GetCrewCapacity));
             RegisterMethod(new Method<Vessel, int>("EmptyCrewSpace", v => GetCrewCapacity(v) - GetCrewCount(v)));
+            RegisterMethod(new Method<Vessel, int>("FreeDockingPorts", FreeDockingPorts));
 
             RegisterGlobalFunction(new Function<List<Vessel>>("AllVessels", () => FlightGlobals.Vessels, false));
         }
@@ -76,6 +77,32 @@ namespace ContractConfigurator.ExpressionParser
             }
 
             return v.protoVessel.protoPartSnapshots.Sum(pps => pps.partInfo.partPrefab.CrewCapacity);
+        }
+
+        /// <summary>
+        /// Gets the number of free docking ports
+        /// </summary>
+        /// <param name="v"></param>
+        /// <returns></returns>
+        static int FreeDockingPorts(Vessel v)
+        {
+            if (v == null)
+            {
+                return 0;
+            }
+
+            int count = 0;
+            foreach (ProtoPartSnapshot pps in v.protoVessel.protoPartSnapshots)
+            {
+                foreach (ProtoPartModuleSnapshot ppms in pps.modules)
+                {
+                    if (ConfigNodeUtil.ParseValue<string>(ppms.moduleValues, "state", "") == "Ready")
+                    {
+                        count += 1;
+                    }
+                }
+            }
+            return count;
         }
 
         internal override U ConvertType<U>(Vessel value)
