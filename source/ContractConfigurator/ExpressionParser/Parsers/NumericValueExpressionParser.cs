@@ -109,6 +109,8 @@ namespace ContractConfigurator.ExpressionParser
 
             RegisterLocalFunction(new Function<T>("Random", () => (T)Convert.ChangeType(random.NextDouble(), typeof(T)), false));
             RegisterLocalFunction(new Function<T, T, T>("Random", RandomMinMax, false));
+            RegisterLocalFunction(new Function<T, T, T>("Max", Max));
+            RegisterLocalFunction(new Function<T, T, T>("Min", Min));
 
             RegisterMethod(new Method<T, string>("Print", (tval) =>
             {
@@ -137,6 +139,16 @@ namespace ContractConfigurator.ExpressionParser
 
             double val = random.NextDouble() * (dmax - dmin) + dmin;
             return (T)Convert.ChangeType(val, typeof(T));
+        }
+
+        private static T Min(T a, T b)
+        {
+            return a.CompareTo(b) < 0 ? a : b;
+        }
+
+        private static T Max(T a, T b)
+        {
+            return a.CompareTo(b) > 0 ? a : b;
         }
 
         public NumericValueExpressionParser()
