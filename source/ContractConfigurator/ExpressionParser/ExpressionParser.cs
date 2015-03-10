@@ -684,6 +684,36 @@ namespace ContractConfigurator.ExpressionParser
             if (tempVariables.ContainsKey(token.sval))
             {
                 KeyValuePair<object, Type> pair = tempVariables[token.sval];
+
+                // Check for a method call before we start messing with types
+                Token methodToken = ParseMethodToken();
+                if (methodToken != null)
+                {
+                    BaseParser methodParser = GetParser(pair.Value);
+
+                    MethodInfo parseMethod = methodParser.GetType().GetMethods(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy).
+                        Where(m => m.Name == "ParseMethod" && m.GetParameters().Count() == 3).Single();
+                    parseMethod = parseMethod.MakeGenericMethod(new Type[] { typeof(T) });
+
+                    try
+                    {
+                        return (T)parseMethod.Invoke(methodParser, new object[] { methodToken, pair.Key, false });
+                    }
+                    catch (TargetInvocationException tie)
+                    {
+                        Exception e = ExceptionUtil.UnwrapTargetInvokationException(tie);
+                        if (e != null)
+                        {
+                            throw e;
+                        }
+                        throw;
+                    }
+                    finally
+                    {
+                        expression = methodParser.expression;
+                    }
+                }
+
                 return ConvertType(pair.Key, pair.Value);
             }
 
@@ -709,7 +739,7 @@ namespace ContractConfigurator.ExpressionParser
                 ParseToken("(");
 
                 Function selectedMethod = null;
-                List<object> parameters = GetCalledFunction(token.sval, ref selectedMethod, isFunction);
+                IEnumerable<object> parameters = GetCalledFunction(token.sval, ref selectedMethod, isFunction);
 
                 // Add object to the parameter list
                 if (!isFunction)
@@ -805,7 +835,7 @@ namespace ContractConfigurator.ExpressionParser
             }
         }
 
-        internal List<object> GetCalledFunction(string functionName, ref Function selectedMethod, bool isFunction = false)
+        internal IEnumerable<object> GetCalledFunction(string functionName, ref Function selectedMethod, bool isFunction = false)
         {
             IEnumerable<Function> methods;
             
@@ -830,7 +860,7 @@ namespace ContractConfigurator.ExpressionParser
                 throw new MissingMethodException("Cannot find " + (isFunction ? "function" : "method") + " '" + functionName + "' for class '" + typeof(T).Name + "'.");
             }
 
-            List<object> parameters = new List<object>();
+            List<KeyValuePair<object, Type>> parameters = new List<KeyValuePair<object, Type>>();
 
             while (true)
             {
@@ -872,7 +902,7 @@ namespace ContractConfigurator.ExpressionParser
                                 bool found = true;
                                 for (int j = 0; j < paramCount; j++)
                                 {
-                                    if (parameters[j].GetType() != method.ParameterType(j))
+                                    if (parameters[j].Value != method.ParameterType(j))
                                     {
                                         found = false;
                                     }
@@ -930,7 +960,7 @@ namespace ContractConfigurator.ExpressionParser
                             Where(m => m.Name == "ParseStatement" && m.GetParameters().Count() == 0).Single();
                         method = method.MakeGenericMethod(new Type[] { paramType });
                         object value = method.Invoke(parser, new object[] { });
-                        parameters.Add(value);
+                        parameters.Add(new KeyValuePair<object, Type>(value, paramType));
                     }
                     catch (TargetInvocationException tie)
                     {
@@ -949,10 +979,11 @@ namespace ContractConfigurator.ExpressionParser
                 else
                 {
                     // TODO - implement once there's a use case for more complex overloading
+                    throw new NotImplementedException("Something I didn't expect happened!  Raise a GitHub issue!");
                 }
             }
 
-            return parameters;
+            return parameters.Select<KeyValuePair<object, Type>, object>(x => x.Key);
         }
 
         internal T ParseFunction(Token token)
@@ -1232,7 +1263,7 @@ namespace ContractConfigurator.ExpressionParser
         /// <returns>The converted value.</returns>
         internal virtual U ConvertType<U>(T value)
         {
-            // Probably should never happen, but handle the basic case
+            // Handle the basic case
             if (typeof(T) == typeof(U))
             {
                 return (U)(object)value;
@@ -1271,7 +1302,7 @@ namespace ContractConfigurator.ExpressionParser
             {
                 try
                 {
-                    return (T)(object)value;
+                    return (T)value;
                 }
                 catch
                 {
