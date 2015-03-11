@@ -91,9 +91,7 @@ namespace ContractConfigurator.Parameters
                 // Filter by part modules
                 foreach (string partModule in filter.partModules)
                 {
-                    string moduleName = partModule.Replace("Module", "");
-                    moduleName = Regex.Replace(moduleName, "(\\B[A-Z])", " $1");
-                    AddParameter(new ParameterDelegate<Part>(filter.type.Prefix() + "module: " + moduleName, p => PartHasModule(p, partModule), filter.type));
+                    AddParameter(new ParameterDelegate<Part>(filter.type.Prefix() + "module: " + ModuleName(partModule), p => PartHasModule(p, partModule), filter.type));
                 }
 
                 // Filter by category
@@ -116,6 +114,23 @@ namespace ContractConfigurator.Parameters
             {
                 AddParameter(new CountParameterDelegate<Part>(minCount, maxCount));
             }
+        }
+
+        private string ModuleName(string partModule)
+        {
+            string output = partModule.Replace("Module", "");
+
+            // Hardcoded special values
+            if (output == "SAS")
+            {
+                return output;
+            }
+            else if (output == "RTAntenna")
+            {
+                return "Antenna";
+            }
+
+            return Regex.Replace(output, "(\\B[A-Z])", " $1");
         }
 
         private bool PartHasModule(Part p, string partModule)
