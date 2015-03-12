@@ -66,6 +66,7 @@
     <Compile Include="ContractParameter\RecoverKerbalCustom.cs" />
     <Compile Include="ContractParameter\TargetDestroyed.cs" />
     <Compile Include="ContractParameter\ReachSpaceCustom.cs" />
+    <Compile Include="ContractParameter\VesselParameter\HasCrewCapacity.cs" />
     <Compile Include="ContractParameter\VesselParameter\Rendezvous.cs" />
     <Compile Include="ContractParameter\VesselParameter\VesselIsType.cs" />
     <Compile Include="ContractParameter\VesselParameter\VesselNotDestroyed.cs" />
@@ -97,6 +98,7 @@
     <Compile Include="ExpressionParser\Parsers\StringExpressionParser.cs" />
     <Compile Include="ExpressionParser\Parsers\ValueExpressionParser.cs" />
     <Compile Include="ExpressionParser\ExpressionParser.cs" />
+    <Compile Include="ParameterFactory\HasCrewCapacityFactory.cs" />
     <Compile Include="Util\DebugWindow.cs" />
     <Compile Include="Util\ExceptionLogWindow.cs" />
     <Compile Include="Util\ExceptionUtil.cs" />
