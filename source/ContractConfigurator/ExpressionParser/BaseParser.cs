@@ -119,9 +119,11 @@ namespace ContractConfigurator.ExpressionParser
             new string[] { "?", ":"},
             new string[] { "||" },
             new string[] { "&&" },
-            new string[] { "!", "<", ">", "!=", "==", "<=", ">=" },
+            new string[] { "!=", "==" },
+            new string[] { "<", ">", "<=", ">=" },
             new string[] { "-", "+" },
-            new string[] { "*", "/" }
+            new string[] { "*", "/" },
+            new string[] { "!" }
         };
         public static Dictionary<string, int> precedence = new Dictionary<string, int>();
 
