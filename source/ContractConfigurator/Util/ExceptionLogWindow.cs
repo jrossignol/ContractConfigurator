@@ -21,7 +21,7 @@ namespace ContractConfigurator
         private static string situationString;
         private static string actionString;
         private static Exception displayedException = null;
-        private static Rect windowPos = new Rect(Screen.width / 2.0f - 300.0f, Screen.height / 2.0f - 120.0f, 600f, 240f);
+        private static Rect windowPos = new Rect(Screen.width / 2.0f - 300.0f, Screen.height / 2.0f - 240.0f, 600f, 480f);
         private static Vector2 scrollPosition;
 
         public static void DisplayFatalException(ExceptionSituation situation, Exception e, params object[] args)
