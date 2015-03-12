@@ -24,7 +24,14 @@ namespace ContractConfigurator
                 return contractTypes.Values.Where(ct => ct.enabled);
             }
         }
-
+        public static IEnumerable<string> AllValidContractTypeNames
+        {
+            get
+            {
+                return AllValidContractTypes.Select<ContractType, string>(ct => ct.name);
+            }
+        }
+        
         public static ContractType GetContractType(string name)
         {
             if (contractTypes.ContainsKey(name) && contractTypes[name].enabled)
