@@ -114,19 +114,29 @@ namespace ContractConfigurator.ExpressionParser
 
             RegisterMethod(new Method<T, string>("Print", (tval) =>
             {
-                int val = (int)(object)tval;
-                if (calculator.EQ((T)(object)val, tval))
+                int ival = (int)(object)tval;
+                double dval = (double)(object)dval;
+                if (typeof(T) == typeof(int) || typeof(T) == typeof(short))
                 {
-                    if (val == 0) return "zero";
-                    if (val == 1) return "one";
-                    if (val == 2) return "two";
-                    if (val == 3) return "three";
-                    if (val == 4) return "four";
-                    if (val == 5) return "five";
-                    if (val == 6) return "six";
-                    if (val == 7) return "seven";
-                    if (val == 8) return "eight";
-                    if (val == 9) return "nine";
+                    if (ival == 0) return "zero";
+                    if (ival == 1) return "one";
+                    if (ival == 2) return "two";
+                    if (ival == 3) return "three";
+                    if (ival == 4) return "four";
+                    if (ival == 5) return "five";
+                    if (ival == 6) return "six";
+                    if (ival == 7) return "seven";
+                    if (ival == 8) return "eight";
+                    if (ival == 9) return "nine";
+                    return ival.ToString("N0");
+                }
+                else if (typeof(T) == typeof(float) || typeof(T) == typeof(double))
+                {
+                    if (dval < 1.0)
+                    {
+                        return dval.ToString("N5");
+                    }
+                    return dval.ToString("N2");
                 }
                 return tval.ToString();
             }));
