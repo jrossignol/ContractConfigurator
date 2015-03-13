@@ -115,7 +115,7 @@ namespace ContractConfigurator.ExpressionParser
             RegisterMethod(new Method<T, string>("Print", (tval) =>
             {
                 int ival = (int)(object)tval;
-                double dval = (double)(object)dval;
+                double dval = (double)(object)tval;
                 if (typeof(T) == typeof(int) || typeof(T) == typeof(short))
                 {
                     if (ival == 0) return "zero";
