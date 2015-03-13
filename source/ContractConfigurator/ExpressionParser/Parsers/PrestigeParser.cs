@@ -22,7 +22,7 @@ namespace ContractConfigurator.ExpressionParser
             RegisterParserType(typeof(Contract.ContractPrestige), typeof(PrestigeParser));
         }
 
-        internal static void RegisterMethods()
+        internal new static void RegisterMethods()
         {
             RegisterGlobalFunction(new Function<Contract.ContractPrestige>("Prestige", () =>
                 ConfiguredContract.currentContract != null ? ConfiguredContract.currentContract.Prestige : Contract.ContractPrestige.Trivial, false));
