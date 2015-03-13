@@ -25,7 +25,7 @@ namespace ContractConfigurator.Parameters
         private float lastUpdate = 0.0f;
         private const float UPDATE_FREQUENCY = 0.1f;
 
-        private Vessel.Situations[] landedSituations = new Vessel.Situations[] { Vessel.Situations.LANDED, Vessel.Situations.PRELAUNCH, Vessel.Situations.SPLASHED };
+        private static Vessel.Situations[] landedSituations = new Vessel.Situations[] { Vessel.Situations.LANDED, Vessel.Situations.PRELAUNCH, Vessel.Situations.SPLASHED };
 
         public ReachState()
             : base(null)
@@ -168,7 +168,6 @@ namespace ContractConfigurator.Parameters
             node.AddValue("targetBody", targetBody.name);
             node.AddValue("biome", biome);
 
-            // Adding null on situation breaks KSP
             if (situation != null)
             {
                 node.AddValue("situation", situation);
@@ -191,7 +190,7 @@ namespace ContractConfigurator.Parameters
         {
             base.OnParameterLoad(node);
             targetBody = ConfigNodeUtil.ParseValue<CelestialBody>(node, "targetBody", (CelestialBody)null);
-            biome = node.GetValue("biome");
+            biome = ConfigNodeUtil.ParseValue<string>(node, "biome");
             situation = ConfigNodeUtil.ParseValue<Vessel.Situations?>(node, "situation", (Vessel.Situations?)null);
             minAltitude = ConfigNodeUtil.ParseValue<float>(node, "minAltitude");
             maxAltitude = ConfigNodeUtil.ParseValue<float>(node, "maxAltitude", float.MaxValue);
