@@ -26,9 +26,10 @@ namespace ContractConfigurator
             valid &= ConfigNodeUtil.ParseValue<List<string>>(configNode, "vessel", x => vessels = x, this, new List<string>());
             valid &= ConfigNodeUtil.ParseValue<string>(configNode, "defineDockedVessel", x => defineDockedVessel = x, this, (string)null);
 
+            // Validate using the config node instead of the list as it may undergo deferred loading
             if (parent is VesselParameterGroupFactory)
             {
-                if (vessels.Count > 1)
+                if (configNode.GetValues("vessel").Count() > 1)
                 {
                     LoggingUtil.LogError(this, ErrorPrefix() + ": When used under a VesselParameterGroup, no more than one vessel may be specified for the Docking parameter.");
                     valid = false;
@@ -36,12 +37,12 @@ namespace ContractConfigurator
             }
             else
             {
-                if (vessels.Count == 0)
+                if (configNode.GetValues("vessel").Count() == 0)
                 {
                     LoggingUtil.LogError(this, ErrorPrefix() + ": Need at least one vessel specified for the Docking parameter.");
                     valid = false;
                 }
-                if (vessels.Count > 2)
+                if (configNode.GetValues("vessel").Count() > 2)
                 {
                     LoggingUtil.LogError(this, ErrorPrefix() + ": Cannot specify more than two vessels for the Docking parameter.");
                     valid = false;
