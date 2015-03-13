@@ -73,11 +73,11 @@ namespace ContractConfigurator.Parameters
                 }
                 if (destination != null)
                 {
-                    if (destination.name == "Mun")
-                    {
-                        this.title += "the ";
-                    }
-                    this.title += destination.name;
+                    this.title += destination.theName;
+                }
+                else
+                {
+                    this.title += "any body";
                 }
             }
             else
