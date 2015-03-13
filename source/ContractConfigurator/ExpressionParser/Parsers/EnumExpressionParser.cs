@@ -11,6 +11,25 @@ namespace ContractConfigurator.ExpressionParser
 {
     public class EnumExpressionParser<T> : ValueExpressionParser<T> where T : struct, IConvertible
     {
+        static System.Random random = new System.Random();
+
+        static EnumExpressionParser()
+        {
+            RegisterMethods();
+        }
+
+        internal static void RegisterMethods()
+        {
+            RegisterLocalFunction(new Function<T>("Random", RandomEnumValue, false));
+            RegisterLocalFunction(new Function<List<T>>("All", () => Enum.GetValues(typeof(T)).OfType<T>().ToList()));
+        }
+
+        protected static T RandomEnumValue()
+        {
+            Array values = Enum.GetValues(typeof(T));
+            return (T)values.GetValue(random.Next(values.Length));
+        }
+
         public EnumExpressionParser()
             : base()
         {
