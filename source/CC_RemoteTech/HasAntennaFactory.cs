@@ -43,7 +43,7 @@ namespace ContractConfigurator.RemoteTech
 
         public override ContractParameter Generate(Contract contract)
         {
-            HasAntennaParameter param = new HasAntennaParameter(minCount, maxCount, targetBody, activeVessel, antennaType, minRange, maxRange, title);
+            HasAntennaParameter param = new HasAntennaParameter(minCount, maxCount, _targetBody, activeVessel, antennaType, minRange, maxRange, title);
 
             return param;
         }
