@@ -127,9 +127,45 @@ namespace ContractConfigurator
             // Special cases
             if (typeof(T).Name == "List`1")
             {
+                int count = configNode.GetValues(key).Count();
+
+                // Special handling to try and load the list all at once
+                if (count == 1 && allowExpression)
+                {
+                    try
+                    {
+                        return ParseSingleValue<T>(key, configNode.GetValue(key), allowExpression);
+                    }
+                    catch (Exception e)
+                    {
+                        Exception handled = e;
+                        while (handled != null && handled.GetType() == typeof(Exception))
+                        {
+                            handled = handled.InnerException;
+                        }
+
+                        // Exceptions we explicitly ignore
+                        if (handled == null || 
+                            handled.GetType() != typeof(NotSupportedException) &&
+                            handled.GetType() != typeof(ArgumentNullException))
+                        {
+                            // Exceptions we explicitly rethrow
+                            if (handled != null && handled.GetType() == typeof(DataNode.ValueNotInitialized))
+                            {
+                                throw;
+                            }
+
+                            // The rest gets logged
+                            LoggingUtil.LogWarning(typeof(ConfigNodeUtil), "Got an unexpected exception trying to load value as a list:");
+                            LoggingUtil.LogException(e);
+                        }
+
+                        // And continue on to load the standard way
+                    }
+                }
+
                 // Create the list instance
                 T list = (T)Activator.CreateInstance(typeof(T));
-                int count = configNode.GetValues(key).Count();
 
                 // Create the generic methods
                 MethodInfo parseValueMethod = typeof(ConfigNodeUtil).GetMethod("ParseSingleValue",
