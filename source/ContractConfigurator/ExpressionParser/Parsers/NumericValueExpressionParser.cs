@@ -242,7 +242,7 @@ namespace ContractConfigurator.ExpressionParser
         /// <returns>Value of the identifier</returns>
         internal override T ParseIdentifier(Token token)
         {
-            if (typeof(T) == typeof(double))
+            if (typeof(T) == typeof(double) || typeof(T) == typeof(float))
             {
                 if (parseMode)
                 {
@@ -250,7 +250,8 @@ namespace ContractConfigurator.ExpressionParser
                 }
                 else if (PersistentDataStore.Instance != null)
                 {
-                    return PersistentDataStore.Instance.Retrieve<T>(token.sval);
+                    double dval = PersistentDataStore.Instance.Retrieve<double>(token.sval);
+                    return (T)Convert.ChangeType(dval, typeof(T));
                 }
                 else
                 {

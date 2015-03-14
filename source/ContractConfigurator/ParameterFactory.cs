@@ -255,7 +255,7 @@ namespace ContractConfigurator
             // Set attributes
             paramFactory.parent = parent;
             paramFactory.contractType = contractType;
-            paramFactory.dataNode = new DataNode(name, contractType.dataNode);
+            paramFactory.dataNode = new DataNode(name, parent != null ? parent.dataNode : contractType.dataNode);
 
             // Load config
             valid &= paramFactory.Load(parameterConfig);
@@ -281,7 +281,7 @@ namespace ContractConfigurator
             foreach (ConfigNode childNode in parameterConfig.GetNodes("REQUIREMENT"))
             {
                 ContractRequirement req = null;
-                valid &= ContractRequirement.GenerateRequirement(childNode, contractType, out req);
+                valid &= ContractRequirement.GenerateRequirement(childNode, contractType, out req, paramFactory);
                 if (req != null)
                 {
                     paramFactory.requirements.Add(req);

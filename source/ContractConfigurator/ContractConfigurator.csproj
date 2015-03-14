@@ -88,6 +88,7 @@
     <Compile Include="ExpressionParser\Parsers\BooleanValueExpressionParser.cs" />
     <Compile Include="ExpressionParser\Parsers\PrestigeParser.cs" />
     <Compile Include="ExpressionParser\Parsers\EnumExpressionParser.cs" />
+    <Compile Include="ExpressionParser\Parsers\KerbalParser.cs" />
     <Compile Include="ExpressionParser\Parsers\VesselParser.cs" />
     <Compile Include="ExpressionParser\Parsers\ListExpressionParser.cs" />
     <Compile Include="ExpressionParser\Parsers\CelestialBodyParser.cs" />

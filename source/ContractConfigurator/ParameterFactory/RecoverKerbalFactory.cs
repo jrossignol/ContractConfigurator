@@ -16,7 +16,7 @@ namespace ContractConfigurator
     /// </summary>
     public class RecoverKerbalFactory : ParameterFactory
     {
-        protected List<string> kerbal;
+        protected List<ProtoCrewMember> kerbal;
         protected int index;
         protected int count;
 
@@ -25,7 +25,7 @@ namespace ContractConfigurator
             // Load base class
             bool valid = base.Load(configNode);
 
-            valid &= ConfigNodeUtil.ParseValue<List<string>>(configNode, "kerbal", x => kerbal = x, this, new List<string>());
+            valid &= ConfigNodeUtil.ParseValue<List<ProtoCrewMember>>(configNode, "kerbal", x => kerbal = x, this, new List<ProtoCrewMember>());
             valid &= ConfigNodeUtil.ParseValue<int>(configNode, "index", x => index = x, this, 0, x => Validation.GE(x, 0));
             valid &= ConfigNodeUtil.ParseValue<int>(configNode, "count", x => count = x, this, 0, x => Validation.GE(x, 0));
             

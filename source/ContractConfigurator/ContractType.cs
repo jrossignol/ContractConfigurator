@@ -81,6 +81,7 @@ namespace ContractConfigurator
         public List<Contract.ContractPrestige> prestige;
         public CelestialBody targetBody;
         protected Vessel targetVessel;
+        protected List<ProtoCrewMember> targetKerbal;
         public int maxCompletions;
         public int maxSimultaneous;
         public float rewardScience;
@@ -157,6 +158,7 @@ namespace ContractConfigurator
             valid &= ConfigNodeUtil.ParseValue<List<Contract.ContractPrestige>>(configNode, "prestige", x => prestige = x, this, new List<Contract.ContractPrestige>());
             valid &= ConfigNodeUtil.ParseValue<CelestialBody>(configNode, "targetBody", x => targetBody = x, this, (CelestialBody)null);
             valid &= ConfigNodeUtil.ParseValue<Vessel>(configNode, "targetVessel", x => targetVessel = x, this, (Vessel)null);
+            valid &= ConfigNodeUtil.ParseValue<List<ProtoCrewMember>>(configNode, "targetKerbal", x => targetKerbal = x, this, new List<ProtoCrewMember>());
             
             valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxCompletions", x => maxCompletions = x, this, 0, x => Validation.GE(x, 0));
             valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxSimultaneous", x => maxSimultaneous = x, this, 0, x => Validation.GE(x, 0));
@@ -323,6 +325,13 @@ namespace ContractConfigurator
                 if (targetVessel == null && !dataNode.IsDeterministic("targetVessel"))
                 {
                     LoggingUtil.LogDebug(this, "Didn't generate contract type " + name + ", targetVessel is null.");
+                    return false;
+                }
+
+                // Target Kerbal
+                if (targetKerbal.Count == 0 && !dataNode.IsDeterministic("targetKerbal"))
+                {
+                    LoggingUtil.LogDebug(this, "Didn't generate contract type " + name + ", targetKerbal is empty.");
                     return false;
                 }
             }

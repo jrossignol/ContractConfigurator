@@ -15,8 +15,8 @@ namespace ContractConfigurator.Parameters
     /// </summary>
     public class HasPassengers : VesselParameter
     {
-        protected int index;
-        protected int count;
+        protected int index = 0;
+        protected int count = 0;
         private List<ProtoCrewMember> passengers = new List<ProtoCrewMember>();
 
         public HasPassengers()
@@ -29,6 +29,14 @@ namespace ContractConfigurator.Parameters
         {
             this.index = index;
             this.count = count;
+
+            CreateDelegates();
+        }
+
+        public HasPassengers(string title, List<ProtoCrewMember> passengers)
+            : base(title)
+        {
+            this.passengers = passengers;
 
             CreateDelegates();
         }

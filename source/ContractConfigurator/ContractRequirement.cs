@@ -170,7 +170,8 @@ namespace ContractConfigurator
         /// <param name="contractType">ContractType that this requirement falls under</param>
         /// <param name="requirement">The ContractRequirement object.</param>
         /// <returns>Whether the load was successful</returns>
-        public static bool GenerateRequirement(ConfigNode configNode, ContractType contractType, out ContractRequirement requirement)
+        public static bool GenerateRequirement(ConfigNode configNode, ContractType contractType, out ContractRequirement requirement,
+            IContractConfiguratorFactory parent = null)
         {
             // Logging on
             LoggingUtil.CaptureLog = true;
@@ -195,7 +196,7 @@ namespace ContractConfigurator
 
             // Set attributes
             requirement.contractType = contractType;
-            requirement.dataNode = new DataNode(name, contractType.dataNode);
+            requirement.dataNode = new DataNode(name, parent != null ? parent.dataNode : contractType.dataNode);
 
             // Load config
             valid &= requirement.Load(configNode);
@@ -210,7 +211,7 @@ namespace ContractConfigurator
             foreach (ConfigNode childNode in configNode.GetNodes("REQUIREMENT"))
             {
                 ContractRequirement child = null;
-                valid &= ContractRequirement.GenerateRequirement(childNode, contractType, out child);
+                valid &= ContractRequirement.GenerateRequirement(childNode, contractType, out child, requirement);
                 if (child != null)
                 {
                     requirement.childNodes.Add(child);

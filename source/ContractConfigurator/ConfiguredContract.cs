@@ -194,7 +194,11 @@ namespace ContractConfigurator
                 LoggingUtil.LogException(e);
                 ExceptionLogWindow.DisplayFatalException(ExceptionLogWindow.ExceptionSituation.CONTRACT_LOAD, e, this);
 
-                SetState(State.Failed);
+                try
+                {
+                    SetState(State.Failed);
+                }
+                catch { }
             }
         }
 

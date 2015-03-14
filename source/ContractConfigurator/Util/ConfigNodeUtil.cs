@@ -145,7 +145,8 @@ namespace ContractConfigurator
                         }
 
                         // Exceptions we explicitly ignore
-                        if (handled == null || 
+                        if (handled == null ||
+                            handled.GetType() != typeof(DataStoreCastException) &&
                             handled.GetType() != typeof(NotSupportedException) &&
                             handled.GetType() != typeof(ArgumentNullException))
                         {
@@ -156,7 +157,7 @@ namespace ContractConfigurator
                             }
 
                             // The rest gets logged
-                            LoggingUtil.LogWarning(typeof(ConfigNodeUtil), "Got an unexpected exception trying to load value as a list:");
+                            LoggingUtil.LogWarning(typeof(ConfigNodeUtil), "Got an unexpected exception trying to load '" + key + "' as a list:");
                             LoggingUtil.LogException(e);
                         }
 
@@ -445,6 +446,8 @@ namespace ContractConfigurator
                         string dependency = ((DataNode.ValueNotInitialized)e).key;
                         string path = currentDataNode.Path() + key;
 
+                        LoggingUtil.LogVerbose(typeof(ConfigNodeUtil), "Trying to load " + key + ", but " + dependency + " is uninitialized.");
+
                         // Defer loading this value
                         DeferredLoadObject<T> loadObj = null;
                         if (!deferredLoads.ContainsKey(path))
@@ -456,6 +459,7 @@ namespace ContractConfigurator
                         // New dependency - try again
                         if (!loadObj.dependencies.Contains(dependency))
                         {
+                            LoggingUtil.LogVerbose(typeof(ConfigNodeUtil), "    New dependency, will re-attempt to load later.");
                             loadObj.dependencies.Add(dependency);
                             return true;
                         }

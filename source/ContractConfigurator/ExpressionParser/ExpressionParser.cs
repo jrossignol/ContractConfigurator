@@ -660,7 +660,17 @@ namespace ContractConfigurator.ExpressionParser
 
         internal Token ParseMethodEndToken()
         {
-            Token token = ParseToken();
+            string savedExpression = expression;
+            Token token;
+            try
+            {
+                token = ParseToken();
+            }
+            catch
+            {
+                expression = savedExpression;
+                return null;
+            }
 
             if (token == null)
             {
@@ -673,7 +683,7 @@ namespace ContractConfigurator.ExpressionParser
             }
             else
             {
-                expression = token.sval + expression;
+                expression = savedExpression;
                 return null;
             }
         }

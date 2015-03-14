@@ -17,6 +17,7 @@ namespace ContractConfigurator
     {
         protected int index;
         protected int count;
+        protected List<ProtoCrewMember> passengers;
 
         public override bool Load(ConfigNode configNode)
         {
@@ -25,13 +26,21 @@ namespace ContractConfigurator
 
             valid &= ConfigNodeUtil.ParseValue<int>(configNode, "index", x => index = x, this, 0, x => Validation.GE(x, 0));
             valid &= ConfigNodeUtil.ParseValue<int>(configNode, "count", x => count = x, this, 0, x => Validation.GE(x, 0));
+            valid &= ConfigNodeUtil.ParseValue<List<ProtoCrewMember>>(configNode, "kerbal", x => passengers = x, this, new List<ProtoCrewMember>());
 
             return valid;
         }
 
         public override ContractParameter Generate(Contract contract)
         {
-            return new HasPassengers(title, index, count);
+            if (passengers.Count() > 0)
+            {
+                return new HasPassengers(title, passengers);
+            }
+            else
+            {
+                return new HasPassengers(title, index, count);
+            }
         }
     }
 }

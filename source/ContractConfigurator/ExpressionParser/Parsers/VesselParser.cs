@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using UnityEngine;
 
 namespace ContractConfigurator.ExpressionParser
@@ -120,6 +121,12 @@ namespace ContractConfigurator.ExpressionParser
 
         internal override Vessel ParseIdentifier(Token token)
         {
+            // Try to parse more, as vessel names can have spaces
+            Match m = Regex.Match(expression, @"^((?>\s*[A-Za-z][\w\d]*)+).*");
+            string identifier = m.Groups[1].Value;
+            expression = (expression.Length > identifier.Length ? expression.Substring(identifier.Length) : "");
+            identifier = token.sval + identifier;
+
             // In parse mode we typically don't have a save game loaded, so
             // don't try to get a vessel.  Give the benefit of the
             // doubt and assume that it will be a valid vessel (ie. no exception)
@@ -128,7 +135,7 @@ namespace ContractConfigurator.ExpressionParser
                 return null;
             }
 
-            return ContractVesselTracker.Instance.GetAssociatedVessel(token.sval);
+            return ContractVesselTracker.Instance.GetAssociatedVessel(identifier);
         }
     }
 }
