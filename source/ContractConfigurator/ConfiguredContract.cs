@@ -21,6 +21,27 @@ namespace ContractConfigurator
         private List<ContractBehaviour> behaviours = new List<ContractBehaviour>();
         public IEnumerable<ContractBehaviour> Behaviours { get { return behaviours.AsReadOnly(); } }
 
+		public static string contractTypeName(Contract c)
+		{
+			try
+			{
+				ConfiguredContract CC = (ConfiguredContract)c;
+				if (CC.contractType != null)
+				{
+					return CC.contractType.name;
+				}
+				else
+				{
+					return "";
+				}
+			}
+			catch (Exception e)
+			{
+				Debug.LogWarning("Something something can't cast to type + " e);
+				return "";
+			}
+		}
+
         protected string title;
         protected string description;
         protected string synopsis;
