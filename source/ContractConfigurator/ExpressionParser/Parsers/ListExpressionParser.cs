@@ -30,10 +30,14 @@ namespace ContractConfigurator.ExpressionParser
             RegisterMethod(new Method<List<T>, int, List<T>>("Random", RandomList, false));
             RegisterMethod(new Method<List<T>, T>("First", l => l.FirstOrDefault()));
             RegisterMethod(new Method<List<T>, T>("Last", l => l.LastOrDefault()));
+            RegisterMethod(new Method<List<T>, int, T>("ElementAt", (l, i) => l.ElementAtOrDefault(i)));
 
             RegisterMethod(new Method<List<T>, T, bool>("Contains", (l, o) => l.Contains(o)));
 
             RegisterMethod(new Method<List<T>, int>("Count", l => l.Count));
+
+            RegisterMethod(new Method<List<T>, List<T>, List<T>>("Concat", (l1, l2) => { l1.AddRange(l2); return l1; }));
+            RegisterMethod(new Method<List<T>, T, List<T>>("Add", (l, v) => { l.Add(v); return l; }));
         }
 
         protected static List<T> RandomList(List<T> input, int count)
@@ -140,6 +144,20 @@ namespace ContractConfigurator.ExpressionParser
             {
                 verbose &= LogException<TResult>("ParseWhereMethod");
                 throw;
+            }
+        }
+        
+        internal override TResult ParseList<TResult>()
+        {
+            // Use the regular type parser to do the parting
+            ExpressionParser<T> parser = GetParser<T>(this);
+            try
+            {
+                return parser.ParseList<TResult>();
+            }
+            finally
+            {
+                expression = parser.expression;
             }
         }
     }

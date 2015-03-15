@@ -2,6 +2,7 @@ Contract Configurator 0.7.0
 - Support for expressions in config nodes.
 - New debugging window feature - contract balancing mode.
 - Added HasCrewCapacity parameter.
+- Added VesseLDestroyed parameter.
 - Added SpawnPassenger behaviour.
 - Added version check to contract groups.
 - Major changes to CollectScience parameter.

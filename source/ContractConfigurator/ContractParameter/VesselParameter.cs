@@ -197,6 +197,21 @@ namespace ContractConfigurator.Parameters
         }
 
         /// <summary>
+        /// Gets the state of the given vessel.
+        /// </summary>
+        /// <param name="vessel">the vessel to check</param>
+        /// <returns>The state for the vessel.</returns>
+        protected virtual Contracts.ParameterState GetStateForVessel(Vessel vessel)
+        {
+            if (!vesselInfo.ContainsKey(vessel.id))
+            {
+                return ParameterState.Incomplete;
+            }
+
+            return vesselInfo[vessel.id].state;
+        }
+
+        /// <summary>
         /// Sets the global parameter state to the one of the given vessel
         /// </summary>
         /// <param name="vessel">The vessel to use for the state change.</param>

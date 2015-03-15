@@ -438,7 +438,7 @@ namespace ContractConfigurator.ExpressionParser
             }
         }
 
-        private TResult ParseList<TResult>()
+        internal virtual TResult ParseList<TResult>()
         {
             verbose &= LogEntryDebug<TResult>("ParseList");
             try
@@ -469,24 +469,49 @@ namespace ContractConfigurator.ExpressionParser
                     }
                 }
 
-                token = ParseMethodToken();
-                if (token == null)
-                {
-                    // Will throw an exception
-                    ParseToken(".");
-                }
-
-                // Parse a method call
+                // See what's next to parse
+                string savedExpression = expression;
+                token = ParseToken();
                 ExpressionParser<List<T>> parser = GetParser<List<T>>(this);
-                try
+                if (token.tokenType == TokenType.OPERATOR && token.sval == "[")
                 {
-                    TResult result = parser.ParseMethod<TResult>(token, values);
-                    verbose &= LogExitDebug<TResult>("ParseList", result);
-                    return result;
+/*                    // Parse another list
+                    try
+                    {
+                        TResult result = parser.parseSta.ParseMethod<TResult>(token, values);
+                        verbose &= LogExitDebug<TResult>("ParseList", result);
+                        return result;
+                    }
+                    finally
+                    {
+                        expression = parser.expression;
+                    }*/
+                    return default(TResult);
                 }
-                finally
+                else if (token.tokenType == TokenType.METHOD)
                 {
-                    expression = parser.expression;
+                    // Parse a method call
+                    try
+                    {
+                        TResult result = parser.ParseMethod<TResult>(token, values);
+                        verbose &= LogExitDebug<TResult>("ParseList", result);
+                        return result;
+                    }
+                    finally
+                    {
+                        expression = parser.expression;
+                    }
+                }
+                else
+                {
+                    expression = savedExpression;
+
+                    if (typeof(TResult) == typeof(List<T>))
+                    {
+                        return (TResult)(object)values;
+                    }
+
+                    throw new DataStoreCastException(typeof(TResult), typeof(List<T>));
                 }
             }
             catch
