@@ -9,9 +9,9 @@ using Contracts;
 
 namespace ContractConfigurator
 {
-    /*
-     * ContractRequirement to provide requirement for player having completed other contracts.
-     */
+    /// <summary>
+    /// ContractRequirement to provide requirement for player having completed other contracts.
+    /// </summary>
     public class CompleteContractRequirement : ContractRequirement
     {
         protected string ccType;
@@ -104,6 +104,7 @@ namespace ContractConfigurator
             // Check cooldown
             if (cooldown > 0.0 && finished > 0 && lastFinished + cooldown > Planetarium.GetUniversalTime())
             {
+                LoggingUtil.LogDebug(this, "Returning false due to cooldown for " + contractType.name);
                 return false;
             }
 

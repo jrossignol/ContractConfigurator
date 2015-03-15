@@ -116,6 +116,8 @@ namespace ContractConfigurator
 
                             if (!allReqMet)
                             {
+                                LoggingUtil.Log(contract.ContractState == Contract.State.Active ? LoggingUtil.LogLevel.DEBUG : LoggingUtil.LogLevel.VERBOSE,
+                                    requirement.GetType(), "Requirement " + requirement.name + " was not met.");
                                 break;
                             }
                         }

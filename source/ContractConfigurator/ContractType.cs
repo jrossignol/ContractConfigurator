@@ -283,6 +283,7 @@ namespace ContractConfigurator
                 // Check if we're breaching the active limit
                 if (maxSimultaneous != 0 && activeContracts >= maxSimultaneous)
                 {
+                    LoggingUtil.LogDebug(this, "Didn't generate contract type " + name + ", too many active contracts.");
                     return false;
                 }
 
@@ -292,6 +293,7 @@ namespace ContractConfigurator
                     int finishedContracts = ContractSystem.Instance.GetCompletedContracts<ConfiguredContract>().Count(c => c.contractType == this);
                     if (finishedContracts + activeContracts >= maxCompletions)
                     {
+                        LoggingUtil.LogDebug(this, "Didn't generate contract type " + name + ", too many completed/active/offered contracts.");
                         return false;
                     }
                 }
@@ -302,8 +304,14 @@ namespace ContractConfigurator
             {
                 // Check the group active limit
                 int activeContracts = ContractSystem.Instance.GetCurrentContracts<ConfiguredContract>().Count(c => c.contractType.group == group);
+                if (contract.ContractState == Contract.State.Offered || contract.ContractState == Contract.State.Active)
+                {
+                    activeContracts--;
+                }
+                
                 if (group.maxSimultaneous != 0 && activeContracts >= group.maxSimultaneous)
                 {
+                    LoggingUtil.LogDebug(this, "Didn't generate contract type " + name + ", too many active contracts in group.");
                     return false;
                 }
 
@@ -313,6 +321,7 @@ namespace ContractConfigurator
                     int finishedContracts = ContractSystem.Instance.GetCompletedContracts<ConfiguredContract>().Count(c => c.contractType.group == group);
                     if (finishedContracts + activeContracts >= maxCompletions)
                     {
+                        LoggingUtil.LogDebug(this, "Didn't generate contract type " + name + ", too many completed contracts in group.");
                         return false;
                     }
                 }
