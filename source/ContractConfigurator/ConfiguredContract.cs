@@ -23,23 +23,13 @@ namespace ContractConfigurator
 
 		public static string contractTypeName(Contract c)
 		{
-			try
-			{
-				ConfiguredContract CC = (ConfiguredContract)c;
-				if (CC.contractType != null)
-				{
-					return CC.contractType.name;
-				}
-				else
-				{
-					return "";
-				}
-			}
-			catch (Exception e)
-			{
-				Debug.LogWarning("Something something can't cast to type + " e);
-				return "";
-			}
+            if (c == null || c.GetType() != typeof(ConfiguredContract))
+            {
+                return "";
+            }
+
+            ConfiguredContract cc = (ConfiguredContract)c;
+            return cc.contractType != null ? cc.contractType.name : "";
 		}
 
         protected string title;
