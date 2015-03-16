@@ -278,7 +278,7 @@ namespace ContractConfigurator
             }
             if (FlightGlobals.ActiveVessel != null)
             {
-                if (GUILayout.Button("PQS distances", selectedPane == SelectedPane.PQS_MODE ? selectedButton : GUI.skin.button))
+                if (GUILayout.Button("PQS Offsets", selectedPane == SelectedPane.PQS_MODE ? selectedButton : GUI.skin.button))
                 {
                     selectedPane = SelectedPane.PQS_MODE;
                 }
