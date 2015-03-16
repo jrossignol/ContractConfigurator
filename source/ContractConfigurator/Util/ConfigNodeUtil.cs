@@ -297,6 +297,14 @@ namespace ContractConfigurator
             {
                 value = (T)(object)ParseVesselValue(stringValue);
             }
+            else if (typeof(T) == typeof(Vector3d))
+            {
+                string[] vals = stringValue.Split(new char[] { ',' });
+                double x = (double)Convert.ChangeType(vals[0], typeof(double));
+                double y = (double)Convert.ChangeType(vals[1], typeof(double));
+                double z = (double)Convert.ChangeType(vals[2], typeof(double));
+                value = (T)(object)new Vector3d(x, y, z);
+            }
             // Do newline conversions
             else if (typeof(T) == typeof(string))
             {

@@ -6,6 +6,7 @@ Contract Configurator 0.7.0
 - Added SpawnPassenger behaviour.
 - Added version check to contract groups.
 - Major changes to CollectScience parameter.
+- WaypointGenerate now supports a PQS offset - allows setting waypoint using a special offset from the PQSCity location.
 - Fixed HasAntenna to work with omnis without having activeVessel attribute set (thanks Eiktyrner).
 - Clean up "Input is null" warning messages from stock.
 - Lots and lots of minor bug fixes.

@@ -536,7 +536,7 @@ namespace ContractConfigurator
 
         public override string ToString()
         {
-            return contractType.name;
+            return contractType != null ? contractType.name : "unknown";
         }
     }
 }

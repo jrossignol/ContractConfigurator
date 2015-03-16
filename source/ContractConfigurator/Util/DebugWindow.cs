@@ -14,6 +14,7 @@ namespace ContractConfigurator
         {
             DEBUG_LOG,
             BALANCE_MODE,
+            PQS_MODE,
         }
         private static SelectedPane selectedPane = SelectedPane.DEBUG_LOG;
 
@@ -275,6 +276,17 @@ namespace ContractConfigurator
             {
                 selectedPane = SelectedPane.BALANCE_MODE;
             }
+            if (FlightGlobals.ActiveVessel != null)
+            {
+                if (GUILayout.Button("PQS distances", selectedPane == SelectedPane.PQS_MODE ? selectedButton : GUI.skin.button))
+                {
+                    selectedPane = SelectedPane.PQS_MODE;
+                }
+            }
+            else if (selectedPane == SelectedPane.PQS_MODE)
+            {
+                selectedPane = SelectedPane.DEBUG_LOG;
+            }
             GUILayout.EndHorizontal();
 
             if (selectedPane == SelectedPane.DEBUG_LOG)
@@ -298,6 +310,15 @@ namespace ContractConfigurator
                 }
 
                 BalanceModeGUI();
+            }
+            else if (selectedPane == SelectedPane.PQS_MODE)
+            {
+                if (Event.current.type == EventType.Repaint)
+                {
+                    drawToolTip = string.IsNullOrEmpty(GUI.tooltip);
+                }
+
+                PQSModeGUI();
             }
 
             GUILayout.EndVertical();
@@ -404,7 +425,7 @@ namespace ContractConfigurator
             {
                 output += "N/A";
             }
-            if (GameVariables.Instance == null)
+            else if (GameVariables.Instance == null)
             {
                 output += "Game not initialized.";
             }
@@ -503,5 +524,42 @@ namespace ContractConfigurator
             return toolTipCache[obj].Value;
         }
 
+        private static void PQSModeGUI()
+        {
+            int CITY_WIDTH = 124;
+            int HEADING_WIDTH = 324;
+            int HEIGHT_WIDTH = 104;
+
+            Vessel v = FlightGlobals.ActiveVessel;
+            CelestialBody body = v.mainBody;
+
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("PQS City", headerLabel, GUILayout.Width(CITY_WIDTH));
+            GUILayout.Label("PQS Offset", headerLabel, GUILayout.Width(HEADING_WIDTH));
+            GUILayout.Label("Height", headerLabel, GUILayout.Width(HEIGHT_WIDTH));
+            GUILayout.EndHorizontal();
+
+            scrollPosition2 = GUILayout.BeginScrollView(scrollPosition2, GUILayout.Width(550), GUILayout.ExpandHeight(true));
+            foreach (PQSCity city in body.GetComponentsInChildren<PQSCity>(true))
+            {
+                // Translate to a position in the PQSCity's coordinate system
+                Vector3d vPos = FlightGlobals.ActiveVessel.transform.position - city.transform.position;
+                Vector3d pos = new Vector3d(Vector3d.Dot(vPos, city.transform.right), Vector3d.Dot(vPos, city.transform.forward), Vector3d.Dot(vPos, city.transform.up));
+
+                GUILayout.BeginHorizontal();
+
+                GUILayout.Label(new GUIContent(city.name, city.name), clippedLabel, GUILayout.Width(CITY_WIDTH));
+                GUILayout.TextField(pos.x.ToString() + ", " + pos.y.ToString() + ", " + pos.z.ToString(), GUILayout.Width(HEADING_WIDTH));
+                GUILayout.TextField((v.terrainAltitude >= 0.0 ? v.terrainAltitude : v.altitude).ToString(), GUILayout.Width(HEIGHT_WIDTH));
+                
+                GUILayout.EndHorizontal();
+            }
+            GUILayout.EndScrollView();
+
+            if (Event.current.type == EventType.Repaint)
+            {
+                tooltip = GUI.tooltip;
+            }
+        }
     }
 }

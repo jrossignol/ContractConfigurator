@@ -26,6 +26,7 @@ namespace ContractConfigurator.Behaviour
             public int nearIndex = -1;
             public double nearDistance = 0.0;
             public PQSCity pqsCity = null;
+            public Vector3d pqsOffset;
 
             public WaypointData()
             {
@@ -58,6 +59,7 @@ namespace ContractConfigurator.Behaviour
                 nearIndex = orig.nearIndex;
                 nearDistance = orig.nearDistance;
                 pqsCity = orig.pqsCity;
+                pqsOffset = orig.pqsOffset;
                 
                 SetContract(contract);
             }
@@ -172,6 +174,7 @@ namespace ContractConfigurator.Behaviour
                                 valid = false;
                             }
                         }
+                        valid &= ConfigNodeUtil.ParseValue<Vector3d>(child, "pqsOffset", x => wpData.pqsOffset = x, factory, new Vector3d());
                     }
                     else
                     {
@@ -201,7 +204,7 @@ namespace ContractConfigurator.Behaviour
         {
             System.Random random = new System.Random(contract.MissionSeed);
 
-            int i = 0;
+            int index = 0;
             foreach (WaypointData wpData in waypoints)
             {
                 // Do type-specific waypoint handling
@@ -221,8 +224,24 @@ namespace ContractConfigurator.Behaviour
                 else if (wpData.type == "PQS_CITY")
                 {
                     CelestialBody body = FlightGlobals.Bodies.Where(b => b.name == wpData.waypoint.celestialName).First();
-                    wpData.waypoint.latitude = body.GetLatitude(wpData.pqsCity.transform.position);
-                    wpData.waypoint.longitude = body.GetLongitude(wpData.pqsCity.transform.position);
+                    Vector3d position = wpData.pqsCity.transform.position;
+
+                    // Translate by the PQS offset (inverse transform of coordinate system
+                    Vector3d v = wpData.pqsOffset;
+                    Vector3d i = wpData.pqsCity.transform.right;
+                    Vector3d j = wpData.pqsCity.transform.forward;
+                    Vector3d k = wpData.pqsCity.transform.up;
+                    Vector3d offsetPos = new Vector3d(
+                        (j.y * k.z - j.z * k.y) * v.x + (i.z * k.y - i.y * k.z) * v.y + (i.y * j.z - i.z * j.y) * v.z,
+                        (j.z * k.x - j.x * k.z) * v.x + (i.x * k.z - i.z * k.x) * v.y + (i.z * j.x - i.x * j.z) * v.z,
+                        (j.x * k.y - j.y * k.x) * v.x + (i.y * k.x - i.x * k.y) * v.y + (i.x * j.y - i.y * j.x) * v.z
+                    );
+                    offsetPos *= (i.x * j.y * k.z) + (i.y * j.z * k.x) + (i.z * j.x * k.y) - (i.z * j.y * k.x) - (i.y * j.x * k.z) - (i.x * j.z * k.y);
+                    Debug.Log("pqsOffset = " + v.x + ", " + v.y + ", " + v.z);
+                    Debug.Log("offset = " + offsetPos.x + ", " + offsetPos.y + ", " + offsetPos.z);
+                    Debug.Log("position = " + position.x + ", " + position.y + ", " + position.z);
+                    wpData.waypoint.latitude = body.GetLatitude(position + offsetPos);
+                    wpData.waypoint.longitude = body.GetLongitude(position + offsetPos);
                 }
 
                 // Set altitude
@@ -243,7 +262,7 @@ namespace ContractConfigurator.Behaviour
                 if (string.IsNullOrEmpty(wpData.waypoint.name))
                 {
                     CelestialBody body = FlightGlobals.Bodies.Where<CelestialBody>(b => b.name == wpData.waypoint.celestialName).First();
-                    wpData.waypoint.name = StringUtilities.GenerateSiteName(contract.MissionSeed + i++, body, !wpData.waterAllowed);
+                    wpData.waypoint.name = StringUtilities.GenerateSiteName(contract.MissionSeed + index++, body, !wpData.waterAllowed);
                 }
 
                 AddWayPoint(wpData.waypoint);
