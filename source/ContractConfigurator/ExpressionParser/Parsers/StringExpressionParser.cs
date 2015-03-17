@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace ContractConfigurator.ExpressionParser
 {
@@ -32,11 +33,34 @@ namespace ContractConfigurator.ExpressionParser
                 string value = "";
                 while (expression.Length > 0)
                 {
-                    int index = expression.IndexOf("@");
-                    if (index >= 0)
+                    int specialIdentifierIndex = expression.IndexOf("@");
+                    Match m = Regex.Match(expression, @"\s\w[\w\d]*\(");
+                    int functionIndex = m.Index;
+
+                    if (m.Success && specialIdentifierIndex >= 0)
                     {
-                        value += expression.Substring(0, index);
-                        expression = expression.Substring(index);
+                        if (functionIndex < specialIdentifierIndex)
+                        {
+                            specialIdentifierIndex = -1;
+                        }
+                        else
+                        {
+                            functionIndex = -1;
+                        }
+                    }
+
+                    if (m.Success)
+                    {
+                        value += expression.Substring(0, functionIndex+1);
+                        expression = expression.Substring(functionIndex);
+                        Token t = ParseToken();
+                        LoggingUtil.LogDebug(this, "    " + t.sval);
+                        value += ParseMethod<string>(t, null, true);
+                    }
+                    else if (specialIdentifierIndex >= 0)
+                    {
+                        value += expression.Substring(0, specialIdentifierIndex);
+                        expression = expression.Substring(specialIdentifierIndex);
                         value += ParseSpecialIdentifier(ParseSpecialIdentifier());
                     }
                     else

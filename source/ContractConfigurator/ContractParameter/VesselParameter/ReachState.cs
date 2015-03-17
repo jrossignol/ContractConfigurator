@@ -19,6 +19,8 @@ namespace ContractConfigurator.Parameters
         protected Vessel.Situations? situation { get; set; }
         protected float minAltitude { get; set; }
         protected float maxAltitude { get; set; }
+        protected float minTerrainAltitude { get; set; }
+        protected float maxTerrainAltitude { get; set; }
         protected double minSpeed { get; set; }
         protected double maxSpeed { get; set; }
 
@@ -33,7 +35,7 @@ namespace ContractConfigurator.Parameters
         }
 
         public ReachState(CelestialBody targetBody, string biome, Vessel.Situations? situation, float minAltitude, float maxAltitude,
-            double minSpeed, double maxSpeed, string title)
+            float minTerrainAltitude, float maxTerrainAltitude, double minSpeed, double maxSpeed, string title)
             : base(title)
         {
             this.targetBody = targetBody;
@@ -41,6 +43,8 @@ namespace ContractConfigurator.Parameters
             this.situation = situation;
             this.minAltitude = minAltitude;
             this.maxAltitude = maxAltitude;
+            this.minTerrainAltitude = minTerrainAltitude;
+            this.maxTerrainAltitude = maxTerrainAltitude;
             this.minSpeed = minSpeed;
             this.maxSpeed = maxSpeed;
 
@@ -105,6 +109,26 @@ namespace ContractConfigurator.Parameters
                 }
 
                 AddParameter(new ParameterDelegate<Vessel>(output, v => v.altitude >= minAltitude && v.altitude <= maxAltitude));
+            }
+
+            // Filter for terrain altitude
+            if (minTerrainAltitude != 0.0f || maxTerrainAltitude != float.MaxValue)
+            {
+                string output = "Altitude (terrain): ";
+                if (minTerrainAltitude == 0.0f)
+                {
+                    output += "Below " + maxTerrainAltitude.ToString("N0") + " m";
+                }
+                else if (maxTerrainAltitude == float.MaxValue)
+                {
+                    output += "Above " + minTerrainAltitude.ToString("N0") + " m";
+                }
+                else
+                {
+                    output += "Between " + minTerrainAltitude.ToString("N0") + " m and " + maxTerrainAltitude.ToString("N0") + " m";
+                }
+
+                AddParameter(new ParameterDelegate<Vessel>(output, v => v.altitude >= minTerrainAltitude && v.altitude <= maxTerrainAltitude));
             }
 
             // Filter for speed
@@ -179,6 +203,12 @@ namespace ContractConfigurator.Parameters
                 node.AddValue("maxAltitude", maxAltitude);
             }
 
+            node.AddValue("minTerrainAltitude", minTerrainAltitude);
+            if (maxTerrainAltitude != float.MaxValue)
+            {
+                node.AddValue("maxTerrainAltitude", maxTerrainAltitude);
+            }
+
             node.AddValue("minSpeed", minSpeed);
             if (maxSpeed != Double.MaxValue)
             {
@@ -194,6 +224,8 @@ namespace ContractConfigurator.Parameters
             situation = ConfigNodeUtil.ParseValue<Vessel.Situations?>(node, "situation", (Vessel.Situations?)null);
             minAltitude = ConfigNodeUtil.ParseValue<float>(node, "minAltitude");
             maxAltitude = ConfigNodeUtil.ParseValue<float>(node, "maxAltitude", float.MaxValue);
+            minTerrainAltitude = ConfigNodeUtil.ParseValue<float>(node, "minTerrainAltitude", 0.0f);
+            maxTerrainAltitude = ConfigNodeUtil.ParseValue<float>(node, "maxTerrainAltitude", float.MaxValue);
             minSpeed = ConfigNodeUtil.ParseValue<double>(node, "minSpeed");
             maxSpeed = ConfigNodeUtil.ParseValue<double>(node, "maxSpeed", Double.MaxValue);
 
