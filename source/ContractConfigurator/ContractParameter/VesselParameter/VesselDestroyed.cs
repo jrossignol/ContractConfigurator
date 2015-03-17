@@ -14,14 +14,17 @@ namespace ContractConfigurator.Parameters
     /// </summary>
     public class VesselDestroyed : VesselParameter
     {
+        protected bool mustImpactTerrain = false;
+
         public VesselDestroyed()
             : base(null)
         {
         }
 
-        public VesselDestroyed(string title)
+        public VesselDestroyed(string title, bool mustImpactTerrain)
             : base(title)
         {
+            this.mustImpactTerrain = mustImpactTerrain;
         }
 
         protected override string GetTitle()
@@ -41,28 +44,52 @@ namespace ContractConfigurator.Parameters
         protected override void OnParameterSave(ConfigNode node)
         {
             base.OnParameterSave(node);
+
+            node.AddValue("mustImpactTerrain", mustImpactTerrain);
         }
 
         protected override void OnParameterLoad(ConfigNode node)
         {
             base.OnParameterLoad(node);
+
+            mustImpactTerrain = ConfigNodeUtil.ParseValue<bool?>(node, "mustImpactTerrain", (bool?)false).Value;
         }
 
         protected override void OnRegister()
         {
             base.OnRegister();
-            GameEvents.onVesselWillDestroy.Add(new EventData<Vessel>.OnEvent(OnVesselWillDestroy));
+            GameEvents.onCollision.Add(new EventData<EventReport>.OnEvent(OnVesselAboutToBeDestroyed));
+            GameEvents.onCrash.Add(new EventData<EventReport>.OnEvent(OnVesselAboutToBeDestroyed));
         }
 
         protected override void OnUnregister()
         {
             base.OnUnregister();
-            GameEvents.onVesselWillDestroy.Remove(new EventData<Vessel>.OnEvent(OnVesselWillDestroy));
+            GameEvents.onCollision.Remove(new EventData<EventReport>.OnEvent(OnVesselAboutToBeDestroyed));
+            GameEvents.onCrash.Remove(new EventData<EventReport>.OnEvent(OnVesselAboutToBeDestroyed));
         }
 
-        protected virtual void OnVesselWillDestroy(Vessel v)
+        protected virtual void OnVesselAboutToBeDestroyed(EventReport report)
         {
-            LoggingUtil.LogVerbose(this, "OnVesselWillDestroy: " + v.id);
+            LoggingUtil.LogVerbose(this, "OnVesselAboutToBeDestroyed: " + report);
+            Vessel v = report.origin.vessel;
+            if (v == null)
+            {
+                return;
+            }
+
+            // Check if we hit the ground
+            if (mustImpactTerrain)
+            {
+                if (!(
+                    report.other.ToLower().Contains(string.Intern("surface")) ||
+                    report.other.ToLower().Contains(string.Intern("terrain")) ||
+                    report.other.ToLower().Contains(v.mainBody.name.ToLower())))
+                {
+                    return;
+                }
+            }
+
             SetState(v, ParameterState.Complete);
             CheckVessel(v);
         }

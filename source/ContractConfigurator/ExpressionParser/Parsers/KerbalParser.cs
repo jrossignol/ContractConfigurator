@@ -50,6 +50,7 @@ namespace ContractConfigurator.ExpressionParser
             // and assume that it will be a valid Kerbal (ie. no exception)
             if (parseMode)
             {
+                currentDataNode.SetDeterministic(currentKey, false);
                 return null;
             }
 

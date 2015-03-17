@@ -103,7 +103,7 @@
     <Compile Include="ExpressionParser\Parsers\ValueExpressionParser.cs" />
     <Compile Include="ExpressionParser\ExpressionParser.cs" />
     <Compile Include="ParameterFactory\HasCrewCapacityFactory.cs" />
-    <Compile Include="ParameterFactory\VesselDestroyed.cs" />
+    <Compile Include="ParameterFactory\VesselDestroyedFactory.cs" />
     <Compile Include="Util\DebugWindow.cs" />
     <Compile Include="Util\ExceptionLogWindow.cs" />
     <Compile Include="Util\ExceptionUtil.cs" />
