@@ -1,5 +1,11 @@
 Contract Configurator 0.7.0
 - Support for expressions in config nodes.
+    - All config node attributes can now contain expressions (see wiki for syntax details).
+    - Added special expression function/methods for Vessel
+    - Added special expression function/methods for CelestialBody
+    - Added special expression function/methods for Kerbal (ProtoCrewMember)
+    - Added special expression function/methods for Lists
+    - Added special expression function/methods for Enumerations
 - New debugging window feature - contract balancing mode.
 - Added HasCrewCapacity parameter.
 - Added VesseLDestroyed parameter.
