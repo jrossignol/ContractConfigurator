@@ -80,8 +80,11 @@ namespace ContractConfigurator
         public bool declinable;
         public List<Contract.ContractPrestige> prestige;
         public CelestialBody targetBody;
+        protected List<CelestialBody> targetBodies;
         protected Vessel targetVessel;
-        protected List<ProtoCrewMember> targetKerbal;
+        protected List<Vessel> targetVessels;
+        protected ProtoCrewMember targetKerbal;
+        protected List<ProtoCrewMember> targetKerbals;
         public int maxCompletions;
         public int maxSimultaneous;
         public float rewardScience;
@@ -157,8 +160,11 @@ namespace ContractConfigurator
             valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "declinable", x => declinable = x, this, true);
             valid &= ConfigNodeUtil.ParseValue<List<Contract.ContractPrestige>>(configNode, "prestige", x => prestige = x, this, new List<Contract.ContractPrestige>());
             valid &= ConfigNodeUtil.ParseValue<CelestialBody>(configNode, "targetBody", x => targetBody = x, this, (CelestialBody)null);
+            valid &= ConfigNodeUtil.ParseValue<List<CelestialBody>>(configNode, "targetBodies", x => targetBodies = x, this, new List<CelestialBody>());
             valid &= ConfigNodeUtil.ParseValue<Vessel>(configNode, "targetVessel", x => targetVessel = x, this, (Vessel)null);
-            valid &= ConfigNodeUtil.ParseValue<List<ProtoCrewMember>>(configNode, "targetKerbal", x => targetKerbal = x, this, new List<ProtoCrewMember>());
+            valid &= ConfigNodeUtil.ParseValue<List<Vessel>>(configNode, "targetVessels", x => targetVessels = x, this, new List<Vessel>());
+            valid &= ConfigNodeUtil.ParseValue<ProtoCrewMember>(configNode, "targetKerbal", x => targetKerbal = x, this, (ProtoCrewMember)null);
+            valid &= ConfigNodeUtil.ParseValue<List<ProtoCrewMember>>(configNode, "targetKerbals", x => targetKerbals = x, this, new List<ProtoCrewMember>());
             
             valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxCompletions", x => maxCompletions = x, this, 0, x => Validation.GE(x, 0));
             valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxSimultaneous", x => maxSimultaneous = x, this, 0, x => Validation.GE(x, 0));
@@ -283,7 +289,7 @@ namespace ContractConfigurator
                 // Check if we're breaching the active limit
                 if (maxSimultaneous != 0 && activeContracts >= maxSimultaneous)
                 {
-                    LoggingUtil.LogDebug(this, "Didn't generate contract type " + name + ", too many active contracts.");
+                    LoggingUtil.LogVerbose(this, "Didn't generate contract type " + name + ", too many active contracts.");
                     return false;
                 }
 
@@ -293,7 +299,7 @@ namespace ContractConfigurator
                     int finishedContracts = ContractSystem.Instance.GetCompletedContracts<ConfiguredContract>().Count(c => c.contractType == this);
                     if (finishedContracts + activeContracts >= maxCompletions)
                     {
-                        LoggingUtil.LogDebug(this, "Didn't generate contract type " + name + ", too many completed/active/offered contracts.");
+                        LoggingUtil.LogVerbose(this, "Didn't generate contract type " + name + ", too many completed/active/offered contracts.");
                         return false;
                     }
                 }
@@ -311,7 +317,7 @@ namespace ContractConfigurator
                 
                 if (group.maxSimultaneous != 0 && activeContracts >= group.maxSimultaneous)
                 {
-                    LoggingUtil.LogDebug(this, "Didn't generate contract type " + name + ", too many active contracts in group.");
+                    LoggingUtil.LogVerbose(this, "Didn't generate contract type " + name + ", too many active contracts in group.");
                     return false;
                 }
 
@@ -321,7 +327,7 @@ namespace ContractConfigurator
                     int finishedContracts = ContractSystem.Instance.GetCompletedContracts<ConfiguredContract>().Count(c => c.contractType.group == group);
                     if (finishedContracts + activeContracts >= maxCompletions)
                     {
-                        LoggingUtil.LogDebug(this, "Didn't generate contract type " + name + ", too many completed contracts in group.");
+                        LoggingUtil.LogVerbose(this, "Didn't generate contract type " + name + ", too many completed contracts in group.");
                         return false;
                     }
                 }
@@ -330,17 +336,34 @@ namespace ContractConfigurator
             // Check special values are not null
             if (contract.ContractState != Contract.State.Active)
             {
+                // Target Bodies
+                if (targetBodies.Count == 0 && !dataNode.IsDeterministic("targetBodies"))
+                {
+                    LoggingUtil.LogVerbose(this, "Didn't generate contract type " + name + ", targetBodies is empty.");
+                    return false;
+                }
+
                 // Target Vessel
                 if (targetVessel == null && !dataNode.IsDeterministic("targetVessel"))
                 {
-                    LoggingUtil.LogDebug(this, "Didn't generate contract type " + name + ", targetVessel is null.");
+                    LoggingUtil.LogVerbose(this, "Didn't generate contract type " + name + ", targetVessel is null.");
+                    return false;
+                }
+                if (targetVessels.Count == 0 && !dataNode.IsDeterministic("targetVessels"))
+                {
+                    LoggingUtil.LogVerbose(this, "Didn't generate contract type " + name + ", targetVessels is empty.");
                     return false;
                 }
 
                 // Target Kerbal
-                if (targetKerbal.Count == 0 && !dataNode.IsDeterministic("targetKerbal"))
+                if (targetKerbal == null && !dataNode.IsDeterministic("targetKerbal"))
                 {
-                    LoggingUtil.LogDebug(this, "Didn't generate contract type " + name + ", targetKerbal is empty.");
+                    LoggingUtil.LogVerbose(this, "Didn't generate contract type " + name + ", targetKerbal is null.");
+                    return false;
+                }
+                if (targetKerbals.Count == 0 && !dataNode.IsDeterministic("targetKerbals"))
+                {
+                    LoggingUtil.LogVerbose(this, "Didn't generate contract type " + name + ", targetKerbals is empty.");
                     return false;
                 }
             }
