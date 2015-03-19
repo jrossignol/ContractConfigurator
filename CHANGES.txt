@@ -1,3 +1,7 @@
+Contract Configurator 0.7.1
+- Better support for spawning landed Kerbals in SpawnKerbal
+- Minor bug fixes.
+
 Contract Configurator 0.7.0
 - Support for expressions in config nodes.
     - All config node attributes can now contain expressions (see wiki for syntax details).

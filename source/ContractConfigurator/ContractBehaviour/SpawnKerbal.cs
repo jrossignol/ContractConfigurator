@@ -94,18 +94,36 @@ namespace ContractConfigurator.Behaviour
                 // Get celestial body
                 valid &= ConfigNodeUtil.ParseValue<CelestialBody>(child, "targetBody", x => kerbal.body = x, factory, defaultBody, Validation.NotNull);
 
-                // Get orbit
-                valid &= ConfigNodeUtil.ValidateMandatoryChild(child, "ORBIT", factory);
-                kerbal.orbit = new OrbitSnapshot(child.GetNode("ORBIT")).Load();
-                kerbal.orbit.referenceBody = kerbal.body;
-
                 // Get landed stuff
-                if (child.HasValue("lat") && child.HasValue("lon") && child.HasValue("alt"))
+                if (child.HasValue("lat") && child.HasValue("lon"))
                 {
+                    kerbal.landed = true;
                     valid &= ConfigNodeUtil.ParseValue<double>(child, "lat", x => kerbal.latitude = x, factory);
                     valid &= ConfigNodeUtil.ParseValue<double>(child, "lon", x => kerbal.longitude = x, factory);
-                    valid &= ConfigNodeUtil.ParseValue<double>(child, "alt", x => kerbal.altitude = x, factory);
-                    kerbal.landed = true;
+                    valid &= ConfigNodeUtil.ParseValue<double>(child, "alt", x => kerbal.altitude = x, factory,
+                        TerrainHeight(kerbal.latitude, kerbal.longitude, kerbal.body));
+
+                    // Set additional info for landed kerbals
+                    if (kerbal.landed)
+                    {
+                        Vector3d pos = kerbal.body.GetWorldSurfacePosition(kerbal.latitude, kerbal.longitude, kerbal.altitude);
+
+                        kerbal.orbit = new Orbit(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, kerbal.body);
+                        kerbal.orbit.UpdateFromStateVectors(pos, kerbal.body.getRFrmVel(pos), kerbal.body, Planetarium.GetUniversalTime());
+                        LoggingUtil.LogDebug(typeof(SpawnKerbal), "kerbal generated, orbit = " + kerbal.orbit);
+                    }
+
+                }
+                // Get orbit
+                else if (child.HasNode("ORBIT"))
+                {
+                    kerbal.orbit = new OrbitSnapshot(child.GetNode("ORBIT")).Load();
+                    kerbal.orbit.referenceBody = kerbal.body;
+                }
+                else
+                {
+                    // Will error
+                    valid &= ConfigNodeUtil.ValidateMandatoryChild(child, "ORBIT", factory);
                 }
 
                 // Get additional flags
@@ -298,9 +316,20 @@ namespace ContractConfigurator.Behaviour
         {
             foreach (KerbalData kerbal in kerbals)
             {
-                HighLogic.CurrentGame.CrewRoster.Remove(kerbal.crewMember.name);
+                // If it's an EVA make them disappear...
+                Vessel vessel = FlightGlobals.Vessels.Where(v => v.GetVesselCrew().Contains(kerbal.crewMember)).FirstOrDefault();
+                if (vessel.isEVA)
+                {
+                    FlightGlobals.Vessels.Remove(vessel);
+                }
+
+                // Do not remove kerbals from the roster - as they may have done something of note
+                // which puts them in the progress tracking logs.  If they are removed from the
+                // roster, that will fail.
+                //HighLogic.CurrentGame.CrewRoster.Remove(kerbal.crewMember.name);
                 kerbal.crewMember = null;
             }
+            kerbals.Clear();
         }
 
         public ProtoCrewMember GetKerbal(int index)
@@ -312,6 +341,22 @@ namespace ContractConfigurator.Behaviour
             }
 
             return kerbals[index].crewMember;
+        }
+
+
+        public static double TerrainHeight(double latitude, double longitude, CelestialBody body)
+        {
+            // Not sure when this happens - for Sun and Jool?
+            if (body.pqsController == null)
+            {
+                return 0;
+            }
+
+            // Figure out the terrain height
+            double latRads = Math.PI / 180.0 * latitude;
+            double lonRads = Math.PI / 180.0 * longitude;
+            Vector3d radialVector = new Vector3d(Math.Cos(latRads) * Math.Cos(lonRads), Math.Sin(latRads), Math.Cos(latRads) * Math.Sin(lonRads));
+            return Math.Max(body.pqsController.GetSurfaceHeight(radialVector) - body.pqsController.radius, 0.0);
         }
     }
 }
