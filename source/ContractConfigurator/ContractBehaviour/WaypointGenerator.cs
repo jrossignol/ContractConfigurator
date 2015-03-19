@@ -237,9 +237,6 @@ namespace ContractConfigurator.Behaviour
                         (j.x * k.y - j.y * k.x) * v.x + (i.y * k.x - i.x * k.y) * v.y + (i.x * j.y - i.y * j.x) * v.z
                     );
                     offsetPos *= (i.x * j.y * k.z) + (i.y * j.z * k.x) + (i.z * j.x * k.y) - (i.z * j.y * k.x) - (i.y * j.x * k.z) - (i.x * j.z * k.y);
-                    Debug.Log("pqsOffset = " + v.x + ", " + v.y + ", " + v.z);
-                    Debug.Log("offset = " + offsetPos.x + ", " + offsetPos.y + ", " + offsetPos.z);
-                    Debug.Log("position = " + position.x + ", " + position.y + ", " + position.z);
                     wpData.waypoint.latitude = body.GetLatitude(position + offsetPos);
                     wpData.waypoint.longitude = body.GetLongitude(position + offsetPos);
                 }
