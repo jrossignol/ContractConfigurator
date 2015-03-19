@@ -14,7 +14,7 @@ namespace ContractConfigurator
         {
             DEBUG_LOG,
             BALANCE_MODE,
-            PQS_MODE,
+            LOCATION_MODE,
         }
         private static SelectedPane selectedPane = SelectedPane.DEBUG_LOG;
 
@@ -278,12 +278,12 @@ namespace ContractConfigurator
             }
             if (FlightGlobals.ActiveVessel != null)
             {
-                if (GUILayout.Button("PQS Offsets", selectedPane == SelectedPane.PQS_MODE ? selectedButton : GUI.skin.button))
+                if (GUILayout.Button("Location", selectedPane == SelectedPane.LOCATION_MODE ? selectedButton : GUI.skin.button))
                 {
-                    selectedPane = SelectedPane.PQS_MODE;
+                    selectedPane = SelectedPane.LOCATION_MODE;
                 }
             }
-            else if (selectedPane == SelectedPane.PQS_MODE)
+            else if (selectedPane == SelectedPane.LOCATION_MODE)
             {
                 selectedPane = SelectedPane.DEBUG_LOG;
             }
@@ -311,14 +311,14 @@ namespace ContractConfigurator
 
                 BalanceModeGUI();
             }
-            else if (selectedPane == SelectedPane.PQS_MODE)
+            else if (selectedPane == SelectedPane.LOCATION_MODE)
             {
                 if (Event.current.type == EventType.Repaint)
                 {
                     drawToolTip = string.IsNullOrEmpty(GUI.tooltip);
                 }
 
-                PQSModeGUI();
+                LocationModeGUI();
             }
 
             GUILayout.EndVertical();
@@ -524,19 +524,35 @@ namespace ContractConfigurator
             return toolTipCache[obj].Value;
         }
 
-        private static void PQSModeGUI()
+        private static void LocationModeGUI()
         {
+            int TOP_HEADER_WIDTH = 96;
+            int TOP_EDIT_WIDTH = 160;
             int CITY_WIDTH = 124;
-            int HEADING_WIDTH = 324;
-            int HEIGHT_WIDTH = 104;
+            int HEADING_WIDTH = 400;
 
             Vessel v = FlightGlobals.ActiveVessel;
             CelestialBody body = v.mainBody;
 
             GUILayout.BeginHorizontal();
+            GUILayout.Label("Latitude", headerLabel, GUILayout.Width(TOP_HEADER_WIDTH));
+            GUILayout.TextField(v.latitude.ToString(), GUILayout.Width(TOP_EDIT_WIDTH));
+            GUILayout.Label("Longitude", headerLabel, GUILayout.Width(TOP_HEADER_WIDTH));
+            GUILayout.TextField(v.longitude.ToString(), GUILayout.Width(TOP_EDIT_WIDTH));
+            GUILayout.EndHorizontal();
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Height", headerLabel, GUILayout.Width(TOP_HEADER_WIDTH));
+            double height = v.altitude - LocationUtil.TerrainHeight(v.latitude, v.longitude, body);
+            GUILayout.TextField(height.ToString(), GUILayout.Width(TOP_EDIT_WIDTH));
+            GUILayout.Label("Altitude", headerLabel, GUILayout.Width(TOP_HEADER_WIDTH));
+            GUILayout.TextField(v.altitude.ToString(), GUILayout.Width(TOP_EDIT_WIDTH));
+            GUILayout.EndHorizontal();
+
+            GUILayout.Space(8);
+
+            GUILayout.BeginHorizontal();
             GUILayout.Label("PQS City", headerLabel, GUILayout.Width(CITY_WIDTH));
             GUILayout.Label("PQS Offset", headerLabel, GUILayout.Width(HEADING_WIDTH));
-            GUILayout.Label("Height", headerLabel, GUILayout.Width(HEIGHT_WIDTH));
             GUILayout.EndHorizontal();
 
             scrollPosition2 = GUILayout.BeginScrollView(scrollPosition2, GUILayout.Width(550), GUILayout.ExpandHeight(true));
@@ -550,7 +566,6 @@ namespace ContractConfigurator
 
                 GUILayout.Label(new GUIContent(city.name, city.name), clippedLabel, GUILayout.Width(CITY_WIDTH));
                 GUILayout.TextField(pos.x.ToString() + ", " + pos.y.ToString() + ", " + pos.z.ToString(), GUILayout.Width(HEADING_WIDTH));
-                GUILayout.TextField((v.terrainAltitude >= 0.0 ? v.terrainAltitude : v.altitude).ToString(), GUILayout.Width(HEIGHT_WIDTH));
                 
                 GUILayout.EndHorizontal();
             }

@@ -178,7 +178,8 @@ namespace ContractConfigurator.Behaviour
                     }
                     else
                     {
-                        throw new ArgumentException("Unrecognized waypoint node: '" + child.name + "'");
+                        LoggingUtil.LogError(factory, "Unrecognized waypoint node: '" + child.name + "'");
+                        valid = false;
                     }
 
                     // Add to the list
