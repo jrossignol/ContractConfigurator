@@ -68,7 +68,7 @@ namespace ContractConfigurator.Parameters
 
         protected void CreateDelegates()
         {
-            // Filter for celestial bodies
+            // Filter for passengers
             if (passengers.Count > 0)
             {
                 foreach (ProtoCrewMember passenger in passengers)

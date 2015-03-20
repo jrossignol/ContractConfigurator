@@ -21,6 +21,8 @@ namespace ContractConfigurator
         protected int minCrew;
         protected int maxCrew;
 
+        protected List<ProtoCrewMember> kerbal;
+
         public override bool Load(ConfigNode configNode)
         {
             // Load base class
@@ -31,14 +33,25 @@ namespace ContractConfigurator
             valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxExperience", x => maxExperience = x, this, 5, x => Validation.Between(x, 0, 5));
             valid &= ConfigNodeUtil.ParseValue<int>(configNode, "minCrew", x => minCrew = x, this, 1, x => Validation.GE(x, 0));
             valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxCrew", x => maxCrew = x, this, int.MaxValue, x => Validation.GE(x, minCrew));
-            valid &= ConfigNodeUtil.AtLeastOne(configNode, new string[] { "trait", "minExperience", "maxExperience", "minCrew", "maxCrew" }, this);
+
+            valid &= ConfigNodeUtil.ParseValue<List<ProtoCrewMember>>(configNode, "kerbal", x => kerbal = x, this, new List<ProtoCrewMember>());
+
+            valid &= ConfigNodeUtil.AtLeastOne(configNode, new string[] { "trait", "minExperience", "maxExperience", "minCrew", "maxCrew", "kerbal" }, this);
+            valid &= ConfigNodeUtil.MutuallyExclusive(configNode, new string[] { "trait", "minExperience", "maxExperience", "minCrew", "maxCrew" },
+                new string[] { "kerbal" }, this);
 
             return valid;
         }
 
         public override ContractParameter Generate(Contract contract)
         {
-            return new HasCrew(title, trait, minCrew, maxCrew, minExperience, maxExperience);
+            // Do this late because of potential for deferred loads
+            if (kerbal.Count > 0)
+            {
+                minCrew = 0;
+            }
+
+            return new HasCrew(title, kerbal, trait, minCrew, maxCrew, minExperience, maxExperience);
         }
     }
 }

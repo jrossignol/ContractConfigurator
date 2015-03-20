@@ -1,6 +1,7 @@
 Contract Configurator 0.7.1
 - Better support for spawning landed Kerbals in SpawnKerbal.
 - SpawnKerbal now supports PQS offsets.
+- HasCrew improvements: moved to delegate system, add support for requiring a specific Kerbal.
 - Added support for Duration datatype in expressions.
 - Expression support for SpawnKerbal and WaypointGenerator behaviours.
 - Improvements to location debug window.

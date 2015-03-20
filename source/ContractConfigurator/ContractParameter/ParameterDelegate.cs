@@ -199,13 +199,15 @@ namespace ContractConfigurator.Parameters
                         case ParameterDelegateMatchType.FILTER:
                             conditionMet &= values.Any();
                             break;
+                        case ParameterDelegateMatchType.VALIDATE:
+                            conditionMet &= newValues.Any();
+                            break;
                         case ParameterDelegateMatchType.VALIDATE_ALL:
                             conditionMet &= count == newValues.Count();
                             break;
                         case ParameterDelegateMatchType.NONE:
                             conditionMet &= !newValues.Any();
                             break;
-
                     }
                 }
             }
