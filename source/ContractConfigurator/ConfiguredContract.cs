@@ -41,6 +41,7 @@ namespace ContractConfigurator
 
         private static int lastGenerationFailure = 0;
         private static Dictionary<ContractPrestige, int> lastSpecificGenerationFailure = new Dictionary<ContractPrestige, int>();
+        private static int nextGroup = 0;
 
         public static ConfiguredContract currentContract = null;
 
@@ -273,85 +274,92 @@ namespace ContractConfigurator
                 lastSpecificGenerationFailure[prestige] = 0;
             }
 
-            // Build a weighted list of ContractTypes to choose from
-            Dictionary<ContractType, double> validContractTypes = new Dictionary<ContractType, double>();
-            double totalWeight = 0.0;
-            foreach (ContractType ct in ContractType.AllValidContractTypes)
+            // Loop through all the contract groups
+            IEnumerable<ContractGroup> groups = ContractGroup.AllGroups;
+            foreach (ContractGroup group in groups.Skip(nextGroup).Concat(groups.Take(nextGroup)))
             {
-                LoggingUtil.LogVerbose(this, "Checking ContractType = " + ct.name);
-                // KSP tries to generate new contracts *incessantly*, to the point where this becomes
-                // a real performance problem.  So if we run into a situation where we did not
-                // generate a contract and we are asked AGAIN after a very short time, then do
-                // some logic to prevent re-checking uselessly.
+                nextGroup++;
 
-                // If there was any generation failure within the last 100 frames, only look at
-                // contracts specific to that prestige level
-                if (lastGenerationFailure + 100 > Time.frameCount)
+                // Build a weighted list of ContractTypes to choose from
+                Dictionary<ContractType, double> validContractTypes = new Dictionary<ContractType, double>();
+                double totalWeight = 0.0;
+                foreach (ContractType ct in ContractType.AllValidContractTypes.Where(ct => ct.group == group))
                 {
-                    // If there was a generation failure for this specific prestige level in
-                    // the last 100 frames, then just skip the checks entirely
-                    if (lastSpecificGenerationFailure[prestige] + 100 > Time.frameCount)
-                    {
-                        return false;
-                    }
+                    LoggingUtil.LogVerbose(this, "Checking ContractType = " + ct.name);
+                    // KSP tries to generate new contracts *incessantly*, to the point where this becomes
+                    // a real performance problem.  So if we run into a situation where we did not
+                    // generate a contract and we are asked AGAIN after a very short time, then do
+                    // some logic to prevent re-checking uselessly.
 
-                    if (ct.prestige.Count > 0 && ct.prestige.Contains(prestige))
+                    // If there was any generation failure within the last 100 frames, only look at
+                    // contracts specific to that prestige level
+                    if (lastGenerationFailure + 100 > Time.frameCount)
+                    {
+                        // If there was a generation failure for this specific prestige level in
+                        // the last 100 frames, then just skip the checks entirely
+                        if (lastSpecificGenerationFailure[prestige] + 100 > Time.frameCount)
+                        {
+                            return false;
+                        }
+
+                        if (ct.prestige.Count > 0 && ct.prestige.Contains(prestige))
+                        {
+                            validContractTypes.Add(ct, ct.weight);
+                            totalWeight += ct.weight;
+                        }
+                    }
+                    else
                     {
                         validContractTypes.Add(ct, ct.weight);
                         totalWeight += ct.weight;
                     }
                 }
-                else
-                {
-                    validContractTypes.Add(ct, ct.weight);
-                    totalWeight += ct.weight;
-                }
-            }
 
-            // Loop until we either run out of contracts in our list or make a selection
-            System.Random generator = new System.Random(this.MissionSeed);
-            while (validContractTypes.Count > 0)
-            {
-                ContractType selectedContractType = null;
-                // Pick one of the contract types based on their weight
-                double value = generator.NextDouble() * totalWeight;
-                foreach (KeyValuePair<ContractType, double> pair in validContractTypes)
+                // Loop until we either run out of contracts in our list or make a selection
+                System.Random generator = new System.Random(this.MissionSeed);
+                while (validContractTypes.Count > 0)
                 {
-                    value -= pair.Value;
-                    if (value <= 0.0)
+                    ContractType selectedContractType = null;
+                    // Pick one of the contract types based on their weight
+                    double value = generator.NextDouble() * totalWeight;
+                    foreach (KeyValuePair<ContractType, double> pair in validContractTypes)
                     {
-                        selectedContractType = pair.Key;
-                        break;
+                        value -= pair.Value;
+                        if (value <= 0.0)
+                        {
+                            selectedContractType = pair.Key;
+                            break;
+                        }
                     }
-                }
 
-                // Shouldn't happen, but floating point rounding could put us here
-                if (selectedContractType == null)
-                {
-                    selectedContractType = validContractTypes.First().Key;
-                }
+                    // Shouldn't happen, but floating point rounding could put us here
+                    if (selectedContractType == null)
+                    {
+                        selectedContractType = validContractTypes.First().Key;
+                    }
 
-                // Try to refresh non-deterministic values before we check requirements
-                currentContract = this;
-                if (!ConfigNodeUtil.UpdateNonDeterministicValues(selectedContractType.dataNode))
-                {
-                    LoggingUtil.LogVerbose(this, selectedContractType.name + " was not generated: non-deterministic expression failure.");
-                    validContractTypes.Remove(selectedContractType);
-                    totalWeight -= selectedContractType.weight;
-                }
-                currentContract = null;
+                    // Try to refresh non-deterministic values before we check requirements
+                    currentContract = this;
+                    if (!ConfigNodeUtil.UpdateNonDeterministicValues(selectedContractType.dataNode))
+                    {
+                        LoggingUtil.LogVerbose(this, selectedContractType.name + " was not generated: non-deterministic expression failure.");
+                        validContractTypes.Remove(selectedContractType);
+                        totalWeight -= selectedContractType.weight;
+                    }
+                    currentContract = null;
 
-                // Check the requirements for our selection
-                if (selectedContractType.MeetRequirements(this))
-                {
-                    contractType = selectedContractType;
-                    return true;
-                }
-                // Remote the selection, and try again
-                else
-                {
-                    validContractTypes.Remove(selectedContractType);
-                    totalWeight -= selectedContractType.weight;
+                    // Check the requirements for our selection
+                    if (selectedContractType.MeetRequirements(this))
+                    {
+                        contractType = selectedContractType;
+                        return true;
+                    }
+                    // Remote the selection, and try again
+                    else
+                    {
+                        validContractTypes.Remove(selectedContractType);
+                        totalWeight -= selectedContractType.weight;
+                    }
                 }
             }
 

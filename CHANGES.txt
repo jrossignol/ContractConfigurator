@@ -3,6 +3,7 @@ Contract Configurator 0.7.1
 - Added support for Duration datatype in expressions.
 - Improvements to location debug window.
 - Support for notes in most contract parameters.
+- Weight in contract types now only applies within a contract group, and all contract groups are given equal preference.  This means that one contract group (or contract pack) can't cause contract starvation in another group.
 - Fix NullReferenceException when using TextGen without an agent specified (thanks AppoloFunghi).
 - Minor bug fixes.
 

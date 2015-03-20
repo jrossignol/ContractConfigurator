@@ -17,6 +17,17 @@ namespace ContractConfigurator
     public class ContractGroup : IContractConfiguratorFactory
     {
         public static Dictionary<string, ContractGroup> contractGroups = new Dictionary<string, ContractGroup>();
+        public static IEnumerable<ContractGroup> AllGroups
+        {
+            get
+            {
+                yield return null;
+                foreach (ContractGroup group in contractGroups.Values)
+                {
+                    yield return group;
+                }
+            }
+        }
 
         // Group attributes
         public string name;
