@@ -7,6 +7,7 @@ using UnityEngine;
 using KSP;
 using KSPAchievements;
 using Contracts;
+using Contracts.Agents;
 using Contracts.Parameters;
 using System.Text.RegularExpressions;
 
@@ -98,6 +99,11 @@ namespace ContractConfigurator
             // Set description
             if (string.IsNullOrEmpty(contractType.description))
             {
+                if (agent == null)
+                {
+                    agent = AgentList.Instance.GetSuitableAgentForContract(this);
+                }
+
                 // Generate the contract description
                 description = TextGen.GenerateBackStories(agent.Name, agent.GetMindsetString(),
                     contractType.topic, contractType.subject, contractType.motivation, MissionSeed);

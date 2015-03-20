@@ -3,6 +3,7 @@ Contract Configurator 0.7.1
 - Added support for Duration datatype in expressions.
 - Improvements to location debug window.
 - Support for notes in most contract parameters.
+- Fix NullReferenceException when using TextGen without an agent specified (thanks AppoloFunghi).
 - Minor bug fixes.
 
 Contract Configurator 0.7.0
