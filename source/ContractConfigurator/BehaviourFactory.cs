@@ -145,7 +145,7 @@ namespace ContractConfigurator
 
             // Set attributes
             behaviourFactory.contractType = contractType;
-            behaviourFactory.dataNode = new DataNode(name, contractType.dataNode);
+            behaviourFactory.dataNode = new DataNode(name, contractType.dataNode, behaviourFactory);
 
             // Load config
             valid &= behaviourFactory.Load(behaviourConfig);

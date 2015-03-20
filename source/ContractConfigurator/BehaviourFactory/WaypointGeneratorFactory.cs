@@ -13,7 +13,24 @@ namespace ContractConfigurator.Behaviour
     /// </summary>
     public class WaypointGeneratorFactory : BehaviourFactory
     {
-        WaypointGenerator waypointGenerator;
+        WaypointGenerator waypointGeneratorTemplate;
+        private WaypointGenerator current;
+        public WaypointGenerator Current
+        {
+            get
+            {
+                if (HighLogic.CurrentGame == null)
+                {
+                    return null;
+                }
+
+                if (current == null)
+                {
+                    current = (WaypointGenerator)Generate(null);
+                }
+                return current;
+            }
+        } 
 
         public override bool Load(ConfigNode configNode)
         {
@@ -21,14 +38,26 @@ namespace ContractConfigurator.Behaviour
             bool valid = base.Load(configNode);
 
             // Call SpawnKerbal for load behaviour
-            waypointGenerator = WaypointGenerator.Create(configNode, targetBody, this);
+            waypointGeneratorTemplate = WaypointGenerator.Create(configNode, targetBody, this);
 
-            return valid && waypointGenerator != null;
+            return valid && waypointGeneratorTemplate != null;
         }
 
         public override ContractBehaviour Generate(ConfiguredContract contract)
         {
-            return new WaypointGenerator(waypointGenerator, contract);
+            WaypointGenerator result;
+            if (current != null)
+            {
+                result = current;
+                current = null;
+                result.SetContract(contract);
+            }
+            else
+            {
+                result = new WaypointGenerator(waypointGeneratorTemplate, contract);
+            }
+
+            return result;
         }
     }
 }

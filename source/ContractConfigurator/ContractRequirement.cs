@@ -198,7 +198,7 @@ namespace ContractConfigurator
 
             // Set attributes
             requirement.contractType = contractType;
-            requirement.dataNode = new DataNode(name, parent != null ? parent.dataNode : contractType.dataNode);
+            requirement.dataNode = new DataNode(name, parent != null ? parent.dataNode : contractType.dataNode, requirement);
 
             // Load config
             valid &= requirement.Load(configNode);

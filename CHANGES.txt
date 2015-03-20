@@ -2,6 +2,7 @@ Contract Configurator 0.7.1
 - Better support for spawning landed Kerbals in SpawnKerbal.
 - SpawnKerbal now supports PQS offsets.
 - Added support for Duration datatype in expressions.
+- Expression support for SpawnKerbal and WaypointGenerator behaviours.
 - Improvements to location debug window.
 - Support for notes in most contract parameters.
 - Weight in contract types now only applies within a contract group, and all contract groups are given equal preference.  This means that one contract group (or contract pack) can't cause contract starvation in another group.

@@ -90,6 +90,18 @@ namespace ContractConfigurator.Behaviour
             }
         }
 
+        /// <summary>
+        /// Set the contract for all waypoints
+        /// </summary>
+        /// <param name="contract"></param>
+        public void SetContract(Contract contract)
+        {
+            foreach (WaypointData wpd in waypoints)
+            {
+                wpd.SetContract(contract);
+            }
+        }
+
         public static WaypointGenerator Create(ConfigNode configNode, CelestialBody defaultBody, WaypointGeneratorFactory factory)
         {
             WaypointGenerator wpGenerator = new WaypointGenerator();
@@ -340,6 +352,14 @@ namespace ContractConfigurator.Behaviour
         public Waypoint GetWaypoint(int index)
         {
             return waypoints[index].waypoint;
+        }
+
+        public IEnumerable<Waypoint> Waypoints()
+        {
+            foreach (WaypointData wpd in waypoints)
+            {
+                yield return wpd.waypoint;
+            }
         }
     }
 }

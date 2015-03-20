@@ -131,7 +131,7 @@ namespace ContractConfigurator
             // Logging on
             LoggingUtil.CaptureLog = true;
 
-            dataNode = new DataNode(configNode.GetValue("name"));
+            dataNode = new DataNode(configNode.GetValue("name"), this);
 
             ConfigNodeUtil.ClearCache(true);
             ConfigNodeUtil.SetCurrentDataNode(dataNode);

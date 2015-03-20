@@ -51,6 +51,7 @@ namespace ContractConfigurator.ExpressionParser
         }
 
         protected Dictionary<string, Value> data = new Dictionary<string, Value>();
+        private IContractConfiguratorFactory factory;
         private DataNode root;
         private DataNode parent;
         private List<DataNode> children = new List<DataNode>();
@@ -82,6 +83,14 @@ namespace ContractConfigurator.ExpressionParser
         public List<ConfigNodeUtil.DeferredLoadBase> DeferredLoads
         {
             get { return Root.deferredLoads; }
+        }
+
+        public IContractConfiguratorFactory Factory
+        {
+            get
+            {
+                return factory;
+            }
         }
 
         public bool IsDeterministic(string s)
@@ -150,14 +159,15 @@ namespace ContractConfigurator.ExpressionParser
             get { return children.AsEnumerable(); }
         }
 
-        public DataNode(string name)
-            : this(name, null)
+        public DataNode(string name, IContractConfiguratorFactory factory)
+            : this(name, null, factory)
         {
         }
 
-        public DataNode(string name, DataNode parent)
+        public DataNode(string name, DataNode parent, IContractConfiguratorFactory factory)
         {
             this.parent = parent;
+            this.factory = factory;
             this.name = name;
             if (parent != null)
             {

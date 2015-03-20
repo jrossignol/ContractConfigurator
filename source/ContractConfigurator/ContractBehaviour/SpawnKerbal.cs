@@ -403,5 +403,13 @@ namespace ContractConfigurator.Behaviour
 
             return kerbals[index].crewMember;
         }
+
+        public IEnumerable<ProtoCrewMember> Kerbals()
+        {
+            foreach (KerbalData kd in kerbals)
+            {
+                yield return kd.crewMember;
+            }
+        }
     }
 }

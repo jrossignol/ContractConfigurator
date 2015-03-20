@@ -260,7 +260,7 @@ namespace ContractConfigurator
             // Set attributes
             paramFactory.parent = parent;
             paramFactory.contractType = contractType;
-            paramFactory.dataNode = new DataNode(name, parent != null ? parent.dataNode : contractType.dataNode);
+            paramFactory.dataNode = new DataNode(name, parent != null ? parent.dataNode : contractType.dataNode, paramFactory);
 
             // Load config
             valid &= paramFactory.Load(parameterConfig);

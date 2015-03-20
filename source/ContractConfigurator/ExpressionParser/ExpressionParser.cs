@@ -1078,18 +1078,32 @@ namespace ContractConfigurator.ExpressionParser
                         }
                     }
 
-                    if (!dataNode.IsInitialized(identifier))
+                    // Check if the identifier is a data node (versus a key in the current data node)
+                    DataNode childNode = dataNode.Children.Where(dn => dn.Name == identifier).FirstOrDefault();
+                    object o = null;
+                    Type dataType = null;
+                    if (childNode != null)
                     {
-                        throw new DataNode.ValueNotInitialized(dataNode.Path() + identifier);
+                        dataNode = childNode;
+                        o = dataNode.Factory;
+                        dataType = o.GetType();
                     }
-
-                    object o = dataNode[identifier];
-                    if (!dataNode.IsDeterministic(identifier))
+                    // Handle as a simple data value
+                    else
                     {
-                        currentDataNode.SetDeterministic(currentKey, false);
-                    }
+                        if (!dataNode.IsInitialized(identifier))
+                        {
+                            throw new DataNode.ValueNotInitialized(dataNode.Path() + identifier);
+                        }
 
-                    Type dataType = dataNode.GetType(identifier);
+                        o = dataNode[identifier];
+                        if (!dataNode.IsDeterministic(identifier))
+                        {
+                            currentDataNode.SetDeterministic(currentKey, false);
+                        }
+
+                        dataType = dataNode.GetType(identifier);
+                    }
 
                     // Check for a method call before we start messing with types
                     Token methodToken = ParseMethodToken();
@@ -1117,7 +1131,7 @@ namespace ContractConfigurator.ExpressionParser
                         finally
                         {
                             expression = methodParser.expression;
-                        } 
+                        }
                     }
 
                     // No method, try type conversion or straight return

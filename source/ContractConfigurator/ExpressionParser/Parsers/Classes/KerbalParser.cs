@@ -37,6 +37,15 @@ namespace ContractConfigurator.ExpressionParser
         {
         }
 
+        internal override U ConvertType<U>(ProtoCrewMember value)
+        {
+            if (typeof(U) == typeof(string))
+            {
+                return (U)(object)(value == null ? "" : value.name);
+            }
+            return base.ConvertType<U>(value);
+        }
+
         internal override ProtoCrewMember ParseIdentifier(Token token)
         {
             // Try to parse more, as Kerbal names can have spaces
