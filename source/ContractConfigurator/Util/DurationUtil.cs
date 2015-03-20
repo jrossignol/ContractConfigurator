@@ -9,9 +9,9 @@ using ContractConfigurator.Parameters;
 
 namespace ContractConfigurator
 {
-    /*
-     * Class for handling duration related stuff.
-     */
+    /// <summary>
+    /// Class for handling duration related stuff.
+    /// </summary>
     public class DurationUtil
     {
         private static uint SecondsPerYear;
@@ -19,9 +19,11 @@ namespace ContractConfigurator
         private static uint SecondsPerHour;
         private static uint SecondsPerMinute;
 
-        /*
-         * Parses a duration in the form "1y 2d 3h 4m 5s"
-         */
+        /// <summary>
+        /// Parses a duration in the form "1y 2d 3h 4m 5s"
+        /// </summary>
+        /// <param name="durationStr"></param>
+        /// <returns></returns>
         public static double ParseDuration(string durationStr)
         {
             Match m = Regex.Match(durationStr, @"((\d+)?y,?\s*)?((\d+)?d,?\s*)?((\d+)?h,?\s*)?((\d+)?m,?\s*)?((\d+)?s,?\s*)?");
@@ -39,9 +41,11 @@ namespace ContractConfigurator
                 years * SecondsPerYear;
         }
         
-        /*
-         * Gets the string value of the duration
-         */
+        /// <summary>
+        /// Gets the string value of the duration.
+        /// </summary>
+        /// <param name="duration"></param>
+        /// <returns></returns>
         public static string StringValue(double duration)
         {
             double time = duration;
@@ -80,9 +84,12 @@ namespace ContractConfigurator
             return output;
         }
 
-        /*
-         * Gets the string value of the duration
-        */
+        /// <summary>
+        /// Gets the string value of the duration.
+        /// </summary>
+        /// <param name="duration"></param>
+        /// <param name="displayDaysAndYears"></param>
+        /// <returns></returns>
         public static string StringValue(double duration, bool displayDaysAndYears = true)
         {
             double time = duration;

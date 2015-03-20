@@ -14,7 +14,7 @@ namespace ContractConfigurator
     /// </summary>
     public class DurationFactory : ParameterFactory
     {
-        protected double duration;
+        protected Duration duration;
         protected string preWaitText;
         protected string waitingText;
         protected string completionText;
@@ -24,13 +24,7 @@ namespace ContractConfigurator
             // Load base class
             bool valid = base.Load(configNode);
 
-            // Get duration
-            string durationStr = null;
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "duration", x => durationStr = x, this, "");
-            if (durationStr != null)
-            {
-                duration = durationStr != "" ? DurationUtil.ParseDuration(durationStr) : 0.0;
-            }
+            valid &= ConfigNodeUtil.ParseValue<Duration>(configNode, "duration", x => duration = x, this, new Duration(0.0));
             valid &= ConfigNodeUtil.ParseValue<string>(configNode, "preWaitText", x => preWaitText = x, this);
             valid &= ConfigNodeUtil.ParseValue<string>(configNode, "waitingText", x => waitingText = x, this);
             valid &= ConfigNodeUtil.ParseValue<string>(configNode, "completionText", x => completionText = x, this);
@@ -41,7 +35,7 @@ namespace ContractConfigurator
 
         public override ContractParameter Generate(Contract contract)
         {
-            return new Duration(duration, preWaitText, waitingText, completionText);
+            return new Parameters.Duration(duration.Value, preWaitText, waitingText, completionText);
         }
     }
 }

@@ -26,8 +26,8 @@ namespace ContractConfigurator
         protected double maxEccentricity;
         protected double minInclination;
         protected double maxInclination;
-        protected double minPeriod;
-        protected double maxPeriod;
+        protected Duration minPeriod;
+        protected Duration maxPeriod;
 
         public override bool Load(ConfigNode configNode)
         {
@@ -45,20 +45,8 @@ namespace ContractConfigurator
             valid &= ConfigNodeUtil.ParseValue<double>(configNode, "maxEccentricity", x => maxEccentricity = x, this, double.MaxValue, x => Validation.GE(x, 0.0));
             valid &= ConfigNodeUtil.ParseValue<double>(configNode, "minInclination", x => minInclination = x, this, 0.0, x => Validation.Between(x, 0.0, 180.0));
             valid &= ConfigNodeUtil.ParseValue<double>(configNode, "maxInclination", x => maxInclination = x, this, 180.0, x => Validation.Between(x, 0.0, 180.0));
-
-            // Get minPeriod
-            string minPeriodStr = null;
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "minPeriod", x => minPeriodStr = x, this, (string)null);
-            minPeriod = minPeriodStr != null ? DurationUtil.ParseDuration(minPeriodStr) : 0.0;
-
-            // Get maxPeriod
-            string maxPeriodStr = null;
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "maxPeriod", x => maxPeriodStr = x, this, (string)null);
-            if (maxPeriodStr != null)
-            {
-                maxPeriod = DurationUtil.ParseDuration(maxPeriodStr);
-            }
-            maxPeriod = maxPeriodStr != null ? DurationUtil.ParseDuration(maxPeriodStr) : double.MaxValue;
+            valid &= ConfigNodeUtil.ParseValue<Duration>(configNode, "minPeriod", x => minPeriod = x, this, new Duration(0.0));
+            valid &= ConfigNodeUtil.ParseValue<Duration>(configNode, "maxPeriod", x => maxPeriod = x, this, new Duration(0.0));
 
             // Validate target body
             valid &= ValidateTargetBody(configNode);
@@ -87,7 +75,7 @@ namespace ContractConfigurator
         public override ContractParameter Generate(Contract contract)
         {
             return new OrbitParameter(situation, minAltitude, maxAltitude, minApoapsis, maxApoapsis, minPeriapsis, maxPeriapsis,
-                minEccentricity, maxEccentricity, minInclination, maxInclination, minPeriod, maxPeriod, targetBody, title);
+                minEccentricity, maxEccentricity, minInclination, maxInclination, minPeriod.Value, maxPeriod.Value, targetBody, title);
         }
     }
 }

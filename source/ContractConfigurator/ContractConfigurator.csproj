@@ -90,6 +90,7 @@
     <Compile Include="ExpressionParser\Parsers\PrestigeParser.cs" />
     <Compile Include="ExpressionParser\Parsers\EnumExpressionParser.cs" />
     <Compile Include="ExpressionParser\Parsers\KerbalParser.cs" />
+    <Compile Include="ExpressionParser\Parsers\DurationParser.cs" />
     <Compile Include="ExpressionParser\Parsers\VesselParser.cs" />
     <Compile Include="ExpressionParser\Parsers\ListExpressionParser.cs" />
     <Compile Include="ExpressionParser\Parsers\CelestialBodyParser.cs" />
@@ -102,6 +103,7 @@
     <Compile Include="ExpressionParser\Parsers\StringExpressionParser.cs" />
     <Compile Include="ExpressionParser\Parsers\ValueExpressionParser.cs" />
     <Compile Include="ExpressionParser\ExpressionParser.cs" />
+    <Compile Include="ExpressionParser\Wrappers\Duration.cs" />
     <Compile Include="ParameterFactory\HasCrewCapacityFactory.cs" />
     <Compile Include="ParameterFactory\VesselDestroyedFactory.cs" />
     <Compile Include="Util\DebugWindow.cs" />
