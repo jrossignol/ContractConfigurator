@@ -15,7 +15,6 @@ namespace ContractConfigurator
     public class PartTestFactory : ParameterFactory
     {
         protected AvailablePart part;
-        protected string notes;
 
         public override bool Load(ConfigNode configNode)
         {
@@ -23,7 +22,6 @@ namespace ContractConfigurator
             bool valid = base.Load(configNode);
 
             valid &= ConfigNodeUtil.ParseValue<AvailablePart>(configNode, "part", x => part = x, this);
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "notes", x => notes = x, this, (string)null);
 
             return valid;
         }

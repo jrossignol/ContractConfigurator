@@ -1,6 +1,7 @@
 Contract Configurator 0.7.1
 - Better support for spawning landed Kerbals in SpawnKerbal
 - Improvements to location debug window.
+- Support for notes in most contract parameters.
 - Minor bug fixes.
 
 Contract Configurator 0.7.0

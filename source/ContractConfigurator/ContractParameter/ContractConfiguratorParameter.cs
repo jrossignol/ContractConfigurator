@@ -14,6 +14,7 @@ namespace ContractConfigurator.Parameters
     public abstract class ContractConfiguratorParameter : ContractParameter
     {
         protected string title;
+        public string notes;
         public bool completeInSequence;
 
         public ContractConfiguratorParameter()
@@ -31,6 +32,11 @@ namespace ContractConfigurator.Parameters
             return title;
         }
 
+        protected override string GetNotes()
+        {
+            return notes;
+        }
+
         protected sealed override void OnSave(ConfigNode node)
         {
             try
@@ -40,6 +46,7 @@ namespace ContractConfigurator.Parameters
                     node.AddValue("ContractIdentifier", Root.ToString());
                 }
                 node.AddValue("title", title ?? "");
+                node.AddValue("notes", notes ?? "");
                 OnParameterSave(node);
             }
             catch (Exception e)
@@ -60,6 +67,7 @@ namespace ContractConfigurator.Parameters
             try
             {
                 title = ConfigNodeUtil.ParseValue<string>(node, "title", "");
+                notes = ConfigNodeUtil.ParseValue<string>(node, "notes", "");
                 OnParameterLoad(node);
             }
             catch (Exception e)

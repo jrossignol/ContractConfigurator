@@ -37,6 +37,7 @@ namespace ContractConfigurator
         protected List<ParameterFactory> childNodes = new List<ParameterFactory>();
         protected List<ContractRequirement> requirements = new List<ContractRequirement>();
         protected string title;
+        protected string notes;
 
         public bool enabled = true;
         public virtual IEnumerable<ParameterFactory> ChildParameters { get { return childNodes; } }
@@ -84,8 +85,9 @@ namespace ContractConfigurator
             valid &= ConfigNodeUtil.ParseValue<bool?>(configNode, "disableOnStateChange", x => disableOnStateChange = x, this, (bool?)null);
             valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "completeInSequence", x => completeInSequence = x, this, false);
 
-            // Get title
+            // Get title and notes
             valid &= ConfigNodeUtil.ParseValue<string>(configNode, "title", x => title = x, this, (string)null);
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "notes", x => notes = x, this, (string)null);
 
             config = configNode.ToString();
             return valid;
@@ -98,6 +100,7 @@ namespace ContractConfigurator
         /// to be used in parameter generation logic).  The following members also do not need to
         /// be loaded for the ContractParameter (they get handled after this method returns):
         ///   - title
+        ///   - notes
         ///   - rewardScience
         ///   - rewardReputation
         ///   - rewardFunds
@@ -134,6 +137,12 @@ namespace ContractConfigurator
             if (parameter == null)
             {
                 throw new Exception(GetType().FullName + ".Generate() returned a null ContractParameter!");
+            }
+
+            // Set notes
+            if (parameter is ContractConfiguratorParameter)
+            {
+                ((ContractConfiguratorParameter)parameter).notes = notes;
             }
 
             // Add ContractParameter to the host
