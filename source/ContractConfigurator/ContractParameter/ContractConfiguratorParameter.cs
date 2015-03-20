@@ -47,6 +47,7 @@ namespace ContractConfigurator.Parameters
                 }
                 node.AddValue("title", title ?? "");
                 node.AddValue("notes", notes ?? "");
+                node.AddValue("completeInSequence", completeInSequence);
                 OnParameterSave(node);
             }
             catch (Exception e)
@@ -68,6 +69,7 @@ namespace ContractConfigurator.Parameters
             {
                 title = ConfigNodeUtil.ParseValue<string>(node, "title", "");
                 notes = ConfigNodeUtil.ParseValue<string>(node, "notes", "");
+                completeInSequence = ConfigNodeUtil.ParseValue<bool?>(node, "completeInSequence", (bool?)false).Value;
                 OnParameterLoad(node);
             }
             catch (Exception e)
@@ -94,7 +96,7 @@ namespace ContractConfigurator.Parameters
         /// it will check if all previous parameters in the sequence have been completed.
         /// </summary>
         /// <returns>True if the parameter is ready to complete.</returns>
-        private bool ReadyToComplete()
+        protected bool ReadyToComplete()
         {
             if (!completeInSequence)
             {

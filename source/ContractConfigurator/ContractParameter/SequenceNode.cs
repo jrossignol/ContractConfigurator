@@ -71,7 +71,7 @@ namespace ContractConfigurator.Parameters
         /// in the sequence have been completed.
         /// </summary>
         /// <returns>True if the parameter is ready to complete.</returns>
-        private bool ReadyToComplete()
+        private new bool ReadyToComplete()
         {
             // Go through the parent's parameters
             for (int i = 0; i < Parent.ParameterCount; i++)

@@ -151,6 +151,13 @@ namespace ContractConfigurator.Parameters
                 return false;
             }
 
+            // Check if the transition is allowed
+            if (state == ParameterState.Complete && !ReadyToComplete())
+            {
+                LoggingUtil.LogVerbose(this, "Not setting state for vessel " + vessel.id + ", not ready to complete!");
+                return false;
+            }
+
             LoggingUtil.LogVerbose(this, "SetState to " + state + " for vessel " + vessel.id);
 
             // Before we wreck anything, don't allow the default disable on state change logic
