@@ -22,10 +22,12 @@ namespace ContractConfigurator.Behaviour
             public Orbit orbit = null;
             public double latitude = 0.0;
             public double longitude = 0.0;
-            public double altitude = 0.0;
+            public double? altitude = 0.0;
             public bool landed = false;
             public bool owned = false;
             public bool addToRoster = true;
+            public PQSCity pqsCity = null;
+            public Vector3d pqsOffset;
 
             public KerbalData() { }
             public KerbalData(KerbalData k)
@@ -40,6 +42,8 @@ namespace ContractConfigurator.Behaviour
                 landed = k.landed;
                 owned = k.owned;
                 addToRoster = k.addToRoster;
+                pqsCity = k.pqsCity;
+                pqsOffset = k.pqsOffset;
             }
         }
         private List<KerbalData> kerbals = new List<KerbalData>();
@@ -95,24 +99,33 @@ namespace ContractConfigurator.Behaviour
                 valid &= ConfigNodeUtil.ParseValue<CelestialBody>(child, "targetBody", x => kerbal.body = x, factory, defaultBody, Validation.NotNull);
 
                 // Get landed stuff
-                if (child.HasValue("lat") && child.HasValue("lon"))
+                if (child.HasValue("lat") && child.HasValue("lon") || child.HasValue("pqsCity"))
                 {
                     kerbal.landed = true;
-                    valid &= ConfigNodeUtil.ParseValue<double>(child, "lat", x => kerbal.latitude = x, factory);
-                    valid &= ConfigNodeUtil.ParseValue<double>(child, "lon", x => kerbal.longitude = x, factory);
-                    valid &= ConfigNodeUtil.ParseValue<double>(child, "alt", x => kerbal.altitude = x, factory,
-                        LocationUtil.TerrainHeight(kerbal.latitude, kerbal.longitude, kerbal.body));
-
-                    // Set additional info for landed kerbals
-                    if (kerbal.landed)
+                    if (child.HasValue("pqsCity"))
                     {
-                        Vector3d pos = kerbal.body.GetWorldSurfacePosition(kerbal.latitude, kerbal.longitude, kerbal.altitude);
-
-                        kerbal.orbit = new Orbit(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, kerbal.body);
-                        kerbal.orbit.UpdateFromStateVectors(pos, kerbal.body.getRFrmVel(pos), kerbal.body, Planetarium.GetUniversalTime());
-                        LoggingUtil.LogDebug(typeof(SpawnKerbal), "kerbal generated, orbit = " + kerbal.orbit);
+                        string pqsCityStr = null;
+                        valid &= ConfigNodeUtil.ParseValue<string>(child, "pqsCity", x => pqsCityStr = x, factory);
+                        if (pqsCityStr != null)
+                        {
+                            try
+                            {
+                                kerbal.pqsCity = kerbal.body.GetComponentsInChildren<PQSCity>(true).Where(pqs => pqs.name == pqsCityStr).First();
+                            }
+                            catch (Exception e)
+                            {
+                                LoggingUtil.LogError(typeof(WaypointGenerator), "Couldn't load PQSCity with name '" + pqsCityStr + "'");
+                                LoggingUtil.LogException(e);
+                                valid = false;
+                            }
+                        }
+                        valid &= ConfigNodeUtil.ParseValue<Vector3d>(child, "pqsOffset", x => kerbal.pqsOffset = x, factory, new Vector3d());
                     }
-
+                    else
+                    {
+                        valid &= ConfigNodeUtil.ParseValue<double>(child, "lat", x => kerbal.latitude = x, factory);
+                        valid &= ConfigNodeUtil.ParseValue<double>(child, "lon", x => kerbal.longitude = x, factory);
+                    }
                 }
                 // Get orbit
                 else if (child.HasNode("ORBIT"))
@@ -126,9 +139,11 @@ namespace ContractConfigurator.Behaviour
                     valid &= ConfigNodeUtil.ValidateMandatoryChild(child, "ORBIT", factory);
                 }
 
+                valid &= ConfigNodeUtil.ParseValue<double?>(child, "alt", x => kerbal.altitude = x, factory, (double?)null);
+
                 // Get additional flags
-                valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "owned", x => kerbal.owned = x, factory, false);
-                valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "addToRoster", x => kerbal.addToRoster = x, factory, true);
+                valid &= ConfigNodeUtil.ParseValue<bool>(child, "owned", x => kerbal.owned = x, factory, false);
+                valid &= ConfigNodeUtil.ParseValue<bool>(child, "addToRoster", x => kerbal.addToRoster = x, factory, true);
 
                 // Add to the list
                 spawnKerbal.kerbals.Add(kerbal);
@@ -143,6 +158,39 @@ namespace ContractConfigurator.Behaviour
             foreach (KerbalData kerbal in kerbals)
             {
                 LoggingUtil.LogVerbose(this, "Spawning a Kerbal named " + kerbal.name);
+
+                if (kerbal.pqsCity != null)
+                {
+                    // Translate by the PQS offset (inverse transform of coordinate system)
+                    Vector3d position = kerbal.pqsCity.transform.position;
+                    Vector3d v = kerbal.pqsOffset;
+                    Vector3d i = kerbal.pqsCity.transform.right;
+                    Vector3d j = kerbal.pqsCity.transform.forward;
+                    Vector3d k = kerbal.pqsCity.transform.up;
+                    Vector3d offsetPos = new Vector3d(
+                        (j.y * k.z - j.z * k.y) * v.x + (i.z * k.y - i.y * k.z) * v.y + (i.y * j.z - i.z * j.y) * v.z,
+                        (j.z * k.x - j.x * k.z) * v.x + (i.x * k.z - i.z * k.x) * v.y + (i.z * j.x - i.x * j.z) * v.z,
+                        (j.x * k.y - j.y * k.x) * v.x + (i.y * k.x - i.x * k.y) * v.y + (i.x * j.y - i.y * j.x) * v.z
+                    );
+                    offsetPos *= (i.x * j.y * k.z) + (i.y * j.z * k.x) + (i.z * j.x * k.y) - (i.z * j.y * k.x) - (i.y * j.x * k.z) - (i.x * j.z * k.y);
+                    kerbal.latitude = kerbal.body.GetLatitude(position + offsetPos);
+                    kerbal.longitude = kerbal.body.GetLongitude(position + offsetPos);
+                }
+
+                if (kerbal.altitude == null)
+                {
+                    kerbal.altitude = LocationUtil.TerrainHeight(kerbal.latitude, kerbal.longitude, kerbal.body);
+                }
+
+                // Set additional info for landed kerbals
+                if (kerbal.landed)
+                {
+                    Vector3d pos = kerbal.body.GetWorldSurfacePosition(kerbal.latitude, kerbal.longitude, kerbal.altitude.Value);
+
+                    kerbal.orbit = new Orbit(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, kerbal.body);
+                    kerbal.orbit.UpdateFromStateVectors(pos, kerbal.body.getRFrmVel(pos), kerbal.body, Planetarium.GetUniversalTime());
+                    LoggingUtil.LogVerbose(typeof(SpawnKerbal), "kerbal generated, orbit = " + kerbal.orbit);
+                }
 
                 uint flightId = ShipConstruction.GetUniqueFlightID(HighLogic.CurrentGame.flightState);
 
@@ -195,9 +243,12 @@ namespace ContractConfigurator.Behaviour
                 child.AddValue("owned", kd.owned);
                 child.AddValue("addToRoster", kd.addToRoster);
 
-                ConfigNode orbitNode = new ConfigNode("ORBIT");
-                new OrbitSnapshot(kd.orbit).Save(orbitNode);
-                child.AddNode(orbitNode);
+                if (kd.orbit != null)
+                {
+                    ConfigNode orbitNode = new ConfigNode("ORBIT");
+                    new OrbitSnapshot(kd.orbit).Save(orbitNode);
+                    child.AddNode(orbitNode);
+                }
 
                 configNode.AddNode(child);
             }
@@ -220,7 +271,10 @@ namespace ContractConfigurator.Behaviour
                 kd.owned = ConfigNodeUtil.ParseValue<bool>(child, "owned");
                 kd.addToRoster = ConfigNodeUtil.ParseValue<bool>(child, "addToRoster");
 
-                kd.orbit = new OrbitSnapshot(child.GetNode("ORBIT")).Load();
+                if (child.HasNode("ORBIT"))
+                {
+                    kd.orbit = new OrbitSnapshot(child.GetNode("ORBIT")).Load();
+                }
 
                 // Find the ProtoCrewMember
                 kd.crewMember = HighLogic.CurrentGame.CrewRoster.AllKerbals().Where(cm => cm.name == kd.name).First();
@@ -249,18 +303,15 @@ namespace ContractConfigurator.Behaviour
             {
                 foreach (ProtoPartSnapshot p in v.protoPartSnapshots)
                 {
+                    foreach (string name in p.protoCrewNames)
                     {
-                        LoggingUtil.LogVerbose(this, "    p: " + p);
-                        foreach (string name in p.protoCrewNames)
+                        // Find this crew member in our data
+                        foreach (KerbalData kd in kerbals)
                         {
-                            // Find this crew member in our data
-                            foreach (KerbalData kd in kerbals)
+                            if (kd.name == name && kd.addToRoster)
                             {
-                                if (kd.name == name && kd.addToRoster)
-                                {
-                                    // Add them to the roster
-                                    kd.crewMember.type = ProtoCrewMember.KerbalType.Crew;
-                                }
+                                // Add them to the roster
+                                kd.crewMember.type = ProtoCrewMember.KerbalType.Crew;
                             }
                         }
                     }
@@ -280,6 +331,11 @@ namespace ContractConfigurator.Behaviour
                     }
                 }
             }
+        }
+
+        protected override void OnCompleted()
+        {
+            RemoveKerbals(true);
         }
 
         protected override void OnCancelled()
@@ -312,15 +368,20 @@ namespace ContractConfigurator.Behaviour
             RemoveKerbals();
         }
 
-        private void RemoveKerbals()
+        private void RemoveKerbals(bool onlyUnowned = false)
         {
+            LoggingUtil.LogVerbose(this, "Removing kerbals, onlyUnowned = " + onlyUnowned);
             foreach (KerbalData kerbal in kerbals)
             {
-                // If it's an EVA make them disappear...
-                Vessel vessel = FlightGlobals.Vessels.Where(v => v.GetVesselCrew().Contains(kerbal.crewMember)).FirstOrDefault();
-                if (vessel != null && vessel.isEVA)
+                if (!kerbal.addToRoster || !onlyUnowned)
                 {
-                    FlightGlobals.Vessels.Remove(vessel);
+                    LoggingUtil.LogVerbose(this, "    Removing " + kerbal.name + "...");
+                    // If it's an EVA make them disappear...
+                    Vessel vessel = FlightGlobals.Vessels.Where(v => v.GetVesselCrew().Contains(kerbal.crewMember)).FirstOrDefault();
+                    if (vessel != null && vessel.isEVA)
+                    {
+                        FlightGlobals.Vessels.Remove(vessel);
+                    }
                 }
 
                 // Do not remove kerbals from the roster - as they may have done something of note

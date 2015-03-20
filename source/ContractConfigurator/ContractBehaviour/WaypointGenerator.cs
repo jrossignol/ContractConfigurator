@@ -227,7 +227,7 @@ namespace ContractConfigurator.Behaviour
                     CelestialBody body = FlightGlobals.Bodies.Where(b => b.name == wpData.waypoint.celestialName).First();
                     Vector3d position = wpData.pqsCity.transform.position;
 
-                    // Translate by the PQS offset (inverse transform of coordinate system
+                    // Translate by the PQS offset (inverse transform of coordinate system)
                     Vector3d v = wpData.pqsOffset;
                     Vector3d i = wpData.pqsCity.transform.right;
                     Vector3d j = wpData.pqsCity.transform.forward;
