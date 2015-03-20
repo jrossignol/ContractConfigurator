@@ -347,7 +347,6 @@ namespace ContractConfigurator
             {
                 // Fetch the contractType
                 string name = contractConfig.GetValue("name");
-                bool success = false;
                 ContractType contractType = ContractType.GetContractType(name);
                 if (contractType != null)
                 {
@@ -355,7 +354,7 @@ namespace ContractConfigurator
                     // Perform the load
                     try
                     {
-                        success = contractType.Load(contractConfig);
+                        contractType.Load(contractConfig);
                     }
                     catch (Exception e)
                     {

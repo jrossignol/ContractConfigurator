@@ -128,119 +128,127 @@ namespace ContractConfigurator
         /// <returns>Whether the load was successful.</returns>
         public bool Load(ConfigNode configNode)
         {
-            // Logging on
-            LoggingUtil.CaptureLog = true;
+            try
+            {
+                // Logging on
+                LoggingUtil.CaptureLog = true;
 
-            dataNode = new DataNode(configNode.GetValue("name"), this);
+                dataNode = new DataNode(configNode.GetValue("name"), this);
 
-            ConfigNodeUtil.ClearCache(true);
-            ConfigNodeUtil.SetCurrentDataNode(dataNode);
-            bool valid = true;
+                ConfigNodeUtil.ClearCache(true);
+                ConfigNodeUtil.SetCurrentDataNode(dataNode);
+                bool valid = true;
 
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "name", x => name = x, this);
+                valid &= ConfigNodeUtil.ParseValue<string>(configNode, "name", x => name = x, this);
 
-            // Load contract text details
-            valid &= ConfigNodeUtil.ParseValue<ContractGroup>(configNode, "group", x => group = x, this, (ContractGroup)null);
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "title", x => title = x, this);
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "tag", x => tag = x, this, "");
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "description", x => description = x, this, (string)null);
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "topic", x => topic = x, this, (string)null);
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "subject", x => subject = x, this, (string)null);
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "motivation", x => motivation = x, this, (string)null);
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "notes", x => notes = x, this, (string)null);
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "synopsis", x => synopsis = x, this);
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "completedMessage", x => completedMessage = x, this);
+                // Load contract text details
+                valid &= ConfigNodeUtil.ParseValue<ContractGroup>(configNode, "group", x => group = x, this, (ContractGroup)null);
+                valid &= ConfigNodeUtil.ParseValue<string>(configNode, "title", x => title = x, this);
+                valid &= ConfigNodeUtil.ParseValue<string>(configNode, "tag", x => tag = x, this, "");
+                valid &= ConfigNodeUtil.ParseValue<string>(configNode, "description", x => description = x, this, (string)null);
+                valid &= ConfigNodeUtil.ParseValue<string>(configNode, "topic", x => topic = x, this, (string)null);
+                valid &= ConfigNodeUtil.ParseValue<string>(configNode, "subject", x => subject = x, this, (string)null);
+                valid &= ConfigNodeUtil.ParseValue<string>(configNode, "motivation", x => motivation = x, this, (string)null);
+                valid &= ConfigNodeUtil.ParseValue<string>(configNode, "notes", x => notes = x, this, (string)null);
+                valid &= ConfigNodeUtil.ParseValue<string>(configNode, "synopsis", x => synopsis = x, this);
+                valid &= ConfigNodeUtil.ParseValue<string>(configNode, "completedMessage", x => completedMessage = x, this);
 
-            // Load optional attributes
-            valid &= ConfigNodeUtil.ParseValue<Agent>(configNode, "agent", x => agent = x, this, (Agent)null);
-            valid &= ConfigNodeUtil.ParseValue<float>(configNode, "minExpiry", x => minExpiry = x, this, 1.0f, x => Validation.GE(x, 0.0f));
-            valid &= ConfigNodeUtil.ParseValue<float>(configNode, "maxExpiry", x => maxExpiry = x, this, 7.0f, x => Validation.GE(x, minExpiry));
-            valid &= ConfigNodeUtil.ParseValue<float>(configNode, "deadline", x => deadline = x, this, 0.0f, x => Validation.GE(x, 0.0f));
-            valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "cancellable", x => cancellable = x, this, true);
-            valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "declinable", x => declinable = x, this, true);
-            valid &= ConfigNodeUtil.ParseValue<List<Contract.ContractPrestige>>(configNode, "prestige", x => prestige = x, this, new List<Contract.ContractPrestige>());
-            valid &= ConfigNodeUtil.ParseValue<CelestialBody>(configNode, "targetBody", x => targetBody = x, this, (CelestialBody)null);
-            valid &= ConfigNodeUtil.ParseValue<List<CelestialBody>>(configNode, "targetBodies", x => targetBodies = x, this, new List<CelestialBody>());
-            valid &= ConfigNodeUtil.ParseValue<Vessel>(configNode, "targetVessel", x => targetVessel = x, this, (Vessel)null);
-            valid &= ConfigNodeUtil.ParseValue<List<Vessel>>(configNode, "targetVessels", x => targetVessels = x, this, new List<Vessel>());
-            valid &= ConfigNodeUtil.ParseValue<ProtoCrewMember>(configNode, "targetKerbal", x => targetKerbal = x, this, (ProtoCrewMember)null);
-            valid &= ConfigNodeUtil.ParseValue<List<ProtoCrewMember>>(configNode, "targetKerbals", x => targetKerbals = x, this, new List<ProtoCrewMember>());
+                // Load optional attributes
+                valid &= ConfigNodeUtil.ParseValue<Agent>(configNode, "agent", x => agent = x, this, (Agent)null);
+                valid &= ConfigNodeUtil.ParseValue<float>(configNode, "minExpiry", x => minExpiry = x, this, 1.0f, x => Validation.GE(x, 0.0f));
+                valid &= ConfigNodeUtil.ParseValue<float>(configNode, "maxExpiry", x => maxExpiry = x, this, 7.0f, x => Validation.GE(x, minExpiry));
+                valid &= ConfigNodeUtil.ParseValue<float>(configNode, "deadline", x => deadline = x, this, 0.0f, x => Validation.GE(x, 0.0f));
+                valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "cancellable", x => cancellable = x, this, true);
+                valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "declinable", x => declinable = x, this, true);
+                valid &= ConfigNodeUtil.ParseValue<List<Contract.ContractPrestige>>(configNode, "prestige", x => prestige = x, this, new List<Contract.ContractPrestige>());
+                valid &= ConfigNodeUtil.ParseValue<CelestialBody>(configNode, "targetBody", x => targetBody = x, this, (CelestialBody)null);
+                valid &= ConfigNodeUtil.ParseValue<List<CelestialBody>>(configNode, "targetBodies", x => targetBodies = x, this, new List<CelestialBody>());
+                valid &= ConfigNodeUtil.ParseValue<Vessel>(configNode, "targetVessel", x => targetVessel = x, this, (Vessel)null);
+                valid &= ConfigNodeUtil.ParseValue<List<Vessel>>(configNode, "targetVessels", x => targetVessels = x, this, new List<Vessel>());
+                valid &= ConfigNodeUtil.ParseValue<ProtoCrewMember>(configNode, "targetKerbal", x => targetKerbal = x, this, (ProtoCrewMember)null);
+                valid &= ConfigNodeUtil.ParseValue<List<ProtoCrewMember>>(configNode, "targetKerbals", x => targetKerbals = x, this, new List<ProtoCrewMember>());
             
-            valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxCompletions", x => maxCompletions = x, this, 0, x => Validation.GE(x, 0));
-            valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxSimultaneous", x => maxSimultaneous = x, this, 0, x => Validation.GE(x, 0));
+                valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxCompletions", x => maxCompletions = x, this, 0, x => Validation.GE(x, 0));
+                valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxSimultaneous", x => maxSimultaneous = x, this, 0, x => Validation.GE(x, 0));
 
-            // Load rewards
-            valid &= ConfigNodeUtil.ParseValue<float>(configNode, "rewardFunds", x => rewardFunds = x, this, 0.0f, x => Validation.GE(x, 0.0f));
-            valid &= ConfigNodeUtil.ParseValue<float>(configNode, "rewardReputation", x => rewardReputation = x, this, 0.0f, x => Validation.GE(x, 0.0f));
-            valid &= ConfigNodeUtil.ParseValue<float>(configNode, "rewardScience", x => rewardScience = x, this, 0.0f, x => Validation.GE(x, 0.0f));
-            valid &= ConfigNodeUtil.ParseValue<float>(configNode, "failureFunds", x => failureFunds = x, this, 0.0f, x => Validation.GE(x, 0.0f));
-            valid &= ConfigNodeUtil.ParseValue<float>(configNode, "failureReputation", x => failureReputation = x, this, 0.0f, x => Validation.GE(x, 0.0f));
-            valid &= ConfigNodeUtil.ParseValue<float>(configNode, "advanceFunds", x => advanceFunds = x, this, 0.0f, x => Validation.GE(x, 0.0f));
+                // Load rewards
+                valid &= ConfigNodeUtil.ParseValue<float>(configNode, "rewardFunds", x => rewardFunds = x, this, 0.0f, x => Validation.GE(x, 0.0f));
+                valid &= ConfigNodeUtil.ParseValue<float>(configNode, "rewardReputation", x => rewardReputation = x, this, 0.0f, x => Validation.GE(x, 0.0f));
+                valid &= ConfigNodeUtil.ParseValue<float>(configNode, "rewardScience", x => rewardScience = x, this, 0.0f, x => Validation.GE(x, 0.0f));
+                valid &= ConfigNodeUtil.ParseValue<float>(configNode, "failureFunds", x => failureFunds = x, this, 0.0f, x => Validation.GE(x, 0.0f));
+                valid &= ConfigNodeUtil.ParseValue<float>(configNode, "failureReputation", x => failureReputation = x, this, 0.0f, x => Validation.GE(x, 0.0f));
+                valid &= ConfigNodeUtil.ParseValue<float>(configNode, "advanceFunds", x => advanceFunds = x, this, 0.0f, x => Validation.GE(x, 0.0f));
 
-            // Load other values
-            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "weight", x => weight = x, this, 1.0, x => Validation.GE(x, 0.0f));
+                // Load other values
+                valid &= ConfigNodeUtil.ParseValue<double>(configNode, "weight", x => weight = x, this, 1.0, x => Validation.GE(x, 0.0f));
             
-            // Check for unexpected values - always do this last
-            valid &= ConfigNodeUtil.ValidateUnexpectedValues(configNode, this);
+                // Check for unexpected values - always do this last
+                valid &= ConfigNodeUtil.ValidateUnexpectedValues(configNode, this);
 
-            log = LoggingUtil.capturedLog;
-            LoggingUtil.CaptureLog = false;
+                log = LoggingUtil.capturedLog;
+                LoggingUtil.CaptureLog = false;
 
-            // Load parameters
-            paramFactories = new List<ParameterFactory>();
-            foreach (ConfigNode contractParameter in configNode.GetNodes("PARAMETER"))
-            {
-                ParameterFactory paramFactory = null;
-                valid &= ParameterFactory.GenerateParameterFactory(contractParameter, this, out paramFactory);
-                if (paramFactory != null)
+                // Load parameters
+                paramFactories = new List<ParameterFactory>();
+                foreach (ConfigNode contractParameter in configNode.GetNodes("PARAMETER"))
                 {
-                    paramFactories.Add(paramFactory);
+                    ParameterFactory paramFactory = null;
+                    valid &= ParameterFactory.GenerateParameterFactory(contractParameter, this, out paramFactory);
+                    if (paramFactory != null)
+                    {
+                        paramFactories.Add(paramFactory);
+                    }
                 }
-            }
 
-            // Load behaviours
-            behaviourFactories = new List<BehaviourFactory>();
-            foreach (ConfigNode requirementNode in configNode.GetNodes("BEHAVIOUR"))
-            {
-                BehaviourFactory behaviourFactory = null;
-                valid &= BehaviourFactory.GenerateBehaviourFactory(requirementNode, this, out behaviourFactory);
-                if (behaviourFactory != null)
+                // Load behaviours
+                behaviourFactories = new List<BehaviourFactory>();
+                foreach (ConfigNode requirementNode in configNode.GetNodes("BEHAVIOUR"))
                 {
-                    behaviourFactories.Add(behaviourFactory);
+                    BehaviourFactory behaviourFactory = null;
+                    valid &= BehaviourFactory.GenerateBehaviourFactory(requirementNode, this, out behaviourFactory);
+                    if (behaviourFactory != null)
+                    {
+                        behaviourFactories.Add(behaviourFactory);
+                    }
                 }
-            }
 
-            // Load requirements
-            requirements = new List<ContractRequirement>();
-            foreach (ConfigNode requirementNode in configNode.GetNodes("REQUIREMENT"))
-            {
-                ContractRequirement requirement = null;
-                valid &= ContractRequirement.GenerateRequirement(requirementNode, this, out requirement);
-                if (requirement != null)
+                // Load requirements
+                requirements = new List<ContractRequirement>();
+                foreach (ConfigNode requirementNode in configNode.GetNodes("REQUIREMENT"))
                 {
-                    requirements.Add(requirement);
+                    ContractRequirement requirement = null;
+                    valid &= ContractRequirement.GenerateRequirement(requirementNode, this, out requirement);
+                    if (requirement != null)
+                    {
+                        requirements.Add(requirement);
+                    }
                 }
+
+                // Logging on
+                LoggingUtil.CaptureLog = true;
+
+                // Check we have at least one valid parameter
+                if (paramFactories.Count() == 0)
+                {
+                    LoggingUtil.LogError(this.GetType(), ErrorPrefix() + ": Need at least one parameter for a contract!");
+                    valid = false;
+                }
+
+                // Do the deferred loads
+                valid &= ConfigNodeUtil.ExecuteDeferredLoads();
+
+                config = configNode.ToString();
+                enabled = valid;
+                log += LoggingUtil.capturedLog;
+                LoggingUtil.CaptureLog = false;
+
+                return valid;
             }
-
-            // Logging on
-            LoggingUtil.CaptureLog = true;
-
-            // Check we have at least one valid parameter
-            if (paramFactories.Count() == 0)
+            catch
             {
-                LoggingUtil.LogError(this.GetType(), ErrorPrefix() + ": Need at least one parameter for a contract!");
-                valid = false;
+                enabled = false;
+                throw;
             }
-
-            // Do the deferred loads
-            valid &= ConfigNodeUtil.ExecuteDeferredLoads();
-
-            config = configNode.ToString();
-            enabled = valid;
-            log += LoggingUtil.capturedLog;
-            LoggingUtil.CaptureLog = false;
-
-            return valid;
         }
 
         /// <summary>
