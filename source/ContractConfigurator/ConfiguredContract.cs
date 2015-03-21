@@ -351,10 +351,11 @@ namespace ContractConfigurator
                     // Check the requirements for our selection
                     if (selectedContractType.MeetRequirements(this))
                     {
+                        LoggingUtil.LogVerbose(this, selectedContractType.name + " was not generated: requirement not met.");
                         contractType = selectedContractType;
                         return true;
                     }
-                    // Remote the selection, and try again
+                    // Remove the selection, and try again
                     else
                     {
                         validContractTypes.Remove(selectedContractType);
