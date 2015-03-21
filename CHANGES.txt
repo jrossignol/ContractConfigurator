@@ -1,3 +1,6 @@
+Contract Configurator 0.7.2
+- Fix zero orbit period bug (thanks SpaceNomad).
+
 Contract Configurator 0.7.1
 - Better support for spawning landed Kerbals in SpawnKerbal.
 - SpawnKerbal now supports PQS offsets.

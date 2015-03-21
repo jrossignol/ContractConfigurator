@@ -46,7 +46,7 @@ namespace ContractConfigurator
             valid &= ConfigNodeUtil.ParseValue<double>(configNode, "minInclination", x => minInclination = x, this, 0.0, x => Validation.Between(x, 0.0, 180.0));
             valid &= ConfigNodeUtil.ParseValue<double>(configNode, "maxInclination", x => maxInclination = x, this, 180.0, x => Validation.Between(x, 0.0, 180.0));
             valid &= ConfigNodeUtil.ParseValue<Duration>(configNode, "minPeriod", x => minPeriod = x, this, new Duration(0.0));
-            valid &= ConfigNodeUtil.ParseValue<Duration>(configNode, "maxPeriod", x => maxPeriod = x, this, new Duration(0.0));
+            valid &= ConfigNodeUtil.ParseValue<Duration>(configNode, "maxPeriod", x => maxPeriod = x, this, new Duration(double.MaxValue));
 
             // Validate target body
             valid &= ValidateTargetBody(configNode);
