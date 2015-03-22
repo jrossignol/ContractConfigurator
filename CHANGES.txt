@@ -1,6 +1,7 @@
 Contract Configurator 0.7.3
 - Fix problems with VesselDestroyed (big thanks to linuxgurugamer for his patience on this one).
 - Fix HasCrew for unmanned check.  Improved parameter text slightly.
+- Removing contracts (ie. uninstalling a contract pack) no longer causes exceptions in existing save games.
 
 Contract Configurator 0.7.2
 - Fix zero orbit period bug (thanks SpaceNomad).

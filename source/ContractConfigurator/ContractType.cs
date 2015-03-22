@@ -317,7 +317,7 @@ namespace ContractConfigurator
             if (group != null)
             {
                 // Check the group active limit
-                int activeContracts = ContractSystem.Instance.GetCurrentContracts<ConfiguredContract>().Count(c => c.contractType.group == group);
+                int activeContracts = ContractSystem.Instance.GetCurrentContracts<ConfiguredContract>().Count(c => c.contractType != null && c.contractType.group == group);
                 if (contract.ContractState == Contract.State.Offered || contract.ContractState == Contract.State.Active)
                 {
                     activeContracts--;
@@ -332,7 +332,7 @@ namespace ContractConfigurator
                 // Check the group completed limit
                 if (group.maxCompletions != 0)
                 {
-                    int finishedContracts = ContractSystem.Instance.GetCompletedContracts<ConfiguredContract>().Count(c => c.contractType.group == group);
+                    int finishedContracts = ContractSystem.Instance.GetCompletedContracts<ConfiguredContract>().Count(c => c.contractType != null && c.contractType.group == group);
                     if (finishedContracts + activeContracts >= maxCompletions)
                     {
                         LoggingUtil.LogVerbose(this, "Didn't generate contract type " + name + ", too many completed contracts in group.");

@@ -19,6 +19,7 @@ namespace ContractConfigurator
     public class ConfiguredContract : Contract
     {
         public ContractType contractType { get; private set; }
+        public string subType { get; private set; }
         private List<ContractBehaviour> behaviours = new List<ContractBehaviour>();
         public IEnumerable<ContractBehaviour> Behaviours { get { return behaviours.AsReadOnly(); } }
 
@@ -193,17 +194,31 @@ namespace ContractConfigurator
         {
             try
             {
-                contractType = ContractType.GetContractType(node.GetValue("subtype"));
-                title = ConfigNodeUtil.ParseValue<string>(node, "title", contractType.title);
-                description = ConfigNodeUtil.ParseValue<string>(node, "description", contractType.description);
-                synopsis = ConfigNodeUtil.ParseValue<string>(node, "synopsis", contractType.synopsis);
-                completedMessage = ConfigNodeUtil.ParseValue<string>(node, "completedMessage", contractType.completedMessage);
-                notes = ConfigNodeUtil.ParseValue<string>(node, "notes", contractType.notes);
+                subType = node.GetValue("subtype");
+                contractType = string.IsNullOrEmpty(subType) ? null : ContractType.GetContractType(subType);
+                title = ConfigNodeUtil.ParseValue<string>(node, "title", contractType != null ? contractType.title : subType);
+                description = ConfigNodeUtil.ParseValue<string>(node, "description", contractType != null ? contractType.description : "");
+                synopsis = ConfigNodeUtil.ParseValue<string>(node, "synopsis", contractType != null ? contractType.synopsis : "");
+                completedMessage = ConfigNodeUtil.ParseValue<string>(node, "completedMessage", contractType != null ? contractType.completedMessage : "");
+                notes = ConfigNodeUtil.ParseValue<string>(node, "notes", contractType != null ? contractType.notes : "");
 
                 foreach (ConfigNode child in node.GetNodes("BEHAVIOUR"))
                 {
                     ContractBehaviour behaviour = ContractBehaviour.LoadBehaviour(child, this);
                     behaviours.Add(behaviour);
+                }
+
+                // If the contract type is null, then it likely means that it was uninstalled
+                if (contractType == null)
+                {
+                    LoggingUtil.LogWarning(this, "Error loading contract for contract type '" + subType +
+                        "'.  The contract type either failed to load or was uninstalled.");
+                    try
+                    {
+                        SetState(State.Failed);
+                    }
+                    catch { }
+                    return;
                 }
             }
             catch (Exception e)
@@ -224,7 +239,7 @@ namespace ContractConfigurator
         {
             try
             {
-                node.AddValue("subtype", contractType.name);
+                node.AddValue("subtype", subType);
                 node.AddValue("title", title);
                 node.AddValue("description", description);
                 node.AddValue("synopsis", synopsis);
@@ -353,6 +368,7 @@ namespace ContractConfigurator
                     {
                         LoggingUtil.LogVerbose(this, selectedContractType.name + " was not generated: requirement not met.");
                         contractType = selectedContractType;
+                        subType = contractType.name;
                         return true;
                     }
                     // Remove the selection, and try again
