@@ -134,8 +134,6 @@ namespace ContractConfigurator.ExpressionParser
             {
                 return null;
             }
-            Debug.Log("parsing vessel for identifier '" + identifier + "'");
-            Debug.Log("result = " + ContractVesselTracker.Instance.GetAssociatedVessel(identifier));
 
             return ContractVesselTracker.Instance.GetAssociatedVessel(identifier);
         }
