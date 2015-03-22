@@ -15,6 +15,7 @@ namespace ContractConfigurator.Parameters
     public class VesselDestroyed : VesselParameter
     {
         protected bool mustImpactTerrain = false;
+        private Dictionary<Vessel, bool> destroyedVessels = new Dictionary<Vessel, bool>();
 
         public VesselDestroyed()
             : base(null)
@@ -90,7 +91,7 @@ namespace ContractConfigurator.Parameters
                 }
             }
 
-            SetState(v, ParameterState.Complete);
+            destroyedVessels[v] = true;
             CheckVessel(v);
         }
 
@@ -101,7 +102,7 @@ namespace ContractConfigurator.Parameters
         /// <returns>Always true</returns>
         protected override bool VesselMeetsCondition(Vessel vessel)
         {
-            return GetStateForVessel(vessel) == ParameterState.Complete;
+            return destroyedVessels.ContainsKey(vessel);
         }
     }
 }
