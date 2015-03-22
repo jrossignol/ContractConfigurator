@@ -1,3 +1,6 @@
+Contract Configurator 0.7.4
+- Fix for unmanned vessels in HasCrew.
+
 Contract Configurator 0.7.3
 - Fix problems with VesselDestroyed (big thanks to linuxgurugamer for his patience on this one).
 - Fix HasCrew for unmanned check.  Improved parameter text slightly.

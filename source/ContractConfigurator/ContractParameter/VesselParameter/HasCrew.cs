@@ -134,7 +134,15 @@ namespace ContractConfigurator.Parameters
             // Validate count
             if (kerbals.Count == 0)
             {
-                AddParameter(new CountParameterDelegate<Part>(minCrew, maxCrew));
+                // Special handling for unmanned
+                if (minCrew == 0 && maxCrew == 0)
+                {
+                    AddParameter(new ParameterDelegate<ProtoCrewMember>("Unmanned", pcm => true, ParameterDelegateMatchType.NONE));
+                }
+                else
+                {
+                    AddParameter(new CountParameterDelegate<Part>(minCrew, maxCrew));
+                }
             }
 
             // Validate specific kerbals
@@ -244,20 +252,16 @@ namespace ContractConfigurator.Parameters
             // EVA vessel
             if (v.vesselType == VesselType.EVA)
             {
-                if (v.protoVessel == null || v.protoVessel.protoPartSnapshots == null)
+                if (v.parts == null)
                 {
                     yield break;
                 }
 
-                foreach (ProtoPartSnapshot p in v.protoVessel.protoPartSnapshots)
+                foreach (Part p in v.parts)
                 {
-                    foreach (string name in p.protoCrewNames)
+                    foreach (ProtoCrewMember pcm in p.protoModuleCrew)
                     {
-                        ProtoCrewMember pcm = HighLogic.CurrentGame.CrewRoster.AllKerbals().Where(cm => cm.name == name).FirstOrDefault();
-                        if (pcm != null)
-                        {
-                            yield return pcm;
-                        }
+                        yield return pcm;
                     }
                 }
             }
