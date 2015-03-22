@@ -47,7 +47,7 @@ namespace ContractConfigurator
         }
 
         /// <summary>
-        /// Gets all the parameter's descendents
+        /// Gets all the kerbals for the given roster.
         /// </summary>
         /// <param name="p">Contract parameter</param>
         /// <returns>Enumerator of descendents</returns>

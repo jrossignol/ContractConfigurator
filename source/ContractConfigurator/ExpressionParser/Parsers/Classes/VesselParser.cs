@@ -56,7 +56,7 @@ namespace ContractConfigurator.ExpressionParser
         /// <returns>The number of crew members on board</returns>
         static int GetCrewCount(Vessel v)
         {
-            if (v == null)
+            if (v == null || v.protoVessel == null || v.protoVessel.protoPartSnapshots == null)
             {
                 return 0;
             }
@@ -72,7 +72,7 @@ namespace ContractConfigurator.ExpressionParser
         /// <returns>The number of crew space</returns>
         static int GetCrewCapacity(Vessel v)
         {
-            if (v == null)
+            if (v == null || v.protoVessel == null || v.protoVessel.protoPartSnapshots == null)
             {
                 return 0;
             }
@@ -87,7 +87,7 @@ namespace ContractConfigurator.ExpressionParser
         /// <returns></returns>
         static int FreeDockingPorts(Vessel v)
         {
-            if (v == null)
+            if (v == null || v.protoVessel == null || v.protoVessel.protoPartSnapshots == null)
             {
                 return 0;
             }
