@@ -289,7 +289,7 @@ namespace ContractConfigurator.Parameters
             title = filterFunc == DefaultFilter ? "Count: " : "";
             if (maxCount == 0)
             {
-                title += filterFunc == DefaultFilter ? "None" : "No";
+                title += filterFunc == DefaultFilter && string.IsNullOrEmpty(extraTitle) ? "None" : "No";
             }
             else if (maxCount == int.MaxValue)
             {

@@ -1,5 +1,6 @@
 Contract Configurator 0.7.3
 - Fix problems with VesselDestroyed (big thanks to linuxgurugamer for his patience on this one).
+- Fix HasCrew for unmanned check.  Improved parameter text slightly.
 
 Contract Configurator 0.7.2
 - Fix zero orbit period bug (thanks SpaceNomad).

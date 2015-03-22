@@ -44,10 +44,54 @@ namespace ContractConfigurator.Parameters
             string output = null;
             if (string.IsNullOrEmpty(title))
             {
-                output = "Crew";
-                if (state == ParameterState.Complete)
+                if (state == ParameterState.Complete && kerbals.Count == 0)
                 {
-                    output += ": " + ParameterDelegate<ProtoCrewMember>.GetDelegateText(this);
+                    string traitString = String.IsNullOrEmpty(trait) ? "Kerbal" : trait;
+                    this.title = "Crew: ";
+                    if (maxCrew == 0)
+                    {
+                        this.title += "Unmanned";
+                    }
+                    else if (maxCrew == int.MaxValue)
+                    {
+                        this.title += "At least " + minCrew + " " + traitString + (minCrew != 1 ? "s" : "");
+                    }
+                    else if (minCrew == 0)
+                    {
+                        this.title += "At most " + maxCrew + " " + traitString + (maxCrew != 1 ? "s" : "");
+                    }
+                    else if (minCrew == maxCrew)
+                    {
+                        this.title += minCrew + " " + traitString + (minCrew != 1 ? "s" : "");
+                    }
+                    else
+                    {
+                        this.title += "Between " + minCrew + " and " + maxCrew + " " + traitString + "s";
+                    }
+
+                    if (minExperience != 0 && maxExperience != 5)
+                    {
+                        if (minExperience == 0)
+                        {
+                            this.title += " with experience level of at most " + maxExperience;
+                        }
+                        else if (maxExperience == 5)
+                        {
+                            this.title += " with experience level of at least " + minExperience;
+                        }
+                        else
+                        {
+                            this.title += " with experience level between " + minExperience + " and " + maxExperience;
+                        }
+                    }
+                }
+                else
+                {
+                    output = "Crew";
+                    if (state == ParameterState.Complete)
+                    {
+                        output += ": " + ParameterDelegate<ProtoCrewMember>.GetDelegateText(this);
+                    }
                 }
             }
             else
@@ -88,7 +132,7 @@ namespace ContractConfigurator.Parameters
             }
 
             // Validate count
-            if (minCrew != 0 || maxCrew != int.MaxValue && !(minCrew == maxCrew && maxCrew == 0))
+            if (kerbals.Count == 0)
             {
                 AddParameter(new CountParameterDelegate<Part>(minCrew, maxCrew));
             }
