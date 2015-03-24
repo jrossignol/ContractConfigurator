@@ -187,13 +187,15 @@ namespace ContractConfigurator.Parameters
         protected override void OnRegister()
         {
             base.OnRegister();
-            GameEvents.onCrewTransferred.Add(new EventData<GameEvents.HostedFromToAction<ProtoCrewMember, Part>>.OnEvent(OnCrewTransferred));            
+            GameEvents.onCrewTransferred.Add(new EventData<GameEvents.HostedFromToAction<ProtoCrewMember, Part>>.OnEvent(OnCrewTransferred));
+            GameEvents.onVesselWasModified.Add(new EventData<Vessel>.OnEvent(OnVesselWasModified));
         }
 
         protected override void OnUnregister()
         {
             base.OnUnregister();
             GameEvents.onCrewTransferred.Remove(new EventData<GameEvents.HostedFromToAction<ProtoCrewMember, Part>>.OnEvent(OnCrewTransferred));
+            GameEvents.onVesselWasModified.Remove(new EventData<Vessel>.OnEvent(OnVesselWasModified));
         }
 
         protected override void OnPartAttach(GameEvents.HostTargetAction<Part, Part> e)
@@ -202,10 +204,23 @@ namespace ContractConfigurator.Parameters
             CheckVessel(FlightGlobals.ActiveVessel);
         }
 
+        protected void OnVesselWasModified(Vessel v)
+        {
+            LoggingUtil.LogVerbose(this, "OnVesselWasModified: " + v);
+            CheckVessel(v);
+        }
+
         protected override void OnPartJointBreak(PartJoint p)
         {
+            LoggingUtil.LogVerbose(this, "OnPartJointBreak: " + p);
             base.OnPartJointBreak(p);
-            CheckVessel(FlightGlobals.ActiveVessel);
+
+            if (HighLogic.LoadedScene == GameScenes.EDITOR || p.Parent.vessel == null)
+            {
+                return;
+            }
+
+            CheckVessel(p.Parent.vessel);
         }
 
         protected override void OnCrewTransferred(GameEvents.HostedFromToAction<ProtoCrewMember, Part> a)
