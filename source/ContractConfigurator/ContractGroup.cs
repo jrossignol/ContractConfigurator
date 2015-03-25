@@ -21,11 +21,11 @@ namespace ContractConfigurator
         {
             get
             {
-                yield return null;
                 foreach (ContractGroup group in contractGroups.Values)
                 {
                     yield return group;
                 }
+                yield return null;
             }
         }
 
@@ -35,6 +35,8 @@ namespace ContractConfigurator
         public int maxCompletions;
         public int maxSimultaneous;
 
+        public bool expandInDebug = false;
+        public bool enabled { get; private set; }
         public string config { get; private set; }
         public string log { get; private set; }
         public DataNode dataNode { get; private set; }
@@ -57,34 +59,54 @@ namespace ContractConfigurator
         /// <returns>Whether we were successful.</returns>
         public bool Load(ConfigNode configNode)
         {
-            ConfigNodeUtil.ClearCache();
-            bool valid = true;
-
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "name", x => name = x, this);
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "minVersion", x => minVersion = x, this, "");
-            valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxCompletions", x => maxCompletions = x, this, 0, x => Validation.GE(x, 0));
-            valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxSimultaneous", x => maxSimultaneous = x, this, 0, x => Validation.GE(x, 0));
-            
-            if (!string.IsNullOrEmpty(minVersion))
+            try
             {
-                if (Util.Version.VerifyAssemblyVersion("ContractConfigurator", minVersion) == null)
+                dataNode = new DataNode(configNode.GetValue("name"), this);
+
+                LoggingUtil.CaptureLog = true;
+                ConfigNodeUtil.ClearCache(true);
+                ConfigNodeUtil.SetCurrentDataNode(dataNode);
+                bool valid = true;
+
+                valid &= ConfigNodeUtil.ParseValue<string>(configNode, "name", x => name = x, this);
+                valid &= ConfigNodeUtil.ParseValue<string>(configNode, "minVersion", x => minVersion = x, this, "");
+                valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxCompletions", x => maxCompletions = x, this, 0, x => Validation.GE(x, 0));
+                valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxSimultaneous", x => maxSimultaneous = x, this, 0, x => Validation.GE(x, 0));
+
+                if (!string.IsNullOrEmpty(minVersion))
                 {
-                    valid = false;
+                    if (Util.Version.VerifyAssemblyVersion("ContractConfigurator", minVersion) == null)
+                    {
+                        valid = false;
 
-                    var ainfoV = Attribute.GetCustomAttribute(typeof(ExceptionLogWindow).Assembly, typeof(AssemblyInformationalVersionAttribute)) as AssemblyInformationalVersionAttribute;
-                    string title = "Contract Configurator " + ainfoV.InformationalVersion + " Message";
-                    string message = "The contract group '" + name + "' requires at least Contract Configurator " + minVersion +
-                        " to work, and you are running version " + ainfoV.InformationalVersion +
-                        ".  Please upgrade Contract Configurator to use the contracts in this group.";
-                    DialogOption dialogOption = new DialogOption("Okay", new Callback(DoNothing), true);
-                    PopupDialog.SpawnPopupDialog(new MultiOptionDialog(message, title, HighLogic.Skin, dialogOption), false, HighLogic.Skin);
+                        var ainfoV = Attribute.GetCustomAttribute(typeof(ExceptionLogWindow).Assembly, typeof(AssemblyInformationalVersionAttribute)) as AssemblyInformationalVersionAttribute;
+                        string title = "Contract Configurator " + ainfoV.InformationalVersion + " Message";
+                        string message = "The contract group '" + name + "' requires at least Contract Configurator " + minVersion +
+                            " to work, and you are running version " + ainfoV.InformationalVersion +
+                            ".  Please upgrade Contract Configurator to use the contracts in this group.";
+                        DialogOption dialogOption = new DialogOption("Okay", new Callback(DoNothing), true);
+                        PopupDialog.SpawnPopupDialog(new MultiOptionDialog(message, title, HighLogic.Skin, dialogOption), false, HighLogic.Skin);
+                    }
                 }
+
+                // Check for unexpected values - always do this last
+                valid &= ConfigNodeUtil.ValidateUnexpectedValues(configNode, this);
+
+                // Do the deferred loads
+                valid &= ConfigNodeUtil.ExecuteDeferredLoads();
+
+                config = configNode.ToString();
+                enabled = valid;
+                log += LoggingUtil.capturedLog;
+                LoggingUtil.CaptureLog = false;
+
+                return valid;
             }
-
-            // Check for unexpected values - always do this last
-            valid &= ConfigNodeUtil.ValidateUnexpectedValues(configNode, this);
-
-            return valid;
+            catch
+            {
+                enabled = false;
+                throw;
+            }
         }
 
         private void DoNothing() { }
@@ -95,7 +117,7 @@ namespace ContractConfigurator
         /// <returns></returns>
         public override string ToString()
         {
-            return "ContractGroup[" + name + "]";
+            return "CONTRACT_GROUP[" + name + "]";
         }
         
         public string ErrorPrefix()

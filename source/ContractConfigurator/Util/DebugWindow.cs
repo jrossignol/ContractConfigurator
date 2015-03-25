@@ -148,25 +148,49 @@ namespace ContractConfigurator
                 guiContracts = ContractType.AllContractTypes;
             }
 
-            foreach (ContractType contractType in guiContracts)
+            foreach (ContractGroup contractGroup in ContractGroup.AllGroups)
             {
-                GUILayout.BeginHorizontal();
-                if (GUILayout.Button(contractType.expandInDebug ? "-" : "+", GUILayout.Width(20), GUILayout.Height(20)))
+                if (contractGroup != null)
                 {
-                    contractType.expandInDebug = !contractType.expandInDebug;
+                    GUILayout.BeginHorizontal();
+                    if (GUILayout.Button(contractGroup.expandInDebug ? "-" : "+", GUILayout.Width(20), GUILayout.Height(20)))
+                    {
+                        contractGroup.expandInDebug = !contractGroup.expandInDebug;
+                    }
+                    GUILayout.Label(new GUIContent(contractGroup.ToString(), DebugInfo(contractGroup)),
+                        contractGroup.enabled ? greenLabel : redLabel);
+                    GUILayout.EndHorizontal();
                 }
-                GUILayout.Label(new GUIContent(contractType.ToString(), DebugInfo(contractType)),
-                    contractType.enabled ? GUI.skin.label : redLabel);
-                GUILayout.EndHorizontal();
 
-                if (contractType.expandInDebug)
+                if (contractGroup == null || contractGroup.expandInDebug)
                 {
-                    // Output children
-                    ParamGui(contractType, contractType.ParamFactories);
-                    RequirementGui(contractType, contractType.Requirements);
-                    BehaviourGui(contractType, contractType.BehaviourFactories);
+                    foreach (ContractType contractType in guiContracts.Where(ct => ct.group == contractGroup))
+                    {
+                        GUILayout.BeginHorizontal();
 
-                    GUILayout.Space(8);
+                        if (contractGroup != null)
+                        {
+                            GUILayout.Label("\t", GUILayout.ExpandWidth(false));
+                        }
+
+                        if (GUILayout.Button(contractType.expandInDebug ? "-" : "+", GUILayout.Width(20), GUILayout.Height(20)))
+                        {
+                            contractType.expandInDebug = !contractType.expandInDebug;
+                        }
+                        GUILayout.Label(new GUIContent(contractType.ToString(), DebugInfo(contractType)),
+                            contractType.enabled ? GUI.skin.label : redLabel);
+                        GUILayout.EndHorizontal();
+
+                        if (contractType.expandInDebug)
+                        {
+                            // Output children
+                            ParamGui(contractType, contractType.ParamFactories, contractGroup != null ? 1 : 2);
+                            RequirementGui(contractType, contractType.Requirements, contractGroup != null ? 1 : 2);
+                            BehaviourGui(contractType, contractType.BehaviourFactories, contractGroup != null ? 1 : 2);
+
+                            GUILayout.Space(8);
+                        }
+                    }
                 }
             }
 
@@ -198,7 +222,7 @@ namespace ContractConfigurator
             GUI.DragWindow();
         }
 
-        private static void ParamGui(ContractType contractType, IEnumerable<ParameterFactory> paramList, int indent = 1)
+        private static void ParamGui(ContractType contractType, IEnumerable<ParameterFactory> paramList, int indent)
         {
             foreach (ParameterFactory param in paramList)
             {
@@ -220,7 +244,7 @@ namespace ContractConfigurator
             }
         }
 
-        private static void RequirementGui(ContractType contractType, IEnumerable<ContractRequirement> requirementList, int indent = 1)
+        private static void RequirementGui(ContractType contractType, IEnumerable<ContractRequirement> requirementList, int indent)
         {
             foreach (ContractRequirement requirement in requirementList)
             {
@@ -242,7 +266,7 @@ namespace ContractConfigurator
             }
         }
 
-        private static void BehaviourGui(ContractType contractType, IEnumerable<BehaviourFactory> behaviourList, int indent = 1)
+        private static void BehaviourGui(ContractType contractType, IEnumerable<BehaviourFactory> behaviourList, int indent)
         {
             foreach (BehaviourFactory behaviour in behaviourList)
             {
