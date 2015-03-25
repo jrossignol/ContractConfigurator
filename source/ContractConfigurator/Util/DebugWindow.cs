@@ -22,6 +22,7 @@ namespace ContractConfigurator
         public static Vector2 scrollPosition, scrollPosition2;
         private static IEnumerable<ContractType> guiContracts;
 
+        private static Texture2D closeIcon;
         private static Texture2D check;
         private static Texture2D cross;
         private static GUIStyle greenLabel;
@@ -44,15 +45,18 @@ namespace ContractConfigurator
         private static double toolTipTime = 0.0;
         private static bool drawToolTip = false;
 
+        public static bool showGUI = false;
+
         public static void LoadTextures()
         {
             check = GameDatabase.Instance.GetTexture("ContractConfigurator/icons/check", false);
             cross = GameDatabase.Instance.GetTexture("ContractConfigurator/icons/cross", false);
+            closeIcon = GameDatabase.Instance.GetTexture("ContractConfigurator/icons/close", false);
         }
 
         public static void OnGUI()
         {
-            if (HighLogic.LoadedScene != GameScenes.CREDITS && HighLogic.LoadedScene != GameScenes.LOADING &&
+            if (showGUI && HighLogic.LoadedScene != GameScenes.CREDITS && HighLogic.LoadedScene != GameScenes.LOADING &&
                 HighLogic.LoadedScene != GameScenes.LOADINGBUFFER && HighLogic.LoadedScene != GameScenes.SETTINGS)
             {
                 var ainfoV = Attribute.GetCustomAttribute(typeof(ContractConfigurator).Assembly, typeof(AssemblyInformationalVersionAttribute)) as AssemblyInformationalVersionAttribute;
@@ -61,6 +65,12 @@ namespace ContractConfigurator
                     windowPos,
                     WindowGUI,
                     "Contract Configurator " + ainfoV.InformationalVersion);
+
+                // Add the close icon
+                if (GUI.Button(new Rect(windowPos.xMax - 18, windowPos.yMin + 2, 16, 16), closeIcon, GUI.skin.label))
+                {
+                    showGUI = false;
+                }
 
                 GUI.depth = 0;
                 if (drawToolTip)

@@ -32,8 +32,6 @@ namespace ContractConfigurator
 
         static ScreenMessage lastMessage = null;
 
-        private bool showGUI = false;
-
         public static int totalContracts = 0;
         public static int successContracts = 0;
         public static int attemptedContracts = 0;
@@ -82,7 +80,7 @@ namespace ContractConfigurator
             // Alt-F9 shows the contract configurator window
             if (GameSettings.MODIFIER_KEY.GetKey() && Input.GetKeyDown(KeyCode.F10))
             {
-                showGUI = !showGUI;
+                DebugWindow.showGUI = !DebugWindow.showGUI;
             }
 
             // Check if the ContractsApp has just become visible
@@ -165,10 +163,7 @@ namespace ContractConfigurator
 
         public void OnGUI()
         {
-            if (showGUI)
-            {
-                DebugWindow.OnGUI();
-            }
+            DebugWindow.OnGUI();
             ExceptionLogWindow.OnGUI();
         }
 
