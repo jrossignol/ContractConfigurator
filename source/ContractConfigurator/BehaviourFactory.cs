@@ -129,7 +129,14 @@ namespace ContractConfigurator
             // Get the type
             string type = behaviourConfig.GetValue("type");
             string name = behaviourConfig.HasValue("name") ? behaviourConfig.GetValue("name") : type;
-            if (!factories.ContainsKey(type))
+            if (string.IsNullOrEmpty(type))
+            {
+                LoggingUtil.LogError(typeof(ParameterFactory), "CONTRACT_TYPE '" + contractType.name + "'," +
+                    "BEHAVIOUR '" + behaviourConfig.GetValue("name") + "' does not specify the mandatory 'type' attribute.");
+                behaviourFactory = new InvalidBehaviourFactory();
+                valid = false;
+            }
+            else if (!factories.ContainsKey(type))
             {
                 LoggingUtil.LogError(typeof(ParameterFactory), "CONTRACT_TYPE '" + contractType.name + "'," +
                     "BEHAVIOUR '" + behaviourConfig.GetValue("name") + "' of type '" + behaviourConfig.GetValue("type") + "': " +

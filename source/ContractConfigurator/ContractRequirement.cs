@@ -182,7 +182,14 @@ namespace ContractConfigurator
             // Get the type
             string type = configNode.GetValue("type");
             string name = configNode.HasValue("name") ? configNode.GetValue("name") : type;
-            if (!requirementTypes.ContainsKey(type))
+            if (string.IsNullOrEmpty(type))
+            {
+                LoggingUtil.LogError(typeof(ParameterFactory), "CONTRACT_TYPE '" + contractType.name + "'," +
+                    "REQUIREMENT '" + configNode.GetValue("name") + "' does not specify the mandatory 'type' attribute.");
+                requirement = new InvalidContractRequirement();
+                valid = false;
+            }
+            else if (!requirementTypes.ContainsKey(type))
             {
                 LoggingUtil.LogError(typeof(ParameterFactory), "CONTRACT_TYPE '" + contractType.name + "'," +
                     "REQUIREMENT '" + configNode.GetValue("name") + "' of type '" + configNode.GetValue("type") + "': " +
