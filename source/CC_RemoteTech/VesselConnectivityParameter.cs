@@ -35,7 +35,7 @@ namespace ContractConfigurator.RemoteTech
             string output;
             if (string.IsNullOrEmpty(title))
             {
-                output = (hasConnectivity ? "Direct connection to:" : "No direct connection to:");
+                output = (hasConnectivity ? "Direct connection to: " : "No direct connection to: ");
                 output += ContractVesselTracker.Instance.GetDisplayName(vesselKey);
             }
             else
