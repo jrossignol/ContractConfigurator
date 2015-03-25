@@ -1,6 +1,7 @@
 Contract Configurator 0.7.4
 - Fix for unmanned vessels in HasCrew.
 - Fix to check both vessels when undocking in HasCrew (thanks severedsolo).
+- Improved output messages when reloading contracts through the debug menu.
 - Minor bug fixes.
 
 Contract Configurator 0.7.3
