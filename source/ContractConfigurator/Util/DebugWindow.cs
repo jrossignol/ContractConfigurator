@@ -167,8 +167,25 @@ namespace ContractConfigurator
                     {
                         contractGroup.expandInDebug = !contractGroup.expandInDebug;
                     }
-                    GUILayout.Label(new GUIContent(contractGroup.ToString(), DebugInfo(contractGroup)),
-                        contractGroup.enabled ? greenLabel : redLabel);
+
+                    GUIStyle style = greenLabel;
+                    if (!contractGroup.enabled)
+                    {
+                        style = redLabel;
+                    }
+                    else
+                    {
+                        foreach (ContractType contractType in guiContracts.Where(ct => ct.group == contractGroup))
+                        {
+                            if (!contractType.enabled)
+                            {
+                                style = redLabel;
+                                break;
+                            }
+                        }
+                    }
+
+                    GUILayout.Label(new GUIContent(contractGroup.ToString(), DebugInfo(contractGroup)), style);
                     GUILayout.EndHorizontal();
                 }
 

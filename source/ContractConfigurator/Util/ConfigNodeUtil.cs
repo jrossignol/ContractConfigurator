@@ -305,6 +305,10 @@ namespace ContractConfigurator
                 double z = (double)Convert.ChangeType(vals[2], typeof(double));
                 value = (T)(object)new Vector3d(x, y, z);
             }
+            else if (typeof(T) == typeof(Type))
+            {
+                value = (T)(object)ParseTypeValue(stringValue);
+            }
             // Do newline conversions
             else if (typeof(T) == typeof(string))
             {
@@ -702,6 +706,37 @@ namespace ContractConfigurator
         {
             Guid id = new Guid(name);
             return FlightGlobals.Vessels.Find(v => v.id == id);
+        }
+
+        private static Type ParseTypeValue(string name)
+        {
+            if (name.StartsWith("List<") && name.EndsWith(">"))
+            {
+                string innerType = name.Substring("List<".Length, name.Length - "List<>".Length);
+
+                Type listType = typeof(List<>);
+                return listType.MakeGenericType(ParseTypeValue(innerType));
+            }
+            else
+            {
+                foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
+                {
+                    try
+                    {
+                        Type t = assembly.GetTypes().Where(type => type.Name == name).FirstOrDefault();
+                        if (t != null)
+                        {
+                            return t;
+                        }
+                    }
+                    catch
+                    {
+                        // Ignore exception, as assembly type errors gets logged elsewhere
+                    }
+                }
+
+                throw new ArgumentException("'" + name + "' is not a valid type.");
+            }
         }
 
         private static ProtoCrewMember ParseProtoCrewMemberValue(string name)

@@ -316,14 +316,10 @@ namespace ContractConfigurator
                         {
                             return false;
                         }
-
-                        if (ct.prestige.Count > 0 && ct.prestige.Contains(prestige))
-                        {
-                            validContractTypes.Add(ct, ct.weight);
-                            totalWeight += ct.weight;
-                        }
                     }
-                    else
+
+                    // Only select contracts with the correct prestige level
+                    if (ct.prestige.Count == 0 || ct.prestige.Contains(prestige))
                     {
                         validContractTypes.Add(ct, ct.weight);
                         totalWeight += ct.weight;
@@ -355,6 +351,7 @@ namespace ContractConfigurator
 
                     // Try to refresh non-deterministic values before we check requirements
                     currentContract = this;
+                    LoggingUtil.LogVerbose(this, "Refresh non-deterministic values for  = " + selectedContractType.name);
                     if (!ConfigNodeUtil.UpdateNonDeterministicValues(selectedContractType.dataNode))
                     {
                         LoggingUtil.LogVerbose(this, selectedContractType.name + " was not generated: non-deterministic expression failure.");
@@ -366,7 +363,6 @@ namespace ContractConfigurator
                     // Check the requirements for our selection
                     if (selectedContractType.MeetRequirements(this))
                     {
-                        LoggingUtil.LogVerbose(this, selectedContractType.name + " was not generated: requirement not met.");
                         contractType = selectedContractType;
                         subType = contractType.name;
                         return true;
@@ -374,6 +370,7 @@ namespace ContractConfigurator
                     // Remove the selection, and try again
                     else
                     {
+                        LoggingUtil.LogVerbose(this, selectedContractType.name + " was not generated: requirement not met.");
                         validContractTypes.Remove(selectedContractType);
                         totalWeight -= selectedContractType.weight;
                     }

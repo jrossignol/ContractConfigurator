@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using UnityEngine;
 using KSP;
@@ -94,6 +95,7 @@ namespace ContractConfigurator
         public float failureFunds;
         public float advanceFunds;
         public double weight;
+        private List<string> dataValues = new List<string>();
 
         public ContractType(string name)
         {
@@ -162,11 +164,6 @@ namespace ContractConfigurator
                 valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "declinable", x => declinable = x, this, true);
                 valid &= ConfigNodeUtil.ParseValue<List<Contract.ContractPrestige>>(configNode, "prestige", x => prestige = x, this, new List<Contract.ContractPrestige>());
                 valid &= ConfigNodeUtil.ParseValue<CelestialBody>(configNode, "targetBody", x => targetBody = x, this, (CelestialBody)null);
-                valid &= ConfigNodeUtil.ParseValue<List<CelestialBody>>(configNode, "targetBodies", x => targetBodies = x, this, new List<CelestialBody>());
-                valid &= ConfigNodeUtil.ParseValue<Vessel>(configNode, "targetVessel", x => targetVessel = x, this, (Vessel)null);
-                valid &= ConfigNodeUtil.ParseValue<List<Vessel>>(configNode, "targetVessels", x => targetVessels = x, this, new List<Vessel>());
-                valid &= ConfigNodeUtil.ParseValue<ProtoCrewMember>(configNode, "targetKerbal", x => targetKerbal = x, this, (ProtoCrewMember)null);
-                valid &= ConfigNodeUtil.ParseValue<List<ProtoCrewMember>>(configNode, "targetKerbals", x => targetKerbals = x, this, new List<ProtoCrewMember>());
             
                 valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxCompletions", x => maxCompletions = x, this, 0, x => Validation.GE(x, 0));
                 valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxSimultaneous", x => maxSimultaneous = x, this, 0, x => Validation.GE(x, 0));
@@ -181,7 +178,67 @@ namespace ContractConfigurator
 
                 // Load other values
                 valid &= ConfigNodeUtil.ParseValue<double>(configNode, "weight", x => weight = x, this, 1.0, x => Validation.GE(x, 0.0f));
-            
+
+                // TODO - these are to be deprecated
+                if (configNode.HasValue("targetBodies"))
+                {
+                    valid &= ConfigNodeUtil.ParseValue<List<CelestialBody>>(configNode, "targetBodies", x => targetBodies = x, this, new List<CelestialBody>());
+                    LoggingUtil.LogWarning(this, "The 'targetBodies' attribute is obsolete as of Contract Configurator 0.7.4.  It will be removed in 1.0.0 in favour of the DATA { } node.");
+                }
+                if (configNode.HasValue("targetVessel"))
+                {
+                    valid &= ConfigNodeUtil.ParseValue<Vessel>(configNode, "targetVessel", x => targetVessel = x, this, (Vessel)null);
+                    LoggingUtil.LogWarning(this, "The 'targetVessel' attribute is obsolete as of Contract Configurator 0.7.4.  It will be removed in 1.0.0 in favour of the DATA { } node.");
+                }
+                if (configNode.HasValue("targetVessels"))
+                {
+                    valid &= ConfigNodeUtil.ParseValue<List<Vessel>>(configNode, "targetVessels", x => targetVessels = x, this, new List<Vessel>());
+                    LoggingUtil.LogWarning(this, "The 'targetVessels' attribute is obsolete as of Contract Configurator 0.7.4.  It will be removed in 1.0.0 in favour of the DATA { } node.");
+                }
+                if (configNode.HasValue("targetKerbal"))
+                {
+                    valid &= ConfigNodeUtil.ParseValue<ProtoCrewMember>(configNode, "targetKerbal", x => targetKerbal = x, this, (ProtoCrewMember)null);
+                    LoggingUtil.LogWarning(this, "The 'targetKerbal' attribute is obsolete as of Contract Configurator 0.7.4.  It will be removed in 1.0.0 in favour of the DATA { } node.");
+                }
+                if (configNode.HasValue("targetKerbals"))
+                {
+                    valid &= ConfigNodeUtil.ParseValue<List<ProtoCrewMember>>(configNode, "targetKerbals", x => targetKerbals = x, this, new List<ProtoCrewMember>());
+                    LoggingUtil.LogWarning(this, "The 'targetKerbals' attribute is obsolete as of Contract Configurator 0.7.4.  It will be removed in 1.0.0 in favour of the DATA { } node.");
+                }
+
+                // Load DATA nodes
+                foreach (ConfigNode data in configNode.GetNodes("DATA"))
+                {
+                    Type type = null;
+                    valid &= ConfigNodeUtil.ParseValue<Type>(data, "type", x => type = x, this);
+
+                    if (type != null)
+                    {
+                        foreach (ConfigNode.Value pair in data.values)
+                        {
+                            string name = pair.name;
+                            if (name != "type")
+                            {
+                                object value = null;
+
+                                // Create the setter function
+                                Type actionType = typeof(Action<>).MakeGenericType(type);
+                                Delegate del = Delegate.CreateDelegate(actionType, value, typeof(ContractType).GetMethod("NullAction"));
+
+                                // Get the ParseValue method
+                                MethodInfo method = typeof(ConfigNodeUtil).GetMethods(BindingFlags.Static | BindingFlags.Public).
+                                    Where(m => m.Name == "ParseValue" && m.GetParameters().Count() == 4).Single();
+                                method = method.MakeGenericMethod(new Type[] { type });
+
+                                // Invoke the ParseValue method
+                                method.Invoke(null, new object[] { data, name, del, this });
+
+                                dataValues.Add(name);
+                            }
+                        }
+                    }
+                }
+
                 // Check for unexpected values - always do this last
                 valid &= ConfigNodeUtil.ValidateUnexpectedValues(configNode, this);
 
@@ -281,6 +338,7 @@ namespace ContractConfigurator
             // Check prestige
             if (prestige.Count > 0 && !prestige.Contains(contract.Prestige))
             {
+                LoggingUtil.LogVerbose(this, "Didn't generate contract type " + name + ", wrong prestige level.");
                 return false;
             }
 
@@ -344,40 +402,34 @@ namespace ContractConfigurator
             // Check special values are not null
             if (contract.ContractState != Contract.State.Active)
             {
-                // Target Bodies
-                if (targetBodies.Count == 0 && !dataNode.IsDeterministic("targetBodies"))
+                foreach (string name in dataValues)
                 {
-                    LoggingUtil.LogVerbose(this, "Didn't generate contract type " + name + ", targetBodies is empty.");
-                    return false;
+                    object o = dataNode[name];
+                    if (o == null)
+                    {
+                        LoggingUtil.LogVerbose(this, "Didn't generate contract type " + this.name + ", '" + name + "' was null.");
+                        return false;
+                    }
+                    else if (o == typeof(List<>))
+                    {
+                        PropertyInfo prop = o.GetType().GetProperty("Count");
+                        int count = (int)prop.GetValue(o, null);
+                        if (count == 0)
+                        {
+                            LoggingUtil.LogVerbose(this, "Didn't generate contract type " + this.name + ", '" + name + "' had zero count.");
+                            return false;
+                        }
+                    }
                 }
 
-                // Target Vessel
-                if (targetVessel == null && !dataNode.IsDeterministic("targetVessel"))
-                {
-                    LoggingUtil.LogVerbose(this, "Didn't generate contract type " + name + ", targetVessel is null.");
-                    return false;
-                }
-                if (targetVessels.Count == 0 && !dataNode.IsDeterministic("targetVessels"))
-                {
-                    LoggingUtil.LogVerbose(this, "Didn't generate contract type " + name + ", targetVessels is empty.");
-                    return false;
-                }
-
-                // Target Kerbal
-                if (targetKerbal == null && !dataNode.IsDeterministic("targetKerbal"))
-                {
-                    LoggingUtil.LogVerbose(this, "Didn't generate contract type " + name + ", targetKerbal is null.");
-                    return false;
-                }
-                if (targetKerbals.Count == 0 && !dataNode.IsDeterministic("targetKerbals"))
-                {
-                    LoggingUtil.LogVerbose(this, "Didn't generate contract type " + name + ", targetKerbals is empty.");
-                    return false;
-                }
             }
 
             // Check the captured requirements
             return ContractRequirement.RequirementsMet(contract, this, requirements);
+        }
+
+        public static void NullAction(object o)
+        {
         }
 
         /// <summary>
