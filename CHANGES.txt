@@ -6,6 +6,7 @@ Contract Configurator 0.7.4
 - Improved output messages when reloading contracts through the debug menu.
 - Debug window now contains details of contract groups.
 - Add close icon to debug menu.
+- Support for new DATA node for storing arbitrary values for use in expressions.
 - Minor bug fixes.
 
 Contract Configurator 0.7.3
