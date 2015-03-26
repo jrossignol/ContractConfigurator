@@ -152,15 +152,15 @@ namespace ContractConfigurator.Behaviour
             return valid ? spawnKerbal : null;
         }
 
-        protected override void OnAccepted()
+        protected override void OnOffered()
         {
             // Actually spawn the kerbals in the game world!
             foreach (KerbalData kerbal in kerbals)
             {
-                LoggingUtil.LogVerbose(this, "Spawning a Kerbal named " + kerbal.name);
-
                 if (kerbal.pqsCity != null)
                 {
+                    LoggingUtil.LogVerbose(this, "Generating coordinates from PQS city for Kerbal " + kerbal.name);
+
                     // Translate by the PQS offset (inverse transform of coordinate system)
                     Vector3d position = kerbal.pqsCity.transform.position;
                     Vector3d v = kerbal.pqsOffset;
@@ -176,6 +176,15 @@ namespace ContractConfigurator.Behaviour
                     kerbal.latitude = kerbal.body.GetLatitude(position + offsetPos);
                     kerbal.longitude = kerbal.body.GetLongitude(position + offsetPos);
                 }
+            }
+        }
+
+        protected override void OnAccepted()
+        {
+            // Actually spawn the kerbals in the game world!
+            foreach (KerbalData kerbal in kerbals)
+            {
+                LoggingUtil.LogVerbose(this, "Spawning a Kerbal named " + kerbal.name);
 
                 if (kerbal.altitude == null)
                 {
@@ -238,7 +247,10 @@ namespace ContractConfigurator.Behaviour
                 child.AddValue("body", kd.body.name);
                 child.AddValue("lat", kd.latitude);
                 child.AddValue("lon", kd.longitude);
-                child.AddValue("alt", kd.altitude);
+                if (kd.altitude != null)
+                {
+                    child.AddValue("alt", kd.altitude);
+                }
                 child.AddValue("landed", kd.landed);
                 child.AddValue("owned", kd.owned);
                 child.AddValue("addToRoster", kd.addToRoster);
@@ -266,7 +278,7 @@ namespace ContractConfigurator.Behaviour
                 kd.body = ConfigNodeUtil.ParseValue<CelestialBody>(child, "body");
                 kd.latitude = ConfigNodeUtil.ParseValue<double>(child, "lat");
                 kd.longitude = ConfigNodeUtil.ParseValue<double>(child, "lon");
-                kd.altitude = ConfigNodeUtil.ParseValue<double>(child, "alt");
+                kd.altitude = ConfigNodeUtil.ParseValue<double?>(child, "alt", (double?)null);
                 kd.landed = ConfigNodeUtil.ParseValue<bool>(child, "landed");
                 kd.owned = ConfigNodeUtil.ParseValue<bool>(child, "owned");
                 kd.addToRoster = ConfigNodeUtil.ParseValue<bool>(child, "addToRoster");

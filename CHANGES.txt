@@ -1,6 +1,7 @@
 Contract Configurator 0.7.4
 - Fix for unmanned vessels in HasCrew.
 - Fix to check both vessels when undocking in HasCrew (thanks severedsolo).
+- Fix for Kerbals spawning at 0 latitude, 0 longitude (thanks Wiseman).
 - Improved output messages when reloading contracts through the debug menu.
 - Debug window now contains details of contract groups.
 - Add close icon to debug menu.
