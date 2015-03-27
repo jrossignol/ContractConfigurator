@@ -33,10 +33,10 @@ namespace ContractConfigurator.Parameters
             CreateDelegates();
         }
 
-        public HasPassengers(string title, List<ProtoCrewMember> passengers)
+        public HasPassengers(string title, IEnumerable<ProtoCrewMember> passengers)
             : base(title)
         {
-            this.passengers = passengers;
+            this.passengers = passengers.ToList();
 
             CreateDelegates();
         }

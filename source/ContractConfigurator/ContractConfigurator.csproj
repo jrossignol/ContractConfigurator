@@ -107,6 +107,7 @@
     <Compile Include="ExpressionParser\Parsers\SimpleTypes\StringExpressionParser.cs" />
     <Compile Include="ExpressionParser\Parsers\SimpleTypes\ValueExpressionParser.cs" />
     <Compile Include="ExpressionParser\ExpressionParser.cs" />
+    <Compile Include="ExpressionParser\Wrappers\Kerbal.cs" />
     <Compile Include="ExpressionParser\Wrappers\Duration.cs" />
     <Compile Include="ParameterFactory\HasCrewCapacityFactory.cs" />
     <Compile Include="ParameterFactory\VesselDestroyedFactory.cs" />

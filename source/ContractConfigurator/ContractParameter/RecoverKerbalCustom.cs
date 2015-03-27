@@ -27,7 +27,7 @@ namespace ContractConfigurator.Parameters
         {
         }
 
-        public RecoverKerbalCustom(List<ProtoCrewMember> kerbals, int index, int count, string title)
+        public RecoverKerbalCustom(IEnumerable<ProtoCrewMember> kerbals, int index, int count, string title)
             : base(title)
         {
             this.index = index;

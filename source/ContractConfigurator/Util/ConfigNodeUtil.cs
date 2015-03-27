@@ -289,6 +289,10 @@ namespace ContractConfigurator
             {
                 value = (T)(object)ParseProtoCrewMemberValue(stringValue);
             }
+            else if (typeof(T) == typeof(Kerbal))
+            {
+                value = (T)(object)new Kerbal(ParseProtoCrewMemberValue(stringValue));
+            }
             else if (typeof(T) == typeof(Guid))
             {
                 value = (T)(object)new Guid(stringValue);

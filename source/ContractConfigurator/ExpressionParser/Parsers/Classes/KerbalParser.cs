@@ -8,9 +8,9 @@ using UnityEngine;
 namespace ContractConfigurator.ExpressionParser
 {
     /// <summary>
-    /// Expression parser subclass for ProtoCrewMember (Kerbals).
+    /// Expression parser subclass for Kerbal (ProtoCrewMember).
     /// </summary>
-    public class KerbalParser : ClassExpressionParser<ProtoCrewMember>, IExpressionParserRegistrer
+    public class KerbalParser : ClassExpressionParser<Kerbal>, IExpressionParserRegistrer
     {
         static KerbalParser()
         {
@@ -19,34 +19,35 @@ namespace ContractConfigurator.ExpressionParser
 
         public void RegisterExpressionParsers()
         {
-            RegisterParserType(typeof(ProtoCrewMember), typeof(KerbalParser));
+            RegisterParserType(typeof(Kerbal), typeof(KerbalParser));
         }
 
         internal static void RegisterMethods()
         {
-            RegisterMethod(new Method<ProtoCrewMember, float>("Experience", k => k == null ? 0.0f : k.experience));
-            RegisterMethod(new Method<ProtoCrewMember, int>("ExperienceLevel", k => k == null ? 0 : k.experienceLevel));
-            RegisterMethod(new Method<ProtoCrewMember, Experience.ExperienceTrait>("ExperienceTrait", k => k == null ? null : k.experienceTrait));
-            RegisterMethod(new Method<ProtoCrewMember, ProtoCrewMember.RosterStatus>("RosterStatus", k => k == null ? ProtoCrewMember.RosterStatus.Dead : k.rosterStatus));
-            RegisterMethod(new Method<ProtoCrewMember, ProtoCrewMember.KerbalType>("Type", k => k == null ? ProtoCrewMember.KerbalType.Applicant : k.type));
+            RegisterMethod(new Method<Kerbal, float>("Experience", k => k == null ? 0.0f : k.pcm.experience));
+            RegisterMethod(new Method<Kerbal, int>("ExperienceLevel", k => k == null ? 0 : k.pcm.experienceLevel));
+            RegisterMethod(new Method<Kerbal, Experience.ExperienceTrait>("ExperienceTrait", k => k == null ? null : k.pcm.experienceTrait));
+            RegisterMethod(new Method<Kerbal, ProtoCrewMember.RosterStatus>("RosterStatus", k => k == null ? ProtoCrewMember.RosterStatus.Dead : k.pcm.rosterStatus));
+            RegisterMethod(new Method<Kerbal, ProtoCrewMember.KerbalType>("Type", k => k == null ? ProtoCrewMember.KerbalType.Applicant : k.pcm.type));
 
-            RegisterGlobalFunction(new Function<List<ProtoCrewMember>>("AllKerbals", () => HighLogic.CurrentGame.CrewRoster.AllKerbals().ToList(), false));
+            RegisterGlobalFunction(new Function<List<Kerbal>>("AllKerbals", () => HighLogic.CurrentGame.CrewRoster.AllKerbals().
+                Select<ProtoCrewMember, Kerbal>(pcm => new Kerbal(pcm)).ToList(), false));
         }
 
         public KerbalParser()
         {
         }
 
-        internal override U ConvertType<U>(ProtoCrewMember value)
+        internal override U ConvertType<U>(Kerbal value)
         {
             if (typeof(U) == typeof(string))
             {
-                return (U)(object)(value == null ? "" : value.name);
+                return (U)(object)(value == null ? "" : value.ToString());
             }
             return base.ConvertType<U>(value);
         }
 
-        internal override ProtoCrewMember ParseIdentifier(Token token)
+        internal override Kerbal ParseIdentifier(Token token)
         {
             // Try to parse more, as Kerbal names can have spaces
             Match m = Regex.Match(expression, @"^((?>\s*[A-Za-z][\w\d]*)+).*");
@@ -63,7 +64,12 @@ namespace ContractConfigurator.ExpressionParser
                 return null;
             }
 
-            return HighLogic.CurrentGame.CrewRoster.AllKerbals().Where(pcm => pcm.name == identifier).FirstOrDefault();
+            ProtoCrewMember crew = HighLogic.CurrentGame.CrewRoster.AllKerbals().Where(pcm => pcm.name == identifier).FirstOrDefault();
+            if (crew != null)
+            {
+                return new Kerbal(crew);
+            }
+            return null;
         }
     }
 }

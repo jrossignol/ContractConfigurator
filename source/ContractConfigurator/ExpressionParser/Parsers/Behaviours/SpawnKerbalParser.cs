@@ -25,8 +25,8 @@ namespace ContractConfigurator.ExpressionParser
 
         internal static void RegisterMethods()
         {
-            RegisterMethod(new Method<SpawnKerbalFactory, List<ProtoCrewMember>>("Kerbals",
-                skf => skf.Current != null ? skf.Current.Kerbals().ToList() : new List<ProtoCrewMember>(), false));
+            RegisterMethod(new Method<SpawnKerbalFactory, List<Kerbal>>("Kerbals",
+                skf => skf.Current != null ? skf.Current.Kerbals().Select<ProtoCrewMember, Kerbal>(pcm => new Kerbal(pcm)).ToList() : new List<Kerbal>(), false));
         }
 
         public SpawnKerbalParser()

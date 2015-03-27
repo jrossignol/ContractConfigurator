@@ -28,7 +28,8 @@ namespace ContractConfigurator.ExpressionParser
             RegisterMethod(new Method<Vessel, bool>("IsSplashed", v => v != null && v.Splashed));
             RegisterMethod(new Method<Vessel, bool>("IsOrbiting", v => v != null && !v.LandedOrSplashed));
 
-            RegisterMethod(new Method<Vessel, List<ProtoCrewMember>>("Crew", v => v == null ? new List<ProtoCrewMember>() : v.GetVesselCrew()));
+            RegisterMethod(new Method<Vessel, List<Kerbal>>("Crew", v => v == null ? new List<Kerbal>() : v.GetVesselCrew().
+                Select<ProtoCrewMember, Kerbal>(pcm => new Kerbal(pcm)).ToList()));
             RegisterMethod(new Method<Vessel, List<Part>>("Parts", v => v == null ? new List<Part>() : v.parts));
 
             RegisterMethod(new Method<Vessel, CelestialBody>("CelestialBody", v => v == null ? null : v.mainBody));

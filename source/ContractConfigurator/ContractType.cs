@@ -84,8 +84,8 @@ namespace ContractConfigurator
         protected List<CelestialBody> targetBodies;
         protected Vessel targetVessel;
         protected List<Vessel> targetVessels;
-        protected ProtoCrewMember targetKerbal;
-        protected List<ProtoCrewMember> targetKerbals;
+        protected Kerbal targetKerbal;
+        protected List<Kerbal> targetKerbals;
         public int maxCompletions;
         public int maxSimultaneous;
         public float rewardScience;
@@ -197,12 +197,12 @@ namespace ContractConfigurator
                 }
                 if (configNode.HasValue("targetKerbal"))
                 {
-                    valid &= ConfigNodeUtil.ParseValue<ProtoCrewMember>(configNode, "targetKerbal", x => targetKerbal = x, this, (ProtoCrewMember)null);
+                    valid &= ConfigNodeUtil.ParseValue<Kerbal>(configNode, "targetKerbal", x => targetKerbal = x, this, (Kerbal)null);
                     LoggingUtil.LogWarning(this, "The 'targetKerbal' attribute is obsolete as of Contract Configurator 0.7.4.  It will be removed in 1.0.0 in favour of the DATA { } node.");
                 }
                 if (configNode.HasValue("targetKerbals"))
                 {
-                    valid &= ConfigNodeUtil.ParseValue<List<ProtoCrewMember>>(configNode, "targetKerbals", x => targetKerbals = x, this, new List<ProtoCrewMember>());
+                    valid &= ConfigNodeUtil.ParseValue<List<Kerbal>>(configNode, "targetKerbals", x => targetKerbals = x, this, new List<Kerbal>());
                     LoggingUtil.LogWarning(this, "The 'targetKerbals' attribute is obsolete as of Contract Configurator 0.7.4.  It will be removed in 1.0.0 in favour of the DATA { } node.");
                 }
 

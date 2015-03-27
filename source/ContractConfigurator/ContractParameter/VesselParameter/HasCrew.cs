@@ -26,7 +26,7 @@ namespace ContractConfigurator.Parameters
         {
         }
 
-        public HasCrew(string title, List<ProtoCrewMember> kerbals, string trait, int minCrew = 1, int maxCrew = int.MaxValue, int minExperience = 0, int maxExperience = 5)
+        public HasCrew(string title, IEnumerable<ProtoCrewMember> kerbals, string trait, int minCrew = 1, int maxCrew = int.MaxValue, int minExperience = 0, int maxExperience = 5)
             : base(title)
         {
             this.minCrew = minCrew;
