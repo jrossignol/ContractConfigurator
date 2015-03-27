@@ -28,6 +28,7 @@ namespace ContractConfigurator.Behaviour
             public double maxDistance = 0.0;
             public PQSCity pqsCity = null;
             public Vector3d pqsOffset;
+            public string parameter = "";
 
             public WaypointData()
             {
@@ -62,7 +63,8 @@ namespace ContractConfigurator.Behaviour
                 maxDistance = orig.maxDistance;
                 pqsCity = orig.pqsCity;
                 pqsOffset = orig.pqsOffset;
-                
+                parameter = orig.parameter;
+
                 SetContract(contract);
             }
 
@@ -122,6 +124,7 @@ namespace ContractConfigurator.Behaviour
                     valid &= ConfigNodeUtil.ParseValue<string>(child, "name", x => wpData.waypoint.name = x, factory, (string)null);
                     valid &= ConfigNodeUtil.ParseValue<string>(child, "icon", x => wpData.waypoint.id = x, factory);
                     valid &= ConfigNodeUtil.ParseValue<double?>(child, "altitude", x => altitude = x, factory, (double?)null);
+                    valid &= ConfigNodeUtil.ParseValue<string>(child, "parameter", x => wpData.parameter = x, factory, "");
 
                     // The FinePrint logic is such that it will only look in Squad/Contracts/Icons for icons.
                     // Cheat this by hacking the path in the game database.
@@ -296,7 +299,11 @@ namespace ContractConfigurator.Behaviour
                     wpData.waypoint.name = StringUtilities.GenerateSiteName(contract.MissionSeed + index++, body, !wpData.waterAllowed);
                 }
 
-                AddWayPoint(wpData.waypoint);
+                if (string.IsNullOrEmpty(wpData.parameter) || contract.AllParameters.
+                    Where(p => p.ID == wpData.parameter && p.State == ParameterState.Complete).Any())
+                {
+                    AddWayPoint(wpData.waypoint);
+                }
             }
         }
 
@@ -309,6 +316,7 @@ namespace ContractConfigurator.Behaviour
                 // Read all the waypoint data
                 WaypointData wpData = new WaypointData();
                 wpData.type = child.GetValue("type");
+                wpData.parameter = ConfigNodeUtil.ParseValue<string>(child, "parameter", "");
                 wpData.waypoint.celestialName = child.GetValue("celestialName");
                 wpData.waypoint.name = child.GetValue("name");
                 wpData.waypoint.id = child.GetValue("icon");
@@ -321,7 +329,11 @@ namespace ContractConfigurator.Behaviour
                 wpData.SetContract(contract);
 
                 // Create additional waypoint details
-                AddWayPoint(wpData.waypoint);
+                if (string.IsNullOrEmpty(wpData.parameter) || contract.AllParameters.
+                    Where(p => p.ID == wpData.parameter && p.State == ParameterState.Complete).Any())
+                {
+                    AddWayPoint(wpData.waypoint);
+                }
 
                 // Add to the global list
                 waypoints.Add(wpData);
@@ -337,6 +349,7 @@ namespace ContractConfigurator.Behaviour
                 ConfigNode child = new ConfigNode("WAYPOINT");
 
                 child.AddValue("type", wpData.type);
+                child.AddValue("parameter", wpData.parameter);
                 child.AddValue("celestialName", wpData.waypoint.celestialName);
                 child.AddValue("name", wpData.waypoint.name);
                 child.AddValue("icon", wpData.waypoint.id);
@@ -346,6 +359,20 @@ namespace ContractConfigurator.Behaviour
                 child.AddValue("index", wpData.waypoint.index);
 
                 configNode.AddNode(child);
+            }
+        }
+
+        protected override void OnParameterStateChange(ContractParameter param)
+        {
+            if (param.State == ParameterState.Complete)
+            {
+                foreach (WaypointData wpData in waypoints)
+                {
+                    if (wpData.parameter == param.ID)
+                    {
+                        AddWayPoint(wpData.waypoint);
+                    }
+                }
             }
         }
 
