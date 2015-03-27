@@ -24,7 +24,7 @@ namespace ContractConfigurator
 
         private static ContractConfigurator Instance;
 
-        static bool reloading = false;
+        public static bool reloading = false;
         static ReloadStep reloadStep = ReloadStep.GAME_DATABASE;
 
         static bool loading = false;

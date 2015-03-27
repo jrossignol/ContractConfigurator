@@ -133,8 +133,10 @@ namespace ContractConfigurator
 
             GUILayout.BeginVertical(GUILayout.Width(500));
 
-            GUILayout.Label("Sucessfully loaded " + ContractConfigurator.successContracts + " out of " +
-                ContractConfigurator.totalContracts + " contracts.",
+            string loadedText = ContractConfigurator.reloading ? "Reloading contracts..." :
+                "Sucessfully loaded " + ContractConfigurator.successContracts + " out of " +
+                ContractConfigurator.totalContracts + " contracts.";
+            GUILayout.Label(loadedText, ContractConfigurator.reloading ? yellowLabel :
                 ContractConfigurator.successContracts == ContractConfigurator.totalContracts ? greenLabel : redLabel);
 
             GUILayout.BeginHorizontal();
@@ -158,64 +160,67 @@ namespace ContractConfigurator
                 guiContracts = ContractType.AllContractTypes;
             }
 
-            foreach (ContractGroup contractGroup in ContractGroup.AllGroups)
+            if (!ContractConfigurator.reloading)
             {
-                if (contractGroup != null)
+                foreach (ContractGroup contractGroup in ContractGroup.AllGroups)
                 {
-                    GUILayout.BeginHorizontal();
-                    if (GUILayout.Button(contractGroup.expandInDebug ? "-" : "+", GUILayout.Width(20), GUILayout.Height(20)))
+                    if (contractGroup != null)
                     {
-                        contractGroup.expandInDebug = !contractGroup.expandInDebug;
+                        GUILayout.BeginHorizontal();
+                        if (GUILayout.Button(contractGroup.expandInDebug ? "-" : "+", GUILayout.Width(20), GUILayout.Height(20)))
+                        {
+                            contractGroup.expandInDebug = !contractGroup.expandInDebug;
+                        }
+
+                        GUIStyle style = greenLabel;
+                        if (!contractGroup.enabled)
+                        {
+                            style = redLabel;
+                        }
+                        else
+                        {
+                            foreach (ContractType contractType in guiContracts.Where(ct => ct.group == contractGroup))
+                            {
+                                if (!contractType.enabled)
+                                {
+                                    style = redLabel;
+                                    break;
+                                }
+                            }
+                        }
+
+                        GUILayout.Label(new GUIContent(contractGroup.ToString(), DebugInfo(contractGroup)), style);
+                        GUILayout.EndHorizontal();
                     }
 
-                    GUIStyle style = greenLabel;
-                    if (!contractGroup.enabled)
-                    {
-                        style = redLabel;
-                    }
-                    else
+                    if (contractGroup == null || contractGroup.expandInDebug)
                     {
                         foreach (ContractType contractType in guiContracts.Where(ct => ct.group == contractGroup))
                         {
-                            if (!contractType.enabled)
+                            GUILayout.BeginHorizontal();
+
+                            if (contractGroup != null)
                             {
-                                style = redLabel;
-                                break;
+                                GUILayout.Label("\t", GUILayout.ExpandWidth(false));
                             }
-                        }
-                    }
 
-                    GUILayout.Label(new GUIContent(contractGroup.ToString(), DebugInfo(contractGroup)), style);
-                    GUILayout.EndHorizontal();
-                }
+                            if (GUILayout.Button(contractType.expandInDebug ? "-" : "+", GUILayout.Width(20), GUILayout.Height(20)))
+                            {
+                                contractType.expandInDebug = !contractType.expandInDebug;
+                            }
+                            GUILayout.Label(new GUIContent(contractType.ToString(), DebugInfo(contractType)),
+                                contractType.enabled ? GUI.skin.label : redLabel);
+                            GUILayout.EndHorizontal();
 
-                if (contractGroup == null || contractGroup.expandInDebug)
-                {
-                    foreach (ContractType contractType in guiContracts.Where(ct => ct.group == contractGroup))
-                    {
-                        GUILayout.BeginHorizontal();
+                            if (contractType.expandInDebug)
+                            {
+                                // Output children
+                                ParamGui(contractType, contractType.ParamFactories, contractGroup != null ? 1 : 2);
+                                RequirementGui(contractType, contractType.Requirements, contractGroup != null ? 1 : 2);
+                                BehaviourGui(contractType, contractType.BehaviourFactories, contractGroup != null ? 1 : 2);
 
-                        if (contractGroup != null)
-                        {
-                            GUILayout.Label("\t", GUILayout.ExpandWidth(false));
-                        }
-
-                        if (GUILayout.Button(contractType.expandInDebug ? "-" : "+", GUILayout.Width(20), GUILayout.Height(20)))
-                        {
-                            contractType.expandInDebug = !contractType.expandInDebug;
-                        }
-                        GUILayout.Label(new GUIContent(contractType.ToString(), DebugInfo(contractType)),
-                            contractType.enabled ? GUI.skin.label : redLabel);
-                        GUILayout.EndHorizontal();
-
-                        if (contractType.expandInDebug)
-                        {
-                            // Output children
-                            ParamGui(contractType, contractType.ParamFactories, contractGroup != null ? 1 : 2);
-                            RequirementGui(contractType, contractType.Requirements, contractGroup != null ? 1 : 2);
-                            BehaviourGui(contractType, contractType.BehaviourFactories, contractGroup != null ? 1 : 2);
-
-                            GUILayout.Space(8);
+                                GUILayout.Space(8);
+                            }
                         }
                     }
                 }

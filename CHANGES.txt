@@ -8,6 +8,7 @@ Contract Configurator 0.7.4
 - Add parameter attribute to WaypointGenerator to make waypoints dependent on a parameter.
 - Improved output messages when reloading contracts through the debug menu.
 - Debug window now contains details of contract groups.
+- Reloading in debug window no longer causes duplicate contracts to be allowed.
 - Add close icon to debug menu.
 - Minor bug fixes.
 
