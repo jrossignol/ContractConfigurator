@@ -24,7 +24,8 @@ namespace ContractConfigurator.Behaviour
             public bool waterAllowed = true;
             public bool forceEquatorial = false;
             public int nearIndex = -1;
-            public double nearDistance = 0.0;
+            public double minDistance = 0.0;
+            public double maxDistance = 0.0;
             public PQSCity pqsCity = null;
             public Vector3d pqsOffset;
 
@@ -57,7 +58,8 @@ namespace ContractConfigurator.Behaviour
                 waterAllowed = orig.waterAllowed;
                 forceEquatorial = orig.forceEquatorial;
                 nearIndex = orig.nearIndex;
-                nearDistance = orig.nearDistance;
+                minDistance = orig.minDistance;
+                maxDistance = orig.maxDistance;
                 pqsCity = orig.pqsCity;
                 pqsOffset = orig.pqsOffset;
                 
@@ -165,7 +167,20 @@ namespace ContractConfigurator.Behaviour
 
                         // Get near waypoint details
                         valid &= ConfigNodeUtil.ParseValue<int>(child, "nearIndex", x => wpData.nearIndex = x, factory, x => Validation.GE(x, 0));
-                        valid &= ConfigNodeUtil.ParseValue<double>(child, "nearDistance", x => wpData.nearDistance = x, factory, x => Validation.GT(x, 0.0));
+
+                        // Get distances
+                        valid &= ConfigNodeUtil.ParseValue<double>(child, "minDistance", x => wpData.minDistance = x, factory, 0.0, x => Validation.GE(x, 0.0));
+
+                        // To be deprecated
+                        if (child.HasValue("nearDistance"))
+                        {
+                            valid &= ConfigNodeUtil.ParseValue<double>(child, "nearDistance", x => wpData.maxDistance = x, factory, x => Validation.GT(x, 0.0));
+                            LoggingUtil.LogWarning(factory, "The 'nearDistance' attribute is obsolete as of Contract Configurator 0.7.4.  It will be removed in 1.0.0 in favour of minDistance/maxDistance.");
+                        }
+                        else
+                        {
+                            valid &= ConfigNodeUtil.ParseValue<double>(child, "maxDistance", x => wpData.maxDistance = x, factory, x => Validation.GT(x, wpData.minDistance));
+                        }
                     }
                     else if (child.name == "PQS_CITY")
                     {
@@ -229,10 +244,16 @@ namespace ContractConfigurator.Behaviour
                 }
                 else if (wpData.type == "RANDOM_WAYPOINT_NEAR")
                 {
+                    CelestialBody body = FlightGlobals.Bodies.Where(b => b.name == wpData.waypoint.celestialName).First();
                     Waypoint nearWaypoint = waypoints[wpData.nearIndex].waypoint;
-                    WaypointManager.ChooseRandomPositionNear(out wpData.waypoint.latitude, out wpData.waypoint.longitude,
-                        nearWaypoint.latitude, nearWaypoint.longitude, wpData.waypoint.celestialName,
-                        wpData.nearDistance, wpData.waterAllowed, random);
+                    // TODO - this is really bad, we need to implement this method ourselves...
+                    do
+                    {
+                        WaypointManager.ChooseRandomPositionNear(out wpData.waypoint.latitude, out wpData.waypoint.longitude,
+                            nearWaypoint.latitude, nearWaypoint.longitude, wpData.waypoint.celestialName,
+                            wpData.maxDistance, wpData.waterAllowed, random);
+                    } while (WaypointUtil.GetDistance(wpData.waypoint.latitude, wpData.waypoint.longitude, nearWaypoint.latitude, nearWaypoint.longitude,
+                        body.Radius) < wpData.minDistance);
                 }
                 else if (wpData.type == "PQS_CITY")
                 {
