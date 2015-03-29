@@ -41,6 +41,7 @@ namespace ContractConfigurator.ExpressionParser
 
             RegisterGlobalFunction(new Function<CelestialBody>("HomeWorld", () => FlightGlobals.Bodies.Where(cb => cb.isHomeWorld).First()));
             RegisterGlobalFunction(new Function<List<CelestialBody>>("AllBodies", () => FlightGlobals.Bodies));
+            RegisterGlobalFunction(new Function<CelestialBody, CelestialBody>("CelestialBody", cb => cb));
         }
 
         public CelestialBodyParser()

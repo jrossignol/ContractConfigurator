@@ -43,6 +43,7 @@ namespace ContractConfigurator.ExpressionParser
             RegisterMethod(new Method<Vessel, int>("FreeDockingPorts", FreeDockingPorts));
 
             RegisterGlobalFunction(new Function<List<Vessel>>("AllVessels", () => FlightGlobals.Vessels, false));
+            RegisterGlobalFunction(new Function<Vessel, Vessel>("Vessel", v => v));
         }
 
         public VesselParser()

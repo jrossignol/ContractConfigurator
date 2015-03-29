@@ -32,6 +32,7 @@ namespace ContractConfigurator.ExpressionParser
 
             RegisterGlobalFunction(new Function<List<Kerbal>>("AllKerbals", () => HighLogic.CurrentGame.CrewRoster.AllKerbals().
                 Select<ProtoCrewMember, Kerbal>(pcm => new Kerbal(pcm)).ToList(), false));
+            RegisterGlobalFunction(new Function<Kerbal, Kerbal>("Kerbal", k => k));
         }
 
         public KerbalParser()
