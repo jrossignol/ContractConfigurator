@@ -1,4 +1,5 @@
-Contract Configurator 0.7.4
+Contract Configurator 0.7.5
+- SpawnPassengers now only spawns passengers on Kerbin (closes EPL exploit).
 - Obsolete EnterOrbit.
 - Obsolete EnterSOI.
 - Obsolete LandOnBody.

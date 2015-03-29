@@ -227,7 +227,7 @@ namespace ContractConfigurator.Behaviour
             // Checks for displaying the dialog box
             Vessel v = FlightGlobals.ActiveVessel;
             if (v != null && v.situation == Vessel.Situations.PRELAUNCH &&
-                !passengersLoaded &&
+                v.mainBody.isHomeWorld && !passengersLoaded &&
                 v.GetCrewCapacity() - v.GetCrewCount() >= count)
             {
                 PassengerLoader loader = MapView.MapCamera.gameObject.GetComponent<PassengerLoader>();
