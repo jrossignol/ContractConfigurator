@@ -95,7 +95,7 @@ namespace ContractConfigurator
         public float failureFunds;
         public float advanceFunds;
         public double weight;
-        private List<string> dataValues = new List<string>();
+        private Dictionary<string, bool> dataValues = new Dictionary<string, bool>();
 
         public ContractType(string name)
         {
@@ -210,7 +210,9 @@ namespace ContractConfigurator
                 foreach (ConfigNode data in configNode.GetNodes("DATA"))
                 {
                     Type type = null;
+                    bool requiredValue = true;
                     valid &= ConfigNodeUtil.ParseValue<Type>(data, "type", x => type = x, this);
+                    valid &= ConfigNodeUtil.ParseValue<bool>(data, "requiredValue", x => requiredValue = x, this, true);
 
                     if (type != null)
                     {
@@ -233,7 +235,7 @@ namespace ContractConfigurator
                                 // Invoke the ParseValue method
                                 method.Invoke(null, new object[] { data, name, del, this });
 
-                                dataValues.Add(name);
+                                dataValues[name] = requiredValue;
                             }
                         }
                     }
@@ -404,22 +406,28 @@ namespace ContractConfigurator
             // Check special values are not null
             if (contract.ContractState != Contract.State.Active)
             {
-                foreach (string name in dataValues)
+                foreach (KeyValuePair<string, bool> pair in dataValues)
                 {
-                    object o = dataNode[name];
-                    if (o == null)
+                    // Only check if it is a required value
+                    if (pair.Value)
                     {
-                        LoggingUtil.LogVerbose(this, "Didn't generate contract type " + this.name + ", '" + name + "' was null.");
-                        return false;
-                    }
-                    else if (o == typeof(List<>))
-                    {
-                        PropertyInfo prop = o.GetType().GetProperty("Count");
-                        int count = (int)prop.GetValue(o, null);
-                        if (count == 0)
+                        string name = pair.Key;
+
+                        object o = dataNode[name];
+                        if (o == null)
                         {
-                            LoggingUtil.LogVerbose(this, "Didn't generate contract type " + this.name + ", '" + name + "' had zero count.");
+                            LoggingUtil.LogVerbose(this, "Didn't generate contract type " + this.name + ", '" + name + "' was null.");
                             return false;
+                        }
+                        else if (o == typeof(List<>))
+                        {
+                            PropertyInfo prop = o.GetType().GetProperty("Count");
+                            int count = (int)prop.GetValue(o, null);
+                            if (count == 0)
+                            {
+                                LoggingUtil.LogVerbose(this, "Didn't generate contract type " + this.name + ", '" + name + "' had zero count.");
+                                return false;
+                            }
                         }
                     }
                 }

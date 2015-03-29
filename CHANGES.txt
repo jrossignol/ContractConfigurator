@@ -1,5 +1,6 @@
 Contract Configurator 0.7.5
 - SpawnPassengers now only spawns passengers on Kerbin (closes EPL exploit).
+- Added requiredValue attribute to DATA nodes.
 - Obsolete EnterOrbit.
 - Obsolete EnterSOI.
 - Obsolete LandOnBody.
