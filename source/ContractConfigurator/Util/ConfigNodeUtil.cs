@@ -281,6 +281,10 @@ namespace ContractConfigurator
             {
                 value = (T)(object)ParseResourceValue(stringValue);
             }
+            else if (typeof(T) == typeof(Resource))
+            {
+                value = (T)(object)new Resource(ParseResourceValue(stringValue));
+            }
             else if (typeof(T) == typeof(Agent))
             {
                 value = (T)(object)ParseAgentValue(stringValue);

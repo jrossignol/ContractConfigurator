@@ -6,6 +6,7 @@ Contract Configurator 0.7.5
 - Added hideChildren attribute to contract parameters to hide children.
 - Added requiredValue attribute to DATA nodes.
 - Added CelestialBody(), Kerbal() and Vessel() functions to expressions.
+- Added resources to expressions.
 - Debug window now highlights items with warnings in yellow.
 - Obsolete EnterOrbit.
 - Obsolete EnterSOI.

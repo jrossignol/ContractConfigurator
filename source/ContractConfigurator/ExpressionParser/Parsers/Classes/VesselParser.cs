@@ -41,6 +41,7 @@ namespace ContractConfigurator.ExpressionParser
             RegisterMethod(new Method<Vessel, int>("CrewCapacity", GetCrewCapacity));
             RegisterMethod(new Method<Vessel, int>("EmptyCrewSpace", v => GetCrewCapacity(v) - GetCrewCount(v)));
             RegisterMethod(new Method<Vessel, int>("FreeDockingPorts", FreeDockingPorts));
+            RegisterMethod(new Method<Vessel, Resource, double>("ResourceQuantity", (v, r) => v == null || r == null ? 0.0 : v.ResourceQuantity(r.res)));
 
             RegisterGlobalFunction(new Function<List<Vessel>>("AllVessels", () => FlightGlobals.Vessels, false));
             RegisterGlobalFunction(new Function<Vessel, Vessel>("Vessel", v => v));

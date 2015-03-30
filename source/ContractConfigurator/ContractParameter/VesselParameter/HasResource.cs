@@ -110,15 +110,7 @@ namespace ContractConfigurator.Parameters
         protected override bool VesselMeetsCondition(Vessel vessel)
         {
             LoggingUtil.LogVerbose(this, "Checking VesselMeetsCondition: " + vessel.id);
-            double quantity = 0.0;
-            foreach (Part part in vessel.Parts)
-            {
-                PartResource pr = part.Resources[resource.name];
-                if (pr != null)
-                {
-                    quantity += pr.amount;
-                }
-            }
+            double quantity = vessel.ResourceQuantity(resource);
             return quantity >= minQuantity && quantity <= maxQuantity;
         }
     }
