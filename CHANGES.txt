@@ -5,6 +5,7 @@ Contract Configurator 0.7.5
 - Obsolete EnterOrbit.
 - Obsolete EnterSOI.
 - Obsolete LandOnBody.
+- Obsolete VesselHasVisited.
 
 Contract Configurator 0.7.4
 - Fix for unmanned vessels in HasCrew.

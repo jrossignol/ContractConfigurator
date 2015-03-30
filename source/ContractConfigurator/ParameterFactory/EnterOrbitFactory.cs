@@ -12,7 +12,7 @@ namespace ContractConfigurator
     /// <summary>
     /// ParameterFactory wrapper for EnterOrbit ContractParameter.
     /// </summary>
-    [Obsolete("EnterOrbit is obsolete as of Contract Configurator 0.7.5 and will be removed in 1.0.0.  Please use VesselHasVisited, Orbit or ReachState instead.")]
+    [Obsolete("EnterOrbit is obsolete as of Contract Configurator 0.7.5 and will be removed in 1.0.0.  Please use Orbit or ReachState instead.")]
     public class EnterOrbitFactory : ParameterFactory
     {
         public override bool Load(ConfigNode configNode)
@@ -21,7 +21,7 @@ namespace ContractConfigurator
             bool valid = base.Load(configNode);
 
             valid &= ValidateTargetBody(configNode);
-            LoggingUtil.LogWarning(this, "EnterOrbit is obsolete as of Contract Configurator 0.7.5 and will be removed in 1.0.0.  Please use VesselHasVisited, Orbit or ReachState instead.");
+            LoggingUtil.LogWarning(this, "EnterOrbit is obsolete as of Contract Configurator 0.7.5 and will be removed in 1.0.0.  Please use Orbit or ReachState instead.");
 
             return valid;
         }
