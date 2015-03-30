@@ -130,8 +130,8 @@ namespace ContractConfigurator.Parameters
         /// <param name="state">New parameter state</param>
         protected virtual void SetState(ParameterState state)
         {
-            // State already set
-            if (this.state == state)
+            // State already set, or parameter disabled
+            if (this.state == state || !enabled)
             {
                 return;
             }

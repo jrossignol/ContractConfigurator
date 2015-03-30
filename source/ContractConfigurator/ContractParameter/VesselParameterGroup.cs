@@ -154,6 +154,11 @@ namespace ContractConfigurator.Parameters
         /// <param name="vessel">The vessel to check the state for</param>
         public void UpdateState(Vessel vessel)
         {
+            if (!enabled)
+            {
+                return;
+            }
+
             LoggingUtil.LogVerbose(this, "-> UpdateState(" + (vessel != null ? vessel.id.ToString() : "null") + ")");
 
             // If this vessel doesn't match our list of valid vessels, ignore the update
