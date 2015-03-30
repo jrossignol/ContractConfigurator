@@ -98,7 +98,7 @@ namespace ContractConfigurator.Parameters
         /// <returns>True if the parameter is ready to complete.</returns>
         protected bool ReadyToComplete()
         {
-            if (!completeInSequence)
+            if (!completeInSequence && !(Parent is Sequence))
             {
                 return true;
             }
@@ -119,7 +119,7 @@ namespace ContractConfigurator.Parameters
             }
 
             // Shouldn't get here unless things are really messed up
-            LoggingUtil.LogWarning(this.GetType(), "Unexpected state for SequenceNode parameter.  Log a GitHub issue!");
+            LoggingUtil.LogWarning(this.GetType(), "Unexpected state for sequenced parameter.  Log a GitHub issue!");
             return false;
         }
 

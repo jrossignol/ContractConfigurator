@@ -15,6 +15,7 @@ namespace ContractConfigurator
     public class SequenceFactory : ParameterFactory
     {
         protected List<string> hiddenParameters;
+        protected bool failWhenCompleteOutOfOrder;
 
         public override bool Load(ConfigNode configNode)
         {
@@ -22,13 +23,14 @@ namespace ContractConfigurator
             bool valid = base.Load(configNode);
 
             valid &= ConfigNodeUtil.ParseValue<List<string>>(configNode, "hiddenParameter", x => hiddenParameters = x, this, new List<string>());
+            valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "failWhenCompleteOutOfOrder", x => failWhenCompleteOutOfOrder = x, this, false);
 
             return valid;
         }
 
         public override ContractParameter Generate(Contract contract)
         {
-            return new Parameters.Sequence(hiddenParameters, title);
+            return new Parameters.Sequence(hiddenParameters, failWhenCompleteOutOfOrder, title);
         }
     }
 }

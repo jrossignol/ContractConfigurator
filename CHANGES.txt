@@ -1,6 +1,7 @@
 Contract Configurator 0.7.5
 - Possible fix for duration counters resetting (thanks dorin6565 and many others).
 - SpawnPassengers now only spawns passengers on Kerbin (closes EPL exploit).
+- Sequence parameter no longer fails if child parameters complete out of order.
 - Added requiredValue attribute to DATA nodes.
 - Added CelestialBody(), Kerbal() and Vessel() functions to expressions.
 - Debug window now highlights items with warnings in yellow.
