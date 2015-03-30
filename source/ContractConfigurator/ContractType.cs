@@ -220,7 +220,7 @@ namespace ContractConfigurator
                         foreach (ConfigNode.Value pair in data.values)
                         {
                             string name = pair.name;
-                            if (name != "type")
+                            if (name != "type" && name != "requiredValue")
                             {
                                 object value = null;
 
