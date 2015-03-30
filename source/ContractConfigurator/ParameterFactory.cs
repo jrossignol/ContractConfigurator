@@ -33,6 +33,7 @@ namespace ContractConfigurator
         protected bool optional;
         protected bool? disableOnStateChange;
         protected bool completeInSequence;
+        protected bool hideChildren;
         protected ParameterFactory parent = null;
         protected List<ParameterFactory> childNodes = new List<ParameterFactory>();
         protected List<ContractRequirement> requirements = new List<ContractRequirement>();
@@ -85,6 +86,7 @@ namespace ContractConfigurator
             valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "optional", x => optional = x, this, false);
             valid &= ConfigNodeUtil.ParseValue<bool?>(configNode, "disableOnStateChange", x => disableOnStateChange = x, this, (bool?)null);
             valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "completeInSequence", x => completeInSequence = x, this, false);
+            valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "hideChildren", x => hideChildren = x, this, false);
 
             // Get title and notes
             valid &= ConfigNodeUtil.ParseValue<string>(configNode, "title", x => title = x, this, (string)null);
@@ -140,12 +142,6 @@ namespace ContractConfigurator
                 throw new Exception(GetType().FullName + ".Generate() returned a null ContractParameter!");
             }
 
-            // Set notes
-            if (parameter is ContractConfiguratorParameter)
-            {
-                ((ContractConfiguratorParameter)parameter).notes = notes;
-            }
-
             // Add ContractParameter to the host
             contractParamHost.AddParameter(parameter);
 
@@ -163,11 +159,12 @@ namespace ContractConfigurator
             parameter.ID = name;
 
             // Special stuff for contract configurator parameters
-            if (parameter is ContractConfiguratorParameter)
+            ContractConfiguratorParameter ccParam = parameter as ContractConfiguratorParameter;
+            if (ccParam != null)
             {
-                ContractConfiguratorParameter ccParam = (ContractConfiguratorParameter)parameter;
-
                 ccParam.completeInSequence = completeInSequence;
+                ccParam.notes = notes;
+                ccParam.hideChildren = hideChildren;
             }
 
             return parameter;
@@ -195,6 +192,19 @@ namespace ContractConfigurator
                         if (!GenerateParameters(contract, parameter, paramFactory.childNodes))
                         {
                             return false;
+                        }
+                    }
+
+                    ContractConfiguratorParameter ccParam = parameter as ContractConfiguratorParameter;
+                    if (ccParam != null && ccParam.hideChildren)
+                    {
+                        foreach (ContractParameter child in ccParam.GetChildren())
+                        {
+                            ContractConfiguratorParameter ccChild = child as ContractConfiguratorParameter;
+                            if (ccChild != null)
+                            {
+                                ccChild.Hide();
+                            }
                         }
                     }
                 }

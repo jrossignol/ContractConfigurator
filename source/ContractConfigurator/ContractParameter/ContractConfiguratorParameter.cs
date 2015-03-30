@@ -16,6 +16,8 @@ namespace ContractConfigurator.Parameters
         protected string title;
         public string notes;
         public bool completeInSequence;
+        public bool hideChildren;
+        private bool hidden = false;
 
         public ContractConfiguratorParameter()
             : this(null)
@@ -29,6 +31,10 @@ namespace ContractConfigurator.Parameters
 
         protected override string GetTitle()
         {
+            if (hidden)
+            {
+                return "";
+            }
             return title;
         }
 
@@ -47,7 +53,14 @@ namespace ContractConfigurator.Parameters
                 }
                 node.AddValue("title", title ?? "");
                 node.AddValue("notes", notes ?? "");
-                node.AddValue("completeInSequence", completeInSequence);
+                if (completeInSequence)
+                {
+                    node.AddValue("completeInSequence", completeInSequence);
+                }
+                if (hideChildren)
+                {
+                    node.AddValue("hideChildren", hideChildren);
+                }
                 OnParameterSave(node);
             }
             catch (Exception e)
@@ -55,6 +68,14 @@ namespace ContractConfigurator.Parameters
                 LoggingUtil.LogException(e);
                 ExceptionLogWindow.DisplayFatalException(ExceptionLogWindow.ExceptionSituation.PARAMETER_SAVE, e, Root.ToString(), ID);
             }
+        }
+
+        /// <summary>
+        /// Hides the contract parameter.
+        /// </summary>
+        public void Hide()
+        {
+            hidden = true;
         }
 
         /// <summary>
@@ -69,8 +90,21 @@ namespace ContractConfigurator.Parameters
             {
                 title = ConfigNodeUtil.ParseValue<string>(node, "title", "");
                 notes = ConfigNodeUtil.ParseValue<string>(node, "notes", "");
+                hideChildren = ConfigNodeUtil.ParseValue<bool?>(node, "hideChildren", (bool?)false).Value;
                 completeInSequence = ConfigNodeUtil.ParseValue<bool?>(node, "completeInSequence", (bool?)false).Value;
                 OnParameterLoad(node);
+
+                if (hideChildren)
+                {
+                    foreach (ContractParameter p in this.GetChildren())
+                    {
+                        ContractConfiguratorParameter ccParam = p as ContractConfiguratorParameter;
+                        if (ccParam != null)
+                        {
+                            ccParam.Hide();
+                        }
+                    }
+                }
             }
             catch (Exception e)
             {
