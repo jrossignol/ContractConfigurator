@@ -101,12 +101,10 @@ namespace ContractConfigurator.Parameters
         /// incoming/outgoing values were empty.
         /// </summary>
         /// <param name="values">Enumerator to filter</param>
-        /// <param name="fail">Whether there was an outright failure or the return value can be checked.</param>
+        /// <param name="conditionMet">Current state of the condition.</param>
         /// <returns>Enumerator after filtering</returns>
-        protected virtual IEnumerable<T> SetState(IEnumerable<T> values, out bool fail, bool checkOnly = false)
+        protected virtual IEnumerable<T> SetState(IEnumerable<T> values, ref bool conditionMet, bool checkOnly = false)
         {
-            fail = false;
-
             // Only checking, no state change allowed
             if (checkOnly)
             {
@@ -179,7 +177,6 @@ namespace ContractConfigurator.Parameters
         /// <returns></returns>
         public static bool CheckChildConditions(ContractParameter param, IEnumerable<T> values, bool checkOnly = false)
         {
-            bool fail = false;
             bool conditionMet = true;
             int count = values.Count();
             foreach (ContractParameter child in param.AllParameters)
@@ -188,12 +185,11 @@ namespace ContractConfigurator.Parameters
                 {
                     ParameterDelegate<T> paramDelegate = (ParameterDelegate<T>)child;
                     LoggingUtil.LogVerbose(paramDelegate, "Checking condition for '" + paramDelegate.title + "', input.Any() = " + values.Any());
-                    IEnumerable<T> newValues = paramDelegate.SetState(values, out fail, checkOnly);
+                    IEnumerable<T> newValues = paramDelegate.SetState(values, ref conditionMet, checkOnly);
                     if (paramDelegate.matchType == ParameterDelegateMatchType.FILTER)
                     {
                         values = newValues;
                     }
-                    conditionMet &= !fail;
                     switch (paramDelegate.matchType)
                     {
                         case ParameterDelegateMatchType.FILTER:
@@ -315,18 +311,29 @@ namespace ContractConfigurator.Parameters
             return true;
         }
 
-        protected override IEnumerable<T> SetState(IEnumerable<T> values, out bool fail, bool checkOnly = false)
+        protected override IEnumerable<T> SetState(IEnumerable<T> values, ref bool conditionMet, bool checkOnly = false)
         {
             // Set our state
             IEnumerable<T> newValues = values.Where(filterFunc);
             int count = newValues.Count();
-            bool conditionMet = count >= minCount && count <= maxCount;
+            bool countConditionMet = (count >= minCount && count <= maxCount);
             if (!checkOnly)
             {
-                SetState(conditionMet ? ParameterState.Complete : ParameterState.Incomplete);
+                if (countConditionMet)
+                {
+                    SetState(ParameterState.Complete);
+                }
+                // Something before us failed, so we're uncertain
+                else if (!conditionMet)
+                {
+                    SetState(ParameterState.Incomplete);
+                }
+                else
+                {
+                    SetState(ParameterState.Failed);
+                    conditionMet = false;
+                }
             }
-
-            fail = !conditionMet;
 
             return values;
         }

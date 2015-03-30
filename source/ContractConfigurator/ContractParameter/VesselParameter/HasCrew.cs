@@ -47,41 +47,41 @@ namespace ContractConfigurator.Parameters
                 if (state == ParameterState.Complete && kerbals.Count == 0)
                 {
                     string traitString = String.IsNullOrEmpty(trait) ? "Kerbal" : trait;
-                    this.title = "Crew: ";
+                    output = "Crew: ";
                     if (maxCrew == 0)
                     {
-                        this.title += "Unmanned";
+                        output += "Unmanned";
                     }
                     else if (maxCrew == int.MaxValue)
                     {
-                        this.title += "At least " + minCrew + " " + traitString + (minCrew != 1 ? "s" : "");
+                        output += "At least " + minCrew + " " + traitString + (minCrew != 1 ? "s" : "");
                     }
                     else if (minCrew == 0)
                     {
-                        this.title += "At most " + maxCrew + " " + traitString + (maxCrew != 1 ? "s" : "");
+                        output += "At most " + maxCrew + " " + traitString + (maxCrew != 1 ? "s" : "");
                     }
                     else if (minCrew == maxCrew)
                     {
-                        this.title += minCrew + " " + traitString + (minCrew != 1 ? "s" : "");
+                        output += minCrew + " " + traitString + (minCrew != 1 ? "s" : "");
                     }
                     else
                     {
-                        this.title += "Between " + minCrew + " and " + maxCrew + " " + traitString + "s";
+                        output += "Between " + minCrew + " and " + maxCrew + " " + traitString + "s";
                     }
 
                     if (minExperience != 0 && maxExperience != 5)
                     {
                         if (minExperience == 0)
                         {
-                            this.title += " with experience level of at most " + maxExperience;
+                            output += " with experience level of at most " + maxExperience;
                         }
                         else if (maxExperience == 5)
                         {
-                            this.title += " with experience level of at least " + minExperience;
+                            output += " with experience level of at least " + minExperience;
                         }
                         else
                         {
-                            this.title += " with experience level between " + minExperience + " and " + maxExperience;
+                            output += " with experience level between " + minExperience + " and " + maxExperience;
                         }
                     }
                 }
@@ -141,7 +141,7 @@ namespace ContractConfigurator.Parameters
                 }
                 else
                 {
-                    AddParameter(new CountParameterDelegate<Part>(minCrew, maxCrew));
+                    AddParameter(new CountParameterDelegate<ProtoCrewMember>(minCrew, maxCrew));
                 }
             }
 
