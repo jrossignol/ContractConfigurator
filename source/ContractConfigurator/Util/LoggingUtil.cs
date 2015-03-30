@@ -32,9 +32,9 @@ namespace ContractConfigurator
 
         private static Dictionary<string, LogLevel> specificLogLevels = new Dictionary<string, LogLevel>();
 
-        /*
-         * Loads debugging configurations.
-         */
+        /// <summary>
+        /// Loads debugging configurations.
+        /// </summary>
         public static void LoadDebuggingConfig()
         {
             Debug.Log("[INFO] ContractConfigurator.LoggingUtil: Loading DebuggingConfig node.");
@@ -153,6 +153,13 @@ namespace ContractConfigurator
 
         public static void LogWarning(System.Object obj, string message)
         {
+            // Set the hasWarnings flag
+            IContractConfiguratorFactory ccFactory = obj as IContractConfiguratorFactory;
+            if (ccFactory != null)
+            {
+                ccFactory.hasWarnings = true;
+            }
+
             LoggingUtil.Log(LogLevel.WARNING, obj.GetType(), message);
         }
 

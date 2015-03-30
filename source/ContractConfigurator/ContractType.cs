@@ -56,6 +56,7 @@ namespace ContractConfigurator
         public IEnumerable<ContractRequirement> Requirements { get { return requirements; } }
 
         public bool expandInDebug = false;
+        public bool hasWarnings { get; set; }
         public bool enabled { get; private set; }
         public string config { get; private set; }
         public string log { get; private set; }
@@ -256,6 +257,10 @@ namespace ContractConfigurator
                     if (paramFactory != null)
                     {
                         paramFactories.Add(paramFactory);
+                        if (paramFactory.hasWarnings)
+                        {
+                            hasWarnings = true;
+                        }
                     }
                 }
 
@@ -268,6 +273,10 @@ namespace ContractConfigurator
                     if (behaviourFactory != null)
                     {
                         behaviourFactories.Add(behaviourFactory);
+                        if (behaviourFactory.hasWarnings)
+                        {
+                            hasWarnings = true;
+                        }
                     }
                 }
 
@@ -280,6 +289,10 @@ namespace ContractConfigurator
                     if (requirement != null)
                     {
                         requirements.Add(requirement);
+                        if (requirement.hasWarnings)
+                        {
+                            hasWarnings = true;
+                        }
                     }
                 }
 

@@ -40,6 +40,7 @@ namespace ContractConfigurator
         protected string notes;
 
         public bool enabled = true;
+        public bool hasWarnings { get; set; }
         public virtual IEnumerable<ParameterFactory> ChildParameters { get { return childNodes; } }
         public virtual IEnumerable<ContractRequirement> ChildRequirements { get { return requirements; } }
         public string config { get; private set; }
@@ -286,6 +287,10 @@ namespace ContractConfigurator
                 if (child != null)
                 {
                     paramFactory.childNodes.Add(child);
+                    if (child.hasWarnings)
+                    {
+                        paramFactory.hasWarnings = true;
+                    }
                 }
             }
 
@@ -297,6 +302,10 @@ namespace ContractConfigurator
                 if (req != null)
                 {
                     paramFactory.requirements.Add(req);
+                    if (req.hasWarnings)
+                    {
+                        paramFactory.hasWarnings = true;
+                    }
                 }
             }
 

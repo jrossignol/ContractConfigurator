@@ -36,6 +36,7 @@ namespace ContractConfigurator
         public int maxSimultaneous;
 
         public bool expandInDebug = false;
+        public bool hasWarnings { get; set; }
         public bool enabled { get; private set; }
         public string config { get; private set; }
         public string log { get; private set; }

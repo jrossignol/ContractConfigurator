@@ -179,12 +179,21 @@ namespace ContractConfigurator
                         }
                         else
                         {
+                            if (contractGroup.hasWarnings)
+                            {
+                                style = yellowLabel;
+                            }
+
                             foreach (ContractType contractType in guiContracts.Where(ct => ct.group == contractGroup))
                             {
                                 if (!contractType.enabled)
                                 {
                                     style = redLabel;
                                     break;
+                                }
+                                else if (contractType.hasWarnings)
+                                {
+                                    style = yellowLabel;
                                 }
                             }
                         }
@@ -209,7 +218,7 @@ namespace ContractConfigurator
                                 contractType.expandInDebug = !contractType.expandInDebug;
                             }
                             GUILayout.Label(new GUIContent(contractType.ToString(), DebugInfo(contractType)),
-                                contractType.enabled ? GUI.skin.label : redLabel);
+                                contractType.enabled ? contractType.hasWarnings ? yellowLabel : GUI.skin.label : redLabel);
                             GUILayout.EndHorizontal();
 
                             if (contractType.expandInDebug)
@@ -236,7 +245,7 @@ namespace ContractConfigurator
             GUILayout.EndVertical();
             GUILayout.FlexibleSpace();
             GUILayout.BeginVertical(GUILayout.ExpandWidth(true));
-            GUILayout.Label("Unmet Requirement", yellowLegend, GUILayout.ExpandWidth(false));
+            GUILayout.Label("Unmet Requirement / Warnings", yellowLegend, GUILayout.ExpandWidth(false));
             GUILayout.EndVertical();
             GUILayout.FlexibleSpace();
             GUILayout.BeginVertical(GUILayout.ExpandWidth(true));
@@ -261,7 +270,7 @@ namespace ContractConfigurator
                 GUILayout.BeginHorizontal(GUILayout.ExpandWidth(false));
                 GUILayout.Space(28);
                 GUILayout.Label(new GUIContent(new string('\t', indent) + param, DebugInfo(param)),
-                    param.enabled ? GUI.skin.label : redLabel);
+                    param.enabled ? param.hasWarnings ? yellowLabel : GUI.skin.label : redLabel);
                 if (contractType.enabled)
                 {
                     if (GUILayout.Button(param.enabled ? check : cross, GUILayout.ExpandWidth(false)))
@@ -284,7 +293,7 @@ namespace ContractConfigurator
                 GUILayout.Space(28);
                 GUIStyle style = requirement.lastResult == null ? GUI.skin.label : requirement.lastResult.Value ? greenLabel : yellowLabel;
                 GUILayout.Label(new GUIContent(new string('\t', indent) + requirement, DebugInfo(requirement)),
-                    requirement.enabled ? style : redLabel);
+                    requirement.enabled ? requirement.hasWarnings ? yellowLabel : GUI.skin.label : redLabel);
                 if (contractType.enabled)
                 {
                     if (GUILayout.Button(requirement.enabled ? check : cross, GUILayout.ExpandWidth(false)))
@@ -305,7 +314,7 @@ namespace ContractConfigurator
                 GUILayout.BeginHorizontal(GUILayout.ExpandWidth(false));
                 GUILayout.Space(28);
                 GUILayout.Label(new GUIContent(new string('\t', indent) + behaviour, DebugInfo(behaviour)),
-                    behaviour.enabled ? GUI.skin.label : redLabel);
+                    behaviour.enabled ? behaviour.hasWarnings ? yellowLabel : GUI.skin.label : redLabel);
                 if (contractType.enabled)
                 {
                     if (GUILayout.Button(behaviour.enabled ? check : cross, GUILayout.ExpandWidth(false)))

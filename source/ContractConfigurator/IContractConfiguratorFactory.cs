@@ -14,5 +14,6 @@ namespace ContractConfigurator
         string config { get; }
         string log { get; }
         DataNode dataNode { get; }
+        bool hasWarnings { get; set; }
     }
 }

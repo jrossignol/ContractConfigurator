@@ -33,6 +33,7 @@ namespace ContractConfigurator
         protected bool checkOnActiveContract;
 
         public bool enabled = true;
+        public bool hasWarnings { get; set; }
         public bool? lastResult = null;
         public virtual IEnumerable<ContractRequirement> ChildRequirements { get { return childNodes; } }
         public string config { get; private set; }
@@ -224,6 +225,10 @@ namespace ContractConfigurator
                 if (child != null)
                 {
                     requirement.childNodes.Add(child);
+                    if (child.hasWarnings)
+                    {
+                        requirement.hasWarnings = true;
+                    }
                 }
             }
 
