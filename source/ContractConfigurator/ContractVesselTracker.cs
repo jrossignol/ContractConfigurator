@@ -77,7 +77,7 @@ namespace ContractConfigurator
                 }
                 else if (hash == 0 && HighLogic.LoadedScene == GameScenes.FLIGHT)
                 {
-                    hash = vessel.GetHashes().First();
+                    hash = vessel.GetHashes().FirstOrDefault();
                 }
 
                 if (id != Guid.Empty)
