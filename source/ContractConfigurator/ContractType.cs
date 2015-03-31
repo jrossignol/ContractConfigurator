@@ -442,6 +442,15 @@ namespace ContractConfigurator
                                 return false;
                             }
                         }
+                        else if (o == typeof(Vessel))
+                        {
+                            Vessel v = (Vessel)o;
+
+                            if (v.state == Vessel.State.DEAD)
+                            {
+                                return false;
+                            }
+                        }
                     }
                 }
 
