@@ -49,7 +49,7 @@ namespace ContractConfigurator.Parameters
         protected override void OnParameterLoad(ConfigNode node)
         {
             hiddenParameters = ConfigNodeUtil.ParseValue<List<string>>(node, "hiddenParameter", new List<string>());
-            failWhenCompleteOutOfOrder = ConfigNodeUtil.ParseValue<bool>(node, "failWhenCompleteOutOfOrder", false);
+            failWhenCompleteOutOfOrder = ConfigNodeUtil.ParseValue<bool?>(node, "failWhenCompleteOutOfOrder", (bool?)false).Value;
         }
 
         protected override void OnUpdate()
