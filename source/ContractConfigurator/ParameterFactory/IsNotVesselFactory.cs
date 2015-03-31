@@ -22,7 +22,15 @@ namespace ContractConfigurator
             // Load base class
             bool valid = base.Load(configNode);
 
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "vesselKey", x => vesselKey = x, this);
+            if (configNode.HasValue("vesselKey"))
+            {
+                LoggingUtil.LogWarning(this, "The 'vesselKey' attribute is obsolete as of Contract Configurator 0.7.4.  It will be removed in 1.0.0 in favour of the vessel attribute.");
+                valid &= ConfigNodeUtil.ParseValue<string>(configNode, "vesselKey", x => vesselKey = x, this);
+            }
+            else
+            {
+                valid &= ConfigNodeUtil.ParseValue<string>(configNode, "vessel", x => vesselKey = x, this);
+            }
 
             return valid;
         }
