@@ -468,6 +468,8 @@ namespace ContractConfigurator.Parameters
                     SaveSubVesselInfo(p.Parent.vessel, ParamStrength.STRONG, vesselInfo[p.Parent.vessel.id].completionTime);
                 }
             }
+
+            CheckVessel(p.Parent.vessel);
         }
 
         protected virtual void OnPartAttach(GameEvents.HostTargetAction<Part, Part> e)
@@ -542,6 +544,12 @@ namespace ContractConfigurator.Parameters
                     v2.state = v1.state;
                     v1.strength = v2.strength = ParamStrength.MEDIUM;
                 }
+            }
+
+            CheckVessel(e.host.vessel);
+            if (e.host.vessel.id != e.target.vessel.id)
+            {
+                CheckVessel(e.target.vessel);
             }
         }
 
