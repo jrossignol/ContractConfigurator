@@ -71,7 +71,7 @@ namespace ContractConfigurator
                 uint hash = ConfigNodeUtil.ParseValue<uint>(child, "hash", 0);
 
                 Vessel vessel = FlightGlobals.Vessels.Find(v => v.id == id);
-                if (vessel == null)
+                if (vessel == null || vessel.state == Vessel.State.DEAD)
                 {
                     id = Guid.Empty;
                 }
