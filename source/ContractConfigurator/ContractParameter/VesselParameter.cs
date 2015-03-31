@@ -388,7 +388,7 @@ namespace ContractConfigurator.Parameters
 
             // Go through the hashes to try to set the parameters for this vessel
             KeyValuePair<ParamStrength, double>? dockedInfo = null;
-            foreach (uint hash in GetVesselHashes(vessel))
+            foreach (uint hash in vessel.GetHashes())
             {
                 if (dockedVesselInfo.ContainsKey(hash))
                 {
@@ -438,7 +438,7 @@ namespace ContractConfigurator.Parameters
                 if (strength == ParamStrength.MEDIUM)
                 {
                     strength = null;
-                    foreach (uint hash in GetVesselHashes(p.Parent.vessel))
+                    foreach (uint hash in p.Parent.vessel.GetHashes())
                     {
                         if (dockedVesselInfo.ContainsKey(hash))
                         {
@@ -472,7 +472,6 @@ namespace ContractConfigurator.Parameters
 
         protected virtual void OnPartAttach(GameEvents.HostTargetAction<Part, Part> e)
         {
-        
             if (HighLogic.LoadedScene == GameScenes.EDITOR || e.host.vessel == null || e.target.vessel == null)
             {
                 return;
@@ -555,7 +554,7 @@ namespace ContractConfigurator.Parameters
         /// <param name="completionTime">The completion time</param>
         private void SaveSubVesselInfo(Vessel vessel, ParamStrength strength, double completionTime)
         {
-            foreach (uint hash in GetVesselHashes(vessel))
+            foreach (uint hash in vessel.GetHashes())
             {
                 if (!dockedVesselInfo.ContainsKey(hash) ||
                     dockedVesselInfo[hash].Key < strength)
@@ -563,133 +562,6 @@ namespace ContractConfigurator.Parameters
                     dockedVesselInfo[hash] = new KeyValuePair<ParamStrength, double>(strength, completionTime);
                 }
             }
-        }
-
-        /// <summary>
-        /// Create a hash of the vessel.
-        /// </summary>
-        /// <param name="vessel">The vessel to hash</param>
-        /// <returns>A list of hashes for this vessel</returns>
-        public static List<uint> GetVesselHashes(Vessel vessel)
-        {
-            LoggingUtil.LogVerbose(typeof(VesselParameter), "-> GetVesselHashes(" + vessel.id + ")");
-
-            if (vessel.rootPart == null)
-            {
-                return new List<uint>();
-            }
-
-            Queue<Part> queue = new Queue<Part>();
-            Dictionary<Part, int> visited = new Dictionary<Part, int>();
-            Dictionary<uint, uint> dockedParts = new Dictionary<uint, uint>();
-            Queue<Part> otherVessel = new Queue<Part>();
-
-            // Add the root
-            queue.Enqueue(vessel.rootPart);
-            visited[vessel.rootPart] = 1;
-
-            // Do a BFS of all parts.
-            List<uint> hashes = new List<uint>();
-            uint hash = 0;
-            while (queue.Count > 0 || otherVessel.Count > 0)
-            {
-                bool decoupler = false;
-
-                // Start a new ship
-                if (queue.Count == 0)
-                {
-                    // Reset our hash
-                    hashes.Add(hash);
-                    hash = 0;
-
-                    // Find an unhandled part to use as the new vessel
-                    Part px;
-                    while (px = otherVessel.Dequeue()) {
-                        if (visited[px] != 2)
-                        {
-                            queue.Enqueue(px);
-                            break;
-                        }
-                    }
-                    dockedParts.Clear();
-                    continue;
-                }
-
-                Part p = queue.Dequeue();
-
-                // Check if this is for a new vessel
-                if (dockedParts.ContainsKey(p.flightID))
-                {
-                    otherVessel.Enqueue(p);
-                    continue;
-                }
-
-                // Special handling of certain modules
-                for (int i = 0; i < p.Modules.Count; i++)
-                {
-                    PartModule pm = p.Modules.GetModule(i);
-
-                    // If this is a docking node, track the docked part
-                    if (pm.moduleName == "ModuleDockingNode")
-                    {
-                        ModuleDockingNode dock = (ModuleDockingNode)pm;
-                        if (dock.dockedPartUId != 0)
-                        {
-                            dockedParts[dock.dockedPartUId] = dock.dockedPartUId;
-                        }
-                    }
-                    else if (pm.moduleName == "ModuleDecouple")
-                    {
-                        // Just assume all parts can decouple from this, it's easier and
-                        // effectively the same thing
-                        decoupler = true;
-
-                        // Parent may be null if this is the root of the stack
-                        if (p.parent != null)
-                        {
-                            dockedParts[p.parent.flightID] = p.parent.flightID;
-                        }
-
-                        // Add all children as possible new vessels
-                        foreach (Part child in p.children)
-                        {
-                            dockedParts[child.flightID] = child.flightID;
-                        }
-                    }
-                }
-
-                // Go through our child parts
-                foreach (Part child in p.children)
-                {
-                    if (!visited.ContainsKey(child))
-                    {
-                        queue.Enqueue(child);
-                        visited[child] = 1;
-                    }
-                }
-
-                // Confirm if parent part has been visited
-                if (p.parent != null && !visited.ContainsKey(p.parent))
-                {
-                    queue.Enqueue(p.parent);
-                    visited[p.parent] = 1;
-                }
-
-                // Add this part to the hash
-                if (!decoupler)
-                {
-                    hash ^= p.flightID;
-                }
-
-                // We've processed this node
-                visited[p] = 2;
-            }
-
-            // Add the last hash
-            hashes.Add(hash);
-
-            LoggingUtil.LogVerbose(typeof(VesselParameter), "<- GetVesselHashes = " + hashes);
-            return hashes;
         }
 
         /// <summary>

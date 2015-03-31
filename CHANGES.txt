@@ -1,6 +1,7 @@
 Contract Configurator 0.7.5
 - Possible fix for duration counters resetting (thanks dorin6565 and many others).
 - Fix for HasCrew with count > 0 (thanks Yemo).
+- Improvements to tracking across docked vessels.
 - SpawnPassengers now only spawns passengers on Kerbin (closes EPL exploit).
 - Sequence parameter no longer fails if child parameters complete out of order.
 - Added hideChildren attribute to contract parameters to hide children.

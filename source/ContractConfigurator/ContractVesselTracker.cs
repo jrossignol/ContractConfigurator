@@ -16,15 +16,48 @@ namespace ContractConfigurator
         GameScenes.FLIGHT, GameScenes.TRACKSTATION, GameScenes.SPACECENTER)]
     public class ContractVesselTracker : ScenarioModule
     {
+        private class VesselInfo
+        {
+            public Guid id;
+            public uint hash;
+
+            public VesselInfo(Guid id, uint hash)
+            {
+                this.id = id;
+                this.hash = hash;
+            }
+
+            public VesselInfo(Vessel v)
+            {
+                this.id = v.id;
+                this.hash = v.GetHashes().First();
+            }
+        }
+
         public static ContractVesselTracker Instance { get; private set; }
         public static EventData<GameEvents.HostTargetAction<Vessel, string>> OnVesselAssociation = new EventData<GameEvents.HostTargetAction<Vessel, string>>("OnVesselAssociation");
         public static EventData<GameEvents.HostTargetAction<Vessel, string>> OnVesselDisassociation = new EventData<GameEvents.HostTargetAction<Vessel, string>>("OnVesselDisassociation");
 
-        private Dictionary<string, Guid> vessels = new Dictionary<string, Guid>();
+        private Dictionary<string, VesselInfo> vessels = new Dictionary<string, VesselInfo>();
+        private Vessel lastBreak = null;
 
         public ContractVesselTracker()
         {
             Instance = this;
+        }
+
+        public void Start()
+        {
+            GameEvents.onPartJointBreak.Add(new EventData<PartJoint>.OnEvent(OnPartJointBreak));
+            GameEvents.onVesselWasModified.Add(new EventData<Vessel>.OnEvent(OnVesselWasModified));
+            GameEvents.onVesselDestroy.Add(new EventData<Vessel>.OnEvent(OnVesselDestroy));
+        }
+
+        public void OnDestroy()
+        {
+            GameEvents.onPartJointBreak.Remove(new EventData<PartJoint>.OnEvent(OnPartJointBreak));
+            GameEvents.onVesselWasModified.Remove(new EventData<Vessel>.OnEvent(OnVesselWasModified));
+            GameEvents.onVesselDestroy.Remove(new EventData<Vessel>.OnEvent(OnVesselDestroy));
         }
 
         public override void OnLoad(ConfigNode node)
@@ -35,7 +68,22 @@ namespace ContractConfigurator
             {
                 string key = child.GetValue("key");
                 Guid id = new Guid(child.GetValue("id"));
-                vessels[key] = id;
+                uint hash = ConfigNodeUtil.ParseValue<uint>(child, "hash", 0);
+
+                Vessel vessel = FlightGlobals.Vessels.Find(v => v.id == id);
+                if (vessel == null)
+                {
+                    id = Guid.Empty;
+                }
+                else if (hash == 0 && HighLogic.LoadedScene == GameScenes.FLIGHT)
+                {
+                    hash = vessel.GetHashes().First();
+                }
+
+                if (id != Guid.Empty)
+                {
+                    vessels[key] = new VesselInfo(id, hash);
+                }
             }
         }
 
@@ -43,12 +91,110 @@ namespace ContractConfigurator
         {
             base.OnSave(node);
 
-            foreach (KeyValuePair<string, Guid> p in vessels)
+            foreach (KeyValuePair<string, VesselInfo> p in vessels)
             {
-                ConfigNode child = new ConfigNode("VESSEL");
-                child.AddValue("key", p.Key);
-                child.AddValue("id", p.Value);
-                node.AddNode(child);
+                VesselInfo vi = p.Value;
+
+                // First find the vessel by id
+                Vessel vessel = FlightGlobals.Vessels.Find(v => v.id == vi.id);
+
+                if (HighLogic.LoadedScene == GameScenes.FLIGHT)
+                {
+                    // If not found, attempt to find it by hash
+                    if (vessel == null)
+                    {
+                        vessel = FlightGlobals.Vessels.Find(v => v.GetHashes().Contains(vi.hash));
+                    }
+                    // If found, verify the hash
+                    else
+                    {
+                        IEnumerable<uint> hashes = vessel.GetHashes();
+                        if (!hashes.Contains(vi.hash))
+                        {
+                            vi.hash = hashes.FirstOrDefault();
+                        }
+                    }
+
+                }
+
+                if (vessel != null)
+                {
+                    ConfigNode child = new ConfigNode("VESSEL");
+                    child.AddValue("key", p.Key);
+                    child.AddValue("id", vi.id);
+                    child.AddValue("hash", vi.hash);
+                    node.AddNode(child);
+                }
+            }
+        }
+
+        protected virtual void OnPartJointBreak(PartJoint p)
+        {
+            if (HighLogic.LoadedScene == GameScenes.EDITOR)
+            {
+                return;
+            }
+
+            if (GetAssociatedKeys(p.Parent.vessel).Any())
+            {
+                lastBreak = p.Parent.vessel;
+            }
+        }
+
+        protected virtual void OnVesselWasModified(Vessel vessel)
+        {
+            LoggingUtil.LogVerbose(this, "OnVesselWasModified: " + vessel.id);
+
+            // Check for a vessel creation after a part joint break
+            if (HighLogic.LoadedScene != GameScenes.FLIGHT || lastBreak == null || vessel == lastBreak)
+            {
+                return;
+            }
+
+            IEnumerable<uint> hashes = vessel.GetHashes();
+
+            // OnVesselWasModified gets called twice, on the first call the vessels are still
+            // connected.  Check for that case.
+            if (hashes.First() == lastBreak.GetHashes().First())
+            {
+                // The second call will be for the original vessel.  Swap over to check that one.
+                lastBreak = vessel;
+                return;
+            }
+
+            foreach (string key in GetAssociatedKeys(lastBreak))
+            {
+                // Check if we need to switch over to the newly created vessel
+                VesselInfo vi = vessels[key];
+                if (hashes.Contains(vi.hash))
+                {
+                    vi.id = vessel.id;
+                    OnVesselAssociation.Fire(new GameEvents.HostTargetAction<Vessel, string>(vessel, key));
+                }
+            }
+
+            lastBreak = null;
+        }
+
+        protected virtual void OnVesselDestroy(Vessel vessel)
+        {
+            LoggingUtil.LogVerbose(this, "OnVesselDestroy " + vessel.id);
+
+            // Try to change any associations over if this is due to a docking event
+            foreach (string key in GetAssociatedKeys(vessel).ToList())
+            {
+                // Check if we need to switch over to the newly created vessel
+                VesselInfo vi = vessels[key];
+                Vessel newVessel = FlightGlobals.Vessels.Find(v => v != vessel && v.GetHashes().Contains(vi.hash));
+                if (newVessel != null)
+                {
+                    Debug.Log("switch association over to " + newVessel.id);
+                    vi.id = newVessel.id;
+                }
+                else
+                {
+                    AssociateVessel(key, null);
+                }
             }
         }
 
@@ -71,7 +217,7 @@ namespace ContractConfigurator
             // First remove whatever was there
             if (vessels.ContainsKey(key))
             {
-                Guid oldVesselId = vessels[key];
+                Guid oldVesselId = vessels[key].id;
                 Vessel oldVessel = FlightGlobals.Vessels.Find(v => v.id == oldVesselId);
                 vessels.Remove(key);
 
@@ -85,7 +231,7 @@ namespace ContractConfigurator
             // Add the new vessel
             if (vessel != null)
             {
-                vessels[key] = vessel.id;
+                vessels[key] = new VesselInfo(vessel);
                 LoggingUtil.LogVerbose(this, "Firing OnVesselAssociation.");
                 OnVesselAssociation.Fire(new GameEvents.HostTargetAction<Vessel, string>(vessel, key));
             }
@@ -100,7 +246,7 @@ namespace ContractConfigurator
         {
             if (vessels.ContainsKey(key))
             {
-                return FlightGlobals.Vessels.Find(v => v.id == vessels[key]);
+                return FlightGlobals.Vessels.Find(v => v.id == vessels[key].id);
             }
             return null;
         }
@@ -112,7 +258,7 @@ namespace ContractConfigurator
         /// <returns>And enumeration of all keys</returns>
         public IEnumerable<string> GetAssociatedKeys(Vessel v)
         {
-            foreach (string key in vessels.Where(p => p.Value == v.id).Select(p => p.Key))
+            foreach (string key in vessels.Where(p => p.Value.id == v.id).Select(p => p.Key))
             {
                 yield return key;
             }
