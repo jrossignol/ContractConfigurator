@@ -78,6 +78,7 @@ namespace ContractConfigurator
                 else if (hash == 0 && HighLogic.LoadedScene == GameScenes.FLIGHT)
                 {
                     hash = vessel.GetHashes().FirstOrDefault();
+                    LoggingUtil.LogVerbose(this, "Setting hash for " + id + " on load to: " + hash);
                 }
 
                 if (id != Guid.Empty)
@@ -111,6 +112,7 @@ namespace ContractConfigurator
                         IEnumerable<uint> hashes = vessel.GetHashes();
                         if (!hashes.Contains(vi.hash))
                         {
+                            LoggingUtil.LogVerbose(this, "Setting hash for " + vi.id + " on save from " + vi.hash + " to " + hashes.FirstOrDefault());
                             vi.hash = hashes.FirstOrDefault();
                         }
                     }
@@ -151,23 +153,41 @@ namespace ContractConfigurator
                 return;
             }
 
-            IEnumerable<uint> hashes = vessel.GetHashes();
+            IEnumerable<uint> otherVesselHashes = lastBreak.GetHashes();
+            IEnumerable<uint> vesselHashes = vessel.GetHashes();
 
             // OnVesselWasModified gets called twice, on the first call the vessels are still
             // connected.  Check for that case.
-            if (hashes.First() == lastBreak.GetHashes().First())
+            if (otherVesselHashes.Contains(vesselHashes.First()))
             {
                 // The second call will be for the original vessel.  Swap over to check that one.
                 lastBreak = vessel;
                 return;
             }
 
-            foreach (string key in GetAssociatedKeys(lastBreak))
+            // Get the keys we will be looking at
+            List<string> vesselKeys = GetAssociatedKeys(vessel).ToList();
+            List<string> otherVesselKeys = GetAssociatedKeys(lastBreak).ToList();
+
+            // Check the lists and see if we need to do a switch
+            foreach (string key in vesselKeys)
             {
                 // Check if we need to switch over to the newly created vessel
                 VesselInfo vi = vessels[key];
-                if (hashes.Contains(vi.hash))
+                if (otherVesselHashes.Contains(vi.hash))
                 {
+                    LoggingUtil.LogVerbose(this, "Moving association for '" + key + "' from " + vi.id + " to " + lastBreak.id);
+                    vi.id = lastBreak.id;
+                    OnVesselAssociation.Fire(new GameEvents.HostTargetAction<Vessel, string>(lastBreak, key));
+                }
+            }
+            foreach (string key in otherVesselKeys)
+            {
+                // Check if we need to switch over to the newly created vessel
+                VesselInfo vi = vessels[key];
+                if (vesselHashes.Contains(vi.hash))
+                {
+                    LoggingUtil.LogVerbose(this, "Moving association for '" + key + "' from " + vi.id + " to " + vessel.id);
                     vi.id = vessel.id;
                     OnVesselAssociation.Fire(new GameEvents.HostTargetAction<Vessel, string>(vessel, key));
                 }
@@ -188,7 +208,6 @@ namespace ContractConfigurator
                 Vessel newVessel = FlightGlobals.Vessels.Find(v => v != vessel && v.GetHashes().Contains(vi.hash));
                 if (newVessel != null)
                 {
-                    Debug.Log("switch association over to " + newVessel.id);
                     vi.id = newVessel.id;
                 }
                 else

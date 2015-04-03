@@ -1,4 +1,5 @@
 Contract Configurator 0.7.8
+- More fixes for docking/undocking and vessel tracking (thanks metl).
 - Minor bug fixes.
 
 Contract Configurator 0.7.7

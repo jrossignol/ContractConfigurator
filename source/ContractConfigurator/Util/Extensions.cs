@@ -107,6 +107,7 @@ namespace ContractConfigurator
 
             // Do a BFS of all parts.
             uint hash = 0;
+            int count = 0;
             while (queue.Count > 0 || otherVessel.Count > 0)
             {
                 bool decoupler = false;
@@ -115,7 +116,11 @@ namespace ContractConfigurator
                 if (queue.Count == 0)
                 {
                     // Reset our hash
-                    yield return hash;
+                    if (count != 0)
+                    {
+                        yield return hash;
+                    }
+                    count = 0;
                     hash = 0;
 
                     // Find an unhandled part to use as the new vessel
@@ -146,16 +151,7 @@ namespace ContractConfigurator
                 {
                     PartModule pm = p.Modules.GetModule(i);
 
-                    // If this is a docking node, track the docked part
-                    if (pm.moduleName == "ModuleDockingNode")
-                    {
-                        ModuleDockingNode dock = (ModuleDockingNode)pm;
-                        if (dock.dockedPartUId != 0)
-                        {
-                            dockedParts[dock.dockedPartUId] = dock.dockedPartUId;
-                        }
-                    }
-                    else if (pm.moduleName == "ModuleDecouple")
+                    if (pm.moduleName == "ModuleDecouple" || pm.moduleName == "ModuleDockingNode")
                     {
                         // Just assume all parts can decouple from this, it's easier and
                         // effectively the same thing
@@ -195,6 +191,7 @@ namespace ContractConfigurator
                 // Add this part to the hash
                 if (!decoupler)
                 {
+                    count++;
                     hash ^= p.flightID;
                 }
 
@@ -203,7 +200,10 @@ namespace ContractConfigurator
             }
 
             // Return the last hash
-            yield return hash;
+            if (count != 0)
+            {
+                yield return hash;
+            }
         }
     }
 }
