@@ -293,7 +293,7 @@ namespace ContractConfigurator
                 GUILayout.Space(28);
                 GUIStyle style = requirement.lastResult == null ? GUI.skin.label : requirement.lastResult.Value ? greenLabel : yellowLabel;
                 GUILayout.Label(new GUIContent(new string('\t', indent) + requirement, DebugInfo(requirement)),
-                    requirement.enabled ? requirement.hasWarnings ? yellowLabel : GUI.skin.label : redLabel);
+                    requirement.enabled ? requirement.hasWarnings ? yellowLabel : style : redLabel);
                 if (contractType.enabled)
                 {
                     if (GUILayout.Button(requirement.enabled ? check : cross, GUILayout.ExpandWidth(false)))
