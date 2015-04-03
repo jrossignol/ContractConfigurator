@@ -310,7 +310,7 @@ namespace ContractConfigurator.Behaviour
                 if (part != null)
                 {
                     // Add them to the part
-                    success = part.AddCrewmemberAt(crewMember, part.protoModuleCrew.Count);
+                    success = part.AddCrewmember(crewMember);
                     if (success)
                     {
                         GameEvents.onCrewBoardVessel.Fire(new GameEvents.FromToAction<Part, Part>(part, part));
