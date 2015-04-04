@@ -89,6 +89,7 @@
     <Compile Include="ExpressionParser\Parsers\Behaviours\BehaviourParser.cs" />
     <Compile Include="ExpressionParser\Parsers\Behaviours\WaypointGeneratorParser.cs" />
     <Compile Include="ExpressionParser\Parsers\Behaviours\SpawnKerbalParser.cs" />
+    <Compile Include="ExpressionParser\Parsers\Classes\PartParser.cs" />
     <Compile Include="ExpressionParser\Parsers\Classes\ResourceParser.cs" />
     <Compile Include="ExpressionParser\Parsers\Classes\WaypointParser.cs" />
     <Compile Include="ExpressionParser\Parsers\SimpleTypes\BooleanValueExpressionParser.cs" />
