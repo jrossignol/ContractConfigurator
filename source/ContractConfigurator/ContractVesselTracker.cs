@@ -30,7 +30,7 @@ namespace ContractConfigurator
             public VesselInfo(Vessel v)
             {
                 this.id = v.id;
-                this.hash = v.GetHashes().First();
+                this.hash = v.GetHashes().FirstOrDefault();
             }
         }
 

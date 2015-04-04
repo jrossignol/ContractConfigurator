@@ -91,19 +91,16 @@ namespace ContractConfigurator
         /// <returns>A list of hashes for this vessel</returns>
         public static IEnumerable<uint> GetHashes(this Vessel vessel)
         {
-            if (vessel.rootPart == null)
-            {
-                yield break;
-            }
-
-            Queue<Part> queue = new Queue<Part>();
-            Dictionary<Part, int> visited = new Dictionary<Part, int>();
+            Queue<ProtoPartSnapshot> queue = new Queue<ProtoPartSnapshot>();
+            Dictionary<ProtoPartSnapshot, int> visited = new Dictionary<ProtoPartSnapshot, int>();
             Dictionary<uint, uint> dockedParts = new Dictionary<uint, uint>();
-            Queue<Part> otherVessel = new Queue<Part>();
+            Queue<ProtoPartSnapshot> otherVessel = new Queue<ProtoPartSnapshot>();
+
+            IEnumerable<ProtoPartSnapshot> parts = vessel.protoVessel.protoPartSnapshots;
 
             // Add the root
-            queue.Enqueue(vessel.rootPart);
-            visited[vessel.rootPart] = 1;
+            queue.Enqueue(vessel.protoVessel.protoPartSnapshots.First());
+            visited[queue.First()] = 1;
 
             // Do a BFS of all parts.
             uint hash = 0;
@@ -124,8 +121,8 @@ namespace ContractConfigurator
                     hash = 0;
 
                     // Find an unhandled part to use as the new vessel
-                    Part px;
-                    while (px = otherVessel.Dequeue())
+                    ProtoPartSnapshot px;
+                    while ((px = otherVessel.Dequeue()) != null)
                     {
                         if (visited[px] != 2)
                         {
@@ -137,7 +134,7 @@ namespace ContractConfigurator
                     continue;
                 }
 
-                Part p = queue.Dequeue();
+                ProtoPartSnapshot p = queue.Dequeue();
 
                 // Check if this is for a new vessel
                 if (dockedParts.ContainsKey(p.flightID))
@@ -147,10 +144,8 @@ namespace ContractConfigurator
                 }
 
                 // Special handling of certain modules
-                for (int i = 0; i < p.Modules.Count; i++)
+                foreach (ProtoPartModuleSnapshot pm in p.modules)
                 {
-                    PartModule pm = p.Modules.GetModule(i);
-
                     if (pm.moduleName == "ModuleDecouple" || pm.moduleName == "ModuleDockingNode")
                     {
                         // Just assume all parts can decouple from this, it's easier and
@@ -164,7 +159,7 @@ namespace ContractConfigurator
                         }
 
                         // Add all children as possible new vessels
-                        foreach (Part child in p.children)
+                        foreach (ProtoPartSnapshot child in parts.Where(childPart => childPart.parent == p))
                         {
                             dockedParts[child.flightID] = child.flightID;
                         }
@@ -172,7 +167,7 @@ namespace ContractConfigurator
                 }
 
                 // Go through our child parts
-                foreach (Part child in p.children)
+                foreach (ProtoPartSnapshot child in parts.Where(childPart => childPart.parent == p))
                 {
                     if (!visited.ContainsKey(child))
                     {
