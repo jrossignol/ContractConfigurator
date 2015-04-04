@@ -110,7 +110,7 @@ namespace ContractConfigurator
                     else
                     {
                         IEnumerable<uint> hashes = vessel.GetHashes();
-                        if (!hashes.Contains(vi.hash))
+                        if (hashes.Count() > 0 && !hashes.Contains(vi.hash))
                         {
                             LoggingUtil.LogVerbose(this, "Setting hash for " + vi.id + " on save from " + vi.hash + " to " + hashes.FirstOrDefault());
                             vi.hash = hashes.FirstOrDefault();
@@ -224,6 +224,12 @@ namespace ContractConfigurator
         /// <param name="vessel">The vessel that will be associated with the key</param>
         public void AssociateVessel(string key, Vessel vessel)
         {
+            // Already associated!
+            if (vessel != null && vessels.ContainsKey(key) && vessels[key].id == vessel.id)
+            {
+                return;
+            }
+
             if (vessel != null)
             {
                 LoggingUtil.LogVerbose(this, "Associating vessel " + vessel.id + " with key '" + key + "'.");

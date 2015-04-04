@@ -1,6 +1,8 @@
 Contract Configurator 0.7.9
 - Add support for Part (AvailablePart) in expressions.
 - Fix to passengers not being seated when the capsule crew capacity is bigger than the number of seats in the IVA (thanks SpaceNomand).
+- More fixes to vessel tracking (fixes issues with RemoteTech contract pack).  Thanks to Invader Myk.
+- Minor bug fixes.
 
 Contract Configurator 0.7.8
 - More fixes for docking/undocking and vessel tracking (thanks metl).

@@ -25,9 +25,9 @@ namespace ContractConfigurator.Parameters
         private Vessel oldTrackedVessel = null;
         private Vessel trackedVessel = null;
         public Vessel TrackedVessel { get { return trackedVessel; } }
-        private Guid trackedVesselGuid = new Guid();
+        private Guid trackedVesselGuid = Guid.Empty;
 
-        private double lastUpdate = 0.0f;
+        private double lastUpdate = 0.0;
 
         private TitleTracker titleTracker = new TitleTracker();
 
@@ -322,21 +322,38 @@ namespace ContractConfigurator.Parameters
 
         protected void OnVesselAssociation(GameEvents.HostTargetAction<Vessel, string> hta)
         {
+            // If it's the tracked vessel
+            if (define == hta.target)
+            {
+                if (trackedVessel != hta.host)
+                {
+                    // It's the new tracked vessel
+                    trackedVessel = hta.host;
+                    trackedVesselGuid = hta.host.id;
+
+                    // Try it out
+                    UpdateState(hta.host);
+                }
+            }
             // If it's a vessel we're looking for
-            if (vesselList.Contains(hta.target))
+            else if (vesselList.Contains(hta.target))
             {
                 // Try it out
                 UpdateState(hta.host);
+
+                // Potentially force a title update
+                GetTitle();
             }
         }
 
         protected void OnVesselDisassociation(GameEvents.HostTargetAction<Vessel, string> hta)
         {
             // If it's a vessel we're looking for, and it's tracked
-            if (vesselList.Contains(hta.target) && trackedVessel == hta.host)
+            if (vesselList.Contains(hta.target) && define == hta.target)
             {
                 waiting = false;
                 trackedVessel = null;
+                trackedVesselGuid = Guid.Empty;
 
                 // Try out the active vessel
                 UpdateState(FlightGlobals.ActiveVessel);
@@ -353,7 +370,6 @@ namespace ContractConfigurator.Parameters
 
                     // Manually run the OnParameterStateChange
                     OnParameterStateChange(this);
-
                 }
             }
         }
@@ -385,8 +401,8 @@ namespace ContractConfigurator.Parameters
                         waiting = true;
                         completionTime = Planetarium.GetUniversalTime() + duration;
 
-                        // Set the current craft as the one matching the name
-                        if (!string.IsNullOrEmpty(define) && trackedVessel != null)
+                        // Set the tracked vessel association
+                        if (!string.IsNullOrEmpty(define))
                         {
                             ContractVesselTracker.Instance.AssociateVessel(define, trackedVessel);
                         }
@@ -398,12 +414,12 @@ namespace ContractConfigurator.Parameters
                     if (state == ParameterState.Complete)
                     {
                         SetState(ParameterState.Incomplete);
-                    }
 
-                    // Make sure no craft is matching the name
-                    if (!string.IsNullOrEmpty(define))
-                    {
-                        ContractVesselTracker.Instance.AssociateVessel(define, null);
+                        // Set the tracked vessel association
+                        if (!string.IsNullOrEmpty(define))
+                        {
+                            ContractVesselTracker.Instance.AssociateVessel(define, trackedVessel);
+                        }
                     }
 
                     // Find any failed non-VesselParameter parameters
