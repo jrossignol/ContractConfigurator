@@ -32,7 +32,7 @@ namespace ContractConfigurator.ExpressionParser
             RegisterMethod(new Method<AvailablePart, string>("TechRequired", p => p == null ? "" : p.TechRequired));
 
             RegisterGlobalFunction(new Function<List<AvailablePart>>("AllParts", () => PartLoader.Instance.parts));
-            RegisterGlobalFunction(new Function<AvailablePart, AvailablePart>("Part", p => p));
+            RegisterGlobalFunction(new Function<AvailablePart, AvailablePart>("AvailablePart", p => p));
         }
 
         public PartParser()
