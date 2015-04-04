@@ -79,7 +79,7 @@ namespace ContractConfigurator.SCANsat
         {
             coverage = ConfigNodeUtil.ParseValue<double>(node, "coverage");
             scanType = ConfigNodeUtil.ParseValue<int>(node, "scanType");
-            scanName = ConfigNodeUtil.ParseValue<string>(node, "scanType", "");
+            scanName = ConfigNodeUtil.ParseValue<string>(node, "scanName", "");
             targetBody = ConfigNodeUtil.ParseValue<CelestialBody>(node, "targetBody");
         }
 
