@@ -59,6 +59,10 @@ namespace ContractConfigurator.ExpressionParser
 
         internal override CelestialBody ParseIdentifier(Token token)
         {
+            if (token.sval.Equals("null", StringComparison.CurrentCultureIgnoreCase))
+            {
+                return null;
+            }
             return ConfigNodeUtil.ParseCelestialBodyValue(token.sval);
         }
     }

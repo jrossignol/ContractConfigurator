@@ -59,6 +59,11 @@ namespace ContractConfigurator.ExpressionParser
             // Underscores in part names get replaced with spaces.  Nobody knows why.
             string partName = identifier.Replace('_', '.');
 
+            if (identifier.Equals("null", StringComparison.CurrentCultureIgnoreCase))
+            {
+                return null;
+            }
+
             // Get the part
             AvailablePart part = PartLoader.getPartInfoByName(partName);
             if (part == null)

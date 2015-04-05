@@ -48,6 +48,11 @@ namespace ContractConfigurator.ExpressionParser
             expression = (expression.Length > identifier.Length ? expression.Substring(identifier.Length) : "");
             identifier = token.sval + identifier;
 
+            if (identifier.Equals("null", StringComparison.CurrentCultureIgnoreCase))
+            {
+                return null;
+            }
+
             // Get the actual resourece
             PartResourceDefinition resource = PartResourceLibrary.Instance.resourceDefinitions.Where(prd => prd.name == identifier).FirstOrDefault();
             if (resource != null)

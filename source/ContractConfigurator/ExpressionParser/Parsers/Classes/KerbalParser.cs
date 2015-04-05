@@ -65,6 +65,11 @@ namespace ContractConfigurator.ExpressionParser
                 return null;
             }
 
+            if (identifier.Equals("null", StringComparison.CurrentCultureIgnoreCase))
+            {
+                return null;
+            }
+
             ProtoCrewMember crew = HighLogic.CurrentGame.CrewRoster.AllKerbals().Where(pcm => pcm.name == identifier).FirstOrDefault();
             if (crew != null)
             {

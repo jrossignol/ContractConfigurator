@@ -63,5 +63,14 @@ namespace ContractConfigurator.ExpressionParser
         {
             return a.CompareTo(b) > 0;
         }
+
+        internal override T ParseIdentifier(Token token)
+        {
+            if (token.sval.Equals("null", StringComparison.CurrentCultureIgnoreCase))
+            {
+                return null;
+            }
+            return base.ParseIdentifier(token);
+        }
     }
 }

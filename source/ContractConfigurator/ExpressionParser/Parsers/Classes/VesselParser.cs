@@ -139,6 +139,11 @@ namespace ContractConfigurator.ExpressionParser
                 return null;
             }
 
+            if (identifier.Equals("null", StringComparison.CurrentCultureIgnoreCase))
+            {
+                return null;
+            }
+
             return ContractVesselTracker.Instance.GetAssociatedVessel(identifier);
         }
     }
