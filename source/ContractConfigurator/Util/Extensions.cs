@@ -91,6 +91,11 @@ namespace ContractConfigurator
         /// <returns>A list of hashes for this vessel</returns>
         public static IEnumerable<uint> GetHashes(this Vessel vessel)
         {
+            if (vessel.protoVessel == null || vessel.protoVessel.protoPartSnapshots == null)
+            {
+                yield break;
+            }
+
             Queue<ProtoPartSnapshot> queue = new Queue<ProtoPartSnapshot>();
             Dictionary<ProtoPartSnapshot, int> visited = new Dictionary<ProtoPartSnapshot, int>();
             Dictionary<uint, uint> dockedParts = new Dictionary<uint, uint>();

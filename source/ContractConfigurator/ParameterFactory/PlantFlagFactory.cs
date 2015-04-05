@@ -5,7 +5,7 @@ using System.Text;
 using UnityEngine;
 using KSP;
 using Contracts;
-using Contracts.Parameters;
+using ContractConfigurator.Parameters;
 
 namespace ContractConfigurator
 {
@@ -26,7 +26,7 @@ namespace ContractConfigurator
 
         public override ContractParameter Generate(Contract contract)
         {
-            return new PlantFlag(targetBody);
+            return new PlantFlagCustom(targetBody, title);
         }
     }
 }
