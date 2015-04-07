@@ -300,7 +300,7 @@ namespace ContractConfigurator.Parameters
             if (node.HasValue("trackedVessel"))
             {
                 trackedVesselGuid = new Guid(node.GetValue("trackedVessel"));
-                trackedVessel = FlightGlobals.Vessels.Find(v => v.id == trackedVesselGuid);
+                trackedVessel = FlightGlobals.Vessels.Find(v => v != null && v.id == trackedVesselGuid);
             }
         }
 
