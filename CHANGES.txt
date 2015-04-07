@@ -1,5 +1,6 @@
 Contract Configurator 0.7.11
 - Fixed possible NRE issue when loading VesselParameterGroup (thanks Monopropellant & FreakyHydra).
+- Possible fix to undocking issue where KSP physics goes nuts.
 
 Contract Configurator 0.7.10
 - Fixes to vessel hashing to work with unloaded vessels.  Fixes some issues with duration timers resetting.

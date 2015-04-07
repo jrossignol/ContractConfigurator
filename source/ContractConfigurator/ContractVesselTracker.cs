@@ -158,7 +158,7 @@ namespace ContractConfigurator
 
             // OnVesselWasModified gets called twice, on the first call the vessels are still
             // connected.  Check for that case.
-            if (otherVesselHashes.Contains(vesselHashes.First()))
+            if (otherVesselHashes.Contains(vesselHashes.FirstOrDefault()))
             {
                 // The second call will be for the original vessel.  Swap over to check that one.
                 lastBreak = vessel;
