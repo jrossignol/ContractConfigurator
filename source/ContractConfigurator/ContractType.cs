@@ -234,7 +234,7 @@ namespace ContractConfigurator
                                 method = method.MakeGenericMethod(new Type[] { type });
 
                                 // Invoke the ParseValue method
-                                method.Invoke(null, new object[] { data, name, del, this });
+                                valid &= (bool)method.Invoke(null, new object[] { data, name, del, this });
 
                                 dataValues[name] = requiredValue;
                             }

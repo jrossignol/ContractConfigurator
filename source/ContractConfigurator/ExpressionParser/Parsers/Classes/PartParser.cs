@@ -48,10 +48,18 @@ namespace ContractConfigurator.ExpressionParser
             return base.ConvertType<U>(value);
         }
 
+        internal override Token ParseNumericConstant()
+        {
+            // Parse as an identifier
+            Token t = new Token(TokenType.IDENTIFIER);
+            t.sval = "";
+            return t;
+        }
+
         internal override AvailablePart ParseIdentifier(Token token)
         {
-            // Try to parse more, as part names can have spaces
-            Match m = Regex.Match(expression, @"^((?>\s*[A-Za-z][\w\d]*)+).*");
+            // Try to parse more, as part names can have spaces and other weird characters
+            Match m = Regex.Match(expression, @"^((?>\s*[\w\d-\.]*)+).*");
             string identifier = m.Groups[1].Value;
             expression = (expression.Length > identifier.Length ? expression.Substring(identifier.Length) : "");
             identifier = token.sval + identifier;
