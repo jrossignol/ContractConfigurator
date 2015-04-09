@@ -336,7 +336,7 @@ namespace ContractConfigurator
             {
                 // Create the group
                 string name = groupConfig.GetValue("name");
-                LoggingUtil.LogDebug(this.GetType(), "Loading group: '" + name + "'");
+                LoggingUtil.LogInfo(this.GetType(), "Loading CONTRACT_GROUP: '" + name + "'");
                 ContractGroup contractGroup = null;
                 try
                 {

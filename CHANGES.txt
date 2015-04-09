@@ -1,5 +1,6 @@
 Contract Configurator 0.7.12
 - Fix issue when loading part names with non-standard characters (thanks tattagreis).
+- Minor bug fixes.
 
 Contract Configurator 0.7.11
 - Fixed possible NRE issue when loading VesselParameterGroup (thanks Monopropellant & FreakyHydra).
