@@ -1,5 +1,6 @@
 Contract Configurator 0.7.12
 - Fix issue when loading part names with non-standard characters (thanks tattagreis).
+- FIx issue with using custom behaviours.
 - Minor bug fixes.
 
 Contract Configurator 0.7.11

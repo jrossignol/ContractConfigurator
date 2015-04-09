@@ -504,26 +504,31 @@ namespace ContractConfigurator
             return true;
         }
 
-        public static List<Type> GetAllTypes<T>()
+        public static IEnumerable<Type> GetAllTypes<T>()
         {
             // Get everything that extends the given type
             List<Type> allTypes = new List<Type>();
             foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
-                try
+                foreach (Type t in from type in assembly.GetTypes() where (type.IsSubclassOf(typeof(T)) || type.GetInterface(typeof(T).Name) != null) select type)
                 {
-                    foreach (Type t in from type in assembly.GetTypes() where (type.IsSubclassOf(typeof(T)) || type.GetInterface(typeof(T).Name) != null) select type)
+                    Type foundType = null;
+
+                    try
                     {
-                        allTypes.Add(t);
+                        foundType = t;
+                    }
+                    catch (Exception e)
+                    {
+                        LoggingUtil.LogWarning(typeof(ContractConfigurator), "Error loading types from assembly " + assembly.FullName + ": " + e.Message);
+                    }
+
+                    if (foundType != null)
+                    {
+                        yield return foundType;
                     }
                 }
-                catch (Exception e)
-                {
-                    LoggingUtil.LogWarning(typeof(ContractConfigurator), "Error loading types from assembly " + assembly.FullName + ": " + e.Message);
-                }
             }
-
-            return allTypes;
         }
     }
 }
