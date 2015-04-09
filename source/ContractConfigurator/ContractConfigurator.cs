@@ -60,6 +60,11 @@ namespace ContractConfigurator
             if (HighLogic.LoadedScene == GameScenes.MAINMENU && !loading)
             {
                 LoggingUtil.LoadDebuggingConfig();
+
+                // Log version info
+                var ainfoV = Attribute.GetCustomAttribute(typeof(ExceptionLogWindow).Assembly, typeof(AssemblyInformationalVersionAttribute)) as AssemblyInformationalVersionAttribute;
+                LoggingUtil.LogInfo(this, "Contract Configurator " + ainfoV.InformationalVersion + " loading...");
+
                 RegisterParameterFactories();
                 RegisterBehaviourFactories();
                 RegisterContractRequirements();
@@ -67,6 +72,8 @@ namespace ContractConfigurator
                 IEnumerator<YieldInstruction> iterator = LoadContractConfig();
                 while (iterator.MoveNext()) { }
                 DebugWindow.LoadTextures();
+
+                LoggingUtil.LogInfo(this, "Contract Configurator " + ainfoV.InformationalVersion + " finished loading.");
             }
             // Try to disable the contract types
             else if ((HighLogic.LoadedScene == GameScenes.SPACECENTER) && !contractTypesAdjusted)
