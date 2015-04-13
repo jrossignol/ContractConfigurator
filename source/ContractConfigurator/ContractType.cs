@@ -59,6 +59,7 @@ namespace ContractConfigurator
         public bool hasWarnings { get; set; }
         public bool enabled { get; private set; }
         public string config { get; private set; }
+        public int hash { get; private set; }
         public string log { get; private set; }
         public DataNode dataNode { get; private set; }
 
@@ -310,6 +311,7 @@ namespace ContractConfigurator
                 valid &= ConfigNodeUtil.ExecuteDeferredLoads();
 
                 config = configNode.ToString();
+                hash = config.GetHashCode();
                 enabled = valid;
                 log += LoggingUtil.capturedLog;
                 LoggingUtil.CaptureLog = false;
@@ -350,6 +352,12 @@ namespace ContractConfigurator
         /// <returns>Whether the contract can be offered.</returns>
         public bool MeetRequirements(ConfiguredContract contract)
         {
+            // Hash check
+            if (contract.ContractState == Contract.State.Offered && contract.hash != hash)
+            {
+                return false;
+            }
+
             // Check prestige
             if (prestige.Count > 0 && !prestige.Contains(contract.Prestige))
             {

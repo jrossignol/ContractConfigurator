@@ -40,6 +40,8 @@ namespace ContractConfigurator
         protected string completedMessage;
         protected string notes;
 
+        public int hash { get; private set; }
+
         private static int lastGenerationFailure = 0;
         private static Dictionary<ContractPrestige, int> lastSpecificGenerationFailure = new Dictionary<ContractPrestige, int>();
         private static int nextGroup = 0;
@@ -201,6 +203,7 @@ namespace ContractConfigurator
                 synopsis = ConfigNodeUtil.ParseValue<string>(node, "synopsis", contractType != null ? contractType.synopsis : "");
                 completedMessage = ConfigNodeUtil.ParseValue<string>(node, "completedMessage", contractType != null ? contractType.completedMessage : "");
                 notes = ConfigNodeUtil.ParseValue<string>(node, "notes", contractType != null ? contractType.notes : "");
+                hash = ConfigNodeUtil.ParseValue<int>(node, "hash", contractType != null ? contractType.hash : 0);
 
                 foreach (ConfigNode child in node.GetNodes("BEHAVIOUR"))
                 {
@@ -245,6 +248,7 @@ namespace ContractConfigurator
                 node.AddValue("synopsis", synopsis);
                 node.AddValue("completedMessage", completedMessage);
                 node.AddValue("notes", notes);
+                node.AddValue("hash", hash);
 
                 foreach (ContractBehaviour behaviour in behaviours)
                 {
