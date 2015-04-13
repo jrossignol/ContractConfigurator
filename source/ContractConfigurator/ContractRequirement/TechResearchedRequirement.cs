@@ -8,12 +8,12 @@ using KSPAchievements;
 
 namespace ContractConfigurator
 {
-    /*
-     * ContractRequirement to provide requirement for player having researched a technology.
-     */
+    /// <summary>
+    /// ContractRequirement to provide requirement for player having researched a technology.
+    /// </summary>
     public class TechResearchedRequirement : ContractRequirement
     {
-        protected string tech;
+        protected List<string> techs;
 
         public override bool Load(ConfigNode configNode)
         {
@@ -23,19 +23,35 @@ namespace ContractConfigurator
             // Check on active contracts too
             checkOnActiveContract = configNode.HasValue("checkOnActiveContract") ? checkOnActiveContract : true;
 
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "tech", x => tech = x, this);
+            valid &= ConfigNodeUtil.ParseValue<List<string>>(configNode, "tech", x => techs = x, this, new List<string>());
+
+            if (configNode.HasValue("part"))
+            {
+                List<AvailablePart> parts = new List<AvailablePart>();
+                valid &= ConfigNodeUtil.ParseValue<List<AvailablePart>>(configNode, "part", x => parts = x, this);
+
+                foreach (AvailablePart part in parts)
+                {
+                    techs.AddUnique(part.TechRequired);
+                }
+            }
+
+            valid &= ConfigNodeUtil.AtLeastOne(configNode, new string[] { "tech", "part" }, this);
 
             return valid;
         }
 
         public override bool RequirementMet(ConfiguredContract contract)
         {
-            ProtoTechNode techNode = ResearchAndDevelopment.Instance.GetTechState(tech);
-            if (techNode == null)
+            foreach (string tech in techs)
             {
-                return false;
+                ProtoTechNode techNode = ResearchAndDevelopment.Instance.GetTechState(tech);
+                if (techNode == null || techNode.state != RDTech.State.Available)
+                {
+                    return false;
+                }
             }
-            return techNode.state == RDTech.State.Available;
+            return true;
         }
     }
 }

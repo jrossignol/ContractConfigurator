@@ -1,6 +1,8 @@
 Contract Configurator 0.7.12
 - Fix issue when loading part names with non-standard characters (thanks tattagreis).
-- FIx issue with using custom behaviours.
+- Fix issue with using custom behaviours.
+- Can now provide multiple techs, parts and part modules in PartModuleUnlocked, PartUnlocked and TechResearched requirements.
+- TechResearched requirement now supports selecting techs by specifying parts.
 - Minor bug fixes.
 
 Contract Configurator 0.7.11

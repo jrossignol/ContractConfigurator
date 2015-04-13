@@ -13,7 +13,7 @@ namespace ContractConfigurator
     /// </summary>
     public class PartModuleUnlockedRequirement : ContractRequirement
     {
-        protected string partModule;
+        protected List<string> partModules;
 
         public override bool Load(ConfigNode configNode)
         {
@@ -23,28 +23,43 @@ namespace ContractConfigurator
             // Do not check on active contracts.
             checkOnActiveContract = configNode.HasValue("checkOnActiveContract") ? checkOnActiveContract : false;
 
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "partModule", x => partModule = x, this, Validation.ValidatePartModule);
+            valid &= ConfigNodeUtil.ParseValue<List<string>>(configNode, "partModule", x => partModules = x, this, x => x.All(Validation.ValidatePartModule));
 
             return valid;
         }
 
         public override bool RequirementMet(ConfiguredContract contract)
         {
-            // Search for a part that has our module
-            foreach (AvailablePart p in PartLoader.Instance.parts)
+            foreach (string partModule in partModules)
             {
-                if (p.partPrefab != null && p.partPrefab.Modules != null)
+                // Search for a part that has our module
+                bool found = false;
+                foreach (AvailablePart p in PartLoader.Instance.parts)
                 {
-                    foreach (PartModule pm in p.partPrefab.Modules)
+                    if (p.partPrefab != null && p.partPrefab.Modules != null)
                     {
-                        if (pm.moduleName == partModule)
+                        foreach (PartModule pm in p.partPrefab.Modules)
                         {
-                            return true;
+                            if (pm.moduleName == partModule)
+                            {
+                                found = true;
+                                break;
+                            }
                         }
                     }
+
+                    if (found)
+                    {
+                        break;
+                    }
+                }
+
+                if (!found)
+                {
+                    return false;
                 }
             }
-            return false;
+            return true;
         }
     }
 }
