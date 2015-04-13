@@ -24,10 +24,10 @@ namespace ContractConfigurator.Parameters
         {
         }
 
-        public Docking(List<string> vessels, string defineDockedVessel, string title)
+        public Docking(IEnumerable<string> vessels, string defineDockedVessel, string title)
             : base(title)
         {
-            this.vessels = vessels;
+            this.vessels = vessels.ToList();
             this.defineDockedVessel = defineDockedVessel;
             this.title = title;
             disableOnStateChange = true;

@@ -15,7 +15,7 @@ namespace ContractConfigurator
     /// </summary>
     public class RendezvousFactory : ParameterFactory
     {
-        protected List<string> vessels;
+        protected List<VesselIdentifier> vessels;
         protected double distance;
 
         public override bool Load(ConfigNode configNode)
@@ -23,7 +23,7 @@ namespace ContractConfigurator
             // Load base class
             bool valid = base.Load(configNode);
 
-            valid &= ConfigNodeUtil.ParseValue<List<string>>(configNode, "vessel", x => vessels = x, this, new List<string>());
+            valid &= ConfigNodeUtil.ParseValue<List<VesselIdentifier>>(configNode, "vessel", x => vessels = x, this, new List<VesselIdentifier>());
             valid &= ConfigNodeUtil.ParseValue<double>(configNode, "distance", x => distance = x, this, 2000.0);
 
             if (parent is VesselParameterGroupFactory)
@@ -53,7 +53,7 @@ namespace ContractConfigurator
 
         public override ContractParameter Generate(Contract contract)
         {
-            return new Rendezvous(vessels, distance, title);
+            return new Rendezvous(vessels.Select<VesselIdentifier, string>(vi => vi.identifier), distance, title);
         }
     }
 }

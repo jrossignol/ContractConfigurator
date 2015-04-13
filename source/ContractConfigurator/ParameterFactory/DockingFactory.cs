@@ -15,16 +15,16 @@ namespace ContractConfigurator
     /// </summary>
     public class DockingFactory : ParameterFactory
     {
-        protected List<string> vessels;
-        protected string defineDockedVessel;
+        protected List<VesselIdentifier> vessels;
+        protected VesselIdentifier defineDockedVessel;
 
         public override bool Load(ConfigNode configNode)
         {
             // Load base class
             bool valid = base.Load(configNode);
 
-            valid &= ConfigNodeUtil.ParseValue<List<string>>(configNode, "vessel", x => vessels = x, this, new List<string>());
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "defineDockedVessel", x => defineDockedVessel = x, this, (string)null);
+            valid &= ConfigNodeUtil.ParseValue<List<VesselIdentifier>>(configNode, "vessel", x => vessels = x, this, new List<VesselIdentifier>());
+            valid &= ConfigNodeUtil.ParseValue<VesselIdentifier>(configNode, "defineDockedVessel", x => defineDockedVessel = x, this, (VesselIdentifier)null);
 
             // Validate using the config node instead of the list as it may undergo deferred loading
             if (parent is VesselParameterGroupFactory)
@@ -54,7 +54,7 @@ namespace ContractConfigurator
 
         public override ContractParameter Generate(Contract contract)
         {
-            return new Docking(vessels, defineDockedVessel, title);
+            return new Docking(vessels.Select<VesselIdentifier, string>(vi => vi.identifier), defineDockedVessel != null ? defineDockedVessel.identifier : null, title);
         }
     }
 }

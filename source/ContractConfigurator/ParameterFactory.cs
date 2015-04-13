@@ -289,6 +289,9 @@ namespace ContractConfigurator
                 valid &= ConfigNodeUtil.ValidateUnexpectedValues(parameterConfig, paramFactory);
             }
 
+            paramFactory.log = LoggingUtil.capturedLog;
+            LoggingUtil.CaptureLog = false;
+
             // Load child nodes
             foreach (ConfigNode childNode in parameterConfig.GetNodes("PARAMETER"))
             {
@@ -320,8 +323,6 @@ namespace ContractConfigurator
             }
 
             paramFactory.enabled = valid;
-            paramFactory.log = LoggingUtil.capturedLog;
-            LoggingUtil.CaptureLog = false;
 
             return valid;
         }

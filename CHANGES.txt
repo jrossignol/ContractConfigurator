@@ -4,6 +4,7 @@ Contract Configurator 0.7.12
 - Can now provide multiple techs, parts and part modules in PartModuleUnlocked, PartUnlocked and TechResearched requirements.
 - TechResearched requirement now supports selecting techs by specifying parts.
 - Hash contract configuration details, and cancel offered contracts if the hashed values do not match.  This prevents old contracts from staying on offer when a contract pack is upgraded.
+- Improved handling of invalid vessel identifiers.
 - Minor bug fixes.
 
 Contract Configurator 0.7.11

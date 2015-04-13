@@ -16,9 +16,9 @@ namespace ContractConfigurator
     {
         protected Duration duration;
         protected string define;
-        protected List<string> vesselList;
+        protected List<VesselIdentifier> vesselList;
 
-        public IEnumerable<string> Vessel { get { return vesselList; } }
+        public IEnumerable<string> Vessel { get { return vesselList.Select<VesselIdentifier, string>(vi => vi.identifier); } }
 
         public override bool Load(ConfigNode configNode)
         {
@@ -27,14 +27,14 @@ namespace ContractConfigurator
 
             valid &= ConfigNodeUtil.ParseValue<Duration>(configNode, "duration", x => duration = x, this, new Duration(0.0));
             valid &= ConfigNodeUtil.ParseValue<string>(configNode, "define", x => define = x, this, (string)null);
-            valid &= ConfigNodeUtil.ParseValue<List<string>>(configNode, "vessel", x => vesselList = x, this, new List<string>());
+            valid &= ConfigNodeUtil.ParseValue<List<VesselIdentifier>>(configNode, "vessel", x => vesselList = x, this, new List<VesselIdentifier>());
 
             return valid;
         }
 
         public override ContractParameter Generate(Contract contract)
         {
-            return new Parameters.VesselParameterGroup(title, define, vesselList, duration.Value);
+            return new Parameters.VesselParameterGroup(title, define, Vessel, duration.Value);
         }
     }
 }

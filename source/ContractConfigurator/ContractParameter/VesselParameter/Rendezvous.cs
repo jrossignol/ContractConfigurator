@@ -26,10 +26,10 @@ namespace ContractConfigurator.Parameters
         {
         }
 
-        public Rendezvous(List<string> vessels, double distance, string title)
+        public Rendezvous(IEnumerable<string> vessels, double distance, string title)
             : base(title)
         {
-            this.vessels = vessels;
+            this.vessels = vessels.ToList();
             this.distance = distance;
             this.title = title;
             disableOnStateChange = true;

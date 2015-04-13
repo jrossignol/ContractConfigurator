@@ -174,18 +174,25 @@ namespace ContractConfigurator.ExpressionParser
         {
             int index = expression.IndexOfAny(WHITESPACE_OR_OPERATOR, 0);
 
-            T val;
-            if (index >= 0)
+            try
             {
-                val = (T)Convert.ChangeType(expression.Substring(0, index), typeof(T));
-                expression = (expression.Length > index ? expression.Substring(index) : "");
+                T val;
+                if (index >= 0)
+                {
+                    val = (T)Convert.ChangeType(expression.Substring(0, index), typeof(T));
+                    expression = (expression.Length > index ? expression.Substring(index) : "");
+                }
+                else
+                {
+                    val = (T)Convert.ChangeType(expression, typeof(T));
+                    expression = "";
+                }
+                return new ValueToken<T>(val);
             }
-            else
+            catch (Exception e)
             {
-                val = (T)Convert.ChangeType(expression, typeof(T));
-                expression = "";
+                throw new NotSupportedException("Couldn't parse numeric constant!", e);
             }
-            return new ValueToken<T>(val);
         }
 
         internal override T Negate(T val)

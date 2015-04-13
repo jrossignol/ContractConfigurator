@@ -26,6 +26,11 @@ namespace ContractConfigurator
                 DataNode.ValueNotInitialized orig = (DataNode.ValueNotInitialized)tie.InnerException;
                 throw new DataNode.ValueNotInitialized(orig.key, tie);
             }
+            else if (tie.InnerException.GetType() == typeof(NotSupportedException))
+            {
+                NotSupportedException orig = (NotSupportedException)tie.InnerException;
+                throw new NotSupportedException(orig.Message, tie);
+            }
             return null;
         }
     }

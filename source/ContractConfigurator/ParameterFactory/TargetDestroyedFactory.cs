@@ -15,21 +15,21 @@ namespace ContractConfigurator
     /// </summary>
     public class TargetDestroyedFactory : ParameterFactory
     {
-        protected List<string> vessels;
+        protected List<VesselIdentifier> vessels;
 
         public override bool Load(ConfigNode configNode)
         {
             // Load base class
             bool valid = base.Load(configNode);
 
-            valid &= ConfigNodeUtil.ParseValue<List<string>>(configNode, "vessel", x => vessels = x, this);
+            valid &= ConfigNodeUtil.ParseValue<List<VesselIdentifier>>(configNode, "vessel", x => vessels = x, this);
 
             return valid;
         }
 
         public override ContractParameter Generate(Contract contract)
         {
-            return new TargetDestroyed(vessels, title);
+            return new TargetDestroyed(vessels.Select<VesselIdentifier, string>(vi => vi.identifier), title);
         }
     }
 }

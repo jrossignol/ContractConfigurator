@@ -21,10 +21,10 @@ namespace ContractConfigurator.Parameters
         {
         }
 
-        public VesselNotDestroyed(List<string> vessels, string title)
+        public VesselNotDestroyed(IEnumerable<string> vessels, string title)
             : base(title)
         {
-            this.vessels = vessels;
+            this.vessels = vessels.ToList();
             this.state = ParameterState.Complete;
         }
 

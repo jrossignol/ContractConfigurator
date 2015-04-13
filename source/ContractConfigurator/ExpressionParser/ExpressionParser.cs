@@ -795,7 +795,20 @@ namespace ContractConfigurator.ExpressionParser
                 }
 
                 // Invoke the method
-                object result = selectedMethod.Invoke(parameters.ToArray());
+                object result;
+                try
+                {
+                    result = selectedMethod.Invoke(parameters.ToArray());
+                }
+                catch (TargetInvocationException tie)
+                {
+                    Exception e = ExceptionUtil.UnwrapTargetInvokationException(tie);
+                    if (e != null)
+                    {
+                        throw e;
+                    }
+                    throw;
+                }
 
                 if (!selectedMethod.Deterministic && currentDataNode != null)
                 {
@@ -1142,7 +1155,7 @@ namespace ContractConfigurator.ExpressionParser
                     }
                     else
                     {
-                        result = ConvertType(o);
+                        result = ConvertType(o, dataType);
                     }
                     verbose &= LogExitDebug<T>("ParseSpecialIdentifier", result);
                     return result;

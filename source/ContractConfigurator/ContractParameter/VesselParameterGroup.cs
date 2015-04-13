@@ -36,12 +36,12 @@ namespace ContractConfigurator.Parameters
         {
         }
 
-        public VesselParameterGroup(string title, string define, List<string> vesselList, double duration)
+        public VesselParameterGroup(string title, string define, IEnumerable<string> vesselList, double duration)
             : base(title)
         {
             this.define = define;
             this.duration = duration;
-            this.vesselList = vesselList == null ? new List<string>() : vesselList;
+            this.vesselList = vesselList == null ? new List<string>() : vesselList.ToList();
             waiting = false;
         }
 

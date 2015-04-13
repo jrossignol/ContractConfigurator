@@ -24,10 +24,10 @@ namespace ContractConfigurator.Parameters
         {
         }
 
-        public TargetDestroyed(List<string> vessels, string title)
+        public TargetDestroyed(IEnumerable<string> vessels, string title)
             : base(title)
         {
-            this.vessels = vessels;
+            this.vessels = vessels.ToList();
 
             CreateDelegates();
         }
