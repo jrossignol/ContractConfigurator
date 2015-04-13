@@ -355,6 +355,7 @@ namespace ContractConfigurator
             // Hash check
             if (contract.ContractState == Contract.State.Offered && contract.hash != hash)
             {
+                LoggingUtil.LogDebug(this, "Cancelling offered contract of type " + name + ", contract definition changed.");
                 return false;
             }
 
