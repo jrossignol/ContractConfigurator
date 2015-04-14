@@ -29,6 +29,7 @@ namespace ContractConfigurator.Behaviour
             public PQSCity pqsCity = null;
             public Vector3d pqsOffset;
             public string parameter = "";
+            public bool hidden = false;
 
             public WaypointData()
             {
@@ -64,6 +65,7 @@ namespace ContractConfigurator.Behaviour
                 pqsCity = orig.pqsCity;
                 pqsOffset = orig.pqsOffset;
                 parameter = orig.parameter;
+                hidden = orig.hidden;
 
                 SetContract(contract);
             }
@@ -122,9 +124,17 @@ namespace ContractConfigurator.Behaviour
 
                     valid &= ConfigNodeUtil.ParseValue<string>(child, "targetBody", x => wpData.waypoint.celestialName = x, factory, defaultBody != null ? defaultBody.name : null, Validation.NotNull);
                     valid &= ConfigNodeUtil.ParseValue<string>(child, "name", x => wpData.waypoint.name = x, factory, (string)null);
-                    valid &= ConfigNodeUtil.ParseValue<string>(child, "icon", x => wpData.waypoint.id = x, factory);
                     valid &= ConfigNodeUtil.ParseValue<double?>(child, "altitude", x => altitude = x, factory, (double?)null);
                     valid &= ConfigNodeUtil.ParseValue<string>(child, "parameter", x => wpData.parameter = x, factory, "");
+                    valid &= ConfigNodeUtil.ParseValue<bool>(child, "hidden", x => wpData.hidden = x, factory, false);
+                    if (wpData.hidden)
+                    {
+                        valid &= ConfigNodeUtil.ParseValue<string>(child, "icon", x => wpData.waypoint.id = x, factory, "");
+                    }
+                    else
+                    {
+                        valid &= ConfigNodeUtil.ParseValue<string>(child, "icon", x => wpData.waypoint.id = x, factory);
+                    }
 
                     // The FinePrint logic is such that it will only look in Squad/Contracts/Icons for icons.
                     // Cheat this by hacking the path in the game database.
@@ -299,8 +309,8 @@ namespace ContractConfigurator.Behaviour
                     wpData.waypoint.name = StringUtilities.GenerateSiteName(contract.MissionSeed + index++, body, !wpData.waterAllowed);
                 }
 
-                if (string.IsNullOrEmpty(wpData.parameter) || contract.AllParameters.
-                    Where(p => p.ID == wpData.parameter && p.State == ParameterState.Complete).Any())
+                if (!wpData.hidden && (string.IsNullOrEmpty(wpData.parameter) || contract.AllParameters.
+                    Where(p => p.ID == wpData.parameter && p.State == ParameterState.Complete).Any()))
                 {
                     AddWayPoint(wpData.waypoint);
                 }
@@ -324,13 +334,14 @@ namespace ContractConfigurator.Behaviour
                 wpData.waypoint.longitude = Convert.ToDouble(child.GetValue("longitude"));
                 wpData.waypoint.altitude = Convert.ToDouble(child.GetValue("altitude"));
                 wpData.waypoint.index = Convert.ToInt32(child.GetValue("index"));
+                wpData.hidden = ConfigNodeUtil.ParseValue<bool?>(child, "hidden", (bool?)false).Value;
 
                 // Set contract data
                 wpData.SetContract(contract);
 
                 // Create additional waypoint details
-                if (string.IsNullOrEmpty(wpData.parameter) || contract.AllParameters.
-                    Where(p => p.ID == wpData.parameter && p.State == ParameterState.Complete).Any())
+                if (!wpData.hidden && (string.IsNullOrEmpty(wpData.parameter) || contract.AllParameters.
+                    Where(p => p.ID == wpData.parameter && p.State == ParameterState.Complete).Any()))
                 {
                     AddWayPoint(wpData.waypoint);
                 }
@@ -357,6 +368,7 @@ namespace ContractConfigurator.Behaviour
                 child.AddValue("longitude", wpData.waypoint.longitude);
                 child.AddValue("altitude", wpData.waypoint.altitude);
                 child.AddValue("index", wpData.waypoint.index);
+                child.AddValue("hidden", wpData.hidden);
 
                 configNode.AddNode(child);
             }
@@ -368,7 +380,7 @@ namespace ContractConfigurator.Behaviour
             {
                 foreach (WaypointData wpData in waypoints)
                 {
-                    if (wpData.parameter == param.ID)
+                    if (!wpData.hidden && wpData.parameter == param.ID)
                     {
                         AddWayPoint(wpData.waypoint);
                     }
