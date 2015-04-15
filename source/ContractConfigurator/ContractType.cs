@@ -469,6 +469,40 @@ namespace ContractConfigurator
             return ContractRequirement.RequirementsMet(contract, this, requirements);
         }
 
+        protected bool CheckContractGroup(ConfiguredContract contract, ContractGroup group)
+        {
+            if (group != null)
+            {
+                // Check the group active limit
+                int activeContracts = ContractSystem.Instance.GetCurrentContracts<ConfiguredContract>().Count(c => c.contractType != null && group.BelongsToGroup(c.contractType));
+                if (contract.ContractState == Contract.State.Offered || contract.ContractState == Contract.State.Active)
+                {
+                    activeContracts--;
+                }
+
+                if (group.maxSimultaneous != 0 && activeContracts >= group.maxSimultaneous)
+                {
+                    LoggingUtil.LogVerbose(this, "Didn't generate contract type " + name + ", too many active contracts in group.");
+                    return false;
+                }
+
+                // Check the group completed limit
+                if (group.maxCompletions != 0)
+                {
+                    int finishedContracts = ContractSystem.Instance.GetCompletedContracts<ConfiguredContract>().Count(c => c.contractType != null && group.BelongsToGroup(c.contractType));
+                    if (finishedContracts + activeContracts >= maxCompletions)
+                    {
+                        LoggingUtil.LogVerbose(this, "Didn't generate contract type " + name + ", too many completed contracts in group.");
+                        return false;
+                    }
+                }
+
+                return CheckContractGroup(contract, group.parent);
+            }
+
+            return true;
+        }
+
         public static void NullAction(object o)
         {
         }

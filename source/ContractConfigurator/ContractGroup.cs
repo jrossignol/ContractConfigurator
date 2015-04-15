@@ -25,6 +25,8 @@ namespace ContractConfigurator
                 {
                     yield return group;
                 }
+
+                // This is not supposed to be a yield break - returning a null group is intentional
                 yield return null;
             }
         }
@@ -42,15 +44,23 @@ namespace ContractConfigurator
         public string log { get; private set; }
         public DataNode dataNode { get; private set; }
 
+        public ContractGroup parent = null;
+
+        private bool initialized = false;
+
         public ContractGroup(string name)
         {
             this.name = name;
             contractGroups.Add(name, this);
+            initialized = true;
         }
 
         ~ContractGroup()
         {
-            contractGroups.Remove(name);
+            if (initialized)
+            {
+                contractGroups.Remove(name);
+            }
         }
 
         /// <summary>
@@ -97,10 +107,40 @@ namespace ContractConfigurator
                 valid &= ConfigNodeUtil.ExecuteDeferredLoads();
 
                 config = configNode.ToString();
-                enabled = valid;
                 log += LoggingUtil.capturedLog;
                 LoggingUtil.CaptureLog = false;
 
+                // Load child groups
+                foreach (ConfigNode childNode in configNode.GetNodes("CONTRACT_GROUP"))
+                {
+                    ContractGroup child = null;
+                    string name = childNode.GetValue("name");
+                    try
+                    {
+                        child = new ContractGroup(name);
+                    }
+                    catch (ArgumentException)
+                    {
+                        LoggingUtil.LogError(this, "Couldn't load CONTRACT_GROUP '" + name + "' due to a duplicate name.");
+                        valid = false;
+                        continue;
+                    }
+
+                    valid &= child.Load(childNode);
+                    child.parent = this;
+                    if (child.hasWarnings)
+                    {
+                        hasWarnings = true;
+                    }
+                }
+
+                // Invalidate children
+                if (!valid)
+                {
+                    Invalidate();
+                }
+
+                enabled = valid;
                 return valid;
             }
             catch
@@ -108,6 +148,40 @@ namespace ContractConfigurator
                 enabled = false;
                 throw;
             }
+        }
+
+        private void Invalidate()
+        {
+            enabled = false;
+            foreach (ContractGroup child in AllGroups.Where(g => g.parent == this))
+            {
+                child.Invalidate();
+            }
+        }
+
+        /// <summary>
+        /// Checks if the given contract type belongs to the given group
+        /// </summary>
+        /// <param name="contractType">The contract type to check</param>
+        /// <returns>True if the contract type is a part of this group</returns>
+        public bool BelongsToGroup(ContractType contractType)
+        {
+            if (contractType == null)
+            {
+                return false;
+            }
+
+            ContractGroup group = contractType.group;
+            while (group != null)
+            {
+                if (group.name == name)
+                {
+                    return true;
+                }
+                group = group.parent;
+            }
+
+            return false;
         }
 
         private void DoNothing() { }

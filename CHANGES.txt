@@ -7,6 +7,7 @@ Contract Configurator 0.7.12
 - Hash contract configuration details, and cancel offered contracts if the hashed values do not match.  This prevents old contracts from staying on offer when a contract pack is upgraded.
 - Improved handling of invalid vessel identifiers.
 - SpawnVessel now properly supports landed vessels.
+- Support for hierarchies of contract groups.
 - Minor bug fixes.
 
 Contract Configurator 0.7.11

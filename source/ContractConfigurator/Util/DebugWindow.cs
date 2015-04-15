@@ -162,76 +162,9 @@ namespace ContractConfigurator
 
             if (!ContractConfigurator.reloading)
             {
-                foreach (ContractGroup contractGroup in ContractGroup.AllGroups)
+                foreach (ContractGroup contractGroup in ContractGroup.AllGroups.Where(g => g == null || g.parent == null))
                 {
-                    if (contractGroup != null)
-                    {
-                        GUILayout.BeginHorizontal();
-                        if (GUILayout.Button(contractGroup.expandInDebug ? "-" : "+", GUILayout.Width(20), GUILayout.Height(20)))
-                        {
-                            contractGroup.expandInDebug = !contractGroup.expandInDebug;
-                        }
-
-                        GUIStyle style = greenLabel;
-                        if (!contractGroup.enabled)
-                        {
-                            style = redLabel;
-                        }
-                        else
-                        {
-                            if (contractGroup.hasWarnings)
-                            {
-                                style = yellowLabel;
-                            }
-
-                            foreach (ContractType contractType in guiContracts.Where(ct => ct.group == contractGroup))
-                            {
-                                if (!contractType.enabled)
-                                {
-                                    style = redLabel;
-                                    break;
-                                }
-                                else if (contractType.hasWarnings)
-                                {
-                                    style = yellowLabel;
-                                }
-                            }
-                        }
-
-                        GUILayout.Label(new GUIContent(contractGroup.ToString(), DebugInfo(contractGroup)), style);
-                        GUILayout.EndHorizontal();
-                    }
-
-                    if (contractGroup == null || contractGroup.expandInDebug)
-                    {
-                        foreach (ContractType contractType in guiContracts.Where(ct => ct.group == contractGroup))
-                        {
-                            GUILayout.BeginHorizontal();
-
-                            if (contractGroup != null)
-                            {
-                                GUILayout.Label("\t", GUILayout.ExpandWidth(false));
-                            }
-
-                            if (GUILayout.Button(contractType.expandInDebug ? "-" : "+", GUILayout.Width(20), GUILayout.Height(20)))
-                            {
-                                contractType.expandInDebug = !contractType.expandInDebug;
-                            }
-                            GUILayout.Label(new GUIContent(contractType.ToString(), DebugInfo(contractType)),
-                                contractType.enabled ? contractType.hasWarnings ? yellowLabel : GUI.skin.label : redLabel);
-                            GUILayout.EndHorizontal();
-
-                            if (contractType.expandInDebug)
-                            {
-                                // Output children
-                                ParamGui(contractType, contractType.ParamFactories, contractGroup != null ? 1 : 2);
-                                RequirementGui(contractType, contractType.Requirements, contractGroup != null ? 1 : 2);
-                                BehaviourGui(contractType, contractType.BehaviourFactories, contractGroup != null ? 1 : 2);
-
-                                GUILayout.Space(8);
-                            }
-                        }
-                    }
+                    GroupGui(contractGroup, 0);
                 }
             }
 
@@ -262,6 +195,95 @@ namespace ContractConfigurator
             GUILayout.EndHorizontal();
             GUI.DragWindow();
         }
+
+        private static void GroupGui(ContractGroup contractGroup, int indent)
+        {
+            if (contractGroup != null)
+            {
+                GUILayout.BeginHorizontal();
+
+                if (indent != 0)
+                {
+                    GUILayout.Label(new string('\t', indent), GUILayout.ExpandWidth(false));
+                }
+
+                if (GUILayout.Button(contractGroup.expandInDebug ? "-" : "+", GUILayout.Width(20), GUILayout.Height(20)))
+                {
+                    contractGroup.expandInDebug = !contractGroup.expandInDebug;
+                }
+
+                GUIStyle style = greenLabel;
+                if (!contractGroup.enabled)
+                {
+                    style = redLabel;
+                }
+                else
+                {
+                    if (contractGroup.hasWarnings)
+                    {
+                        style = yellowLabel;
+                    }
+
+                    foreach (ContractType contractType in guiContracts.Where(ct => ct.group == contractGroup))
+                    {
+                        if (!contractType.enabled)
+                        {
+                            style = redLabel;
+                            break;
+                        }
+                        else if (contractType.hasWarnings)
+                        {
+                            style = yellowLabel;
+                        }
+                    }
+                }
+
+                GUILayout.Label(new GUIContent(contractGroup.ToString(), DebugInfo(contractGroup)), style);
+                GUILayout.EndHorizontal();
+            }
+
+            if (contractGroup == null || contractGroup.expandInDebug)
+            {
+                // Child groups
+                if (contractGroup != null)
+                {
+                    foreach (ContractGroup childGroup in ContractGroup.AllGroups.Where(g => g != null && g.parent != null && g.parent.name == contractGroup.name))
+                    {
+                        GroupGui(childGroup, indent + 1);
+                    }
+                }
+
+                // Child contract types
+                foreach (ContractType contractType in guiContracts.Where(ct => ct.group == contractGroup))
+                {
+                    GUILayout.BeginHorizontal();
+
+                    if (contractGroup != null)
+                    {
+                        GUILayout.Label(new string('\t', indent + 1), GUILayout.ExpandWidth(false));
+                    }
+
+                    if (GUILayout.Button(contractType.expandInDebug ? "-" : "+", GUILayout.Width(20), GUILayout.Height(20)))
+                    {
+                        contractType.expandInDebug = !contractType.expandInDebug;
+                    }
+                    GUILayout.Label(new GUIContent(contractType.ToString(), DebugInfo(contractType)),
+                        contractType.enabled ? contractType.hasWarnings ? yellowLabel : GUI.skin.label : redLabel);
+                    GUILayout.EndHorizontal();
+
+                    if (contractType.expandInDebug)
+                    {
+                        // Output children
+                        ParamGui(contractType, contractType.ParamFactories, indent + (contractGroup == null ? 1 : 2));
+                        RequirementGui(contractType, contractType.Requirements, indent + (contractGroup == null ? 1 : 2));
+                        BehaviourGui(contractType, contractType.BehaviourFactories, indent + (contractGroup == null ? 1 : 2));
+
+                        GUILayout.Space(8);
+                    }
+                }
+            }
+        }
+
 
         private static void ParamGui(ContractType contractType, IEnumerable<ParameterFactory> paramList, int indent)
         {
