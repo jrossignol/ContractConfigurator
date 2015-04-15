@@ -26,12 +26,12 @@ namespace ContractConfigurator.ExpressionParser
         {
             RegisterMethod(new Method<Kerbal, float>("Experience", k => k == null ? 0.0f : k.pcm.experience));
             RegisterMethod(new Method<Kerbal, int>("ExperienceLevel", k => k == null ? 0 : k.pcm.experienceLevel));
-            RegisterMethod(new Method<Kerbal, Experience.ExperienceTrait>("ExperienceTrait", k => k == null ? null : k.pcm.experienceTrait));
+            RegisterMethod(new Method<Kerbal, string>("ExperienceTrait", k => k == null ? null : k.pcm.experienceTrait.Title));
             RegisterMethod(new Method<Kerbal, ProtoCrewMember.RosterStatus>("RosterStatus", k => k == null ? ProtoCrewMember.RosterStatus.Dead : k.pcm.rosterStatus));
             RegisterMethod(new Method<Kerbal, ProtoCrewMember.KerbalType>("Type", k => k == null ? ProtoCrewMember.KerbalType.Applicant : k.pcm.type));
 
-            RegisterGlobalFunction(new Function<List<Kerbal>>("AllKerbals", () => HighLogic.CurrentGame.CrewRoster.AllKerbals().
-                Select<ProtoCrewMember, Kerbal>(pcm => new Kerbal(pcm)).ToList(), false));
+            RegisterGlobalFunction(new Function<List<Kerbal>>("AllKerbals", () => HighLogic.CurrentGame == null ? new List<Kerbal>() :
+                HighLogic.CurrentGame.CrewRoster.AllKerbals().Select<ProtoCrewMember, Kerbal>(pcm => new Kerbal(pcm)).ToList(), false));
             RegisterGlobalFunction(new Function<Kerbal, Kerbal>("Kerbal", k => k));
         }
 

@@ -233,13 +233,8 @@ namespace ContractConfigurator
             ExpressionParser<T> parser = BaseParser.GetParser<T>();
             T value;
 
-            // Enum parsing logic
-            if (typeof(T).IsEnum)
-            {
-                value = (T)Enum.Parse(typeof(T), stringValue);
-            }
             // Handle nullable
-            else if (typeof(T).Name == "Nullable`1")
+            if (typeof(T).Name == "Nullable`1")
             {
                 if (typeof(T).GetGenericArguments()[0].IsEnum)
                 {
@@ -260,6 +255,11 @@ namespace ContractConfigurator
                 {
                     value = parser.ExecuteExpression(key, stringValue, currentDataNode);
                 }
+            }
+            // Enum parsing logic
+            else if (typeof(T).IsEnum)
+            {
+                value = (T)Enum.Parse(typeof(T), stringValue);
             }
             else if (typeof(T) == typeof(AvailablePart))
             {
