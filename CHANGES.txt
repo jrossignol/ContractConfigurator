@@ -8,6 +8,7 @@ Contract Configurator 0.7.12
 - Improved handling of invalid vessel identifiers.
 - SpawnVessel now properly supports landed vessels.
 - Support for hierarchies of contract groups.
+- Fixes for Expression requirement.
 - Minor bug fixes.
 
 Contract Configurator 0.7.11

@@ -355,7 +355,7 @@ namespace ContractConfigurator
         /// <returns>True if the targetBody has been loaded, logs and error and returns false otherwise.</returns>
         protected virtual bool ValidateTargetBody(ConfigNode configNode)
         {
-            if (targetBody == null && dataNode.IsDeterministic("targetBody"))
+            if (targetBody == null && dataNode.IsDeterministic("targetBody") && dataNode.IsInitialized("targetBody"))
             {
                 LoggingUtil.LogError(this, ErrorPrefix(configNode) + ": targetBody for " + GetType() + " must be specified.");
                 return false;

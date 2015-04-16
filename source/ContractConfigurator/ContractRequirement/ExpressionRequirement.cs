@@ -15,7 +15,7 @@ namespace ContractConfigurator
     /// </summary>
     public class ExpressionRequirement : ContractRequirement
     {
-        protected string expression;
+        protected bool expression;
         protected ExpressionParser<bool> parser = BaseParser.GetParser<bool>();
 
         public override bool Load(ConfigNode configNode)
@@ -24,15 +24,14 @@ namespace ContractConfigurator
             bool valid = base.Load(configNode);
 
             // Get expression
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "expression", x => expression = x, this,
-                x => parser.ParseExpression("expression", x, dataNode) || true);
+            valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "expression", x => expression = x, this);
 
             return valid;
         }
 
         public override bool RequirementMet(ConfiguredContract contract)
         {
-            return parser.ExecuteExpression("", expression, dataNode);
+            return expression;
         }
     }
 }
