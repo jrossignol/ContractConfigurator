@@ -1,3 +1,6 @@
+Contract Configurator 0.7.13
+- Fix exception when loading types from assemblies that have been improperly compiled (thanks SpacedInvader).
+
 Contract Configurator 0.7.12
 - Fix issue when loading part names with non-standard characters (thanks tattagreis).
 - Fix issue with using custom behaviours.

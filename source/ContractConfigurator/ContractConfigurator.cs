@@ -510,18 +510,21 @@ namespace ContractConfigurator
             List<Type> allTypes = new List<Type>();
             foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
-                foreach (Type t in from type in assembly.GetTypes() where (type.IsSubclassOf(typeof(T)) || type.GetInterface(typeof(T).Name) != null) select type)
+                IEnumerable<Type> types = null;
+                try
                 {
-                    Type foundType = null;
+                    types = from type in assembly.GetTypes() where (type.IsSubclassOf(typeof(T)) || type.GetInterface(typeof(T).Name) != null) select type;
+                }
+                catch (Exception e)
+                {
+                    LoggingUtil.LogWarning(typeof(ContractConfigurator), "Error loading types from assembly " + assembly.FullName);
+                    LoggingUtil.LogException(e);
+                    continue;
+                }
 
-                    try
-                    {
-                        foundType = t;
-                    }
-                    catch (Exception e)
-                    {
-                        LoggingUtil.LogWarning(typeof(ContractConfigurator), "Error loading types from assembly " + assembly.FullName + ": " + e.Message);
-                    }
+                foreach (Type t in types)
+                {
+                    Type foundType = t;
 
                     if (foundType != null)
                     {
