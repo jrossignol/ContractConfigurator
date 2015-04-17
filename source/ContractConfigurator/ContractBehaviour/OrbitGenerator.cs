@@ -4,18 +4,19 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 using KSP;
-using Contracts;
-using ContractConfigurator;
-using ContractConfigurator.Parameters;
 using FinePrint;
 using FinePrint.Contracts.Parameters;
 using FinePrint.Utilities;
+using Contracts;
+using ContractConfigurator;
+using ContractConfigurator.Parameters;
+using ContractConfigurator.ExpressionParser;
 
 namespace ContractConfigurator.Behaviour
 {
-    /*
-     * Class for spawning an orbit waypoint.
-     */
+    /// <summary>
+    /// Class for spawning an orbit waypoint.
+    /// </summary>
     public class OrbitGenerator : ContractBehaviour
     {
         [KSPAddon(KSPAddon.Startup.SpaceCentre, true)]
@@ -46,6 +47,7 @@ namespace ContractConfigurator.Behaviour
             public OrbitType orbitType = OrbitType.RANDOM;
             public double difficulty = 1.0;
             public int index = 0;
+            public int count = 1;
 
             public OrbitData()
             {
@@ -63,6 +65,7 @@ namespace ContractConfigurator.Behaviour
                 orbitType = orig.orbitType;
                 difficulty = orig.difficulty;
                 index = orig.index;
+                count = orig.count;
 
                 // Lazy copy of orbit - only really used to store the orbital parameters, so not
                 // a huge deal.
@@ -83,8 +86,11 @@ namespace ContractConfigurator.Behaviour
         {
             foreach (OrbitData old in orig.orbits)
             {
-                // Copy orbit data
-                orbits.Add(new OrbitData(old, contract));
+                for (int i = 0; i < old.count; i++ )
+                {
+                    // Copy orbit data
+                    orbits.Add(new OrbitData(old, contract));
+                }
             }
 
             System.Random random = new System.Random(contract.MissionSeed);
@@ -92,13 +98,13 @@ namespace ContractConfigurator.Behaviour
             // Find/add the AlwaysTrue parameter
             AlwaysTrue alwaysTrue = AlwaysTrue.FetchOrAdd(contract);
 
-            int i = 0;
+            int index = 0;
             foreach (OrbitData obData in orbits)
             {
                 // Do type specific handling
                 if (obData.type == "RANDOM_ORBIT")
                 {
-                    obData.orbit = CelestialUtilities.GenerateOrbit(obData.orbitType, contract.MissionSeed + i++, obData.orbit.referenceBody, obData.difficulty);
+                    obData.orbit = CelestialUtilities.GenerateOrbit(obData.orbitType, contract.MissionSeed + index++, obData.orbit.referenceBody, obData.difficulty);
                 }
 
                 // Create the wrapper to the SpecificOrbit parameter that will do the rendering work
@@ -117,11 +123,14 @@ namespace ContractConfigurator.Behaviour
             OrbitGenerator obGenerator = new OrbitGenerator();
 
             bool valid = true;
+            int index = 0;
             foreach (ConfigNode child in configNode.GetNodes())
             {
-                int count = child.HasValue("count") ? Convert.ToInt32(child.GetValue("count")) : 1;
-                for (int i = 0; i < count; i++)
+                DataNode dataNode = new DataNode("ORBIT_" + index++, factory.dataNode, factory);
+                try
                 {
+                    ConfigNodeUtil.SetCurrentDataNode(dataNode);
+
                     OrbitData obData = new OrbitData(child.name);
 
                     // Get settings that differ by type
@@ -134,6 +143,7 @@ namespace ContractConfigurator.Behaviour
                     {
                         valid &= ConfigNodeUtil.ParseValue<OrbitType>(child, "type", x => obData.orbitType = x, factory);
                         valid &= ConfigNodeUtil.ParseValue<double>(configNode, "difficulty", x => obData.difficulty = x, factory, 1.0, x => Validation.GE(x, 0.0));
+                        valid &= ConfigNodeUtil.ParseValue<int>(child, "count", x => obData.count = x, factory, 1, x => Validation.GE(x, 1));
                     }
                     else
                     {
@@ -142,13 +152,17 @@ namespace ContractConfigurator.Behaviour
 
                     // Get target body
                     valid &= ConfigNodeUtil.ParseValue<CelestialBody>(child, "targetBody", x => obData.orbit.referenceBody = x, factory, defaultBody, Validation.NotNull);
-                    
+
                     // Add to the list
                     obGenerator.orbits.Add(obData);
                 }
-
-                allOrbitGenerators.Add(obGenerator);
+                finally
+                {
+                    ConfigNodeUtil.SetCurrentDataNode(factory.dataNode);
+                }
             }
+
+            allOrbitGenerators.Add(obGenerator);
 
             return valid ? obGenerator : null;
         }

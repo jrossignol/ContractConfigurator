@@ -8,9 +8,9 @@ using ContractConfigurator;
 
 namespace ContractConfigurator.Behaviour
 {
-    /*
-     * BehaviourFactory wrapper for OrbitGenerator ContractBehaviour.
-     */
+    /// <summary>
+    /// BehaviourFactory wrapper for OrbitGenerator ContractBehaviour.
+    /// </summary>
     public class OrbitGeneratorFactory : BehaviourFactory
     {
         OrbitGenerator orbitGenerator;

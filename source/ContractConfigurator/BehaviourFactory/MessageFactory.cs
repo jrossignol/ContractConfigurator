@@ -5,7 +5,7 @@ using System.Text;
 using UnityEngine;
 using KSP;
 using ContractConfigurator;
-
+using ContractConfigurator.ExpressionParser;
 namespace ContractConfigurator.Behaviour
 {
     /// <summary>
@@ -25,12 +25,22 @@ namespace ContractConfigurator.Behaviour
             valid &= ConfigNodeUtil.ParseValue<string>(configNode, "title", x => title = x, this);
             valid &= ConfigNodeUtil.ParseValue<string>(configNode, "message", x => message = x, this);
 
+            int index = 0;
             foreach (ConfigNode child in configNode.GetNodes("CONDITION"))
             {
-                Message.ConditionDetail cd = new Message.ConditionDetail();
-                valid &= ConfigNodeUtil.ParseValue<Message.ConditionDetail.Condition>(child, "condition", x => cd.condition = x, this);
-                valid &= ConfigNodeUtil.ParseValue<string>(child, "parameter", x => cd.parameter = x, this, (string)null, x => ValidateMandatoryParameter(x, cd.condition));
-                conditions.Add(cd);
+                DataNode childDataNode = new DataNode("CONDITION_" + index++, dataNode, this);
+                try
+                {
+                    ConfigNodeUtil.SetCurrentDataNode(childDataNode);
+                    Message.ConditionDetail cd = new Message.ConditionDetail();
+                    valid &= ConfigNodeUtil.ParseValue<Message.ConditionDetail.Condition>(child, "condition", x => cd.condition = x, this);
+                    valid &= ConfigNodeUtil.ParseValue<string>(child, "parameter", x => cd.parameter = x, this, (string)null, x => ValidateMandatoryParameter(x, cd.condition));
+                    conditions.Add(cd);
+                }
+                finally
+                {
+                    ConfigNodeUtil.SetCurrentDataNode(dataNode);
+                }
             }
             valid &= ConfigNodeUtil.ValidateMandatoryChild(configNode, "CONDITION", this);
 

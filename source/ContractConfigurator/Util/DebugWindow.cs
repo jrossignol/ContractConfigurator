@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Text;
 using UnityEngine;
 using Contracts;
+using ContractConfigurator.ExpressionParser;
 
 namespace ContractConfigurator
 {
@@ -600,8 +601,7 @@ namespace ContractConfigurator
                 result += obj.config;
                 result += "\n\n";
                 result += "<b><color=white>Config Details After Expressions</color></b>\n";
-                result += obj.dataNode.DebugString();
-                result += "\n\n";
+                result += DataNodeDebug(obj.dataNode, obj is BehaviourFactory) + "\n";
                 result += "<b><color=white>Log Details</color></b>\n";
                 result += obj.log;
 
@@ -609,6 +609,20 @@ namespace ContractConfigurator
             }
 
             return toolTipCache[obj].Value;
+        }
+
+        static string DataNodeDebug(DataNode node, bool recursive)
+        {
+            string result = node.DebugString() + "\n";
+            if (recursive)
+            {
+                foreach (DataNode child in node.Children)
+                {
+                    result += DataNodeDebug(child, true);
+                }
+            }
+
+            return result;
         }
 
         private static void LocationModeGUI()

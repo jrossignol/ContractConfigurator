@@ -6,6 +6,7 @@ using UnityEngine;
 using KSP;
 using Contracts;
 using ContractConfigurator;
+using ContractConfigurator.ExpressionParser;
 
 namespace ContractConfigurator.Behaviour
 {
@@ -95,64 +96,75 @@ namespace ContractConfigurator.Behaviour
             SpawnVessel spawnVessel = new SpawnVessel();
 
             bool valid = true;
+            int index = 0;
             foreach (ConfigNode child in configNode.GetNodes("VESSEL"))
             {
-                VesselData vessel = new VesselData();
-
-                // Get name
-                if (child.HasValue("name"))
+                DataNode dataNode = new DataNode("VESSEL_" + index++, factory.dataNode, factory);
+                try
                 {
-                    vessel.name = child.GetValue("name");
-                }
+                    ConfigNodeUtil.SetCurrentDataNode(dataNode);
 
-                // Get paths
-                vessel.craftURL = ConfigNodeUtil.ParseValue<string>(child, "craftURL");
-                vessel.flagURL = ConfigNodeUtil.ParseValue<string>(child, "flagURL", (string)null);
-                vessel.vesselType = ConfigNodeUtil.ParseValue<VesselType>(child, "vesselType", VesselType.Ship);
+                    VesselData vessel = new VesselData();
 
-                // Get celestial body
-                valid &= ConfigNodeUtil.ParseValue<CelestialBody>(child, "targetBody", x => vessel.body = x, factory, defaultBody, Validation.NotNull);
-
-
-                // Get landed stuff
-                if (child.HasValue("lat") && child.HasValue("lon"))
-                {
-                    valid &= ConfigNodeUtil.ParseValue<double>(child, "lat", x => vessel.latitude = x, factory);
-                    valid &= ConfigNodeUtil.ParseValue<double>(child, "lon", x => vessel.longitude = x, factory);
-                    valid &= ConfigNodeUtil.ParseValue<double?>(child, "alt", x => vessel.altitude = x, factory, (double?)null);
-                    vessel.landed = true;
-                }
-                // Get orbit
-                else
-                {
-                    valid &= ConfigNodeUtil.ValidateMandatoryChild(child, "ORBIT", factory);
-                    vessel.orbit = new OrbitSnapshot(child.GetNode("ORBIT")).Load();
-                    vessel.orbit.referenceBody = vessel.body;
-                }
-
-                // Get additional flags
-                valid &= ConfigNodeUtil.ParseValue<bool>(child, "owned", x => vessel.owned = x, factory, false);
-
-                // Handle the CREW nodes
-                foreach (ConfigNode crewNode in child.GetNodes("CREW"))
-                {
-                    int count = 1;
-                    valid &= ConfigNodeUtil.ParseValue<int>(crewNode, "count", x => count = x, factory, 1);
-                    for (int i = 0; i < count; i++)
+                    // Get name
+                    if (child.HasValue("name"))
                     {
-                        CrewData cd = new CrewData();
-
-                        // Read crew details
-                        valid &= ConfigNodeUtil.ParseValue<string>(crewNode, "name", x => cd.name = x, factory, (string)null);
-                        valid &= ConfigNodeUtil.ParseValue<bool>(crewNode, "addToRoster", x => cd.addToRoster = x, factory, true);
-
-                        // Add the record
-                        vessel.crew.Add(cd);
+                        vessel.name = child.GetValue("name");
                     }
-                }
 
-                // Add to the list
-                spawnVessel.vessels.Add(vessel);
+                    // Get paths
+                    vessel.craftURL = ConfigNodeUtil.ParseValue<string>(child, "craftURL");
+                    vessel.flagURL = ConfigNodeUtil.ParseValue<string>(child, "flagURL", (string)null);
+                    vessel.vesselType = ConfigNodeUtil.ParseValue<VesselType>(child, "vesselType", VesselType.Ship);
+
+                    // Get celestial body
+                    valid &= ConfigNodeUtil.ParseValue<CelestialBody>(child, "targetBody", x => vessel.body = x, factory, defaultBody, Validation.NotNull);
+
+
+                    // Get landed stuff
+                    if (child.HasValue("lat") && child.HasValue("lon"))
+                    {
+                        valid &= ConfigNodeUtil.ParseValue<double>(child, "lat", x => vessel.latitude = x, factory);
+                        valid &= ConfigNodeUtil.ParseValue<double>(child, "lon", x => vessel.longitude = x, factory);
+                        valid &= ConfigNodeUtil.ParseValue<double?>(child, "alt", x => vessel.altitude = x, factory, (double?)null);
+                        vessel.landed = true;
+                    }
+                    // Get orbit
+                    else
+                    {
+                        valid &= ConfigNodeUtil.ValidateMandatoryChild(child, "ORBIT", factory);
+                        vessel.orbit = new OrbitSnapshot(child.GetNode("ORBIT")).Load();
+                        vessel.orbit.referenceBody = vessel.body;
+                    }
+
+                    // Get additional flags
+                    valid &= ConfigNodeUtil.ParseValue<bool>(child, "owned", x => vessel.owned = x, factory, false);
+
+                    // Handle the CREW nodes
+                    foreach (ConfigNode crewNode in child.GetNodes("CREW"))
+                    {
+                        int count = 1;
+                        valid &= ConfigNodeUtil.ParseValue<int>(crewNode, "count", x => count = x, factory, 1);
+                        for (int i = 0; i < count; i++)
+                        {
+                            CrewData cd = new CrewData();
+
+                            // Read crew details
+                            valid &= ConfigNodeUtil.ParseValue<string>(crewNode, "name", x => cd.name = x, factory, (string)null);
+                            valid &= ConfigNodeUtil.ParseValue<bool>(crewNode, "addToRoster", x => cd.addToRoster = x, factory, true);
+
+                            // Add the record
+                            vessel.crew.Add(cd);
+                        }
+                    }
+
+                    // Add to the list
+                    spawnVessel.vessels.Add(vessel);
+                }
+                finally
+                {
+                    ConfigNodeUtil.SetCurrentDataNode(factory.dataNode);
+                }
             }
 
             return valid ? spawnVessel : null;

@@ -1,3 +1,6 @@
+Contract Configurator 0.7.14
+- Expressions now work in child nodes (for WaypointGenerator and other behaviours that support it).
+
 Contract Configurator 0.7.13
 - Fix exception when loading types from assemblies that have been improperly compiled (thanks SpacedInvader).
 

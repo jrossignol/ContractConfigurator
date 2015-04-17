@@ -47,9 +47,9 @@ namespace ContractConfigurator
             contractTypes.Clear();
         }
 
-        protected virtual List<ParameterFactory> paramFactories { get; set; }
-        protected virtual List<BehaviourFactory> behaviourFactories { get; set; }
-        protected virtual List<ContractRequirement> requirements { get; set; }
+        protected List<ParameterFactory> paramFactories = new List<ParameterFactory>();
+        protected List<BehaviourFactory> behaviourFactories = new List<BehaviourFactory>();
+        protected List<ContractRequirement> requirements = new List<ContractRequirement>();
 
         public IEnumerable<ParameterFactory> ParamFactories { get { return paramFactories; } }
         public IEnumerable<BehaviourFactory> BehaviourFactories { get { return behaviourFactories; } }
@@ -250,7 +250,6 @@ namespace ContractConfigurator
                 LoggingUtil.CaptureLog = false;
 
                 // Load parameters
-                paramFactories = new List<ParameterFactory>();
                 foreach (ConfigNode contractParameter in configNode.GetNodes("PARAMETER"))
                 {
                     ParameterFactory paramFactory = null;
@@ -266,7 +265,6 @@ namespace ContractConfigurator
                 }
 
                 // Load behaviours
-                behaviourFactories = new List<BehaviourFactory>();
                 foreach (ConfigNode requirementNode in configNode.GetNodes("BEHAVIOUR"))
                 {
                     BehaviourFactory behaviourFactory = null;
@@ -282,7 +280,6 @@ namespace ContractConfigurator
                 }
 
                 // Load requirements
-                requirements = new List<ContractRequirement>();
                 foreach (ConfigNode requirementNode in configNode.GetNodes("REQUIREMENT"))
                 {
                     ContractRequirement requirement = null;

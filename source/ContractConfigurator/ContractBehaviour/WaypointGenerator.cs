@@ -5,9 +5,10 @@ using System.Text;
 using UnityEngine;
 using KSP;
 using Contracts;
-using ContractConfigurator;
 using FinePrint;
 using FinePrint.Utilities;
+using ContractConfigurator;
+using ContractConfigurator.ExpressionParser;
 
 namespace ContractConfigurator.Behaviour
 {
@@ -30,6 +31,7 @@ namespace ContractConfigurator.Behaviour
             public Vector3d pqsOffset;
             public string parameter = "";
             public bool hidden = false;
+            public int count = 1;
 
             public WaypointData()
             {
@@ -60,6 +62,7 @@ namespace ContractConfigurator.Behaviour
                 waterAllowed = orig.waterAllowed;
                 forceEquatorial = orig.forceEquatorial;
                 nearIndex = orig.nearIndex;
+                count = orig.count;
                 minDistance = orig.minDistance;
                 maxDistance = orig.maxDistance;
                 pqsCity = orig.pqsCity;
@@ -92,7 +95,10 @@ namespace ContractConfigurator.Behaviour
             foreach (WaypointData old in orig.waypoints)
             {
                 // Copy waypoint data
-                waypoints.Add(new WaypointData(old, contract));
+                for (int i = 0; i < old.count; i++)
+                {
+                    waypoints.Add(new WaypointData(old, contract));
+                }
             }
         }
 
@@ -116,50 +122,52 @@ namespace ContractConfigurator.Behaviour
             int index = 0;
             foreach (ConfigNode child in configNode.GetNodes())
             {
-                int count = child.HasValue("count") ? Convert.ToInt32(child.GetValue("count")) : 1;
-                for (int i = 0; i < count; i++)
+                double? altitude = null;
+                WaypointData wpData = new WaypointData(child.name);
+
+                valid &= ConfigNodeUtil.ParseValue<string>(child, "targetBody", x => wpData.waypoint.celestialName = x, factory, defaultBody != null ? defaultBody.name : null, Validation.NotNull);
+                valid &= ConfigNodeUtil.ParseValue<string>(child, "name", x => wpData.waypoint.name = x, factory, (string)null);
+                valid &= ConfigNodeUtil.ParseValue<double?>(child, "altitude", x => altitude = x, factory, (double?)null);
+                valid &= ConfigNodeUtil.ParseValue<string>(child, "parameter", x => wpData.parameter = x, factory, "");
+                valid &= ConfigNodeUtil.ParseValue<bool>(child, "hidden", x => wpData.hidden = x, factory, false);
+                if (wpData.hidden)
                 {
-                    double? altitude = null;
-                    WaypointData wpData = new WaypointData(child.name);
+                    valid &= ConfigNodeUtil.ParseValue<string>(child, "icon", x => wpData.waypoint.id = x, factory, "");
+                }
+                else
+                {
+                    valid &= ConfigNodeUtil.ParseValue<string>(child, "icon", x => wpData.waypoint.id = x, factory);
+                }
 
-                    valid &= ConfigNodeUtil.ParseValue<string>(child, "targetBody", x => wpData.waypoint.celestialName = x, factory, defaultBody != null ? defaultBody.name : null, Validation.NotNull);
-                    valid &= ConfigNodeUtil.ParseValue<string>(child, "name", x => wpData.waypoint.name = x, factory, (string)null);
-                    valid &= ConfigNodeUtil.ParseValue<double?>(child, "altitude", x => altitude = x, factory, (double?)null);
-                    valid &= ConfigNodeUtil.ParseValue<string>(child, "parameter", x => wpData.parameter = x, factory, "");
-                    valid &= ConfigNodeUtil.ParseValue<bool>(child, "hidden", x => wpData.hidden = x, factory, false);
-                    if (wpData.hidden)
+                // The FinePrint logic is such that it will only look in Squad/Contracts/Icons for icons.
+                // Cheat this by hacking the path in the game database.
+                if (wpData.waypoint.id.Contains("/"))
+                {
+                    GameDatabase.TextureInfo texInfo = GameDatabase.Instance.databaseTexture.Where(t => t.name == wpData.waypoint.id).FirstOrDefault();
+                    if (texInfo != null)
                     {
-                        valid &= ConfigNodeUtil.ParseValue<string>(child, "icon", x => wpData.waypoint.id = x, factory, "");
+                        texInfo.name = "Squad/Contracts/Icons/" + wpData.waypoint.id;
                     }
-                    else
-                    {
-                        valid &= ConfigNodeUtil.ParseValue<string>(child, "icon", x => wpData.waypoint.id = x, factory);
-                    }
+                }
 
-                    // The FinePrint logic is such that it will only look in Squad/Contracts/Icons for icons.
-                    // Cheat this by hacking the path in the game database.
-                    if (wpData.waypoint.id.Contains("/"))
-                    {
-                        GameDatabase.TextureInfo texInfo = GameDatabase.Instance.databaseTexture.Where(t => t.name == wpData.waypoint.id).FirstOrDefault();
-                        if (texInfo != null)
-                        {
-                            texInfo.name = "Squad/Contracts/Icons/" + wpData.waypoint.id;
-                        }
-                    }
+                // Track the index
+                wpData.waypoint.index = index++;
 
-                    // Track the index
-                    wpData.waypoint.index = index++;
+                // Get altitude
+                if (altitude == null)
+                {
+                    wpData.waypoint.altitude = 0.0;
+                    wpData.randomAltitude = true;
+                }
+                else
+                {
+                    wpData.waypoint.altitude = altitude.Value;
+                }
 
-                    // Get altitude
-                    if (altitude == null)
-                    {
-                        wpData.waypoint.altitude = 0.0;
-                        wpData.randomAltitude = true;
-                    }
-                    else
-                    {
-                        wpData.waypoint.altitude = altitude.Value;
-                    }
+                DataNode dataNode = new DataNode("WAYPOINT_" + (index - 1), factory.dataNode, factory);
+                try
+                {
+                    ConfigNodeUtil.SetCurrentDataNode(dataNode);
 
                     // Get settings that differ by type
                     if (child.name == "WAYPOINT")
@@ -172,6 +180,7 @@ namespace ContractConfigurator.Behaviour
                         // Get settings for randomization
                         valid &= ConfigNodeUtil.ParseValue<bool>(child, "waterAllowed", x => wpData.waterAllowed = x, factory, true);
                         valid &= ConfigNodeUtil.ParseValue<bool>(child, "forceEquatorial", x => wpData.forceEquatorial = x, factory, false);
+                        valid &= ConfigNodeUtil.ParseValue<int>(child, "count", x => wpData.count = x, factory, 1, x => Validation.GE(x, 1));
                     }
                     else if (child.name == "RANDOM_WAYPOINT_NEAR")
                     {
@@ -180,6 +189,7 @@ namespace ContractConfigurator.Behaviour
 
                         // Get near waypoint details
                         valid &= ConfigNodeUtil.ParseValue<int>(child, "nearIndex", x => wpData.nearIndex = x, factory, x => Validation.GE(x, 0));
+                        valid &= ConfigNodeUtil.ParseValue<int>(child, "count", x => wpData.count = x, factory, 1, x => Validation.GE(x, 1));
 
                         // Get distances
                         valid &= ConfigNodeUtil.ParseValue<double>(child, "minDistance", x => wpData.minDistance = x, factory, 0.0, x => Validation.GE(x, 0.0));
@@ -221,10 +231,14 @@ namespace ContractConfigurator.Behaviour
                         LoggingUtil.LogError(factory, "Unrecognized waypoint node: '" + child.name + "'");
                         valid = false;
                     }
-
-                    // Add to the list
-                    wpGenerator.waypoints.Add(wpData);
                 }
+                finally
+                {
+                    ConfigNodeUtil.SetCurrentDataNode(factory.dataNode);
+                }
+
+                // Add to the list
+                wpGenerator.waypoints.Add(wpData);
             }
 
             return valid ? wpGenerator : null;

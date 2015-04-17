@@ -182,7 +182,8 @@ namespace ContractConfigurator.ExpressionParser
 
         public string DebugString()
         {
-            string result = "";
+            string result = "<i>" + Name + "</i>\n";
+
             foreach (KeyValuePair<string, Value> pair in data)
             {
                 result += "    <color=lime>" + pair.Key + "</color> = " + pair.Value.value + ", deterministic = " + pair.Value.deterministic + "\n"; ;

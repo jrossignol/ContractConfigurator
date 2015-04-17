@@ -6,6 +6,7 @@ using UnityEngine;
 using KSP;
 using Contracts;
 using ContractConfigurator;
+using ContractConfigurator.ExpressionParser;
 
 namespace ContractConfigurator.Behaviour
 {
@@ -85,68 +86,79 @@ namespace ContractConfigurator.Behaviour
             SpawnKerbal spawnKerbal = new SpawnKerbal();
 
             bool valid = true;
+            int index = 0;
             foreach (ConfigNode child in configNode.GetNodes("KERBAL"))
             {
-                KerbalData kerbal = new KerbalData();
-
-                // Get name
-                if (child.HasValue("name"))
+                DataNode dataNode = new DataNode("KERBAL_" + index++, factory.dataNode, factory);
+                try
                 {
-                    kerbal.name = child.GetValue("name");
-                }
+                    ConfigNodeUtil.SetCurrentDataNode(dataNode);
 
-                // Get celestial body
-                valid &= ConfigNodeUtil.ParseValue<CelestialBody>(child, "targetBody", x => kerbal.body = x, factory, defaultBody, Validation.NotNull);
+                    KerbalData kerbal = new KerbalData();
 
-                // Get landed stuff
-                if (child.HasValue("lat") && child.HasValue("lon") || child.HasValue("pqsCity"))
-                {
-                    kerbal.landed = true;
-                    if (child.HasValue("pqsCity"))
+                    // Get name
+                    if (child.HasValue("name"))
                     {
-                        string pqsCityStr = null;
-                        valid &= ConfigNodeUtil.ParseValue<string>(child, "pqsCity", x => pqsCityStr = x, factory);
-                        if (pqsCityStr != null)
+                        kerbal.name = child.GetValue("name");
+                    }
+
+                    // Get celestial body
+                    valid &= ConfigNodeUtil.ParseValue<CelestialBody>(child, "targetBody", x => kerbal.body = x, factory, defaultBody, Validation.NotNull);
+
+                    // Get landed stuff
+                    if (child.HasValue("lat") && child.HasValue("lon") || child.HasValue("pqsCity"))
+                    {
+                        kerbal.landed = true;
+                        if (child.HasValue("pqsCity"))
                         {
-                            try
+                            string pqsCityStr = null;
+                            valid &= ConfigNodeUtil.ParseValue<string>(child, "pqsCity", x => pqsCityStr = x, factory);
+                            if (pqsCityStr != null)
                             {
-                                kerbal.pqsCity = kerbal.body.GetComponentsInChildren<PQSCity>(true).Where(pqs => pqs.name == pqsCityStr).First();
+                                try
+                                {
+                                    kerbal.pqsCity = kerbal.body.GetComponentsInChildren<PQSCity>(true).Where(pqs => pqs.name == pqsCityStr).First();
+                                }
+                                catch (Exception e)
+                                {
+                                    LoggingUtil.LogError(typeof(WaypointGenerator), "Couldn't load PQSCity with name '" + pqsCityStr + "'");
+                                    LoggingUtil.LogException(e);
+                                    valid = false;
+                                }
                             }
-                            catch (Exception e)
-                            {
-                                LoggingUtil.LogError(typeof(WaypointGenerator), "Couldn't load PQSCity with name '" + pqsCityStr + "'");
-                                LoggingUtil.LogException(e);
-                                valid = false;
-                            }
+                            valid &= ConfigNodeUtil.ParseValue<Vector3d>(child, "pqsOffset", x => kerbal.pqsOffset = x, factory, new Vector3d());
                         }
-                        valid &= ConfigNodeUtil.ParseValue<Vector3d>(child, "pqsOffset", x => kerbal.pqsOffset = x, factory, new Vector3d());
+                        else
+                        {
+                            valid &= ConfigNodeUtil.ParseValue<double>(child, "lat", x => kerbal.latitude = x, factory);
+                            valid &= ConfigNodeUtil.ParseValue<double>(child, "lon", x => kerbal.longitude = x, factory);
+                        }
+                    }
+                    // Get orbit
+                    else if (child.HasNode("ORBIT"))
+                    {
+                        kerbal.orbit = new OrbitSnapshot(child.GetNode("ORBIT")).Load();
+                        kerbal.orbit.referenceBody = kerbal.body;
                     }
                     else
                     {
-                        valid &= ConfigNodeUtil.ParseValue<double>(child, "lat", x => kerbal.latitude = x, factory);
-                        valid &= ConfigNodeUtil.ParseValue<double>(child, "lon", x => kerbal.longitude = x, factory);
+                        // Will error
+                        valid &= ConfigNodeUtil.ValidateMandatoryChild(child, "ORBIT", factory);
                     }
+
+                    valid &= ConfigNodeUtil.ParseValue<double?>(child, "alt", x => kerbal.altitude = x, factory, (double?)null);
+
+                    // Get additional flags
+                    valid &= ConfigNodeUtil.ParseValue<bool>(child, "owned", x => kerbal.owned = x, factory, false);
+                    valid &= ConfigNodeUtil.ParseValue<bool>(child, "addToRoster", x => kerbal.addToRoster = x, factory, true);
+
+                    // Add to the list
+                    spawnKerbal.kerbals.Add(kerbal);
                 }
-                // Get orbit
-                else if (child.HasNode("ORBIT"))
+                finally
                 {
-                    kerbal.orbit = new OrbitSnapshot(child.GetNode("ORBIT")).Load();
-                    kerbal.orbit.referenceBody = kerbal.body;
+                    ConfigNodeUtil.SetCurrentDataNode(factory.dataNode);
                 }
-                else
-                {
-                    // Will error
-                    valid &= ConfigNodeUtil.ValidateMandatoryChild(child, "ORBIT", factory);
-                }
-
-                valid &= ConfigNodeUtil.ParseValue<double?>(child, "alt", x => kerbal.altitude = x, factory, (double?)null);
-
-                // Get additional flags
-                valid &= ConfigNodeUtil.ParseValue<bool>(child, "owned", x => kerbal.owned = x, factory, false);
-                valid &= ConfigNodeUtil.ParseValue<bool>(child, "addToRoster", x => kerbal.addToRoster = x, factory, true);
-
-                // Add to the list
-                spawnKerbal.kerbals.Add(kerbal);
             }
 
             return valid ? spawnKerbal : null;
