@@ -253,6 +253,11 @@ namespace ContractConfigurator.ExpressionParser
             {
                 if (parseMode)
                 {
+                    if (currentDataNode != null)
+                    {
+                        currentDataNode.SetDeterministic(currentKey, false);
+                    }
+
                     return default(T);
                 }
                 else if (PersistentDataStore.Instance != null)

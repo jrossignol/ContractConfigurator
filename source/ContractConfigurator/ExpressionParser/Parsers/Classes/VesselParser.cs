@@ -120,6 +120,14 @@ namespace ContractConfigurator.ExpressionParser
                 }
                 return (U)(object)value.vesselName;
             }
+            else if (typeof(U) == typeof(VesselIdentifier))
+            {
+                if (!parseMode)
+                {
+                    ContractVesselTracker.Instance.AssociateVessel(value.vesselName, value);
+                }
+                return (U)(object)new VesselIdentifier(value.vesselName);
+            }
             return base.ConvertType<U>(value);
         }
 

@@ -295,11 +295,14 @@ namespace ContractConfigurator
                 lastSpecificGenerationFailure[prestige] = 0;
             }
 
+            LoggingUtil.LogVerbose(this, "Generating a contract for prestige = " + prestige);
+
             // Loop through all the contract groups
             IEnumerable<ContractGroup> groups = ContractGroup.AllGroups;
             foreach (ContractGroup group in groups.Skip(nextGroup).Concat(groups.Take(nextGroup)))
             {
-                nextGroup++;
+                LoggingUtil.LogVerbose(this, "Looking at group " + group);
+                nextGroup = (nextGroup + 1) % groups.Count();
 
                 // Build a weighted list of ContractTypes to choose from
                 Dictionary<ContractType, double> validContractTypes = new Dictionary<ContractType, double>();

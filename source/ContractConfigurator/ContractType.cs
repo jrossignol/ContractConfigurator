@@ -454,6 +454,7 @@ namespace ContractConfigurator
 
                             if (v.state == Vessel.State.DEAD)
                             {
+                                LoggingUtil.LogVerbose(this, "Didn't generate contract type " + this.name + ", vessel '" + v.vesselName + "' is dead.");
                                 return false;
                             }
                         }
