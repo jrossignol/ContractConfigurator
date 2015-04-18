@@ -120,7 +120,6 @@ namespace ContractConfigurator.Behaviour
                     // Get celestial body
                     valid &= ConfigNodeUtil.ParseValue<CelestialBody>(child, "targetBody", x => vessel.body = x, factory, defaultBody, Validation.NotNull);
 
-
                     // Get landed stuff
                     if (child.HasValue("lat") && child.HasValue("lon"))
                     {
@@ -270,7 +269,6 @@ namespace ContractConfigurator.Behaviour
 
                     Vector3d pos = vesselData.body.GetWorldSurfacePosition(vesselData.latitude, vesselData.longitude, vesselData.altitude.Value);
 
-                    // TODO - orbit no longer required in config node
                     vesselData.orbit = new Orbit(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, vesselData.body);
                     vesselData.orbit.UpdateFromStateVectors(pos, vesselData.body.getRFrmVel(pos), vesselData.body, Planetarium.GetUniversalTime());
                     LoggingUtil.LogDebug(this, "vesselData generated, orbit = " + vesselData.orbit);
