@@ -76,9 +76,10 @@ namespace ContractConfigurator.Behaviour
                     List<SpawnPassengers> passengerList = new List<SpawnPassengers>();
                     foreach (SpawnPassengers sp in contract.Behaviours.Where(x => x.GetType() == typeof(SpawnPassengers)))
                     {
-                        if (!sp.passengersLoaded)
+                        int count = sp.passengers.Where(pair => !pair.Value).Count();
+                        if (count != 0)
                         {
-                            passengerCount += sp.count;
+                            passengerCount += count;
                             passengerList.Add(sp);
                         }
                     }
@@ -196,9 +197,8 @@ namespace ContractConfigurator.Behaviour
 
         protected int count { get; set; }
         protected List<string> passengerNames { get; set; }
-        protected bool passengersLoaded = false;
 
-        private List<ProtoCrewMember> passengers = new List<ProtoCrewMember>();
+        private Dictionary<ProtoCrewMember, bool> passengers = new Dictionary<ProtoCrewMember, bool>();
 
         public int KerbalCount { get { return passengers.Count; } }
 
@@ -227,7 +227,8 @@ namespace ContractConfigurator.Behaviour
             // Checks for displaying the dialog box
             Vessel v = FlightGlobals.ActiveVessel;
             if (v != null && v.situation == Vessel.Situations.PRELAUNCH &&
-                v.mainBody.isHomeWorld && !passengersLoaded &&
+                v.mainBody.isHomeWorld &&
+                passengers.Where(pair => !pair.Value).Any() &&
                 v.GetCrewCapacity() - v.GetCrewCount() >= count)
             {
                 PassengerLoader loader = MapView.MapCamera.gameObject.GetComponent<PassengerLoader>();
@@ -253,7 +254,7 @@ namespace ContractConfigurator.Behaviour
                     foreach (string name in p.protoCrewNames)
                     {
                         // Find this crew member in our data and remove them
-                        ProtoCrewMember passenger = passengers.Where(pcm => pcm.name == name).FirstOrDefault();
+                        ProtoCrewMember passenger = passengers.Keys.Where(pcm => pcm.name == name).FirstOrDefault();
                         if (passenger != null)
                         {
                             // I would like to remove the passengers from existance, but then there
@@ -261,7 +262,7 @@ namespace ContractConfigurator.Behaviour
                             // noteworthy to get themselves in the achievement log.  So we leave them
                             // to clutter up the save file.
                             //HighLogic.CurrentGame.CrewRoster.Remove(passenger);
-                            passengers.Remove(passenger);
+                            passengers[passenger] = false;
                             passenger.type = ProtoCrewMember.KerbalType.Unowned;
                         }
                     }
@@ -273,19 +274,13 @@ namespace ContractConfigurator.Behaviour
             foreach (ProtoCrewMember crewMember in v.GetVesselCrew())
             {
                 // Find this crew member in our data and remove them
-                ProtoCrewMember passenger = passengers.Where(pcm => pcm == crewMember).FirstOrDefault();
+                ProtoCrewMember passenger = passengers.Keys.Where(pcm => pcm == crewMember).FirstOrDefault();
                 if (passenger != null)
                 {
                     //HighLogic.CurrentGame.CrewRoster.Remove(passenger);
-                    passengers.Remove(passenger);
+                    passengers[passenger] = false;
                     passenger.type = ProtoCrewMember.KerbalType.Unowned;
                 }
-            }
-
-            // Allows for recovery and retry on the pad
-            if (passengers.Count == 0)
-            {
-                passengersLoaded = false;
             }
         }
 
@@ -300,7 +295,7 @@ namespace ContractConfigurator.Behaviour
                 return;
             }
 
-            foreach (ProtoCrewMember crewMember in passengers)
+            foreach (ProtoCrewMember crewMember in passengers.Keys.ToList())
             {
                 // Find a seat for the crew
                 Part part = v.parts.Find(p => p.protoModuleCrew.Count < p.CrewCapacity);
@@ -313,6 +308,8 @@ namespace ContractConfigurator.Behaviour
                     success = part.AddCrewmember(crewMember);
                     if (success)
                     {
+                        crewMember.type = ProtoCrewMember.KerbalType.Tourist;
+                        passengers[crewMember] = true;
                         GameEvents.onCrewBoardVessel.Fire(new GameEvents.FromToAction<Part, Part>(part, part));
                         GameEvents.onCrewTransferred.Fire(new GameEvents.HostedFromToAction<ProtoCrewMember, Part>(crewMember, part, part));
                     }
@@ -329,7 +326,6 @@ namespace ContractConfigurator.Behaviour
             v.SpawnCrew();
 
             // Update the parameters and force a re-check to update their state
-            passengersLoaded = true;
             onPassengersLoaded.Fire();
         }
 
@@ -349,7 +345,7 @@ namespace ContractConfigurator.Behaviour
                         crewMember.name = passengerNames[i];
                     }
                     KerbalRoster.SetExperienceTrait(crewMember, "Engineer");
-                    passengers.Add(crewMember);
+                    passengers[crewMember] = false;
                 }
             }
             else
@@ -357,14 +353,25 @@ namespace ContractConfigurator.Behaviour
                 for (int i = 0; i < count; i++)
                 {
                     // Create the ProtoCrewMember
-                    ProtoCrewMember crewMember = HighLogic.CurrentGame.CrewRoster.GetNewKerbal(ProtoCrewMember.KerbalType.Tourist);
-
+                    ProtoCrewMember crewMember = null;
+                    
+                    // Try to get existing passenger
                     if (passengerNames.Count > i)
                     {
-                        crewMember.name = passengerNames[i];
+                        crewMember = HighLogic.CurrentGame.CrewRoster.AllKerbals().Where(pcm => pcm.name == passengerNames[i]).FirstOrDefault();
                     }
+                    if (crewMember == null)
+                    {
+                        crewMember = HighLogic.CurrentGame.CrewRoster.GetNewKerbal(ProtoCrewMember.KerbalType.Tourist);
+
+                        if (passengerNames.Count > i)
+                        {
+                            crewMember.name = passengerNames[i];
+                        }
+                    }
+
                     KerbalRoster.SetExperienceTrait(crewMember, "Engineer");
-                    passengers.Add(crewMember);
+                    passengers[crewMember] = false;
                 }
             }
             passengerNames.Clear();
@@ -374,16 +381,19 @@ namespace ContractConfigurator.Behaviour
         {
             base.OnSave(node);
             node.AddValue("count", count);
-            node.AddValue("passengersLoaded", passengersLoaded);
 
             foreach (string passenger in passengerNames)
             {
                 node.AddValue("potentialPassenger", passenger);
             }
 
-            foreach (ProtoCrewMember passenger in passengers)
+            foreach (KeyValuePair<ProtoCrewMember, bool> pair in passengers)
             {
-                node.AddValue("passenger", passenger.name);
+                ConfigNode child = new ConfigNode("PASSENGER_DATA");
+                node.AddNode(child);
+
+                child.AddValue("passenger", pair.Key.name);
+                child.AddValue("loaded", pair.Value);
             }
         }
 
@@ -391,15 +401,33 @@ namespace ContractConfigurator.Behaviour
         {
             base.OnLoad(node);
             count = Convert.ToInt32(node.GetValue("count"));
-            passengers = ConfigNodeUtil.ParseValue<List<ProtoCrewMember>>(node, "passenger", new List<ProtoCrewMember>());
             passengerNames = ConfigNodeUtil.ParseValue<List<string>>(node, "potentialPassenger", new List<string>());
-            passengersLoaded = ConfigNodeUtil.ParseValue<bool>(node, "passengersLoaded");
 
-            foreach (ProtoCrewMember crew in passengers)
+            // Backwards compatibility
+            if (node.HasValue("passengersLoaded"))
             {
-                KerbalRoster.SetExperienceTrait(crew, "Engineer");
+                List<ProtoCrewMember> allPassengers = ConfigNodeUtil.ParseValue<List<ProtoCrewMember>>(node, "passenger", new List<ProtoCrewMember>());
+                bool passengersLoaded = ConfigNodeUtil.ParseValue<bool>(node, "passengersLoaded");
+
+                foreach (ProtoCrewMember crew in allPassengers)
+                {
+                    KerbalRoster.SetExperienceTrait(crew, "Engineer");
+                    passengers[crew] = passengersLoaded;
+                }
+            }
+            else
+            {
+                foreach (ConfigNode child in node.GetNodes("PASSENGER_DATA"))
+                {
+                    ProtoCrewMember crew = ConfigNodeUtil.ParseValue<ProtoCrewMember>(child, "passenger");
+                    bool loaded = ConfigNodeUtil.ParseValue<bool>(child, "loaded");
+
+                    KerbalRoster.SetExperienceTrait(crew, "Engineer");
+                    passengers[crew] = loaded;
+                }
             }
         }
+
 
         protected override void OnCancelled()
         {
@@ -433,7 +461,7 @@ namespace ContractConfigurator.Behaviour
 
         private void RemoveKerbals()
         {
-            foreach (ProtoCrewMember kerbal in passengers)
+            foreach (ProtoCrewMember kerbal in passengers.Keys)
             {
                 HighLogic.CurrentGame.CrewRoster.Remove(kerbal.name);
             }
@@ -448,7 +476,15 @@ namespace ContractConfigurator.Behaviour
                     " is out of range for number of passengers spawned (" + passengers.Count + ").");
             }
 
-            return passengers[index];
+            int i = 0;
+            foreach (ProtoCrewMember pcm in passengers.Keys)
+            {
+                if (i++ == index)
+                {
+                    return pcm;
+                }
+            }
+            return null;
         }
     }
 }

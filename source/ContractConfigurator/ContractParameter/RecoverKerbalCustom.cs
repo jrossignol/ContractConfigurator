@@ -46,7 +46,14 @@ namespace ContractConfigurator.Parameters
             string output = "";
             if (string.IsNullOrEmpty(title))
             {
-                output = "Kerbal" + (kerbals.Count != 1 ? "s" : "") + " recovered";
+                if (kerbals.Count == 1)
+                {
+                    output = kerbals[0] + " recovered";
+                }
+                else
+                {
+                    output = "Kerbals recovered";
+                }
             }
             else
             {

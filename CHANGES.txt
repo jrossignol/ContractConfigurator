@@ -1,3 +1,6 @@
+Contract Configurator 0.7.15
+- Fix for re-loading passengers in tourism contracts (thanks karki and others).
+
 Contract Configurator 0.7.14
 - Expressions now work in child nodes (for WaypointGenerator and other behaviours that support it).
 - Fix issues with fairness when generating contracts (should now give appropriate consideration to all contract packs).
