@@ -1,3 +1,6 @@
+Contract Configurator 1.0.0
+- Fix issue when reloading contracts within a hierarchy of contract groups.
+
 Contract Configurator 0.7.15
 - Fix for re-loading passengers in tourism contracts (thanks karki and others).
 

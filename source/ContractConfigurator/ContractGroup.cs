@@ -46,21 +46,10 @@ namespace ContractConfigurator
 
         public ContractGroup parent = null;
 
-        private bool initialized = false;
-
         public ContractGroup(string name)
         {
             this.name = name;
             contractGroups.Add(name, this);
-            initialized = true;
-        }
-
-        ~ContractGroup()
-        {
-            if (initialized)
-            {
-                contractGroups.Remove(name);
-            }
         }
 
         /// <summary>
