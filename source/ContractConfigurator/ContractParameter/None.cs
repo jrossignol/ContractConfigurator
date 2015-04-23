@@ -10,21 +10,18 @@ using Contracts.Parameters;
 namespace ContractConfigurator.Parameters
 {
     /// <summary>
-    /// ContractParameter that fails if n or more child parameters are successful.
+    /// ContractParameter that fails if any child parameters are successful.
     /// </summary>
-    public class AtMost : ContractConfiguratorParameter
+    public class None : ContractConfiguratorParameter
     {
-        int count;
-
-        public AtMost()
+        public None()
             : base(null)
         {
         }
 
-        public AtMost(string title, int count)
+        public None(string title)
             : base(title)
         {
-            this.count = count;
         }
 
         protected override string GetTitle()
@@ -32,7 +29,7 @@ namespace ContractConfigurator.Parameters
             string output = null;
             if (string.IsNullOrEmpty(title))
             {
-                output = string.Format("Allow no more than {0} of the following", count);
+                output = "Prevent ALL of the following";
             }
             else
             {
@@ -44,12 +41,10 @@ namespace ContractConfigurator.Parameters
 
         protected override void OnParameterSave(ConfigNode node)
         {
-            node.AddValue("count", count);
         }
 
         protected override void OnParameterLoad(ConfigNode node)
         {
-            count = ConfigNodeUtil.ParseValue<int>(node, "count");
         }
 
         protected override void OnRegister()
@@ -69,7 +64,7 @@ namespace ContractConfigurator.Parameters
             if (contract == Root)
             {
                 LoggingUtil.LogVerbose(this, "OnAnyContractParameterChange");
-                if (this.GetChildren().Where(p => p.State == ParameterState.Complete).Count() > count)
+                if (this.GetChildren().Where(p => p.State == ParameterState.Complete).Any())
                 {
                     SetState(ParameterState.Failed);
                 }

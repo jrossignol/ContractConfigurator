@@ -60,6 +60,7 @@
     <Compile Include="ContractBehaviour\IHasKerbalBehaviour.cs" />
     <Compile Include="ContractBehaviour\SpawnPassengers.cs" />
     <Compile Include="ContractBehaviour\SpawnVessel.cs" />
+    <Compile Include="ContractParameter\None.cs" />
     <Compile Include="ContractParameter\AtMost.cs" />
     <Compile Include="ContractParameter\AtLeast.cs" />
     <Compile Include="ContractParameter\ContractConfiguratorParameter.cs" />
@@ -117,6 +118,7 @@
     <Compile Include="ExpressionParser\Wrappers\Resource.cs" />
     <Compile Include="ExpressionParser\Wrappers\Kerbal.cs" />
     <Compile Include="ExpressionParser\Wrappers\Duration.cs" />
+    <Compile Include="ParameterFactory\NoneFactory.cs" />
     <Compile Include="ParameterFactory\AtMostFactory.cs" />
     <Compile Include="ParameterFactory\AtLeastFactory.cs" />
     <Compile Include="ParameterFactory\HasCrewCapacityFactory.cs" />
