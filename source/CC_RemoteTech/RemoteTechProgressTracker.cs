@@ -280,7 +280,16 @@ namespace ContractConfigurator.RemoteTech
             foreach (ConfigNode child in node.GetNodes("CelestialBodyInfo"))
             {
                 CelestialBodyInfo cbi = new CelestialBodyInfo();
-                cbi.body = ConfigNodeUtil.ParseValue<CelestialBody>(child, "body");
+                try
+                {
+                    cbi.body = ConfigNodeUtil.ParseValue<CelestialBody>(child, "body");
+                }
+                catch (Exception e)
+                {
+                    LoggingUtil.LogWarning(this, "Error loading celestial body, skipping.  Error was:");
+                    LoggingUtil.LogException(e);
+                    continue;
+                }
                 cbi.coverage = ConfigNodeUtil.ParseValue<UInt32>(child, "coverage", 0);
                 cbi.activeRange = ConfigNodeUtil.ParseValue<double>(child, "activeRange");
                 celestialBodies[cbi.body] = cbi;
