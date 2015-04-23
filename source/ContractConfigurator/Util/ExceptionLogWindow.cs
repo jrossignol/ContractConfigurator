@@ -15,6 +15,8 @@ namespace ContractConfigurator
             PARAMETER_LOAD,
             CONTRACT_SAVE,
             CONTRACT_LOAD,
+            SCENARIO_MODULE_SAVE,
+            SCENARIO_MODULE_LOAD,
             OTHER,
         }
 
@@ -43,6 +45,14 @@ namespace ContractConfigurator
                 case ExceptionSituation.CONTRACT_LOAD:
                     situationString = String.Format("while loading contract contract '{0}'", args);
                     actionString = "The contract data was not correctly loaded.  Avoid saving your game and backup your save file immediately if you wish to prevent contract loss!";
+                    break;
+                case ExceptionSituation.SCENARIO_MODULE_SAVE:
+                    situationString = String.Format("while saving ScenarioModule '{0}'", args);
+                    actionString = "The ScenarioModule data was not correctly saved - reloading the save may result in further errors.";
+                    break;
+                case ExceptionSituation.SCENARIO_MODULE_LOAD:
+                    situationString = String.Format("while loading ScenarioModule '{0}'", args);
+                    actionString = "The ScenarioModule data was not correctly loaded.  Avoid saving your game and backup your save file immediately if you wish to prevent save game data loss!";
                     break;
                 default:
                     situationString = "while performing an unspecified operation";

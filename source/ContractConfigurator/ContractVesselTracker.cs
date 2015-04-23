@@ -62,71 +62,89 @@ namespace ContractConfigurator
 
         public override void OnLoad(ConfigNode node)
         {
-            base.OnLoad(node);
-
-            foreach (ConfigNode child in node.GetNodes("VESSEL"))
+            try
             {
-                string key = child.GetValue("key");
-                Guid id = new Guid(child.GetValue("id"));
-                uint hash = ConfigNodeUtil.ParseValue<uint>(child, "hash", 0);
+                base.OnLoad(node);
 
-                Vessel vessel = FlightGlobals.Vessels.Find(v => v.id == id);
-                if (vessel == null || vessel.state == Vessel.State.DEAD)
+                foreach (ConfigNode child in node.GetNodes("VESSEL"))
                 {
-                    id = Guid.Empty;
-                }
-                else if (hash == 0 && HighLogic.LoadedScene == GameScenes.FLIGHT)
-                {
-                    hash = vessel.GetHashes().FirstOrDefault();
-                    LoggingUtil.LogVerbose(this, "Setting hash for " + id + " on load to: " + hash);
-                }
+                    string key = child.GetValue("key");
+                    Guid id = new Guid(child.GetValue("id"));
+                    uint hash = ConfigNodeUtil.ParseValue<uint>(child, "hash", 0);
 
-                if (id != Guid.Empty)
-                {
-                    vessels[key] = new VesselInfo(id, hash);
+                    Vessel vessel = FlightGlobals.Vessels.Find(v => v.id == id);
+                    if (vessel == null || vessel.state == Vessel.State.DEAD)
+                    {
+                        id = Guid.Empty;
+                    }
+                    else if (hash == 0 && HighLogic.LoadedScene == GameScenes.FLIGHT)
+                    {
+                        hash = vessel.GetHashes().FirstOrDefault();
+                        LoggingUtil.LogVerbose(this, "Setting hash for " + id + " on load to: " + hash);
+                    }
+
+                    if (id != Guid.Empty)
+                    {
+                        vessels[key] = new VesselInfo(id, hash);
+                    }
                 }
+            }
+            catch (Exception e)
+            {
+                LoggingUtil.LogError(this, "Error loading ContractVesselTracker from persistance file!");
+                LoggingUtil.LogException(e);
+                ExceptionLogWindow.DisplayFatalException(ExceptionLogWindow.ExceptionSituation.SCENARIO_MODULE_LOAD, e, "ContractVesselTracker");
             }
         }
 
         public override void OnSave(ConfigNode node)
         {
-            base.OnSave(node);
-
-            foreach (KeyValuePair<string, VesselInfo> p in vessels)
+            try
             {
-                VesselInfo vi = p.Value;
+                base.OnSave(node);
 
-                // First find the vessel by id
-                Vessel vessel = FlightGlobals.Vessels.Find(v => v.id == vi.id);
-
-                if (HighLogic.LoadedScene == GameScenes.FLIGHT)
+                foreach (KeyValuePair<string, VesselInfo> p in vessels)
                 {
-                    // If not found, attempt to find it by hash
-                    if (vessel == null)
+                    VesselInfo vi = p.Value;
+
+                    // First find the vessel by id
+                    Vessel vessel = FlightGlobals.Vessels.Find(v => v.id == vi.id);
+
+                    if (HighLogic.LoadedScene == GameScenes.FLIGHT)
                     {
-                        vessel = FlightGlobals.Vessels.Find(v => v.GetHashes().Contains(vi.hash));
-                    }
-                    // If found, verify the hash
-                    else
-                    {
-                        IEnumerable<uint> hashes = vessel.GetHashes();
-                        if (hashes.Count() > 0 && !hashes.Contains(vi.hash))
+                        // If not found, attempt to find it by hash
+                        if (vessel == null)
                         {
-                            LoggingUtil.LogVerbose(this, "Setting hash for " + vi.id + " on save from " + vi.hash + " to " + hashes.FirstOrDefault());
-                            vi.hash = hashes.FirstOrDefault();
+                            vessel = FlightGlobals.Vessels.Find(v => v.GetHashes().Contains(vi.hash));
                         }
+                        // If found, verify the hash
+                        else
+                        {
+                            IEnumerable<uint> hashes = vessel.GetHashes();
+                            if (hashes.Count() > 0 && !hashes.Contains(vi.hash))
+                            {
+                                LoggingUtil.LogVerbose(this, "Setting hash for " + vi.id + " on save from " + vi.hash + " to " + hashes.FirstOrDefault());
+                                vi.hash = hashes.FirstOrDefault();
+                            }
+                        }
+
                     }
 
+                    if (vessel != null)
+                    {
+                        ConfigNode child = new ConfigNode("VESSEL");
+                        child.AddValue("key", p.Key);
+                        child.AddValue("id", vi.id);
+                        child.AddValue("hash", vi.hash);
+                        node.AddNode(child);
+                    }
                 }
-
-                if (vessel != null)
-                {
-                    ConfigNode child = new ConfigNode("VESSEL");
-                    child.AddValue("key", p.Key);
-                    child.AddValue("id", vi.id);
-                    child.AddValue("hash", vi.hash);
-                    node.AddNode(child);
-                }
+            }
+            catch (Exception e)
+            {
+                LoggingUtil.LogError(this, "Error saving ContractVesselTracker to persistance file!");
+                LoggingUtil.LogException(e);
+                ExceptionLogWindow.DisplayFatalException(ExceptionLogWindow.ExceptionSituation.SCENARIO_MODULE_SAVE, e, "ContractVesselTracker");
             }
         }
 

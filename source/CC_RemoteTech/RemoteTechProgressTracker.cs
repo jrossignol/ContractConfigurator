@@ -275,38 +275,56 @@ namespace ContractConfigurator.RemoteTech
 
         public override void OnLoad(ConfigNode node)
         {
-            base.OnLoad(node);
-            nextCheck = ConfigNodeUtil.ParseValue<int>(node, "nextCheck", 0);
-            foreach (ConfigNode child in node.GetNodes("CelestialBodyInfo"))
+            try
             {
-                CelestialBodyInfo cbi = new CelestialBodyInfo();
-                try
+                base.OnLoad(node);
+                nextCheck = ConfigNodeUtil.ParseValue<int>(node, "nextCheck", 0);
+                foreach (ConfigNode child in node.GetNodes("CelestialBodyInfo"))
                 {
-                    cbi.body = ConfigNodeUtil.ParseValue<CelestialBody>(child, "body");
+                    CelestialBodyInfo cbi = new CelestialBodyInfo();
+                    try
+                    {
+                        cbi.body = ConfigNodeUtil.ParseValue<CelestialBody>(child, "body");
+                    }
+                    catch (Exception e)
+                    {
+                        LoggingUtil.LogWarning(this, "Error loading celestial body, skipping.  Error was:");
+                        LoggingUtil.LogException(e);
+                        continue;
+                    }
+                    cbi.coverage = ConfigNodeUtil.ParseValue<UInt32>(child, "coverage", 0);
+                    cbi.activeRange = ConfigNodeUtil.ParseValue<double>(child, "activeRange");
+                    celestialBodies[cbi.body] = cbi;
                 }
-                catch (Exception e)
-                {
-                    LoggingUtil.LogWarning(this, "Error loading celestial body, skipping.  Error was:");
-                    LoggingUtil.LogException(e);
-                    continue;
-                }
-                cbi.coverage = ConfigNodeUtil.ParseValue<UInt32>(child, "coverage", 0);
-                cbi.activeRange = ConfigNodeUtil.ParseValue<double>(child, "activeRange");
-                celestialBodies[cbi.body] = cbi;
+            }
+            catch (Exception e)
+            {
+                LoggingUtil.LogError(this, "Error loading RemoteTechProgressTracker from persistance file!");
+                LoggingUtil.LogException(e);
+                ExceptionLogWindow.DisplayFatalException(ExceptionLogWindow.ExceptionSituation.SCENARIO_MODULE_LOAD, e, "RemoteTechProgressTracker");
             }
         }
 
         public override void OnSave(ConfigNode node)
         {
-            base.OnSave(node);
-            node.AddValue("nextCheck", nextCheck);
-            foreach (CelestialBodyInfo cbi in celestialBodies.Values)
+            try
             {
-                ConfigNode child = new ConfigNode("CelestialBodyInfo");
-                child.AddValue("body", cbi.body.name);
-                child.AddValue("coverage", cbi.coverage);
-                child.AddValue("activeRange", cbi.activeRange);
-                node.AddNode(child);
+                base.OnSave(node);
+                node.AddValue("nextCheck", nextCheck);
+                foreach (CelestialBodyInfo cbi in celestialBodies.Values)
+                {
+                    ConfigNode child = new ConfigNode("CelestialBodyInfo");
+                    child.AddValue("body", cbi.body.name);
+                    child.AddValue("coverage", cbi.coverage);
+                    child.AddValue("activeRange", cbi.activeRange);
+                    node.AddNode(child);
+                }
+            }
+            catch (Exception e)
+            {
+                LoggingUtil.LogError(this, "Error saving RemoteTechProgressTracker to persistance file!");
+                LoggingUtil.LogException(e);
+                ExceptionLogWindow.DisplayFatalException(ExceptionLogWindow.ExceptionSituation.SCENARIO_MODULE_SAVE, e, "RemoteTechProgressTracker");
             }
         }
 

@@ -108,52 +108,70 @@ namespace ContractConfigurator
 
         public override void OnLoad(ConfigNode node)
         {
- 	        base.OnLoad(node);
-
-            ConfigNode dataNode = node.GetNode("DATA");
-            if (dataNode != null)
+            try
             {
-                // Handle individual values
-                foreach (ConfigNode.Value pair in dataNode.values)
-                {
-                    string typeName = pair.value.Remove(pair.value.IndexOf(":"));
-                    string value = pair.value.Substring(typeName.Length + 1, pair.value.Length - typeName.Length - 1);
-                    Type type = Type.GetType(typeName);
-                    if (type == typeof(string))
-                    {
-                        data[pair.name] = pair.value;
-                    }
-                    else
-                    {
-                        data[pair.name] = type.InvokeMember("Parse", System.Reflection.BindingFlags.InvokeMethod, null, null, new string[] { value });
-                    }
-                }
+                base.OnLoad(node);
 
-                // Handle config nodes
-                foreach (ConfigNode childNode in dataNode.GetNodes())
+                ConfigNode dataNode = node.GetNode("DATA");
+                if (dataNode != null)
                 {
-                    configNodes[childNode.name] = childNode;
+                    // Handle individual values
+                    foreach (ConfigNode.Value pair in dataNode.values)
+                    {
+                        string typeName = pair.value.Remove(pair.value.IndexOf(":"));
+                        string value = pair.value.Substring(typeName.Length + 1, pair.value.Length - typeName.Length - 1);
+                        Type type = Type.GetType(typeName);
+                        if (type == typeof(string))
+                        {
+                            data[pair.name] = pair.value;
+                        }
+                        else
+                        {
+                            data[pair.name] = type.InvokeMember("Parse", System.Reflection.BindingFlags.InvokeMethod, null, null, new string[] { value });
+                        }
+                    }
+
+                    // Handle config nodes
+                    foreach (ConfigNode childNode in dataNode.GetNodes())
+                    {
+                        configNodes[childNode.name] = childNode;
+                    }
                 }
+            }
+            catch (Exception e)
+            {
+                LoggingUtil.LogError(this, "Error loading PersistentDataStore from persistance file!");
+                LoggingUtil.LogException(e);
+                ExceptionLogWindow.DisplayFatalException(ExceptionLogWindow.ExceptionSituation.SCENARIO_MODULE_LOAD, e, "PersistentDataStore");
             }
         }
 
         public override void OnSave(ConfigNode node)
         {
- 	        base.OnSave(node);
-
-            ConfigNode dataNode = new ConfigNode("DATA");
-            node.AddNode(dataNode);
-
-            // Handle individual values
-            foreach (KeyValuePair<string, System.Object> p in data)
+            try
             {
-                dataNode.AddValue(p.Key, p.Value.GetType() + ":" + p.Value);
+                base.OnSave(node);
+
+                ConfigNode dataNode = new ConfigNode("DATA");
+                node.AddNode(dataNode);
+
+                // Handle individual values
+                foreach (KeyValuePair<string, System.Object> p in data)
+                {
+                    dataNode.AddValue(p.Key, p.Value.GetType() + ":" + p.Value);
+                }
+
+                // Handle config nodes
+                foreach (ConfigNode childNode in configNodes.Values)
+                {
+                    dataNode.AddNode(childNode);
+                }
             }
-
-            // Handle config nodes
-            foreach (ConfigNode childNode in configNodes.Values)
+            catch (Exception e)
             {
-                dataNode.AddNode(childNode);
+                LoggingUtil.LogError(this, "Error saving PersistentDataStore to persistance file!");
+                LoggingUtil.LogException(e);
+                ExceptionLogWindow.DisplayFatalException(ExceptionLogWindow.ExceptionSituation.SCENARIO_MODULE_SAVE, e, "PersistentDataStore");
             }
         }
     }

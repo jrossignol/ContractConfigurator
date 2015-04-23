@@ -3,6 +3,7 @@ Contract Configurator 1.0.0
 - Added new None set parameter.
 - Fix issue when reloading contracts within a hierarchy of contract groups.
 - Fix issue when loading a save game with RemoteTech when a previously installed planet pack is uninstalled (thanks Svm420 and magico13).
+- Pop up a warning dialog when a ScenarioModule fails to load (and prevent other ScenarioModules from also failing).
 
 Contract Configurator 0.7.15
 - Fix for re-loading passengers in tourism contracts (thanks karki and others).
