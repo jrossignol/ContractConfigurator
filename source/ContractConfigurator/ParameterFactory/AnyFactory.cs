@@ -10,7 +10,7 @@ using Contracts.Parameters;
 namespace ContractConfigurator
 {
     /// <summary>
-    /// ParameterFactory wrapper for OR ContractParameter.
+    /// ParameterFactory wrapper for Any ContractParameter.
     /// </summary>
     public class AnyFactory : ParameterFactory
     {

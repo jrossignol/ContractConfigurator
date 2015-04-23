@@ -1,4 +1,5 @@
 Contract Configurator 1.0.0
+- Added new AtLeast and AtMost set parameters.
 - Fix issue when reloading contracts within a hierarchy of contract groups.
 
 Contract Configurator 0.7.15
