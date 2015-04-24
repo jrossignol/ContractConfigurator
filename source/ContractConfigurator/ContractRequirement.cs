@@ -218,7 +218,7 @@ namespace ContractConfigurator
             }
 
             // Load child nodes
-            foreach (ConfigNode childNode in configNode.GetNodes("REQUIREMENT"))
+            foreach (ConfigNode childNode in ConfigNodeUtil.GetChildNodes(configNode, "REQUIREMENT"))
             {
                 ContractRequirement child = null;
                 valid &= ContractRequirement.GenerateRequirement(childNode, contractType, out child, requirement);

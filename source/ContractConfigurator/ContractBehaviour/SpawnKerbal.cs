@@ -87,7 +87,7 @@ namespace ContractConfigurator.Behaviour
 
             bool valid = true;
             int index = 0;
-            foreach (ConfigNode child in configNode.GetNodes("KERBAL"))
+            foreach (ConfigNode child in ConfigNodeUtil.GetChildNodes(configNode, "KERBAL"))
             {
                 DataNode dataNode = new DataNode("KERBAL_" + index++, factory.dataNode, factory);
                 try
@@ -137,7 +137,7 @@ namespace ContractConfigurator.Behaviour
                     // Get orbit
                     else if (child.HasNode("ORBIT"))
                     {
-                        kerbal.orbit = new OrbitSnapshot(child.GetNode("ORBIT")).Load();
+                        kerbal.orbit = new OrbitSnapshot(ConfigNodeUtil.GetChildNode(child, "ORBIT")).Load();
                         kerbal.orbit.referenceBody = kerbal.body;
                     }
                     else

@@ -48,7 +48,7 @@ namespace ContractConfigurator
             }
 
             // Extended definition
-            foreach (ConfigNode child in configNode.GetNodes())
+            foreach (ConfigNode child in ConfigNodeUtil.GetChildNodes(configNode))
             {
                 ParameterDelegateMatchType matchType;
                 if (child.name == "FILTER")

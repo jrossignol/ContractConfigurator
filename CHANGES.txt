@@ -1,6 +1,7 @@
 Contract Configurator 1.0.0
 - Added new AtLeast and AtMost set parameters.
 - Added new None set parameter.
+- Improve validation rules for unknown attributes/child nodes (helps modders track down issues more easily).
 - Fix issue when reloading contracts within a hierarchy of contract groups.
 - Fix issue when loading a save game with RemoteTech when a previously installed planet pack is uninstalled (thanks Svm420 and magico13).
 - Pop up a warning dialog when a ScenarioModule fails to load (and prevent other ScenarioModules from also failing).

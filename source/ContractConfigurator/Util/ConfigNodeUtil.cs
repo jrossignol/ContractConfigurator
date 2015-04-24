@@ -524,6 +524,57 @@ namespace ContractConfigurator
         }
 
         /// <summary>
+        /// Gets the child node of the given name.
+        /// </summary>
+        /// <param name="configNode">Config node to get a child from.</param>
+        /// <param name="name">Name of the child node to fetch.</param>
+        /// <returns>The child node.</returns>
+        public static ConfigNode GetChildNode(ConfigNode configNode, string name)
+        {
+            try
+            {
+                return configNode.GetNode(name);
+            }
+            finally
+            {
+                AddFoundKey(configNode, name);
+            }
+        }
+
+        /// <summary>
+        /// Gets all child nodes of the given node.
+        /// </summary>
+        /// <param name="configNode">Config node to get children for.</param>
+        /// <returns>The child nodes.</returns>
+        public static ConfigNode[] GetChildNodes(ConfigNode configNode)
+        {
+            ConfigNode[] nodes = configNode.GetNodes();
+            foreach (ConfigNode child in nodes)
+            {
+                AddFoundKey(configNode, child.name);
+            }
+            return nodes;
+        }
+
+        /// <summary>
+        /// Gets all child nodes of the given name.
+        /// </summary>
+        /// <param name="configNode">Config node to get a child from.</param>
+        /// <param name="name">Name of the child node to fetch.</param>
+        /// <returns>The child nodes.</returns>
+        public static ConfigNode[] GetChildNodes(ConfigNode configNode, string name)
+        {
+            try
+            {
+                return configNode.GetNodes(name);
+            }
+            finally
+            {
+                AddFoundKey(configNode, name);
+            }
+        }
+
+        /// <summary>
         /// Ensures the given config node has at least one of the given values.
         /// </summary>
         /// <param name="configNode"></param>
@@ -876,6 +927,7 @@ namespace ContractConfigurator
 
             if (!keysFound.ContainsKey(configNode))
             {
+                obj.hasWarnings = true;
                 LoggingUtil.LogWarning(obj.GetType(), obj.ErrorPrefix() +
                     ": did not attempt to load values for ConfigNode!");
                 return false;
@@ -886,10 +938,30 @@ namespace ContractConfigurator
             {
                 if (!found.ContainsKey(pair.name))
                 {
+                    obj.hasWarnings = true;
                     LoggingUtil.LogWarning(obj.GetType(), obj.ErrorPrefix() +
-                        ": unexpected entry '" + pair.name + "' found, ignored.");
+                        ": unexpected attribute '" + pair.name + "' found, ignored.");
                 }
             }
+
+            foreach (ConfigNode child in configNode.nodes)
+            {
+                // Exceptions
+                if (child.name == "PARAMETER" && (obj is ContractType || obj is ParameterFactory) ||
+                    child.name == "REQUIREMENT" && (obj is ContractType || obj is ParameterFactory || obj is ContractRequirement) ||
+                    child.name == "BEHAVIOUR" && (obj is ContractType))
+                {
+                    continue;
+                }
+
+                if (!found.ContainsKey(child.name))
+                {
+                    obj.hasWarnings = true;
+                    LoggingUtil.LogWarning(obj.GetType(), obj.ErrorPrefix() +
+                        ": unexpected child node '" + child.name + "' found, ignored.");
+                }
+            }
+
 
             return valid;
         }

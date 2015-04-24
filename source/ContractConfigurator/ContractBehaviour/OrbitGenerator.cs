@@ -124,7 +124,7 @@ namespace ContractConfigurator.Behaviour
 
             bool valid = true;
             int index = 0;
-            foreach (ConfigNode child in configNode.GetNodes())
+            foreach (ConfigNode child in ConfigNodeUtil.GetChildNodes(configNode))
             {
                 DataNode dataNode = new DataNode("ORBIT_" + index++, factory.dataNode, factory);
                 try
@@ -137,7 +137,7 @@ namespace ContractConfigurator.Behaviour
                     if (child.name == "FIXED_ORBIT")
                     {
                         valid &= ConfigNodeUtil.ValidateMandatoryChild(child, "ORBIT", factory);
-                        obData.orbit = new OrbitSnapshot(child.GetNode("ORBIT")).Load();
+                        obData.orbit = new OrbitSnapshot(ConfigNodeUtil.GetChildNode(child, "ORBIT")).Load();
                     }
                     else if (child.name == "RANDOM_ORBIT")
                     {

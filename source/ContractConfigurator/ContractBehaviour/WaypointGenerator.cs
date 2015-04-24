@@ -120,7 +120,7 @@ namespace ContractConfigurator.Behaviour
 
             bool valid = true;
             int index = 0;
-            foreach (ConfigNode child in configNode.GetNodes())
+            foreach (ConfigNode child in ConfigNodeUtil.GetChildNodes(configNode))
             {
                 double? altitude = null;
                 WaypointData wpData = new WaypointData(child.name);

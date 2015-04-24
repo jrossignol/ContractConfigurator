@@ -133,7 +133,7 @@ namespace ContractConfigurator.Behaviour
         {
             foreach (string node in map.Keys)
             {
-                foreach (ConfigNode child in configNode.GetNodes(node))
+                foreach (ConfigNode child in ConfigNodeUtil.GetChildNodes(configNode, node))
                 {
                     foreach (ConfigNode.Value pair in child.values)
                     {
@@ -152,7 +152,7 @@ namespace ContractConfigurator.Behaviour
                 }
             }
 
-            foreach (ConfigNode child in configNode.GetNodes("PARAMETER_COMPLETED"))
+            foreach (ConfigNode child in ConfigNodeUtil.GetChildNodes(configNode, "PARAMETER_COMPLETED"))
             {
                 string parameter = ConfigNodeUtil.ParseValue<string>(child, "parameter");
                 foreach (ConfigNode.Value pair in child.values)

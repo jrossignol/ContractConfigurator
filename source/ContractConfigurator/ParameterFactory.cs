@@ -293,7 +293,7 @@ namespace ContractConfigurator
             LoggingUtil.CaptureLog = false;
 
             // Load child nodes
-            foreach (ConfigNode childNode in parameterConfig.GetNodes("PARAMETER"))
+            foreach (ConfigNode childNode in ConfigNodeUtil.GetChildNodes(parameterConfig, "PARAMETER"))
             {
                 ParameterFactory child = null;
                 valid &= ParameterFactory.GenerateParameterFactory(childNode, contractType, out child, paramFactory);
@@ -308,7 +308,7 @@ namespace ContractConfigurator
             }
 
             // Load child requirements
-            foreach (ConfigNode childNode in parameterConfig.GetNodes("REQUIREMENT"))
+            foreach (ConfigNode childNode in ConfigNodeUtil.GetChildNodes(parameterConfig, "REQUIREMENT"))
             {
                 ContractRequirement req = null;
                 valid &= ContractRequirement.GenerateRequirement(childNode, contractType, out req, paramFactory);

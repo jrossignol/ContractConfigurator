@@ -26,7 +26,7 @@ namespace ContractConfigurator.Behaviour
             valid &= ConfigNodeUtil.ParseValue<string>(configNode, "message", x => message = x, this);
 
             int index = 0;
-            foreach (ConfigNode child in configNode.GetNodes("CONDITION"))
+            foreach (ConfigNode child in ConfigNodeUtil.GetChildNodes(configNode, "CONDITION"))
             {
                 DataNode childDataNode = new DataNode("CONDITION_" + index++, dataNode, this);
                 try

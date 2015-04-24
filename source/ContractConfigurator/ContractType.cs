@@ -209,7 +209,7 @@ namespace ContractConfigurator
                 }
 
                 // Load DATA nodes
-                foreach (ConfigNode data in configNode.GetNodes("DATA"))
+                foreach (ConfigNode data in ConfigNodeUtil.GetChildNodes(configNode, "DATA"))
                 {
                     Type type = null;
                     bool requiredValue = true;
@@ -250,7 +250,7 @@ namespace ContractConfigurator
                 LoggingUtil.CaptureLog = false;
 
                 // Load parameters
-                foreach (ConfigNode contractParameter in configNode.GetNodes("PARAMETER"))
+                foreach (ConfigNode contractParameter in ConfigNodeUtil.GetChildNodes(configNode, "PARAMETER"))
                 {
                     ParameterFactory paramFactory = null;
                     valid &= ParameterFactory.GenerateParameterFactory(contractParameter, this, out paramFactory);
@@ -265,7 +265,7 @@ namespace ContractConfigurator
                 }
 
                 // Load behaviours
-                foreach (ConfigNode requirementNode in configNode.GetNodes("BEHAVIOUR"))
+                foreach (ConfigNode requirementNode in ConfigNodeUtil.GetChildNodes(configNode, "BEHAVIOUR"))
                 {
                     BehaviourFactory behaviourFactory = null;
                     valid &= BehaviourFactory.GenerateBehaviourFactory(requirementNode, this, out behaviourFactory);
@@ -280,7 +280,7 @@ namespace ContractConfigurator
                 }
 
                 // Load requirements
-                foreach (ConfigNode requirementNode in configNode.GetNodes("REQUIREMENT"))
+                foreach (ConfigNode requirementNode in ConfigNodeUtil.GetChildNodes(configNode, "REQUIREMENT"))
                 {
                     ContractRequirement requirement = null;
                     valid &= ContractRequirement.GenerateRequirement(requirementNode, this, out requirement);

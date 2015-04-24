@@ -97,7 +97,7 @@ namespace ContractConfigurator.Behaviour
 
             bool valid = true;
             int index = 0;
-            foreach (ConfigNode child in configNode.GetNodes("VESSEL"))
+            foreach (ConfigNode child in ConfigNodeUtil.GetChildNodes(configNode, "VESSEL"))
             {
                 DataNode dataNode = new DataNode("VESSEL_" + index++, factory.dataNode, factory);
                 try
@@ -132,7 +132,7 @@ namespace ContractConfigurator.Behaviour
                     else
                     {
                         valid &= ConfigNodeUtil.ValidateMandatoryChild(child, "ORBIT", factory);
-                        vessel.orbit = new OrbitSnapshot(child.GetNode("ORBIT")).Load();
+                        vessel.orbit = new OrbitSnapshot(ConfigNodeUtil.GetChildNode(child, "ORBIT")).Load();
                         vessel.orbit.referenceBody = vessel.body;
                     }
 
@@ -140,7 +140,7 @@ namespace ContractConfigurator.Behaviour
                     valid &= ConfigNodeUtil.ParseValue<bool>(child, "owned", x => vessel.owned = x, factory, false);
 
                     // Handle the CREW nodes
-                    foreach (ConfigNode crewNode in child.GetNodes("CREW"))
+                    foreach (ConfigNode crewNode in ConfigNodeUtil.GetChildNodes(child, "CREW"))
                     {
                         int count = 1;
                         valid &= ConfigNodeUtil.ParseValue<int>(crewNode, "count", x => count = x, factory, 1);

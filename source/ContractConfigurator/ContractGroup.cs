@@ -100,7 +100,7 @@ namespace ContractConfigurator
                 LoggingUtil.CaptureLog = false;
 
                 // Load child groups
-                foreach (ConfigNode childNode in configNode.GetNodes("CONTRACT_GROUP"))
+                foreach (ConfigNode childNode in ConfigNodeUtil.GetChildNodes(configNode, "CONTRACT_GROUP"))
                 {
                     ContractGroup child = null;
                     string name = childNode.GetValue("name");
