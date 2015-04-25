@@ -517,8 +517,7 @@ namespace ContractConfigurator
                 }
                 catch (Exception e)
                 {
-                    LoggingUtil.LogWarning(typeof(ContractConfigurator), "Error loading types from assembly " + assembly.FullName);
-                    LoggingUtil.LogException(e);
+                    LoggingUtil.LogException(new Exception("Error loading types from assembly " + assembly.FullName, e));
                     continue;
                 }
 
