@@ -38,6 +38,8 @@ namespace ContractConfigurator
 
         public override ContractParameter Generate(Contract contract)
         {
+            // TODO - fix this up!
+            /*
             BoardAnyVessel contractParam = new BoardAnyVessel(title);
 
             // Add the vessel
@@ -60,6 +62,8 @@ namespace ContractConfigurator
             }
 
             return contractParam;
+             */
+            return null;
         }
     }
 }

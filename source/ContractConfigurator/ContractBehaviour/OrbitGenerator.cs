@@ -45,7 +45,6 @@ namespace ContractConfigurator.Behaviour
             public string type = null;
             public string name = null;
             public OrbitType orbitType = OrbitType.RANDOM;
-            public double difficulty = 1.0;
             public int index = 0;
             public int count = 1;
 
@@ -63,7 +62,6 @@ namespace ContractConfigurator.Behaviour
                 type = orig.type;
                 name = orig.name;
                 orbitType = orig.orbitType;
-                difficulty = orig.difficulty;
                 index = orig.index;
                 count = orig.count;
 
@@ -104,14 +102,13 @@ namespace ContractConfigurator.Behaviour
                 // Do type specific handling
                 if (obData.type == "RANDOM_ORBIT")
                 {
-                    obData.orbit = CelestialUtilities.GenerateOrbit(obData.orbitType, contract.MissionSeed + index++, obData.orbit.referenceBody, obData.difficulty);
+                    obData.orbit = CelestialUtilities.GenerateOrbit(obData.orbitType, contract.MissionSeed + index++, obData.orbit.referenceBody, 0.8, 0.8);
                 }
 
                 // Create the wrapper to the SpecificOrbit parameter that will do the rendering work
                 SpecificOrbitWrapper s = new SpecificOrbitWrapper(obData.orbitType, obData.orbit.inclination,
                     obData.orbit.eccentricity, obData.orbit.semiMajorAxis, obData.orbit.LAN, obData.orbit.argumentOfPeriapsis,
-                    obData.orbit.meanAnomalyAtEpoch, obData.orbit.epoch, obData.orbit.referenceBody,
-                    obData.difficulty, 3.0);
+                    obData.orbit.meanAnomalyAtEpoch, obData.orbit.epoch, obData.orbit.referenceBody, 3.0);
                 s.DisableOnStateChange = false;
                 alwaysTrue.AddParameter(s);
                 obData.index = alwaysTrue.ParameterCount - 1;
@@ -142,7 +139,6 @@ namespace ContractConfigurator.Behaviour
                     else if (child.name == "RANDOM_ORBIT")
                     {
                         valid &= ConfigNodeUtil.ParseValue<OrbitType>(child, "type", x => obData.orbitType = x, factory);
-                        valid &= ConfigNodeUtil.ParseValue<double>(configNode, "difficulty", x => obData.difficulty = x, factory, 1.0, x => Validation.GE(x, 0.0));
                         valid &= ConfigNodeUtil.ParseValue<int>(child, "count", x => obData.count = x, factory, 1, x => Validation.GE(x, 1));
                     }
                     else
@@ -189,7 +185,6 @@ namespace ContractConfigurator.Behaviour
                 OrbitData obData = new OrbitData();
                 obData.type = child.GetValue("type");
                 obData.name = child.GetValue("name");
-                obData.difficulty = Convert.ToDouble(child.GetValue("difficulty"));
                 obData.index = Convert.ToInt32(child.GetValue("index"));
 
                 obData.orbit = new OrbitSnapshot(child.GetNode("ORBIT")).Load();
@@ -211,7 +206,6 @@ namespace ContractConfigurator.Behaviour
 
                 child.AddValue("type", obData.type);
                 child.AddValue("name", obData.name);
-                child.AddValue("difficulty", obData.difficulty);
                 child.AddValue("index", obData.index);
 
                 ConfigNode orbitNode = new ConfigNode("ORBIT");

@@ -42,7 +42,8 @@ namespace ContractConfigurator
             // so this is the only way to get our fancy timer to work.
 
             // Go through all the list items in the contracts window
-            UIScrollList list = ContractsApp.Instance.cascadingList.cascadingList;
+            // TODO - fix for 1.0
+/*            UIScrollList list = ContractsApp.Instance.cascadingList.cascadingList;
             if (list != null)
             {
                 for (int i = 0; i < list.Count; i++)
@@ -75,7 +76,7 @@ namespace ContractConfigurator
 
                 // Reposition items to account for items where the height increased or decreased
                 list.RepositionItems();
-            }
+            }*/
 
             // Contracts Window + update
             ContractsWindow.SetParameterTitle(param, newTitle);

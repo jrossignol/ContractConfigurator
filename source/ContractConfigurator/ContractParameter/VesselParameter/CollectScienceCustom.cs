@@ -285,7 +285,7 @@ namespace ContractConfigurator.Parameters
             base.OnRegister();
 
             GameEvents.OnExperimentDeployed.Add(new EventData<ScienceData>.OnEvent(OnExperimentDeployed));
-            GameEvents.OnScienceRecieved.Add(new EventData<float, ScienceSubject>.OnEvent(OnScienceReceived));
+            GameEvents.OnScienceRecieved.Add(new EventData<float, ScienceSubject, ProtoVessel>.OnEvent(OnScienceReceived));
             GameEvents.onVesselRecovered.Add(new EventData<ProtoVessel>.OnEvent(OnVesselRecovered));
         }
 
@@ -294,7 +294,7 @@ namespace ContractConfigurator.Parameters
             base.OnUnregister();
 
             GameEvents.OnExperimentDeployed.Remove(new EventData<ScienceData>.OnEvent(OnExperimentDeployed));
-            GameEvents.OnScienceRecieved.Remove(new EventData<float, ScienceSubject>.OnEvent(OnScienceReceived));
+            GameEvents.OnScienceRecieved.Remove(new EventData<float, ScienceSubject, ProtoVessel>.OnEvent(OnScienceReceived));
             GameEvents.onVesselRecovered.Remove(new EventData<ProtoVessel>.OnEvent(OnVesselRecovered));
         }
 
@@ -343,8 +343,9 @@ namespace ContractConfigurator.Parameters
             }
         }
 
-        protected void OnScienceReceived(float science, ScienceSubject subject)
+        protected void OnScienceReceived(float science, ScienceSubject subject, ProtoVessel protoVessel)
         {
+            // TODO - see if it makes sense to change to use the protovessel
             Vessel vessel = FlightGlobals.ActiveVessel;
             if (vessel == null)
             {

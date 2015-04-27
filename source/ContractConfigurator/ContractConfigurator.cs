@@ -93,9 +93,10 @@ namespace ContractConfigurator
             // Check if the ContractsApp has just become visible
             if (!contractsAppVisible &&
                 ContractsApp.Instance != null &&
-                ContractsApp.Instance.appLauncherButton != null &&
-                ContractsApp.Instance.cascadingList.cascadingList != null &&
-                ContractsApp.Instance.cascadingList.cascadingList.gameObject.activeInHierarchy)
+                ContractsApp.Instance.appLauncherButton != null)
+                // TODO - fix for 1.0
+//                ContractsApp.Instance.cascadingList.cascadingList != null &&
+//                ContractsApp.Instance.cascadingList.cascadingList.gameObject.activeInHierarchy)
             {
                 contractsAppVisible = true;
             }
@@ -152,9 +153,10 @@ namespace ContractConfigurator
         {
             // ContractsApp is visible
             if (ContractsApp.Instance != null &&
-                ContractsApp.Instance.appLauncherButton != null &&
-                ContractsApp.Instance.cascadingList.cascadingList != null &&
-                ContractsApp.Instance.cascadingList.cascadingList.gameObject.activeInHierarchy)
+                ContractsApp.Instance.appLauncherButton != null)
+                // TODO - fix for 1.0
+//                ContractsApp.Instance.cascadingList.cascadingList != null &&
+//                ContractsApp.Instance.cascadingList.cascadingList.gameObject.activeInHierarchy)
             {
                 contractsAppVisible = true;
             }

@@ -35,7 +35,7 @@ namespace ContractConfigurator
             partModuleType.All(Validation.ValidatePartModuleType);
 
             // Actual check
-            return partModuleType.All(ProgressUtilities.HaveModuleTypeTech);
+            return partModuleType.All(s => ProgressUtilities.HaveModuleTypeTech(s));
         }
     }
 }

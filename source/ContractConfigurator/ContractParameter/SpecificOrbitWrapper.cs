@@ -21,8 +21,8 @@ namespace ContractConfigurator.Parameters
         {
         }
 
-        public SpecificOrbitWrapper(OrbitType orbitType, double inclination, double eccentricity, double sma, double lan, double argumentOfPeriapsis, double meanAnomalyAtEpoch, double epoch, CelestialBody targetBody, double difficultyFactor, double deviationWindow)
-            : base(orbitType, inclination, eccentricity, sma, lan, argumentOfPeriapsis, meanAnomalyAtEpoch, epoch, targetBody, difficultyFactor, deviationWindow)
+        public SpecificOrbitWrapper(OrbitType orbitType, double inclination, double eccentricity, double sma, double lan, double argumentOfPeriapsis, double meanAnomalyAtEpoch, double epoch, CelestialBody targetBody, double deviationWindow)
+            : base(orbitType, inclination, eccentricity, sma, lan, argumentOfPeriapsis, meanAnomalyAtEpoch, epoch, targetBody, deviationWindow)
         {
         }
 

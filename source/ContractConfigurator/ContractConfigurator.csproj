@@ -219,12 +219,10 @@
     <Compile Include="ParameterFactory\BoardAnyVesselFactory.cs" />
     <Compile Include="ParameterFactory\ReachSpaceFactory.cs" />
     <Compile Include="ParameterFactory\PlantFlagFactory.cs" />
-    <Compile Include="ParameterFactory\LaunchVesselFactory.cs" />
     <Compile Include="ParameterFactory\LandOnBodyFactory.cs" />
     <Compile Include="ParameterFactory\KerbalDeathsFactory.cs" />
     <Compile Include="ParameterFactory\EnterSOIFactory.cs" />
     <Compile Include="ParameterFactory\EnterOrbitFactory.cs" />
-    <Compile Include="ParameterFactory\AltitudeRecordFactory.cs" />
     <Compile Include="ContractConfigurator.cs" />
     <Compile Include="ContractType.cs" />
     <Compile Include="ConfiguredContract.cs" />

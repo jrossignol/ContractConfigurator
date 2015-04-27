@@ -308,7 +308,7 @@ namespace ContractConfigurator.Behaviour
                     CelestialBody body = FlightGlobals.Bodies.Where<CelestialBody>(b => b.name == wpData.waypoint.celestialName).First();
                     if (body.atmosphere)
                     {
-                        wpData.waypoint.altitude = random.NextDouble() * (body.maxAtmosphereAltitude);
+                        wpData.waypoint.altitude = random.NextDouble() * (body.atmosphereDepth);
                     }
                     else
                     {
