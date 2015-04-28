@@ -14,6 +14,7 @@ namespace ContractConfigurator
     /// </summary>
     public class TitleTracker
     {
+        private static GenericCascadingList cascadingList = null;
         private List<string> titles = new List<string>();
 
         /// <summary>
@@ -37,46 +38,56 @@ namespace ContractConfigurator
         /// <param name="newTitle">New title to display</param>
         public void UpdateContractWindow(ContractParameter param, string newTitle)
         {
+            // Try to find the cascading list in the contracts window.  Note that we may pick up
+            // the ones from the Engineer's report in the VAB/SPH instead - but we don't care about
+            // title updates in those scenes anyway.
+            if (cascadingList == null || !cascadingList.gameObject.activeSelf)
+            {
+                cascadingList = UnityEngine.Object.FindObjectOfType<GenericCascadingList>();
+            }
+
             // Every time the clock ticks over, make an attempt to update the contract window
             // title.  We do this because otherwise the window will only ever read the title once,
             // so this is the only way to get our fancy timer to work.
 
             // Go through all the list items in the contracts window
-            // TODO - fix for 1.0
-/*            UIScrollList list = ContractsApp.Instance.cascadingList.cascadingList;
-            if (list != null)
+            if (cascadingList != null)
             {
-                for (int i = 0; i < list.Count; i++)
+                UIScrollList list = cascadingList.ruiList.cascadingList;
+                if (list != null)
                 {
-                    // Try to find a rich text control that matches the expected text
-                    UIListItemContainer listObject = (UIListItemContainer)list.GetItem(i);
-                    SpriteTextRich richText = listObject.GetComponentInChildren<SpriteTextRich>();
-                    if (richText != null)
+                    for (int i = 0; i < list.Count; i++)
                     {
-                        // Check for any string in titleTracker
-                        string found = null;
-                        foreach (string title in titles)
+                        // Try to find a rich text control that matches the expected text
+                        UIListItemContainer listObject = (UIListItemContainer)list.GetItem(i);
+                        SpriteTextRich richText = listObject.GetComponentInChildren<SpriteTextRich>();
+                        if (richText != null)
                         {
-                            if (richText.Text.Contains(title))
+                            // Check for any string in titleTracker
+                            string found = null;
+                            foreach (string title in titles)
                             {
-                                found = title;
-                                break;
+                                if (richText.Text.Contains(title))
+                                {
+                                    found = title;
+                                    break;
+                                }
+                            }
+
+                            // Clear the titleTracker, and replace the text
+                            if (found != null)
+                            {
+                                titles.Clear();
+                                richText.Text = richText.Text.Replace(found, newTitle);
+                                titles.Add(newTitle);
                             }
                         }
-
-                        // Clear the titleTracker, and replace the text
-                        if (found != null)
-                        {
-                            titles.Clear();
-                            richText.Text = richText.Text.Replace(found, newTitle);
-                            titles.Add(newTitle);
-                        }
                     }
-                }
 
-                // Reposition items to account for items where the height increased or decreased
-                list.RepositionItems();
-            }*/
+                    // Reposition items to account for items where the height increased or decreased
+                    list.RepositionItems();
+                }
+            }
 
             // Contracts Window + update
             ContractsWindow.SetParameterTitle(param, newTitle);

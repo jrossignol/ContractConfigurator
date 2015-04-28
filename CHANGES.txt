@@ -1,5 +1,8 @@
+Contract Configurator 0.8.1
+- Fix display of dynamic text (was broken by KSP 1.0).
+
 Contract Configurator 1.0.0
-- Support for KSP 1.0
+- Various fixes related to KSP 1.0.
 - Deprecated parameters removed from stock (some will get replacements in a future version of Contract Configurator).
     - AltitudeRecord
     - LaunchVessel
@@ -11,8 +14,6 @@ Contract Configurator 1.0.0
 - Pop up a warning dialog when a ScenarioModule fails to load (and prevent other ScenarioModules from also failing).
 - Improve error messaging when failing on loading types from assemblies (thanks Vladthemad).
 - Fix default value of index for VisitWaypoint parameter (thanks AlphaAsh).
-- Various fixes related to KSP 1.0.
-
 Contract Configurator 0.7.15
 - Fix for re-loading passengers in tourism contracts (thanks karki and others).
 
