@@ -1,5 +1,6 @@
 Contract Configurator 0.8.2
 - Fixed performance around updates to stock contracts app.
+- Remove obsolete parameters and attributes.
 
 Contract Configurator 1.0.0
 - Various fixes related to KSP 1.0.
@@ -16,6 +17,7 @@ Contract Configurator 1.0.0
 - Fix default value of index for VisitWaypoint parameter (thanks AlphaAsh).
 Contract Configurator 0.7.15
 - Fix for re-loading passengers in tourism contracts (thanks karki and others).
+- Remove obsolete parameters and attributes.
 
 Contract Configurator 0.7.14
 - Expressions now work in child nodes (for WaypointGenerator and other behaviours that support it).

@@ -181,33 +181,6 @@ namespace ContractConfigurator
                 // Load other values
                 valid &= ConfigNodeUtil.ParseValue<double>(configNode, "weight", x => weight = x, this, 1.0, x => Validation.GE(x, 0.0f));
 
-                // TODO - these are to be deprecated
-                if (configNode.HasValue("targetBodies"))
-                {
-                    valid &= ConfigNodeUtil.ParseValue<List<CelestialBody>>(configNode, "targetBodies", x => targetBodies = x, this, new List<CelestialBody>());
-                    LoggingUtil.LogWarning(this, "The 'targetBodies' attribute is obsolete as of Contract Configurator 0.7.4.  It will be removed in 1.0.0 in favour of the DATA { } node.");
-                }
-                if (configNode.HasValue("targetVessel"))
-                {
-                    valid &= ConfigNodeUtil.ParseValue<Vessel>(configNode, "targetVessel", x => targetVessel = x, this, (Vessel)null);
-                    LoggingUtil.LogWarning(this, "The 'targetVessel' attribute is obsolete as of Contract Configurator 0.7.4.  It will be removed in 1.0.0 in favour of the DATA { } node.");
-                }
-                if (configNode.HasValue("targetVessels"))
-                {
-                    valid &= ConfigNodeUtil.ParseValue<List<Vessel>>(configNode, "targetVessels", x => targetVessels = x, this, new List<Vessel>());
-                    LoggingUtil.LogWarning(this, "The 'targetVessels' attribute is obsolete as of Contract Configurator 0.7.4.  It will be removed in 1.0.0 in favour of the DATA { } node.");
-                }
-                if (configNode.HasValue("targetKerbal"))
-                {
-                    valid &= ConfigNodeUtil.ParseValue<Kerbal>(configNode, "targetKerbal", x => targetKerbal = x, this, (Kerbal)null);
-                    LoggingUtil.LogWarning(this, "The 'targetKerbal' attribute is obsolete as of Contract Configurator 0.7.4.  It will be removed in 1.0.0 in favour of the DATA { } node.");
-                }
-                if (configNode.HasValue("targetKerbals"))
-                {
-                    valid &= ConfigNodeUtil.ParseValue<List<Kerbal>>(configNode, "targetKerbals", x => targetKerbals = x, this, new List<Kerbal>());
-                    LoggingUtil.LogWarning(this, "The 'targetKerbals' attribute is obsolete as of Contract Configurator 0.7.4.  It will be removed in 1.0.0 in favour of the DATA { } node.");
-                }
-
                 // Load DATA nodes
                 foreach (ConfigNode data in ConfigNodeUtil.GetChildNodes(configNode, "DATA"))
                 {

@@ -193,17 +193,7 @@ namespace ContractConfigurator.Behaviour
 
                         // Get distances
                         valid &= ConfigNodeUtil.ParseValue<double>(child, "minDistance", x => wpData.minDistance = x, factory, 0.0, x => Validation.GE(x, 0.0));
-
-                        // To be deprecated
-                        if (child.HasValue("nearDistance"))
-                        {
-                            valid &= ConfigNodeUtil.ParseValue<double>(child, "nearDistance", x => wpData.maxDistance = x, factory, x => Validation.GT(x, 0.0));
-                            LoggingUtil.LogWarning(factory, "The 'nearDistance' attribute is obsolete as of Contract Configurator 0.7.4.  It will be removed in 1.0.0 in favour of minDistance/maxDistance.");
-                        }
-                        else
-                        {
-                            valid &= ConfigNodeUtil.ParseValue<double>(child, "maxDistance", x => wpData.maxDistance = x, factory, x => Validation.GT(x, wpData.minDistance));
-                        }
+                        valid &= ConfigNodeUtil.ParseValue<double>(child, "maxDistance", x => wpData.maxDistance = x, factory, x => Validation.GT(x, wpData.minDistance));
                     }
                     else if (child.name == "PQS_CITY")
                     {
