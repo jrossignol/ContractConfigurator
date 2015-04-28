@@ -2,6 +2,7 @@ Contract Configurator 0.8.2
 - Fixed performance around updates to stock contracts app.
 - Fix indentation in debug window.
 - Remove obsolete parameters and attributes.
+- Empty contract groups get highlighted yellow in debug window.
 
 Contract Configurator 1.0.0
 - Various fixes related to KSP 1.0.
@@ -19,6 +20,7 @@ Contract Configurator 1.0.0
 Contract Configurator 0.7.15
 - Fix for re-loading passengers in tourism contracts (thanks karki and others).
 - Remove obsolete parameters and attributes.
+- Empty contract groups get highlighted yellow in debug window.
 
 Contract Configurator 0.7.14
 - Expressions now work in child nodes (for WaypointGenerator and other behaviours that support it).
