@@ -205,7 +205,7 @@ namespace ContractConfigurator
 
                 if (indent != 0)
                 {
-                    GUILayout.Label(new string('\t', indent), GUILayout.ExpandWidth(false));
+                    GUILayout.Label("", GUILayout.ExpandWidth(false), GUILayout.Width(indent * 16));
                 }
 
                 if (GUILayout.Button(contractGroup.expandInDebug ? "-" : "+", GUILayout.Width(20), GUILayout.Height(20)))
@@ -261,7 +261,7 @@ namespace ContractConfigurator
 
                     if (contractGroup != null)
                     {
-                        GUILayout.Label(new string('\t', indent + 1), GUILayout.ExpandWidth(false));
+                        GUILayout.Label("", GUILayout.ExpandWidth(false), GUILayout.Width((indent+1) * 16));
                     }
 
                     if (GUILayout.Button(contractType.expandInDebug ? "-" : "+", GUILayout.Width(20), GUILayout.Height(20)))
@@ -292,7 +292,7 @@ namespace ContractConfigurator
             {
                 GUILayout.BeginHorizontal(GUILayout.ExpandWidth(false));
                 GUILayout.Space(28);
-                GUILayout.Label(new GUIContent(new string('\t', indent) + param, DebugInfo(param)),
+                GUILayout.Label(new GUIContent(new string(' ', indent * 4) + param, DebugInfo(param)),
                     param.enabled ? param.hasWarnings ? yellowLabel : GUI.skin.label : redLabel);
                 if (contractType.enabled)
                 {
@@ -315,7 +315,7 @@ namespace ContractConfigurator
                 GUILayout.BeginHorizontal(GUILayout.ExpandWidth(false));
                 GUILayout.Space(28);
                 GUIStyle style = requirement.lastResult == null ? GUI.skin.label : requirement.lastResult.Value ? greenLabel : yellowLabel;
-                GUILayout.Label(new GUIContent(new string('\t', indent) + requirement, DebugInfo(requirement)),
+                GUILayout.Label(new GUIContent(new string(' ', indent * 4) + requirement, DebugInfo(requirement)),
                     requirement.enabled ? requirement.hasWarnings ? yellowLabel : style : redLabel);
                 if (contractType.enabled)
                 {
@@ -336,7 +336,7 @@ namespace ContractConfigurator
             {
                 GUILayout.BeginHorizontal(GUILayout.ExpandWidth(false));
                 GUILayout.Space(28);
-                GUILayout.Label(new GUIContent(new string('\t', indent) + behaviour, DebugInfo(behaviour)),
+                GUILayout.Label(new GUIContent(new string(' ', indent * 4) + behaviour, DebugInfo(behaviour)),
                     behaviour.enabled ? behaviour.hasWarnings ? yellowLabel : GUI.skin.label : redLabel);
                 if (contractType.enabled)
                 {
@@ -385,7 +385,7 @@ namespace ContractConfigurator
                 // Tooltip
                 if (!string.IsNullOrEmpty(GUI.tooltip))
                 {
-                    tooltip = GUI.tooltip;
+                    tooltip = GUI.tooltip.Replace("\t", "    ");
                 }
                 GUILayout.Label(tooltip, bigTipStyle);
                 GUILayout.EndScrollView();

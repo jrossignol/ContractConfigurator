@@ -1,5 +1,6 @@
 Contract Configurator 0.8.2
 - Fixed performance around updates to stock contracts app.
+- Fix indentation in debug window.
 - Remove obsolete parameters and attributes.
 
 Contract Configurator 1.0.0
