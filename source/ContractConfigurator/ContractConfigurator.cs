@@ -37,6 +37,7 @@ namespace ContractConfigurator
         public static int attemptedContracts = 0;
 
         private bool contractsAppVisible = false;
+        private double lastContractsAppCheck = 0.0;
 
         private List<Contract> contractsToUpdate = new List<Contract>();
 
@@ -94,11 +95,17 @@ namespace ContractConfigurator
             if (!contractsAppVisible &&
                 ContractsApp.Instance != null &&
                 ContractsApp.Instance.appLauncherButton != null)
-                // TODO - fix for 1.0
-//                ContractsApp.Instance.cascadingList.cascadingList != null &&
-//                ContractsApp.Instance.cascadingList.cascadingList.gameObject.activeInHierarchy)
             {
-                contractsAppVisible = true;
+                if (UnityEngine.Time.fixedTime - lastContractsAppCheck > 0.5)
+                {
+                    lastContractsAppCheck = UnityEngine.Time.fixedTime;
+                    GenericAppFrame contractsAppFrame = UnityEngine.Object.FindObjectOfType<GenericAppFrame>();
+                    if (contractsAppFrame != null && contractsAppFrame.gameObject.activeSelf &&
+                        contractsAppFrame.header.text == "Contracts")
+                    {
+                        contractsAppVisible = true;
+                    }
+                }
             }
 
             // Display reloading message
@@ -154,11 +161,17 @@ namespace ContractConfigurator
             // ContractsApp is visible
             if (ContractsApp.Instance != null &&
                 ContractsApp.Instance.appLauncherButton != null)
-                // TODO - fix for 1.0
-//                ContractsApp.Instance.cascadingList.cascadingList != null &&
-//                ContractsApp.Instance.cascadingList.cascadingList.gameObject.activeInHierarchy)
             {
-                contractsAppVisible = true;
+                GenericAppFrame contractsAppFrame = UnityEngine.Object.FindObjectOfType<GenericAppFrame>();
+                if (contractsAppFrame != null && contractsAppFrame.gameObject.activeSelf &&
+                    contractsAppFrame.header.text == "Contracts")
+                {
+                    contractsAppVisible = true;
+                }
+                else
+                {
+                    contractsAppVisible = false;
+                }
             }
             // Not visible
             else

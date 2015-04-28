@@ -1,5 +1,5 @@
-Contract Configurator 0.8.1
-- Fix display of dynamic text (was broken by KSP 1.0).
+Contract Configurator 0.8.2
+- Fixed performance around updates to stock contracts app.
 
 Contract Configurator 1.0.0
 - Various fixes related to KSP 1.0.
