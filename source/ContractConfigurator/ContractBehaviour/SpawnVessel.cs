@@ -228,6 +228,11 @@ namespace ContractConfigurator.Behaviour
                     p.missionID = missionID;
                     p.launchID = launchID;
                     p.flagURL = vesselData.flagURL ?? HighLogic.CurrentGame.flagURL;
+
+                    // Had some issues with this being set to -1 for some ships - can't figure out
+                    // why.  End result is the vessel exploding, so let's just set it to a positive
+                    // value.
+                    p.temperature = 1.0;
                 }
 
                 // Assign crew to the vessel
