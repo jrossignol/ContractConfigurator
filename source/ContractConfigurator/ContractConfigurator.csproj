@@ -213,7 +213,6 @@
     <Compile Include="ParameterFactory\AnyFactory.cs" />
     <Compile Include="ParameterFactory\PartTestFactory.cs" />
     <Compile Include="ParameterFactory\RecoverKerbalFactory.cs" />
-    <Compile Include="ParameterFactory\BoardAnyVesselFactory.cs" />
     <Compile Include="ParameterFactory\ReachSpaceFactory.cs" />
     <Compile Include="ParameterFactory\PlantFlagFactory.cs" />
     <Compile Include="ParameterFactory\KerbalDeathsFactory.cs" />
