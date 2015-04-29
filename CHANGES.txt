@@ -12,10 +12,11 @@ Contract Configurator 1.0.0
 - Pop up a warning dialog when a ScenarioModule fails to load (and prevent other ScenarioModules from also failing).
 - Improve error messaging when failing on loading types from assemblies (thanks Vladthemad).
 - Fix default value of index for VisitWaypoint parameter (thanks AlphaAsh).
-Contract Configurator 0.7.15
-- Fix for re-loading passengers in tourism contracts (thanks karki and others).
 - Remove obsolete parameters and attributes.
 - Empty contract groups get highlighted yellow in debug window.
+
+Contract Configurator 0.7.15
+- Fix for re-loading passengers in tourism contracts (thanks karki and others).
 
 Contract Configurator 0.7.14
 - Expressions now work in child nodes (for WaypointGenerator and other behaviours that support it).
