@@ -1,13 +1,6 @@
-Contract Configurator 0.8.2
-- Fixed performance around updates to stock contracts app.
-- Fix indentation in debug window.
-- Remove obsolete parameters and attributes.
-- Empty contract groups get highlighted yellow in debug window.
-- Removed BoardAnyVessel parameter.
-
 Contract Configurator 1.0.0
 - Various fixes related to KSP 1.0.
-- Deprecated parameters removed from stock (some will get replacements in a future version of Contract Configurator).
+- Deprecated parameters removed from stock in KSP 1.0 (some may get replacements in a future version of Contract Configurator).
     - AltitudeRecord
     - LaunchVessel
     - BoardAnyVessel
