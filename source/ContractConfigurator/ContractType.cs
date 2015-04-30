@@ -81,6 +81,7 @@ namespace ContractConfigurator
         public float deadline;
         public bool cancellable;
         public bool declinable;
+        public bool autoAccept;
         public List<Contract.ContractPrestige> prestige;
         public CelestialBody targetBody;
         protected List<CelestialBody> targetBodies;
@@ -112,6 +113,7 @@ namespace ContractConfigurator
             deadline = 0;
             cancellable = true;
             declinable = true;
+            autoAccept = false;
             prestige = new List<Contract.ContractPrestige>();
             maxCompletions = 0;
             maxSimultaneous = 0;
@@ -164,6 +166,7 @@ namespace ContractConfigurator
                 valid &= ConfigNodeUtil.ParseValue<float>(configNode, "deadline", x => deadline = x, this, 0.0f, x => Validation.GE(x, 0.0f));
                 valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "cancellable", x => cancellable = x, this, true);
                 valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "declinable", x => declinable = x, this, true);
+                valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "autoAccept", x => autoAccept = x, this, false);
                 valid &= ConfigNodeUtil.ParseValue<List<Contract.ContractPrestige>>(configNode, "prestige", x => prestige = x, this, new List<Contract.ContractPrestige>());
                 valid &= ConfigNodeUtil.ParseValue<CelestialBody>(configNode, "targetBody", x => targetBody = x, this, (CelestialBody)null);
             

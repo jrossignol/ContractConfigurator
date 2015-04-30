@@ -62,7 +62,9 @@ namespace ContractConfigurator
 
             LoggingUtil.LogDebug(this.GetType(), "Generating contract: " + contractType);
 
+            // Set stuff from contract type
             hash = contractType.hash;
+            AutoAccept = contractType.autoAccept;
 
             // Set the agent
             if (contractType.agent != null)
