@@ -27,6 +27,8 @@ namespace ContractConfigurator.Behaviour
             public bool landed = false;
             public bool owned = false;
             public bool addToRoster = true;
+            public ProtoCrewMember.Gender? gender = null;
+            public ProtoCrewMember.KerbalType kerbalType;
             public PQSCity pqsCity = null;
             public Vector3d pqsOffset;
 
@@ -43,6 +45,8 @@ namespace ContractConfigurator.Behaviour
                 landed = k.landed;
                 owned = k.owned;
                 addToRoster = k.addToRoster;
+                gender = k.gender;
+                kerbalType = k.kerbalType;
                 pqsCity = k.pqsCity;
                 pqsOffset = k.pqsOffset;
             }
@@ -67,7 +71,11 @@ namespace ContractConfigurator.Behaviour
             // Create the CrewMember record
             foreach (KerbalData kerbal in kerbals)
             {
-                kerbal.crewMember = HighLogic.CurrentGame.CrewRoster.GetNewKerbal(ProtoCrewMember.KerbalType.Unowned);
+                kerbal.crewMember = HighLogic.CurrentGame.CrewRoster.GetNewKerbal(kerbal.kerbalType);
+                if (kerbal.gender != null)
+                {
+                    kerbal.crewMember.gender = kerbal.gender.Value;
+                }
 
                 // Have the name in both spots
                 if (kerbal.name != null)
@@ -148,9 +156,11 @@ namespace ContractConfigurator.Behaviour
 
                     valid &= ConfigNodeUtil.ParseValue<double?>(child, "alt", x => kerbal.altitude = x, factory, (double?)null);
 
-                    // Get additional flags
+                    // Get additional stuff
                     valid &= ConfigNodeUtil.ParseValue<bool>(child, "owned", x => kerbal.owned = x, factory, false);
                     valid &= ConfigNodeUtil.ParseValue<bool>(child, "addToRoster", x => kerbal.addToRoster = x, factory, true);
+                    valid &= ConfigNodeUtil.ParseValue<ProtoCrewMember.Gender?>(child, "gender", x => kerbal.gender = x, factory, (ProtoCrewMember.Gender?)null);
+                    valid &= ConfigNodeUtil.ParseValue<ProtoCrewMember.KerbalType>(child, "kerbalType", x => kerbal.kerbalType = x, factory, ProtoCrewMember.KerbalType.Unowned);
 
                     // Add to the list
                     spawnKerbal.kerbals.Add(kerbal);
