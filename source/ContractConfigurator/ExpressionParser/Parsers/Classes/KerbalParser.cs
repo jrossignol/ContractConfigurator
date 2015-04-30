@@ -29,6 +29,7 @@ namespace ContractConfigurator.ExpressionParser
             RegisterMethod(new Method<Kerbal, string>("ExperienceTrait", k => k == null ? null : k.pcm.experienceTrait.Title));
             RegisterMethod(new Method<Kerbal, ProtoCrewMember.RosterStatus>("RosterStatus", k => k == null ? ProtoCrewMember.RosterStatus.Dead : k.pcm.rosterStatus));
             RegisterMethod(new Method<Kerbal, ProtoCrewMember.KerbalType>("Type", k => k == null ? ProtoCrewMember.KerbalType.Applicant : k.pcm.type));
+            RegisterMethod(new Method<Kerbal, ProtoCrewMember.Gender>("Gender", k => k == null ? ProtoCrewMember.Gender.Male : k.pcm.gender));
 
             RegisterGlobalFunction(new Function<List<Kerbal>>("AllKerbals", () => HighLogic.CurrentGame == null ? new List<Kerbal>() :
                 HighLogic.CurrentGame.CrewRoster.AllKerbals().Select<ProtoCrewMember, Kerbal>(pcm => new Kerbal(pcm)).ToList(), false));
