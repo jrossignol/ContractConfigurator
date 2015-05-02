@@ -335,7 +335,10 @@ namespace ContractConfigurator.Behaviour
                 if (passengerNames.Count > i)
                 {
                     crewMember = HighLogic.CurrentGame.CrewRoster.AllKerbals().Where(pcm => pcm.name == passengerNames[i] && pcm.type == kerbalType).FirstOrDefault();
-                    crewMember.hasToured = false;
+                    if (crewMember != null)
+                    {
+                        crewMember.hasToured = false;
+                    }
                 }
                 if (crewMember == null)
                 {
