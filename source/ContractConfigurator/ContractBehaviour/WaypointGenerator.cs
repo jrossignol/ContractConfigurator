@@ -122,7 +122,7 @@ namespace ContractConfigurator.Behaviour
             int index = 0;
             foreach (ConfigNode child in ConfigNodeUtil.GetChildNodes(configNode))
             {
-                DataNode dataNode = new DataNode("WAYPOINT_" + (index - 1), factory.dataNode, factory);
+                DataNode dataNode = new DataNode("WAYPOINT_" + index, factory.dataNode, factory);
                 try
                 {
                     ConfigNodeUtil.SetCurrentDataNode(dataNode);
