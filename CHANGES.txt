@@ -6,6 +6,7 @@ Contract Configurator 1.0.1
 - Added new ToLower and ToUpper string methods.
 - Fixed default value for waypoint proximity trigger for VisitWaypoint.
 - Fixed issues with expressions in WaypointGenerator behaviour.
+- Fixed issue with waypoint distance calculation when not on the surface.
 
 Contract Configurator 1.0.0
 - Various fixes related to KSP 1.0.

@@ -34,7 +34,7 @@ namespace ContractConfigurator
 
             double lateralDist = 2 * (celestialBody.Radius + height + waypoint.altitude) *
                 Math.Asin(Math.Sqrt(sin1 * sin1 + cos1 * cos2 * sin2 * sin2));
-            double heightDist = Math.Abs(waypoint.altitude + height - vessel.terrainAltitude);
+            double heightDist = Math.Abs(waypoint.altitude + height - vessel.altitude);
 
             if (heightDist <= lateralDist / 2.0)
             {
