@@ -1340,6 +1340,12 @@ namespace ContractConfigurator.ExpressionParser
                 return (U)(object)value;
             }
 
+            // Disallow conversion directly to a boolean
+            if (typeof(U) == typeof(bool))
+            {
+                throw new DataStoreCastException(typeof(T), typeof(U));
+            }
+
             // Try basic conversion
             try
             {
