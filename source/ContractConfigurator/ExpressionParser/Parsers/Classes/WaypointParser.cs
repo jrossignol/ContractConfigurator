@@ -25,6 +25,7 @@ namespace ContractConfigurator.ExpressionParser
 
         internal static void RegisterMethods()
         {
+            RegisterMethod(new Method<Waypoint, string>("Name", w => w == null ? "" : w.name));
         }
 
         public WaypointParser()

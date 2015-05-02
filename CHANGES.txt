@@ -2,6 +2,9 @@ Contract Configurator 1.0.1
 - SpawnKerbal and SpawnPassenger now support setting the Kerbal type and gender.
 - Add Gender() method for expressions on Kerbals.
 - Added autoAccept attribute to CONTRACT_TYPE (behaves like the stock World-Firsts record contracts).
+- Added new ToLower and ToUpper string methods.
+- Fixed default value for waypoint proximity trigger for VisitWaypoint.
+- Fixed issues with expressions in WaypointGenerator behaviour.
 
 Contract Configurator 1.0.0
 - Various fixes related to KSP 1.0.

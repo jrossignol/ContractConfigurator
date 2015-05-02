@@ -144,7 +144,8 @@ namespace ContractConfigurator.Parameters
             // Default distance
             if (distance == 0.0)
             {
-                if (waypoint.isOnSurface)
+                // Close to the surface
+                if (waypoint.altitude < 25.0)
                 {
                     distance = 500.0;
                 }

@@ -11,6 +11,11 @@ namespace ContractConfigurator.ExpressionParser
     /// </summary>
     public class StringExpressionParser : ClassExpressionParser<string>, IExpressionParserRegistrer
     {
+        static StringExpressionParser()
+        {
+            RegisterMethods();
+        }
+
         public void RegisterExpressionParsers()
         {
             RegisterParserType(typeof(string), typeof(StringExpressionParser));
@@ -18,6 +23,12 @@ namespace ContractConfigurator.ExpressionParser
 
         public StringExpressionParser()
         {
+        }
+
+        internal static void RegisterMethods()
+        {
+            RegisterMethod(new Method<string, string>("ToLower", s => s == null ? null : s.ToLower()));
+            RegisterMethod(new Method<string, string>("ToUpper", s => s == null ? null : s.ToUpper()));
         }
 
         /// <summary>

@@ -122,52 +122,52 @@ namespace ContractConfigurator.Behaviour
             int index = 0;
             foreach (ConfigNode child in ConfigNodeUtil.GetChildNodes(configNode))
             {
-                double? altitude = null;
-                WaypointData wpData = new WaypointData(child.name);
-
-                valid &= ConfigNodeUtil.ParseValue<string>(child, "targetBody", x => wpData.waypoint.celestialName = x, factory, defaultBody != null ? defaultBody.name : null, Validation.NotNull);
-                valid &= ConfigNodeUtil.ParseValue<string>(child, "name", x => wpData.waypoint.name = x, factory, (string)null);
-                valid &= ConfigNodeUtil.ParseValue<double?>(child, "altitude", x => altitude = x, factory, (double?)null);
-                valid &= ConfigNodeUtil.ParseValue<string>(child, "parameter", x => wpData.parameter = x, factory, "");
-                valid &= ConfigNodeUtil.ParseValue<bool>(child, "hidden", x => wpData.hidden = x, factory, false);
-                if (wpData.hidden)
-                {
-                    valid &= ConfigNodeUtil.ParseValue<string>(child, "icon", x => wpData.waypoint.id = x, factory, "");
-                }
-                else
-                {
-                    valid &= ConfigNodeUtil.ParseValue<string>(child, "icon", x => wpData.waypoint.id = x, factory);
-                }
-
-                // The FinePrint logic is such that it will only look in Squad/Contracts/Icons for icons.
-                // Cheat this by hacking the path in the game database.
-                if (wpData.waypoint.id.Contains("/"))
-                {
-                    GameDatabase.TextureInfo texInfo = GameDatabase.Instance.databaseTexture.Where(t => t.name == wpData.waypoint.id).FirstOrDefault();
-                    if (texInfo != null)
-                    {
-                        texInfo.name = "Squad/Contracts/Icons/" + wpData.waypoint.id;
-                    }
-                }
-
-                // Track the index
-                wpData.waypoint.index = index++;
-
-                // Get altitude
-                if (altitude == null)
-                {
-                    wpData.waypoint.altitude = 0.0;
-                    wpData.randomAltitude = true;
-                }
-                else
-                {
-                    wpData.waypoint.altitude = altitude.Value;
-                }
-
                 DataNode dataNode = new DataNode("WAYPOINT_" + (index - 1), factory.dataNode, factory);
                 try
                 {
                     ConfigNodeUtil.SetCurrentDataNode(dataNode);
+
+                    double? altitude = null;
+                    WaypointData wpData = new WaypointData(child.name);
+
+                    valid &= ConfigNodeUtil.ParseValue<string>(child, "targetBody", x => wpData.waypoint.celestialName = x, factory, defaultBody != null ? defaultBody.name : null, Validation.NotNull);
+                    valid &= ConfigNodeUtil.ParseValue<string>(child, "name", x => wpData.waypoint.name = x, factory, (string)null);
+                    valid &= ConfigNodeUtil.ParseValue<double?>(child, "altitude", x => altitude = x, factory, (double?)null);
+                    valid &= ConfigNodeUtil.ParseValue<string>(child, "parameter", x => wpData.parameter = x, factory, "");
+                    valid &= ConfigNodeUtil.ParseValue<bool>(child, "hidden", x => wpData.hidden = x, factory, false);
+                    if (wpData.hidden)
+                    {
+                        valid &= ConfigNodeUtil.ParseValue<string>(child, "icon", x => wpData.waypoint.id = x, factory, "");
+                    }
+                    else
+                    {
+                        valid &= ConfigNodeUtil.ParseValue<string>(child, "icon", x => wpData.waypoint.id = x, factory);
+                    }
+
+                    // The FinePrint logic is such that it will only look in Squad/Contracts/Icons for icons.
+                    // Cheat this by hacking the path in the game database.
+                    if (wpData.waypoint.id.Contains("/"))
+                    {
+                        GameDatabase.TextureInfo texInfo = GameDatabase.Instance.databaseTexture.Where(t => t.name == wpData.waypoint.id).FirstOrDefault();
+                        if (texInfo != null)
+                        {
+                            texInfo.name = "Squad/Contracts/Icons/" + wpData.waypoint.id;
+                        }
+                    }
+
+                    // Track the index
+                    wpData.waypoint.index = index++;
+
+                    // Get altitude
+                    if (altitude == null)
+                    {
+                        wpData.waypoint.altitude = 0.0;
+                        wpData.randomAltitude = true;
+                    }
+                    else
+                    {
+                        wpData.waypoint.altitude = altitude.Value;
+                    }
 
                     // Get settings that differ by type
                     if (child.name == "WAYPOINT")
@@ -221,14 +221,14 @@ namespace ContractConfigurator.Behaviour
                         LoggingUtil.LogError(factory, "Unrecognized waypoint node: '" + child.name + "'");
                         valid = false;
                     }
+
+                    // Add to the list
+                    wpGenerator.waypoints.Add(wpData);
                 }
                 finally
                 {
                     ConfigNodeUtil.SetCurrentDataNode(factory.dataNode);
                 }
-
-                // Add to the list
-                wpGenerator.waypoints.Add(wpData);
             }
 
             return valid ? wpGenerator : null;
