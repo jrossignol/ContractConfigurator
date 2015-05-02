@@ -1,4 +1,5 @@
 Contract Configurator 1.0.1
+- KSP 1.0.2 fixes (CollectScience was broken by the update).
 - SpawnKerbal and SpawnPassenger now support setting the Kerbal type and gender.
 - Add Gender() method for expressions on Kerbals.
 - Added autoAccept attribute to CONTRACT_TYPE (behaves like the stock World-Firsts record contracts).
