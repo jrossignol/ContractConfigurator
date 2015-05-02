@@ -7,6 +7,7 @@ Contract Configurator 1.0.1
 - Fixed default value for waypoint proximity trigger for VisitWaypoint.
 - Fixed issues with expressions in WaypointGenerator behaviour.
 - Fixed issue with waypoint distance calculation when not on the surface.
+- Fixed boolean expressions to not try to convert values to a boolean early.
 
 Contract Configurator 1.0.0
 - Various fixes related to KSP 1.0.
