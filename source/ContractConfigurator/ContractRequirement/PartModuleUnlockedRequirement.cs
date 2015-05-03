@@ -50,7 +50,14 @@ namespace ContractConfigurator
 
                     if (found)
                     {
-                        break;
+                        if (ResearchAndDevelopment.PartTechAvailable(p))
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            found = false;
+                        }
                     }
                 }
 

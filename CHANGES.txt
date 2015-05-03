@@ -1,3 +1,6 @@
+Contract Configurator 1.0.3
+- Fix PartModuleUnlockedRequirement that was always returning as met (thanks severedsolo).
+
 Contract Configurator 1.0.2
 - Fix for exception in SpawnPassengers (thanks Jed).
 
