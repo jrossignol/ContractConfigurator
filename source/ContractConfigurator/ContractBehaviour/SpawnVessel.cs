@@ -118,7 +118,14 @@ namespace ContractConfigurator.Behaviour
                     vessel.vesselType = ConfigNodeUtil.ParseValue<VesselType>(child, "vesselType", VesselType.Ship);
 
                     // Get celestial body
-                    valid &= ConfigNodeUtil.ParseValue<CelestialBody>(child, "targetBody", x => vessel.body = x, factory, defaultBody, Validation.NotNull);
+                    if (defaultBody != null)
+                    {
+                        valid &= ConfigNodeUtil.ParseValue<CelestialBody>(child, "targetBody", x => vessel.body = x, factory, defaultBody);
+                    }
+                    else
+                    {
+                        valid &= ConfigNodeUtil.ParseValue<CelestialBody>(child, "targetBody", x => vessel.body = x, factory);
+                    }
 
                     // Get landed stuff
                     if (child.HasValue("lat") && child.HasValue("lon"))

@@ -111,7 +111,14 @@ namespace ContractConfigurator.Behaviour
                     }
 
                     // Get celestial body
-                    valid &= ConfigNodeUtil.ParseValue<CelestialBody>(child, "targetBody", x => kerbal.body = x, factory, defaultBody, Validation.NotNull);
+                    if (defaultBody != null)
+                    {
+                        valid &= ConfigNodeUtil.ParseValue<CelestialBody>(child, "targetBody", x => kerbal.body = x, factory, defaultBody);
+                    }
+                    else
+                    {
+                        valid &= ConfigNodeUtil.ParseValue<CelestialBody>(child, "targetBody", x => kerbal.body = x, factory);
+                    }
 
                     // Get landed stuff
                     if (child.HasValue("lat") && child.HasValue("lon") || child.HasValue("pqsCity"))

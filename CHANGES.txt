@@ -1,5 +1,6 @@
 Contract Configurator 1.0.3
 - Fix PartModuleUnlockedRequirement that was always returning as met (thanks severedsolo).
+- Fix validation for targetBody on some behaviours (thanks rhoark).
 
 Contract Configurator 1.0.2
 - Fix for exception in SpawnPassengers (thanks Jed).

@@ -117,20 +117,5 @@ namespace ContractConfigurator
 
             return true;
         }
-
-        /// <summary>
-        /// Validates that the argument is not null.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="val"></param>
-        /// <returns></returns>
-        public static bool NotNull<T>(T val)
-        {
-            if (val == null)
-            {
-                throw new ArgumentException("Cannot be null.");
-            }
-            return true;
-        }
     }
 }

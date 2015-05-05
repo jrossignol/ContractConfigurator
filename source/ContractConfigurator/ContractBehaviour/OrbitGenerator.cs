@@ -146,8 +146,15 @@ namespace ContractConfigurator.Behaviour
                         throw new ArgumentException("Unrecognized orbit node: '" + child.name + "'");
                     }
 
-                    // Get target body
-                    valid &= ConfigNodeUtil.ParseValue<CelestialBody>(child, "targetBody", x => obData.orbit.referenceBody = x, factory, defaultBody, Validation.NotNull);
+                    // Get celestial body
+                    if (defaultBody != null)
+                    {
+                        valid &= ConfigNodeUtil.ParseValue<CelestialBody>(child, "targetBody", x => obData.orbit.referenceBody = x, factory, defaultBody);
+                    }
+                    else
+                    {
+                        valid &= ConfigNodeUtil.ParseValue<CelestialBody>(child, "targetBody", x => obData.orbit.referenceBody = x, factory);
+                    }
 
                     // Add to the list
                     obGenerator.orbits.Add(obData);
