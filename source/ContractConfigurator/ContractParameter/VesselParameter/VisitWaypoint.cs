@@ -16,24 +16,55 @@ namespace ContractConfigurator.Parameters
     /// </summary>
     public class VisitWaypoint : VesselParameter
     {
+        /// <summary>
+        /// Child class for checking waypoints, because completed/disabled parameters don't get events.
+        /// </summary>
+        public class WaypointChecker
+        {
+            VisitWaypoint visitWaypoint;
+            public WaypointChecker(VisitWaypoint vw)
+            {
+                visitWaypoint = vw;
+                ContractConfigurator.OnParameterChange.Add(new EventData<Contract, ContractParameter>.OnEvent(OnParameterChange));
+            }
+
+            ~WaypointChecker()
+            {
+                ContractConfigurator.OnParameterChange.Remove(new EventData<Contract, ContractParameter>.OnEvent(OnParameterChange));
+            }
+
+            protected void OnParameterChange(Contract c, ContractParameter p)
+            {
+                visitWaypoint.OnParameterChange(c, p);
+            }
+        }
+
         protected int waypointIndex { get; set; }
         protected Waypoint waypoint { get; set; }
         protected double distance { get; set; }
+        protected bool hideOnCompletion { get; set; }
+        
         private double height = double.MaxValue;
 
         private float lastUpdate = 0.0f;
         private const float UPDATE_FREQUENCY = 0.25f;
 
+        private WaypointChecker waypointChecker;
+
         public VisitWaypoint()
-            : this(0, 0.0f, null)
+            : base()
         {
+            waypointChecker = new WaypointChecker(this);
         }
 
-        public VisitWaypoint(int waypointIndex, double distance, string title)
+        public VisitWaypoint(int waypointIndex, double distance, bool hideOnCompletion, string title)
             : base(title)
         {
+            waypointChecker = new WaypointChecker(this);
+
             this.distance = distance;
             this.waypointIndex = waypointIndex;
+            this.hideOnCompletion = hideOnCompletion;
         }
 
         protected override string GetTitle()
@@ -62,6 +93,7 @@ namespace ContractConfigurator.Parameters
             base.OnParameterSave(node);
             node.AddValue("distance", distance);
             node.AddValue("waypointIndex", waypointIndex);
+            node.AddValue("hideOnCompletion", hideOnCompletion);
         }
 
         protected override void OnParameterLoad(ConfigNode node)
@@ -69,6 +101,36 @@ namespace ContractConfigurator.Parameters
             base.OnParameterLoad(node);
             distance = Convert.ToDouble(node.GetValue("distance"));
             waypointIndex = Convert.ToInt32(node.GetValue("waypointIndex"));
+            hideOnCompletion = ConfigNodeUtil.ParseValue<bool?>(node, "hideOnCompletion", (bool?)true).Value;
+        }
+
+        public void OnParameterChange(Contract c, ContractParameter p)
+        {
+            if (c != Root)
+            {
+                return;
+            }
+
+            // Hide the waypoint if we are done with it
+            if (hideOnCompletion && waypoint != null && waypoint.visible)
+            {
+                for (IContractParameterHost paramHost = this; paramHost != Root; paramHost = paramHost.Parent)
+                {
+                    if (state == ParameterState.Complete)
+                    {
+                        ContractParameter param = paramHost as ContractParameter;
+                        if (param != null && !param.Enabled)
+                        {
+                            waypoint.visible = false;
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+            }
         }
 
         /// <summary>
