@@ -96,7 +96,7 @@ namespace ContractConfigurator.Parameters
             if (state != ParameterState.Complete)
             {
                 // Add duration
-                if (completionTime > 0.0)
+                if (waiting && completionTime - Planetarium.GetUniversalTime() > 0.0)
                 {
                     output += "; Time Remaining: " + DurationUtil.StringValue(completionTime - Planetarium.GetUniversalTime());
                 }
