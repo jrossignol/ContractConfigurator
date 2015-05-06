@@ -197,6 +197,22 @@ namespace ContractConfigurator.Parameters
             Parent.ParameterStateUpdate(this);
         }
 
+        /// <summary>
+        /// Replacement for stock AllChildParametersComplete which considers child parameters.
+        /// </summary>
+        /// <returns>Whether all non-optional parameters are complete.</returns>
+        new public bool AllChildParametersComplete()
+        {
+            foreach (ContractParameter param in this.GetChildren())
+            {
+                if (param.State != ParameterState.Complete && !param.Optional)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
         [Obsolete("Use SetState() instead.")]
         new protected void SetComplete()
         {
