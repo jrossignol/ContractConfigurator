@@ -63,12 +63,10 @@ namespace ContractConfigurator.Parameters
 
         protected override void OnParameterSave(ConfigNode node)
         {
-            node.AddValue("title", title);
         }
 
         protected override void OnParameterLoad(ConfigNode node)
         {
-            title = node.GetValue("title");
         }
 
         protected override void OnRegister()
