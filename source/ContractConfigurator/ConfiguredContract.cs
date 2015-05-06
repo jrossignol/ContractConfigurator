@@ -222,7 +222,10 @@ namespace ContractConfigurator
                         "'.  The contract type either failed to load or was uninstalled.");
                     try
                     {
-                        SetState(State.Failed);
+                        if (ContractState == State.Active || ContractState == State.Offered)
+                        {
+                            SetState(ContractState == State.Active ? State.Failed : State.Withdrawn);
+                        }
                     }
                     catch { }
                     return;
