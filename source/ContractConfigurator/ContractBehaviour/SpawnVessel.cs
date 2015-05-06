@@ -68,6 +68,7 @@ namespace ContractConfigurator.Behaviour
         }
         private List<VesselData> vessels = new List<VesselData>();
         private bool vesselsCreated = false;
+        private bool deferVesselCreation = false;
 
         public int KerbalCount
         {
@@ -85,6 +86,7 @@ namespace ContractConfigurator.Behaviour
         /// <param name="orig"></param>
         public SpawnVessel(SpawnVessel orig)
         {
+            deferVesselCreation = orig.deferVesselCreation; 
             foreach (VesselData vd in orig.vessels)
             {
                 vessels.Add(new VesselData(vd));
@@ -94,6 +96,8 @@ namespace ContractConfigurator.Behaviour
         public static SpawnVessel Create(ConfigNode configNode, CelestialBody defaultBody, SpawnVesselFactory factory)
         {
             SpawnVessel spawnVessel = new SpawnVessel();
+
+            ConfigNodeUtil.ParseValue<bool>(configNode, "deferVesselCreation", x => spawnVessel.deferVesselCreation = x, factory, false);
 
             bool valid = true;
             int index = 0;
@@ -179,7 +183,7 @@ namespace ContractConfigurator.Behaviour
         protected override void OnUpdate()
         {
  	        base.OnUpdate();
-            if (HighLogic.LoadedScene == GameScenes.FLIGHT || HighLogic.LoadedScene == GameScenes.TRACKSTATION)
+            if (deferVesselCreation && (HighLogic.LoadedScene == GameScenes.FLIGHT || HighLogic.LoadedScene == GameScenes.TRACKSTATION))
             {
                 CreateVessels();
             }
@@ -271,7 +275,7 @@ namespace ContractConfigurator.Behaviour
                     }
                 }
 
-                // Set additional info for landed kerbals
+                // Set additional info for landed vessels
                 if (vesselData.landed)
                 {
                     if (vesselData.altitude == null)
@@ -283,7 +287,6 @@ namespace ContractConfigurator.Behaviour
 
                     vesselData.orbit = new Orbit(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, vesselData.body);
                     vesselData.orbit.UpdateFromStateVectors(pos, vesselData.body.getRFrmVel(pos), vesselData.body, Planetarium.GetUniversalTime());
-                    LoggingUtil.LogDebug(this, "vesselData generated, orbit = " + vesselData.orbit);
                 }
                 
                 // Create a dummy ProtoVessel, we will use this to dump the parts to a config node.
@@ -391,6 +394,7 @@ namespace ContractConfigurator.Behaviour
         {
             base.OnSave(configNode);
             configNode.AddValue("vesselsCreated", vesselsCreated);
+            configNode.AddValue("deferVesselCreation", deferVesselCreation);
             
             foreach (VesselData vd in vessels)
             {
@@ -443,6 +447,7 @@ namespace ContractConfigurator.Behaviour
         {
             base.OnLoad(configNode);
             vesselsCreated = ConfigNodeUtil.ParseValue<bool>(configNode, "vesselsCreated");
+            deferVesselCreation = ConfigNodeUtil.ParseValue<bool?>(configNode, "deferVesselCreation", (bool?)false).Value;
 
             foreach (ConfigNode child in configNode.GetNodes("VESSEL_DETAIL"))
             {
@@ -539,6 +544,14 @@ namespace ContractConfigurator.Behaviour
                         }
                     }
                 }
+            }
+        }
+
+        protected override void OnAccepted()
+        {
+            if (!deferVesselCreation)
+            {
+                CreateVessels();
             }
         }
 

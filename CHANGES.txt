@@ -4,6 +4,7 @@ Contract Configurator 1.0.3
 - Fix validation for targetBody on some behaviours (thanks rhoark).
 - Fix scenario where optional parameters weren't working as expected (thanks Valiant).
 - Fix for negative timer values being displayed for count-down parameters (thanks Enceos).
+- Fix/workaround for "ghost" issue from exceptions when spawning some vessels (thanks odin_spain).
 
 Contract Configurator 1.0.2
 - Fix for exception in SpawnPassengers (thanks Jed).
