@@ -225,10 +225,8 @@ namespace ContractConfigurator
                         style = yellowLabel;
                     }
 
-                    bool atLeastOne = false;
                     foreach (ContractType contractType in guiContracts.Where(ct => ct.group == contractGroup))
                     {
-                        atLeastOne = true;
                         if (!contractType.enabled)
                         {
                             style = redLabel;
@@ -238,12 +236,6 @@ namespace ContractConfigurator
                         {
                             style = yellowLabel;
                         }
-                    }
-
-                    // Need at least one contract in the group
-                    if (!atLeastOne)
-                    {
-                        style = yellowLabel;
                     }
                 }
 

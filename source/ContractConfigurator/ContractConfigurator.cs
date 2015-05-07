@@ -443,6 +443,12 @@ namespace ContractConfigurator
 
             LoggingUtil.LogInfo(this.GetType(), "Loaded " + successContracts + " out of " + totalContracts + " CONTRACT_TYPE nodes.");
 
+            // Check for empty groups and warn
+            foreach (ContractGroup group in ContractGroup.contractGroups.Values.Where(g => g != null))
+            {
+                group.CheckEmpty();
+            }
+
             if (!reloading && LoggingUtil.logLevel == LoggingUtil.LogLevel.DEBUG || LoggingUtil.logLevel == LoggingUtil.LogLevel.VERBOSE)
             {
                 ScreenMessages.PostScreenMessage("Contract Configurator: Loaded " + successContracts + " out of " + totalContracts

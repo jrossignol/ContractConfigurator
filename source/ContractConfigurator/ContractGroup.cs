@@ -173,6 +173,29 @@ namespace ContractConfigurator
             return false;
         }
 
+        /// <summary>
+        /// Verifies that the contract group is not empty.
+        /// </summary>
+        public void CheckEmpty()
+        {
+            bool atLeastOne = false;
+            foreach (ContractType contractType in ContractType.AllContractTypes.Where(ct => ct.group == this))
+            {
+                atLeastOne = true;
+                break;
+            }
+
+            // Need at least one contract in the group
+            if (!atLeastOne)
+            {
+                LoggingUtil.CaptureLog = true;
+                LoggingUtil.LogWarning(this, "Contract group '" + name + "' contains no contract types!");
+                log += LoggingUtil.capturedLog;
+                LoggingUtil.CaptureLog = false;
+                hasWarnings = true;
+            }
+        }
+
         private void DoNothing() { }
 
         /// <summary>
