@@ -40,6 +40,7 @@ namespace ContractConfigurator
         private double lastContractsAppCheck = 0.0;
 
         private List<Contract> contractsToUpdate = new List<Contract>();
+        private static List<Assembly> badAssemblies = new List<Assembly>();
 
         public static EventData<Contract, ContractParameter> OnParameterChange = new EventData<Contract, ContractParameter>("OnParameterChange");
 
@@ -532,7 +533,12 @@ namespace ContractConfigurator
                 }
                 catch (Exception e)
                 {
-                    LoggingUtil.LogException(new Exception("Error loading types from assembly " + assembly.FullName, e));
+                    // Only log once
+                    if (!badAssemblies.Contains(assembly))
+                    {
+                        LoggingUtil.LogException(new Exception("Error loading types from assembly " + assembly.FullName, e));
+                        badAssemblies.Add(assembly);
+                    }
                     continue;
                 }
 
