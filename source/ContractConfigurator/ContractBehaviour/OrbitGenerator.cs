@@ -156,6 +156,9 @@ namespace ContractConfigurator.Behaviour
                         valid &= ConfigNodeUtil.ParseValue<CelestialBody>(child, "targetBody", x => obData.orbit.referenceBody = x, factory);
                     }
 
+                    // Check for unexpected values
+                    valid &= ConfigNodeUtil.ValidateUnexpectedValues(child, factory);
+
                     // Add to the list
                     obGenerator.orbits.Add(obData);
                 }

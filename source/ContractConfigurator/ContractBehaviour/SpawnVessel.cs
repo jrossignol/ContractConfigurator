@@ -113,13 +113,13 @@ namespace ContractConfigurator.Behaviour
                     // Get name
                     if (child.HasValue("name"))
                     {
-                        vessel.name = child.GetValue("name");
+                        ConfigNodeUtil.ParseValue<string>(child, "name", x => vessel.name = x, factory);
                     }
 
                     // Get paths
-                    vessel.craftURL = ConfigNodeUtil.ParseValue<string>(child, "craftURL");
-                    vessel.flagURL = ConfigNodeUtil.ParseValue<string>(child, "flagURL", (string)null);
-                    vessel.vesselType = ConfigNodeUtil.ParseValue<VesselType>(child, "vesselType", VesselType.Ship);
+                    valid &= ConfigNodeUtil.ParseValue<string>(child, "craftURL", x => vessel.craftURL = x, factory);
+                    valid &= ConfigNodeUtil.ParseValue<string>(child, "flagURL", x => vessel.flagURL = x, factory, (string)null);
+                    valid &= ConfigNodeUtil.ParseValue<VesselType>(child, "vesselType", x => vessel.vesselType = x, factory, VesselType.Ship);
 
                     // Get celestial body
                     if (defaultBody != null)
@@ -163,10 +163,16 @@ namespace ContractConfigurator.Behaviour
                             valid &= ConfigNodeUtil.ParseValue<string>(crewNode, "name", x => cd.name = x, factory, (string)null);
                             valid &= ConfigNodeUtil.ParseValue<bool>(crewNode, "addToRoster", x => cd.addToRoster = x, factory, true);
 
+                            // Check for unexpected values
+                            valid &= ConfigNodeUtil.ValidateUnexpectedValues(crewNode, factory);
+
                             // Add the record
                             vessel.crew.Add(cd);
                         }
                     }
+
+                    // Check for unexpected values
+                    valid &= ConfigNodeUtil.ValidateUnexpectedValues(child, factory);
 
                     // Add to the list
                     spawnVessel.vessels.Add(vessel);

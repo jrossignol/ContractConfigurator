@@ -228,6 +228,9 @@ namespace ContractConfigurator.Behaviour
                         valid = false;
                     }
 
+                    // Check for unexpected values
+                    valid &= ConfigNodeUtil.ValidateUnexpectedValues(child, factory);
+
                     // Add to the list
                     wpGenerator.waypoints.Add(wpData);
                 }

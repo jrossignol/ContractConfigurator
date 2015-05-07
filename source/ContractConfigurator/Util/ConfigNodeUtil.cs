@@ -949,7 +949,8 @@ namespace ContractConfigurator
                 // Exceptions
                 if (child.name == "PARAMETER" && (obj is ContractType || obj is ParameterFactory) ||
                     child.name == "REQUIREMENT" && (obj is ContractType || obj is ParameterFactory || obj is ContractRequirement) ||
-                    child.name == "BEHAVIOUR" && (obj is ContractType))
+                    child.name == "BEHAVIOUR" && (obj is ContractType) ||
+                    child.name == "ORBIT" && (obj is Behaviour.OrbitGenerator || obj is Behaviour.SpawnVessel || obj is Behaviour.SpawnKerbal))
                 {
                     continue;
                 }

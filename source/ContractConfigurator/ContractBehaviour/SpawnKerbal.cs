@@ -169,6 +169,9 @@ namespace ContractConfigurator.Behaviour
                     valid &= ConfigNodeUtil.ParseValue<ProtoCrewMember.Gender?>(child, "gender", x => kerbal.gender = x, factory, (ProtoCrewMember.Gender?)null);
                     valid &= ConfigNodeUtil.ParseValue<ProtoCrewMember.KerbalType>(child, "kerbalType", x => kerbal.kerbalType = x, factory, ProtoCrewMember.KerbalType.Unowned);
 
+                    // Check for unexpected values
+                    valid &= ConfigNodeUtil.ValidateUnexpectedValues(child, factory);
+
                     // Add to the list
                     spawnKerbal.kerbals.Add(kerbal);
                 }
