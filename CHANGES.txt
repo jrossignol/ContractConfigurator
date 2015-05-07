@@ -2,6 +2,7 @@ Contract Configurator 1.0.3
 - Waypoints now disappear once related contract requirements are met.
 - More warnings for unexpected values in configuration (helps authors catch bugs).
 - Add expression functions for selecting Celestial Bodies based on player progression.
+- TargetDestroyed checks for target being marked as debris (thanks chlue).
 - Fix PartModuleUnlockedRequirement that was always returning as met (thanks severedsolo).
 - Fix validation for targetBody on some behaviours (thanks rhoark).
 - Fix scenario where optional parameters weren't working as expected (thanks Valiant).

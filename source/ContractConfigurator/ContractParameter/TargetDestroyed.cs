@@ -58,7 +58,8 @@ namespace ContractConfigurator.Parameters
         private bool CheckTargetDestroyed(string vessel)
         {
             LoggingUtil.LogVerbose(this, "TargetDestroyed(" + vessel + ")");
-            return destroyedTargets.Contains(vessel);
+            Vessel v = ContractVesselTracker.Instance.GetAssociatedVessel(vessel);
+            return v != null && v.vesselType == VesselType.Debris || destroyedTargets.Contains(vessel);
         }
 
         protected override void OnParameterSave(ConfigNode node)
@@ -86,12 +87,14 @@ namespace ContractConfigurator.Parameters
         {
             base.OnRegister();
             GameEvents.onVesselWillDestroy.Add(new EventData<Vessel>.OnEvent(OnVesselWillDestroy));
+            GameEvents.onVesselWasModified.Add(new EventData<Vessel>.OnEvent(OnVesselWasModified));
         }
 
         protected override void OnUnregister()
         {
             base.OnUnregister();
             GameEvents.onVesselWillDestroy.Remove(new EventData<Vessel>.OnEvent(OnVesselWillDestroy));
+            GameEvents.onVesselWasModified.Add(new EventData<Vessel>.OnEvent(OnVesselWasModified));
         }
 
         protected virtual void OnVesselWillDestroy(Vessel v)
@@ -103,6 +106,16 @@ namespace ContractConfigurator.Parameters
                 destroyedTargets.AddUnique(key);
             }
 
+            CheckVessels();
+        }
+
+        protected virtual void OnVesselWasModified(Vessel v)
+        {
+            CheckVessels();
+        }
+
+        protected virtual void CheckVessels()
+        {
             bool success = ParameterDelegate<string>.CheckChildConditions(this, "");
             if (ChildChanged || success)
             {
@@ -116,8 +129,6 @@ namespace ContractConfigurator.Parameters
                     ContractConfigurator.OnParameterChange.Fire(Root, this);
                 }
             }
-            
-            ContractConfigurator.OnParameterChange.Fire(Root, this);
         }
     }
 }
