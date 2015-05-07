@@ -601,7 +601,7 @@ namespace ContractConfigurator
                 result += obj.config;
                 result += "\n\n";
                 result += "<b><color=white>Config Details After Expressions</color></b>\n";
-                result += DataNodeDebug(obj.dataNode, obj is BehaviourFactory) + "\n";
+                result += DataNodeDebug(obj.dataNode) + "\n";
                 result += "<b><color=white>Log Details</color></b>\n";
                 result += obj.log;
 
@@ -611,14 +611,14 @@ namespace ContractConfigurator
             return toolTipCache[obj].Value;
         }
 
-        static string DataNodeDebug(DataNode node, bool recursive)
+        static string DataNodeDebug(DataNode node)
         {
             string result = node.DebugString() + "\n";
-            if (recursive)
+            foreach (DataNode child in node.Children)
             {
-                foreach (DataNode child in node.Children)
+                if (child.Factory == node.Factory)
                 {
-                    result += DataNodeDebug(child, true);
+                    result += DataNodeDebug(child);
                 }
             }
 
