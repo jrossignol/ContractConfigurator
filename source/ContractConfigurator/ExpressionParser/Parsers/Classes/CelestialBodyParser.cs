@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
+using KSPAchievements;
 
 namespace ContractConfigurator.ExpressionParser
 {
@@ -41,6 +42,14 @@ namespace ContractConfigurator.ExpressionParser
 
             RegisterGlobalFunction(new Function<CelestialBody>("HomeWorld", () => FlightGlobals.Bodies.Where(cb => cb.isHomeWorld).First()));
             RegisterGlobalFunction(new Function<List<CelestialBody>>("AllBodies", () => FlightGlobals.Bodies));
+            RegisterGlobalFunction(new Function<List<CelestialBody>>("OrbitedBodies", () => ProgressTracking.Instance == null ?
+                new List<CelestialBody>() :
+                ProgressTracking.Instance.celestialBodyNodes.Where(subtree => subtree.orbit.IsReached).
+                Select<CelestialBodySubtree, CelestialBody>(subtree => subtree.Body).ToList(), false));
+            RegisterGlobalFunction(new Function<List<CelestialBody>>("LandedBodies", () => ProgressTracking.Instance == null ?
+                new List<CelestialBody>() :
+                ProgressTracking.Instance.celestialBodyNodes.Where(subtree => subtree.landing.IsReached).
+                Select<CelestialBodySubtree, CelestialBody>(subtree => subtree.Body).ToList(), false));
             RegisterGlobalFunction(new Function<CelestialBody, CelestialBody>("CelestialBody", cb => cb));
         }
 

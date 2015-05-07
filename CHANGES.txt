@@ -1,12 +1,14 @@
 Contract Configurator 1.0.3
 - Waypoints now disappear once related contract requirements are met.
 - More warnings for unexpected values in configuration (helps authors catch bugs).
+- Add expression functions for selecting Celestial Bodies based on player progression.
 - Fix PartModuleUnlockedRequirement that was always returning as met (thanks severedsolo).
 - Fix validation for targetBody on some behaviours (thanks rhoark).
 - Fix scenario where optional parameters weren't working as expected (thanks Valiant).
 - Fix for negative timer values being displayed for count-down parameters (thanks Enceos).
 - Fix/workaround for "ghost" issue from exceptions when spawning some vessels (thanks odin_spain).
 - Fix for reflection load issue in CompleteContractRequirement when bad assemblies present (thanks Szara).
+- Minor bug fixes.
 
 Contract Configurator 1.0.2
 - Fix for exception in SpawnPassengers (thanks Jed).
