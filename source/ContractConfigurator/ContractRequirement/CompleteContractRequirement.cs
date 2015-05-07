@@ -38,14 +38,8 @@ namespace ContractConfigurator
                 {
                     ccType = null;
 
-                    // Search for the correct type
-                    var classes =
-                        from assembly in AppDomain.CurrentDomain.GetAssemblies()
-                        from type in assembly.GetTypes()
-                        where type.IsSubclassOf(typeof(Contract)) && type.Name.Equals(contractType)
-                        select type;
-
-                    if (classes.Count() < 1)
+                    IEnumerable<Type> classes = ContractConfigurator.GetAllTypes<Contract>().Where(t => t.Name == contractType);
+                    if (!classes.Any())
                     {
                         valid = false;
                         LoggingUtil.LogError(this.GetType(), "contractType '" + contractType +
