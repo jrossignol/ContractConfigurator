@@ -36,7 +36,7 @@
       <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Kerbal Space Program\KSP_Data\Managed\Assembly-CSharp.dll</HintPath>
     </Reference>
     <Reference Include="RemoteTech">
-      <HintPath>C:\Program Files (x86)\Kerbal Space Program\GameData\RemoteTech\Plugins\RemoteTech.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Kerbal Space Program\GameData\RemoteTech\Plugins\RemoteTech.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
