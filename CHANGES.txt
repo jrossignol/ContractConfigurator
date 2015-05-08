@@ -1,3 +1,6 @@
+Contract Configurator UNRELEASED
+- Fixed requirements that were throwing errors when expressions used in targetBody.
+
 Contract Configurator 1.0.3
 - Waypoints now disappear once related contract requirements are met.
 - More warnings for unexpected values in configuration (helps authors catch bugs).
