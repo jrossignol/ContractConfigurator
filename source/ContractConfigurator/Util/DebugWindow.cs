@@ -225,7 +225,7 @@ namespace ContractConfigurator
                         style = yellowLabel;
                     }
 
-                    foreach (ContractType contractType in guiContracts.Where(ct => ct.group == contractGroup))
+                    foreach (ContractType contractType in guiContracts.Where(ct => contractGroup == null ? ct.group == null : contractGroup.BelongsToGroup(ct)))
                     {
                         if (!contractType.enabled)
                         {
@@ -611,14 +611,15 @@ namespace ContractConfigurator
             return toolTipCache[obj].Value;
         }
 
-        static string DataNodeDebug(DataNode node)
+        static string DataNodeDebug(DataNode node, int indent = 0)
         {
-            string result = node.DebugString() + "\n";
+            string indentStr = new string('\t', indent);
+            string result = indentStr + node.DebugString().Replace("\n", "\n" + indentStr) + "\n";
             foreach (DataNode child in node.Children)
             {
                 if (child.Factory == node.Factory)
                 {
-                    result += DataNodeDebug(child);
+                    result += DataNodeDebug(child, indent + 1);
                 }
             }
 
