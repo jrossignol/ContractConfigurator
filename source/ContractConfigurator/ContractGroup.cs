@@ -64,7 +64,6 @@ namespace ContractConfigurator
                 dataNode = new DataNode(configNode.GetValue("name"), this);
 
                 LoggingUtil.CaptureLog = true;
-                ConfigNodeUtil.ClearCache(true);
                 ConfigNodeUtil.SetCurrentDataNode(dataNode);
                 bool valid = true;
 
@@ -88,9 +87,6 @@ namespace ContractConfigurator
                         PopupDialog.SpawnPopupDialog(new MultiOptionDialog(message, title, HighLogic.Skin, dialogOption), false, HighLogic.Skin);
                     }
                 }
-
-                // Check for unexpected values - always do this last
-                valid &= ConfigNodeUtil.ValidateUnexpectedValues(configNode, this);
 
                 // Do the deferred loads
                 valid &= ConfigNodeUtil.ExecuteDeferredLoads();
@@ -123,6 +119,9 @@ namespace ContractConfigurator
                     }
                 }
 
+                // Check for unexpected values - always do this last
+                valid &= ConfigNodeUtil.ValidateUnexpectedValues(configNode, this);
+
                 // Invalidate children
                 if (!valid)
                 {
@@ -142,7 +141,7 @@ namespace ContractConfigurator
         private void Invalidate()
         {
             enabled = false;
-            foreach (ContractGroup child in AllGroups.Where(g => g.parent == this))
+            foreach (ContractGroup child in AllGroups.Where(g => g != null && g.parent == this))
             {
                 child.Invalidate();
             }
@@ -188,11 +187,15 @@ namespace ContractConfigurator
             // Need at least one contract in the group
             if (!atLeastOne)
             {
-                LoggingUtil.CaptureLog = true;
-                LoggingUtil.LogWarning(this, "Contract group '" + name + "' contains no contract types!");
-                log += LoggingUtil.capturedLog;
-                LoggingUtil.CaptureLog = false;
-                hasWarnings = true;
+                // Try for a child group
+                if (!ContractGroup.AllGroups.Where(g => g != null && g.parent != null && g.parent.name == name).Any())
+                {
+                    LoggingUtil.CaptureLog = true;
+                    LoggingUtil.LogWarning(this, "Contract group '" + name + "' contains no contract types or child groups!");
+                    log += LoggingUtil.capturedLog;
+                    LoggingUtil.CaptureLog = false;
+                    hasWarnings = true;
+                }
             }
         }
 

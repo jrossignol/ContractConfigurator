@@ -902,6 +902,7 @@ namespace ContractConfigurator
         /// <param name="firstNode">Whether we are looking at the root node and should do additional clearing</param>
         public static void ClearCache(bool firstNode = false)
         {
+            Debug.Log("ClearCache!");
             keysFound.Clear();
             storedValues.Clear();
             if (firstNode)
@@ -1004,6 +1005,7 @@ namespace ContractConfigurator
         /// <returns>Always true, but logs a warning if unexpected keys were found</returns>
         public static bool ValidateUnexpectedValues(ConfigNode configNode, IContractConfiguratorFactory obj)
         {
+            Debug.Log("ValidateUnexpectedValues for " + configNode.name);
             bool valid = true;
 
             if (!keysFound.ContainsKey(configNode))

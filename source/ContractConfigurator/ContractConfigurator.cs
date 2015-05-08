@@ -376,6 +376,7 @@ namespace ContractConfigurator
                     bool success = false;
                     try
                     {
+                        ConfigNodeUtil.ClearCache(true);
                         success = contractGroup.Load(groupConfig);
                     }
                     catch (Exception e)
@@ -427,6 +428,7 @@ namespace ContractConfigurator
                     // Perform the load
                     try
                     {
+                        ConfigNodeUtil.ClearCache(true);
                         contractType.Load(contractConfig);
                         if (contractType.enabled)
                         {

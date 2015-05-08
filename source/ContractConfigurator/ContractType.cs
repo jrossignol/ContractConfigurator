@@ -141,7 +141,6 @@ namespace ContractConfigurator
 
                 dataNode = new DataNode(configNode.GetValue("name"), this);
 
-                ConfigNodeUtil.ClearCache(true);
                 ConfigNodeUtil.SetCurrentDataNode(dataNode);
                 bool valid = true;
 

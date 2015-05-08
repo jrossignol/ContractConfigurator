@@ -1,5 +1,6 @@
-Contract Configurator UNRELEASED
+Contract Configurator 1.0.4
 - Fixed requirements that were throwing errors when expressions used in targetBody.
+- Fixed up some invalid warnings about not loading child CONTRACT_GROUP nodes.
 
 Contract Configurator 1.0.3
 - Waypoints now disappear once related contract requirements are met.
