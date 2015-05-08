@@ -107,7 +107,7 @@ namespace ContractConfigurator.Behaviour
                     // Get name
                     if (child.HasValue("name"))
                     {
-                        kerbal.name = child.GetValue("name");
+                        valid &= ConfigNodeUtil.ParseValue<string>(child, "name", x => kerbal.name = x, factory);
                     }
 
                     // Get celestial body
