@@ -113,7 +113,7 @@ namespace ContractConfigurator.Behaviour
                     // Get name
                     if (child.HasValue("name"))
                     {
-                        ConfigNodeUtil.ParseValue<string>(child, "name", x => vessel.name = x, factory);
+                        valid &= ConfigNodeUtil.ParseValue<string>(child, "name", x => vessel.name = x, factory);
                     }
 
                     // Get paths
@@ -142,9 +142,7 @@ namespace ContractConfigurator.Behaviour
                     // Get orbit
                     else
                     {
-                        valid &= ConfigNodeUtil.ValidateMandatoryChild(child, "ORBIT", factory);
-                        vessel.orbit = new OrbitSnapshot(ConfigNodeUtil.GetChildNode(child, "ORBIT")).Load();
-                        vessel.orbit.referenceBody = vessel.body;
+                        valid &= ConfigNodeUtil.ParseValue<Orbit>(child, "ORBIT", x => vessel.orbit = x, factory);
                     }
 
                     // Get additional flags
@@ -293,6 +291,10 @@ namespace ContractConfigurator.Behaviour
 
                     vesselData.orbit = new Orbit(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, vesselData.body);
                     vesselData.orbit.UpdateFromStateVectors(pos, vesselData.body.getRFrmVel(pos), vesselData.body, Planetarium.GetUniversalTime());
+                }
+                else
+                {
+                    vesselData.orbit.referenceBody = vesselData.body;
                 }
                 
                 // Create a dummy ProtoVessel, we will use this to dump the parts to a config node.

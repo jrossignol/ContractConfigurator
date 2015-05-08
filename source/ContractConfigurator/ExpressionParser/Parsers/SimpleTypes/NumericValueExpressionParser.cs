@@ -105,6 +105,7 @@ namespace ContractConfigurator.ExpressionParser
             else if (typeof(T) == typeof(double))
             {
                 calculator = new DoubleCalculator() as Calculator<T>;
+                RegisterGlobalFunction(new Function<double>("UniversalTime", () => Planetarium.GetUniversalTime(), false));
             }
 
             RegisterLocalFunction(new Function<T>("Random", () => (T)Convert.ChangeType(random.NextDouble(), typeof(T)), false));
@@ -172,21 +173,26 @@ namespace ContractConfigurator.ExpressionParser
 
         internal override Token ParseNumericConstant()
         {
-            int index = expression.IndexOfAny(WHITESPACE_OR_OPERATOR, 0);
-
             try
             {
+                Match m = Regex.Match(expression, @"^(\d+(\.\d+(E(-)?\d+)?)?)");
+                string strVal = m.Groups[1].Value;
+                expression = (expression.Length > strVal.Length ? expression.Substring(strVal.Length) : "");
+
                 T val;
-                if (index >= 0)
+                if (typeof(T) == typeof(float))
                 {
-                    val = (T)Convert.ChangeType(expression.Substring(0, index), typeof(T));
-                    expression = (expression.Length > index ? expression.Substring(index) : "");
+                    val = (T)(object)Single.Parse(strVal, System.Globalization.NumberStyles.Float | System.Globalization.NumberStyles.AllowExponent);
+                }
+                else if (typeof(T) == typeof(double))
+                {
+                    val = (T)(object)Double.Parse(strVal, System.Globalization.NumberStyles.Float | System.Globalization.NumberStyles.AllowExponent);
                 }
                 else
                 {
-                    val = (T)Convert.ChangeType(expression, typeof(T));
-                    expression = "";
+                    val = (T)Convert.ChangeType(strVal, typeof(T));
                 }
+
                 return new ValueToken<T>(val);
             }
             catch (Exception e)

@@ -86,6 +86,9 @@ namespace ContractConfigurator.Behaviour
                 {
                     kerbal.name = kerbal.crewMember.name;
                 }
+
+                // Update the reference body in the orbit
+                kerbal.orbit.referenceBody = kerbal.body;
             }
         }
 
@@ -152,8 +155,7 @@ namespace ContractConfigurator.Behaviour
                     // Get orbit
                     else if (child.HasNode("ORBIT"))
                     {
-                        kerbal.orbit = new OrbitSnapshot(ConfigNodeUtil.GetChildNode(child, "ORBIT")).Load();
-                        kerbal.orbit.referenceBody = kerbal.body;
+                        valid &= ConfigNodeUtil.ParseValue<Orbit>(child, "ORBIT", x => kerbal.orbit = x, factory);
                     }
                     else
                     {

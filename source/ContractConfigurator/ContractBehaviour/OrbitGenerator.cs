@@ -47,6 +47,7 @@ namespace ContractConfigurator.Behaviour
             public OrbitType orbitType = OrbitType.RANDOM;
             public int index = 0;
             public int count = 1;
+            public CelestialBody targetBody;
 
             public OrbitData()
             {
@@ -64,6 +65,7 @@ namespace ContractConfigurator.Behaviour
                 orbitType = orig.orbitType;
                 index = orig.index;
                 count = orig.count;
+                targetBody = orig.targetBody;
 
                 // Lazy copy of orbit - only really used to store the orbital parameters, so not
                 // a huge deal.
@@ -102,7 +104,11 @@ namespace ContractConfigurator.Behaviour
                 // Do type specific handling
                 if (obData.type == "RANDOM_ORBIT")
                 {
-                    obData.orbit = CelestialUtilities.GenerateOrbit(obData.orbitType, contract.MissionSeed + index++, obData.orbit.referenceBody, 0.8, 0.8);
+                    obData.orbit = CelestialUtilities.GenerateOrbit(obData.orbitType, contract.MissionSeed + index++, obData.targetBody, 0.8, 0.8);
+                }
+                else
+                {
+                    obData.orbit.referenceBody = obData.targetBody;
                 }
 
                 // Create the wrapper to the SpecificOrbit parameter that will do the rendering work
@@ -133,8 +139,7 @@ namespace ContractConfigurator.Behaviour
                     // Get settings that differ by type
                     if (child.name == "FIXED_ORBIT")
                     {
-                        valid &= ConfigNodeUtil.ValidateMandatoryChild(child, "ORBIT", factory);
-                        obData.orbit = new OrbitSnapshot(ConfigNodeUtil.GetChildNode(child, "ORBIT")).Load();
+                        valid &= ConfigNodeUtil.ParseValue<Orbit>(child, "ORBIT", x => obData.orbit = x, factory);
                     }
                     else if (child.name == "RANDOM_ORBIT")
                     {
@@ -149,11 +154,11 @@ namespace ContractConfigurator.Behaviour
                     // Get celestial body
                     if (defaultBody != null)
                     {
-                        valid &= ConfigNodeUtil.ParseValue<CelestialBody>(child, "targetBody", x => obData.orbit.referenceBody = x, factory, defaultBody);
+                        valid &= ConfigNodeUtil.ParseValue<CelestialBody>(child, "targetBody", x => obData.targetBody = x, factory, defaultBody);
                     }
                     else
                     {
-                        valid &= ConfigNodeUtil.ParseValue<CelestialBody>(child, "targetBody", x => obData.orbit.referenceBody = x, factory);
+                        valid &= ConfigNodeUtil.ParseValue<CelestialBody>(child, "targetBody", x => obData.targetBody = x, factory);
                     }
 
                     // Check for unexpected values

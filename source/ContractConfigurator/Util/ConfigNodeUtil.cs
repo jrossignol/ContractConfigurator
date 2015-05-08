@@ -121,7 +121,14 @@ namespace ContractConfigurator
             // Check for required value
             if (!configNode.HasValue(key))
             {
-                throw new ArgumentException("Missing required value '" + key + "'.");
+                if (configNode.HasNode(key))
+                {
+                    return ParseNode<T>(configNode, key, allowExpression);
+                }
+                else
+                {
+                    throw new ArgumentException("Missing required value '" + key + "'.");
+                }
             }
 
             // Special cases
@@ -230,7 +237,7 @@ namespace ContractConfigurator
 
         private static T ParseSingleValue<T>(string key, string stringValue, bool allowExpression)
         {
-            ExpressionParser<T> parser = BaseParser.GetParser<T>();
+            ExpressionParser<T> parser;
             T value;
 
             // Handle nullable
@@ -245,7 +252,7 @@ namespace ContractConfigurator
                     value = (T)Convert.ChangeType(stringValue, typeof(T).GetGenericArguments()[0]);
                 }
             }
-            else if (allowExpression && parser != null)
+            else if (allowExpression && (parser = BaseParser.GetParser<T>()) != null)
             {
                 if (initialLoad)
                 {
@@ -332,6 +339,80 @@ namespace ContractConfigurator
         }
 
         /// <summary>
+        /// Parses a value from a child config node.
+        /// </summary>
+        /// <typeparam name="T">The type to convert to.</typeparam>
+        /// <param name="configNode">The ConfigNode to read from</param>
+        /// <param name="key">The key to examine.</param>
+        /// <param name="allowExpression">Whether the read value can be an expression.</param>
+        /// <returns>The parsed value</returns>
+        public static T ParseNode<T>(ConfigNode configNode, string key, bool allowExpression = false)
+        {
+            T value;
+
+            if (typeof(T) == typeof(Orbit))
+            {
+                // Get the orbit node
+                ConfigNode orbitNode = configNode.GetNode(key);
+
+                // Get our child values
+                DataNode oldNode = currentDataNode;
+                try
+                {
+                    currentDataNode = oldNode.Children.Where(node => node.Name == key).FirstOrDefault();
+                    if (currentDataNode == null)
+                    {
+                        currentDataNode = new DataNode(key, oldNode, oldNode.Factory);
+                    }
+
+                    foreach (string orbitKey in new string[] { "SMA", "ECC", "INC", "LPE", "LAN", "MNA", "EPH", "REF" })
+                    {
+                        object orbitVal;
+                        if (orbitKey == "REF")
+                        {
+                            ParseValue<int>(orbitNode, orbitKey, x => orbitVal = x, oldNode.Factory);
+                        }
+                        else
+                        {
+                            ParseValue<double>(orbitNode, orbitKey, x => orbitVal = x, oldNode.Factory);
+                        }
+                    }
+                }
+                finally
+                {
+                    currentDataNode = oldNode;
+                }
+
+                // Get the orbit parser
+                ExpressionParser<T> parser = BaseParser.GetParser<T>();
+                if (parser == null)
+                {
+                    throw new Exception("Couldn't instantiate orbit parser!");
+                }
+
+                // Parse the special expression
+                string expression = "CreateOrbit([@" + key + "/SMA, @" + key + "/ECC, @" + key +
+                    "/INC, @" + key + "/LPE, @" + key + "/LAN, @" + key + "/MNA, @" + key +
+                    "/EPH ], @" + key + "/REF)";
+                if (initialLoad)
+                {
+                    value = parser.ParseExpression(key, expression, currentDataNode);
+                }
+                else
+                {
+                    value = parser.ExecuteExpression(key, expression, currentDataNode);
+                }
+            }
+            else
+            {
+                throw new Exception("Unhandled type for child node parsing: " + typeof(T));
+            }
+
+            return value;
+        }
+
+
+        /// <summary>
         /// Attempts to parse a value from the config node.  Returns a default value if not found.
         /// </summary>
         /// <typeparam name="T">The type of value to convert to.</typeparam>
@@ -341,7 +422,7 @@ namespace ContractConfigurator
         /// <returns>The parsed value (or default value if not found)</returns>
         public static T ParseValue<T>(ConfigNode configNode, string key, T defaultValue)
         {
-            if (configNode.HasValue(key))
+            if (configNode.HasValue(key) || configNode.HasNode(key))
             {
                 return ParseValue<T>(configNode, key);
             }
@@ -363,7 +444,7 @@ namespace ContractConfigurator
         public static bool ParseValue<T>(ConfigNode configNode, string key, Action<T> setter, IContractConfiguratorFactory obj)
         {
             // Check for required value
-            if (!configNode.HasValue(key))
+            if (!configNode.HasValue(key) && !configNode.HasNode(key))
             {
                 LoggingUtil.LogError(obj, obj.ErrorPrefix(configNode) + ": Missing required value '" + key + "'.");
                 return false;
@@ -401,7 +482,7 @@ namespace ContractConfigurator
         public static bool ParseValue<T>(ConfigNode configNode, string key, Action<T> setter, IContractConfiguratorFactory obj, Func<T, bool> validation)
         {
             // Check for required value
-            if (!configNode.HasValue(key))
+            if (!configNode.HasValue(key) && !configNode.HasNode(key))
             {
                 LoggingUtil.LogError(obj, obj.ErrorPrefix(configNode) + ": Missing required value '" + key + "'.");
                 return false;
@@ -432,7 +513,7 @@ namespace ContractConfigurator
 
             bool valid = true;
             T value = defaultValue;
-            if (configNode.HasValue(key))
+            if (configNode.HasValue(key) || configNode.HasNode(key))
             {
                 try
                 {
