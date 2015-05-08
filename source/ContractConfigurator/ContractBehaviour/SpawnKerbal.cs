@@ -86,9 +86,6 @@ namespace ContractConfigurator.Behaviour
                 {
                     kerbal.name = kerbal.crewMember.name;
                 }
-
-                // Update the reference body in the orbit
-                kerbal.orbit.referenceBody = kerbal.body;
             }
         }
 
@@ -233,6 +230,11 @@ namespace ContractConfigurator.Behaviour
                     kerbal.orbit = new Orbit(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, kerbal.body);
                     kerbal.orbit.UpdateFromStateVectors(pos, kerbal.body.getRFrmVel(pos), kerbal.body, Planetarium.GetUniversalTime());
                     LoggingUtil.LogVerbose(typeof(SpawnKerbal), "kerbal generated, orbit = " + kerbal.orbit);
+                }
+                else
+                {
+                    // Update the reference body in the orbit
+                    kerbal.orbit.referenceBody = kerbal.body;
                 }
 
                 uint flightId = ShipConstruction.GetUniqueFlightID(HighLogic.CurrentGame.flightState);

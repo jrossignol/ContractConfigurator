@@ -370,11 +370,11 @@ namespace ContractConfigurator
                         object orbitVal;
                         if (orbitKey == "REF")
                         {
-                            ParseValue<int>(orbitNode, orbitKey, x => orbitVal = x, oldNode.Factory);
+                            ParseValue<int>(orbitNode, orbitKey, x => orbitVal = x, oldNode.Factory, 1);
                         }
                         else
                         {
-                            ParseValue<double>(orbitNode, orbitKey, x => orbitVal = x, oldNode.Factory);
+                            ParseValue<double>(orbitNode, orbitKey, x => orbitVal = x, oldNode.Factory, 0.0);
                         }
                     }
                 }
