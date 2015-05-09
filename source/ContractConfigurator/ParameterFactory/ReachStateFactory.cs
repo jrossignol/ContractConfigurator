@@ -15,7 +15,7 @@ namespace ContractConfigurator
     /// </summary>
     public class ReachStateFactory : ParameterFactory
     {
-        protected string biome;
+        protected Biome biome;
         protected Vessel.Situations? situation;
         protected float minAltitude;
         protected float maxAltitude;
@@ -29,7 +29,7 @@ namespace ContractConfigurator
             // Load base class
             bool valid = base.Load(configNode);
 
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "biome", x => biome = x, this, "");
+            valid &= ConfigNodeUtil.ParseValue<Biome>(configNode, "biome", x => biome = x, this, (Biome)null);
             valid &= ConfigNodeUtil.ParseValue<Vessel.Situations?>(configNode, "situation", x => situation = x, this, (Vessel.Situations?)null);
             valid &= ConfigNodeUtil.ParseValue<float>(configNode, "minAltitude", x => minAltitude = x, this, 0.0f, x => Validation.GE(x, 0.0f));
             valid &= ConfigNodeUtil.ParseValue<float>(configNode, "maxAltitude", x => maxAltitude = x, this, float.MaxValue, x => Validation.GE(x, 0.0f));
@@ -50,7 +50,7 @@ namespace ContractConfigurator
 
         public override ContractParameter Generate(Contract contract)
         {
-            return new ReachState(targetBody, biome, situation, minAltitude, maxAltitude, minTerrainAltitude, maxTerrainAltitude, minSpeed, maxSpeed, title);
+            return new ReachState(targetBody, biome == null ? "" : biome.biome, situation, minAltitude, maxAltitude, minTerrainAltitude, maxTerrainAltitude, minSpeed, maxSpeed, title);
         }
     }
 }

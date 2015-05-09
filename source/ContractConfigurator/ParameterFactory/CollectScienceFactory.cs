@@ -15,7 +15,7 @@ namespace ContractConfigurator
     /// </summary>
     public class CollectScienceFactory : ParameterFactory
     {
-        protected string biome { get; set; }
+        protected Biome biome { get; set; }
         protected ExperimentSituations? situation { get; set; }
         protected BodyLocation? location { get; set; }
         protected string experiment { get; set; }
@@ -26,7 +26,7 @@ namespace ContractConfigurator
             // Load base class
             bool valid = base.Load(configNode);
 
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "biome", x => biome = x, this, "");
+            valid &= ConfigNodeUtil.ParseValue<Biome>(configNode, "biome", x => biome = x, this, (Biome)null);
             valid &= ConfigNodeUtil.ParseValue<ExperimentSituations?>(configNode, "situation", x => situation = x, this, (ExperimentSituations?)null);
             valid &= ConfigNodeUtil.ParseValue<BodyLocation?>(configNode, "location", x => location = x, this, (BodyLocation?)null);
             valid &= ConfigNodeUtil.ParseValue<string>(configNode, "experiment", x => experiment = x, this, "", ValidateExperiment);
@@ -51,7 +51,7 @@ namespace ContractConfigurator
 
         public override ContractParameter Generate(Contract contract)
         {
-            return new CollectScienceCustom(targetBody, biome, situation, location, experiment, recoveryMethod, title);
+            return new CollectScienceCustom(targetBody, biome == null ? "" : biome.biome, situation, location, experiment, recoveryMethod, title);
         }
     }
 }

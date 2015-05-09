@@ -1,3 +1,7 @@
+Contract Configurator 1.1.0
+- Added Biome as a valid expression class.
+- Added new method for getting all biomes of a celestial body.
+
 Contract Configurator 1.0.4
 - Fixed requirements that were throwing errors when expressions used in targetBody.
 - Fixed up some invalid warnings about not loading child CONTRACT_GROUP nodes.

@@ -40,6 +40,9 @@ namespace ContractConfigurator.ExpressionParser
             RegisterMethod(new Method<CelestialBody, CelestialBody>("Parent", cb => cb != null ? cb.referenceBody : null));
             RegisterMethod(new Method<CelestialBody, List<CelestialBody>>("Children", cb => cb != null ? cb.orbitingBodies : new List<CelestialBody>()));
 
+            RegisterMethod(new Method<CelestialBody, List<Biome>>("Biomes", cb => cb != null && cb.BiomeMap != null ?
+                cb.BiomeMap.Attributes.Select(y => new Biome(cb, y.name)).ToList() : new List<Biome>()));
+
             RegisterGlobalFunction(new Function<CelestialBody>("HomeWorld", () => FlightGlobals.Bodies.Where(cb => cb.isHomeWorld).First()));
             RegisterGlobalFunction(new Function<List<CelestialBody>>("AllBodies", () => FlightGlobals.Bodies));
             RegisterGlobalFunction(new Function<List<CelestialBody>>("OrbitedBodies", () => ProgressTracking.Instance == null ?

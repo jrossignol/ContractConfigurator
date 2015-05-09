@@ -93,6 +93,7 @@
     <Compile Include="ExpressionParser\Parsers\Behaviours\BehaviourParser.cs" />
     <Compile Include="ExpressionParser\Parsers\Behaviours\WaypointGeneratorParser.cs" />
     <Compile Include="ExpressionParser\Parsers\Behaviours\SpawnKerbalParser.cs" />
+    <Compile Include="ExpressionParser\Parsers\Classes\BiomeParser.cs" />
     <Compile Include="ExpressionParser\Parsers\Classes\OrbitParser.cs" />
     <Compile Include="ExpressionParser\Parsers\Classes\PartParser.cs" />
     <Compile Include="ExpressionParser\Parsers\Classes\ResourceParser.cs" />
@@ -115,6 +116,7 @@
     <Compile Include="ExpressionParser\Parsers\SimpleTypes\StringExpressionParser.cs" />
     <Compile Include="ExpressionParser\Parsers\SimpleTypes\ValueExpressionParser.cs" />
     <Compile Include="ExpressionParser\ExpressionParser.cs" />
+    <Compile Include="ExpressionParser\Wrappers\Biome.cs" />
     <Compile Include="ExpressionParser\Wrappers\VesselIdentifier.cs" />
     <Compile Include="ExpressionParser\Wrappers\Resource.cs" />
     <Compile Include="ExpressionParser\Wrappers\Kerbal.cs" />
