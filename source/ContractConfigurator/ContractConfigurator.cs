@@ -517,7 +517,7 @@ namespace ContractConfigurator
             LoggingUtil.LogInfo(this.GetType(), "Disabled " + disabledCounter + " ContractTypes.");
 
             // Now add the ConfiguredContract type
-            int count = (int)(ContractType.AllValidContractTypes.Count() / 3.0 + 0.5);
+            int count = (int)(Math.Pow(ContractType.AllValidContractTypes.Count(), 0.7) / 2.0);
             for (int i = 0; i < count; i++)
             {
                 ContractSystem.ContractTypes.Add(typeof(ConfiguredContract));
