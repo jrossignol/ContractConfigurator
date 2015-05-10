@@ -1,6 +1,7 @@
 Contract Configurator 1.1.0
 - Added Biome as a valid expression class.
 - Added new method for getting all biomes of a celestial body.
+- Fixed a bug in the expression parser that caused issues with some ternary statements.
 
 Contract Configurator 1.0.4
 - Fixed requirements that were throwing errors when expressions used in targetBody.

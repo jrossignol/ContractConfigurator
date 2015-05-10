@@ -276,8 +276,24 @@ namespace ContractConfigurator.ExpressionParser
                                 break;
                             }
                         case TokenType.TERNARY_START:
-                            lval = ParseTernary<T>(ConvertType<bool>(lval));
-                            break;
+                            try
+                            {
+                                // Parse under the return type
+                                TResult val = ParseTernary<TResult>(ConvertType<bool>(lval));
+                                return val;
+                            }
+                            catch (Exception e)
+                            {
+                                Type type = GetRequiredType(e);
+                                if (type == null || typeof(T) == typeof(TResult))
+                                {
+                                    throw;
+                                }
+
+                                expression = savedExpression;
+                                lval = ParseTernary<T>(ConvertType<bool>(lval));
+                                break;
+                            }
                         default:
                             expression = token.sval + expression;
                             throw new ArgumentException("Unexpected value: " + token.sval);
@@ -1130,7 +1146,9 @@ namespace ContractConfigurator.ExpressionParser
 
                         try
                         {
-                            return (T)parseMethod.Invoke(methodParser, new object[] { methodToken, o, false });
+                            T res = (T)parseMethod.Invoke(methodParser, new object[] { methodToken, o, false });
+                            verbose &= LogExitDebug<T>("ParseSpecialIdentifier", res);
+                            return res;
                         }
                         catch (TargetInvocationException tie)
                         {
@@ -1341,7 +1359,7 @@ namespace ContractConfigurator.ExpressionParser
             }
 
             // Disallow conversion directly to a boolean
-            if (typeof(U) == typeof(bool))
+            if (typeof(U) == typeof(bool) || typeof(T) == typeof(bool))
             {
                 throw new DataStoreCastException(typeof(T), typeof(U));
             }
