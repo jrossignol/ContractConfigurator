@@ -76,6 +76,9 @@ namespace ContractConfigurator
         {
             // Initialize the hardcoded mappings in the type map
             typeMap["bool"] = typeof(bool);
+            typeMap["byte"] = typeof(byte);
+            typeMap["sbyte"] = typeof(sbyte);
+            typeMap["char"] = typeof(char);
             typeMap["short"] = typeof(short);
             typeMap["int"] = typeof(int);
             typeMap["long"] = typeof(long);
@@ -84,6 +87,7 @@ namespace ContractConfigurator
             typeMap["ulong"] = typeof(ulong);
             typeMap["float"] = typeof(float);
             typeMap["double"] = typeof(double);
+            typeMap["string"] = typeof(string);
         }
 
         /// <summary>
