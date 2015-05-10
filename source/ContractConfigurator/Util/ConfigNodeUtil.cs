@@ -70,6 +70,22 @@ namespace ContractConfigurator
         private static DataNode currentDataNode;
         private static bool initialLoad = true;
 
+        private static Dictionary<string, Type> typeMap = new Dictionary<string, Type>();
+        
+        static ConfigNodeUtil()
+        {
+            // Initialize the hardcoded mappings in the type map
+            typeMap["bool"] = typeof(bool);
+            typeMap["short"] = typeof(short);
+            typeMap["int"] = typeof(int);
+            typeMap["long"] = typeof(long);
+            typeMap["ushort"] = typeof(ushort);
+            typeMap["uint"] = typeof(uint);
+            typeMap["ulong"] = typeof(ulong);
+            typeMap["float"] = typeof(float);
+            typeMap["double"] = typeof(double);
+        }
+
         /// <summary>
         /// Checks whether the mandatory field exists, and if not logs and error.  Returns true
         /// only if the validation succeeded.
@@ -859,6 +875,11 @@ namespace ContractConfigurator
             }
             else
             {
+                if (typeMap.ContainsKey(name))
+                {
+                    return typeMap[name];
+                }
+
                 foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
                 {
                     try
@@ -866,6 +887,8 @@ namespace ContractConfigurator
                         Type t = assembly.GetTypes().Where(type => type.Name == name).FirstOrDefault();
                         if (t != null)
                         {
+                            // Cache it
+                            typeMap[name] = t;
                             return t;
                         }
                     }
