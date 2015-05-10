@@ -58,8 +58,23 @@ namespace ContractConfigurator.Parameters
         private bool CheckTargetDestroyed(string vessel)
         {
             LoggingUtil.LogVerbose(this, "TargetDestroyed(" + vessel + ")");
+            
+            // Already tracked as destroyed
+            if (destroyedTargets.Contains(vessel))
+            {
+                return true;
+            }
+
+            // Check for new debris
             Vessel v = ContractVesselTracker.Instance.GetAssociatedVessel(vessel);
-            return v != null && v.vesselType == VesselType.Debris || destroyedTargets.Contains(vessel);
+            if (v != null && v.vesselType == VesselType.Debris)
+            {
+                destroyedTargets.Add(vessel);
+                return true;
+            }
+
+            // Not destroyed!
+            return false;
         }
 
         protected override void OnParameterSave(ConfigNode node)
