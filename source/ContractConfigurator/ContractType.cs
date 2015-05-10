@@ -99,6 +99,7 @@ namespace ContractConfigurator
         public float advanceFunds;
         public double weight;
         private Dictionary<string, bool> dataValues = new Dictionary<string, bool>();
+        public List<string> uniqueValues = new List<string>();
 
         public ContractType(string name)
         {
@@ -188,15 +189,17 @@ namespace ContractConfigurator
                 {
                     Type type = null;
                     bool requiredValue = true;
+                    bool uniqueValue = false;
                     valid &= ConfigNodeUtil.ParseValue<Type>(data, "type", x => type = x, this);
                     valid &= ConfigNodeUtil.ParseValue<bool>(data, "requiredValue", x => requiredValue = x, this, true);
+                    valid &= ConfigNodeUtil.ParseValue<bool>(data, "uniqueValue", x => uniqueValue = x, this, false);
 
                     if (type != null)
                     {
                         foreach (ConfigNode.Value pair in data.values)
                         {
                             string name = pair.name;
-                            if (name != "type" && name != "requiredValue")
+                            if (name != "type" && name != "requiredValue" && name != "uniqueValue")
                             {
                                 object value = null;
 
@@ -213,6 +216,11 @@ namespace ContractConfigurator
                                 valid &= (bool)method.Invoke(null, new object[] { data, name, del, this });
 
                                 dataValues[name] = requiredValue;
+
+                                if (uniqueValue)
+                                {
+                                    uniqueValues.Add(name);
+                                }
                             }
                         }
                     }
@@ -329,6 +337,20 @@ namespace ContractConfigurator
             {
                 LoggingUtil.LogDebug(this, "Cancelling offered contract of type " + name + ", contract definition changed.");
                 return false;
+            }
+
+            // Check for unique values against other contracts of the same type
+            foreach (string key in uniqueValues)
+            {
+                foreach (ConfiguredContract otherContract in ContractSystem.Instance.GetCurrentContracts<ConfiguredContract>().
+                    Where(c => c.contractType != null && c.contractType.name == name && c != contract))
+                {
+                    if (contract.uniqueData[key] == otherContract.uniqueData[key])
+                    {
+                        LoggingUtil.LogVerbose(this, "Didn't generate contract type " + name + ", failed on unique value check for key '" + key + "'.");
+                        return false;
+                    }
+                }
             }
 
             // Check prestige

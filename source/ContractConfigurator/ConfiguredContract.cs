@@ -23,6 +23,8 @@ namespace ContractConfigurator
         private List<ContractBehaviour> behaviours = new List<ContractBehaviour>();
         public IEnumerable<ContractBehaviour> Behaviours { get { return behaviours.AsReadOnly(); } }
 
+        public Dictionary<string, object> uniqueData = new Dictionary<string, object>();
+
 		public static string contractTypeName(Contract c)
 		{
             if (c == null || c.GetType() != typeof(ConfiguredContract))
@@ -209,6 +211,27 @@ namespace ContractConfigurator
                 notes = ConfigNodeUtil.ParseValue<string>(node, "notes", contractType != null ? contractType.notes : "");
                 hash = ConfigNodeUtil.ParseValue<int>(node, "hash", contractType != null ? contractType.hash : 0);
 
+                // Load the unique data
+                ConfigNode dataNode = node.GetNode("UNIQUE_DATA");
+                if (dataNode != null)
+                {
+                    // Handle individual values
+                    foreach (ConfigNode.Value pair in dataNode.values)
+                    {
+                        string typeName = pair.value.Remove(pair.value.IndexOf(":"));
+                        string value = pair.value.Substring(typeName.Length + 1, pair.value.Length - typeName.Length - 1);
+                        Type type = Type.GetType(typeName);
+                        if (type == typeof(string))
+                        {
+                            uniqueData[pair.name] = pair.value;
+                        }
+                        else
+                        {
+                            uniqueData[pair.name] = type.InvokeMember("Parse", System.Reflection.BindingFlags.InvokeMethod, null, null, new string[] { value });
+                        }
+                    }
+                }
+
                 foreach (ConfigNode child in node.GetNodes("BEHAVIOUR"))
                 {
                     ContractBehaviour behaviour = ContractBehaviour.LoadBehaviour(child, this);
@@ -256,6 +279,17 @@ namespace ContractConfigurator
                 node.AddValue("completedMessage", completedMessage);
                 node.AddValue("notes", notes);
                 node.AddValue("hash", hash);
+
+                // Store the unique data
+                if (uniqueData.Any())
+                {
+                    ConfigNode dataNode = new ConfigNode("UNIQUE_DATA");
+                    node.AddNode(dataNode);
+                    foreach (KeyValuePair<string, object> p in uniqueData)
+                    {
+                        node.AddValue(p.Key, p.Value.GetType() + ":" + p.Value);
+                    }
+                }
 
                 foreach (ContractBehaviour behaviour in behaviours)
                 {
@@ -374,6 +408,12 @@ namespace ContractConfigurator
                     }
                     currentContract = null;
 
+                    // Store unique data
+                    foreach (string key in selectedContractType.uniqueValues)
+                    {
+                        uniqueData[key] = selectedContractType.dataNode[key];
+                    }
+
                     // Check the requirements for our selection
                     if (selectedContractType.MeetRequirements(this))
                     {
@@ -387,6 +427,7 @@ namespace ContractConfigurator
                         LoggingUtil.LogVerbose(this, selectedContractType.name + " was not generated: requirement not met.");
                         validContractTypes.Remove(selectedContractType);
                         totalWeight -= selectedContractType.weight;
+                        uniqueData.Clear();
                     }
                 }
             }
