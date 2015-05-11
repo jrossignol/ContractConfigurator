@@ -14,21 +14,11 @@ namespace ContractConfigurator.Behaviour
     public class WaypointGeneratorFactory : BehaviourFactory
     {
         WaypointGenerator waypointGeneratorTemplate;
-        private WaypointGenerator current;
         public WaypointGenerator Current
         {
             get
             {
-                if (HighLogic.CurrentGame == null)
-                {
-                    return null;
-                }
-
-                if (current == null)
-                {
-                    current = (WaypointGenerator)Generate(null);
-                }
-                return current;
+                return waypointGeneratorTemplate;
             }
         } 
 
@@ -45,19 +35,7 @@ namespace ContractConfigurator.Behaviour
 
         public override ContractBehaviour Generate(ConfiguredContract contract)
         {
-            WaypointGenerator result;
-            if (current != null)
-            {
-                result = current;
-                current = null;
-                result.SetContract(contract);
-            }
-            else
-            {
-                result = new WaypointGenerator(waypointGeneratorTemplate, contract);
-            }
-
-            return result;
+            return new WaypointGenerator(waypointGeneratorTemplate, contract);
         }
     }
 }

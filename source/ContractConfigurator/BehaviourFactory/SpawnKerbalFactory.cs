@@ -26,9 +26,10 @@ namespace ContractConfigurator.Behaviour
 
                 if (current == null)
                 {
-                    current = (SpawnKerbal)Generate(null);
+                    current = spawnKerbalTemplate;
+                    spawnKerbalTemplate.Initialize();
                 }
-                return current;
+                return spawnKerbalTemplate;
             }
         } 
 
@@ -45,18 +46,8 @@ namespace ContractConfigurator.Behaviour
 
         public override ContractBehaviour Generate(ConfiguredContract contract)
         {
-            ContractBehaviour result;
-            if (current != null)
-            {
-                result = current;
-                current = null;
-            }
-            else
-            {
-                result = new SpawnKerbal(spawnKerbalTemplate);
-            }
-
-            return result;
+            current = null;
+            return new SpawnKerbal(spawnKerbalTemplate);
         }
     }
 }

@@ -52,6 +52,7 @@ namespace ContractConfigurator.Behaviour
             }
         }
         private List<KerbalData> kerbals = new List<KerbalData>();
+        private bool initialized = false;
 
         public int KerbalCount { get { return kerbals.Count; } }
 
@@ -68,27 +69,42 @@ namespace ContractConfigurator.Behaviour
                 kerbals.Add(new KerbalData(kerbal));
             }
 
-            // Create the CrewMember record
-            foreach (KerbalData kerbal in kerbals)
+            if (orig.initialized)
             {
-                kerbal.crewMember = HighLogic.CurrentGame.CrewRoster.GetNewKerbal(kerbal.kerbalType);
-                if (kerbal.gender != null)
+                foreach (KerbalData kerbal in orig.kerbals)
                 {
-                    kerbal.crewMember.gender = kerbal.gender.Value;
+                    kerbal.crewMember = null;
                 }
-
-                // Have the name in both spots
-                if (kerbal.name != null)
-                {
-                    kerbal.crewMember.name = kerbal.name;
-                }
-                else
-                {
-                    kerbal.name = kerbal.crewMember.name;
-                }
+            }
+            else
+            {
+                Initialize();
             }
         }
 
+        public void Initialize()
+        {
+            if (!initialized)
+            {
+                // Create the CrewMember record
+                foreach (KerbalData kerbal in kerbals)
+                {
+                    kerbal.crewMember = HighLogic.CurrentGame.CrewRoster.GetNewKerbal(kerbal.kerbalType);
+                    if (kerbal.gender != null)
+                    {
+                        kerbal.crewMember.gender = kerbal.gender.Value;
+                    }
+
+                    // Set the name
+                    if (kerbal.name != null)
+                    {
+                        kerbal.crewMember.name = kerbal.name;
+                    }
+                }
+
+                initialized = true;
+            }
+        }
         public static SpawnKerbal Create(ConfigNode configNode, CelestialBody defaultBody, SpawnKerbalFactory factory)
         {
             SpawnKerbal spawnKerbal = new SpawnKerbal();
@@ -190,7 +206,7 @@ namespace ContractConfigurator.Behaviour
             {
                 if (kerbal.pqsCity != null)
                 {
-                    LoggingUtil.LogVerbose(this, "Generating coordinates from PQS city for Kerbal " + kerbal.name);
+                    LoggingUtil.LogVerbose(this, "Generating coordinates from PQS city for Kerbal " + kerbal.crewMember.name);
 
                     // Translate by the PQS offset (inverse transform of coordinate system)
                     Vector3d position = kerbal.pqsCity.transform.position;
@@ -215,7 +231,7 @@ namespace ContractConfigurator.Behaviour
             // Actually spawn the kerbals in the game world!
             foreach (KerbalData kerbal in kerbals)
             {
-                LoggingUtil.LogVerbose(this, "Spawning a Kerbal named " + kerbal.name);
+                LoggingUtil.LogVerbose(this, "Spawning a Kerbal named " + kerbal.crewMember.name);
 
                 if (kerbal.altitude == null)
                 {
@@ -253,7 +269,7 @@ namespace ContractConfigurator.Behaviour
                 additionalNodes[0] = ProtoVessel.CreateDiscoveryNode(discoveryLevel, UntrackedObjectClass.A, contract.TimeDeadline, contract.TimeDeadline);
 
                 // Create the config node representation of the ProtoVessel
-                ConfigNode protoVesselNode = ProtoVessel.CreateVesselNode(kerbal.name, VesselType.EVA, kerbal.orbit, 0, partNodes, additionalNodes);
+                ConfigNode protoVesselNode = ProtoVessel.CreateVesselNode(kerbal.crewMember.name, VesselType.EVA, kerbal.orbit, 0, partNodes, additionalNodes);
 
                 // Additional seetings for a landed Kerbal
                 if (kerbal.landed)
@@ -423,7 +439,7 @@ namespace ContractConfigurator.Behaviour
             {
                 if (!kerbal.addToRoster || !onlyUnowned)
                 {
-                    LoggingUtil.LogVerbose(this, "    Removing " + kerbal.name + "...");
+                    LoggingUtil.LogVerbose(this, "    Removing " + kerbal.crewMember.name + "...");
                     // If it's an EVA make them disappear...
                     Vessel vessel = FlightGlobals.Vessels.Where(v => v.GetVesselCrew().Contains(kerbal.crewMember)).FirstOrDefault();
                     if (vessel != null && vessel.isEVA)
