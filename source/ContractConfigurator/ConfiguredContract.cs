@@ -3,13 +3,13 @@ using System.IO;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using UnityEngine;
 using KSP;
 using KSPAchievements;
 using Contracts;
 using Contracts.Agents;
 using Contracts.Parameters;
-using System.Text.RegularExpressions;
 
 namespace ContractConfigurator
 {
