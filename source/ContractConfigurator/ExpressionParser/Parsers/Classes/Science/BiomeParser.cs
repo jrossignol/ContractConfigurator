@@ -12,8 +12,6 @@ namespace ContractConfigurator.ExpressionParser
     /// </summary>
     public class BiomeParser : ClassExpressionParser<Biome>, IExpressionParserRegistrer
     {
-        private static System.Random random = new System.Random();
-
         static BiomeParser()
         {
             RegisterMethods();
@@ -26,6 +24,7 @@ namespace ContractConfigurator.ExpressionParser
 
         internal static void RegisterMethods()
         {
+            RegisterMethod(new Method<Biome, CelestialBody>("CelestialBody", biome => biome == null ? null : biome.body));
         }
 
         public BiomeParser()

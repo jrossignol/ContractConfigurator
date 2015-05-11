@@ -225,28 +225,24 @@ namespace ContractConfigurator
             }
             else if (typeof(T).Name == "Nullable`1")
             {
-                // Let enum fall through to the ParseSingleValue method
-                if (!typeof(T).GetGenericArguments()[0].IsEnum)
-                {
-                    // Create the generic method
-                    MethodInfo parseValueMethod = typeof(ConfigNodeUtil).GetMethod("ParseValue",
-                        BindingFlags.Static | BindingFlags.Public, null, new Type[] { typeof(ConfigNode), typeof(string), typeof(bool) }, null);
-                    parseValueMethod = parseValueMethod.MakeGenericMethod(typeof(T).GetGenericArguments());
+                // Create the generic method
+                MethodInfo parseValueMethod = typeof(ConfigNodeUtil).GetMethod("ParseValue",
+                    BindingFlags.Static | BindingFlags.Public, null, new Type[] { typeof(ConfigNode), typeof(string), typeof(bool) }, null);
+                parseValueMethod = parseValueMethod.MakeGenericMethod(typeof(T).GetGenericArguments());
 
-                    // Call it
-                    try
+                // Call it
+                try
+                {
+                    return (T)parseValueMethod.Invoke(null, new object[] { configNode, key, allowExpression });
+                }
+                catch (TargetInvocationException tie)
+                {
+                    Exception e = ExceptionUtil.UnwrapTargetInvokationException(tie);
+                    if (e != null)
                     {
-                        return (T)parseValueMethod.Invoke(null, new object[] { configNode, key, allowExpression });
+                        throw e;
                     }
-                    catch (TargetInvocationException tie)
-                    {
-                        Exception e = ExceptionUtil.UnwrapTargetInvokationException(tie);
-                        if (e != null)
-                        {
-                            throw e;
-                        }
-                        throw;
-                    }
+                    throw;
                 }
             }
 

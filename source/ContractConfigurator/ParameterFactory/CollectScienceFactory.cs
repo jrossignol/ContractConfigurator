@@ -18,7 +18,7 @@ namespace ContractConfigurator
         protected Biome biome { get; set; }
         protected ExperimentSituations? situation { get; set; }
         protected BodyLocation? location { get; set; }
-        protected string experiment { get; set; }
+        protected ScienceExperiment experiment { get; set; }
         protected CollectScienceCustom.RecoveryMethod recoveryMethod { get; set; }
 
         public override bool Load(ConfigNode configNode)
@@ -29,29 +29,16 @@ namespace ContractConfigurator
             valid &= ConfigNodeUtil.ParseValue<Biome>(configNode, "biome", x => biome = x, this, (Biome)null);
             valid &= ConfigNodeUtil.ParseValue<ExperimentSituations?>(configNode, "situation", x => situation = x, this, (ExperimentSituations?)null);
             valid &= ConfigNodeUtil.ParseValue<BodyLocation?>(configNode, "location", x => location = x, this, (BodyLocation?)null);
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "experiment", x => experiment = x, this, "", ValidateExperiment);
+            valid &= ConfigNodeUtil.ParseValue<ScienceExperiment>(configNode, "experiment", x => experiment = x, this, (ScienceExperiment)null);
             valid &= ConfigNodeUtil.ParseValue<CollectScienceCustom.RecoveryMethod>(configNode, "recoveryMethod", x => recoveryMethod = x, this, CollectScienceCustom.RecoveryMethod.None);
 
             return valid;
         }
 
-        protected bool ValidateExperiment(string experiment)
-        {
-            if (string.IsNullOrEmpty(experiment))
-            {
-                return true;
-            }
-
-            if (!ResearchAndDevelopment.GetExperimentIDs().Contains(experiment))
-            {
-                throw new ArgumentException("Not a valid experiment!");
-            }
-            return true;
-        }
-
         public override ContractParameter Generate(Contract contract)
         {
-            return new CollectScienceCustom(targetBody, biome == null ? "" : biome.biome, situation, location, experiment, recoveryMethod, title);
+            return new CollectScienceCustom(targetBody, biome == null ? "" : biome.biome, situation, location,
+                experiment == null ? "" : experiment.id, recoveryMethod, title);
         }
     }
 }

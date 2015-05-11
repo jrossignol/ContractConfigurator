@@ -1,6 +1,9 @@
 Contract Configurator 1.1.0
-- Added Biome as a valid expression class.
-- Added new method for getting all biomes of a celestial body.
+- Lots of support in expression language for science stuff (big thanks to xEvilReeperx and DMagic for support and sample code)
+    - Added Biome as a valid expression class.
+    - Added ScienceExperiment as a valid expression class.
+    - Added ScienceSubject as a valid expression class.
+    - Added new method for getting all biomes of a celestial body.
 - DATA nodes can now use the shorthand type (eg. int) instead of the full system types (eg. Int32).
 - DATA nodes support the uniqueValue attribute to prevent duplicate values/contracts.
 - Added Latitude and Longitude methods for Waypoint.
