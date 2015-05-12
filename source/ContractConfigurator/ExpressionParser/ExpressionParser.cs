@@ -831,6 +831,8 @@ namespace ContractConfigurator.ExpressionParser
                     currentDataNode.SetDeterministic(currentKey, false);
                 }
 
+                Type returnType = selectedMethod.ReturnType();
+
                 // Check for a method call before we return
                 string savedExpression = expression;
                 token = ParseToken();
@@ -841,6 +843,7 @@ namespace ContractConfigurator.ExpressionParser
                     MethodInfo parseMethod = methodParser.GetType().GetMethods(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy).
                         Where(m => m.Name == "ParseMethod" && m.GetParameters().Count() == 3).Single();
                     parseMethod = parseMethod.MakeGenericMethod(new Type[] { typeof(TResult) });
+                    returnType = typeof(TResult);
 
                     try
                     {
@@ -897,7 +900,7 @@ namespace ContractConfigurator.ExpressionParser
 
                 // Return the result
                 ExpressionParser<TResult> retValParser = GetParser<TResult>(this);
-                TResult retVal = retValParser.ConvertType(result, selectedMethod.ReturnType());
+                TResult retVal = retValParser.ConvertType(result, returnType);
                 verbose &= LogExitDebug<TResult>("ParseMethod", retVal);
                 return retVal;
             }
@@ -1395,12 +1398,25 @@ namespace ContractConfigurator.ExpressionParser
         {
             if (value == null)
             {
-                try
+                if (type == typeof(T))
                 {
-                    return (T)value;
+                    try
+                    {
+                        return (T)value;
+                    }
+                    catch
+                    {
+                        throw new DataStoreCastException(type, typeof(T));
+                    }
                 }
-                catch
+                else
                 {
+                    // Special case
+                    if (typeof(T) == typeof(string))
+                    {
+                        return (T)(object)"";
+                    }
+
                     throw new DataStoreCastException(type, typeof(T));
                 }
             }
