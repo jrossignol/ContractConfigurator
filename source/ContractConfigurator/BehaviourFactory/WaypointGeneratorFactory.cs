@@ -18,6 +18,12 @@ namespace ContractConfigurator.Behaviour
         {
             get
             {
+                if (HighLogic.CurrentGame == null)
+                {
+                    return null;
+                }
+
+                waypointGeneratorTemplate.Initialize();
                 return waypointGeneratorTemplate;
             }
         } 

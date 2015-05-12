@@ -14,7 +14,6 @@ namespace ContractConfigurator.Behaviour
     public class SpawnKerbalFactory : BehaviourFactory
     {
         protected SpawnKerbal spawnKerbalTemplate;
-        private SpawnKerbal current;
         public SpawnKerbal Current
         {
             get
@@ -24,11 +23,7 @@ namespace ContractConfigurator.Behaviour
                     return null;
                 }
 
-                if (current == null)
-                {
-                    current = spawnKerbalTemplate;
-                    spawnKerbalTemplate.Initialize();
-                }
+                spawnKerbalTemplate.Initialize();
                 return spawnKerbalTemplate;
             }
         } 
@@ -46,7 +41,6 @@ namespace ContractConfigurator.Behaviour
 
         public override ContractBehaviour Generate(ConfiguredContract contract)
         {
-            current = null;
             return new SpawnKerbal(spawnKerbalTemplate);
         }
     }

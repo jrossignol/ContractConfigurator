@@ -26,11 +26,35 @@ namespace ContractConfigurator.ExpressionParser
         internal static void RegisterMethods()
         {
             RegisterMethod(new Method<SpawnKerbalFactory, List<Kerbal>>("Kerbals",
-                skf => skf.Current != null ? skf.Current.Kerbals().Select<ProtoCrewMember, Kerbal>(pcm => new Kerbal(pcm)).ToList() : new List<Kerbal>(), false));
+                skf => {
+                    if (skf.Current != null)
+                    {
+                        return skf.Current.Kerbals().Select<ProtoCrewMember, Kerbal>(pcm => new Kerbal(pcm)).ToList();
+                    }
+                    else
+                    {
+                        CheckInitialized(skf);
+                        return new List<Kerbal>();
+                    }
+                }, false));
         }
 
         public SpawnKerbalParser()
         {
+        }
+
+        protected static void CheckInitialized(SpawnKerbalFactory skf)
+        {
+            foreach (DataNode dataNode in skf.dataNode.Children)
+            {
+                foreach (string identifier in new string[] { "name", "lat", "lon", "alt", "owned", "gender" })
+                {
+                    if (!dataNode.IsInitialized(identifier))
+                    {
+                        throw new DataNode.ValueNotInitialized(dataNode.Path() + identifier);
+                    }
+                }
+            }
         }
     }
 }

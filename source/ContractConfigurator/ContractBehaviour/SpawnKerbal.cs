@@ -75,6 +75,7 @@ namespace ContractConfigurator.Behaviour
                 {
                     kerbal.crewMember = null;
                 }
+                orig.initialized = false;
             }
             else
             {
@@ -100,11 +101,42 @@ namespace ContractConfigurator.Behaviour
                     {
                         kerbal.crewMember.name = kerbal.name;
                     }
+
+                    // Generate PQS city coordinates
+                    if (kerbal.pqsCity != null)
+                    {
+                        LoggingUtil.LogVerbose(this, "Generating coordinates from PQS city for Kerbal " + kerbal.crewMember.name);
+
+                        // Translate by the PQS offset (inverse transform of coordinate system)
+                        Vector3d position = kerbal.pqsCity.transform.position;
+                        Vector3d v = kerbal.pqsOffset;
+                        Vector3d i = kerbal.pqsCity.transform.right;
+                        Vector3d j = kerbal.pqsCity.transform.forward;
+                        Vector3d k = kerbal.pqsCity.transform.up;
+                        Vector3d offsetPos = new Vector3d(
+                            (j.y * k.z - j.z * k.y) * v.x + (i.z * k.y - i.y * k.z) * v.y + (i.y * j.z - i.z * j.y) * v.z,
+                            (j.z * k.x - j.x * k.z) * v.x + (i.x * k.z - i.z * k.x) * v.y + (i.z * j.x - i.x * j.z) * v.z,
+                            (j.x * k.y - j.y * k.x) * v.x + (i.y * k.x - i.x * k.y) * v.y + (i.x * j.y - i.y * j.x) * v.z
+                        );
+                        offsetPos *= (i.x * j.y * k.z) + (i.y * j.z * k.x) + (i.z * j.x * k.y) - (i.z * j.y * k.x) - (i.y * j.x * k.z) - (i.x * j.z * k.y);
+                        kerbal.latitude = kerbal.body.GetLatitude(position + offsetPos);
+                        kerbal.longitude = kerbal.body.GetLongitude(position + offsetPos);
+                    }
                 }
 
                 initialized = true;
             }
         }
+
+        public void Uninitialize()
+        {
+            if (initialized)
+            {
+                RemoveKerbals();
+                initialized = false;
+            }
+        }
+        
         public static SpawnKerbal Create(ConfigNode configNode, CelestialBody defaultBody, SpawnKerbalFactory factory)
         {
             SpawnKerbal spawnKerbal = new SpawnKerbal();
@@ -121,10 +153,8 @@ namespace ContractConfigurator.Behaviour
                     KerbalData kerbal = new KerbalData();
 
                     // Get name
-                    if (child.HasValue("name"))
-                    {
-                        valid &= ConfigNodeUtil.ParseValue<string>(child, "name", x => kerbal.name = x, factory);
-                    }
+                    valid &= ConfigNodeUtil.ParseValue<string>(child, "name", x => { kerbal.name = x; if (kerbal.crewMember != null) kerbal.crewMember.name = x; },
+                        factory, (string)null);
 
                     // Get celestial body
                     if (defaultBody != null)
@@ -158,6 +188,10 @@ namespace ContractConfigurator.Behaviour
                                 }
                             }
                             valid &= ConfigNodeUtil.ParseValue<Vector3d>(child, "pqsOffset", x => kerbal.pqsOffset = x, factory, new Vector3d());
+
+                            // Don't expect these to load anything, but do it to mark as initialized
+                            valid &= ConfigNodeUtil.ParseValue<double>(child, "lat", x => kerbal.latitude = x, factory, 0.0);
+                            valid &= ConfigNodeUtil.ParseValue<double>(child, "lon", x => kerbal.longitude = x, factory, 0.0);
                         }
                         else
                         {
@@ -168,6 +202,10 @@ namespace ContractConfigurator.Behaviour
                     // Get orbit
                     else if (child.HasNode("ORBIT"))
                     {
+                        // Don't expect these to load anything, but do it to mark as initialized
+                        valid &= ConfigNodeUtil.ParseValue<double>(child, "lat", x => kerbal.latitude = x, factory, 0.0);
+                        valid &= ConfigNodeUtil.ParseValue<double>(child, "lon", x => kerbal.longitude = x, factory, 0.0);
+
                         valid &= ConfigNodeUtil.ParseValue<Orbit>(child, "ORBIT", x => kerbal.orbit = x, factory);
                     }
                     else
@@ -201,29 +239,6 @@ namespace ContractConfigurator.Behaviour
 
         protected override void OnOffered()
         {
-            // Actually spawn the kerbals in the game world!
-            foreach (KerbalData kerbal in kerbals)
-            {
-                if (kerbal.pqsCity != null)
-                {
-                    LoggingUtil.LogVerbose(this, "Generating coordinates from PQS city for Kerbal " + kerbal.crewMember.name);
-
-                    // Translate by the PQS offset (inverse transform of coordinate system)
-                    Vector3d position = kerbal.pqsCity.transform.position;
-                    Vector3d v = kerbal.pqsOffset;
-                    Vector3d i = kerbal.pqsCity.transform.right;
-                    Vector3d j = kerbal.pqsCity.transform.forward;
-                    Vector3d k = kerbal.pqsCity.transform.up;
-                    Vector3d offsetPos = new Vector3d(
-                        (j.y * k.z - j.z * k.y) * v.x + (i.z * k.y - i.y * k.z) * v.y + (i.y * j.z - i.z * j.y) * v.z,
-                        (j.z * k.x - j.x * k.z) * v.x + (i.x * k.z - i.z * k.x) * v.y + (i.z * j.x - i.x * j.z) * v.z,
-                        (j.x * k.y - j.y * k.x) * v.x + (i.y * k.x - i.x * k.y) * v.y + (i.x * j.y - i.y * j.x) * v.z
-                    );
-                    offsetPos *= (i.x * j.y * k.z) + (i.y * j.z * k.x) + (i.z * j.x * k.y) - (i.z * j.y * k.x) - (i.y * j.x * k.z) - (i.x * j.z * k.y);
-                    kerbal.latitude = kerbal.body.GetLatitude(position + offsetPos);
-                    kerbal.longitude = kerbal.body.GetLongitude(position + offsetPos);
-                }
-            }
         }
 
         protected override void OnAccepted()

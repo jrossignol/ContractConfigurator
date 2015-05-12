@@ -27,11 +27,48 @@ namespace ContractConfigurator.ExpressionParser
         internal static void RegisterMethods()
         {
             RegisterMethod(new Method<WaypointGeneratorFactory, List<Waypoint>>("Waypoints",
-                wgf => wgf.Current != null ? wgf.Current.Waypoints().ToList() : new List<Waypoint>(), false));
+                wgf =>
+                {
+                    if (wgf.Current != null)
+                    {
+                        return wgf.Current.Waypoints().ToList();
+                    }
+                    else
+                    {
+                        CheckInitialized(wgf);
+                        return new List<Waypoint>();
+                    }
+                }, false));
         }
 
         public WaypointGeneratorParser()
         {
+        }
+
+        protected static void CheckInitialized(WaypointGeneratorFactory wgf)
+        {
+            foreach (DataNode dataNode in wgf.dataNode.Children)
+            {
+                foreach (string identifier in GetIdentifiers((string)dataNode["type"]))
+                {
+                    if (!dataNode.IsInitialized(identifier))
+                    {
+                        throw new DataNode.ValueNotInitialized(dataNode.Path() + identifier);
+                    }
+                }
+            }
+        }
+
+        protected static IEnumerable<string> GetIdentifiers(string type)
+        {
+            yield return "name";
+            yield return "altitude";
+
+            if (type == "WAYPOINT")
+            {
+                yield return "latitude";
+                yield return "longitude";
+            }
         }
     }
 }
