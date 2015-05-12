@@ -310,7 +310,7 @@ namespace ContractConfigurator.Behaviour
             {
                 ConfigNode child = new ConfigNode("KERBAL_DETAIL");
 
-                child.AddValue("name", kd.name);
+                child.AddValue("name", kd.crewMember.name);
                 child.AddValue("body", kd.body.name);
                 child.AddValue("lat", kd.latitude);
                 child.AddValue("lon", kd.longitude);
