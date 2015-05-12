@@ -9,7 +9,7 @@ namespace ContractConfigurator
     {
         public static double TerrainHeight(double latitude, double longitude, CelestialBody body)
         {
-            // Not sure when this happens - for Sun and Jool?
+            // Sun and Jool - bodies without terrain
             if (body.pqsController == null)
             {
                 return 0;
