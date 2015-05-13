@@ -60,6 +60,7 @@
     <Compile Include="ContractBehaviour\IHasKerbalBehaviour.cs" />
     <Compile Include="ContractBehaviour\SpawnPassengers.cs" />
     <Compile Include="ContractBehaviour\SpawnVessel.cs" />
+    <Compile Include="ContractParameter\HasAstronaut.cs" />
     <Compile Include="ContractParameter\None.cs" />
     <Compile Include="ContractParameter\AtMost.cs" />
     <Compile Include="ContractParameter\AtLeast.cs" />
@@ -83,6 +84,7 @@
     <Compile Include="ContractParameter\VesselParameter\HasPassengers.cs" />
     <Compile Include="ContractParameter\VesselParameter\IsNotVessel.cs" />
     <Compile Include="ContractParameter\VesselParameter\ReachState.cs" />
+    <Compile Include="ContractRequirement\HasCrewRequirement.cs" />
     <Compile Include="ContractRequirement\InvalidContractRequirement.cs" />
     <Compile Include="ContractRequirement\PartModuleTypeUnlockedRequirement.cs" />
     <Compile Include="ContractRequirement\ScienceRequirement.cs" />
@@ -123,6 +125,7 @@
     <Compile Include="ExpressionParser\Wrappers\Resource.cs" />
     <Compile Include="ExpressionParser\Wrappers\Kerbal.cs" />
     <Compile Include="ExpressionParser\Wrappers\Duration.cs" />
+    <Compile Include="ParameterFactory\HasAstronautFactory.cs" />
     <Compile Include="ParameterFactory\NoneFactory.cs" />
     <Compile Include="ParameterFactory\AtMostFactory.cs" />
     <Compile Include="ParameterFactory\AtLeastFactory.cs" />
@@ -160,7 +163,7 @@
     <Compile Include="ContractParameter\VesselParameter\VesselMass.cs" />
     <Compile Include="ContractRequirement\ExpressionRequirement.cs" />
     <Compile Include="ContractRequirement\FacilityRequirement.cs" />
-    <Compile Include="ContractRequirement\HasCrewRequirement.cs" />
+    <Compile Include="ContractRequirement\HasAstronautRequirement.cs" />
     <Compile Include="ContractBehaviour\SpawnKerbal.cs" />
     <Compile Include="IContractConfiguratorFactory.cs" />
     <Compile Include="Util\LoggingUtil.cs" />

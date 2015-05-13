@@ -4,6 +4,8 @@ Contract Configurator 1.1.0
     - Added ScienceExperiment as a valid expression class.
     - Added ScienceSubject as a valid expression class.
     - Added new method for getting all biomes of a celestial body.
+- Added HasAstronaut contract parameter.
+- Renamed HasCrew requirement to HasAstronaut.
 - DATA nodes can now use the shorthand type (eg. int) instead of the full system types (eg. Int32).
 - DATA nodes support the uniqueValue attribute to prevent duplicate values/contracts.
 - Added Exclude method for List.
