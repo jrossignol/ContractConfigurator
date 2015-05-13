@@ -25,6 +25,7 @@ namespace ContractConfigurator.ExpressionParser
         internal static void RegisterMethods()
         {
             RegisterMethod(new Method<Biome, CelestialBody>("CelestialBody", biome => biome == null ? null : biome.body));
+            RegisterMethod(new Method<Biome, bool>("IsKSC", biome => biome == null ? false : biome.IsKSC()));
         }
 
         public BiomeParser()
@@ -47,6 +48,12 @@ namespace ContractConfigurator.ExpressionParser
             string identifier = m.Groups[1].Value;
             expression = (expression.Length > identifier.Length ? expression.Substring(identifier.Length) : "");
             identifier = token.sval + identifier;
+
+            // Special case for null
+            if (identifier == "null")
+            {
+                return null;
+            }
 
             return new Biome(null, identifier);
         }

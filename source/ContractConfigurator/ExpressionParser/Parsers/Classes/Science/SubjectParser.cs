@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
 using UnityEngine;
 using ContractConfigurator.Util;
 
@@ -25,96 +24,27 @@ namespace ContractConfigurator.ExpressionParser
 
         internal static void RegisterMethods()
         {
-            RegisterMethod(new Method<ScienceSubject, ScienceExperiment>("Experiment", Experiment));
-            RegisterMethod(new Method<ScienceSubject, ExperimentSituations>("Situation", Situation));
-            RegisterMethod(new Method<ScienceSubject, CelestialBody>("CelestialBody", CelestialBody));
-            RegisterMethod(new Method<ScienceSubject, Biome>("Biome", Biome));
+            RegisterMethod(new Method<ScienceSubject, ScienceExperiment>("Experiment", Science.GetExperiment));
+            RegisterMethod(new Method<ScienceSubject, ExperimentSituations>("Situation", Science.GetSituation));
+            RegisterMethod(new Method<ScienceSubject, CelestialBody>("CelestialBody", Science.GetCelestialBody));
+            RegisterMethod(new Method<ScienceSubject, Biome>("Biome", Science.GetBiome));
+
+            RegisterMethod(new Method<ScienceSubject, float>("RemainingScience", subj => subj == null ? 0.0f : subj.scienceCap * HighLogic.CurrentGame.Parameters.Career.ScienceGainMultiplier - subj.science));
+            RegisterMethod(new Method<ScienceSubject, float>("TotalScience", subj => subj == null ? 0.0f : subj.scienceCap * HighLogic.CurrentGame.Parameters.Career.ScienceGainMultiplier));
+            RegisterMethod(new Method<ScienceSubject, float>("CollectedScience", subj => subj == null ? 0.0f : subj.science));
+            RegisterMethod(new Method<ScienceSubject, float>("NextScienceReportValue", Science.NextScienceReportValue));
 
             RegisterGlobalFunction(new Function<List<ScienceSubject>>("AllScienceSubjects", () => Science.GetSubjects(FlightGlobals.Bodies).ToList(), false));
+            RegisterGlobalFunction(new Function<List<CelestialBody>, List<ScienceSubject>>("AllScienceSubjectsByBody", (cbs) => Science.GetSubjects(cbs).ToList(), false));
+            RegisterGlobalFunction(new Function<List<ScienceExperiment>, List<ScienceSubject>>("AllScienceSubjectsByExperiment", (exps) => Science.GetSubjects(FlightGlobals.Bodies, x => exps.Contains(x)).ToList(), false));
+            RegisterGlobalFunction(new Function<List<Biome>, List<ScienceSubject>>("AllScienceSubjectsByBiome", (biomes) => Science.GetSubjects(biomes.GroupBy(b => b.body).Select(grp => grp.First().body), null, x => biomes.Any(b => b.biome == x)).ToList(), false));
+
+            RegisterGlobalFunction(new Function<List<CelestialBody>, List<ScienceExperiment>, List<ScienceSubject>>("AllScienceSubjectsByBodyExperiment", (cbs, exps) => Science.GetSubjects(cbs, x => exps.Contains(x)).ToList(), false));
+            RegisterGlobalFunction(new Function<List<Biome>, List<ScienceExperiment>, List<ScienceSubject>>("AllScienceSubjectsByBiomeExperiment", (biomes, exps) => Science.GetSubjects(biomes.GroupBy(b => b.body).Select(grp => grp.First().body), x => exps.Contains(x), x => biomes.Any(b => b.biome == x)).ToList(), false));
         }
 
         public SubjectParser()
         {
-        }
-
-        private static ScienceExperiment Experiment(ScienceSubject subject)
-        {
-            if (subject == null || ResearchAndDevelopment.Instance == null)
-            {
-                return null;
-            }
-
-            return ResearchAndDevelopment.GetExperiment(subject.id.Substring(0, subject.id.IndexOf("@")));
-        }
-
-        private static ExperimentSituations Situation(ScienceSubject subject)
-        {
-            if (subject == null || ResearchAndDevelopment.Instance == null)
-            {
-                return ExperimentSituations.SrfLanded;
-            }
-
-            Match m = Regex.Match(subject.id, @"@[A-Z][\w]+?([A-Z].*)");
-            string sitAndBiome = m.Groups[1].Value;
-
-            while (!string.IsNullOrEmpty(sitAndBiome))
-            {
-                try
-                {
-                    return (ExperimentSituations)Enum.Parse(typeof(ExperimentSituations), sitAndBiome);
-                }
-                catch
-                {
-                    m = Regex.Match(sitAndBiome, @"(.*)[A-Z][\w]+$");
-                    sitAndBiome = m.Groups[1].Value;
-                }
-            }
-
-            return ExperimentSituations.SrfLanded;
-        }
-
-        private static CelestialBody CelestialBody(ScienceSubject subject)
-        {
-            if (subject == null || ResearchAndDevelopment.Instance == null)
-            {
-                return null;
-            }
-
-            Match m = Regex.Match(subject.id, @"@([A-Z][\w]+?)([A-Z].*)");
-            string celestialBody = m.Groups[1].Value;
-
-            return ConfigNodeUtil.ParseCelestialBodyValue(celestialBody);
-
-        }
-
-        private static Biome Biome(ScienceSubject subject)
-        {
-            if (subject == null || ResearchAndDevelopment.Instance == null)
-            {
-                return null;
-            }
-
-            Match m = Regex.Match(subject.id, @"@([A-Z][\w]+?)([A-Z].*)");
-            string celestialBody = m.Groups[1].Value;
-            string sitAndBiome = m.Groups[2].Value;
-
-            string biome = "";
-            while (!string.IsNullOrEmpty(sitAndBiome))
-            {
-                try
-                {
-                    Enum.Parse(typeof(ExperimentSituations), sitAndBiome);
-                    break;
-                }
-                catch
-                {
-                    m = Regex.Match(sitAndBiome, @"(.*)([A-Z][\w]+)$");
-                    sitAndBiome = m.Groups[1].Value;
-                    biome = m.Groups[2].Value + biome;
-                }
-            }
-
-            return string.IsNullOrEmpty(biome) ? null : new Biome(ConfigNodeUtil.ParseCelestialBodyValue(celestialBody), biome);
         }
 
         internal override U ConvertType<U>(ScienceSubject value)

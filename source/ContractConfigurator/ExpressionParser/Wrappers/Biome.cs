@@ -23,5 +23,15 @@ namespace ContractConfigurator
         {
             return biome;
         }
+
+        public bool IsKSC()
+        {
+            if (body == null || body.BiomeMap == null || !body.isHomeWorld)
+            {
+                return false;
+            }
+
+            return !body.BiomeMap.Attributes.Any(attr => attr.name.Replace(" ", string.Empty) == biome);
+        }
     }
 }
