@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace ContractConfigurator
 {
@@ -21,7 +22,7 @@ namespace ContractConfigurator
 
         public override string ToString()
         {
-            return biome;
+            return (body == null ? "" : body.theName + "'s ") + Regex.Replace(biome, "(\\B[A-Z])", " $1");
         }
 
         public bool IsKSC()

@@ -130,7 +130,7 @@ namespace ContractConfigurator.Parameters
             // Filter for biome
             if (!string.IsNullOrEmpty(biome))
             {
-                AddParameter(new ParameterDelegate<Vessel>("Biome: " + biome,
+                AddParameter(new ParameterDelegate<Vessel>("Biome: " + Regex.Replace(biome, "(\\B[A-Z])", " $1"),
                     v => VesselExperimentMet(v) && !testMode || CheckBiome(v)));
             }
 
