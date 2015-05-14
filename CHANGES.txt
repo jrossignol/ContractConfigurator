@@ -14,6 +14,7 @@ Contract Configurator 1.1.0
 - Improvements to vessel tracking for TargetDestroyed (thanks chlue).
 - Fixed a bug in the expression parser that caused issues with some ternary statements.
 - Fixes to WaypointGenerator and SpawnKerbal to improve expression support (thanks AlphaAsh).
+- Lots of fixes/improvements to CollectScience parameter.
 - Various expression parser bug fixes.
 
 Contract Configurator 1.0.4

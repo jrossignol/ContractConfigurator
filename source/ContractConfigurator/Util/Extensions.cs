@@ -16,7 +16,7 @@ namespace ContractConfigurator
     public static class Extensions
     {
         /// <summary>
-        /// Gets all the parameter's descendents
+        /// Gets all the parameter's descendents.
         /// </summary>
         /// <param name="p">Contract parameter</param>
         /// <returns>Enumerator of descendents</returns>
@@ -34,7 +34,7 @@ namespace ContractConfigurator
         }
 
         /// <summary>
-        /// Gets all the parameter's descendents
+        /// Gets all the parameter's children.
         /// </summary>
         /// <param name="p">Contract parameter</param>
         /// <returns>Enumerator of descendents</returns>

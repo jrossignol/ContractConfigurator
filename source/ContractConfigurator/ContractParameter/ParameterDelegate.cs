@@ -70,6 +70,7 @@ namespace ContractConfigurator.Parameters
         public ParameterDelegate(string title, Func<T, bool> filterFunc, bool trivial, ParameterDelegateMatchType matchType = ParameterDelegateMatchType.FILTER)
             : base(title)
         {
+            this.id = title;
             this.filterFunc = filterFunc;
             this.matchType = matchType;
             this.trivial = trivial;
@@ -94,6 +95,21 @@ namespace ContractConfigurator.Parameters
                 state = newState;
                 ((ParameterDelegateContainer)Parent).ChildChanged = true;
             }
+        }
+
+        public void ClearTitle()
+        {
+            title = "";
+        }
+
+        public void ResetTitle()
+        {
+            title = id;
+        }
+
+        public void SetTitle(string newTitle)
+        {
+            title = newTitle;
         }
 
         /// <summary>

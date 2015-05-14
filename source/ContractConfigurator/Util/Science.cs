@@ -109,7 +109,7 @@ namespace ContractConfigurator.Util
             }
 
             // Return subjects for each celestial body
-            foreach (CelestialBody body in celestialBodies)
+            foreach (CelestialBody body in celestialBodies.Where(cb => cb != null))
             {
                 foreach (ScienceExperiment experiment in experiments.Where(exp =>
                     (exp.id != "surfaceSample" || (surfaceSampleUnlocked && (body.isHomeWorld || evaUnlocked))) &&

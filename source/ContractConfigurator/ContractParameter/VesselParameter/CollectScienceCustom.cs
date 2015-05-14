@@ -68,34 +68,33 @@ namespace ContractConfigurator.Parameters
         protected CelestialBody targetBody { get; set; }
         protected string biome { get; set; }
         protected ExperimentSituations? situation { get; set; }
-        protected BodyLocation? location { get; set; }
         protected string experiment { get; set; }
         protected RecoveryMethod recoveryMethod { get; set; }
 
         private static Vessel.Situations[] landedSituations = new Vessel.Situations[] { Vessel.Situations.LANDED, Vessel.Situations.PRELAUNCH, Vessel.Situations.SPLASHED };
 
-        private Dictionary<Guid, VesselData> vesselData = new Dictionary<Guid, VesselData>();
+        private ScienceSubject matchingSubject;
+        private bool recoveryDone = false;
 
         private float lastUpdate = 0.0f;
         private const float UPDATE_FREQUENCY = 0.25f;
-
-        private bool testMode = false;
 
         public CollectScienceCustom()
             : base(null)
         {
         }
 
-        public CollectScienceCustom(CelestialBody targetBody, string biome, ExperimentSituations? situation, BodyLocation? location,
+        public CollectScienceCustom(CelestialBody targetBody, string biome, ExperimentSituations? situation,
             string experiment, RecoveryMethod recoveryMethod, string title)
             : base(title)
         {
             this.targetBody = targetBody;
             this.biome = biome;
             this.situation = situation;
-            this.location = location;
             this.experiment = experiment;
             this.recoveryMethod = recoveryMethod;
+
+            disableOnStateChange = true;
 
             CreateDelegates();
         }
@@ -106,9 +105,28 @@ namespace ContractConfigurator.Parameters
             if (string.IsNullOrEmpty(title))
             {
                 output = "Collect science";
-                if (state == ParameterState.Complete)
+                if (state == ParameterState.Complete || matchingSubject != null)
                 {
-                    output += ": " + ParameterDelegate<Vessel>.GetDelegateText(this);
+                    output += ": " + ExperimentName(experiment) + " from ";
+
+                    if (!string.IsNullOrEmpty(biome))
+                    {
+                        output += new Biome(targetBody, Regex.Replace(biome, "(\\B[A-Z])", " $1").ToLower()).ToString();
+                    }
+                    else
+                    {
+                        output += targetBody.theName;
+                    }
+
+                    if (situation != null)
+                    {
+                        output += " while " + situation.Value.Print().ToLower();
+                    }
+
+                    if (recoveryMethod != RecoveryMethod.None)
+                    {
+                        output += " (" + recoveryMethod.Print().ToLower() + ")";
+                    }
                 }
             }
             else
@@ -123,50 +141,87 @@ namespace ContractConfigurator.Parameters
             // Filter for celestial bodies
             if (targetBody != null)
             {
-                AddParameter(new ParameterDelegate<Vessel>("Destination: " + targetBody.theName,
-                    v => VesselExperimentMet(v) && !testMode || v.mainBody == targetBody, true));
+                AddParameter(new ParameterDelegate<ScienceSubject>("Destination: " + targetBody.theName,
+                    subj => FlightGlobals.currentMainBody == targetBody, true));
             }
 
             // Filter for biome
             if (!string.IsNullOrEmpty(biome))
             {
-                AddParameter(new ParameterDelegate<Vessel>("Biome: " + Regex.Replace(biome, "(\\B[A-Z])", " $1"),
-                    v => VesselExperimentMet(v) && !testMode || CheckBiome(v)));
+                AddParameter(new ParameterDelegate<ScienceSubject>("Biome: " + Regex.Replace(biome, "(\\B[A-Z])", " $1"),
+                    subj => CheckBiome(FlightGlobals.ActiveVessel)));
             }
 
             // Filter for situation
             if (situation != null)
             {
-                AddParameter(new ParameterDelegate<Vessel>("Situation: " + situation.Value.Print(),
-                    v => VesselExperimentMet(v) && !testMode || ScienceUtil.GetExperimentSituation(v) == situation));
+                AddParameter(new ParameterDelegate<ScienceSubject>("Situation: " + situation.Value.Print(),
+                    subj => FlightGlobals.ActiveVessel != null && ScienceUtil.GetExperimentSituation(FlightGlobals.ActiveVessel) == situation));
             }
 
-            // Filter for location
-            if (location != null)
-            {
-                AddParameter(new ParameterDelegate<Vessel>("Location: " + location,
-                    v => VesselExperimentMet(v) && !testMode || (location != BodyLocation.Surface ^ v.LandedOrSplashed), true));
-            }
+            ContractParameter subjectParam = new ParameterDelegate<ScienceSubject>("", subj => true);
+            subjectParam.ID = "Subject";
+            AddParameter(subjectParam);
 
-            // Add the actual data collection
+            // Add the experiment
             string experimentStr = string.IsNullOrEmpty(experiment) ? "Any" : ExperimentName(experiment);
-            AddParameter(new ParameterDelegate<Vessel>("Experiment: " + experimentStr, v => testMode || VesselExperimentMet(v), string.IsNullOrEmpty(experiment)));
+            AddParameter(new ParameterDelegate<ScienceSubject>("Experiment: " + experimentStr,
+                subj => false));
 
             // Filter for recovery
             if (recoveryMethod != RecoveryMethod.None)
             {
-                AddParameter(new ParameterDelegate<Vessel>("Recovery: " + recoveryMethod.Print(),
-                    v => testMode || (vesselData.ContainsKey(v.id) && vesselData[v.id].recovery)));
+                AddParameter(new ParameterDelegate<ScienceSubject>("Recovery: " + recoveryMethod.Print(),
+                    subj => recoveryDone));
             }
         }
 
-        private bool VesselExperimentMet(Vessel v)
+        protected void UpdateDelegates()
         {
-            return vesselData.ContainsKey(v.id) && vesselData[v.id].subjects.Count > 0;
+            foreach (ContractParameter genericParam in this.GetChildren())
+            {
+                ParameterDelegate<ScienceSubject> param = genericParam as ParameterDelegate<ScienceSubject>;
+                string oldTitle = param.Title;
+                if (matchingSubject != null)
+                {
+                    if (param.ID.Contains("Destination:") || param.ID.Contains("Biome:") || param.ID.Contains("Situation:") || param.ID.Contains("Experiment:"))
+                    {
+                        param.ClearTitle();
+                    }
+                    else if (param.ID == "Subject")
+                    {
+                        param.SetTitle(matchingSubject.title);
+                    }
+                }
+                else
+                {
+                    if (param.ID != "Subject")
+                    {
+                        param.ResetTitle();
+                    }
+                    else
+                    {
+                        param.ClearTitle();
+                    }
+                }
+
+                if (param.Title != oldTitle)
+                {
+                    ContractsWindow.SetParameterTitle(param, param.Title);
+                    ContractConfigurator.OnParameterChange.Fire(Root, param);
+                }
+            }
+
+            ContractsWindow.SetParameterTitle(this, GetTitle());
         }
 
         private bool CheckBiome(Vessel vessel)
         {
+            if (vessel == null)
+            {
+                return false;
+            }
+
             // Fixes problems with special biomes like KSC buildings (total different naming)
             if (landedSituations.Contains(vessel.situation))
             {
@@ -198,30 +253,12 @@ namespace ContractConfigurator.Parameters
                 node.AddValue("situation", situation);
             }
 
-            if (location != null)
-            {
-                node.AddValue("location", location);
-            }
-
             if (!string.IsNullOrEmpty(experiment))
             {
                 node.AddValue("experiment", experiment);
             }
 
             node.AddValue("recoveryMethod", recoveryMethod);
-
-            foreach (KeyValuePair<Guid, VesselData> pair in vesselData)
-            {
-                ConfigNode childNode = new ConfigNode("VESSEL_DATA");
-                node.AddNode(childNode);
-
-                childNode.AddValue("vessel", pair.Key);
-                foreach (string subject in pair.Value.subjects.Keys)
-                {
-                    childNode.AddValue("subject", subject);
-                }
-                childNode.AddValue("recovery", pair.Value.recovery);
-            }
         }
 
         protected override void OnParameterLoad(ConfigNode node)
@@ -230,28 +267,12 @@ namespace ContractConfigurator.Parameters
             targetBody = ConfigNodeUtil.ParseValue<CelestialBody>(node, "targetBody", (CelestialBody)null);
             biome = ConfigNodeUtil.ParseValue<string>(node, "biome", "");
             situation = ConfigNodeUtil.ParseValue<ExperimentSituations?>(node, "situation", (ExperimentSituations?)null);
-            location = ConfigNodeUtil.ParseValue<BodyLocation?>(node, "location", (BodyLocation?)null);
             experiment = ConfigNodeUtil.ParseValue<string>(node, "experiment", "");
             recoveryMethod = ConfigNodeUtil.ParseValue<RecoveryMethod>(node, "recoveryMethod");
 
-            foreach (ConfigNode child in node.GetNodes("VESSEL_DATA"))
-            {
-                Guid vid = ConfigNodeUtil.ParseValue<Guid>(child, "vessel");
-                if (vid != null && FlightGlobals.Vessels.Where(v => v.id == vid).Any())
-                {
-                    vesselData[vid] = new VesselData();
-                    foreach (string subject in ConfigNodeUtil.ParseValue<List<string>>(child, "subject", new List<string>()))
-                    {
-                        vesselData[vid].subjects[subject] = true;
-                    }
-                    vesselData[vid].recovery = ConfigNodeUtil.ParseValue<bool>(child, "recovery");
-                }
-            }
-
-            ParameterDelegate<Vessel>.OnDelegateContainerLoad(node);
+            ParameterDelegate<ScienceSubject>.OnDelegateContainerLoad(node);
             CreateDelegates();
         }
-
 
         protected override void OnUpdate()
         {
@@ -267,16 +288,9 @@ namespace ContractConfigurator.Parameters
             {
                 lastUpdate = UnityEngine.Time.fixedTime;
                 
-                // For EVAs, check if a kerbal grabbed science.  Note this runs the CheckVessel
-                // call, so don't run it a second time.
-                if (v.vesselType == VesselType.EVA)
-                {
-                    OnVesselChange(v);
-                }
-                else
-                {
-                    CheckVessel(v);
-                }
+                // Run the OnVesselChange, this will pick up a kerbal that grabbed science,
+                // or science that was dumped from a pod.
+                OnVesselChange(v);
             }
         }
 
@@ -286,7 +300,6 @@ namespace ContractConfigurator.Parameters
 
             GameEvents.OnExperimentDeployed.Add(new EventData<ScienceData>.OnEvent(OnExperimentDeployed));
             GameEvents.OnScienceRecieved.Add(new EventData<float, ScienceSubject, ProtoVessel, bool>.OnEvent(OnScienceReceived));
-            GameEvents.onVesselRecovered.Add(new EventData<ProtoVessel>.OnEvent(OnVesselRecovered));
         }
 
         protected override void OnUnregister()
@@ -295,7 +308,6 @@ namespace ContractConfigurator.Parameters
 
             GameEvents.OnExperimentDeployed.Remove(new EventData<ScienceData>.OnEvent(OnExperimentDeployed));
             GameEvents.OnScienceRecieved.Remove(new EventData<float, ScienceSubject, ProtoVessel, bool>.OnEvent(OnScienceReceived));
-            GameEvents.onVesselRecovered.Remove(new EventData<ProtoVessel>.OnEvent(OnVesselRecovered));
         }
 
         protected void OnExperimentDeployed(ScienceData scienceData)
@@ -307,82 +319,74 @@ namespace ContractConfigurator.Parameters
             }
             LoggingUtil.LogVerbose(this, "OnExperimentDeployed: " + scienceData.subjectID + ", " + vessel.id);
 
-            // Add to the list
-            if (!vesselData.ContainsKey(vessel.id))
+            // Decide if this is a matching subject
+            ScienceSubject subject = ResearchAndDevelopment.GetSubjectByID(scienceData.subjectID);
+            if (CheckSubject(subject))
             {
-                vesselData[vessel.id] = new VesselData();
+                matchingSubject = subject;
+                if (recoveryMethod == RecoveryMethod.None)
+                {
+                    recoveryDone = true;
+                }
+                UpdateDelegates();
             }
 
-            CheckSubject(vessel, scienceData.subjectID);
             CheckVessel(vessel);
         }
 
-        private void CheckSubject(Vessel vessel, string subjectID)
+        private bool CheckSubject(ScienceSubject subject)
         {
-            LoggingUtil.LogVerbose(this, "OnScienceReceived: " + subjectID + ", " + vessel.id);
-
-            // Check the experiment type
-            if (!string.IsNullOrEmpty(experiment) && !subjectID.StartsWith(experiment + "@"))
+            if (subject == null)
             {
-                return;
+                return false;
             }
 
-            // Temporarily set to test mode
-            testMode = true;
-
-            // Check whether we meet the conditions (with the exception of recovery)
-            bool experimentPassed = ParameterDelegate<Vessel>.CheckChildConditions(this, vessel, true);
-
-            // Reset test mode
-            testMode = false;
-
-            // Add the subject if it passed
-            if (experimentPassed)
+            if (!subject.id.Contains(targetBody.name))
             {
-                vesselData[vessel.id].subjects[subjectID] = true;
+                return false;
             }
+
+            if (!string.IsNullOrEmpty(biome) && !subject.id.Contains(biome))
+            {
+                return false;
+            }
+
+            if (situation != null && !subject.IsFromSituation(situation.Value))
+            {
+                return false;
+            }
+
+            if (!string.IsNullOrEmpty(experiment) && !subject.id.Contains(experiment))
+            {
+                return false;
+            }
+
+            return true;
         }
 
         protected void OnScienceReceived(float science, ScienceSubject subject, ProtoVessel protoVessel, bool reverseEngineered)
         {
-            // TODO - see if it makes sense to change to use the protovessel
-            Vessel vessel = FlightGlobals.ActiveVessel;
-            if (vessel == null)
+            if (protoVessel == null || reverseEngineered)
             {
                 return;
             }
-            LoggingUtil.LogVerbose(this, "OnScienceReceived: " + subject.id + ", " + vessel.id);
+            LoggingUtil.LogVerbose(this, "OnScienceReceived: " + subject.id + ", " + protoVessel.vesselID);
 
-            // Is it in our list, and are we looking for a transmission
-            if (vesselData.ContainsKey(vessel.id) && vesselData[vessel.id].subjects.ContainsKey(subject.id) && (recoveryMethod & RecoveryMethod.Transmit) != 0)
+            // Check the given subject is okay
+            if (CheckSubject(subject))
             {
-                vesselData[vessel.id].recovery = true;
-                CheckVessel(vessel);
-            }
-        }
-
-        private void OnVesselRecovered(ProtoVessel v)
-        {
-            bool runCheck = false;
-
-            if (vesselData.ContainsKey(v.vesselID) && (recoveryMethod & RecoveryMethod.Recover) != 0)
-            {
-                VesselData vd = vesselData[v.vesselID];
-
-                foreach (string subjectID in GetVesselSubjects(v))
+                if (HighLogic.LoadedScene == GameScenes.FLIGHT)
                 {
-                    if (vd.subjects.ContainsKey(subjectID))
-                    {
-                        vd.recovery = true;
-                        runCheck = true;
-                    }
+                    recoveryDone = (recoveryMethod & RecoveryMethod.Transmit) != 0;
+                }
+                else
+                {
+                    recoveryDone = (recoveryMethod & RecoveryMethod.Recover) != 0;
                 }
             }
+            UpdateDelegates();
 
-            if (runCheck)
-            {
-                CheckVessel(v.vesselRef);
-            }
+            CheckVessel(protoVessel.vesselRef);
         }
 
         /// <summary>
@@ -392,19 +396,17 @@ namespace ContractConfigurator.Parameters
         /// <param name="vessel">The vessel</param>
         protected override void OnVesselChange(Vessel vessel)
         {
-            if (!vesselData.ContainsKey(vessel.id))
+            matchingSubject = null;
+            foreach (ScienceSubject subject in GetVesselSubjects(vessel).GroupBy(subjid => subjid).Select(grp => ResearchAndDevelopment.GetSubjectByID(grp.Key)))
             {
-                vesselData[vessel.id] = new VesselData();
-            }
-
-            foreach (string subjectID in GetVesselSubjects(vessel))
-            {
-                if (!vesselData[vessel.id].subjects.ContainsKey(subjectID))
+                if (CheckSubject(subject))
                 {
-                    CheckSubject(vessel, subjectID);
+                    matchingSubject = subject;
+                    break;
                 }
             }
 
+            UpdateDelegates();
             base.OnVesselChange(vessel);
         }
 
@@ -453,6 +455,10 @@ namespace ContractConfigurator.Parameters
 
         private string ExperimentName(string experiment)
         {
+            if (string.IsNullOrEmpty(experiment))
+            {
+                return "Any experiment";
+            }
             if (experiment == "evaReport")
             {
                 return "EVA Report";
@@ -476,7 +482,10 @@ namespace ContractConfigurator.Parameters
         protected override bool VesselMeetsCondition(Vessel vessel)
         {
             LoggingUtil.LogVerbose(this, "Checking VesselMeetsCondition: " + vessel.id);
-            return ParameterDelegate<Vessel>.CheckChildConditions(this, vessel);
+
+            ParameterDelegate<ScienceSubject>.CheckChildConditions(this, matchingSubject);
+
+            return recoveryDone;
         }
     }
 }
