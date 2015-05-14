@@ -85,6 +85,31 @@ namespace ContractConfigurator
         }
 
         /// <summary>
+        /// Gets the quantity of the given resource for the vessel.
+        /// </summary>
+        /// <param name="vessel">Vessel to check</param>
+        /// <param name="resource">Resource to check for</param>
+        /// <returns></returns>
+        public static double ResourceCapacity(this Vessel vessel, PartResourceDefinition resource)
+        {
+            if (vessel == null)
+            {
+                return 0.0;
+            }
+
+            double quantity = 0.0;
+            foreach (Part part in vessel.Parts)
+            {
+                PartResource pr = part.Resources[resource.name];
+                if (pr != null)
+                {
+                    quantity += pr.maxAmount;
+                }
+            }
+            return quantity;
+        }
+
+        /// <summary>
         /// Create a hash of the vessel.
         /// </summary>
         /// <param name="vessel">The vessel to hash</param>

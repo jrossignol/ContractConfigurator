@@ -10,6 +10,7 @@ Contract Configurator 1.1.0
 - DATA nodes support the uniqueValue attribute to prevent duplicate values/contracts.
 - Added Exclude method for List.
 - Added Latitude and Longitude methods for Waypoint.
+- Added ResourceCapacity method for Vessel.
 - Reduce amount of Contract Configurator contracts offered so to not overwhelm stock contracts quite so much.
 - Improvements to vessel tracking for TargetDestroyed (thanks chlue).
 - Fixed a bug in the expression parser that caused issues with some ternary statements.
