@@ -170,7 +170,7 @@
     <Compile Include="ParameterFactory\VisitWaypointFactory.cs" />
     <Compile Include="ParameterFactory\ReachSpecificOrbitFactory.cs" />
     <Compile Include="ParameterFactory\VesselMassFactory.cs" />
-    <Compile Include="PersistentDataStore.cs" />
+    <Compile Include="ScenarioModules\PersistentDataStore.cs" />
     <Compile Include="ContractParameter\Timer.cs" />
     <Compile Include="ContractParameter\Sequence.cs" />
     <Compile Include="ContractParameter\VesselParameter\HasResource.cs" />
@@ -232,7 +232,7 @@
     <Compile Include="Util\ConfigNodeUtil.cs" />
     <Compile Include="ParameterFactory\CollectScienceFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ContractVesselTracker.cs" />
+    <Compile Include="ScenarioModules\ContractVesselTracker.cs" />
     <Compile Include="Util\Version.cs" />
     <Compile Include="Util\WaypointUtil.cs" />
   </ItemGroup>
