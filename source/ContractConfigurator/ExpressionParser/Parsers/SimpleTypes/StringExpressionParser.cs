@@ -54,9 +54,6 @@ namespace ContractConfigurator.ExpressionParser
                     expression = savedExpression;
                 }
 
-                if (token != null)
-                    LoggingUtil.LogInfo(this, "The first char (" + expression + ") is: " + token.sval.First());
-
                 bool quoted = token != null && token.tokenType == TokenType.QUOTE;
                 if (quoted)
                 {
