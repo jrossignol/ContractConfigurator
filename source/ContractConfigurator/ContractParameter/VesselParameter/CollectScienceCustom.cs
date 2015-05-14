@@ -68,6 +68,7 @@ namespace ContractConfigurator.Parameters
         protected CelestialBody targetBody { get; set; }
         protected string biome { get; set; }
         protected ExperimentSituations? situation { get; set; }
+        protected BodyLocation? location { get; set; }
         protected string experiment { get; set; }
         protected RecoveryMethod recoveryMethod { get; set; }
 
@@ -84,13 +85,14 @@ namespace ContractConfigurator.Parameters
         {
         }
 
-        public CollectScienceCustom(CelestialBody targetBody, string biome, ExperimentSituations? situation,
+        public CollectScienceCustom(CelestialBody targetBody, string biome, ExperimentSituations? situation, BodyLocation? location,
             string experiment, RecoveryMethod recoveryMethod, string title)
             : base(title)
         {
             this.targetBody = targetBody;
             this.biome = biome;
             this.situation = situation;
+            this.location = location;
             this.experiment = experiment;
             this.recoveryMethod = recoveryMethod;
 
@@ -117,10 +119,14 @@ namespace ContractConfigurator.Parameters
                     {
                         output += targetBody.theName;
                     }
-
+                    
                     if (situation != null)
                     {
                         output += " while " + situation.Value.Print().ToLower();
+                    }
+                    else if (location != null)
+                    {
+                        output += location.Value == BodyLocation.Surface ? " while on the surface" : " while in space";
                     }
 
                     if (recoveryMethod != RecoveryMethod.None)
@@ -159,14 +165,22 @@ namespace ContractConfigurator.Parameters
                     subj => FlightGlobals.ActiveVessel != null && ScienceUtil.GetExperimentSituation(FlightGlobals.ActiveVessel) == situation));
             }
 
-            ContractParameter subjectParam = new ParameterDelegate<ScienceSubject>("", subj => true);
-            subjectParam.ID = "Subject";
-            AddParameter(subjectParam);
+            // Filter for location
+            if (location != null)
+            {
+                AddParameter(new ParameterDelegate<ScienceSubject>("Location: " + location,
+                    subj => FlightGlobals.ActiveVessel != null && (location != BodyLocation.Surface ^ FlightGlobals.ActiveVessel.LandedOrSplashed)));
+            }
 
             // Add the experiment
             string experimentStr = string.IsNullOrEmpty(experiment) ? "Any" : ExperimentName(experiment);
             AddParameter(new ParameterDelegate<ScienceSubject>("Experiment: " + experimentStr,
                 subj => false));
+
+            // Add the subject
+            ContractParameter subjectParam = new ParameterDelegate<ScienceSubject>("", subj => true);
+            subjectParam.ID = "Subject";
+            AddParameter(subjectParam);
 
             // Filter for recovery
             if (recoveryMethod != RecoveryMethod.None)
@@ -184,7 +198,8 @@ namespace ContractConfigurator.Parameters
                 string oldTitle = param.Title;
                 if (matchingSubject != null)
                 {
-                    if (param.ID.Contains("Destination:") || param.ID.Contains("Biome:") || param.ID.Contains("Situation:") || param.ID.Contains("Experiment:"))
+                    if (param.ID.Contains("Destination:") || param.ID.Contains("Biome:") || param.ID.Contains("Situation:") ||
+                        param.ID.Contains("Location:") || param.ID.Contains("Experiment:"))
                     {
                         param.ClearTitle();
                     }
@@ -253,6 +268,11 @@ namespace ContractConfigurator.Parameters
                 node.AddValue("situation", situation);
             }
 
+            if (location != null)
+            {
+                node.AddValue("location", location);
+            }
+
             if (!string.IsNullOrEmpty(experiment))
             {
                 node.AddValue("experiment", experiment);
@@ -267,6 +287,7 @@ namespace ContractConfigurator.Parameters
             targetBody = ConfigNodeUtil.ParseValue<CelestialBody>(node, "targetBody", (CelestialBody)null);
             biome = ConfigNodeUtil.ParseValue<string>(node, "biome", "");
             situation = ConfigNodeUtil.ParseValue<ExperimentSituations?>(node, "situation", (ExperimentSituations?)null);
+            location = ConfigNodeUtil.ParseValue<BodyLocation?>(node, "location", (BodyLocation?)null);
             experiment = ConfigNodeUtil.ParseValue<string>(node, "experiment", "");
             recoveryMethod = ConfigNodeUtil.ParseValue<RecoveryMethod>(node, "recoveryMethod");
 
@@ -354,6 +375,22 @@ namespace ContractConfigurator.Parameters
             if (situation != null && !subject.IsFromSituation(situation.Value))
             {
                 return false;
+            }
+
+            if (location != null)
+            {
+                if (location.Value == BodyLocation.Surface &&
+                    !subject.IsFromSituation(ExperimentSituations.SrfSplashed) &&
+                    !subject.IsFromSituation(ExperimentSituations.SrfLanded))
+                {
+                    return false;
+                }
+                if (location.Value == BodyLocation.Space &&
+                    !subject.IsFromSituation(ExperimentSituations.InSpaceHigh) &&
+                    !subject.IsFromSituation(ExperimentSituations.InSpaceLow))
+                {
+                    return false;
+                }
             }
 
             if (!string.IsNullOrEmpty(experiment) && !subject.id.Contains(experiment))
