@@ -41,26 +41,78 @@ namespace ContractConfigurator.ExpressionParser
             verbose &= LogEntryDebug<TResult>("ParseStatement");
             try
             {
+                expression = expression.Trim();
+                string savedExpression = expression;
+                Token token = null;
+                try
+                {
+                    token = ParseToken();
+                }
+                catch { }
+                finally
+                {
+                    expression = savedExpression;
+                }
+
+                if (token != null)
+                    LoggingUtil.LogInfo(this, "The first char (" + expression + ") is: " + token.sval.First());
+
+                bool quoted = token != null && token.tokenType == TokenType.QUOTE;
+                if (quoted)
+                {
+                    expression = expression.Substring(1);
+                }
+                else if (token != null && token.tokenType == TokenType.SPECIAL_IDENTIFIER)
+                {
+                    return base.ParseStatement<TResult>();
+                }
+                else
+                {
+                    // Check for an immediate function call 
+                    Match m = Regex.Match(expression, @"^\w[\w\d]*\(");
+                    if (m.Success)
+                    {
+                        return base.ParseStatement<TResult>();
+                    }
+                }
+
                 string value = "";
                 while (expression.Length > 0)
                 {
+                    // Look for special identifiers
                     int specialIdentifierIndex = expression.IndexOf("@");
+
+                    // Look for function calls
                     Match m = Regex.Match(expression, @"\s\w[\w\d]*\(");
                     int functionIndex = m.Index;
 
-                    if (m.Success && specialIdentifierIndex >= 0)
+                    // Look for an end quote
+                    int quoteIndex = quoted ? expression.IndexOf('"') : -1;
+                    if (quoteIndex > 0)
                     {
-                        if (functionIndex < specialIdentifierIndex)
+                        if (expression.Substring(quoteIndex-1, 1) == "\\")
                         {
-                            specialIdentifierIndex = -1;
-                        }
-                        else
-                        {
-                            functionIndex = -1;
+                            quoteIndex = -1;
                         }
                     }
 
-                    if (m.Success)
+                    if (m.Success && (specialIdentifierIndex == -1 || functionIndex < specialIdentifierIndex) && (quoteIndex == -1 || functionIndex < quoteIndex))
+                    {
+                        specialIdentifierIndex = -1;
+                        quoteIndex = -1;
+                    }
+                    else if (specialIdentifierIndex == -1 || quoteIndex < specialIdentifierIndex)
+                    {
+                        specialIdentifierIndex = -1;
+                        functionIndex = -1;
+                    }
+                    else
+                    {
+                        functionIndex = -1;
+                        quoteIndex = -1;
+                    }
+
+                    if (functionIndex >= 0)
                     {
                         value += expression.Substring(0, functionIndex+1);
                         expression = expression.Substring(functionIndex);
@@ -73,6 +125,12 @@ namespace ContractConfigurator.ExpressionParser
                         value += expression.Substring(0, specialIdentifierIndex);
                         expression = expression.Substring(specialIdentifierIndex);
                         value += ParseSpecialIdentifier(ParseSpecialIdentifier());
+                    }
+                    else if (quoteIndex >= 0)
+                    {
+                        value += expression.Substring(0, quoteIndex);
+                        expression = expression.Substring(quoteIndex+1);
+                        break;
                     }
                     else
                     {

@@ -4,19 +4,21 @@ Contract Configurator 1.1.0
     - Added ScienceExperiment as a valid expression class.
     - Added ScienceSubject as a valid expression class.
     - Added new method for getting all biomes of a celestial body.
+- Reduce amount of Contract Configurator contracts offered so to not overwhelm stock contracts quite so much.
 - Added HasAstronaut contract parameter.
 - Renamed HasCrew requirement to HasAstronaut.
-- DATA nodes can now use the shorthand type (eg. int) instead of the full system types (eg. Int32).
-- DATA nodes support the uniqueValue attribute to prevent duplicate values/contracts.
-- Added Exclude method for List.
-- Added Latitude and Longitude methods for Waypoint.
-- Added ResourceCapacity method for Vessel.
-- Reduce amount of Contract Configurator contracts offered so to not overwhelm stock contracts quite so much.
 - Improvements to vessel tracking for TargetDestroyed (thanks chlue).
-- Fixed a bug in the expression parser that caused issues with some ternary statements.
-- Fixes to WaypointGenerator and SpawnKerbal to improve expression support (thanks AlphaAsh).
 - Lots of fixes/improvements to CollectScience parameter.
-- Various expression parser bug fixes.
+- Misc expression changes
+    - Added Exclude method for List.
+    - Added Latitude and Longitude methods for Waypoint.
+    - Added ResourceCapacity method for Vessel.
+    - DATA nodes can now use the shorthand type (eg. int) instead of the full system types (eg. Int32).
+    - DATA nodes support the uniqueValue attribute to prevent duplicate values/contracts.
+    - Fixes to WaypointGenerator and SpawnKerbal to improve expression support (thanks AlphaAsh).
+    - Fixed a bug in the expression parser that caused issues with some ternary statements.
+    - Support for quoted strings in expression parser.
+    - Various expression parser bug fixes.
 
 Contract Configurator 1.0.4
 - Fixed requirements that were throwing errors when expressions used in targetBody.

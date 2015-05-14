@@ -41,6 +41,7 @@ namespace ContractConfigurator.ExpressionParser
             TERNARY_END,
             LIST_START,
             LIST_END,
+            QUOTE,
         }
 
         /// <summary>
@@ -82,6 +83,10 @@ namespace ContractConfigurator.ExpressionParser
                 else if (tokenType == TokenType.LIST_END)
                 {
                     sval = "]";
+                }
+                else if (tokenType == TokenType.QUOTE)
+                {
+                    sval = "\"";
                 }
             }
 

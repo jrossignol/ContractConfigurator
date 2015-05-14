@@ -489,20 +489,9 @@ namespace ContractConfigurator.ExpressionParser
                 string savedExpression = expression;
                 token = ParseToken();
                 ExpressionParser<List<T>> parser = GetParser<List<T>>(this);
-                if (token.tokenType == TokenType.OPERATOR && token.sval == "[")
+                if (token == null)
                 {
-/*                    // Parse another list
-                    try
-                    {
-                        TResult result = parser.parseSta.ParseMethod<TResult>(token, values);
-                        verbose &= LogExitDebug<TResult>("ParseList", result);
-                        return result;
-                    }
-                    finally
-                    {
-                        expression = parser.expression;
-                    }*/
-                    return default(TResult);
+                    return parser.ConvertType<TResult>(values);
                 }
                 else if (token.tokenType == TokenType.METHOD)
                 {
@@ -633,6 +622,9 @@ namespace ContractConfigurator.ExpressionParser
                 case ']':
                     expression = expression.Substring(1);
                     return new Token(TokenType.LIST_END);
+                case '"':
+                    expression = expression.Substring(1);
+                    return new Token(TokenType.QUOTE);
                 case '1':
                 case '2':
                 case '3':
