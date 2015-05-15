@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using UnityEngine;
 
 namespace ContractConfigurator.ExpressionParser
 {
@@ -73,6 +74,7 @@ namespace ContractConfigurator.ExpressionParser
                     }
                 }
 
+                Debug.Log("parsing string expression: " + expression);
                 string value = "";
                 while (expression.Length > 0)
                 {
@@ -98,7 +100,7 @@ namespace ContractConfigurator.ExpressionParser
                         specialIdentifierIndex = -1;
                         quoteIndex = -1;
                     }
-                    else if (specialIdentifierIndex == -1 || quoteIndex < specialIdentifierIndex)
+                    else if (quoteIndex != -1 && (specialIdentifierIndex == -1 || quoteIndex < specialIdentifierIndex))
                     {
                         specialIdentifierIndex = -1;
                         functionIndex = -1;
