@@ -88,6 +88,7 @@
     <Compile Include="ContractRequirement\HasCrewRequirement.cs" />
     <Compile Include="ContractRequirement\InvalidContractRequirement.cs" />
     <Compile Include="ContractRequirement\PartModuleTypeUnlockedRequirement.cs" />
+    <Compile Include="ContractRequirement\PerformOrbitalScanRequirement.cs" />
     <Compile Include="ContractRequirement\ScienceRequirement.cs" />
     <Compile Include="ContractRequirement\ReputationRequirement.cs" />
     <Compile Include="ContractRequirement\FundsRequirement.cs" />

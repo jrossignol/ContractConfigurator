@@ -12,6 +12,7 @@ Contract Configurator 1.1.0
 - Lots of fixes/improvements to CollectScience parameter.
 - Orbital scanning
     - Added PerformOrbitalScan parameter.
+    - Added PerformOrbitalScan requirement.
 - Misc expression changes
     - Added Exclude method for List.
     - Added Latitude and Longitude methods for Waypoint.
