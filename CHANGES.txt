@@ -20,6 +20,7 @@ Contract Configurator 1.1.0
     - Fixed a bug in the expression parser that caused issues with some ternary statements.
     - Support for quoted strings in expression parser.
     - Various expression parser bug fixes.
+- Fixed issue with TargetDestroyed state getting reset (thanks Niarro).
 
 Contract Configurator 1.0.4
 - Fixed requirements that were throwing errors when expressions used in targetBody.

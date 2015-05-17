@@ -27,6 +27,8 @@ namespace ContractConfigurator.Parameters
         public TargetDestroyed(IEnumerable<string> vessels, string title)
             : base(title)
         {
+            disableOnStateChange = true;
+
             this.vessels = vessels.ToList();
 
             CreateDelegates();
