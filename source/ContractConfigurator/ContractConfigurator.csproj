@@ -68,6 +68,7 @@
     <Compile Include="ContractParameter\InvisibleWrapper.cs" />
     <Compile Include="ContractParameter\Duration.cs" />
     <Compile Include="ContractParameter\ParameterDelegate.cs" />
+    <Compile Include="ContractParameter\PerformOrbitalScan.cs" />
     <Compile Include="ContractParameter\RecoverKerbalCustom.cs" />
     <Compile Include="ContractParameter\TargetDestroyed.cs" />
     <Compile Include="ContractParameter\ReachSpaceCustom.cs" />
@@ -132,6 +133,7 @@
     <Compile Include="ParameterFactory\AtMostFactory.cs" />
     <Compile Include="ParameterFactory\AtLeastFactory.cs" />
     <Compile Include="ParameterFactory\HasCrewCapacityFactory.cs" />
+    <Compile Include="ParameterFactory\PerformOrbitalScanFactory.cs" />
     <Compile Include="ParameterFactory\VesselDestroyedFactory.cs" />
     <Compile Include="ScenarioModules\BiomeTracker.cs" />
     <Compile Include="Util\DebugWindow.cs" />
