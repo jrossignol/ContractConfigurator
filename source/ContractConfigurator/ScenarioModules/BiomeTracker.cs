@@ -222,33 +222,6 @@ namespace ContractConfigurator
                 nameMap[body.BiomeMap.Attributes[i].mapColor.ToString()] = body.BiomeMap.Attributes[i].name;
 			}
 
-            foreach (KeyValuePair<string, BiomeData> pair in biomeData)
-            {
-                Debug.Log(pair.Key + " = " + ((double)pair.Value.landCount / (pair.Value.landCount + pair.Value.waterCount)));
-            }
-
-            foreach (KeyValuePair<string, BiomeData> pair in biomeData)
-            {
-                double landRatio = (double)pair.Value.landCount / (pair.Value.landCount + pair.Value.waterCount);
-
-                if (landRatio < 0.01)
-                {
-                    Debug.Log("land waypoints for " + pair.Key);
-                    foreach (Vector2d v in pair.Value.landLocations)
-                    {
-                        Debug.Log("    " + v.y + ", " + v.x);
-                    }
-                }
-                if (landRatio > 0.99)
-                {
-                    Debug.Log("water waypoints for " + pair.Key);
-                    foreach (Vector2d v in pair.Value.waterLocations)
-                    {
-                        Debug.Log("    " + v.y + ", " + v.x);
-                    }
-                }
-            }
-
             // Save the biomData that was collected
             bodyInfo[body] = biomeData;
 
