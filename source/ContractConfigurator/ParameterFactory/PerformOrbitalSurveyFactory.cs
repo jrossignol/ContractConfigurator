@@ -11,9 +11,9 @@ using ContractConfigurator.Parameters;
 namespace ContractConfigurator
 {
     /// <summary>
-    /// ParameterFactory wrapper for PerformOrbitalScan ContractParameter.
+    /// ParameterFactory wrapper for PerformOrbitalSurvey ContractParameter.
     /// </summary>
-    public class PerformOrbitalScanFactory : ParameterFactory
+    public class PerformOrbitalSurveyFactory : ParameterFactory
     {
         public override bool Load(ConfigNode configNode)
         {
