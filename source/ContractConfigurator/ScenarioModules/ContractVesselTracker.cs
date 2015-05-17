@@ -315,7 +315,7 @@ namespace ContractConfigurator
         public string GetDisplayName(string key)
         {
             Vessel v = GetAssociatedVessel(key);
-            return v == null ? key : v.vesselName;
+            return v == null ? key + " (new)" : v.vesselName;
         }
     }
 }

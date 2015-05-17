@@ -418,7 +418,7 @@ namespace ContractConfigurator.Parameters
                         // Set the tracked vessel association
                         if (!string.IsNullOrEmpty(define))
                         {
-                            ContractVesselTracker.Instance.AssociateVessel(define, trackedVessel);
+                            ContractVesselTracker.Instance.AssociateVessel(define, null);
                         }
                     }
 

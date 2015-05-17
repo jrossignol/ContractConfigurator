@@ -22,6 +22,7 @@ Contract Configurator 1.1.0
     - Various expression parser bug fixes.
 - Fixed issue with TargetDestroyed state getting reset (thanks Niarro).
 - Fixed issue where dynamic parameter text in the stock window sometimes gets leftover characters from the previous value - most noticeable when using roman numerals (thanks Munitions).
+- Fixed issue with vessel tracking where a tracked vessel isn't disassociated properly causing major problems in the RemoteTech contract pack (thanks TheDog, Munitions and marioluigi653).
 
 Contract Configurator 1.0.4
 - Fixed requirements that were throwing errors when expressions used in targetBody.

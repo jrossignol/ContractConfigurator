@@ -98,7 +98,12 @@ namespace ContractConfigurator.Parameters
         protected override bool VesselMeetsCondition(Vessel vessel)
         {
             LoggingUtil.LogVerbose(this, "Checking VesselMeetsCondition: " + vessel.id);
-            return ContractVesselTracker.Instance.GetAssociatedVessel(vesselKey) != vessel;
+            bool result = ContractVesselTracker.Instance.GetAssociatedVessel(vesselKey) != vessel;
+            if (!result)
+            {
+                state = ParameterState.Failed;
+            }
+            return result;
         }
     }
 }
