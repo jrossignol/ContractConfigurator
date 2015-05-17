@@ -74,7 +74,6 @@ namespace ContractConfigurator.ExpressionParser
                     }
                 }
 
-                Debug.Log("parsing string expression: " + expression);
                 string value = "";
                 while (expression.Length > 0)
                 {

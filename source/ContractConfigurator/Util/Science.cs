@@ -25,7 +25,7 @@ namespace ContractConfigurator.Util
             return ResearchAndDevelopment.GetSubjects().SingleOrDefault(researched => defaultIfNotResearched.id == researched.id) ?? defaultIfNotResearched;
         }
 
-        private static IEnumerable<ScienceSubject> GetSubjects(ScienceExperiment experiment, CelestialBody body, Func<string, bool> biomeFilter)
+        private static IEnumerable<ScienceSubject> GetSubjects(ScienceExperiment experiment, CelestialBody body, Func<string, bool> biomeFilter, bool difficult)
         {
             IEnumerable<ExperimentSituations> situations = Enum.GetValues(typeof(ExperimentSituations)).Cast<ExperimentSituations>();
 
@@ -52,6 +52,7 @@ namespace ContractConfigurator.Util
                     var kscStatics = biomesPlusKsc.Except(biomes);
 
                     return (biomesPlusKsc.Any() ? biomes : new List<string> { string.Empty })
+                        .Where(biome => !BiomeTracker.IsDifficult(body, biome, sit) ^ difficult)
                         .Select(biome => ScienceSubject(experiment, sit, body, biome))
                         .Union(sit == ExperimentSituations.SrfLanded // static KSC items can only be landed on as far as I know
                             ? kscStatics.Select(
@@ -62,7 +63,7 @@ namespace ContractConfigurator.Util
         }
 
         public static IEnumerable<ScienceSubject> GetSubjects(IEnumerable<CelestialBody> celestialBodies, Func<ScienceExperiment, bool> experimentFilter = null,
-            Func<string, bool> biomeFilter = null)
+            Func<string, bool> biomeFilter = null, bool difficult = false)
         {
             if (ResearchAndDevelopment.Instance == null)
             {
@@ -116,7 +117,7 @@ namespace ContractConfigurator.Util
                     (exp.id != "evaReport" || (body.isHomeWorld || evaUnlocked))
                     ))
                 {
-                    foreach (ScienceSubject subject in GetSubjects(experiment, body, biomeFilter))
+                    foreach (ScienceSubject subject in GetSubjects(experiment, body, biomeFilter, difficult))
                     {
                         yield return subject;
                     }

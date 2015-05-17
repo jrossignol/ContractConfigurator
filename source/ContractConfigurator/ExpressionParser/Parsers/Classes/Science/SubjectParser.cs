@@ -41,6 +41,8 @@ namespace ContractConfigurator.ExpressionParser
 
             RegisterGlobalFunction(new Function<List<CelestialBody>, List<ScienceExperiment>, List<ScienceSubject>>("AllScienceSubjectsByBodyExperiment", (cbs, exps) => Science.GetSubjects(cbs, x => exps.Contains(x)).ToList(), false));
             RegisterGlobalFunction(new Function<List<Biome>, List<ScienceExperiment>, List<ScienceSubject>>("AllScienceSubjectsByBiomeExperiment", (biomes, exps) => Science.GetSubjects(biomes.GroupBy(b => b.body).Select(grp => grp.First().body), x => exps.Contains(x), x => biomes.Any(b => b.biome == x)).ToList(), false));
+
+            RegisterGlobalFunction(new Function<List<ScienceSubject>>("DifficultScienceSubjects", () => Science.GetSubjects(FlightGlobals.Bodies, null, null, true).ToList(), false));
         }
 
         public SubjectParser()

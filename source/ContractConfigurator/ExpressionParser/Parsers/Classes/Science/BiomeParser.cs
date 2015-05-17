@@ -26,6 +26,9 @@ namespace ContractConfigurator.ExpressionParser
         {
             RegisterMethod(new Method<Biome, CelestialBody>("CelestialBody", biome => biome == null ? null : biome.body));
             RegisterMethod(new Method<Biome, bool>("IsKSC", biome => biome == null ? false : biome.IsKSC()));
+
+            RegisterMethod(new Method<Biome, List<Location>>("DifficultLocations", biome => biome == null ?
+                new List<Location>() : BiomeTracker.GetDifficultLocations(biome.body, biome.biome).Select(v => new Location(v.y, v.x)).ToList()));
         }
 
         public BiomeParser()

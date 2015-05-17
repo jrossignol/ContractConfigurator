@@ -95,6 +95,7 @@
     <Compile Include="ExpressionParser\Parsers\Behaviours\BehaviourParser.cs" />
     <Compile Include="ExpressionParser\Parsers\Behaviours\WaypointGeneratorParser.cs" />
     <Compile Include="ExpressionParser\Parsers\Behaviours\SpawnKerbalParser.cs" />
+    <Compile Include="ExpressionParser\Parsers\Classes\LocationParser.cs" />
     <Compile Include="ExpressionParser\Parsers\Classes\Science\ExperimentParser.cs" />
     <Compile Include="ExpressionParser\Parsers\Classes\Science\SubjectParser.cs" />
     <Compile Include="ExpressionParser\Parsers\Classes\Science\BiomeParser.cs" />
@@ -121,6 +122,7 @@
     <Compile Include="ExpressionParser\Parsers\SimpleTypes\ValueExpressionParser.cs" />
     <Compile Include="ExpressionParser\ExpressionParser.cs" />
     <Compile Include="ExpressionParser\Wrappers\Biome.cs" />
+    <Compile Include="ExpressionParser\Wrappers\Location.cs" />
     <Compile Include="ExpressionParser\Wrappers\VesselIdentifier.cs" />
     <Compile Include="ExpressionParser\Wrappers\Resource.cs" />
     <Compile Include="ExpressionParser\Wrappers\Kerbal.cs" />
@@ -131,6 +133,7 @@
     <Compile Include="ParameterFactory\AtLeastFactory.cs" />
     <Compile Include="ParameterFactory\HasCrewCapacityFactory.cs" />
     <Compile Include="ParameterFactory\VesselDestroyedFactory.cs" />
+    <Compile Include="ScenarioModules\BiomeTracker.cs" />
     <Compile Include="Util\DebugWindow.cs" />
     <Compile Include="Util\ExceptionLogWindow.cs" />
     <Compile Include="Util\ExceptionUtil.cs" />

@@ -4,6 +4,7 @@ Contract Configurator 1.1.0
     - Added ScienceExperiment as a valid expression class.
     - Added ScienceSubject as a valid expression class.
     - Added new method for getting all biomes of a celestial body.
+    - Tracking of difficult biome/situation combinations (eg. Splashed down in the mountains).
 - Reduce amount of Contract Configurator contracts offered so to not overwhelm stock contracts quite so much.
 - Added HasAstronaut contract parameter.
 - Renamed HasCrew requirement to HasAstronaut.
