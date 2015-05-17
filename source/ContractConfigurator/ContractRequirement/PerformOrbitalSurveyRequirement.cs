@@ -9,9 +9,9 @@ using KSPAchievements;
 namespace ContractConfigurator
 {
     /// <summary>
-    /// ContractRequirement for performing an orbital scan of a celestial body.
+    /// ContractRequirement for performing an orbital survey of a celestial body.
     /// </summary>
-    public class PerformOrbitalScanRequirement : ContractRequirement
+    public class PerformOrbitalSurveyRequirement : ContractRequirement
     {
         public override bool Load(ConfigNode configNode)
         {

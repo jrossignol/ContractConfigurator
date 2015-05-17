@@ -10,20 +10,20 @@ using Contracts.Parameters;
 namespace ContractConfigurator.Parameters
 {
     /// <summary>
-    /// Parameter requiring that an orbital resource scan is done
+    /// Parameter requiring that an orbital resource survey is done
     /// </summary>
-    public class PerformOrbitalScan : ContractConfiguratorParameter
+    public class PerformOrbitalSurvey : ContractConfiguratorParameter
     {
         protected CelestialBody targetBody;
 
         private double lastUpdate = 0.0;
 
-        public PerformOrbitalScan()
+        public PerformOrbitalSurvey()
             : base(null)
         {
         }
 
-        public PerformOrbitalScan(string title,  CelestialBody targetBody)
+        public PerformOrbitalSurvey(string title,  CelestialBody targetBody)
             : base(title)
         {
             disableOnStateChange = true;
@@ -36,7 +36,7 @@ namespace ContractConfigurator.Parameters
             string output;
             if (string.IsNullOrEmpty(title))
             {
-                output = "Perform an orbital resource scan of " + targetBody.theName;
+                output = "Perform an orbital resource survey of " + targetBody.theName;
             }
             else 
             {

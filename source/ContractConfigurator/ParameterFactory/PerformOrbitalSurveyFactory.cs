@@ -28,7 +28,7 @@ namespace ContractConfigurator
 
         public override ContractParameter Generate(Contract contract)
         {
-            return new PerformOrbitalScan(title, targetBody);
+            return new PerformOrbitalSurvey(title, targetBody);
         }
     }
 }
