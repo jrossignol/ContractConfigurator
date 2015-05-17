@@ -67,7 +67,7 @@ namespace ContractConfigurator
                             string found = null;
                             foreach (string title in titles)
                             {
-                                if (richText.Text.Contains(title))
+                                if (richText.Text.EndsWith(title))
                                 {
                                     found = title;
                                     break;
