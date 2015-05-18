@@ -1,3 +1,6 @@
+Contract Configurator 1.1.1
+- Add NoRandomContractMentality to use when creating Agents to prevent them from being assigned to random contracts (thanks amorymeltzer).
+
 Contract Configurator 1.1.0
 - Lots of support in expression language for science stuff (big thanks to xEvilReeperx and DMagic for support and sample code)
     - Added Biome as a valid expression class.

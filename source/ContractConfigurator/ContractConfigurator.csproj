@@ -129,6 +129,7 @@
     <Compile Include="ExpressionParser\Wrappers\Resource.cs" />
     <Compile Include="ExpressionParser\Wrappers\Kerbal.cs" />
     <Compile Include="ExpressionParser\Wrappers\Duration.cs" />
+    <Compile Include="Other\NoRandomContractMentality.cs" />
     <Compile Include="ParameterFactory\HasAstronautFactory.cs" />
     <Compile Include="ParameterFactory\NoneFactory.cs" />
     <Compile Include="ParameterFactory\AtMostFactory.cs" />
