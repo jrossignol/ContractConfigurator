@@ -230,7 +230,6 @@ namespace ContractConfigurator
 
         public override void OnLoad(ConfigNode node)
         {
-            LoggingUtil.LogInfo(this, "OnLoad");
             foreach (ConfigNode bodyNode in node.GetNodes("CELESTIAL_BODY"))
             {
                 CelestialBody body = ConfigNodeUtil.ParseValue<CelestialBody>(bodyNode, "body");
@@ -246,8 +245,6 @@ namespace ContractConfigurator
 
         public override void OnSave(ConfigNode node)
         {
-            LoggingUtil.LogInfo(this, "OnSave");
-
             foreach (KeyValuePair<CelestialBody, Dictionary<string, BiomeData>> pair in bodyInfo)
             {
                 ConfigNode bodyNode = new ConfigNode("CELESTIAL_BODY");
