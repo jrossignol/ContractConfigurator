@@ -29,9 +29,9 @@ namespace ContractConfigurator.ExpressionParser
             RegisterMethod(new Method<ScienceSubject, CelestialBody>("CelestialBody", Science.GetCelestialBody));
             RegisterMethod(new Method<ScienceSubject, Biome>("Biome", Science.GetBiome));
 
+            RegisterMethod(new Method<ScienceSubject, float>("CollectedScience", subj => subj == null ? 0.0f : subj.science));
             RegisterMethod(new Method<ScienceSubject, float>("RemainingScience", subj => subj == null ? 0.0f : subj.scienceCap * HighLogic.CurrentGame.Parameters.Career.ScienceGainMultiplier - subj.science));
             RegisterMethod(new Method<ScienceSubject, float>("TotalScience", subj => subj == null ? 0.0f : subj.scienceCap * HighLogic.CurrentGame.Parameters.Career.ScienceGainMultiplier));
-            RegisterMethod(new Method<ScienceSubject, float>("CollectedScience", subj => subj == null ? 0.0f : subj.science));
             RegisterMethod(new Method<ScienceSubject, float>("NextScienceReportValue", Science.NextScienceReportValue));
 
             RegisterGlobalFunction(new Function<List<ScienceSubject>>("AllScienceSubjects", () => Science.GetSubjects(FlightGlobals.Bodies).ToList(), false));
