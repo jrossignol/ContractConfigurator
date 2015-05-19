@@ -191,7 +191,6 @@ namespace ContractConfigurator.Util
             {
                 try
                 {
-                    Debug.Log("trying to parse sit = " + sitAndBiome);
                     Enum.Parse(typeof(ExperimentSituations), sitAndBiome);
                     break;
                 }
