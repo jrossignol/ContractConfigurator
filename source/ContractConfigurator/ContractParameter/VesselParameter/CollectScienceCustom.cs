@@ -141,7 +141,7 @@ namespace ContractConfigurator.Parameters
 
                     if (!string.IsNullOrEmpty(biome))
                     {
-                        output += new Biome(targetBody, Regex.Replace(biome, "(\\B[A-Z])", " $1").ToLower()).ToString();
+                        output += new Biome(targetBody, biome).ToString();
                     }
                     else
                     {
@@ -182,7 +182,7 @@ namespace ContractConfigurator.Parameters
             // Filter for biome
             if (!string.IsNullOrEmpty(biome))
             {
-                AddParameter(new ParameterDelegate<ScienceSubject>("Biome: " + Regex.Replace(biome, "(\\B[A-Z])", " $1"),
+                AddParameter(new ParameterDelegate<ScienceSubject>("Biome: " + Regex.Replace(biome, @"(\B[A-Z]+?(?=[A-Z][^A-Z])|\B[A-Z]+?(?=[^A-Z]))", " $1"),
                     subj => CheckBiome(FlightGlobals.ActiveVessel)));
             }
 
@@ -528,13 +528,9 @@ namespace ContractConfigurator.Parameters
             {
                 return "EVA Report";
             }
-            else if (experiment.StartsWith("SCANsat"))
-            {
-                return "SCANsat " + ExperimentName(experiment.Substring("SCANsat".Length));
-            }
             else
             {
-                string output = Regex.Replace(experiment, "(\\B[A-Z])", " $1");
+                string output = Regex.Replace(experiment, @"(\B[A-Z]+?(?=[A-Z][^A-Z])|\B[A-Z]+?(?=[^A-Z]))", " $1");
                 return output.Substring(0, 1).ToUpper() + output.Substring(1);
             }
         }

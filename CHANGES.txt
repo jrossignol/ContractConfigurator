@@ -1,5 +1,6 @@
 Contract Configurator 1.1.2
 - Minor fixes to ExpressionParser.
+- Minor fixes to CollectScience.
 
 Contract Configurator 1.1.1
 - Add NoRandomContractMentality to use when creating Agents to prevent them from being assigned to random contracts (thanks amorymeltzer).

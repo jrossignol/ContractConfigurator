@@ -153,7 +153,7 @@ namespace ContractConfigurator.Util
                 }
                 catch
                 {
-                    m = Regex.Match(sitAndBiome, @"(.*)[A-Z][\w]+$");
+                    m = Regex.Match(sitAndBiome, @"(.*)[A-Z][\w]*$");
                     sitAndBiome = m.Groups[1].Value;
                 }
             }
@@ -191,12 +191,13 @@ namespace ContractConfigurator.Util
             {
                 try
                 {
+                    Debug.Log("trying to parse sit = " + sitAndBiome);
                     Enum.Parse(typeof(ExperimentSituations), sitAndBiome);
                     break;
                 }
                 catch
                 {
-                    m = Regex.Match(sitAndBiome, @"(.*)([A-Z][\w]+)$");
+                    m = Regex.Match(sitAndBiome, @"(.*)([A-Z][\w]*)$");
                     sitAndBiome = m.Groups[1].Value;
                     biome = m.Groups[2].Value + biome;
                 }

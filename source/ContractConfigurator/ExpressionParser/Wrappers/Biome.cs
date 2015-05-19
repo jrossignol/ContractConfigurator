@@ -22,7 +22,12 @@ namespace ContractConfigurator
 
         public override string ToString()
         {
-            return (body == null ? "" : IsKSC() ? "KSC's " : (body.theName + "'s ")) + Regex.Replace(biome, "(\\B[A-Z])", " $1");
+            if (biome == "KSC")
+            {
+                return biome;
+            }
+
+            return (body == null ? "" : IsKSC() ? "KSC's " : (body.theName + "'s ")) + Regex.Replace(biome, @"(\B[A-Z]+?(?=[A-Z][^A-Z])|\B[A-Z]+?(?=[^A-Z]))", " $1");
         }
 
         public bool IsKSC()
