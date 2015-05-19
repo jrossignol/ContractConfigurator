@@ -830,7 +830,7 @@ namespace ContractConfigurator.ExpressionParser
                 token = ParseToken();
                 if (token != null && token.tokenType == TokenType.METHOD)
                 {
-                    BaseParser methodParser = GetParser(result.GetType());
+                    BaseParser methodParser = GetParser(returnType);
 
                     MethodInfo parseMethod = methodParser.GetType().GetMethods(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy).
                         Where(m => m.Name == "ParseMethod" && m.GetParameters().Count() == 3).Single();
