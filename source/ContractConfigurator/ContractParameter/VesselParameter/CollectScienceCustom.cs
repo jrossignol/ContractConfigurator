@@ -100,7 +100,7 @@ namespace ContractConfigurator.Parameters
             {
                 this.recoveryMethod = recoveryMethod;
             }
-            else if (string.IsNullOrEmpty(experiment))
+            else if (string.IsNullOrEmpty(experiment) || experiment == "surfaceSample")
             {
                 this.recoveryMethod = RecoveryMethod.Recover;
             }
