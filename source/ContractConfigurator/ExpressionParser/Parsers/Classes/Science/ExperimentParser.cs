@@ -24,6 +24,8 @@ namespace ContractConfigurator.ExpressionParser
 
         internal static void RegisterMethods()
         {
+            RegisterGlobalFunction(new Function<List<ScienceExperiment>>("AllExperiments", () => ResearchAndDevelopment.Instance == null ? new List<ScienceExperiment>() :
+                ResearchAndDevelopment.GetExperimentIDs().Select<string, ScienceExperiment>(ResearchAndDevelopment.GetExperiment).ToList(), false));
         }
 
         public ExperimentParser()

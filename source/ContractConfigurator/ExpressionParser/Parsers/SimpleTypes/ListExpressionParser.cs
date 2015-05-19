@@ -39,7 +39,7 @@ namespace ContractConfigurator.ExpressionParser
             RegisterMethod(new Method<List<T>, List<T>, List<T>>("Concat", (l1, l2) => { l1.AddRange(l2); return l1; }));
             RegisterMethod(new Method<List<T>, T, List<T>>("Add", (l, v) => { l.Add(v); return l; }));
             RegisterMethod(new Method<List<T>, T, List<T>>("Exclude", (l, v) => { l.Remove(v); return l; }));
-            RegisterMethod(new Method<List<T>, List<T>, List<T>>("Exclude", (l, l2) => { l.RemoveAll(x => l2.Contains(x)); return l; }));
+            RegisterMethod(new Method<List<T>, List<T>, List<T>>("ExcludeAll", (l, l2) => { l.RemoveAll(x => l2.Contains(x)); return l; }));
         }
 
         protected static List<T> RandomList(List<T> input, int count)
