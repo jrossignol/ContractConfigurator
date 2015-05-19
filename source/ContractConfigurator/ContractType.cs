@@ -345,6 +345,7 @@ namespace ContractConfigurator
                 foreach (ConfiguredContract otherContract in ContractSystem.Instance.GetCurrentContracts<ConfiguredContract>().
                     Where(c => c.contractType != null && c.contractType.name == name && c != contract))
                 {
+
                     if (contract.uniqueData[key] == otherContract.uniqueData[key])
                     {
                         LoggingUtil.LogVerbose(this, "Didn't generate contract type " + name + ", failed on unique value check for key '" + key + "'.");
