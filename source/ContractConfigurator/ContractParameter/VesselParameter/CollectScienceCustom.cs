@@ -182,7 +182,7 @@ namespace ContractConfigurator.Parameters
             // Filter for biome
             if (!string.IsNullOrEmpty(biome))
             {
-                AddParameter(new ParameterDelegate<ScienceSubject>("Biome: " + Regex.Replace(biome, @"(\B[A-Z]+?(?=[A-Z][^A-Z])|\B[A-Z]+?(?=[^A-Z]))", " $1"),
+                AddParameter(new ParameterDelegate<ScienceSubject>("Biome: " + Biome.PrintBiomeName(biome),
                     subj => CheckBiome(FlightGlobals.ActiveVessel)));
             }
 
@@ -268,7 +268,7 @@ namespace ContractConfigurator.Parameters
             // Fixes problems with special biomes like KSC buildings (total different naming)
             if (landedSituations.Contains(vessel.situation))
             {
-                if (Vessel.GetLandedAtString(vessel.landedAt) == biome)
+                if (Vessel.GetLandedAtString(vessel.landedAt).Replace(" ", "") == biome)
                 {
                     return true;
                 }
@@ -528,9 +528,13 @@ namespace ContractConfigurator.Parameters
             {
                 return "EVA Report";
             }
+            else if (experiment.StartsWith("SCANsat"))
+            {
+                return "SCANsat " + ExperimentName(experiment.Substring("SCANsat".Length));
+            }
             else
             {
-                string output = Regex.Replace(experiment, @"(\B[A-Z]+?(?=[A-Z][^A-Z])|\B[A-Z]+?(?=[^A-Z]))", " $1");
+                string output = Regex.Replace(experiment, @"([A-Z]+?(?=[A-Z][^A-Z])|\B[A-Z]+?(?=[^A-Z]))", " $1");
                 return output.Substring(0, 1).ToUpper() + output.Substring(1);
             }
         }
