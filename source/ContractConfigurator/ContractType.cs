@@ -339,23 +339,6 @@ namespace ContractConfigurator
                 return false;
             }
 
-            // Check for unique values against other contracts of the same type
-            foreach (string key in uniqueValues)
-            {
-                foreach (ConfiguredContract otherContract in ContractSystem.Instance.GetCurrentContracts<ConfiguredContract>().
-                    Where(c => c.contractType != null && c.contractType.name == name && c != contract))
-                {
-                    if (otherContract.uniqueData.ContainsKey(key))
-                    {
-                        if (contract.uniqueData[key] == otherContract.uniqueData[key])
-                        {
-                            LoggingUtil.LogVerbose(this, "Didn't generate contract type " + name + ", failed on unique value check for key '" + key + "'.");
-                            return false;
-                        }
-                    }
-                }
-            }
-
             // Check prestige
             if (prestige.Count > 0 && !prestige.Contains(contract.Prestige))
             {
@@ -460,7 +443,23 @@ namespace ContractConfigurator
                         }
                     }
                 }
+            }
 
+            // Check for unique values against other contracts of the same type
+            foreach (string key in uniqueValues)
+            {
+                foreach (ConfiguredContract otherContract in ContractSystem.Instance.GetCurrentContracts<ConfiguredContract>().
+                    Where(c => c.contractType != null && c.contractType.name == name && c != contract))
+                {
+                    if (otherContract.uniqueData.ContainsKey(key))
+                    {
+                        if (contract.uniqueData[key] == otherContract.uniqueData[key])
+                        {
+                            LoggingUtil.LogVerbose(this, "Didn't generate contract type " + name + ", failed on unique value check for key '" + key + "'.");
+                            return false;
+                        }
+                    }
+                }
             }
 
             // Check the captured requirements
