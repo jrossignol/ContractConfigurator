@@ -287,7 +287,7 @@ namespace ContractConfigurator
                     node.AddNode(dataNode);
                     foreach (KeyValuePair<string, object> p in uniqueData)
                     {
-                        node.AddValue(p.Key, p.Value.GetType() + ":" + p.Value);
+                        dataNode.AddValue(p.Key, p.Value.GetType() + ":" + p.Value);
                     }
                 }
 
