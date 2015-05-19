@@ -878,7 +878,8 @@ namespace ContractConfigurator
                     return typeMap[name];
                 }
 
-                foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
+                // Get all assemblies, but look at the ContractConfigurator ones first
+                foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies().OrderBy(a => a.FullName.Contains("ContractConfigurator") ? 0 : 1))
                 {
                     try
                     {
