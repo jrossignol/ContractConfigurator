@@ -3,6 +3,7 @@ using System.IO;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using UnityEngine;
 using KSP;
@@ -220,14 +221,26 @@ namespace ContractConfigurator
                     {
                         string typeName = pair.value.Remove(pair.value.IndexOf(":"));
                         string value = pair.value.Substring(typeName.Length + 1, pair.value.Length - typeName.Length - 1);
-                        Type type = Type.GetType(typeName);
+                        Type type = ConfigNodeUtil.ParseTypeValue(typeName);
+
+                        // Backwards compatibility with 1.1.1 (broken release)
+                        if (type == typeof(CelestialBody) && value.IndexOf(" ") != -1)
+                        {
+                            value = value.Substring(0, value.IndexOf(" "));
+                        }
+
                         if (type == typeof(string))
                         {
                             uniqueData[pair.name] = pair.value;
                         }
                         else
                         {
-                            uniqueData[pair.name] = type.InvokeMember("Parse", System.Reflection.BindingFlags.InvokeMethod, null, null, new string[] { value });
+                            // Get the ParseValue method
+                            MethodInfo parseValueMethod = typeof(ConfigNodeUtil).GetMethods().Where(m => m.Name == "ParseSingleValue").Single();
+                            parseValueMethod = parseValueMethod.MakeGenericMethod(new Type[] { type });
+
+                            // Invoke the ParseValue method
+                            uniqueData[pair.name] = parseValueMethod.Invoke(null, new object[] { pair.name, value, false });
                         }
                     }
                 }
@@ -287,7 +300,18 @@ namespace ContractConfigurator
                     node.AddNode(dataNode);
                     foreach (KeyValuePair<string, object> p in uniqueData)
                     {
-                        dataNode.AddValue(p.Key, p.Value.GetType() + ":" + p.Value);
+                        string value;
+                        Type type = p.Value.GetType();
+                        if (type == typeof(CelestialBody))
+                        {
+                            value = ((CelestialBody)p.Value).name;
+                        }
+                        else
+                        {
+                            value = p.Value.ToString();
+                        }
+
+                        dataNode.AddValue(p.Key, type + ":" + value);
                     }
                 }
 

@@ -196,9 +196,7 @@ namespace ContractConfigurator
                 T list = (T)Activator.CreateInstance(typeof(T));
 
                 // Create the generic methods
-                MethodInfo parseValueMethod = typeof(ConfigNodeUtil).GetMethod("ParseSingleValue",
-                    BindingFlags.NonPublic | BindingFlags.Static, null,
-                    new Type[] { typeof(string), typeof(string), typeof(bool)}, null);
+                MethodInfo parseValueMethod = typeof(ConfigNodeUtil).GetMethods().Where(m => m.Name == "ParseSingleValue").Single();
                 parseValueMethod = parseValueMethod.MakeGenericMethod(typeof(T).GetGenericArguments());
                 MethodInfo addMethod = typeof(T).GetMethod("Add");
 
@@ -251,7 +249,7 @@ namespace ContractConfigurator
             return ParseSingleValue<T>(key, stringValue, allowExpression);
         }
 
-        private static T ParseSingleValue<T>(string key, string stringValue, bool allowExpression)
+        public static T ParseSingleValue<T>(string key, string stringValue, bool allowExpression)
         {
             ExpressionParser<T> parser;
             T value;
@@ -864,7 +862,7 @@ namespace ContractConfigurator
             return FlightGlobals.Vessels.Find(v => v.id == id);
         }
 
-        private static Type ParseTypeValue(string name)
+        public static Type ParseTypeValue(string name)
         {
             if (name.StartsWith("List<") && name.EndsWith(">"))
             {

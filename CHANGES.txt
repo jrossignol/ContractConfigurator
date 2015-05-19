@@ -1,4 +1,5 @@
 Contract Configurator 1.1.2
+- Fix major issue with uniqueValue in DATA nodes - again (fixes issues in ScanSat Lite).
 - Minor fixes to ExpressionParser.
 - Minor fixes to CollectScience.
 
