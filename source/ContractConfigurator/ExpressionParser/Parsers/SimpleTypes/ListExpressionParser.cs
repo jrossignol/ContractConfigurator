@@ -106,12 +106,18 @@ namespace ContractConfigurator.ExpressionParser
                         expression = savedExpression;
                         tempVariables[identifier] = new KeyValuePair<object, Type>(value, typeof(T));
                         ExpressionParser<T> parser = GetParser<T>(this);
-                        bool keep = parser.ParseStatement<bool>();
-                        if (keep && obj.Count != 0)
+                        try
                         {
-                            filteredList.Add(value);
+                            bool keep = parser.ParseStatement<bool>();
+                            if (keep && obj.Count != 0)
+                            {
+                                filteredList.Add(value);
+                            }
                         }
-                        expression = parser.expression;
+                        finally
+                        {
+                            expression = parser.expression;
+                        }
                     }
                 }
                 finally
