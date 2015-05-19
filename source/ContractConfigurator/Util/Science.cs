@@ -10,6 +10,8 @@ namespace ContractConfigurator.Util
 {
     public static class Science
     {
+        private static List<string> kscBiomes = null;
+
         /// <summary>
         /// Gets the science subject for the given values.
         /// </summary>
@@ -32,33 +34,43 @@ namespace ContractConfigurator.Util
             bool evaCheckRequired = !GameVariables.Instance.UnlockedEVA(ScenarioUpgradeableFacilities.GetFacilityLevel(SpaceCenterFacility.AstronautComplex)) &&
                 (experiment.id == "surfaceSample" || experiment.id == "evaReport");
 
+            kscBiomes = kscBiomes ?? UnityEngine.Object.FindObjectsOfType<Collider>()
+                .Where(x => x.gameObject.layer == 15)
+                .Select(x => x.gameObject.tag)
+                .Where(x => x != "Untagged")
+                .Where(x => !x.Contains("KSC_Runway_Light"))
+                .Where(x => !x.Contains("KSC_Pad_Flag_Pole"))
+                .Where(x => !x.Contains("Ladder"))
+                .Select(x => Vessel.GetLandedAtString(x))
+                .Select(x => x.Replace(" ", ""))
+                .Distinct()
+                .ToList();
+
+            IEnumerable<string> biomes = body.BiomeMap == null ? Enumerable.Empty<string>() :
+                body.BiomeMap.Attributes.Select(attr => attr.name.Replace(" ", string.Empty)).
+                Where(biomeFilter);
+
             return situations
                 .Where(sit => experiment.IsAvailableWhile(sit, body) &&
                     (sit != ExperimentSituations.SrfSplashed || body.ocean) &&
                     ((sit != ExperimentSituations.FlyingLow && sit != ExperimentSituations.FlyingHigh) || body.atmosphere) &&
                     (!evaCheckRequired || sit == ExperimentSituations.SrfLanded || sit == ExperimentSituations.SrfSplashed))
-                .SelectMany(sit =>
+                .SelectMany<ExperimentSituations, ScienceSubject>(sit =>
                 {
-                    var biomesPlusKsc = (experiment.BiomeIsRelevantWhile(sit)
-                        ? ResearchAndDevelopment.GetBiomeTags(body).ToArray()
-                        : Enumerable.Empty<string>()).Where(biomeFilter).ToList();
-
-                    var biomes =
-                        biomesPlusKsc.Where(
-                            biome =>
-                                body.BiomeMap != null && body.BiomeMap.Attributes.Any(attr => attr.name.Replace(" ", string.Empty) == biome))
-                                .ToList();
-
-                    var kscStatics = biomesPlusKsc.Except(biomes);
-
-                    return (biomesPlusKsc.Any() ? biomes : new List<string> { string.Empty })
-                        .Where(biome => !BiomeTracker.IsDifficult(body, biome, sit) ^ difficult)
-                        .Select(biome => ScienceSubject(experiment, sit, body, biome))
-                        .Union(sit == ExperimentSituations.SrfLanded // static KSC items can only be landed on as far as I know
-                            ? kscStatics.Select(
-                                staticName =>
-                                    ScienceSubject(experiment, ExperimentSituations.SrfLanded, body, staticName))
-                                    : Enumerable.Empty<ScienceSubject>());
+                    if (experiment.BiomeIsRelevantWhile(sit))
+                    {
+                        return biomes.Where(biome => !BiomeTracker.IsDifficult(body, biome, sit) ^ difficult)
+                            .Select(biome => ScienceSubject(experiment, sit, body, biome))
+                            .Union(body.isHomeWorld && sit == ExperimentSituations.SrfLanded // static KSC items can only be landed
+                                ? kscBiomes.Select(
+                                    staticName =>
+                                        ScienceSubject(experiment, ExperimentSituations.SrfLanded, body, staticName))
+                                        : Enumerable.Empty<ScienceSubject>());
+                    }
+                    else
+                    {
+                        return new ScienceSubject[] { ScienceSubject(experiment, sit, body, "") };
+                    }
                 });
         }
 
@@ -196,7 +208,7 @@ namespace ContractConfigurator.Util
                 }
                 catch
                 {
-                    m = Regex.Match(sitAndBiome, @"(.*)([A-Z][\w]*)$");
+                    m = Regex.Match(sitAndBiome, @"(.*)([A-Z][\w&]*)$$");
                     sitAndBiome = m.Groups[1].Value;
                     biome = m.Groups[2].Value + biome;
                 }
