@@ -57,6 +57,7 @@ namespace ContractConfigurator.Parameters
             Recover = 1,
             Transmit = 2,
             RecoverOrTransmit = 3,
+            Ideal = 4,
         }
 
         private class VesselData
@@ -94,7 +95,34 @@ namespace ContractConfigurator.Parameters
             this.situation = situation;
             this.location = location;
             this.experiment = experiment;
-            this.recoveryMethod = recoveryMethod;
+
+            if (recoveryMethod != RecoveryMethod.Ideal)
+            {
+                this.recoveryMethod = recoveryMethod;
+            }
+            else if (string.IsNullOrEmpty(experiment))
+            {
+                this.recoveryMethod = RecoveryMethod.Recover;
+            }
+            else
+            {
+                IEnumerable<ConfigNode> expNodes = PartLoader.Instance.parts.
+                    Where(p => p.moduleInfos.Any(mod => mod.moduleName == "Science Experiment")).
+                    SelectMany(p =>
+                        p.partConfig.GetNodes("MODULE").
+                        Where(node => node.GetValue("name") == "ModuleScienceExperiment" && node.GetValue("experimentID") == experiment)
+                    );
+
+                // Either has no parts or a full science transmitter
+                if (!expNodes.Any() || expNodes.Any(n => ConfigNodeUtil.ParseValue<float>(n, "xmitDataScalar", 0.0f) >= 0.999))
+                {
+                    this.recoveryMethod = RecoveryMethod.RecoverOrTransmit;
+                }
+                else
+                {
+                    this.recoveryMethod = RecoveryMethod.Recover;
+                }
+            }
 
             disableOnStateChange = true;
 
