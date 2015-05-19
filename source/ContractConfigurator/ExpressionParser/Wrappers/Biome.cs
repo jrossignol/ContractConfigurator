@@ -27,7 +27,7 @@ namespace ContractConfigurator
                 return biome;
             }
 
-            return (body == null ? "" : IsKSC() ? "KSC's " : (body.theName + "'s ")) + Regex.Replace(biome, @"(\B[A-Z]+?(?=[A-Z][^A-Z])|\B[A-Z]+?(?=[^A-Z]))", " $1");
+            return (body == null ? "" : IsKSC() ? "KSC's " : (body.theName + "'s ")) + PrintBiomeName(biome);
         }
 
         public bool IsKSC()
@@ -38,6 +38,11 @@ namespace ContractConfigurator
             }
 
             return !body.BiomeMap.Attributes.Any(attr => attr.name.Replace(" ", string.Empty) == biome);
+        }
+
+        public static string PrintBiomeName(string biome)
+        {
+            return Regex.Replace(biome, @"([A-Z&]+?(?=[A-Z][^A-Z])|\B[A-Z]+?(?=[^A-Z]))", " $1");
         }
     }
 }
