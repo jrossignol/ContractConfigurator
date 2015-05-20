@@ -182,7 +182,9 @@ namespace ContractConfigurator.Parameters
             // Filter for biome
             if (!string.IsNullOrEmpty(biome))
             {
-                AddParameter(new ParameterDelegate<ScienceSubject>("Biome: " + Biome.PrintBiomeName(biome),
+                string title = targetBody.isHomeWorld && new Biome(targetBody, biome).IsKSC() ? "KSC Location: " : "Biome: ";
+
+                AddParameter(new ParameterDelegate<ScienceSubject>(title + Biome.PrintBiomeName(biome),
                     subj => CheckBiome(FlightGlobals.ActiveVessel)));
             }
 
