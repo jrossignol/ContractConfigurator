@@ -37,7 +37,7 @@ namespace ContractConfigurator.ExpressionParser
             RegisterGlobalFunction(new Function<List<ScienceSubject>>("AllScienceSubjects", () => Science.GetSubjects(FlightGlobals.Bodies).ToList(), false));
             RegisterGlobalFunction(new Function<List<CelestialBody>, List<ScienceSubject>>("AllScienceSubjectsByBody", (cbs) => Science.GetSubjects(cbs).ToList(), false));
             RegisterGlobalFunction(new Function<List<ScienceExperiment>, List<ScienceSubject>>("AllScienceSubjectsByExperiment", (exps) => Science.GetSubjects(FlightGlobals.Bodies, x => exps.Contains(x)).ToList(), false));
-            RegisterGlobalFunction(new Function<List<Biome>, List<ScienceSubject>>("AllScienceSubjectsByBiome", (biomes) => Science.GetSubjects(biomes.GroupBy(b => b.body).Select(grp => grp.First().body), null, x => biomes.Any(b => b.biome == x)).ToList(), false));
+            RegisterGlobalFunction(new Function<List<Biome>, List<ScienceSubject>>("AllScienceSubjectsByBiome", (biomes) => Science.GetSubjects(biomes.GroupBy(b => b != null ? b.body : null).Select(grp => grp.First() != null ? grp.First().body : null), null, x => biomes.Any(b => b.biome == x)).ToList(), false));
 
             RegisterGlobalFunction(new Function<List<CelestialBody>, List<ScienceExperiment>, List<ScienceSubject>>("AllScienceSubjectsByBodyExperiment", (cbs, exps) => Science.GetSubjects(cbs, x => exps.Contains(x)).ToList(), false));
             RegisterGlobalFunction(new Function<List<Biome>, List<ScienceExperiment>, List<ScienceSubject>>("AllScienceSubjectsByBiomeExperiment", (biomes, exps) => Science.GetSubjects(biomes.GroupBy(b => b.body).Select(grp => grp.First().body), x => exps.Contains(x), x => biomes.Any(b => b.biome == x)).ToList(), false));
