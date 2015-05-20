@@ -220,7 +220,7 @@ namespace ContractConfigurator
                     foreach (ConfigNode.Value pair in dataNode.values)
                     {
                         string typeName = pair.value.Remove(pair.value.IndexOf(":"));
-                        string value = pair.value.Substring(typeName.Length + 1, pair.value.Length - typeName.Length - 1);
+                        string value = pair.value.Substring(typeName.Length + 1);
                         Type type = ConfigNodeUtil.ParseTypeValue(typeName);
 
                         // Backwards compatibility with 1.1.1 (broken release)
@@ -231,7 +231,7 @@ namespace ContractConfigurator
 
                         if (type == typeof(string))
                         {
-                            uniqueData[pair.name] = pair.value;
+                            uniqueData[pair.name] = value;
                         }
                         else
                         {
@@ -305,6 +305,10 @@ namespace ContractConfigurator
                         if (type == typeof(CelestialBody))
                         {
                             value = ((CelestialBody)p.Value).name;
+                        }
+                        else if (type == typeof(Vessel))
+                        {
+                            value = ((Vessel)p.Value).id.ToString();
                         }
                         else
                         {
