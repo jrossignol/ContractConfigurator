@@ -446,18 +446,15 @@ namespace ContractConfigurator
             }
 
             // Check for unique values against other contracts of the same type
-            foreach (string key in uniqueValues)
+            foreach (string key in uniqueValues.Where(k => contract.uniqueData.ContainsKey(k)))
             {
                 foreach (ConfiguredContract otherContract in ContractSystem.Instance.GetCurrentContracts<ConfiguredContract>().
-                    Where(c => c.contractType != null && c.contractType.name == name && c != contract))
+                    Where(c => c.contractType != null && c.contractType.name == name && c != contract && c.uniqueData.ContainsKey(key)))
                 {
-                    if (otherContract.uniqueData.ContainsKey(key))
+                    if (contract.uniqueData[key] == otherContract.uniqueData[key])
                     {
-                        if (contract.uniqueData[key] == otherContract.uniqueData[key])
-                        {
-                            LoggingUtil.LogVerbose(this, "Didn't generate contract type " + name + ", failed on unique value check for key '" + key + "'.");
-                            return false;
-                        }
+                        LoggingUtil.LogVerbose(this, "Didn't generate contract type " + name + ", failed on unique value check for key '" + key + "'.");
+                        return false;
                     }
                 }
             }
