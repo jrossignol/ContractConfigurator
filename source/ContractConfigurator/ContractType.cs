@@ -99,7 +99,7 @@ namespace ContractConfigurator
         public float advanceFunds;
         public double weight;
         private Dictionary<string, bool> dataValues = new Dictionary<string, bool>();
-        public List<string> uniqueValues = new List<string>();
+        public Dictionary<string, bool> uniqueValues = new Dictionary<string, bool>();
 
         public ContractType(string name)
         {
@@ -190,16 +190,18 @@ namespace ContractConfigurator
                     Type type = null;
                     bool requiredValue = true;
                     bool uniqueValue = false;
+                    bool activeUniqueValue = false;
                     valid &= ConfigNodeUtil.ParseValue<Type>(data, "type", x => type = x, this);
                     valid &= ConfigNodeUtil.ParseValue<bool>(data, "requiredValue", x => requiredValue = x, this, true);
                     valid &= ConfigNodeUtil.ParseValue<bool>(data, "uniqueValue", x => uniqueValue = x, this, false);
+                    valid &= ConfigNodeUtil.ParseValue<bool>(data, "activeUniqueValue", x => activeUniqueValue = x, this, false);
 
                     if (type != null)
                     {
                         foreach (ConfigNode.Value pair in data.values)
                         {
                             string name = pair.name;
-                            if (name != "type" && name != "requiredValue" && name != "uniqueValue")
+                            if (name != "type" && name != "requiredValue" && name != "uniqueValue" && name != "activeUniqueValue")
                             {
                                 object value = null;
 
@@ -217,9 +219,9 @@ namespace ContractConfigurator
 
                                 dataValues[name] = requiredValue;
 
-                                if (uniqueValue)
+                                if (uniqueValue || activeUniqueValue)
                                 {
-                                    uniqueValues.Add(name);
+                                    uniqueValues[name] = activeUniqueValue;
                                 }
                             }
                         }
@@ -446,12 +448,16 @@ namespace ContractConfigurator
             }
 
             // Check for unique values against other contracts of the same type
-            foreach (string key in uniqueValues.Where(k => contract.uniqueData.ContainsKey(k)))
+            foreach (KeyValuePair<string, bool> pair in uniqueValues.Where(p => contract.uniqueData.ContainsKey(p.Key)))
             {
+                string key = pair.Key;
+                bool checkActiveOnly = pair.Value;
+
                 foreach (ConfiguredContract otherContract in ContractSystem.Instance.GetCurrentContracts<ConfiguredContract>().
-                    Where(c => c.contractType != null && c.contractType.name == name && c != contract && c.uniqueData.ContainsKey(key)))
+                    Where(c => c.contractType != null && c.contractType.name == name && c != contract && c.uniqueData.ContainsKey(key) &&
+                        (c.ContractState == Contract.State.Active || c.ContractState == Contract.State.Offered || !checkActiveOnly)))
                 {
-                    if (contract.uniqueData[key] == otherContract.uniqueData[key])
+                    if (contract.uniqueData[key].Equals(otherContract.uniqueData[key]))
                     {
                         LoggingUtil.LogVerbose(this, "Didn't generate contract type " + name + ", failed on unique value check for key '" + key + "'.");
                         return false;

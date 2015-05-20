@@ -1,3 +1,7 @@
+Contract Configurator 1.2.0
+- Added activeUniqueValue flag for DATA nodes to check unique values for active/offered contracts only.
+- Minor bug fixes.
+
 Contract Configurator 1.1.3
 - Fix additional case where uniqueValue can cause an exception (thanks MikeSalvatierra).
 - Add RemainingScience method to Biome class.

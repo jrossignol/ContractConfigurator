@@ -311,7 +311,7 @@ namespace ContractConfigurator
                             value = p.Value.ToString();
                         }
 
-                        dataNode.AddValue(p.Key, type + ":" + value);
+                        dataNode.AddValue(p.Key, type.Name + ":" + value);
                     }
                 }
 
@@ -433,7 +433,7 @@ namespace ContractConfigurator
                     currentContract = null;
 
                     // Store unique data
-                    foreach (string key in selectedContractType.uniqueValues)
+                    foreach (string key in selectedContractType.uniqueValues.Keys)
                     {
                         uniqueData[key] = selectedContractType.dataNode[key];
                     }
