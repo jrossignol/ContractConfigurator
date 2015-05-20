@@ -32,6 +32,13 @@ namespace ContractConfigurator.Util
             bool evaCheckRequired = !GameVariables.Instance.UnlockedEVA(ScenarioUpgradeableFacilities.GetFacilityLevel(SpaceCenterFacility.AstronautComplex)) &&
                 (experiment.id == "surfaceSample" || experiment.id == "evaReport");
 
+            // Set up the biome filter
+            bool biomesFiltered = biomeFilter != null;
+            if (biomeFilter == null)
+            {
+                biomeFilter = new Func<string, bool>(x => true);
+            }
+
             IEnumerable<string> biomes = body.BiomeMap == null ? Enumerable.Empty<string>() :
                 body.BiomeMap.Attributes.Select(attr => attr.name.Replace(" ", string.Empty)).
                 Where(biomeFilter);
@@ -48,14 +55,18 @@ namespace ContractConfigurator.Util
                         return biomes.Where(biome => !BiomeTracker.IsDifficult(body, biome, sit) ^ difficult)
                             .Select(biome => ScienceSubject(experiment, sit, body, biome))
                             .Union(body.isHomeWorld && sit == ExperimentSituations.SrfLanded // static KSC items can only be landed
-                                ? Biome.KSCBiomes.Select(
+                                ? Biome.KSCBiomes.Where(biomeFilter).Select(
                                     staticName =>
                                         ScienceSubject(experiment, ExperimentSituations.SrfLanded, body, staticName))
                                         : Enumerable.Empty<ScienceSubject>());
                     }
-                    else
+                    else if (!biomesFiltered)
                     {
                         return new ScienceSubject[] { ScienceSubject(experiment, sit, body, "") };
+                    }
+                    else
+                    {
+                        return Enumerable.Empty<ScienceSubject>();
                     }
                 });
         }
@@ -99,12 +110,6 @@ namespace ContractConfigurator.Util
             if (experimentFilter != null)
             {
                 experiments = experiments.Where(experimentFilter);
-            }
-
-            // Set up the biome filter
-            if (biomeFilter == null)
-            {
-                biomeFilter = new Func<string, bool>(x => true);
             }
 
             // Return subjects for each celestial body

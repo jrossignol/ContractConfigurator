@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using UnityEngine;
+using ContractConfigurator.Util;
 
 namespace ContractConfigurator.ExpressionParser
 {
@@ -26,6 +27,7 @@ namespace ContractConfigurator.ExpressionParser
         {
             RegisterMethod(new Method<Biome, CelestialBody>("CelestialBody", biome => biome == null ? null : biome.body));
             RegisterMethod(new Method<Biome, bool>("IsKSC", biome => biome == null ? false : biome.IsKSC()));
+            RegisterMethod(new Method<Biome, float>("RemainingScience", RemainingScience));
 
             RegisterMethod(new Method<Biome, List<Location>>("DifficultLocations", biome => biome == null ?
                 new List<Location>() : BiomeTracker.GetDifficultLocations(biome.body, biome.biome).Select(v => new Location(v.y, v.x)).ToList()));
@@ -38,13 +40,15 @@ namespace ContractConfigurator.ExpressionParser
         {
         }
 
-        internal override U ConvertType<U>(Biome value)
+        private static float RemainingScience(Biome biome)
         {
-            if (typeof(U) == typeof(string))
+            if (biome == null || HighLogic.CurrentGame == null)
             {
-                return (U)(object)value.biome;
+                return 0.0f;
             }
-            return base.ConvertType<U>(value);
+
+            return Science.GetSubjects(new CelestialBody[] { biome.body }, null, b => b == biome.biome).Sum(subj =>
+                subj.scienceCap * HighLogic.CurrentGame.Parameters.Career.ScienceGainMultiplier - subj.science);
         }
 
         internal override Biome ParseIdentifier(Token token)

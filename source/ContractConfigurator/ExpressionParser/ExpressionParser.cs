@@ -1353,6 +1353,12 @@ namespace ContractConfigurator.ExpressionParser
                 return (U)(object)value;
             }
 
+            // Special string handling
+            if (typeof(U) == typeof(string))
+            {
+                return (U)(object)value.ToString();
+            }
+
             // Disallow conversion directly to a boolean
             if (typeof(U) == typeof(bool) || typeof(T) == typeof(bool))
             {
