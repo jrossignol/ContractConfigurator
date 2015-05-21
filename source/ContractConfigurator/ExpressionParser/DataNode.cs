@@ -186,7 +186,18 @@ namespace ContractConfigurator.ExpressionParser
 
             foreach (KeyValuePair<string, Value> pair in data)
             {
-                result += "    <color=lime>" + pair.Key + "</color> = " + pair.Value.value + ", deterministic = " + pair.Value.deterministic + "\n";
+                string output;
+                Type type = pair.Value.value != null ? pair.Value.value.GetType() : null;
+                if (type == typeof(ScienceSubject))
+                {
+                    output = ((ScienceSubject)(pair.Value.value)).id;
+                }
+                else
+                {
+                    output = pair.Value.value != null ? pair.Value.value.ToString() : "null";
+                }
+
+                result += "    <color=lime>" + pair.Key + "</color> = " + output + ", deterministic = " + pair.Value.deterministic + "\n";
             }
             return result;
         }
