@@ -20,7 +20,7 @@ namespace ContractConfigurator.ExpressionParser
 
         internal static void RegisterMethods()
         {
-            RegisterMethod(new Method<T, string>("ToString", v => v.ToString()));
+            RegisterMethod(new Method<T, string>("ToString", v => GetParser<T>().ConvertType<string>(v)));
 
             RegisterLocalFunction(new Function<T>("Random", RandomEnumValue, false));
             RegisterLocalFunction(new Function<List<T>>("All", () => Enum.GetValues(typeof(T)).OfType<T>().ToList()));
@@ -49,7 +49,7 @@ namespace ContractConfigurator.ExpressionParser
 
         internal override bool NE(T a, T b)
         {
-            return a.ToInt32(null) == b.ToInt32(null);
+            return a.ToInt32(null) != b.ToInt32(null);
         }
     }
 }

@@ -18,12 +18,21 @@ namespace ContractConfigurator.ExpressionParser
 
         internal override bool EQ(T a, T b)
         {
-            return a == b;
+            if (a == b)
+            {
+                return true;
+            }
+            if (a == null || b == null)
+            {
+                return false;
+            }
+
+            return a.Equals(b);
         }
 
         internal override bool NE(T a, T b)
         {
-            return a != b;
+            return !EQ(a, b);
         }
     }
 
