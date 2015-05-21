@@ -35,7 +35,7 @@ namespace ContractConfigurator
         
         public static ContractType GetContractType(string name)
         {
-            if (contractTypes.ContainsKey(name) && contractTypes[name].enabled)
+            if (contractTypes.ContainsKey(name))
             {
                 return contractTypes[name];
             }
