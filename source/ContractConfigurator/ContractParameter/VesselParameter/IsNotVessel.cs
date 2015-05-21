@@ -24,6 +24,9 @@ namespace ContractConfigurator.Parameters
         public IsNotVessel(string vesselKey, string title)
             : base(title)
         {
+            failWhenUnmet = true;
+            fakeFailures = true;
+
             this.vesselKey = vesselKey;
         }
 
@@ -98,12 +101,7 @@ namespace ContractConfigurator.Parameters
         protected override bool VesselMeetsCondition(Vessel vessel)
         {
             LoggingUtil.LogVerbose(this, "Checking VesselMeetsCondition: " + vessel.id);
-            bool result = ContractVesselTracker.Instance.GetAssociatedVessel(vesselKey) != vessel;
-            if (!result)
-            {
-                state = ParameterState.Failed;
-            }
-            return result;
+            return ContractVesselTracker.Instance.GetAssociatedVessel(vesselKey) != vessel;
         }
     }
 }

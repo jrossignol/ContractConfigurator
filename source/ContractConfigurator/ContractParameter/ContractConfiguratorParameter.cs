@@ -18,6 +18,7 @@ namespace ContractConfigurator.Parameters
         public bool completeInSequence;
         public bool hideChildren;
         private bool hidden = false;
+        protected bool fakeFailures = false;
 
         public ContractConfiguratorParameter()
             : this(null)
@@ -61,6 +62,10 @@ namespace ContractConfigurator.Parameters
                 {
                     node.AddValue("hideChildren", hideChildren);
                 }
+                if (fakeFailures)
+                {
+                    node.AddValue("fakeFailures", fakeFailures);
+                }
                 OnParameterSave(node);
             }
             catch (Exception e)
@@ -92,6 +97,7 @@ namespace ContractConfigurator.Parameters
                 notes = ConfigNodeUtil.ParseValue<string>(node, "notes", "");
                 hideChildren = ConfigNodeUtil.ParseValue<bool?>(node, "hideChildren", (bool?)false).Value;
                 completeInSequence = ConfigNodeUtil.ParseValue<bool?>(node, "completeInSequence", (bool?)false).Value;
+                fakeFailures = ConfigNodeUtil.ParseValue<bool?>(node, "fakeFailures", (bool?)false).Value;
                 OnParameterLoad(node);
 
                 if (hideChildren)
@@ -187,7 +193,7 @@ namespace ContractConfigurator.Parameters
             {
                 AwardCompletion();
             }
-            else if (state == ParameterState.Failed)
+            else if (state == ParameterState.Failed && !fakeFailures)
             {
                 PenalizeFailure();
             }
