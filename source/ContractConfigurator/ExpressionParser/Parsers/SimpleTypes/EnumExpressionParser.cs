@@ -20,6 +20,8 @@ namespace ContractConfigurator.ExpressionParser
 
         internal static void RegisterMethods()
         {
+            RegisterMethod(new Method<T, string>("ToString", v => v.ToString()));
+
             RegisterLocalFunction(new Function<T>("Random", RandomEnumValue, false));
             RegisterLocalFunction(new Function<List<T>>("All", () => Enum.GetValues(typeof(T)).OfType<T>().ToList()));
         }
