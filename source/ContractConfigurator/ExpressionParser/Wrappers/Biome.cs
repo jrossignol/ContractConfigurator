@@ -56,6 +56,22 @@ namespace ContractConfigurator
             return (body == null ? "" : IsKSC() ? "KSC's " : (body.theName + "'s ")) + PrintBiomeName(biome);
         }
 
+        public override bool Equals(object obj)
+        {
+            Biome b = obj as Biome;
+            if (b == null)
+            {
+                return false;
+            }
+
+            return body == b.body && biome == b.biome;
+        }
+
+        public override int GetHashCode()
+        {
+            return body.GetHashCode() ^ biome.GetHashCode();
+        }
+
         public bool IsKSC()
         {
             if (body == null || body.BiomeMap == null || !body.isHomeWorld)
