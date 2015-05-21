@@ -426,15 +426,29 @@ namespace ContractConfigurator
                     }
 
                     // Try to refresh non-deterministic values before we check requirements
-                    currentContract = this;
-                    LoggingUtil.LogVerbose(this, "Refresh non-deterministic values for CONTRACT_TYPE = " + selectedContractType.name);
-                    if (!ConfigNodeUtil.UpdateNonDeterministicValues(selectedContractType.dataNode))
+                    LoggingUtil.LogLevel origLogLevel = LoggingUtil.logLevel;
+                    try
                     {
-                        LoggingUtil.LogVerbose(this, selectedContractType.name + " was not generated: non-deterministic expression failure.");
-                        validContractTypes.Remove(selectedContractType);
-                        totalWeight -= selectedContractType.weight;
+                        if (selectedContractType.trace)
+                        {
+                            LoggingUtil.logLevel = LoggingUtil.LogLevel.VERBOSE;
+                        }
+
+                        currentContract = this;
+                        LoggingUtil.LogVerbose(this, "Refresh non-deterministic values for CONTRACT_TYPE = " + selectedContractType.name);
+                        if (!ConfigNodeUtil.UpdateNonDeterministicValues(selectedContractType.dataNode))
+                        {
+                            LoggingUtil.LogVerbose(this, selectedContractType.name + " was not generated: non-deterministic expression failure.");
+                            validContractTypes.Remove(selectedContractType);
+                            totalWeight -= selectedContractType.weight;
+                        }
+                        currentContract = null;
+
                     }
-                    currentContract = null;
+                    finally
+                    {
+                        LoggingUtil.logLevel = origLogLevel;
+                    }
 
                     // Store unique data
                     foreach (string key in selectedContractType.uniqueValues.Keys)
