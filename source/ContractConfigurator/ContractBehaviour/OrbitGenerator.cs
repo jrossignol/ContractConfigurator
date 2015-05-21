@@ -121,7 +121,7 @@ namespace ContractConfigurator.Behaviour
             }
         }
 
-        public static OrbitGenerator Create(ConfigNode configNode, CelestialBody defaultBody, OrbitGeneratorFactory factory)
+        public static OrbitGenerator Create(ConfigNode configNode, OrbitGeneratorFactory factory)
         {
             OrbitGenerator obGenerator = new OrbitGenerator();
 
@@ -151,15 +151,12 @@ namespace ContractConfigurator.Behaviour
                         throw new ArgumentException("Unrecognized orbit node: '" + child.name + "'");
                     }
 
-                    // Get celestial body
-                    if (defaultBody != null)
+                    // Use an expression to default - then it'll work for dynamic contracts
+                    if (!child.HasValue("targetBody"))
                     {
-                        valid &= ConfigNodeUtil.ParseValue<CelestialBody>(child, "targetBody", x => obData.targetBody = x, factory, defaultBody);
+                        child.AddValue("targetBody", "@/targetBody");
                     }
-                    else
-                    {
-                        valid &= ConfigNodeUtil.ParseValue<CelestialBody>(child, "targetBody", x => obData.targetBody = x, factory);
-                    }
+                    valid &= ConfigNodeUtil.ParseValue<CelestialBody>(child, "targetBody", x => obData.targetBody = x, factory);
 
                     // Check for unexpected values
                     valid &= ConfigNodeUtil.ValidateUnexpectedValues(child, factory);

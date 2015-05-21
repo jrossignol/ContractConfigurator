@@ -21,7 +21,7 @@ namespace ContractConfigurator.Behaviour
             bool valid = base.Load(configNode);
 
             // Call SpawnKerbal for load behaviour
-            spawnVessel = SpawnVessel.Create(configNode, targetBody, this);
+            spawnVessel = SpawnVessel.Create(configNode, this);
 
             return valid && spawnVessel != null;
         }

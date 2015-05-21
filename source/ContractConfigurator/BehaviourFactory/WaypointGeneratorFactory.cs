@@ -34,7 +34,7 @@ namespace ContractConfigurator.Behaviour
             bool valid = base.Load(configNode);
 
             // Call SpawnKerbal for load behaviour
-            waypointGeneratorTemplate = WaypointGenerator.Create(configNode, targetBody, this);
+            waypointGeneratorTemplate = WaypointGenerator.Create(configNode, this);
 
             return valid && waypointGeneratorTemplate != null;
         }

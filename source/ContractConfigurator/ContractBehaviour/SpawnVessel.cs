@@ -93,7 +93,7 @@ namespace ContractConfigurator.Behaviour
             }
         }
 
-        public static SpawnVessel Create(ConfigNode configNode, CelestialBody defaultBody, SpawnVesselFactory factory)
+        public static SpawnVessel Create(ConfigNode configNode, SpawnVesselFactory factory)
         {
             SpawnVessel spawnVessel = new SpawnVessel();
 
@@ -121,15 +121,12 @@ namespace ContractConfigurator.Behaviour
                     valid &= ConfigNodeUtil.ParseValue<string>(child, "flagURL", x => vessel.flagURL = x, factory, (string)null);
                     valid &= ConfigNodeUtil.ParseValue<VesselType>(child, "vesselType", x => vessel.vesselType = x, factory, VesselType.Ship);
 
-                    // Get celestial body
-                    if (defaultBody != null)
+                    // Use an expression to default - then it'll work for dynamic contracts
+                    if (!child.HasValue("targetBody"))
                     {
-                        valid &= ConfigNodeUtil.ParseValue<CelestialBody>(child, "targetBody", x => vessel.body = x, factory, defaultBody);
+                        child.AddValue("targetBody", "@/targetBody");
                     }
-                    else
-                    {
-                        valid &= ConfigNodeUtil.ParseValue<CelestialBody>(child, "targetBody", x => vessel.body = x, factory);
-                    }
+                    valid &= ConfigNodeUtil.ParseValue<CelestialBody>(child, "targetBody", x => vessel.body = x, factory);
 
                     // Get landed stuff
                     if (child.HasValue("lat") && child.HasValue("lon"))

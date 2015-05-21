@@ -201,7 +201,7 @@ namespace ContractConfigurator.Behaviour
             }
         }
 
-        public static WaypointGenerator Create(ConfigNode configNode, CelestialBody defaultBody, WaypointGeneratorFactory factory)
+        public static WaypointGenerator Create(ConfigNode configNode, WaypointGeneratorFactory factory)
         {
             WaypointGenerator wpGenerator = new WaypointGenerator();
 
@@ -218,14 +218,13 @@ namespace ContractConfigurator.Behaviour
                     double? altitude = null;
                     WaypointData wpData = new WaypointData(child.name);
 
-                    if (defaultBody != null)
+                    // Use an expression to default - then it'll work for dynamic contracts
+                    if (!child.HasValue("targetBody"))
                     {
-                        valid &= ConfigNodeUtil.ParseValue<string>(child, "targetBody", x => wpData.waypoint.celestialName = x, factory, defaultBody.name);
+                        child.AddValue("targetBody", "@/targetBody.Name()");
                     }
-                    else
-                    {
-                        valid &= ConfigNodeUtil.ParseValue<string>(child, "targetBody", x => wpData.waypoint.celestialName = x, factory);
-                    }
+                    valid &= ConfigNodeUtil.ParseValue<string>(child, "targetBody", x => wpData.waypoint.celestialName = x, factory);
+
                     valid &= ConfigNodeUtil.ParseValue<string>(child, "name", x => wpData.waypoint.name = x, factory, (string)null);
                     valid &= ConfigNodeUtil.ParseValue<double?>(child, "altitude", x => altitude = x, factory, (double?)null);
                     valid &= ConfigNodeUtil.ParseValue<string>(child, "parameter", x => wpData.parameter = x, factory, "");
@@ -295,7 +294,7 @@ namespace ContractConfigurator.Behaviour
                         wpData.randomAltitude = false;
                         string pqsCity = null;
                         valid &= ConfigNodeUtil.ParseValue<string>(child, "pqsCity", x => pqsCity = x, factory);
-                        if (pqsCity != null)
+                        if (pqsCity != null && !string.IsNullOrEmpty(wpData.waypoint.celestialName))
                         {
                             try
                             {

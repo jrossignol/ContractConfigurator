@@ -137,7 +137,7 @@ namespace ContractConfigurator.Behaviour
             }
         }
         
-        public static SpawnKerbal Create(ConfigNode configNode, CelestialBody defaultBody, SpawnKerbalFactory factory)
+        public static SpawnKerbal Create(ConfigNode configNode, SpawnKerbalFactory factory)
         {
             SpawnKerbal spawnKerbal = new SpawnKerbal();
 
@@ -156,15 +156,12 @@ namespace ContractConfigurator.Behaviour
                     valid &= ConfigNodeUtil.ParseValue<string>(child, "name", x => { kerbal.name = x; if (kerbal.crewMember != null) kerbal.crewMember.name = x; },
                         factory, (string)null);
 
-                    // Get celestial body
-                    if (defaultBody != null)
+                    // Use an expression to default - then it'll work for dynamic contracts
+                    if (!child.HasValue("targetBody"))
                     {
-                        valid &= ConfigNodeUtil.ParseValue<CelestialBody>(child, "targetBody", x => kerbal.body = x, factory, defaultBody);
+                        child.AddValue("targetBody", "@/targetBody");
                     }
-                    else
-                    {
-                        valid &= ConfigNodeUtil.ParseValue<CelestialBody>(child, "targetBody", x => kerbal.body = x, factory);
-                    }
+                    valid &= ConfigNodeUtil.ParseValue<CelestialBody>(child, "targetBody", x => kerbal.body = x, factory);
 
                     // Get landed stuff
                     if (child.HasValue("lat") && child.HasValue("lon") || child.HasValue("pqsCity"))
