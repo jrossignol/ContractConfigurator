@@ -98,6 +98,7 @@
     <Compile Include="ExpressionParser\Parsers\Behaviours\WaypointGeneratorParser.cs" />
     <Compile Include="ExpressionParser\Parsers\Behaviours\SpawnKerbalParser.cs" />
     <Compile Include="ExpressionParser\Parsers\Classes\LocationParser.cs" />
+    <Compile Include="ExpressionParser\Parsers\Classes\Science\ExperimentSituationParser.cs" />
     <Compile Include="ExpressionParser\Parsers\Classes\Science\ExperimentParser.cs" />
     <Compile Include="ExpressionParser\Parsers\Classes\Science\SubjectParser.cs" />
     <Compile Include="ExpressionParser\Parsers\Classes\Science\BiomeParser.cs" />
