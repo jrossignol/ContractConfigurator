@@ -222,6 +222,32 @@ namespace ContractConfigurator.Util
                 experiment.baseValue * experiment.dataScale,
                 subject) * HighLogic.CurrentGame.Parameters.Career.ScienceGainMultiplier;
         }
+    }
 
+    /// <summary>
+    /// Adds some print methods.
+    /// </summary>
+    public static class ScienceExtensions
+    {
+        public static string Print(this ExperimentSituations exp)
+        {
+            switch (exp)
+            {
+                case ExperimentSituations.FlyingHigh:
+                    return "Flying high";
+                case ExperimentSituations.FlyingLow:
+                    return "Flying low";
+                case ExperimentSituations.InSpaceHigh:
+                    return "High in space";
+                case ExperimentSituations.InSpaceLow:
+                    return "Low in space";
+                case ExperimentSituations.SrfLanded:
+                    return "Landed";
+                case ExperimentSituations.SrfSplashed:
+                    return "Splashed down";
+                default:
+                    throw new ArgumentException("Unexpected experiment situation: " + exp);
+            }
+        }
     }
 }

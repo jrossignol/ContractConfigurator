@@ -7,6 +7,7 @@ using UnityEngine;
 using KSP;
 using Contracts;
 using Contracts.Parameters;
+using ContractConfigurator.Util;
 
 namespace ContractConfigurator.Parameters
 {
@@ -15,27 +16,6 @@ namespace ContractConfigurator.Parameters
     /// </summary>
     public static class CollectScienceExtensions
     {
-        public static string Print(this ExperimentSituations exp)
-        {
-            switch (exp)
-            {
-                case ExperimentSituations.FlyingHigh:
-                    return "Flying high";
-                case ExperimentSituations.FlyingLow:
-                    return "Flying low";
-                case ExperimentSituations.InSpaceHigh:
-                    return "High in space";
-                case ExperimentSituations.InSpaceLow:
-                    return "Low in space";
-                case ExperimentSituations.SrfLanded:
-                    return "Landed";
-                case ExperimentSituations.SrfSplashed:
-                    return "Splashed down";
-                default:
-                    throw new ArgumentException("Unexpected experiment situation: " + exp);
-            }
-        }
-
         public static string Print(this CollectScienceCustom.RecoveryMethod recoveryMethod)
         {
             if (recoveryMethod == CollectScienceCustom.RecoveryMethod.RecoverOrTransmit)
@@ -45,7 +25,6 @@ namespace ContractConfigurator.Parameters
             return recoveryMethod.ToString();
         }
     }
-
     /// <summary>
     /// Custom version of the stock CollectScience parameter.
     /// </summary>
