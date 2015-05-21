@@ -98,6 +98,8 @@ namespace ContractConfigurator
         public float failureFunds;
         public float advanceFunds;
         public double weight;
+        public bool trace = false;
+
         private Dictionary<string, bool> dataValues = new Dictionary<string, bool>();
         public Dictionary<string, bool> uniqueValues = new Dictionary<string, bool>();
 
@@ -135,6 +137,8 @@ namespace ContractConfigurator
         /// <returns>Whether the load was successful.</returns>
         public bool Load(ConfigNode configNode)
         {
+            LoggingUtil.LogLevel origLogLevel = LoggingUtil.logLevel;
+
             try
             {
                 // Logging on
@@ -146,6 +150,14 @@ namespace ContractConfigurator
                 bool valid = true;
 
                 valid &= ConfigNodeUtil.ParseValue<string>(configNode, "name", x => name = x, this);
+
+                // Try to turn on trace mode
+                valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "trace", x => trace = x, this, false);
+                if (trace)
+                {
+                    LoggingUtil.logLevel = LoggingUtil.LogLevel.VERBOSE;
+                    LoggingUtil.LogWarning(this, "Tracing enabled for contract type " + name);
+                }
 
                 // Load contract text details
                 valid &= ConfigNodeUtil.ParseValue<ContractGroup>(configNode, "group", x => group = x, this, (ContractGroup)null);
@@ -304,6 +316,10 @@ namespace ContractConfigurator
             {
                 enabled = false;
                 throw;
+            }
+            finally
+            {
+                LoggingUtil.logLevel = origLogLevel;
             }
         }
 

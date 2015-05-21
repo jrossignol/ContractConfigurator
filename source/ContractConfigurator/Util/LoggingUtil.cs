@@ -205,7 +205,7 @@ namespace ContractConfigurator
             LogLevel logLevelCheckAgainst = LoggingUtil.logLevel;
             if (specificLogLevels.ContainsKey(type.Name))
             {
-                logLevelCheckAgainst = specificLogLevels[type.Name]; 
+                logLevelCheckAgainst = (LogLevel)Math.Min((int)logLevelCheckAgainst, (int)specificLogLevels[type.Name]);
             }
 
             if (logLevel >= logLevelCheckAgainst)

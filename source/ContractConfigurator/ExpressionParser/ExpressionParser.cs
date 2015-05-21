@@ -1347,32 +1347,41 @@ namespace ContractConfigurator.ExpressionParser
         /// <returns>The converted value.</returns>
         internal virtual U ConvertType<U>(T value)
         {
+            Type tType = typeof(T);
+            Type uType = typeof(U);
+
             // Handle the basic case
-            if (typeof(T) == typeof(U))
+            if (tType == uType)
             {
                 return (U)(object)value;
             }
 
             // Special string handling
-            if (typeof(U) == typeof(string))
+            if (uType == typeof(string))
             {
                 return (U)(object)value.ToString();
             }
 
             // Disallow conversion directly to a boolean
-            if (typeof(U) == typeof(bool) || typeof(T) == typeof(bool))
+            if (uType == typeof(bool) || tType == typeof(bool))
             {
-                throw new DataStoreCastException(typeof(T), typeof(U));
+                // Exception - strings
+                if (tType == typeof(string) && "False".Equals(value) || "True".Equals(value))
+                {
+                    return (U)Convert.ChangeType(value, uType);
+                }
+
+                throw new DataStoreCastException(tType, typeof(U));
             }
 
             // Try basic conversion
             try
             {
-                return (U)Convert.ChangeType(value, typeof(U));
+                return (U)Convert.ChangeType(value, uType);
             }
             catch
             {
-                throw new DataStoreCastException(typeof(T), typeof(U));
+                throw new DataStoreCastException(tType, uType);
             }
         }
 
