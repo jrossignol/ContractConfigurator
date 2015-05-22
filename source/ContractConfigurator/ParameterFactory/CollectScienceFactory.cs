@@ -19,7 +19,7 @@ namespace ContractConfigurator
         protected ExperimentSituations? situation { get; set; }
         protected BodyLocation? location { get; set; }
         protected ScienceExperiment experiment { get; set; }
-        protected CollectScienceCustom.RecoveryMethod recoveryMethod { get; set; }
+        protected ScienceRecoveryMethod recoveryMethod { get; set; }
 
         public override bool Load(ConfigNode configNode)
         {
@@ -30,7 +30,7 @@ namespace ContractConfigurator
             valid &= ConfigNodeUtil.ParseValue<ExperimentSituations?>(configNode, "situation", x => situation = x, this, (ExperimentSituations?)null);
             valid &= ConfigNodeUtil.ParseValue<BodyLocation?>(configNode, "location", x => location = x, this, (BodyLocation?)null);
             valid &= ConfigNodeUtil.ParseValue<ScienceExperiment>(configNode, "experiment", x => experiment = x, this, (ScienceExperiment)null);
-            valid &= ConfigNodeUtil.ParseValue<CollectScienceCustom.RecoveryMethod>(configNode, "recoveryMethod", x => recoveryMethod = x, this, CollectScienceCustom.RecoveryMethod.None);
+            valid &= ConfigNodeUtil.ParseValue<ScienceRecoveryMethod>(configNode, "recoveryMethod", x => recoveryMethod = x, this, ScienceRecoveryMethod.None);
 
             return valid;
         }

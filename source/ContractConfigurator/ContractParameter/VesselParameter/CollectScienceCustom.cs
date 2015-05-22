@@ -16,29 +16,33 @@ namespace ContractConfigurator.Parameters
     /// </summary>
     public static class CollectScienceExtensions
     {
-        public static string Print(this CollectScienceCustom.RecoveryMethod recoveryMethod)
+        public static string Print(this ScienceRecoveryMethod recoveryMethod)
         {
-            if (recoveryMethod == CollectScienceCustom.RecoveryMethod.RecoverOrTransmit)
+            if (recoveryMethod == ScienceRecoveryMethod.RecoverOrTransmit)
             {
                 return "Recover or transmit";
             }
             return recoveryMethod.ToString();
         }
     }
+
+    /// <summary>
+    /// Enum listing methods of recovering science
+    /// </summary>
+    public enum ScienceRecoveryMethod : int
+    {
+        None = 0,
+        Recover = 1,
+        Transmit = 2,
+        RecoverOrTransmit = 3,
+        Ideal = 4,
+    }
+
     /// <summary>
     /// Custom version of the stock CollectScience parameter.
     /// </summary>
     public class CollectScienceCustom : VesselParameter
     {
-        public enum RecoveryMethod : int
-        {
-            None = 0,
-            Recover = 1,
-            Transmit = 2,
-            RecoverOrTransmit = 3,
-            Ideal = 4,
-        }
-
         private class VesselData
         {
             public Dictionary<string, bool> subjects = new Dictionary<string, bool>();
@@ -50,7 +54,7 @@ namespace ContractConfigurator.Parameters
         protected ExperimentSituations? situation { get; set; }
         protected BodyLocation? location { get; set; }
         protected string experiment { get; set; }
-        protected RecoveryMethod recoveryMethod { get; set; }
+        protected ScienceRecoveryMethod recoveryMethod { get; set; }
 
         private static Vessel.Situations[] landedSituations = new Vessel.Situations[] { Vessel.Situations.LANDED, Vessel.Situations.PRELAUNCH, Vessel.Situations.SPLASHED };
 
@@ -66,7 +70,7 @@ namespace ContractConfigurator.Parameters
         }
 
         public CollectScienceCustom(CelestialBody targetBody, string biome, ExperimentSituations? situation, BodyLocation? location,
-            string experiment, RecoveryMethod recoveryMethod, string title)
+            string experiment, ScienceRecoveryMethod recoveryMethod, string title)
             : base(title)
         {
             this.targetBody = targetBody;
@@ -75,13 +79,13 @@ namespace ContractConfigurator.Parameters
             this.location = location;
             this.experiment = experiment;
 
-            if (recoveryMethod != RecoveryMethod.Ideal)
+            if (recoveryMethod != ScienceRecoveryMethod.Ideal)
             {
                 this.recoveryMethod = recoveryMethod;
             }
             else if (string.IsNullOrEmpty(experiment) || experiment == "surfaceSample")
             {
-                this.recoveryMethod = RecoveryMethod.Recover;
+                this.recoveryMethod = ScienceRecoveryMethod.Recover;
             }
             else
             {
@@ -95,11 +99,11 @@ namespace ContractConfigurator.Parameters
                 // Either has no parts or a full science transmitter
                 if (!expNodes.Any() || expNodes.Any(n => ConfigNodeUtil.ParseValue<float>(n, "xmitDataScalar", 0.0f) >= 0.999))
                 {
-                    this.recoveryMethod = RecoveryMethod.RecoverOrTransmit;
+                    this.recoveryMethod = ScienceRecoveryMethod.RecoverOrTransmit;
                 }
                 else
                 {
-                    this.recoveryMethod = RecoveryMethod.Recover;
+                    this.recoveryMethod = ScienceRecoveryMethod.Recover;
                 }
             }
 
@@ -136,7 +140,7 @@ namespace ContractConfigurator.Parameters
                         output += location.Value == BodyLocation.Surface ? " while on the surface" : " while in space";
                     }
 
-                    if (recoveryMethod != RecoveryMethod.None)
+                    if (recoveryMethod != ScienceRecoveryMethod.None)
                     {
                         output += " (" + recoveryMethod.Print().ToLower() + ")";
                     }
@@ -193,7 +197,7 @@ namespace ContractConfigurator.Parameters
             AddParameter(subjectParam);
 
             // Filter for recovery
-            if (recoveryMethod != RecoveryMethod.None)
+            if (recoveryMethod != ScienceRecoveryMethod.None)
             {
                 AddParameter(new ParameterDelegate<ScienceSubject>("Recovery: " + recoveryMethod.Print(),
                     subj => recoveryDone));
@@ -299,7 +303,7 @@ namespace ContractConfigurator.Parameters
             situation = ConfigNodeUtil.ParseValue<ExperimentSituations?>(node, "situation", (ExperimentSituations?)null);
             location = ConfigNodeUtil.ParseValue<BodyLocation?>(node, "location", (BodyLocation?)null);
             experiment = ConfigNodeUtil.ParseValue<string>(node, "experiment", "");
-            recoveryMethod = ConfigNodeUtil.ParseValue<RecoveryMethod>(node, "recoveryMethod");
+            recoveryMethod = ConfigNodeUtil.ParseValue<ScienceRecoveryMethod>(node, "recoveryMethod");
 
             ParameterDelegate<ScienceSubject>.OnDelegateContainerLoad(node);
             CreateDelegates();
@@ -355,7 +359,7 @@ namespace ContractConfigurator.Parameters
             if (CheckSubject(subject))
             {
                 matchingSubject = subject;
-                if (recoveryMethod == RecoveryMethod.None)
+                if (recoveryMethod == ScienceRecoveryMethod.None)
                 {
                     recoveryDone = true;
                 }
@@ -424,11 +428,11 @@ namespace ContractConfigurator.Parameters
             {
                 if (HighLogic.LoadedScene == GameScenes.FLIGHT)
                 {
-                    recoveryDone = (recoveryMethod & RecoveryMethod.Transmit) != 0;
+                    recoveryDone = (recoveryMethod & ScienceRecoveryMethod.Transmit) != 0;
                 }
                 else
                 {
-                    recoveryDone = (recoveryMethod & RecoveryMethod.Recover) != 0;
+                    recoveryDone = (recoveryMethod & ScienceRecoveryMethod.Recover) != 0;
                 }
             }
             UpdateDelegates();

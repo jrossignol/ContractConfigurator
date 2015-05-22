@@ -572,11 +572,13 @@ namespace ContractConfigurator.ExpressionParser
         internal TResult ParseTernary<TResult>(bool lval)
         {
             verbose &= LogEntryDebug<TResult>("ParseTernary", lval);
+
+            ExpressionParser<TResult> parser = GetParser<TResult>(this);
             try
             {
-                TResult val1 = ParseStatement<TResult>();
-                ParseToken(":");
-                TResult val2 = ParseStatement<TResult>();
+                TResult val1 = parser.ParseStatement<TResult>();
+                parser.ParseToken(":");
+                TResult val2 = parser.ParseStatement<TResult>();
 
                 TResult result = lval ? val1 : val2;
                 verbose &= LogExitDebug<TResult>("ParseTernary", result);
@@ -586,6 +588,10 @@ namespace ContractConfigurator.ExpressionParser
             {
                 verbose &= LogException<TResult>("ParseTernary");
                 throw;
+            }
+            finally
+            {
+                expression = parser.expression;
             }
         }
 
