@@ -152,7 +152,7 @@ namespace ContractConfigurator.Parameters
         protected void CreateDelegates()
         {
             // Filter for celestial bodies
-            if (targetBody != null)
+            if (targetBody != null && string.IsNullOrEmpty(biome))
             {
                 AddParameter(new ParameterDelegate<ScienceSubject>("Destination: " + targetBody.theName,
                     subj => FlightGlobals.currentMainBody == targetBody, true));
@@ -161,9 +161,10 @@ namespace ContractConfigurator.Parameters
             // Filter for biome
             if (!string.IsNullOrEmpty(biome))
             {
-                string title = targetBody.isHomeWorld && new Biome(targetBody, biome).IsKSC() ? "KSC Location: " : "Biome: ";
+                Biome b = new Biome(targetBody, biome);
+                string title = b.IsKSC() ? "Location: " : "Biome: ";
 
-                AddParameter(new ParameterDelegate<ScienceSubject>(title + Biome.PrintBiomeName(biome),
+                AddParameter(new ParameterDelegate<ScienceSubject>(title + b,
                     subj => CheckBiome(FlightGlobals.ActiveVessel)));
             }
 
