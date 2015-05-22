@@ -13,6 +13,7 @@ namespace ContractConfigurator
         {
             PARAMETER_SAVE,
             PARAMETER_LOAD,
+            CONTRACT_GENERATION,
             CONTRACT_SAVE,
             CONTRACT_LOAD,
             SCENARIO_MODULE_SAVE,
@@ -37,6 +38,10 @@ namespace ContractConfigurator
                 case ExceptionSituation.PARAMETER_LOAD:
                     situationString = String.Format("while loading contract parameter '{1}' in contract '{0}'", args);
                     actionString = "The contract data was not correctly loaded.  Avoid saving your game and backup your save file immediately if you wish to prevent contract loss!";
+                    break;
+                case ExceptionSituation.CONTRACT_GENERATION:
+                    situationString = String.Format("while attempt to generate contract of type '{0}'", args);
+                    actionString = "The contract failed to generate, and you may see additional exceptions";
                     break;
                 case ExceptionSituation.CONTRACT_SAVE:
                     situationString = String.Format("while saving contract contract '{0}'", args);

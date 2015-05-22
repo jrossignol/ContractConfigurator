@@ -53,100 +53,110 @@ namespace ContractConfigurator
 
         protected override bool Generate()
         {
-            // MeetsRequirement gets called first and sets the contract type, but check it and
-            // select the contract type just in case.
-            if (contractType == null)
+            try
             {
-                if (!SelectContractType())
+                // MeetsRequirement gets called first and sets the contract type, but check it and
+                // select the contract type just in case.
+                if (contractType == null)
+                {
+                    if (!SelectContractType())
+                    {
+                        return false;
+                    }
+                }
+
+                LoggingUtil.LogDebug(this.GetType(), "Generating contract: " + contractType);
+
+                // Set stuff from contract type
+                hash = contractType.hash;
+                AutoAccept = contractType.autoAccept;
+
+                // Set the agent
+                if (contractType.agent != null)
+                {
+                    agent = contractType.agent;
+                }
+
+                // Set the contract expiry
+                if (contractType.maxExpiry == 0.0f)
+                {
+                    SetExpiry();
+                    expiryType = DeadlineType.None;
+                }
+                else
+                {
+                    SetExpiry(contractType.minExpiry, contractType.maxExpiry);
+                }
+
+                // Set the contract deadline
+                if (contractType.deadline == 0.0f)
+                {
+                    deadlineType = Contract.DeadlineType.None;
+                }
+                else
+                {
+                    SetDeadlineDays(contractType.deadline, contractType.targetBody);
+                }
+
+                // Set rewards
+                SetScience(contractType.rewardScience, contractType.targetBody);
+                SetReputation(contractType.rewardReputation, contractType.failureReputation, contractType.targetBody);
+                SetFunds(contractType.advanceFunds, contractType.rewardFunds, contractType.failureFunds, contractType.targetBody);
+
+                // Copy text from contract type
+                title = contractType.title;
+                synopsis = contractType.synopsis;
+                completedMessage = contractType.completedMessage;
+                notes = contractType.notes;
+
+                // Set description
+                if (string.IsNullOrEmpty(contractType.description))
+                {
+                    if (agent == null)
+                    {
+                        agent = AgentList.Instance.GetSuitableAgentForContract(this);
+                    }
+
+                    // Generate the contract description
+                    description = TextGen.GenerateBackStories(agent.Name, agent.GetMindsetString(),
+                        contractType.topic, contractType.subject, contractType.motivation, MissionSeed);
+                }
+                else
+                {
+                    description = contractType.description;
+                }
+
+                // Generate behaviours
+                behaviours = new List<ContractBehaviour>();
+                if (!contractType.GenerateBehaviours(this))
                 {
                     return false;
                 }
-            }
 
-            LoggingUtil.LogDebug(this.GetType(), "Generating contract: " + contractType);
-
-            // Set stuff from contract type
-            hash = contractType.hash;
-            AutoAccept = contractType.autoAccept;
-
-            // Set the agent
-            if (contractType.agent != null)
-            {
-                agent = contractType.agent;
-            }
-
-            // Set the contract expiry
-            if (contractType.maxExpiry == 0.0f)
-            {
-                SetExpiry();
-                expiryType = DeadlineType.None;
-            }
-            else
-            {
-                SetExpiry(contractType.minExpiry, contractType.maxExpiry);
-            }
-
-            // Set the contract deadline
-            if (contractType.deadline == 0.0f)
-            {
-                deadlineType = Contract.DeadlineType.None;
-            }
-            else
-            {
-                SetDeadlineDays(contractType.deadline, contractType.targetBody);
-            }
-
-            // Set rewards
-            SetScience(contractType.rewardScience, contractType.targetBody);
-            SetReputation(contractType.rewardReputation, contractType.failureReputation, contractType.targetBody);
-            SetFunds(contractType.advanceFunds, contractType.rewardFunds, contractType.failureFunds, contractType.targetBody);
-
-            // Copy text from contract type
-            title = contractType.title;
-            synopsis = contractType.synopsis;
-            completedMessage = contractType.completedMessage;
-            notes = contractType.notes;
-
-            // Set description
-            if (string.IsNullOrEmpty(contractType.description))
-            {
-                if (agent == null)
-                {
-                    agent = AgentList.Instance.GetSuitableAgentForContract(this);
-                }
-
-                // Generate the contract description
-                description = TextGen.GenerateBackStories(agent.Name, agent.GetMindsetString(),
-                    contractType.topic, contractType.subject, contractType.motivation, MissionSeed);
-            }
-            else
-            {
-                description = contractType.description;
-            }
-
-            // Generate behaviours
-            behaviours = new List<ContractBehaviour>();
-            if (!contractType.GenerateBehaviours(this))
-            {
-                return false;
-            }
-
-            // Generate parameters
-            try
-            {
+                // Generate parameters
                 if (!contractType.GenerateParameters(this))
                 {
                     return false;
                 }
+
+                LoggingUtil.LogInfo(this.GetType(), "Generated contract: " + contractType);
+                return true;
             }
             catch (Exception e)
             {
-                LoggingUtil.LogException(new Exception("Failed generating parameters for " + contractType, e));
+                LoggingUtil.LogError(this, "Error generating contract!");
+                LoggingUtil.LogException(e);
+                ExceptionLogWindow.DisplayFatalException(ExceptionLogWindow.ExceptionSituation.CONTRACT_GENERATION, e,
+                    contractType == null ? "unknown" : contractType.name);
+
+                try
+                {
+                    GenerateFailed();
+                }
+                catch { }
+
                 return false;
             }
-
-            LoggingUtil.LogInfo(this.GetType(), "Generated contract: " + contractType);
-            return true;
         }
 
         /// <summary>
