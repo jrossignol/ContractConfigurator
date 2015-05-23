@@ -53,6 +53,7 @@ namespace ContractConfigurator
 
         protected override bool Generate()
         {
+            LoggingUtil.LogLevel origLogLevel = LoggingUtil.logLevel;
             try
             {
                 // MeetsRequirement gets called first and sets the contract type, but check it and
@@ -63,6 +64,11 @@ namespace ContractConfigurator
                     {
                         return false;
                     }
+                }
+
+                if (contractType.trace)
+                {
+                    LoggingUtil.logLevel = LoggingUtil.LogLevel.VERBOSE;
                 }
 
                 LoggingUtil.LogDebug(this.GetType(), "Generating contract: " + contractType);
@@ -156,6 +162,10 @@ namespace ContractConfigurator
                 catch { }
 
                 return false;
+            }
+            finally
+            {
+                LoggingUtil.logLevel = origLogLevel;
             }
         }
 

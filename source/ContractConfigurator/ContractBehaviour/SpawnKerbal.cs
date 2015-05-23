@@ -87,6 +87,8 @@ namespace ContractConfigurator.Behaviour
         {
             if (!initialized)
             {
+                LoggingUtil.LogVerbose(this, "Initializing SpawnKerbal.");
+
                 // Create the CrewMember record
                 foreach (KerbalData kerbal in kerbals)
                 {
@@ -101,6 +103,8 @@ namespace ContractConfigurator.Behaviour
                     {
                         kerbal.crewMember.name = kerbal.name;
                     }
+
+                    LoggingUtil.LogVerbose(this, "Generating kerbal " + kerbal.crewMember.name);
 
                     // Generate PQS city coordinates
                     if (kerbal.pqsCity != null)
@@ -125,6 +129,7 @@ namespace ContractConfigurator.Behaviour
                 }
 
                 initialized = true;
+                LoggingUtil.LogVerbose(this, "SpawnKerbal initialized.");
             }
         }
 

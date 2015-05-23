@@ -6,6 +6,7 @@ Contract Configurator 1.2.0
 - Misc new functions for science expressions.
 - Lots of fixes to science expression internals.
 - Improved error handling for contract generation failures.
+- Fixed issue with WaypointGenerator behaviour getting inititalized twice (thanks AlphaAsh).
 - Minor bug fixes.
 
 Contract Configurator 1.1.3

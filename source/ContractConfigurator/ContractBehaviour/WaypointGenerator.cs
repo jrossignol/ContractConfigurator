@@ -103,6 +103,7 @@ namespace ContractConfigurator.Behaviour
                     waypoints.Add(new WaypointData(old, contract));
                 }
             }
+            initialized = orig.initialized;
             orig.initialized = false;
 
             Initialize();
@@ -112,12 +113,15 @@ namespace ContractConfigurator.Behaviour
         {
             if (!initialized)
             {
+                LoggingUtil.LogVerbose(this, "Initializing waypoint generator.");
                 int index = 0;
                 foreach (WaypointData wpData in waypoints)
                 {
                     // Do type-specific waypoint handling
                     if (wpData.type == "RANDOM_WAYPOINT")
                     {
+                        LoggingUtil.LogVerbose(this, "   Generating a random waypoint...");
+
                         // Generate the position
                         WaypointManager.ChooseRandomPosition(out wpData.waypoint.latitude, out wpData.waypoint.longitude,
                             wpData.waypoint.celestialName, wpData.waterAllowed, wpData.forceEquatorial, random);
@@ -126,6 +130,9 @@ namespace ContractConfigurator.Behaviour
                     {
                         CelestialBody body = FlightGlobals.Bodies.Where(b => b.name == wpData.waypoint.celestialName).First();
                         Waypoint nearWaypoint = waypoints[wpData.nearIndex].waypoint;
+
+                        LoggingUtil.LogVerbose(this, "   Generating a random waypoint near waypoint " + nearWaypoint.name + "...");
+
                         // TODO - this is really bad, we need to implement this method ourselves...
                         do
                         {
@@ -137,6 +144,8 @@ namespace ContractConfigurator.Behaviour
                     }
                     else if (wpData.type == "PQS_CITY")
                     {
+                        LoggingUtil.LogVerbose(this, "   Generating a waypoint based on PQS city " + wpData.pqsCity.name + "...");
+
                         CelestialBody body = FlightGlobals.Bodies.Where(b => b.name == wpData.waypoint.celestialName).First();
                         Vector3d position = wpData.pqsCity.transform.position;
 
@@ -176,8 +185,12 @@ namespace ContractConfigurator.Behaviour
                         wpData.waypoint.name = StringUtilities.GenerateSiteName(contract.MissionSeed + index++, body, !wpData.waterAllowed);
                     }
 
-                    initialized = true;
+                    LoggingUtil.LogVerbose(this, "   Generated waypoint " + wpData.waypoint.name + " at " +
+                        wpData.waypoint.latitude + ", " + wpData.waypoint.longitude + ".");
                 }
+
+                initialized = true;
+                LoggingUtil.LogVerbose(this, "Waypoint generator initialized.");
             }
         }
 
