@@ -1,4 +1,5 @@
 Contract Configurator 1.2.0
+- Reduced ratio of stock vs. contract configurator contracts further to favor non-contract configurator a little more.
 - Added activeUniqueValue flag for DATA nodes to check unique values for active/offered contracts only.
 - Fixed uniqueValue in DATA nodes to work with Vessels.
 - Fixed issue where ContractComplete throws errors if the related contract didn't load.
