@@ -18,7 +18,7 @@ namespace ContractConfigurator
         protected Biome biome { get; set; }
         protected ExperimentSituations? situation { get; set; }
         protected BodyLocation? location { get; set; }
-        protected ScienceExperiment experiment { get; set; }
+        protected List<ScienceExperiment> experiment { get; set; }
         protected ScienceRecoveryMethod recoveryMethod { get; set; }
 
         public override bool Load(ConfigNode configNode)
@@ -29,7 +29,7 @@ namespace ContractConfigurator
             valid &= ConfigNodeUtil.ParseValue<Biome>(configNode, "biome", x => biome = x, this, (Biome)null);
             valid &= ConfigNodeUtil.ParseValue<ExperimentSituations?>(configNode, "situation", x => situation = x, this, (ExperimentSituations?)null);
             valid &= ConfigNodeUtil.ParseValue<BodyLocation?>(configNode, "location", x => location = x, this, (BodyLocation?)null);
-            valid &= ConfigNodeUtil.ParseValue<ScienceExperiment>(configNode, "experiment", x => experiment = x, this, (ScienceExperiment)null);
+            valid &= ConfigNodeUtil.ParseValue<List<ScienceExperiment>>(configNode, "experiment", x => experiment = x, this, new List<ScienceExperiment>());
             valid &= ConfigNodeUtil.ParseValue<ScienceRecoveryMethod>(configNode, "recoveryMethod", x => recoveryMethod = x, this, ScienceRecoveryMethod.None);
 
             return valid;
@@ -38,7 +38,7 @@ namespace ContractConfigurator
         public override ContractParameter Generate(Contract contract)
         {
             return new CollectScienceCustom(targetBody, biome == null ? "" : biome.biome, situation, location,
-                experiment == null ? "" : experiment.id, recoveryMethod, title);
+                experiment.Select<ScienceExperiment, string>(e => e.id).ToList(), recoveryMethod, title);
         }
     }
 }

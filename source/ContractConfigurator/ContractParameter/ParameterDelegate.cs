@@ -93,7 +93,15 @@ namespace ContractConfigurator.Parameters
             {
                 LoggingUtil.LogVerbose(this, "Setting state for '" + title + "', state = " + newState);
                 state = newState;
-                ((ParameterDelegateContainer)Parent).ChildChanged = true;
+
+                IContractParameterHost current = this;
+                ParameterDelegateContainer container = null;
+                while (container == null)
+                {
+                    current = current.Parent;
+                    container = current as ParameterDelegateContainer;
+                }
+                container.ChildChanged = true;
             }
         }
 

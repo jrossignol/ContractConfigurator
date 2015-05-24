@@ -43,23 +43,19 @@ namespace ContractConfigurator.Parameters
     /// </summary>
     public class CollectScienceCustom : VesselParameter
     {
-        private class VesselData
-        {
-            public Dictionary<string, bool> subjects = new Dictionary<string, bool>();
-            public bool recovery = false;
-        }
+        private static Dictionary<string, ScienceRecoveryMethod> idealRecoverMethodCache = new Dictionary<string, ScienceRecoveryMethod>();
 
         protected CelestialBody targetBody { get; set; }
         protected string biome { get; set; }
         protected ExperimentSituations? situation { get; set; }
         protected BodyLocation? location { get; set; }
-        protected string experiment { get; set; }
+        protected List<string> experiment { get; set; }
         protected ScienceRecoveryMethod recoveryMethod { get; set; }
 
         private static Vessel.Situations[] landedSituations = new Vessel.Situations[] { Vessel.Situations.LANDED, Vessel.Situations.PRELAUNCH, Vessel.Situations.SPLASHED };
 
-        private ScienceSubject matchingSubject;
-        private bool recoveryDone = false;
+        private Dictionary<string, ScienceSubject> matchingSubjects = new Dictionary<string, ScienceSubject>();
+        private Dictionary<string, bool> recoveryDone = new Dictionary<string, bool>();
 
         private float lastUpdate = 0.0f;
         private const float UPDATE_FREQUENCY = 0.25f;
@@ -70,7 +66,7 @@ namespace ContractConfigurator.Parameters
         }
 
         public CollectScienceCustom(CelestialBody targetBody, string biome, ExperimentSituations? situation, BodyLocation? location,
-            string experiment, ScienceRecoveryMethod recoveryMethod, string title)
+            List<string> experiment, ScienceRecoveryMethod recoveryMethod, string title)
             : base(title)
         {
             this.targetBody = targetBody;
@@ -78,36 +74,14 @@ namespace ContractConfigurator.Parameters
             this.situation = situation;
             this.location = location;
             this.experiment = experiment;
-
-            if (recoveryMethod != ScienceRecoveryMethod.Ideal)
-            {
-                this.recoveryMethod = recoveryMethod;
-            }
-            else if (string.IsNullOrEmpty(experiment) || experiment == "surfaceSample")
-            {
-                this.recoveryMethod = ScienceRecoveryMethod.Recover;
-            }
-            else
-            {
-                IEnumerable<ConfigNode> expNodes = PartLoader.Instance.parts.
-                    Where(p => p.moduleInfos.Any(mod => mod.moduleName == "Science Experiment")).
-                    SelectMany(p =>
-                        p.partConfig.GetNodes("MODULE").
-                        Where(node => node.GetValue("name") == "ModuleScienceExperiment" && node.GetValue("experimentID") == experiment)
-                    );
-
-                // Either has no parts or a full science transmitter
-                if (!expNodes.Any() || expNodes.Any(n => ConfigNodeUtil.ParseValue<float>(n, "xmitDataScalar", 0.0f) >= 0.999))
-                {
-                    this.recoveryMethod = ScienceRecoveryMethod.RecoverOrTransmit;
-                }
-                else
-                {
-                    this.recoveryMethod = ScienceRecoveryMethod.Recover;
-                }
-            }
+            this.recoveryMethod = recoveryMethod;
 
             disableOnStateChange = true;
+
+            if (experiment.Count == 0)
+            {
+                experiment.Add("");
+            }
 
             CreateDelegates();
         }
@@ -118,9 +92,9 @@ namespace ContractConfigurator.Parameters
             if (string.IsNullOrEmpty(title))
             {
                 output = "Collect science";
-                if (state == ParameterState.Complete || matchingSubject != null)
+                if (state == ParameterState.Complete)
                 {
-                    output += ": " + ExperimentName(experiment) + " from ";
+                    output += ": " + ExperimentName(experiment[0]) + " from ";
 
                     if (!string.IsNullOrEmpty(biome))
                     {
@@ -158,7 +132,7 @@ namespace ContractConfigurator.Parameters
             // Filter for celestial bodies
             if (targetBody != null && string.IsNullOrEmpty(biome))
             {
-                AddParameter(new ParameterDelegate<ScienceSubject>("Destination: " + targetBody.theName,
+                AddParameter(new ParameterDelegate<Vessel>("Destination: " + targetBody.theName,
                     subj => FlightGlobals.currentMainBody == targetBody, true));
             }
 
@@ -168,69 +142,82 @@ namespace ContractConfigurator.Parameters
                 Biome b = new Biome(targetBody, biome);
                 string title = b.IsKSC() ? "Location: " : "Biome: ";
 
-                AddParameter(new ParameterDelegate<ScienceSubject>(title + b,
+                AddParameter(new ParameterDelegate<Vessel>(title + b,
                     subj => CheckBiome(FlightGlobals.ActiveVessel)));
             }
 
             // Filter for situation
             if (situation != null)
             {
-                AddParameter(new ParameterDelegate<ScienceSubject>("Situation: " + situation.Value.Print(),
+                AddParameter(new ParameterDelegate<Vessel>("Situation: " + situation.Value.Print(),
                     subj => FlightGlobals.ActiveVessel != null && ScienceUtil.GetExperimentSituation(FlightGlobals.ActiveVessel) == situation));
             }
 
             // Filter for location
             if (location != null)
             {
-                AddParameter(new ParameterDelegate<ScienceSubject>("Location: " + location,
+                AddParameter(new ParameterDelegate<Vessel>("Location: " + location,
                     subj => FlightGlobals.ActiveVessel != null && (location != BodyLocation.Surface ^ FlightGlobals.ActiveVessel.LandedOrSplashed)));
             }
 
-            // Add the experiment
-            string experimentStr = string.IsNullOrEmpty(experiment) ? "Any" : ExperimentName(experiment);
-            AddParameter(new ParameterDelegate<ScienceSubject>("Experiment: " + experimentStr,
-                subj => false));
-
-            // Add the subject
-            ContractParameter subjectParam = new ParameterDelegate<ScienceSubject>("", subj => true);
-            subjectParam.ID = "Subject";
-            AddParameter(subjectParam);
-
-            // Filter for recovery
-            if (recoveryMethod != ScienceRecoveryMethod.None)
+            // Add the experiments
+            foreach (string exp in experiment)
             {
-                AddParameter(new ParameterDelegate<ScienceSubject>("Recovery: " + recoveryMethod.Print(),
-                    subj => recoveryDone));
+                string experimentStr = string.IsNullOrEmpty(exp) ? "Any" : ExperimentName(exp);
+                ContractParameter experimentParam = AddParameter(new ParameterDelegate<Vessel>("Experiment: " +
+                    experimentStr, subj => recoveryDone.ContainsKey(exp)));
+
+                // Add the subject
+                ContractParameter subjectParam = new ParameterDelegate<Vessel>("", subj => true);
+                subjectParam.ID = exp + "Subject";
+                experimentParam.AddParameter(subjectParam);
+
+                // Filter for recovery
+                if (recoveryMethod != ScienceRecoveryMethod.None)
+                {
+                    ContractParameter recoveryParam = experimentParam.AddParameter(new ParameterDelegate<Vessel>("Recovery: " +
+                        recoveryMethod.Print(), subj => false));
+                }
             }
         }
 
         protected void UpdateDelegates()
         {
-            foreach (ContractParameter genericParam in this.GetChildren())
+            foreach (ContractParameter genericParam in this.GetAllDescendents())
             {
-                ParameterDelegate<ScienceSubject> param = genericParam as ParameterDelegate<ScienceSubject>;
+                ParameterDelegate<Vessel> param = genericParam as ParameterDelegate<Vessel>;
                 string oldTitle = param.Title;
-                if (matchingSubject != null)
+                if (matchingSubjects.Count == experiment.Count)
                 {
                     if (param.ID.Contains("Destination:") || param.ID.Contains("Biome:") || param.ID.Contains("Situation:") ||
-                        param.ID.Contains("Location:") || param.ID.Contains("Experiment:"))
+                        param.ID.Contains("Location:"))
                     {
                         param.ClearTitle();
                     }
-                    else if (param.ID == "Subject")
+                    else if (param.ID.Contains("Subject"))
                     {
-                        param.SetTitle(matchingSubject.title);
+                        string exp = param.ID.Remove(param.ID.IndexOf("Subject"));
+
+                        param.SetTitle(matchingSubjects[exp].title);
                     }
                 }
                 else
                 {
-                    if (param.ID != "Subject")
+                    if (param.ID.Contains("Subject"))
                     {
-                        param.ResetTitle();
+                        string exp = param.ID.Remove(param.ID.IndexOf("Subject"));
+                        if (matchingSubjects.ContainsKey(exp))
+                        {
+                            param.SetTitle(matchingSubjects[exp].title);
+                        }
+                        else
+                        {
+                            param.ClearTitle();
+                        }
                     }
                     else
                     {
-                        param.ClearTitle();
+                        param.ResetTitle();
                     }
                 }
 
@@ -287,9 +274,17 @@ namespace ContractConfigurator.Parameters
                 node.AddValue("location", location);
             }
 
-            if (!string.IsNullOrEmpty(experiment))
+            foreach (string exp in experiment)
             {
-                node.AddValue("experiment", experiment);
+                if (!string.IsNullOrEmpty(exp))
+                {
+                    node.AddValue("experiment", exp);
+                }
+            }
+
+            foreach (string exp in recoveryDone.Keys)
+            {
+                node.AddValue("recovery", exp);
             }
 
             node.AddValue("recoveryMethod", recoveryMethod);
@@ -302,10 +297,16 @@ namespace ContractConfigurator.Parameters
             biome = ConfigNodeUtil.ParseValue<string>(node, "biome", "");
             situation = ConfigNodeUtil.ParseValue<ExperimentSituations?>(node, "situation", (ExperimentSituations?)null);
             location = ConfigNodeUtil.ParseValue<BodyLocation?>(node, "location", (BodyLocation?)null);
-            experiment = ConfigNodeUtil.ParseValue<string>(node, "experiment", "");
+            experiment = ConfigNodeUtil.ParseValue<List<string>>(node, "experiment", new string[] { "" }.ToList());
             recoveryMethod = ConfigNodeUtil.ParseValue<ScienceRecoveryMethod>(node, "recoveryMethod");
 
-            ParameterDelegate<ScienceSubject>.OnDelegateContainerLoad(node);
+            List<string> recoveredExp = ConfigNodeUtil.ParseValue<List<string>>(node, "recovery", new List<string>());
+            foreach (string exp in recoveredExp)
+            {
+                recoveryDone[exp] = true;
+            }
+
+            ParameterDelegate<Vessel>.OnDelegateContainerLoad(node);
             CreateDelegates();
         }
 
@@ -356,21 +357,26 @@ namespace ContractConfigurator.Parameters
 
             // Decide if this is a matching subject
             ScienceSubject subject = ResearchAndDevelopment.GetSubjectByID(scienceData.subjectID);
-            if (CheckSubject(subject))
+            foreach (string exp in experiment)
             {
-                matchingSubject = subject;
-                if (recoveryMethod == ScienceRecoveryMethod.None)
+                if (CheckSubject(exp, subject))
                 {
-                    recoveryDone = true;
+                    Debug.Log("    got a match!");
+                    matchingSubjects[exp] = subject;
+                    if (recoveryMethod == ScienceRecoveryMethod.None)
+                    {
+                        recoveryDone[exp] = true;
+                    }
+                    UpdateDelegates();
                 }
-                UpdateDelegates();
             }
 
             CheckVessel(vessel);
         }
 
-        private bool CheckSubject(ScienceSubject subject)
+        private bool CheckSubject(string exp, ScienceSubject subject)
         {
+            Debug.Log("    Checking " + subject.id + " against " + exp);
             if (subject == null)
             {
                 return false;
@@ -407,7 +413,7 @@ namespace ContractConfigurator.Parameters
                 }
             }
 
-            if (!string.IsNullOrEmpty(experiment) && !subject.id.Contains(experiment))
+            if (!string.IsNullOrEmpty(exp) && !subject.id.Contains(exp))
             {
                 return false;
             }
@@ -424,15 +430,24 @@ namespace ContractConfigurator.Parameters
             LoggingUtil.LogVerbose(this, "OnScienceReceived: " + subject.id + ", " + protoVessel.vesselID);
 
             // Check the given subject is okay
-            if (CheckSubject(subject))
+            foreach (string exp in experiment)
             {
-                if (HighLogic.LoadedScene == GameScenes.FLIGHT)
+                if (CheckSubject(exp, subject))
                 {
-                    recoveryDone = (recoveryMethod & ScienceRecoveryMethod.Transmit) != 0;
-                }
-                else
-                {
-                    recoveryDone = (recoveryMethod & ScienceRecoveryMethod.Recover) != 0;
+                    if (HighLogic.LoadedScene == GameScenes.FLIGHT)
+                    {
+                        if ((RecoveryMethod(exp) & ScienceRecoveryMethod.Transmit) != 0)
+                        {
+                            recoveryDone[exp] = true;
+                        }
+                    }
+                    else
+                    {
+                        if ((RecoveryMethod(exp) & ScienceRecoveryMethod.Recover) != 0)
+                        {
+                            recoveryDone[exp] = true;
+                        }
+                    }
                 }
             }
             UpdateDelegates();
@@ -447,13 +462,16 @@ namespace ContractConfigurator.Parameters
         /// <param name="vessel">The vessel</param>
         protected override void OnVesselChange(Vessel vessel)
         {
-            matchingSubject = null;
+            matchingSubjects.Clear();
             foreach (ScienceSubject subject in GetVesselSubjects(vessel).GroupBy(subjid => subjid).Select(grp => ResearchAndDevelopment.GetSubjectByID(grp.Key)))
             {
-                if (CheckSubject(subject))
+                foreach (string exp in experiment)
                 {
-                    matchingSubject = subject;
-                    break;
+                    if (CheckSubject(exp, subject))
+                    {
+                        matchingSubjects[exp] = subject;
+                        break;
+                    }
                 }
             }
 
@@ -524,6 +542,42 @@ namespace ContractConfigurator.Parameters
                 return output.Substring(0, 1).ToUpper() + output.Substring(1);
             }
         }
+
+        private ScienceRecoveryMethod RecoveryMethod(string exp)
+        {
+            if (recoveryMethod != ScienceRecoveryMethod.Ideal)
+            {
+                return recoveryMethod;
+            }
+            else if (string.IsNullOrEmpty(exp) || exp == "surfaceSample")
+            {
+                return ScienceRecoveryMethod.Recover;
+            }
+            else
+            {
+                if (!idealRecoverMethodCache.ContainsKey(exp))
+                {
+                    IEnumerable<ConfigNode> expNodes = PartLoader.Instance.parts.
+                        Where(p => p.moduleInfos.Any(mod => mod.moduleName == "Science Experiment")).
+                        SelectMany(p =>
+                            p.partConfig.GetNodes("MODULE").
+                            Where(node => node.GetValue("name") == "ModuleScienceExperiment" && node.GetValue("experimentID") == exp)
+                        );
+
+                    // Either has no parts or a full science transmitter
+                    if (!expNodes.Any() || expNodes.Any(n => ConfigNodeUtil.ParseValue<float>(n, "xmitDataScalar", 0.0f) >= 0.999))
+                    {
+                        idealRecoverMethodCache[exp] = ScienceRecoveryMethod.RecoverOrTransmit;
+                    }
+                    else
+                    {
+                        idealRecoverMethodCache[exp] = ScienceRecoveryMethod.Recover;
+                    }
+                }
+
+                return idealRecoverMethodCache[exp];
+            }
+        }
         
         /// <summary>
         /// Whether this vessel meets the parameter condition.
@@ -534,9 +588,9 @@ namespace ContractConfigurator.Parameters
         {
             LoggingUtil.LogVerbose(this, "Checking VesselMeetsCondition: " + vessel.id);
 
-            ParameterDelegate<ScienceSubject>.CheckChildConditions(this, matchingSubject);
+            ParameterDelegate<Vessel>.CheckChildConditions(this, vessel);
 
-            return recoveryDone;
+            return recoveryDone.Count == experiment.Count;
         }
     }
 }
