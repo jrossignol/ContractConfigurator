@@ -334,6 +334,7 @@ namespace ContractConfigurator.Parameters
                     VesselInfo viEVA = new VesselInfo(eva.id, eva);
                     viEVA.completionTime = vi.completionTime;
                     viEVA.state = vi.state;
+                    viEVA.strength = ParamStrength.WEAK;
                     vesselInfo[eva.id] = viEVA;
                 }
             }
@@ -356,7 +357,7 @@ namespace ContractConfigurator.Parameters
                 if (viEVA.state == ParameterState.Complete && vi.state != ParameterState.Complete)
                 {
                     vi.state = viEVA.state;
-                    vi.strength = ParamStrength.WEAK;
+                    vi.strength = viEVA.strength;
                     vi.completionTime = viEVA.completionTime;
                 }
             }

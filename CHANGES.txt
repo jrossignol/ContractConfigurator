@@ -1,6 +1,7 @@
 Contract Configurator 1.2.0
 - CompleteContract requirement now checks on active contracts too.
 - Fixed possible exception on contract save.
+- Improved transfer of parameters from Kerbal => Vessel => Vessel, such as PlantFlag in an Apollo-style mission (thanks jordanjay29).
 
 Contract Configurator 1.2.0
 - Reduced ratio of stock vs. contract configurator contracts further to favor non-contract configurator a little more.
