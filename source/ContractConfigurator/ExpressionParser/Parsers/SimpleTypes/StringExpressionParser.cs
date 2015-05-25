@@ -62,7 +62,11 @@ namespace ContractConfigurator.ExpressionParser
                 }
                 else if (token != null && token.tokenType == TokenType.SPECIAL_IDENTIFIER)
                 {
-                    return base.ParseStatement<TResult>();
+                    TResult result = base.ParseStatement<TResult>();
+                    if (parentParser != null)
+                    {
+                        return result;
+                    }
                 }
                 else
                 {

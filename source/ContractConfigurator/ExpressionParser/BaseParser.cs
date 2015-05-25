@@ -135,6 +135,7 @@ namespace ContractConfigurator.ExpressionParser
         private static Dictionary<Type, Type> parserTypes = new Dictionary<Type, Type>();
         protected int spacing = 0;
         protected static bool verbose;
+        protected BaseParser parentParser = null;
 
         protected static Dictionary<string, KeyValuePair<object, Type>> tempVariables = new Dictionary<string, KeyValuePair<object, Type>>();
 
@@ -215,6 +216,7 @@ namespace ContractConfigurator.ExpressionParser
             newParser.currentDataNode = orig.currentDataNode;
             newParser.currentKey = orig.currentKey;
             newParser.spacing = orig.spacing;
+            newParser.parentParser = orig;
 
             return newParser;
         }
