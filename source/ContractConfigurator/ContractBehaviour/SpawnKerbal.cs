@@ -291,9 +291,12 @@ namespace ContractConfigurator.Behaviour
                 // Additional seetings for a landed Kerbal
                 if (kerbal.landed)
                 {
+                    bool splashed = kerbal.altitude.Value < 0.001;
+
                     // Create the config node representation of the ProtoVessel
-                    protoVesselNode.SetValue("sit", Vessel.Situations.LANDED.ToString());
-                    protoVesselNode.SetValue("landed", true.ToString());
+                    protoVesselNode.SetValue("sit", (splashed ? Vessel.Situations.SPLASHED : Vessel.Situations.LANDED).ToString());
+                    protoVesselNode.SetValue("landed", (!splashed).ToString());
+                    protoVesselNode.SetValue("splashed", splashed.ToString());
                     protoVesselNode.SetValue("lat", kerbal.latitude.ToString());
                     protoVesselNode.SetValue("lon", kerbal.longitude.ToString());
                     protoVesselNode.SetValue("alt", kerbal.altitude.ToString());

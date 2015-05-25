@@ -353,9 +353,12 @@ namespace ContractConfigurator.Behaviour
                 // Additional seetings for a landed vessel
                 if (vesselData.landed)
                 {
+                    bool splashed = vesselData.altitude.Value < 0.001;
+
                     // Create the config node representation of the ProtoVessel
-                    protoVesselNode.SetValue("sit", Vessel.Situations.LANDED.ToString());
-                    protoVesselNode.SetValue("landed", true.ToString());
+                    protoVesselNode.SetValue("sit", (splashed ? Vessel.Situations.SPLASHED : Vessel.Situations.LANDED).ToString());
+                    protoVesselNode.SetValue("landed", (!splashed).ToString());
+                    protoVesselNode.SetValue("splashed", splashed.ToString());
                     protoVesselNode.SetValue("lat", vesselData.latitude.ToString());
                     protoVesselNode.SetValue("lon", vesselData.longitude.ToString());
                     protoVesselNode.SetValue("alt", vesselData.altitude.ToString());
