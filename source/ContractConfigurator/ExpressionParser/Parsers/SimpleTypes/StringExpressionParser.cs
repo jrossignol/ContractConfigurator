@@ -55,6 +55,8 @@ namespace ContractConfigurator.ExpressionParser
                     expression = savedExpression;
                 }
 
+                string value = "";
+
                 bool quoted = token != null && token.tokenType == TokenType.QUOTE;
                 if (quoted)
                 {
@@ -67,6 +69,8 @@ namespace ContractConfigurator.ExpressionParser
                     {
                         return result;
                     }
+
+                    value = (string)(object)result;
                 }
                 else
                 {
@@ -78,7 +82,6 @@ namespace ContractConfigurator.ExpressionParser
                     }
                 }
 
-                string value = "";
                 while (expression.Length > 0)
                 {
                     // Look for special identifiers
