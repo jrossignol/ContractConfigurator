@@ -10,6 +10,7 @@ Contract Configurator 1.2.0
 - Fixed issue with defaulting of targetBody on behaviours when an expression was used for the main targetBody.
 - Fixed issue with WaypointGenerator behaviour getting inititalized twice (thanks AlphaAsh).
 - Fixed issue with SpawnKerbal/SpawnVessel not working at all for splashed Kerbals/vessels (thanks AlphaAsh).
+- Fixed HasAstronaut to check for changes to kerbals in more scenarios (thanks Athywren).
 - Minor bug fixes.
 
 Contract Configurator 1.1.3

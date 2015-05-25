@@ -107,28 +107,24 @@ namespace ContractConfigurator.Parameters
         {
             base.OnRegister();
 
-            GameEvents.onCrewKilled.Add(new EventData<EventReport>.OnEvent(OnCrewKilled));
-            GameEvents.OnCrewmemberHired.Add(new EventData<ProtoCrewMember, int>.OnEvent(OnCrewEvent));
-            GameEvents.OnCrewmemberLeftForDead.Add(new EventData<ProtoCrewMember, int>.OnEvent(OnCrewEvent));
-            GameEvents.OnCrewmemberSacked.Add(new EventData<ProtoCrewMember, int>.OnEvent(OnCrewEvent));
+            GameEvents.onVesselChange.Add(new EventData<Vessel>.OnEvent(OnVesselChange));
+            GameEvents.onKerbalStatusChange.Add(new EventData<ProtoCrewMember, ProtoCrewMember.RosterStatus, ProtoCrewMember.RosterStatus>.OnEvent(OnKerbalStatusChange));
         }
 
         protected override void OnUnregister()
         {
             base.OnUnregister();
 
-            GameEvents.onCrewKilled.Remove(new EventData<EventReport>.OnEvent(OnCrewKilled));
-            GameEvents.OnCrewmemberHired.Remove(new EventData<ProtoCrewMember, int>.OnEvent(OnCrewEvent));
-            GameEvents.OnCrewmemberLeftForDead.Remove(new EventData<ProtoCrewMember, int>.OnEvent(OnCrewEvent));
-            GameEvents.OnCrewmemberSacked.Remove(new EventData<ProtoCrewMember, int>.OnEvent(OnCrewEvent));
+            GameEvents.onVesselChange.Remove(new EventData<Vessel>.OnEvent(OnVesselChange));
+            GameEvents.onKerbalStatusChange.Remove(new EventData<ProtoCrewMember, ProtoCrewMember.RosterStatus, ProtoCrewMember.RosterStatus>.OnEvent(OnKerbalStatusChange));
         }
 
-        protected void OnCrewEvent(ProtoCrewMember pcm, int ignored)
+        protected void OnVesselChange(Vessel v)
         {
             CheckStatus();
         }
 
-        protected void OnCrewKilled(EventReport report)
+        protected void OnKerbalStatusChange(ProtoCrewMember pcm, ProtoCrewMember.RosterStatus oldStatus, ProtoCrewMember.RosterStatus newStatus)
         {
             CheckStatus();
         }
