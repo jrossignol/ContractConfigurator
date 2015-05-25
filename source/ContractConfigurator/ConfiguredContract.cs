@@ -318,7 +318,7 @@ namespace ContractConfigurator
                 {
                     ConfigNode dataNode = new ConfigNode("UNIQUE_DATA");
                     node.AddNode(dataNode);
-                    foreach (KeyValuePair<string, object> p in uniqueData)
+                    foreach (KeyValuePair<string, object> p in uniqueData.Where(p => p.Value != null))
                     {
                         string value;
                         Type type = p.Value.GetType();

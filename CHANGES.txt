@@ -1,5 +1,6 @@
 Contract Configurator 1.2.0
 - CompleteContract requirement now checks on active contracts too.
+- Fixed possible exception on contract save.
 
 Contract Configurator 1.2.0
 - Reduced ratio of stock vs. contract configurator contracts further to favor non-contract configurator a little more.
