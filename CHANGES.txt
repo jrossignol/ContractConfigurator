@@ -1,4 +1,7 @@
 Contract Configurator 1.2.0
+- CompleteContract requirement now checks on active contracts too.
+
+Contract Configurator 1.2.0
 - Reduced ratio of stock vs. contract configurator contracts further to favor non-contract configurator a little more.
 - Support in CollectScience for multiple experiments.
 - Added activeUniqueValue flag for DATA nodes to check unique values for active/offered contracts only.

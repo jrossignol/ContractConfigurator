@@ -25,6 +25,8 @@ namespace ContractConfigurator
             // Load base class
             bool valid = base.Load(configNode);
 
+            checkOnActiveContract = true;
+
             // Get type
             string contractType = null;
             valid &= ConfigNodeUtil.ParseValue<string>(configNode, "contractType", x => contractType = x, this);
