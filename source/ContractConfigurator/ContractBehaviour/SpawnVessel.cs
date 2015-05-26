@@ -364,7 +364,7 @@ namespace ContractConfigurator.Behaviour
                     protoVesselNode.SetValue("alt", vesselData.altitude.ToString());
                     protoVesselNode.SetValue("landedAt", vesselData.body.name);
 
-                    // Figure out the additional heigh to subtract
+                    // Figure out the additional height to subtract
                     float lowest = float.MaxValue;
                     foreach (Part p in shipConstruct.parts)
                     {
@@ -379,10 +379,25 @@ namespace ContractConfigurator.Behaviour
 
                     // Figure out the surface height and rotation
                     Vector3d norm = vesselData.body.GetRelSurfaceNVector(vesselData.latitude, vesselData.longitude);
-                    Quaternion rotation = Quaternion.FromToRotation(Vector3.forward, Vector3.up) *
-                        Quaternion.LookRotation(new Vector3((float)norm.x, (float)norm.y, (float)norm.z));
+                    Quaternion rotation = Quaternion.LookRotation(new Vector3((float)norm.x, (float)norm.y, (float)norm.z));
+                    if (shipConstruct.shipFacility == EditorFacility.SPH)
+                    {
+                        rotation = rotation * Quaternion.FromToRotation(Vector3.forward, -Vector3.forward);
+                    }
+                    else
+                    {
+                        rotation = rotation * Quaternion.FromToRotation(Vector3.up, Vector3.forward);
+                    }
+
+                    // Set the height and rotation
                     protoVesselNode.SetValue("hgt", (shipConstruct.parts[0].localRoot.attPos0.y - lowest).ToString());
                     protoVesselNode.SetValue("rot", KSPUtil.WriteQuaternion(rotation));
+
+                    // Set the normal vector relative to the surface
+                    if (shipConstruct.shipFacility == EditorFacility.SPH)
+                    {
+                        protoVesselNode.SetValue("nrm", "0,0,-1");
+                    }
                 }
 
                 // Add vessel to the game
