@@ -92,7 +92,7 @@ namespace ContractConfigurator.Behaviour
         /// <summary>
         /// Copy constructor.
         /// </summary>
-        public WaypointGenerator(WaypointGenerator orig, Contract contract)
+        public WaypointGenerator(WaypointGenerator orig, ConfiguredContract contract)
             : base()
         {
             foreach (WaypointData old in orig.waypoints)
@@ -105,6 +105,7 @@ namespace ContractConfigurator.Behaviour
             }
             initialized = orig.initialized;
             orig.initialized = false;
+            this.contract = contract;
 
             Initialize();
         }
