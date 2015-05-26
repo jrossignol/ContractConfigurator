@@ -6,6 +6,7 @@ Contract Configurator 1.2.1
 - Fixed CollectScience NRE issue (thanks severedsolo).
 - Fixed orientation/height of spawned kerbals (thanks AlphaAsh).
 - Fixed orientation/height of vessels built in the SPH.
+- Fixed issue with HasCrew not checking traits properly when translation mods installed (thanks dureiken).
 
 Contract Configurator 1.2.0
 - Reduced ratio of stock vs. contract configurator contracts further to favor non-contract configurator a little more.

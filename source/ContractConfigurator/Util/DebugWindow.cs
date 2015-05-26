@@ -573,7 +573,7 @@ namespace ContractConfigurator
         {
             try
             {
-                requirement.lastResult = requirement.RequirementMet(null);
+                requirement.lastResult = requirement.invertRequirement ^ requirement.RequirementMet(null);
             }
             catch (Exception e)
             {

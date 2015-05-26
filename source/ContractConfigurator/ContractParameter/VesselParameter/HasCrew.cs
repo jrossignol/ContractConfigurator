@@ -6,6 +6,7 @@ using UnityEngine;
 using KSP;
 using Contracts;
 using Contracts.Parameters;
+using Experience;
 
 namespace ContractConfigurator.Parameters
 {
@@ -46,7 +47,7 @@ namespace ContractConfigurator.Parameters
             {
                 if (state == ParameterState.Complete && kerbals.Count == 0)
                 {
-                    string traitString = String.IsNullOrEmpty(trait) ? "Kerbal" : trait;
+                    string traitString = String.IsNullOrEmpty(trait) ? "Kerbal" : TraitTitle(trait);
                     output = "Crew: ";
                     if (maxCrew == 0)
                     {
@@ -106,8 +107,8 @@ namespace ContractConfigurator.Parameters
             // Experience trait
             if (!string.IsNullOrEmpty(trait))
             {
-                AddParameter(new ParameterDelegate<ProtoCrewMember>("Trait: " + trait,
-                    cm => cm.experienceTrait.TypeName == trait));
+                AddParameter(new ParameterDelegate<ProtoCrewMember>("Trait: " + TraitTitle(trait),
+                    cm => cm.experienceTrait.Config.Name == trait));
             }
 
             // Filter for experience
@@ -250,6 +251,13 @@ namespace ContractConfigurator.Parameters
             }
 
             return ParameterDelegate<ProtoCrewMember>.CheckChildConditions(this, GetVesselCrew(vessel), checkOnly);
+        }
+
+        protected string TraitTitle(string traitName)
+        {
+            ExperienceTraitConfig config = KerbalRoster.ExperienceConfig.Categories.Where(c => c.Name == traitName).FirstOrDefault();
+
+            return config != null ? config.Title : traitName;
         }
 
         /// <summary>
