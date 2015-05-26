@@ -3,6 +3,7 @@ Contract Configurator 1.2.1
 - Improved transfer of parameters from Kerbal => Vessel => Vessel, such as PlantFlag in an Apollo-style mission (thanks jordanjay29).
 - Fixed possible exception on contract save.
 - Fixed exception with WaypointGenerator for contracts using random waypoint names (thanks Galenmacil).
+- Fixed CollectScience NRE issue (thanks severedsolo).
 
 Contract Configurator 1.2.0
 - Reduced ratio of stock vs. contract configurator contracts further to favor non-contract configurator a little more.

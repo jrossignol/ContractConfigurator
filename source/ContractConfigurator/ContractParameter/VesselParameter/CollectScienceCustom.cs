@@ -376,13 +376,12 @@ namespace ContractConfigurator.Parameters
 
         private bool CheckSubject(string exp, ScienceSubject subject)
         {
-            Debug.Log("    Checking " + subject.id + " against " + exp);
             if (subject == null)
             {
                 return false;
             }
 
-            if (!subject.id.Contains(targetBody.name))
+            if (targetBody != null && !subject.id.Contains(targetBody.name))
             {
                 return false;
             }
