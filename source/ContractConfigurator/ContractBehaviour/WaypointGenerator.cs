@@ -115,7 +115,6 @@ namespace ContractConfigurator.Behaviour
             if (!initialized)
             {
                 LoggingUtil.LogVerbose(this, "Initializing waypoint generator.");
-                int index = 0;
                 foreach (WaypointData wpData in waypoints)
                 {
                     // Do type-specific waypoint handling
@@ -183,7 +182,7 @@ namespace ContractConfigurator.Behaviour
                     if (wpData.randomName)
                     {
                         CelestialBody body = FlightGlobals.Bodies.Where<CelestialBody>(b => b.name == wpData.waypoint.celestialName).First();
-                        wpData.waypoint.name = StringUtilities.GenerateSiteName(contract.MissionSeed + index++, body, !wpData.waterAllowed);
+                        wpData.waypoint.name = StringUtilities.GenerateSiteName(random.Next(), body, !wpData.waterAllowed);
                     }
 
                     LoggingUtil.LogVerbose(this, "   Generated waypoint " + wpData.waypoint.name + " at " +
