@@ -293,6 +293,17 @@ namespace ContractConfigurator.Behaviour
                 {
                     bool splashed = kerbal.altitude.Value < 0.001;
 
+                    // Add a bit of height for landed kerbals
+                    if (!splashed)
+                    {
+                        kerbal.altitude += 0.2;
+                    }
+
+                    // Figure out the appropriate rotation
+                    Vector3d norm = kerbal.body.GetRelSurfaceNVector(kerbal.latitude, kerbal.longitude);
+                    Quaternion rotation = Quaternion.LookRotation(new Vector3((float)norm.x, (float)norm.y, (float)norm.z)) *
+                        Quaternion.FromToRotation(Vector3.up, Vector3.forward);
+
                     // Create the config node representation of the ProtoVessel
                     protoVesselNode.SetValue("sit", (splashed ? Vessel.Situations.SPLASHED : Vessel.Situations.LANDED).ToString());
                     protoVesselNode.SetValue("landed", (!splashed).ToString());
@@ -300,6 +311,7 @@ namespace ContractConfigurator.Behaviour
                     protoVesselNode.SetValue("lat", kerbal.latitude.ToString());
                     protoVesselNode.SetValue("lon", kerbal.longitude.ToString());
                     protoVesselNode.SetValue("alt", kerbal.altitude.ToString());
+                    protoVesselNode.SetValue("rot", KSPUtil.WriteQuaternion(rotation));
                 }
 
                 // Add vessel to the game

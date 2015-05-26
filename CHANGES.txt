@@ -4,6 +4,7 @@ Contract Configurator 1.2.1
 - Fixed possible exception on contract save.
 - Fixed exception with WaypointGenerator for contracts using random waypoint names (thanks Galenmacil).
 - Fixed CollectScience NRE issue (thanks severedsolo).
+- Fixed orientation/height of spawned kerbals (thanks AlphaAsh).
 
 Contract Configurator 1.2.0
 - Reduced ratio of stock vs. contract configurator contracts further to favor non-contract configurator a little more.
