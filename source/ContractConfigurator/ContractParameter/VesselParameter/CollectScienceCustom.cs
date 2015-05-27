@@ -157,7 +157,7 @@ namespace ContractConfigurator.Parameters
             if (location != null)
             {
                 AddParameter(new ParameterDelegate<Vessel>("Location: " + location,
-                    subj => FlightGlobals.ActiveVessel != null && (location != BodyLocation.Surface ^ FlightGlobals.ActiveVessel.LandedOrSplashed)));
+                    subj => FlightGlobals.ActiveVessel != null && ((location != BodyLocation.Surface) ^ FlightGlobals.ActiveVessel.LandedOrSplashed)));
             }
 
             // Add the experiments
