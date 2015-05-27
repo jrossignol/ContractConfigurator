@@ -11,6 +11,14 @@ using ContractConfigurator.ExpressionParser;
 
 namespace ContractConfigurator
 {
+    public class ContractRequirementException : Exception
+    {
+        public ContractRequirementException(string message)
+            : base(message)
+        {
+        }
+    }
+
     /// <summary>
     /// Class for capturing all contract type details.
     /// </summary>
@@ -350,139 +358,125 @@ namespace ContractConfigurator
         /// <returns>Whether the contract can be offered.</returns>
         public bool MeetRequirements(ConfiguredContract contract)
         {
-            // Hash check
-            if (contract.ContractState == Contract.State.Offered && contract.hash != hash)
+            try
             {
-                LoggingUtil.LogDebug(this, "Cancelling offered contract of type " + name + ", contract definition changed.");
-                return false;
-            }
-
-            // Check prestige
-            if (prestige.Count > 0 && !prestige.Contains(contract.Prestige))
-            {
-                LoggingUtil.LogVerbose(this, "Didn't generate contract type " + name + ", wrong prestige level.");
-                return false;
-            }
-
-            // Checks for maxSimultaneous/maxCompletions
-            if (maxSimultaneous != 0 || maxCompletions != 0)
-            {
-                // Get the count of active contracts - excluding ours
-                int activeContracts = ContractSystem.Instance.GetCurrentContracts<ConfiguredContract>().
-                    Count(c => c.contractType != null && c.contractType.name == name);
-                if (contract.ContractState == Contract.State.Offered || contract.ContractState == Contract.State.Active)
+                // Hash check
+                if (contract.ContractState == Contract.State.Offered && contract.hash != hash)
                 {
-                    activeContracts--;
+                    throw new ContractRequirementException("Contract definition changed.");
                 }
 
-                // Check if we're breaching the active limit
-                if (maxSimultaneous != 0 && activeContracts >= maxSimultaneous)
+                // Check prestige
+                if (prestige.Count > 0 && !prestige.Contains(contract.Prestige))
                 {
-                    LoggingUtil.LogVerbose(this, "Didn't generate contract type " + name + ", too many active contracts.");
-                    return false;
+                    throw new ContractRequirementException("Wrong prestige level.");
                 }
 
-                // Check if we're breaching the completed limit
-                if (maxCompletions != 0)
+                // Checks for maxSimultaneous/maxCompletions
+                if (maxSimultaneous != 0 || maxCompletions != 0)
                 {
-                    int finishedContracts = ContractSystem.Instance.GetCompletedContracts<ConfiguredContract>().
+                    // Get the count of active contracts - excluding ours
+                    int activeContracts = ContractSystem.Instance.GetCurrentContracts<ConfiguredContract>().
                         Count(c => c.contractType != null && c.contractType.name == name);
-                    if (finishedContracts + activeContracts >= maxCompletions)
+                    if (contract.ContractState == Contract.State.Offered || contract.ContractState == Contract.State.Active)
                     {
-                        LoggingUtil.LogVerbose(this, "Didn't generate contract type " + name + ", too many completed/active/offered contracts.");
-                        return false;
+                        activeContracts--;
                     }
-                }
-            }
 
-            // Check the group values
-            if (group != null)
-            {
-                // Check the group active limit
-                int activeContracts = ContractSystem.Instance.GetCurrentContracts<ConfiguredContract>().Count(c => c.contractType != null && c.contractType.group == group);
-                if (contract.ContractState == Contract.State.Offered || contract.ContractState == Contract.State.Active)
-                {
-                    activeContracts--;
-                }
-                
-                if (group.maxSimultaneous != 0 && activeContracts >= group.maxSimultaneous)
-                {
-                    LoggingUtil.LogVerbose(this, "Didn't generate contract type " + name + ", too many active contracts in group.");
-                    return false;
-                }
-
-                // Check the group completed limit
-                if (group.maxCompletions != 0)
-                {
-                    int finishedContracts = ContractSystem.Instance.GetCompletedContracts<ConfiguredContract>().Count(c => c.contractType != null && c.contractType.group == group);
-                    if (finishedContracts + activeContracts >= maxCompletions)
+                    // Check if we're breaching the active limit
+                    if (maxSimultaneous != 0 && activeContracts >= maxSimultaneous)
                     {
-                        LoggingUtil.LogVerbose(this, "Didn't generate contract type " + name + ", too many completed contracts in group.");
-                        return false;
+                        throw new ContractRequirementException("Too many active contracts.");
                     }
-                }
-            }
 
-            // Check special values are not null
-            if (contract.ContractState != Contract.State.Active)
-            {
-                foreach (KeyValuePair<string, bool> pair in dataValues)
-                {
-                    // Only check if it is a required value
-                    if (pair.Value)
+                    // Check if we're breaching the completed limit
+                    if (maxCompletions != 0)
                     {
-                        string name = pair.Key;
-
-                        object o = dataNode[name];
-                        if (o == null)
+                        int finishedContracts = ContractSystem.Instance.GetCompletedContracts<ConfiguredContract>().
+                            Count(c => c.contractType != null && c.contractType.name == name);
+                        if (finishedContracts + activeContracts >= maxCompletions)
                         {
-                            LoggingUtil.LogVerbose(this, "Didn't generate contract type " + this.name + ", '" + name + "' was null.");
-                            return false;
+                            throw new ContractRequirementException("Too many completed/active/offered contracts.");
                         }
-                        else if (o == typeof(List<>))
+                    }
+                }
+
+                // Check the group values
+                if (group != null)
+                {
+                    CheckContractGroup(contract, group);
+                }
+
+                // Check special values are not null
+                if (contract.contractType == null)
+                {
+                    foreach (KeyValuePair<string, bool> pair in dataValues)
+                    {
+                        // Only check if it is a required value
+                        if (pair.Value)
                         {
-                            PropertyInfo prop = o.GetType().GetProperty("Count");
-                            int count = (int)prop.GetValue(o, null);
-                            if (count == 0)
+                            string name = pair.Key;
+
+                            object o = dataNode[name];
+                            if (o == null)
                             {
-                                LoggingUtil.LogVerbose(this, "Didn't generate contract type " + this.name + ", '" + name + "' had zero count.");
-                                return false;
+                                throw new ContractRequirementException("'" + name + "' was null.");
                             }
-                        }
-                        else if (o == typeof(Vessel))
-                        {
-                            Vessel v = (Vessel)o;
-
-                            if (v.state == Vessel.State.DEAD)
+                            else if (o == typeof(List<>))
                             {
-                                LoggingUtil.LogVerbose(this, "Didn't generate contract type " + this.name + ", vessel '" + v.vesselName + "' is dead.");
-                                return false;
+                                PropertyInfo prop = o.GetType().GetProperty("Count");
+                                int count = (int)prop.GetValue(o, null);
+                                if (count == 0)
+                                {
+                                    throw new ContractRequirementException("'" + name + "' had zero count.");
+                                }
+                            }
+                            else if (o == typeof(Vessel))
+                            {
+                                Vessel v = (Vessel)o;
+
+                                if (v.state == Vessel.State.DEAD)
+                                {
+                                    throw new ContractRequirementException("Vessel '" + v.vesselName + "' is dead.");
+                                }
                             }
                         }
                     }
                 }
-            }
 
-            // Check for unique values against other contracts of the same type
-            foreach (KeyValuePair<string, bool> pair in uniqueValues.Where(p => contract.uniqueData.ContainsKey(p.Key)))
-            {
-                string key = pair.Key;
-                bool checkActiveOnly = pair.Value;
-
-                foreach (ConfiguredContract otherContract in ContractSystem.Instance.GetCurrentContracts<ConfiguredContract>().
-                    Where(c => c.contractType != null && c.contractType.name == name && c != contract && c.uniqueData.ContainsKey(key) &&
-                        (c.ContractState == Contract.State.Active || c.ContractState == Contract.State.Offered || !checkActiveOnly)))
+                // Check for unique values against other contracts of the same type
+                foreach (KeyValuePair<string, bool> pair in uniqueValues.Where(p => contract.uniqueData.ContainsKey(p.Key)))
                 {
-                    if (contract.uniqueData[key].Equals(otherContract.uniqueData[key]))
+                    string key = pair.Key;
+                    bool checkActiveOnly = pair.Value;
+
+                    foreach (ConfiguredContract otherContract in ContractSystem.Instance.GetCurrentContracts<ConfiguredContract>().
+                        Where(c => c.contractType != null && c.contractType.name == name && c != contract && c.uniqueData.ContainsKey(key) &&
+                            (c.ContractState == Contract.State.Active || c.ContractState == Contract.State.Offered || !checkActiveOnly)))
                     {
-                        LoggingUtil.LogVerbose(this, "Didn't generate contract type " + name + ", failed on unique value check for key '" + key + "'.");
-                        return false;
+                        if (contract.uniqueData[key].Equals(otherContract.uniqueData[key]))
+                        {
+                            throw new ContractRequirementException("Failed on unique value check for key '" + key + "'.");
+                        }
                     }
                 }
-            }
 
-            // Check the captured requirements
-            return ContractRequirement.RequirementsMet(contract, this, requirements);
+                // Check the captured requirements
+                if (!ContractRequirement.RequirementsMet(contract, this, requirements))
+                {
+                    throw new ContractRequirementException("Failed on contract requirement check.");
+                }
+
+                return true;
+            }
+            catch (ContractRequirementException e)
+            {
+                LoggingUtil.LogLevel level = contract.ContractState == Contract.State.Offered ? LoggingUtil.LogLevel.DEBUG : LoggingUtil.LogLevel.VERBOSE;
+                string prefix = contract.contractType != null ? "Cancelling contract of type " + name + " (" + contract.Title + "): " :
+                    "Didn't generate contract type " + name + ": ";
+                LoggingUtil.Log(level, this.GetType(), prefix + e.Message);
+                return false;
+            }
         }
 
         protected bool CheckContractGroup(ConfiguredContract contract, ContractGroup group)
@@ -498,8 +492,7 @@ namespace ContractConfigurator
 
                 if (group.maxSimultaneous != 0 && activeContracts >= group.maxSimultaneous)
                 {
-                    LoggingUtil.LogVerbose(this, "Didn't generate contract type " + name + ", too many active contracts in group.");
-                    return false;
+                    throw new ContractRequirementException("Too many active contracts in group (" + group.name + ").");
                 }
 
                 // Check the group completed limit
@@ -508,8 +501,7 @@ namespace ContractConfigurator
                     int finishedContracts = ContractSystem.Instance.GetCompletedContracts<ConfiguredContract>().Count(c => c.contractType != null && group.BelongsToGroup(c.contractType));
                     if (finishedContracts + activeContracts >= maxCompletions)
                     {
-                        LoggingUtil.LogVerbose(this, "Didn't generate contract type " + name + ", too many completed contracts in group.");
-                        return false;
+                        throw new ContractRequirementException("Too many completed contracts in group (" + group.name + ").");
                     }
                 }
 
