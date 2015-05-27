@@ -1,5 +1,6 @@
 Contract Configurator 1.2.2
 - Fixes to VesselDestroyed (thanks tito13kfm).
+- Fixes to contracts failing unexpectedly (thanks Recon777).  Affects RemoteTech Contract Pack.
 
 Contract Configurator 1.2.1
 - CompleteContract requirement now checks on active contracts too.

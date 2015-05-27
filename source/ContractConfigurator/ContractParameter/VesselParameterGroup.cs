@@ -378,7 +378,7 @@ namespace ContractConfigurator.Parameters
         {
             if (!string.IsNullOrEmpty(define) && trackedVessel == hft.host)
             {
-                GameEvents.Contract.onParameterChange.Fire(Root, this);
+                ContractConfigurator.OnParameterChange.Fire(this.Root, this);
             }
         }
 
