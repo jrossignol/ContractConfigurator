@@ -650,7 +650,7 @@ namespace ContractConfigurator.Parameters
         /// </summary>
         /// <param name="vesselType">The type of vessel</param>
         /// <returns>True if this type of vessel should be ignored.</returns>
-        public static bool IsIgnoredVesselType(VesselType vesselType) 
+        public virtual bool IsIgnoredVesselType(VesselType vesselType) 
         {
             switch (vesselType)
             {

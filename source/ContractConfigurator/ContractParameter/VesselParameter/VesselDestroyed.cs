@@ -25,6 +25,7 @@ namespace ContractConfigurator.Parameters
         public VesselDestroyed(string title, bool mustImpactTerrain)
             : base(title)
         {
+            disableOnStateChange = true;
             this.mustImpactTerrain = mustImpactTerrain;
         }
 
@@ -61,6 +62,7 @@ namespace ContractConfigurator.Parameters
             base.OnRegister();
             GameEvents.onCollision.Add(new EventData<EventReport>.OnEvent(OnVesselAboutToBeDestroyed));
             GameEvents.onCrash.Add(new EventData<EventReport>.OnEvent(OnVesselAboutToBeDestroyed));
+            GameEvents.onVesselDestroy.Add(new EventData<Vessel>.OnEvent(OnVesselDestroy));
         }
 
         protected override void OnUnregister()
@@ -68,11 +70,12 @@ namespace ContractConfigurator.Parameters
             base.OnUnregister();
             GameEvents.onCollision.Remove(new EventData<EventReport>.OnEvent(OnVesselAboutToBeDestroyed));
             GameEvents.onCrash.Remove(new EventData<EventReport>.OnEvent(OnVesselAboutToBeDestroyed));
+            GameEvents.onVesselDestroy.Remove(new EventData<Vessel>.OnEvent(OnVesselDestroy));
         }
 
         protected virtual void OnVesselAboutToBeDestroyed(EventReport report)
         {
-            LoggingUtil.LogVerbose(this, "OnVesselAboutToBeDestroyed: " + report);
+            LoggingUtil.LogVerbose(this, "OnVesselAboutToBeDestroyed: " + report.msg);
             Vessel v = report.origin.vessel;
             if (v == null)
             {
@@ -93,6 +96,26 @@ namespace ContractConfigurator.Parameters
 
             destroyedVessels[v] = true;
             CheckVessel(v);
+        }
+
+        protected virtual void OnVesselDestroy(Vessel v)
+        {
+            LoggingUtil.LogVerbose(this, "OnVesselDestroy: " + (v != null ? v.id.ToString() : "null"));
+
+            if (!mustImpactTerrain)
+            {
+                destroyedVessels[v] = true;
+                CheckVessel(v);
+            }
+        }
+
+        public override bool IsIgnoredVesselType(VesselType vesselType)
+        {
+            if (vesselType == VesselType.Debris)
+            {
+                return false;
+            }
+            return base.IsIgnoredVesselType(vesselType);
         }
 
         /// <summary>

@@ -1,3 +1,6 @@
+Contract Configurator 1.2.2
+- Fixes to VesselDestroyed (thanks tito13kfm).
+
 Contract Configurator 1.2.1
 - CompleteContract requirement now checks on active contracts too.
 - Improved transfer of parameters from Kerbal => Vessel => Vessel, such as PlantFlag in an Apollo-style mission (thanks jordanjay29).
