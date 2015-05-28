@@ -1,3 +1,6 @@
+Contract Configurator 1.2.3
+- Fixed null reference issue in dead contract types (thanks DMagic).
+
 Contract Configurator 1.2.2
 - New UnlockTech behaviour (thanks Klefenz).
 - Added support for specifying science by subject in CollectScience.
