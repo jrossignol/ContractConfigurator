@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using UnityEngine;
 
@@ -186,20 +187,44 @@ namespace ContractConfigurator.ExpressionParser
 
             foreach (KeyValuePair<string, Value> pair in data)
             {
-                string output;
-                Type type = pair.Value.value != null ? pair.Value.value.GetType() : null;
-                if (type == typeof(ScienceSubject))
-                {
-                    output = ((ScienceSubject)(pair.Value.value)).id;
-                }
-                else
-                {
-                    output = pair.Value.value != null ? pair.Value.value.ToString() : "null";
-                }
-
-                result += "    <color=lime>" + pair.Key + "</color> = " + output + ", deterministic = " + pair.Value.deterministic + "\n";
+                result += "    <color=lime>" + pair.Key + "</color> = " + OutputValue(pair.Value.value) + ", deterministic = " + pair.Value.deterministic + "\n";
             }
             return result;
+        }
+
+        private static string OutputValue(object value)
+        {
+            if (value == null)
+            {
+                return "null";
+            }
+
+            Type type = value.GetType();
+            string output;
+            if (type == typeof(ScienceSubject))
+            {
+                output = ((ScienceSubject)(value)).id;
+            }
+            if (type == typeof(ScienceExperiment))
+            {
+                output = ((ScienceExperiment)(value)).id;
+            }
+            else if (type.Name == "List`1")
+            {
+                output = "[ ";
+                System.Collections.IEnumerable list = (System.Collections.IEnumerable)value;
+                foreach (object o in list)
+                {
+                    output += OutputValue(o) + ", ";
+                }
+                output = output.Length == 2 ? "[]" : (output.Remove(output.Length - 2) + " ]");
+            }
+            else
+            {
+                output = value.ToString();
+            }
+
+            return output;
         }
 
         public string Path()
