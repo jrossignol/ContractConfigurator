@@ -1,4 +1,5 @@
 Contract Configurator 1.2.2
+- Added support for specifying science by subject in CollectScience.
 - Fixes to VesselDestroyed (thanks tito13kfm).
 - Fixes to contracts failing unexpectedly (thanks Recon777).  Affects RemoteTech Contract Pack.
 - Fixed issues with CollectScience location (thanks severedsolo).

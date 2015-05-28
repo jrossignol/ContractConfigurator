@@ -20,6 +20,7 @@ namespace ContractConfigurator
         protected BodyLocation? location { get; set; }
         protected List<ScienceExperiment> experiment { get; set; }
         protected ScienceRecoveryMethod recoveryMethod { get; set; }
+        protected List<ScienceSubject> subjects { get; set; }
 
         public override bool Load(ConfigNode configNode)
         {
@@ -32,13 +33,46 @@ namespace ContractConfigurator
             valid &= ConfigNodeUtil.ParseValue<List<ScienceExperiment>>(configNode, "experiment", x => experiment = x, this, new List<ScienceExperiment>());
             valid &= ConfigNodeUtil.ParseValue<ScienceRecoveryMethod>(configNode, "recoveryMethod", x => recoveryMethod = x, this, ScienceRecoveryMethod.None);
 
+            valid &= ConfigNodeUtil.ParseValue<List<ScienceSubject>>(configNode, "subject", x => subjects = x, this, new List<ScienceSubject>());
+
+            valid &= ConfigNodeUtil.MutuallyExclusive(configNode, new string[] { "subject" }, new string[] { "biome", "situation", "location", "experiment" }, this);
+
+            // Validate subjects
+            if (subjects.Count > 0)
+            {
+                Biome b = Util.Science.GetBiome(subjects[0]);
+                ExperimentSituations es = Util.Science.GetSituation(subjects[0]);
+
+                if (subjects.Any(s => Util.Science.GetBiome(s) != b))
+                {
+                    LoggingUtil.LogError(this, ErrorPrefix(configNode) + ": When using 'subject', the subjects must all have the same biome.");
+                    valid = false;
+                }
+                if (subjects.Any(s => Util.Science.GetSituation(s) != es))
+                {
+                    LoggingUtil.LogError(this, ErrorPrefix(configNode) + ": When using 'subject', the subjects must all have the same experiment situation.");
+                    valid = false;
+                }
+            }
+
             return valid;
         }
 
         public override ContractParameter Generate(Contract contract)
         {
-            return new CollectScienceCustom(targetBody, biome == null ? "" : biome.biome, situation, location,
-                experiment.Select<ScienceExperiment, string>(e => e.id).ToList(), recoveryMethod, title);
+            if (subjects.Count > 0)
+            {
+                Biome b = Util.Science.GetBiome(subjects[0]);
+                ExperimentSituations es = Util.Science.GetSituation(subjects[0]);
+
+                return new CollectScienceCustom(targetBody, b == null ? "" : b.biome, es, location,
+                    subjects.Select<ScienceSubject, string>(s => Util.Science.GetExperiment(s).id).ToList(), recoveryMethod, title);
+            }
+            else
+            {
+                return new CollectScienceCustom(targetBody, biome == null ? "" : biome.biome, situation, location,
+                    experiment.Select<ScienceExperiment, string>(e => e.id).ToList(), recoveryMethod, title);
+            }
         }
     }
 }
