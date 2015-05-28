@@ -58,7 +58,7 @@ namespace ContractConfigurator.Behaviour
         {
             foreach (string tech in techID)
             {
-                configNode.AddValue("techID", techID);
+                configNode.AddValue("techID", tech);
             }
         }
 
