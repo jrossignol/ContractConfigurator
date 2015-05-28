@@ -176,7 +176,7 @@ namespace ContractConfigurator.Parameters
                 if (recoveryMethod != ScienceRecoveryMethod.None)
                 {
                     ContractParameter recoveryParam = experimentParam.AddParameter(new ParameterDelegate<Vessel>("Recovery: " +
-                        recoveryMethod.Print(), subj => false));
+                        RecoveryMethod(exp).Print(), subj => false));
                 }
             }
         }
@@ -527,19 +527,15 @@ namespace ContractConfigurator.Parameters
             {
                 return "Any experiment";
             }
-            if (experiment == "evaReport")
+
+            ScienceExperiment e = ResearchAndDevelopment.GetExperiment(experiment);
+            if (e != null)
             {
-                return "EVA Report";
+                return e.experimentTitle;
             }
-            else if (experiment.StartsWith("SCANsat"))
-            {
-                return "SCANsat " + ExperimentName(experiment.Substring("SCANsat".Length));
-            }
-            else
-            {
-                string output = Regex.Replace(experiment, @"([A-Z]+?(?=[A-Z][^A-Z])|\B[A-Z]+?(?=[^A-Z]))", " $1");
-                return output.Substring(0, 1).ToUpper() + output.Substring(1);
-            }
+
+            string output = Regex.Replace(experiment, @"([A-Z]+?(?=[A-Z][^A-Z])|\B[A-Z]+?(?=[^A-Z]))", " $1");
+            return output.Substring(0, 1).ToUpper() + output.Substring(1);
         }
 
         private ScienceRecoveryMethod RecoveryMethod(string exp)
