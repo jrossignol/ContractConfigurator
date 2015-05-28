@@ -1087,9 +1087,9 @@ namespace ContractConfigurator.ExpressionParser
                             dataNode = dataNode.Root;
                             continue;
                         }
-                        else if (identifier.StartsWith(".."))
+                        else if (identifier.StartsWith("../"))
                         {
-                            identifier = identifier.Substring(2);
+                            identifier = identifier.Substring(3);
                             dataNode = dataNode.Parent;
                             continue;
                         }
@@ -1365,6 +1365,11 @@ namespace ContractConfigurator.ExpressionParser
             // Special string handling
             if (uType == typeof(string))
             {
+                if (value == null)
+                {
+                    return (U)(object)"";
+                }
+
                 return (U)(object)value.ToString();
             }
 
