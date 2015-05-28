@@ -28,8 +28,9 @@ namespace ContractConfigurator.ExpressionParser
 
         internal static void RegisterMethods()
         {
-            RegisterMethod(new Method<string, string>("ToLower", s => s == null ? null : s.ToLower()));
-            RegisterMethod(new Method<string, string>("ToUpper", s => s == null ? null : s.ToUpper()));
+            RegisterMethod(new Method<string, string>("ToLower", s => s == null ? "" : s.ToLower()));
+            RegisterMethod(new Method<string, string>("ToUpper", s => s == null ? "" : s.ToUpper()));
+            RegisterMethod(new Method<string, string>("FirstCap", s => s == null ? "" : s.Count() > 2 ? s.Substring(0, 1).ToUpper() + s.Substring(1) : s.ToUpper()));
         }
 
         /// <summary>
@@ -122,7 +123,6 @@ namespace ContractConfigurator.ExpressionParser
                         value += expression.Substring(0, functionIndex+1);
                         expression = expression.Substring(functionIndex);
                         Token t = ParseToken();
-                        LoggingUtil.LogDebug(this, "    " + t.sval);
                         value += ParseMethod<string>(t, null, true);
                     }
                     else if (specialIdentifierIndex >= 0)
@@ -154,6 +154,11 @@ namespace ContractConfigurator.ExpressionParser
                 verbose &= LogException<TResult>("ParseStatement");
                 throw;
             }
+        }
+
+        internal override string Add(string a, string b)
+        {
+            return string.Concat(a, b);
         }
     }
 }
