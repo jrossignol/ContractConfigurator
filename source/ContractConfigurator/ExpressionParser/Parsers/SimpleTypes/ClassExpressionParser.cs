@@ -16,6 +16,16 @@ namespace ContractConfigurator.ExpressionParser
         {
         }
 
+        static ClassExpressionParser()
+        {
+            RegisterClassMethods();
+        }
+
+        internal static void RegisterClassMethods()
+        {
+            RegisterMethod(new Method<T, string>("ToString", v => v == null ? "" : GetParser<T>().ConvertType<string>(v)));
+        }
+
         internal override bool EQ(T a, T b)
         {
             if (a == b)
