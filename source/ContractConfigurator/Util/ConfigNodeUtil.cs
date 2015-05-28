@@ -338,6 +338,10 @@ namespace ContractConfigurator
             {
                 value = (T)(object)ParseTypeValue(stringValue);
             }
+            else if (typeof(T) == typeof(ScienceSubject))
+            {
+                value = (T)(object)(ResearchAndDevelopment.Instance != null ? ResearchAndDevelopment.GetSubjectByID(stringValue) : null);
+            }
             // Do newline conversions
             else if (typeof(T) == typeof(string))
             {

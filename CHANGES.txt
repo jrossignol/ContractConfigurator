@@ -3,6 +3,7 @@ Contract Configurator 1.2.2
 - Fixes to contracts failing unexpectedly (thanks Recon777).  Affects RemoteTech Contract Pack.
 - Fixed issues with CollectScience location (thanks severedsolo).
 - Fixed issue with ContractGroup max checks not working correctly for parent contract groups.
+- Minor bug fixes.
 
 Contract Configurator 1.2.1
 - CompleteContract requirement now checks on active contracts too.

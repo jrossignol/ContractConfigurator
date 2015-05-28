@@ -243,12 +243,6 @@ namespace ContractConfigurator
                         string value = pair.value.Substring(typeName.Length + 1);
                         Type type = ConfigNodeUtil.ParseTypeValue(typeName);
 
-                        // Backwards compatibility with 1.1.1 (broken release)
-                        if (type == typeof(CelestialBody) && value.IndexOf(" ") != -1)
-                        {
-                            value = value.Substring(0, value.IndexOf(" "));
-                        }
-
                         if (type == typeof(string))
                         {
                             uniqueData[pair.name] = value;
@@ -329,6 +323,10 @@ namespace ContractConfigurator
                         else if (type == typeof(Vessel))
                         {
                             value = ((Vessel)p.Value).id.ToString();
+                        }
+                        else if (type == typeof(ScienceSubject))
+                        {
+                            value = ((ScienceSubject)p.Value).id;
                         }
                         else
                         {
