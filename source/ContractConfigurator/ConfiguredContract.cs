@@ -181,12 +181,12 @@ namespace ContractConfigurator
 
         public override bool CanBeCancelled()
         {
-            return contractType.cancellable;
+            return contractType != null ? contractType.cancellable : true;
         }
 
         public override bool CanBeDeclined()
         {
-            return contractType.declinable;
+            return contractType != null ? contractType.declinable : true;
         }
 
         protected override string GetHashString()
