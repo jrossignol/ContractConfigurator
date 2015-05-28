@@ -1,4 +1,5 @@
 Contract Configurator 1.2.2
+- New UnlockTech behaviour (thanks Klefenz).
 - Added support for specifying science by subject in CollectScience.
 - Added CelestialBody.SemiMajorAxis() expression method.
 - Fixes to VesselDestroyed (thanks tito13kfm).

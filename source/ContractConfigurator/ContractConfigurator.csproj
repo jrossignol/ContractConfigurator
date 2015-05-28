@@ -53,6 +53,7 @@
     <Compile Include="BehaviourFactory\OrbitGeneratorFactory.cs" />
     <Compile Include="BehaviourFactory\SpawnPassengersFactory.cs" />
     <Compile Include="BehaviourFactory\SpawnVesselFactory.cs" />
+    <Compile Include="BehaviourFactory\UnlockTechFactory.cs" />
     <Compile Include="BehaviourFactory\WaypointGeneratorFactory.cs" />
     <Compile Include="BehaviourFactory\SpawnKerbalFactory.cs" />
     <Compile Include="ContractBehaviour\Message.cs" />
@@ -60,6 +61,7 @@
     <Compile Include="ContractBehaviour\IHasKerbalBehaviour.cs" />
     <Compile Include="ContractBehaviour\SpawnPassengers.cs" />
     <Compile Include="ContractBehaviour\SpawnVessel.cs" />
+    <Compile Include="ContractBehaviour\UnlockTech.cs" />
     <Compile Include="ContractParameter\HasAstronaut.cs" />
     <Compile Include="ContractParameter\None.cs" />
     <Compile Include="ContractParameter\AtMost.cs" />
