@@ -38,7 +38,7 @@ namespace ContractConfigurator
             valid &= ConfigNodeUtil.MutuallyExclusive(configNode, new string[] { "subject" }, new string[] { "biome", "situation", "location", "experiment" }, this);
 
             // Validate subjects
-            if (subjects.Count > 0)
+            if (subjects != null && subjects.Count > 0)
             {
                 Biome b = Util.Science.GetBiome(subjects[0]);
                 ExperimentSituations es = Util.Science.GetSituation(subjects[0]);
