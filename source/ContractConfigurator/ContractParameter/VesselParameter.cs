@@ -588,7 +588,7 @@ namespace ContractConfigurator.Parameters
             LoggingUtil.LogVerbose(this, "-> CheckVessel(" + vessel.id + ")");
             if (IsIgnoredVesselType(vessel.vesselType))
             {
-                LoggingUtil.LogVerbose(this, "<- CheckVessel");
+                LoggingUtil.LogVerbose(this, "<- CheckVessel - ignored vessel type (" + vessel.vesselType + ")");
                 return;
             }
 
@@ -610,7 +610,7 @@ namespace ContractConfigurator.Parameters
                     }
                 }
                 // Logic applies only to active vessel
-                else if (vessel.isActiveVessel)
+                else if (vessel.isActiveVessel  || FlightGlobals.ActiveVessel == null)
                 {
                     if (VesselMeetsCondition(vessel))
                     {

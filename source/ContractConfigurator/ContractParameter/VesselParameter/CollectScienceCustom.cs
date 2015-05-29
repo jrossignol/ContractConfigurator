@@ -116,7 +116,7 @@ namespace ContractConfigurator.Parameters
 
                     if (recoveryMethod != ScienceRecoveryMethod.None)
                     {
-                        output += " (" + recoveryMethod.Print().ToLower() + ")";
+                        output += " (" + RecoveryMethod(experiment[0]).Print().ToLower() + ")";
                     }
                 }
             }
@@ -424,6 +424,7 @@ namespace ContractConfigurator.Parameters
         {
             if (protoVessel == null || reverseEngineered)
             {
+                LoggingUtil.LogVerbose(this, "OnScienceReceived: returning, protoVessel = " + (protoVessel == null ? "null" :protoVessel.vesselName) + ", reverseEng = " + reverseEngineered);
                 return;
             }
             LoggingUtil.LogVerbose(this, "OnScienceReceived: " + subject.id + ", " + protoVessel.vesselID);
@@ -573,7 +574,16 @@ namespace ContractConfigurator.Parameters
                 return idealRecoverMethodCache[exp];
             }
         }
-        
+
+        public override bool IsIgnoredVesselType(VesselType vesselType)
+        {
+            if (vesselType == VesselType.Debris)
+            {
+                return false;
+            }
+            return base.IsIgnoredVesselType(vesselType);
+        }
+
         /// <summary>
         /// Whether this vessel meets the parameter condition.
         /// </summary>
