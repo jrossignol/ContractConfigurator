@@ -18,7 +18,7 @@ namespace ContractConfigurator.Behaviour
         {
             get
             {
-                if (HighLogic.CurrentGame == null)
+                if (HighLogic.CurrentGame == null || targetBody == null)
                 {
                     return null;
                 }
