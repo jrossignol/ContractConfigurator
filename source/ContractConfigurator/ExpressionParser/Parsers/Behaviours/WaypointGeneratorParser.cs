@@ -63,12 +63,36 @@ namespace ContractConfigurator.ExpressionParser
         {
             yield return "name";
             yield return "altitude";
+            yield return "parameter";
+            yield return "hidden";
+            yield return "targetBody";
+            yield return "icon";
 
-            if (type == "WAYPOINT")
+            switch(type)
             {
-                yield return "latitude";
-                yield return "longitude";
+                case "WAYPOINT":
+                    yield return "altitude";
+                    yield return "latitude";
+                    yield return "longitude";
+                    break;
+                case "RANDOM_WAYPOINT":
+                case "RANDOM_WAYPOINT_NEAR":
+                    yield return "count";
+                    yield return "waterAllowed";
+                    yield return "forceEquatorial";
+                    if (type == "RANDOM_WAYPOINT_NEAR")
+                    {
+                        yield return "nearIndex";
+                        yield return "minDistance";
+                        yield return "maxDistance";
+                    }
+                    break;
+                case "PQS_CITY":
+                    yield return "pqsCity";
+                    yield return "pqsOffset";
+                    break;
             }
+
         }
     }
 }
