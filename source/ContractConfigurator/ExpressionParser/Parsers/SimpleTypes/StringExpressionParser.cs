@@ -31,6 +31,8 @@ namespace ContractConfigurator.ExpressionParser
             RegisterMethod(new Method<string, string>("ToLower", s => s == null ? "" : s.ToLower()));
             RegisterMethod(new Method<string, string>("ToUpper", s => s == null ? "" : s.ToUpper()));
             RegisterMethod(new Method<string, string>("FirstCap", s => s == null ? "" : s.Count() > 2 ? s.Substring(0, 1).ToUpper() + s.Substring(1) : s.ToUpper()));
+
+            RegisterGlobalFunction(new Function<ProtoCrewMember.Gender, string>("RandomKerbalName", g => CrewGenerator.GetRandomName(g), false));
         }
 
         /// <summary>

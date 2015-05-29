@@ -1,6 +1,7 @@
 Contract Configurator 1.2.3
 - Add Waypoint.Location() expression method.
 - Add Location.Biome() expression method.
+- Add RandomKerbalName() global expression function.
 - Fixed some issues with recovering from tracking station in CollectScience.
 - Fixed null reference issue in dead contract types (thanks DMagic).
 - More fixes related to contracts failing unique check in SCANsat Lite (thanks nobodyhasthis).
