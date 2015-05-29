@@ -53,6 +53,11 @@ namespace ContractConfigurator.SCANsat
         /// </summary>
         public static double GetCoverage(int SCANtype, CelestialBody body)
         {
+            if (body == null)
+            {
+                return 0.0;
+            }
+
             Type scanUtil = SCANsatAssembly.GetType("SCANsat.SCANUtil");
 
             // Get and invoke the method
@@ -65,6 +70,11 @@ namespace ContractConfigurator.SCANsat
         /// </summary>
         public static bool IsCovered(double lat, double lon, int SCANtype, CelestialBody body)
         {
+            if (body == null)
+            {
+                return false;
+            }
+
             Type scanUtil = SCANsatAssembly.GetType("SCANsat.SCANUtil");
 
             // Get and invoke the method

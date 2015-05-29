@@ -2,6 +2,7 @@ Contract Configurator 1.2.3
 - Fixed some issues with recovering from tracking station in CollectScience.
 - Fixed null reference issue in dead contract types (thanks DMagic).
 - More fixes related to contracts failing unique check in SCANsat Lite (thanks nobodyhasthis).
+- Minor bug fixes.
 
 Contract Configurator 1.2.2
 - New UnlockTech behaviour (thanks Klefenz).
