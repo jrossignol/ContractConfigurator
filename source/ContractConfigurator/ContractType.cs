@@ -471,7 +471,7 @@ namespace ContractConfigurator
             }
             catch (ContractRequirementException e)
             {
-                LoggingUtil.LogLevel level = contract.ContractState == Contract.State.Offered ? LoggingUtil.LogLevel.VERBOSE : LoggingUtil.LogLevel.DEBUG;
+                LoggingUtil.LogLevel level = contract.ContractState == Contract.State.Active ? LoggingUtil.LogLevel.DEBUG : LoggingUtil.LogLevel.VERBOSE;
                 string prefix = contract.contractType != null ? "Cancelling contract of type " + name + " (" + contract.Title + "): " :
                     "Didn't generate contract type " + name + ": ";
                 LoggingUtil.Log(level, this.GetType(), prefix + e.Message);
