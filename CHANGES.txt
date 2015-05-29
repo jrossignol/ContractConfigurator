@@ -1,5 +1,6 @@
 Contract Configurator 1.2.3
 - Fixed null reference issue in dead contract types (thanks DMagic).
+- More fixes related to contracts failing unique check in SCANsat Lite (thanks nobodyhasthis).
 
 Contract Configurator 1.2.2
 - New UnlockTech behaviour (thanks Klefenz).

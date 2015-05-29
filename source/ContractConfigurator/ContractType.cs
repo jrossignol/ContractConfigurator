@@ -442,21 +442,21 @@ namespace ContractConfigurator
                             }
                         }
                     }
-                }
 
-                // Check for unique values against other contracts of the same type
-                foreach (KeyValuePair<string, bool> pair in uniqueValues.Where(p => contract.uniqueData.ContainsKey(p.Key)))
-                {
-                    string key = pair.Key;
-                    bool checkActiveOnly = pair.Value;
-
-                    foreach (ConfiguredContract otherContract in ContractSystem.Instance.GetCurrentContracts<ConfiguredContract>().
-                        Where(c => c.contractType != null && c.contractType.name == name && c != contract && c.uniqueData.ContainsKey(key) &&
-                            (c.ContractState == Contract.State.Active || c.ContractState == Contract.State.Offered || !checkActiveOnly)))
+                    // Check for unique values against other contracts of the same type
+                    foreach (KeyValuePair<string, bool> pair in uniqueValues.Where(p => contract.uniqueData.ContainsKey(p.Key)))
                     {
-                        if (contract.uniqueData[key].Equals(otherContract.uniqueData[key]))
+                        string key = pair.Key;
+                        bool checkActiveOnly = pair.Value;
+
+                        foreach (ConfiguredContract otherContract in ContractSystem.Instance.GetCurrentContracts<ConfiguredContract>().
+                            Where(c => c.contractType != null && c.contractType.name == name && c != contract && c.uniqueData.ContainsKey(key) &&
+                                (c.ContractState == Contract.State.Active || c.ContractState == Contract.State.Offered || !checkActiveOnly)))
                         {
-                            throw new ContractRequirementException("Failed on unique value check for key '" + key + "'.");
+                            if (contract.uniqueData[key].Equals(otherContract.uniqueData[key]))
+                            {
+                                throw new ContractRequirementException("Failed on unique value check for key '" + key + "'.");
+                            }
                         }
                     }
                 }
@@ -471,7 +471,7 @@ namespace ContractConfigurator
             }
             catch (ContractRequirementException e)
             {
-                LoggingUtil.LogLevel level = contract.ContractState == Contract.State.Offered ? LoggingUtil.LogLevel.DEBUG : LoggingUtil.LogLevel.VERBOSE;
+                LoggingUtil.LogLevel level = contract.ContractState == Contract.State.Offered ? LoggingUtil.LogLevel.VERBOSE : LoggingUtil.LogLevel.DEBUG;
                 string prefix = contract.contractType != null ? "Cancelling contract of type " + name + " (" + contract.Title + "): " :
                     "Didn't generate contract type " + name + ": ";
                 LoggingUtil.Log(level, this.GetType(), prefix + e.Message);
