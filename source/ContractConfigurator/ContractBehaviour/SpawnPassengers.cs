@@ -376,6 +376,10 @@ namespace ContractConfigurator.Behaviour
                 node.AddValue("gender", gender);
             }
             node.AddValue("kerbalType", kerbalType);
+            if (!string.IsNullOrEmpty(experienceTrait))
+            {
+                node.AddValue("experienceTrait", experienceTrait);
+            }
 
             foreach (string passenger in passengerNames)
             {
@@ -399,6 +403,7 @@ namespace ContractConfigurator.Behaviour
             passengerNames = ConfigNodeUtil.ParseValue<List<string>>(node, "potentialPassenger", new List<string>());
             gender = ConfigNodeUtil.ParseValue<ProtoCrewMember.Gender?>(node, "gender", (ProtoCrewMember.Gender?)null);
             kerbalType = ConfigNodeUtil.ParseValue<ProtoCrewMember.KerbalType>(node, "kerbalType", ProtoCrewMember.KerbalType.Tourist);
+            experienceTrait = ConfigNodeUtil.ParseValue<string>(node, "experienceTrait", "");
 
             foreach (ConfigNode child in node.GetNodes("PASSENGER_DATA"))
             {
@@ -408,6 +413,11 @@ namespace ContractConfigurator.Behaviour
                 if (crew != null)
                 {
                     passengers[crew] = loaded;
+
+                    if (!string.IsNullOrEmpty(experienceTrait))
+                    {
+                        KerbalRoster.SetExperienceTrait(crew, experienceTrait);
+                    }
                 }
             }
         }
@@ -451,6 +461,7 @@ namespace ContractConfigurator.Behaviour
         {
             foreach (ProtoCrewMember kerbal in passengers.Keys)
             {
+                kerbal.type = ProtoCrewMember.KerbalType.Tourist;
                 kerbal.hasToured = true;
                 
                 // Do a hard removal if they are not on a ship
