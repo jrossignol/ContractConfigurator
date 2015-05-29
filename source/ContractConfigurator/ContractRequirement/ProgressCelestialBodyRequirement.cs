@@ -8,9 +8,9 @@ using KSPAchievements;
 
 namespace ContractConfigurator
 {
-    /*
-     * Base class for all ContractRequirement classes that use a celestial body.
-     */
+    /// <summary>
+    /// Base class for all ContractRequirement classes that use a celestial body.
+    /// </summary>
     public abstract class ProgressCelestialBodyRequirement : ContractRequirement
     {
         public override bool Load(ConfigNode configNode)
@@ -39,6 +39,12 @@ namespace ContractConfigurator
 
         public override bool RequirementMet(ConfiguredContract contract)
         {
+            // Target body could be null if an expression didn't satisfy its conditions
+            if (targetBody == null)
+            {
+                return false;
+            }
+
             // Validate the CelestialBodySubtree exists
             CelestialBodySubtree cbProgress = GetCelestialBodySubtree();
             if (cbProgress == null)
