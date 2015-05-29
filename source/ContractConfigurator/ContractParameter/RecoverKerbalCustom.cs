@@ -111,6 +111,7 @@ namespace ContractConfigurator.Parameters
             GameEvents.onVesselRecovered.Add(new EventData<ProtoVessel>.OnEvent(OnVesselRecovered));
             GameEvents.onCrewKilled.Add(new EventData<EventReport>.OnEvent(OnCrewKilled));
             GameEvents.Contract.onAccepted.Add(new EventData<Contract>.OnEvent(OnContractAccepted));
+            ContractConfigurator.OnParameterChange.Add(new EventData<Contract, ContractParameter>.OnEvent(OnParameterChange));
         }
 
         protected override void OnUnregister()
@@ -119,6 +120,7 @@ namespace ContractConfigurator.Parameters
             GameEvents.onVesselRecovered.Remove(new EventData<ProtoVessel>.OnEvent(OnVesselRecovered));
             GameEvents.onCrewKilled.Remove(new EventData<EventReport>.OnEvent(OnCrewKilled));
             GameEvents.Contract.onAccepted.Remove(new EventData<Contract>.OnEvent(OnContractAccepted));
+            ContractConfigurator.OnParameterChange.Remove(new EventData<Contract, ContractParameter>.OnEvent(OnParameterChange));
         }
 
         private void OnVesselRecovered(ProtoVessel v)
@@ -131,22 +133,7 @@ namespace ContractConfigurator.Parameters
                 }
             }
 
-            // Retest the conditions
-            bool success = ParameterDelegate<string>.CheckChildConditions(this, "");
-            if (ChildChanged || success)
-            {
-                ChildChanged = false;
-                if (success)
-                {
-                    SetState(ParameterState.Complete);
-                }
-                else
-                {
-                    ContractConfigurator.OnParameterChange.Fire(Root, this);
-                }
-            }
-
-            ContractConfigurator.OnParameterChange.Fire(Root, this);
+            TestConditions();
         }
 
         private void OnCrewKilled(EventReport evt)
@@ -172,6 +159,34 @@ namespace ContractConfigurator.Parameters
                 }
 
                 CreateDelegates();
+            }
+        }
+
+        private void OnParameterChange(Contract contract, ContractParameter parameter)
+        {
+            if (contract != Root)
+            {
+                return;
+            }
+
+            TestConditions();
+        }
+
+        private void TestConditions()
+        {
+            // Retest the conditions
+            bool success = ParameterDelegate<string>.CheckChildConditions(this, "");
+            if (ChildChanged || success)
+            {
+                ChildChanged = false;
+                if (success)
+                {
+                    SetState(ParameterState.Complete);
+                }
+                else
+                {
+                    ContractConfigurator.OnParameterChange.Fire(Root, this);
+                }
             }
         }
     }
