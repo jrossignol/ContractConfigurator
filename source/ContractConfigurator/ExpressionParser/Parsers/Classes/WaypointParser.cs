@@ -28,6 +28,8 @@ namespace ContractConfigurator.ExpressionParser
             RegisterMethod(new Method<Waypoint, string>("Name", w => w == null ? "" : w.name));
             RegisterMethod(new Method<Waypoint, double>("Latitude", w => w == null ? 0.0 : w.latitude));
             RegisterMethod(new Method<Waypoint, double>("Longitude", w => w == null ? 0.0 : w.longitude));
+            RegisterMethod(new Method<Waypoint, Location>("Location", w => w == null ? null :
+                new Location(FlightGlobals.Bodies.Where(b => b.name == w.celestialName).SingleOrDefault(), w.latitude, w.longitude)));
             RegisterMethod(new Method<Waypoint, double>("Altitude", w => w == null ? 0.0 : w.altitude));
         }
 

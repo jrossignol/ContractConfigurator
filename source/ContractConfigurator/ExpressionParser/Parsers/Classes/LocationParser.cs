@@ -28,6 +28,21 @@ namespace ContractConfigurator.ExpressionParser
         {
             RegisterMethod(new Method<Location, double>("Latitude", location => location == null ? 0.0 : location.lat));
             RegisterMethod(new Method<Location, double>("Longitude", location => location == null ? 0.0 : location.lon));
+            RegisterMethod(new Method<Location, Biome>("Biome", BiomeAtLocation));
+        }
+
+        private static Biome BiomeAtLocation(Location location)
+        {
+            if (location == null || location.body == null)
+            {
+                return null;
+            }
+
+            double latRads = location.lat * Math.PI / 180.0;
+            double lonRads = location.lon * Math.PI / 180.0;
+            string biome = location.body.BiomeMap.GetAtt(latRads, lonRads).name.Replace(" ", "");
+
+            return new Biome(location.body, biome);
         }
 
         public LocationParser()

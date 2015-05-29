@@ -32,7 +32,7 @@ namespace ContractConfigurator.ExpressionParser
             RegisterMethod(new Method<Biome, float>("RemainingScience", RemainingScience));
 
             RegisterMethod(new Method<Biome, List<Location>>("DifficultLocations", biome => biome == null ?
-                new List<Location>() : BiomeTracker.GetDifficultLocations(biome.body, biome.biome).Select(v => new Location(v.y, v.x)).ToList()));
+                new List<Location>() : BiomeTracker.GetDifficultLocations(biome.body, biome.biome).Select(v => new Location(biome.body, v.y, v.x)).ToList()));
 
             RegisterGlobalFunction(new Function<List<Biome>>("KSCBiomes", () => Biome.KSCBiomes.Select(b =>
                 new Biome(FlightGlobals.Bodies.Where(cb => cb.isHomeWorld).Single(), b)).ToList(), false));
