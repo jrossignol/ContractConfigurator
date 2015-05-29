@@ -198,6 +198,7 @@ namespace ContractConfigurator.Behaviour
         protected List<string> passengerNames { get; set; }
         protected ProtoCrewMember.Gender? gender = null;
         protected ProtoCrewMember.KerbalType kerbalType;
+        protected string experienceTrait;
 
         private Dictionary<ProtoCrewMember, bool> passengers = new Dictionary<ProtoCrewMember, bool>();
 
@@ -205,12 +206,13 @@ namespace ContractConfigurator.Behaviour
 
         public SpawnPassengers() {}
 
-        public SpawnPassengers(List<string> passengerNames, int minPassengers, ProtoCrewMember.Gender? gender, ProtoCrewMember.KerbalType kerbalType)
+        public SpawnPassengers(List<string> passengerNames, int minPassengers, ProtoCrewMember.Gender? gender, ProtoCrewMember.KerbalType kerbalType, string experienceTrait)
         {
             this.passengerNames = passengerNames;
             this.count = passengerNames.Count != 0 ? passengerNames.Count : minPassengers;
             this.gender = gender;
             this.kerbalType = kerbalType;
+            this.experienceTrait = experienceTrait;
         }
 
         protected override void OnRegister()
@@ -346,6 +348,11 @@ namespace ContractConfigurator.Behaviour
                     if (gender != null)
                     {
                         crewMember.gender = gender.Value;
+                    }
+
+                    if (!string.IsNullOrEmpty(experienceTrait))
+                    {
+                        KerbalRoster.SetExperienceTrait(crewMember, experienceTrait);
                     }
 
                     if (passengerNames.Count > i)

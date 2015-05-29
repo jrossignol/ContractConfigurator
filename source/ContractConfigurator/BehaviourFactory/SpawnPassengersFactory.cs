@@ -17,6 +17,7 @@ namespace ContractConfigurator.Behaviour
         protected List<string> passengerName;
         protected ProtoCrewMember.Gender? gender = null;
         protected ProtoCrewMember.KerbalType kerbalType;
+        protected string experienceTrait;
 
         public override bool Load(ConfigNode configNode)
         {
@@ -27,13 +28,14 @@ namespace ContractConfigurator.Behaviour
             valid &= ConfigNodeUtil.ParseValue<List<string>>(configNode, "passengerName", x => passengerName = x, this, new List<string>());
             valid &= ConfigNodeUtil.ParseValue<ProtoCrewMember.Gender?>(configNode, "gender", x => gender = x, this, (ProtoCrewMember.Gender?)null);
             valid &= ConfigNodeUtil.ParseValue<ProtoCrewMember.KerbalType>(configNode, "kerbalType", x => kerbalType = x, this, ProtoCrewMember.KerbalType.Tourist);
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "experienceTrait", x => experienceTrait = x, this, "");
 
             return valid;
         }
 
         public override ContractBehaviour Generate(ConfiguredContract contract)
         {
-            return new SpawnPassengers(passengerName, count, gender, kerbalType);
+            return new SpawnPassengers(passengerName, count, gender, kerbalType, experienceTrait);
         }
     }
 }
