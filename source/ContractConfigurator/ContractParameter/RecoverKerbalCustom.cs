@@ -164,7 +164,7 @@ namespace ContractConfigurator.Parameters
 
         private void OnParameterChange(Contract contract, ContractParameter parameter)
         {
-            if (contract != Root)
+            if (contract != Root || parameter == this)
             {
                 return;
             }
