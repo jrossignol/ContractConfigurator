@@ -94,7 +94,7 @@ namespace ContractConfigurator.Parameters
                 output = "Collect science";
                 if (state == ParameterState.Complete)
                 {
-                    output += ": " + ExperimentName(experiment[0]) + " from ";
+                    output += ": " + (experiment.Count > 1 ? "Various experiments" : ExperimentName(experiment[0])) + " from ";
 
                     if (!string.IsNullOrEmpty(biome))
                     {
@@ -112,11 +112,6 @@ namespace ContractConfigurator.Parameters
                     else if (location != null)
                     {
                         output += location.Value == BodyLocation.Surface ? " while on the surface" : " while in space";
-                    }
-
-                    if (recoveryMethod != ScienceRecoveryMethod.None)
-                    {
-                        output += " (" + RecoveryMethod(experiment[0]).Print().ToLower() + ")";
                     }
                 }
             }
@@ -239,12 +234,9 @@ namespace ContractConfigurator.Parameters
             }
 
             // Fixes problems with special biomes like KSC buildings (total different naming)
-            if (landedSituations.Contains(vessel.situation))
+            if (landedSituations.Contains(vessel.situation) && !string.IsNullOrEmpty(vessel.landedAt))
             {
-                if (Vessel.GetLandedAtString(vessel.landedAt).Replace(" ", "") == biome)
-                {
-                    return true;
-                }
+                return Vessel.GetLandedAtString(vessel.landedAt).Replace(" ", "") == biome;
             }
 
             return ScienceUtil.GetExperimentBiome(vessel.mainBody, vessel.latitude, vessel.longitude) == biome;

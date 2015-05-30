@@ -5,6 +5,7 @@ Contract Configurator 1.2.3
 - Added experienceTrait to SpawnPassenger.
 - Fixed some issues with recovering from tracking station in CollectScience.
 - Fixed null reference issue in dead contract types (thanks DMagic).
+- Fixed issues with biome detection for KSC biomes in CollectScience.
 - More fixes related to contracts failing unique check in SCANsat Lite (thanks nobodyhasthis).
 - Minor bug fixes.
 
