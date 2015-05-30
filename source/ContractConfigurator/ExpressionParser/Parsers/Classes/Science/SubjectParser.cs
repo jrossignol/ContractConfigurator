@@ -34,6 +34,8 @@ namespace ContractConfigurator.ExpressionParser
             RegisterMethod(new Method<ScienceSubject, float>("TotalScience", subj => subj == null ? 0.0f : subj.scienceCap * HighLogic.CurrentGame.Parameters.Career.ScienceGainMultiplier));
             RegisterMethod(new Method<ScienceSubject, float>("NextScienceReportValue", Science.NextScienceReportValue));
 
+            RegisterMethod(new Method<ScienceSubject, string>("SituationString", SituationString));
+
             RegisterGlobalFunction(new Function<List<ScienceSubject>>("AllScienceSubjects", () => Science.GetSubjects(FlightGlobals.Bodies).ToList(), false));
             RegisterGlobalFunction(new Function<List<CelestialBody>, List<ScienceSubject>>("AllScienceSubjectsByBody", (cbs) => Science.GetSubjects(cbs).ToList(), false));
             RegisterGlobalFunction(new Function<List<ScienceExperiment>, List<ScienceSubject>>("AllScienceSubjectsByExperiment", (exps) => Science.GetSubjects(FlightGlobals.Bodies, x => exps.Contains(x)).ToList(), false));
@@ -56,6 +58,17 @@ namespace ContractConfigurator.ExpressionParser
                 return (U)(object)value.title;
             }
             return base.ConvertType<U>(value);
+        }
+
+        private static string SituationString(ScienceSubject subject)
+        {
+            if (subject == null)
+            {
+                return "";
+            }
+
+            ScienceExperiment experiment = Science.GetExperiment(subject);
+            return subject.title.Replace(experiment.experimentTitle + " ", "");
         }
     }
 }

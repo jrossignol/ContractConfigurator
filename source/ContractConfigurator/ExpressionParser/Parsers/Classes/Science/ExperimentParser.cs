@@ -38,7 +38,7 @@ namespace ContractConfigurator.ExpressionParser
         {
             if (typeof(U) == typeof(string))
             {
-                return (U)(object)value.id;
+                return (U)(object)value.experimentTitle;
             }
             return base.ConvertType<U>(value);
         }

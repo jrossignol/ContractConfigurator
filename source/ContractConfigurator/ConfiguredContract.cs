@@ -77,12 +77,6 @@ namespace ContractConfigurator
                 hash = contractType.hash;
                 AutoAccept = contractType.autoAccept;
 
-                // Set the agent
-                if (contractType.agent != null)
-                {
-                    agent = contractType.agent;
-                }
-
                 // Set the contract expiry
                 if (contractType.maxExpiry == 0.0f)
                 {
@@ -115,14 +109,19 @@ namespace ContractConfigurator
                 completedMessage = contractType.completedMessage;
                 notes = contractType.notes;
 
+                // Set the agent
+                if (contractType.agent != null)
+                {
+                    agent = contractType.agent;
+                }
+                else
+                {
+                    agent = AgentList.Instance.GetSuitableAgentForContract(this);
+                }
+
                 // Set description
                 if (string.IsNullOrEmpty(contractType.description))
                 {
-                    if (agent == null)
-                    {
-                        agent = AgentList.Instance.GetSuitableAgentForContract(this);
-                    }
-
                     // Generate the contract description
                     description = TextGen.GenerateBackStories(agent.Name, agent.GetMindsetString(),
                         contractType.topic, contractType.subject, contractType.motivation, MissionSeed);
