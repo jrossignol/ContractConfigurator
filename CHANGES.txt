@@ -1,5 +1,6 @@
 Contract Configurator 1.2.4
 - Fixed exception loading ContractVesselTracker (thanks GFBones).
+- Fixed exception in BiomeTracker when generating some Field Research contracts (thanks DaniDE).
 
 Contract Configurator 1.2.3
 - Added Waypoint.Location() expression method.

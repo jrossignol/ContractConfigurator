@@ -292,7 +292,8 @@ namespace ContractConfigurator
 
         public static IEnumerable<Vector2d> GetDifficultLocations(CelestialBody body, string biome)
         {
-            if (body == null || Instance == null || !Instance.bodyInfo.ContainsKey(body))
+            if (body == null || Instance == null || !Instance.bodyInfo.ContainsKey(body) ||
+                !Instance.bodyInfo[body].ContainsKey(biome))
             {
                 yield break;
             }
