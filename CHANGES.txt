@@ -1,3 +1,6 @@
+Contract Configurator 1.2.4
+- Fixed exception loading ContractVesselTracker (thanks GFBones).
+
 Contract Configurator 1.2.3
 - Added Waypoint.Location() expression method.
 - Added Location.Biome() expression method.
