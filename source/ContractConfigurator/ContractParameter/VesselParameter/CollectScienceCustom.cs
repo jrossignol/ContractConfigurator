@@ -353,7 +353,6 @@ namespace ContractConfigurator.Parameters
             {
                 if (CheckSubject(exp, subject))
                 {
-                    Debug.Log("    got a match!");
                     matchingSubjects[exp] = subject;
                     if (recoveryMethod == ScienceRecoveryMethod.None)
                     {

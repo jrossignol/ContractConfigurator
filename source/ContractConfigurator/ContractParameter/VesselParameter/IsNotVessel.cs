@@ -87,9 +87,11 @@ namespace ContractConfigurator.Parameters
 
         protected void OnVesselRename(GameEvents.HostedFromToAction<Vessel, string> hft)
         {
-            if (ContractVesselTracker.Instance.GetAssociatedVessel(vesselKey) == hft.host)
+            // Force a title update if it's the vessel we're looking at
+            Vessel v = ContractVesselTracker.Instance.GetAssociatedVessel(vesselKey);
+            if (v == hft.host)
             {
-                ContractConfigurator.OnParameterChange.Fire(Root, this);
+                GetTitle();
             }
         }
 
