@@ -1,4 +1,5 @@
 Contract Configurator 1.2.4
+- Support for DMagic's Orbital Science and tomf's Impact! in science stuff (Field Research Contract Pack).
 - Fixed exception loading ContractVesselTracker (thanks GFBones).
 - Fixed exception in BiomeTracker when generating some Field Research contracts (thanks DaniDE).
 - Fixed contract failure when renaming vessels in RemoteTech contracts (thanks Svannon).

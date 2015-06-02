@@ -10,6 +10,8 @@ namespace ContractConfigurator.Util
 {
     public static class Science
     {
+        private static Dictionary<string, List<AvailablePart>> experimentParts = null;
+
         /// <summary>
         /// Gets the science subject for the given values.
         /// </summary>
@@ -88,15 +90,59 @@ namespace ContractConfigurator.Util
             experiments = experiments.Where(exp => exp.id != "asteroidSample" || asteroidTracking);
 
             // Build a mapping of experiment => parts
-            Dictionary<string, List<AvailablePart>> experimentParts = new Dictionary<string, List<AvailablePart>>();
-            foreach (KeyValuePair<AvailablePart, string> pair in PartLoader.Instance.parts.Where(p => p.moduleInfos.Any(mod => mod.moduleName == "Science Experiment")).
-                SelectMany(p => p.partConfig.GetNodes("MODULE").Where(node => node.GetValue("name") == "ModuleScienceExperiment").Select(node => new KeyValuePair<AvailablePart, string>(p, node.GetValue("experimentID")))))
+            if (experimentParts == null)
             {
-                if (!experimentParts.ContainsKey(pair.Value))
+                experimentParts = new Dictionary<string, List<AvailablePart>>();
+
+                string[] scienceModules = new string[] {
+                    "ScienceExperiment",
+                    "ModuleScienceExperiment",
+                    "DMModuleScienceAnimate",
+                    "DMAnomalyScanner",
+                    "DMAsteroidScanner",
+                    "DMBioDrill",
+                    "DMEnviroSensor",
+                    "DMMagBoomModule",
+                    "DMRoverGooMat",
+                    "DMSoilMoisture",
+                    "DMSolarCollector",
+                    "DMXRayDiffract",
+                };
+
+                // Check the stock experiment
+                foreach (KeyValuePair<AvailablePart, string> pair in PartLoader.Instance.parts.
+                    Where(p => p.moduleInfos.Any(mod => scienceModules.Contains(mod.moduleName.Replace(" ", "")))).
+                    SelectMany(p => p.partConfig.GetNodes("MODULE").
+                        Where(node => scienceModules.Contains(node.GetValue("name"))).
+                        Select(node => new KeyValuePair<AvailablePart, string>(p, node.GetValue("experimentID")))))
                 {
-                    experimentParts[pair.Value] = new List<AvailablePart>();
+                    if (!string.IsNullOrEmpty(pair.Value))
+                    {
+                        if (!experimentParts.ContainsKey(pair.Value))
+                        {
+                            experimentParts[pair.Value] = new List<AvailablePart>();
+                        }
+                        experimentParts[pair.Value].Add(pair.Key);
+                    }
                 }
-                experimentParts[pair.Value].Add(pair.Key);
+
+                //
+                // Hardcoded support for other mods follows!
+                //
+                Dictionary<string, string> modExpToModule = new Dictionary<string, string>();
+
+                // tomf's Impact!
+                modExpToModule["ImpactSeismometer"] = "Seismometer";
+                modExpToModule["ImpactSpectrometer"] = "Spectrometer";
+
+                foreach (string exp in ResearchAndDevelopment.GetExperimentIDs().Where(e => modExpToModule.ContainsKey(e)))
+                {
+                    string module = modExpToModule[exp];
+                    foreach (AvailablePart p in PartLoader.Instance.parts.Where(p => p.moduleInfos.Any(mod => mod.moduleName == module)))
+                    {
+                        experimentParts[exp].Add(p);
+                    }
+                }
             }
 
             // Filter out anything tied to a part that isn't unlocked
