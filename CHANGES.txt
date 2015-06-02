@@ -1,3 +1,6 @@
+Contract Configurator 1.2.5
+- Fixed NullReferenceException in CompleteContractRequirement (thanks severedsolo).
+
 Contract Configurator 1.2.4
 - Support for DMagic's Orbital Science and tomf's Impact! in science stuff (Field Research Contract Pack).
 - Fixed exception loading ContractVesselTracker (thanks GFBones).

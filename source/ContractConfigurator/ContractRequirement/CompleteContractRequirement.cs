@@ -70,7 +70,8 @@ namespace ContractConfigurator
             // Finished contracts - Contract Configurator style
             if (ccType != null)
             {
-                IEnumerable<ConfiguredContract> completedContract = ContractSystem.Instance.GetCompletedContracts<ConfiguredContract>().Where(c => c.contractType.name.Equals(ccType));
+                IEnumerable<ConfiguredContract> completedContract = ContractSystem.Instance.GetCompletedContracts<ConfiguredContract>().
+                    Where(c => c.contractType != null && c.contractType.name.Equals(ccType));
                 finished = completedContract.Count();
                 if (finished > 0)
                 {
