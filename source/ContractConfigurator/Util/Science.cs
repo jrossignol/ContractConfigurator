@@ -54,7 +54,7 @@ namespace ContractConfigurator.Util
                 {
                     if (experiment.BiomeIsRelevantWhile(sit))
                     {
-                        return biomes.Where(biome => !BiomeTracker.IsDifficult(body, biome, sit) ^ difficult)
+                        return biomes.Where(biome => !(BiomeTracker.IsDifficult(body, biome, sit) || experiment.id == "asteroidSample") ^ difficult)
                             .Select(biome => ScienceSubject(experiment, sit, body, biome))
                             .Union(body.isHomeWorld && sit == ExperimentSituations.SrfLanded // static KSC items can only be landed
                                 ? Biome.KSCBiomes.Where(biomeFilter).Where(b => !difficult).Select(

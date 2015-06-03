@@ -1,5 +1,6 @@
 Contract Configurator 1.2.5
 - Fixed NullReferenceException in CompleteContractRequirement (thanks severedsolo).
+- Asteroid sample experiments are now classified as difficult (thanks tomf).
 
 Contract Configurator 1.2.4
 - Support for DMagic's Orbital Science and tomf's Impact! in science stuff (Field Research Contract Pack).
