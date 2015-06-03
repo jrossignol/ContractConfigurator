@@ -276,7 +276,7 @@ namespace ContractConfigurator.Util
                 return false;
             }
 
-            if (exp.id == "ImpactSeismometer" || exp.id == "ImpactSpectrometer" && body.atmosphere)
+            if ((exp.id == "ImpactSeismometer" || exp.id == "ImpactSpectrometer") && body.atmosphere)
             {
                 return false;
             }
