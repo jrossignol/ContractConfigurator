@@ -46,7 +46,7 @@ namespace ContractConfigurator.Util
                 Where(biomeFilter);
 
             return situations
-                .Where(sit => experiment.IsAvailableWhile(sit, body) &&
+                .Where(sit => ExperimentAvailable(experiment, sit, body) &&
                     (sit != ExperimentSituations.SrfSplashed || body.ocean) &&
                     ((sit != ExperimentSituations.FlyingLow && sit != ExperimentSituations.FlyingHigh) || body.atmosphere) &&
                     (!evaCheckRequired || sit == ExperimentSituations.SrfLanded || sit == ExperimentSituations.SrfSplashed))
@@ -267,6 +267,21 @@ namespace ContractConfigurator.Util
             return ResearchAndDevelopment.GetScienceValue(
                 experiment.baseValue * experiment.dataScale,
                 subject) * HighLogic.CurrentGame.Parameters.Career.ScienceGainMultiplier;
+        }
+
+        private static bool ExperimentAvailable(ScienceExperiment exp, ExperimentSituations sit, CelestialBody body)
+        {
+            if (exp == null || body == null)
+            {
+                return false;
+            }
+
+            if (exp.id == "ImpactSeismometer" || exp.id == "ImpactSpectrometer" && body.atmosphere)
+            {
+                return false;
+            }
+
+            return exp.IsAvailableWhile(sit, body);
         }
     }
 

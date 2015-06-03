@@ -1,5 +1,6 @@
 Contract Configurator 1.2.5
 - Fixed NullReferenceException in CompleteContractRequirement (thanks severedsolo).
+- ImpactSeismometer and ImpactSpectrometer only available for airless bodies (thanks tomf).
 - Asteroid sample experiments are now classified as difficult (thanks tomf).
 
 Contract Configurator 1.2.4
