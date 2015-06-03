@@ -37,6 +37,23 @@ namespace ContractConfigurator
             }
         }
 
+        public static IEnumerable<string> MainKSCBiomes
+        {
+            get
+            {
+                yield return "KSC";
+                yield return "Administration";
+                yield return "AstronautComplex";
+                yield return "LaunchPad";
+                yield return "MissionControl";
+                yield return "R&D";
+                yield return "Runway";
+                yield return "SPH";
+                yield return "TrackingStation";
+                yield return "VAB";
+            }
+        }
+
         public CelestialBody body;
         public string biome;
 

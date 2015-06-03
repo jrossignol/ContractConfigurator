@@ -36,6 +36,8 @@ namespace ContractConfigurator.ExpressionParser
 
             RegisterGlobalFunction(new Function<List<Biome>>("KSCBiomes", () => Biome.KSCBiomes.Select(b =>
                 new Biome(FlightGlobals.Bodies.Where(cb => cb.isHomeWorld).Single(), b)).ToList(), false));
+            RegisterGlobalFunction(new Function<List<Biome>>("MainKSCBiomes", () => Biome.MainKSCBiomes.Select(b =>
+                new Biome(FlightGlobals.Bodies.Where(cb => cb.isHomeWorld).Single(), b)).ToList(), false));
         }
 
         public BiomeParser()
