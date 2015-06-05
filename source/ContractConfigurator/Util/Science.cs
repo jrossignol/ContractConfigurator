@@ -10,8 +10,6 @@ namespace ContractConfigurator.Util
 {
     public static class Science
     {
-        private static Dictionary<string, List<AvailablePart>> experimentParts = null;
-
         /// <summary>
         /// Gets the science subject for the given values.
         /// </summary>
@@ -81,82 +79,22 @@ namespace ContractConfigurator.Util
                 yield break;
             }
 
-            // Get all the experiments
-            IEnumerable<ScienceExperiment> experiments = ResearchAndDevelopment.GetExperimentIDs().
-                Select<string, ScienceExperiment>(ResearchAndDevelopment.GetExperiment);
-
             // Filter out asteroid samples if not unlocked
             bool asteroidTracking = GameVariables.Instance.UnlockedSpaceObjectDiscovery(ScenarioUpgradeableFacilities.GetFacilityLevel(SpaceCenterFacility.TrackingStation));
-            experiments = experiments.Where(exp => exp.id != "asteroidSample" || asteroidTracking);
-
-            // Build a mapping of experiment => parts
-            if (experimentParts == null)
-            {
-                experimentParts = new Dictionary<string, List<AvailablePart>>();
-
-                string[] scienceModules = new string[] {
-                    "ScienceExperiment",
-                    "ModuleScienceExperiment",
-                    "DMModuleScienceAnimate",
-                    "DMAnomalyScanner",
-                    "DMAsteroidScanner",
-                    "DMBioDrill",
-                    "DMEnviroSensor",
-                    "DMMagBoomModule",
-                    "DMRoverGooMat",
-                    "DMSoilMoisture",
-                    "DMSolarCollector",
-                    "DMXRayDiffract",
-                };
-
-                // Check the stock experiment
-                foreach (KeyValuePair<AvailablePart, string> pair in PartLoader.Instance.parts.
-                    Where(p => p.moduleInfos.Any(mod => scienceModules.Contains(mod.moduleName.Replace(" ", "")))).
-                    SelectMany(p => p.partConfig.GetNodes("MODULE").
-                        Where(node => scienceModules.Contains(node.GetValue("name"))).
-                        Select(node => new KeyValuePair<AvailablePart, string>(p, node.GetValue("experimentID")))))
-                {
-                    if (!string.IsNullOrEmpty(pair.Value))
-                    {
-                        if (!experimentParts.ContainsKey(pair.Value))
-                        {
-                            experimentParts[pair.Value] = new List<AvailablePart>();
-                        }
-                        experimentParts[pair.Value].Add(pair.Key);
-                    }
-                }
-
-                //
-                // Hardcoded support for other mods follows!
-                //
-                Dictionary<string, string> modExpToModule = new Dictionary<string, string>();
-
-                // tomf's Impact!
-                modExpToModule["ImpactSeismometer"] = "Seismometer";
-                modExpToModule["ImpactSpectrometer"] = "Spectrometer";
-
-                foreach (string exp in ResearchAndDevelopment.GetExperimentIDs().Where(e => modExpToModule.ContainsKey(e)))
-                {
-                    string module = modExpToModule[exp];
-                    foreach (AvailablePart p in PartLoader.Instance.parts.Where(p => p.moduleInfos.Any(mod => mod.moduleName == module)))
-                    {
-                        experimentParts[exp].Add(p);
-                    }
-                }
-            }
-
-            // Filter out anything tied to a part that isn't unlocked
-            experiments = experiments.Where(exp => !experimentParts.ContainsKey(exp.id) || experimentParts[exp.id].Any(ResearchAndDevelopment.PartTechAvailable));
-
-            // Unlocked surface samples/EVA
-            bool surfaceSampleUnlocked = ScenarioUpgradeableFacilities.GetFacilityLevel(SpaceCenterFacility.ResearchAndDevelopment) >= 0.5f;
-            bool evaUnlocked = GameVariables.Instance.UnlockedEVA(ScenarioUpgradeableFacilities.GetFacilityLevel(SpaceCenterFacility.AstronautComplex));
+            IEnumerable<ScienceExperiment> experiments = experiments = AllExperiments.Where(exp => exp.id != "asteroidSample" || asteroidTracking);
 
             // Filter experiments
             if (experimentFilter != null)
             {
                 experiments = experiments.Where(experimentFilter);
             }
+
+            // Filter out anything tied to a part that isn't unlocked
+            experiments = experiments.Where(exp => !ExperimentParts(exp.id).Any() || ExperimentParts(exp.id).Any(ResearchAndDevelopment.PartTechAvailable));
+
+            // Unlocked surface samples/EVA
+            bool surfaceSampleUnlocked = ScenarioUpgradeableFacilities.GetFacilityLevel(SpaceCenterFacility.ResearchAndDevelopment) >= 0.5f;
+            bool evaUnlocked = GameVariables.Instance.UnlockedEVA(ScenarioUpgradeableFacilities.GetFacilityLevel(SpaceCenterFacility.AstronautComplex));
 
             // Return subjects for each celestial body
             foreach (CelestialBody body in celestialBodies.Where(cb => cb != null))
@@ -283,6 +221,83 @@ namespace ContractConfigurator.Util
 
             return exp.IsAvailableWhile(sit, body);
         }
+
+        private static IEnumerable<ScienceExperiment> AllExperiments
+        {
+            get
+            {
+                if (ResearchAndDevelopment.Instance != null && _AllExperiments == null)
+                {
+                    _AllExperiments = ResearchAndDevelopment.GetExperimentIDs().
+                        Select<string, ScienceExperiment>(ResearchAndDevelopment.GetExperiment).ToList();
+                }
+                return _AllExperiments;
+            }
+        }
+        private static List<ScienceExperiment> _AllExperiments = null;
+
+        private static IEnumerable<AvailablePart> ExperimentParts(string experiment)
+        {
+            // Build a mapping of experiment => parts
+            if (_ExperimentParts == null)
+            {
+                _ExperimentParts = new Dictionary<string, List<AvailablePart>>();
+
+                string[] scienceModules = new string[] {
+                        "ScienceExperiment",
+                        "ModuleScienceExperiment",
+                        "DMModuleScienceAnimate",
+                        "DMAnomalyScanner",
+                        "DMAsteroidScanner",
+                        "DMBioDrill",
+                        "DMEnviroSensor",
+                        "DMMagBoomModule",
+                        "DMRoverGooMat",
+                        "DMSoilMoisture",
+                        "DMSolarCollector",
+                        "DMXRayDiffract",
+                    };
+
+                // Check the stock experiment
+                foreach (KeyValuePair<AvailablePart, string> pair in PartLoader.Instance.parts.
+                    Where(p => p.moduleInfos.Any(mod => scienceModules.Contains(mod.moduleName.Replace(" ", "")))).
+                    SelectMany(p => p.partConfig.GetNodes("MODULE").
+                        Where(node => scienceModules.Contains(node.GetValue("name"))).
+                        Select(node => new KeyValuePair<AvailablePart, string>(p, node.GetValue("experimentID")))))
+                {
+                    if (!string.IsNullOrEmpty(pair.Value))
+                    {
+                        if (!_ExperimentParts.ContainsKey(pair.Value))
+                        {
+                            _ExperimentParts[pair.Value] = new List<AvailablePart>();
+                        }
+                        _ExperimentParts[pair.Value].Add(pair.Key);
+                    }
+                }
+
+                //
+                // Hardcoded support for other mods follows!
+                //
+                Dictionary<string, string> modExpToModule = new Dictionary<string, string>();
+
+                // tomf's Impact!
+                modExpToModule["ImpactSeismometer"] = "Seismometer";
+                modExpToModule["ImpactSpectrometer"] = "Spectrometer";
+
+                foreach (string exp in ResearchAndDevelopment.GetExperimentIDs().Where(e => modExpToModule.ContainsKey(e)))
+                {
+                    string module = modExpToModule[exp];
+                    foreach (AvailablePart p in PartLoader.Instance.parts.Where(p => p.moduleInfos.Any(mod => mod.moduleName == module)))
+                    {
+                        _ExperimentParts[exp].Add(p);
+                    }
+                }
+            }
+
+            return _ExperimentParts.ContainsKey(experiment) ? _ExperimentParts[experiment] : Enumerable.Empty<AvailablePart>();
+        }
+        private static Dictionary<string, List<AvailablePart>> _ExperimentParts = null;
+
     }
 
     /// <summary>
