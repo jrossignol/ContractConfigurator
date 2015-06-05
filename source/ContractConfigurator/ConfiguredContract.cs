@@ -120,7 +120,7 @@ namespace ContractConfigurator
                 }
 
                 // Set description
-                if (string.IsNullOrEmpty(contractType.description))
+                if (string.IsNullOrEmpty(contractType.description) && agent != null)
                 {
                     // Generate the contract description
                     description = TextGen.GenerateBackStories(agent.Name, agent.GetMindsetString(),
