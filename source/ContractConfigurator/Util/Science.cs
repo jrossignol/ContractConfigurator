@@ -297,7 +297,6 @@ namespace ContractConfigurator.Util
             return _ExperimentParts.ContainsKey(experiment) ? _ExperimentParts[experiment] : Enumerable.Empty<AvailablePart>();
         }
         private static Dictionary<string, List<AvailablePart>> _ExperimentParts = null;
-
     }
 
     /// <summary>
