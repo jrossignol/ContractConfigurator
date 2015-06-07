@@ -1,3 +1,6 @@
+Contract Configurator 1.2.6
+- Fixed BioDrill experiments to only be offered where there's an atmosphere.
+
 Contract Configurator 1.2.5
 - Fixed NullReferenceException in CompleteContractRequirement (thanks severedsolo).
 - ImpactSeismometer and ImpactSpectrometer only available for airless bodies (thanks tomf).

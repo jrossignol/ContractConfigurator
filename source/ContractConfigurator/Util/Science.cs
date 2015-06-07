@@ -281,6 +281,11 @@ namespace ContractConfigurator.Util
                 return false;
             }
 
+            if (exp.id == "dmbiodrillscan" && !body.atmosphere)
+            {
+                return false;
+            }
+
             return exp.IsAvailableWhile(sit, body);
         }
     }
