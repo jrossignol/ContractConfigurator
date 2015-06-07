@@ -1,4 +1,4 @@
-Contract Configurator 1.2.6
+Contract Configurator 1.3.0
 - Fixed rare NullReferenceException in contract generation logic (thanks OakTree42).
 - Minor performance improvements to Field Science contract generation.
 
