@@ -1,10 +1,12 @@
 Contract Configurator 1.2.6
 - Fixed BioDrill experiments to only be offered where there's an atmosphere.
+- Fixed rare NullReferenceException in contract generation logic (thanks OakTree42).
 
 Contract Configurator 1.2.5
 - Fixed NullReferenceException in CompleteContractRequirement (thanks severedsolo).
 - ImpactSeismometer and ImpactSpectrometer only available for airless bodies (thanks tomf).
 - Asteroid sample experiments are now classified as difficult (thanks tomf).
+- Added MainKSCBiomes() function to fix Field Research KSC contract.
 
 Contract Configurator 1.2.4
 - Support for DMagic's Orbital Science and tomf's Impact! in science stuff (Field Research Contract Pack).
