@@ -47,6 +47,15 @@ namespace ContractConfigurator
 
         public static ConfiguredContract currentContract = null;
 
+        public ConfiguredContract()
+        {
+        }
+
+        public ConfiguredContract(Contract.ContractPrestige prestige)
+        {
+            this.prestige = prestige;
+        }
+
         public bool Initialize(ContractType contractType)
         {
             LoggingUtil.LogLevel origLogLevel = LoggingUtil.logLevel;
@@ -214,6 +223,7 @@ namespace ContractConfigurator
             notes = contract.notes;
             agent = contract.agent;
             description = contract.description;
+            uniqueData = contract.uniqueData;
 
             // Copy behaviours
             behaviours = contract.behaviours;

@@ -159,7 +159,7 @@ namespace ContractConfigurator
 
         private IEnumerable<ConfiguredContract> ContractGenerator(Contract.ContractPrestige prestige, ContractGroup group)
         {
-            ConfiguredContract templateContract = new ConfiguredContract();
+            ConfiguredContract templateContract = new ConfiguredContract(prestige);
 
             // Build a weighted list of ContractTypes to choose from
             Dictionary<ContractType, double> validContractTypes = new Dictionary<ContractType, double>();
