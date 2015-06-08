@@ -78,6 +78,8 @@ namespace ContractConfigurator.ExpressionParser
                     data[s].value = value;
                     data[s].initialized = true;
                 }
+
+                LoggingUtil.LogVerbose(this, "DataNode[" + name + "], storing " + s + " = " + OutputValue(value));
             }
         }
 

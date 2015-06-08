@@ -604,7 +604,6 @@ namespace ContractConfigurator
             // Store the value
             if (currentDataNode != null)
             {
-                LoggingUtil.LogVerbose(typeof(ConfigNodeUtil), "DataNode[" + currentDataNode.Name + "], storing " + key + " = " + value);
                 currentDataNode[key] = value;
 
                 if (!currentDataNode.IsDeterministic(key) && initialLoad)

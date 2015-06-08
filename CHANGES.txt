@@ -1,4 +1,5 @@
 Contract Configurator 1.2.6
+- Added AvailableExperiments() expression to better filter experiments.
 - Fixed BioDrill experiments to only be offered where there's an atmosphere.
 - Fixed rare NullReferenceException in contract generation logic (thanks OakTree42).
 
