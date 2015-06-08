@@ -28,6 +28,7 @@ namespace ContractConfigurator.ExpressionParser
 
             RegisterGlobalFunction(new Function<List<ScienceExperiment>>("AllExperiments", () => ResearchAndDevelopment.Instance == null ? new List<ScienceExperiment>() :
                 ResearchAndDevelopment.GetExperimentIDs().Select<string, ScienceExperiment>(ResearchAndDevelopment.GetExperiment).ToList(), false));
+            RegisterGlobalFunction(new Function<CelestialBody, List<ScienceExperiment>>("AvailableExperiments", (cb) => Util.Science.AvailableExperiments(cb).ToList(), false));
         }
 
         public ExperimentParser()
