@@ -1,6 +1,5 @@
 Contract Configurator 1.3.0
 - Major rewrite of contract generation logic to improve performance and reduce latency on contract generation while in flight.
-- Minor performance improvements to Field Science contract generation.
 
 Contract Configurator 1.2.6
 - Added AvailableExperiments() expression to better filter experiments.
