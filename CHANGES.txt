@@ -1,6 +1,7 @@
 Contract Configurator 1.3.0
-- Fixed rare NullReferenceException in contract generation logic (thanks OakTree42).
+- Major rewrite of contract generation logic to improve performance and reduce latency on contract generation while in flight.
 - Minor performance improvements to Field Science contract generation.
+- Fixed rare NullReferenceException in contract generation logic (thanks OakTree42).
 
 Contract Configurator 1.2.5
 - Fixed NullReferenceException in CompleteContractRequirement (thanks severedsolo).

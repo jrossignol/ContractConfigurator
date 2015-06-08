@@ -19,8 +19,8 @@ namespace ContractConfigurator
     /// </summary>
     public class ConfiguredContract : Contract
     {
-        public ContractType contractType { get; private set; }
-        public string subType { get; private set; }
+        public ContractType contractType { get; set; }
+        public string subType { get; set; }
         private List<ContractBehaviour> behaviours = new List<ContractBehaviour>();
         public IEnumerable<ContractBehaviour> Behaviours { get { return behaviours.AsReadOnly(); } }
 
@@ -45,35 +45,23 @@ namespace ContractConfigurator
 
         public int hash { get; private set; }
 
-        private static int lastGenerationFailure = 0;
-        private static Dictionary<ContractPrestige, int> lastSpecificGenerationFailure = new Dictionary<ContractPrestige, int>();
-        private static int nextGroup = 0;
-
         public static ConfiguredContract currentContract = null;
 
-        protected override bool Generate()
+        public bool Initialize(ContractType contractType)
         {
             LoggingUtil.LogLevel origLogLevel = LoggingUtil.logLevel;
             try
             {
-                // MeetsRequirement gets called first and sets the contract type, but check it and
-                // select the contract type just in case.
-                if (contractType == null)
-                {
-                    if (!SelectContractType())
-                    {
-                        return false;
-                    }
-                }
-
+                this.contractType = contractType;
                 if (contractType.trace)
                 {
                     LoggingUtil.logLevel = LoggingUtil.LogLevel.VERBOSE;
                 }
 
-                LoggingUtil.LogDebug(this.GetType(), "Generating contract: " + contractType);
+                LoggingUtil.LogDebug(this.GetType(), "Initializing contract: " + contractType);
 
                 // Set stuff from contract type
+                subType = contractType.name;
                 hash = contractType.hash;
                 AutoAccept = contractType.autoAccept;
 
@@ -144,12 +132,12 @@ namespace ContractConfigurator
                     return false;
                 }
 
-                LoggingUtil.LogInfo(this.GetType(), "Generated contract: " + contractType);
+                LoggingUtil.LogVerbose(this.GetType(), "Initialized contract: " + contractType);
                 return true;
             }
             catch (Exception e)
             {
-                LoggingUtil.LogError(this, "Error generating contract!");
+                LoggingUtil.LogError(this, "Error initializing contract!");
                 LoggingUtil.LogException(e);
                 ExceptionLogWindow.DisplayFatalException(ExceptionLogWindow.ExceptionSituation.CONTRACT_GENERATION, e,
                     contractType == null ? "unknown" : contractType.name);
@@ -166,6 +154,86 @@ namespace ContractConfigurator
             {
                 LoggingUtil.logLevel = origLogLevel;
             }
+        }
+
+        protected override bool Generate()
+        {
+            try
+            {
+                if (contractType != null)
+                {
+                    return true;
+                }
+                else
+                {
+                    LoggingUtil.LogVerbose(this, "Generate()");
+                    return ContractPreLoader.Instance.GenerateContract(this);
+                }
+            }
+            catch (Exception e)
+            {
+                LoggingUtil.LogError(this, "Error generating contract!");
+                LoggingUtil.LogException(e);
+                ExceptionLogWindow.DisplayFatalException(ExceptionLogWindow.ExceptionSituation.CONTRACT_GENERATION, e,
+                    contractType == null ? "unknown" : contractType.name);
+
+                try
+                {
+                    GenerateFailed();
+                }
+                catch { }
+
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Performs a shallow copy of the contract details from the given contract
+        /// </summary>
+        /// <param name="contract">The contract to copy from.</param>
+        public void CopyFrom(ConfiguredContract contract)
+        {
+            // Copy details from the original
+            contractType = contract.contractType;
+            subType = contract.subType;
+            hash = contract.hash;
+            AutoAccept = contract.AutoAccept;
+            dateExpire = contract.dateExpire;
+            TimeExpiry = contract.TimeExpiry;
+            dateDeadline = contract.dateDeadline;
+            TimeDeadline = contract.TimeDeadline;
+            FundsAdvance = contract.FundsAdvance;
+            FundsCompletion = contract.FundsCompletion;
+            FundsFailure = contract.FundsFailure;
+            ReputationCompletion = contract.ReputationCompletion;
+            ReputationFailure = contract.ReputationFailure;
+            ScienceCompletion = contract.ScienceCompletion;
+            title = contract.title;
+            synopsis = contract.synopsis;
+            completedMessage = contract.completedMessage;
+            notes = contract.notes;
+            agent = contract.agent;
+            description = contract.description;
+
+            // Copy behaviours
+            behaviours = contract.behaviours;
+            contract.behaviours = new List<ContractBehaviour>();
+
+            // Copy parameters
+            for (int i = 0; i < contract.ParameterCount; i++)
+            {
+                // Save the old parameter
+                ConfigNode node = new ConfigNode("PARAMETER");
+                ContractParameter origParameter = contract.GetParameter(i);
+                origParameter.Save(node);
+
+                // Load into a new copy
+                ContractParameter parameter = (ContractParameter) Activator.CreateInstance(origParameter.GetType());
+                AddParameter(parameter, null);
+                parameter.Load(node);
+            }
+
+            LoggingUtil.LogInfo(this, "Generated contract: " + contractType);
         }
 
         /// <summary>
@@ -358,7 +426,8 @@ namespace ContractConfigurator
             // No ContractType chosen
             if (contractType == null)
             {
-                return SelectContractType();
+                LoggingUtil.LogVerbose(this, "MeetRequirements()");
+                return ContractPreLoader.Instance.GenerateContract(this);
             }
             else 
             {
@@ -370,132 +439,6 @@ namespace ContractConfigurator
                 }
                 return meets;
             }
-        }
-
-        private bool SelectContractType()
-        {
-            if (!lastSpecificGenerationFailure.ContainsKey(prestige))
-            {
-                lastSpecificGenerationFailure[prestige] = 0;
-            }
-
-            LoggingUtil.LogVerbose(this, "Generating a contract for prestige = " + prestige);
-
-            // Loop through all the contract groups
-            IEnumerable<ContractGroup> groups = ContractGroup.AllGroups;
-            foreach (ContractGroup group in groups.Skip(nextGroup).Concat(groups.Take(nextGroup)))
-            {
-                LoggingUtil.LogVerbose(this, "Looking at group " + group);
-                nextGroup = (nextGroup + 1) % groups.Count();
-
-                // Build a weighted list of ContractTypes to choose from
-                Dictionary<ContractType, double> validContractTypes = new Dictionary<ContractType, double>();
-                double totalWeight = 0.0;
-                foreach (ContractType ct in ContractType.AllValidContractTypes.Where(ct => ct.group == group))
-                {
-                    LoggingUtil.LogVerbose(this, "Checking ContractType = " + ct.name);
-                    // KSP tries to generate new contracts *incessantly*, to the point where this becomes
-                    // a real performance problem.  So if we run into a situation where we did not
-                    // generate a contract and we are asked AGAIN after a very short time, then do
-                    // some logic to prevent re-checking uselessly.
-
-                    // If there was any generation failure within the last 100 frames, only look at
-                    // contracts specific to that prestige level
-                    if (lastGenerationFailure + 100 > Time.frameCount)
-                    {
-                        // If there was a generation failure for this specific prestige level in
-                        // the last 100 frames, then just skip the checks entirely
-                        if (lastSpecificGenerationFailure[prestige] + 100 > Time.frameCount)
-                        {
-                            return false;
-                        }
-                    }
-
-                    // Only select contracts with the correct prestige level
-                    if (ct.prestige.Count == 0 || ct.prestige.Contains(prestige))
-                    {
-                        validContractTypes.Add(ct, ct.weight);
-                        totalWeight += ct.weight;
-                    }
-                }
-
-                // Loop until we either run out of contracts in our list or make a selection
-                System.Random generator = new System.Random(this.MissionSeed);
-                while (validContractTypes.Count > 0)
-                {
-                    ContractType selectedContractType = null;
-                    // Pick one of the contract types based on their weight
-                    double value = generator.NextDouble() * totalWeight;
-                    foreach (KeyValuePair<ContractType, double> pair in validContractTypes)
-                    {
-                        value -= pair.Value;
-                        if (value <= 0.0)
-                        {
-                            selectedContractType = pair.Key;
-                            break;
-                        }
-                    }
-
-                    // Shouldn't happen, but floating point rounding could put us here
-                    if (selectedContractType == null)
-                    {
-                        selectedContractType = validContractTypes.First().Key;
-                    }
-
-                    // Try to refresh non-deterministic values before we check requirements
-                    LoggingUtil.LogLevel origLogLevel = LoggingUtil.logLevel;
-                    try
-                    {
-                        if (selectedContractType.trace)
-                        {
-                            LoggingUtil.logLevel = LoggingUtil.LogLevel.VERBOSE;
-                        }
-
-                        currentContract = this;
-                        LoggingUtil.LogVerbose(this, "Refresh non-deterministic values for CONTRACT_TYPE = " + selectedContractType.name);
-                        if (!ConfigNodeUtil.UpdateNonDeterministicValues(selectedContractType.dataNode))
-                        {
-                            LoggingUtil.LogVerbose(this, selectedContractType.name + " was not generated: non-deterministic expression failure.");
-                            validContractTypes.Remove(selectedContractType);
-                            totalWeight -= selectedContractType.weight;
-                        }
-                        currentContract = null;
-
-                    }
-                    finally
-                    {
-                        LoggingUtil.logLevel = origLogLevel;
-                    }
-
-                    // Store unique data
-                    foreach (string key in selectedContractType.uniqueValues.Keys)
-                    {
-                        uniqueData[key] = selectedContractType.dataNode[key];
-                    }
-
-                    // Check the requirements for our selection
-                    if (selectedContractType.MeetRequirements(this))
-                    {
-                        contractType = selectedContractType;
-                        subType = contractType.name;
-                        return true;
-                    }
-                    // Remove the selection, and try again
-                    else
-                    {
-                        LoggingUtil.LogVerbose(this, selectedContractType.name + " was not generated: requirement not met.");
-                        validContractTypes.Remove(selectedContractType);
-                        totalWeight -= selectedContractType.weight;
-                        uniqueData.Clear();
-                    }
-                }
-            }
-
-            // Set our failure markers
-            lastGenerationFailure = Time.frameCount;
-            lastSpecificGenerationFailure[prestige] = Time.frameCount;
-
-            return false;
         }
 
         public override string MissionControlTextRich()
