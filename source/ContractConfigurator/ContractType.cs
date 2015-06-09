@@ -408,7 +408,7 @@ namespace ContractConfigurator
                 }
 
                 // Check special values are not null
-                if (contract.contractType == null)
+                if (contract.contractType == null || contract.ContractState == Contract.State.Generated)
                 {
                     foreach (KeyValuePair<string, bool> pair in dataValues)
                     {

@@ -209,8 +209,10 @@ namespace ContractConfigurator
             AutoAccept = contract.AutoAccept;
             dateExpire = contract.dateExpire;
             TimeExpiry = contract.TimeExpiry;
+            expiryType = contract.expiryType;
             dateDeadline = contract.dateDeadline;
             TimeDeadline = contract.TimeDeadline;
+            deadlineType = contract.deadlineType;
             FundsAdvance = contract.FundsAdvance;
             FundsCompletion = contract.FundsCompletion;
             FundsFailure = contract.FundsFailure;

@@ -313,5 +313,29 @@ namespace ContractConfigurator
             contract.CopyFrom(templateContract);
             return true;
         }
+
+        public override void OnSave(ConfigNode node)
+        {
+            foreach (ContractDetails cd in contractDetails.Values)
+            {
+                foreach (ConfiguredContract contract in cd.contracts)
+                {
+                    ConfigNode child = new ConfigNode("CONTRACT");
+                    node.AddNode(child);
+                    contract.Save(child);
+                }
+            }
+        }
+
+        public override void OnLoad(ConfigNode node)
+        {
+            foreach (ConfigNode child in node.GetNodes("CONTRACT"))
+            {
+                ConfiguredContract contract = new ConfiguredContract();
+                Contract.Load(contract, child);
+
+                contractDetails[contract.Prestige].contracts.Enqueue(contract);
+            }
+        }
     }
 }
