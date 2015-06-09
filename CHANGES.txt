@@ -3,6 +3,7 @@ Contract Configurator 1.2.6
 - Added Mass, XDimension, YDimension, ZDimension, SmallestDimension and LargetDimension to Vessel expressions.
 - Fixed BioDrill experiments to only be offered where there's an atmosphere.
 - Fixed rare NullReferenceException in contract generation logic (thanks OakTree42).
+- Remove exploit that allows RecoverKerbal to be completed early in Tourism and other contracts (thanks veryinky).
 
 Contract Configurator 1.2.5
 - Fixed NullReferenceException in CompleteContractRequirement (thanks severedsolo).

@@ -125,6 +125,12 @@ namespace ContractConfigurator.Parameters
 
         private void OnVesselRecovered(ProtoVessel v)
         {
+            // Don't check if we're not ready to complete
+            if (!ReadyToComplete())
+            {
+                return;
+            }
+
             foreach (ProtoCrewMember crew in v.GetVesselCrew())
             {
                 if (recovered.ContainsKey(crew.name))
