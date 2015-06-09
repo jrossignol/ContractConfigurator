@@ -72,7 +72,7 @@ namespace ContractConfigurator.Parameters
             foreach (string kerbal in kerbals)
             {
                 AddParameter(new ParameterDelegate<string>(kerbal + ": Recovered",
-                    unused => recovered[kerbal], ParameterDelegateMatchType.VALIDATE_ALL));
+                    unused => recovered[kerbal], ParameterDelegateMatchType.FILTER));
             }
         }
 
@@ -108,6 +108,8 @@ namespace ContractConfigurator.Parameters
         protected override void OnRegister()
         {
             base.OnRegister();
+            GameEvents.onVesselCreate.Add(new EventData<Vessel>.OnEvent(OnVesselCreate));
+            GameEvents.onCrewTransferred.Add(new EventData<GameEvents.HostedFromToAction<ProtoCrewMember, Part>>.OnEvent(OnCrewTransferred));
             GameEvents.onVesselRecovered.Add(new EventData<ProtoVessel>.OnEvent(OnVesselRecovered));
             GameEvents.onCrewKilled.Add(new EventData<EventReport>.OnEvent(OnCrewKilled));
             GameEvents.Contract.onAccepted.Add(new EventData<Contract>.OnEvent(OnContractAccepted));
@@ -117,10 +119,35 @@ namespace ContractConfigurator.Parameters
         protected override void OnUnregister()
         {
             base.OnUnregister();
+            GameEvents.onVesselCreate.Remove(new EventData<Vessel>.OnEvent(OnVesselCreate));
+            GameEvents.onCrewTransferred.Remove(new EventData<GameEvents.HostedFromToAction<ProtoCrewMember, Part>>.OnEvent(OnCrewTransferred));
             GameEvents.onVesselRecovered.Remove(new EventData<ProtoVessel>.OnEvent(OnVesselRecovered));
             GameEvents.onCrewKilled.Remove(new EventData<EventReport>.OnEvent(OnCrewKilled));
             GameEvents.Contract.onAccepted.Remove(new EventData<Contract>.OnEvent(OnContractAccepted));
             ContractConfigurator.OnParameterChange.Remove(new EventData<Contract, ContractParameter>.OnEvent(OnParameterChange));
+        }
+
+        private void OnVesselCreate(Vessel v)
+        {
+            foreach (ProtoCrewMember crew in v.GetVesselCrew())
+            {
+                if (recovered.ContainsKey(crew.name))
+                {
+                    recovered[crew.name] = false;
+                }
+            }
+
+            TestConditions();
+        }
+
+        private void OnCrewTransferred(GameEvents.HostedFromToAction<ProtoCrewMember, Part> evt)
+        {
+            if (recovered.ContainsKey(evt.host.name))
+            {
+                recovered[evt.host.name] = false;
+            }
+
+            TestConditions();
         }
 
         private void OnVesselRecovered(ProtoVessel v)
@@ -191,6 +218,7 @@ namespace ContractConfigurator.Parameters
                 }
                 else
                 {
+                    SetState(ParameterState.Incomplete);
                     ContractConfigurator.OnParameterChange.Fire(Root, this);
                 }
             }
