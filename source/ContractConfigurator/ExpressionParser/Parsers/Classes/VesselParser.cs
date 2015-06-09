@@ -45,6 +45,13 @@ namespace ContractConfigurator.ExpressionParser
             RegisterMethod(new Method<Vessel, Resource, double>("ResourceQuantity", (v, r) => v == null || r == null ? 0.0 : v.ResourceQuantity(r.res)));
             RegisterMethod(new Method<Vessel, Resource, double>("ResourceCapacity", (v, r) => v == null || r == null ? 0.0 : v.ResourceCapacity(r.res)));
 
+            RegisterMethod(new Method<Vessel, float>("Mass", v => v == null ? 0.0f : v.GetTotalMass()));
+            RegisterMethod(new Method<Vessel, double>("XDimension", GetXDimension));
+            RegisterMethod(new Method<Vessel, double>("YDimension", GetYDimension));
+            RegisterMethod(new Method<Vessel, double>("ZDimension", GetZDimension));
+            RegisterMethod(new Method<Vessel, double>("SmallestDimension", GetSmallestDimension));
+            RegisterMethod(new Method<Vessel, double>("LargestDimension", GetLargestDimension));
+
             RegisterGlobalFunction(new Function<List<Vessel>>("AllVessels", () => FlightGlobals.Vessels, false));
             RegisterGlobalFunction(new Function<Vessel, Vessel>("Vessel", v => v));
         }
@@ -109,6 +116,46 @@ namespace ContractConfigurator.ExpressionParser
                 }
             }
             return count;
+        }
+
+        static double GetXDimension(Vessel v)
+        {
+            if (v == null || v.protoVessel == null || v.protoVessel.protoPartSnapshots == null)
+            {
+                return 0.0f;
+            }
+
+            return v.protoVessel.protoPartSnapshots.Max(p => p.position.x) - v.protoVessel.protoPartSnapshots.Min(p => p.position.x);
+        }
+
+        static double GetYDimension(Vessel v)
+        {
+            if (v == null || v.protoVessel == null || v.protoVessel.protoPartSnapshots == null)
+            {
+                return 0.0f;
+            }
+
+            return v.protoVessel.protoPartSnapshots.Max(p => p.position.y) - v.protoVessel.protoPartSnapshots.Min(p => p.position.y);
+        }
+
+        static double GetZDimension(Vessel v)
+        {
+            if (v == null || v.protoVessel == null || v.protoVessel.protoPartSnapshots == null)
+            {
+                return 0.0f;
+            }
+
+            return v.protoVessel.protoPartSnapshots.Max(p => p.position.z) - v.protoVessel.protoPartSnapshots.Min(p => p.position.z);
+        }
+
+        static double GetLargestDimension(Vessel v)
+        {
+            return Math.Max(Math.Max(GetXDimension(v), GetYDimension(v)), GetZDimension(v));
+        }
+
+        static double GetSmallestDimension(Vessel v)
+        {
+            return Math.Min(Math.Min(GetXDimension(v), GetYDimension(v)), GetZDimension(v));
         }
 
         internal override U ConvertType<U>(Vessel value)
