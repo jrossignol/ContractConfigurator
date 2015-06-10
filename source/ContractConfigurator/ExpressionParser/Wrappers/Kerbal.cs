@@ -7,16 +7,29 @@ namespace ContractConfigurator
 {
     public class Kerbal
     {
-        public ProtoCrewMember pcm;
+        public string name;
+        public ProtoCrewMember _pcm;
+        public ProtoCrewMember pcm
+        {
+            get
+            {
+                return _pcm ?? HighLogic.CurrentGame.CrewRoster.AllKerbals().Where(pcm => pcm.name == name).FirstOrDefault();
+            }
+        }
+
+        public Kerbal(string name)
+        {
+            this.name = name;
+        }
 
         public Kerbal(ProtoCrewMember pcm)
         {
-            this.pcm = pcm;
+            this._pcm = pcm;
         }
 
         public override string ToString()
         {
-            return pcm != null ? pcm.name : "";
+            return _pcm != null ? _pcm.name : name;
         }
     }
 }

@@ -1,6 +1,7 @@
 Contract Configurator 1.3.0
 - Major rewrite of contract generation logic to improve performance and reduce latency on contract generation while in flight.
 - Added Vessel.Location() method for expressions.
+- Fixed NRE in RecoverKerbal (thanks severedsolo).
 
 Contract Configurator 1.2.6
 - Added AvailableExperiments() expression to better filter experiments.

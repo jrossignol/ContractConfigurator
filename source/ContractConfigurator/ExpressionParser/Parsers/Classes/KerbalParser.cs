@@ -57,26 +57,12 @@ namespace ContractConfigurator.ExpressionParser
             expression = (expression.Length > identifier.Length ? expression.Substring(identifier.Length) : "");
             identifier = token.sval + identifier;
 
-            // In parse mode we typically don't have a save game loaded, so
-            // don't try to get a Kerbal.  Give the benefit of the doubt
-            // and assume that it will be a valid Kerbal (ie. no exception)
-            if (parseMode)
-            {
-                currentDataNode.SetDeterministic(currentKey, false);
-                return null;
-            }
-
             if (identifier.Equals("null", StringComparison.CurrentCultureIgnoreCase))
             {
                 return null;
             }
 
-            ProtoCrewMember crew = HighLogic.CurrentGame.CrewRoster.AllKerbals().Where(pcm => pcm.name == identifier).FirstOrDefault();
-            if (crew != null)
-            {
-                return new Kerbal(crew);
-            }
-            return null;
+            return new Kerbal(identifier);
         }
     }
 }
