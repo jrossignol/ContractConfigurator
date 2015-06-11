@@ -59,6 +59,11 @@ namespace ContractConfigurator.ExpressionParser
                 {
                     remaining--;
                     output.Add(value);
+
+                    if (output.Count == count)
+                    {
+                        break;
+                    }
                 }
             }
 
