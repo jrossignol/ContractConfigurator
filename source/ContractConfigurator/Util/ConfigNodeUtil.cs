@@ -777,12 +777,28 @@ namespace ContractConfigurator
         /// <returns>True if it was successful, false otherwise</returns>
         public static bool UpdateNonDeterministicValues(DataNode node)
         {
-            if (node == null)
+            foreach (string val in UpdateNonDeterministicValuesIterator(node))
             {
-                return true;
+                if (val == null)
+                {
+                    return false;
+                }
             }
 
-            initialLoad = false;
+            return true;
+        }
+
+        /// <summary>
+        /// Re-executes all non-deterministic values for the given node, providing new values.
+        /// </summary>
+        /// <param name="node">The node that should be re-executed</param>
+        /// <returns>True if it was successful, false otherwise</returns>
+        public static IEnumerable<string> UpdateNonDeterministicValuesIterator(DataNode node)
+        {
+            if (node == null)
+            {
+                yield break;
+            }
 
             try
             {
@@ -790,18 +806,25 @@ namespace ContractConfigurator
                 MethodInfo executeMethod = typeof(DeferredLoadUtil).GetMethods().Where(m => m.Name == "ExecuteLoad").First();
                 foreach (DeferredLoadBase loadObj in node.DeferredLoads)
                 {
+                    initialLoad = false;
                     LoggingUtil.LogVerbose(typeof(ConfigNodeUtil), "Doing non-deterministic load for key '" + loadObj.key + "'");
 
                     MethodInfo method = executeMethod.MakeGenericMethod(loadObj.GetType().GetGenericArguments());
                     bool valid = (bool)method.Invoke(null, new object[] { loadObj });
 
+                    initialLoad = true;
+
                     if (!valid)
                     {
-                        return false;
+                        yield return null;
+                        yield break;
+                    }
+                    else
+                    {
+                        initialLoad = true;
+                        yield return loadObj.key;
                     }
                 }
-
-                return true;
             }
             finally
             {

@@ -36,8 +36,10 @@ namespace ContractConfigurator
         System.Random rand = new System.Random();
 
         private Dictionary<Contract.ContractPrestige, ContractDetails> contractDetails = new Dictionary<Contract.ContractPrestige, ContractDetails>();
-        private IEnumerator<ConfiguredContract> currentEnumerator = null;
+        private IEnumerator<KeyValuePair<ConfiguredContract, bool>?> currentEnumerator = null;
         private ContractDetails currentDetails = null;
+
+        private string lastKey = null;
 
         public ContractPreLoader()
         {
@@ -132,17 +134,23 @@ namespace ContractConfigurator
                     break;
                 }
 
-                ConfiguredContract contract = currentEnumerator.Current;
-                if (contract != null)
+                KeyValuePair<ConfiguredContract, bool>? pair = currentEnumerator.Current;
+                if (pair != null && pair.Value.Value)
                 {
-                    currentDetails.contracts.Enqueue(contract);
+                    currentDetails.contracts.Enqueue(pair.Value.Key);
                     currentEnumerator = null;
                     break;
                 }
             }
+
+            if (UnityEngine.Time.realtimeSinceStartup - start > 2.0 * MAX_TIME)
+            {
+                LoggingUtil.LogWarning(this, "Contract attribute took too long (" + (UnityEngine.Time.realtimeSinceStartup - start) +
+                    " seconds) to generate: " + lastKey);
+            }
         }
 
-        private IEnumerable<ConfiguredContract> ContractGenerator(Contract.ContractPrestige prestige)
+        private IEnumerable<KeyValuePair<ConfiguredContract, bool>?> ContractGenerator(Contract.ContractPrestige prestige)
         {
             // Loop through all the contract groups
             IEnumerable<ContractGroup> groups = ContractGroup.AllGroups;
@@ -150,14 +158,14 @@ namespace ContractConfigurator
             {
                 nextContractGroup = (nextContractGroup + 1) % groups.Count();
 
-                foreach (ConfiguredContract contract in ContractGenerator(prestige, group))
+                foreach (KeyValuePair<ConfiguredContract, bool>? pair in ContractGenerator(prestige, group))
                 {
-                    yield return contract;
+                    yield return pair;
                 }
             }
         }
 
-        private IEnumerable<ConfiguredContract> ContractGenerator(Contract.ContractPrestige prestige, ContractGroup group)
+        private IEnumerable<KeyValuePair<ConfiguredContract, bool>?> ContractGenerator(Contract.ContractPrestige prestige, ContractGroup group)
         {
             ConfiguredContract templateContract = new ConfiguredContract(prestige);
 
@@ -198,29 +206,46 @@ namespace ContractConfigurator
 
                 // Try to refresh non-deterministic values before we check requirements
                 LoggingUtil.LogLevel origLogLevel = LoggingUtil.logLevel;
+                LoggingUtil.LogLevel newLogLevel = selectedContractType.trace ? LoggingUtil.LogLevel.VERBOSE : LoggingUtil.logLevel;
                 try
                 {
-                    if (selectedContractType.trace)
-                    {
-                        LoggingUtil.logLevel = LoggingUtil.LogLevel.VERBOSE;
-                    }
-
+                    // Set up for loop
+                    LoggingUtil.logLevel = newLogLevel;
                     ConfiguredContract.currentContract = templateContract;
-                    LoggingUtil.LogVerbose(this, "Refresh non-deterministic values for CONTRACT_TYPE = " + selectedContractType.name);
-                    if (!ConfigNodeUtil.UpdateNonDeterministicValues(selectedContractType.dataNode))
-                    {
-                        LoggingUtil.LogVerbose(this, selectedContractType.name + " was not generated: non-deterministic expression failure.");
-                        validContractTypes.Remove(selectedContractType);
-                        totalWeight -= selectedContractType.weight;
 
-                        yield return null;
-                        continue;
+                    LoggingUtil.LogVerbose(this, "Refresh non-deterministic values for CONTRACT_TYPE = " + selectedContractType.name);
+                    KeyValuePair<ConfiguredContract, bool> pair = new KeyValuePair<ConfiguredContract, bool>(templateContract, false);
+                    foreach (string val in ConfigNodeUtil.UpdateNonDeterministicValuesIterator(selectedContractType.dataNode))
+                    {
+                        lastKey = selectedContractType.name + "[" + val + "]";
+
+                        // Clear temp stuff
+                        LoggingUtil.logLevel = origLogLevel;
+                        ConfiguredContract.currentContract = null;
+
+                        if (val == null)
+                        {
+                            LoggingUtil.LogVerbose(this, selectedContractType.name + " was not generated: non-deterministic expression failure.");
+                            validContractTypes.Remove(selectedContractType);
+                            totalWeight -= selectedContractType.weight;
+
+                            yield return null;
+                            continue;
+                        }
+                        else
+                        {
+                            yield return pair;
+                        }
+
+                        // Re set up
+                        LoggingUtil.logLevel = newLogLevel;
+                        ConfiguredContract.currentContract = templateContract;
                     }
                 }
                 finally
                 {
-                    ConfiguredContract.currentContract = null;
                     LoggingUtil.logLevel = origLogLevel;
+                    ConfiguredContract.currentContract = null;
                 }
 
                 // Store unique data
@@ -232,7 +257,7 @@ namespace ContractConfigurator
                 // Check the requirements for our selection
                 if (selectedContractType.MeetRequirements(templateContract) && templateContract.Initialize(selectedContractType))
                 {
-                    yield return templateContract;
+                    yield return new KeyValuePair<ConfiguredContract, bool>(templateContract, true);
                     yield break;
                 }
                 // Remove the selection, and try again
@@ -279,16 +304,21 @@ namespace ContractConfigurator
 
             // Try to generate a new contract
             LoggingUtil.LogVerbose(this, "   Attempting to generate new contract");
-            foreach (ConfiguredContract contract in ContractGenerator(prestige))
+            foreach (KeyValuePair<ConfiguredContract, bool>? pair in ContractGenerator(prestige))
             {
-                if (contract != null)
+                if (pair != null && pair.Value.Value)
                 {
-                    return contract;
+                    return pair.Value.Key;
                 }
 
                 if (timeLimited && UnityEngine.Time.realtimeSinceStartup - start > MAX_TIME)
                 {
                     LoggingUtil.LogVerbose(this, "   Timeout generating contract...");
+                    if (timeLimited && UnityEngine.Time.realtimeSinceStartup - start > 2.0 * MAX_TIME)
+                    {
+                        LoggingUtil.LogWarning(this, "Contract attribute took too long (" + (UnityEngine.Time.realtimeSinceStartup - start) +
+                            " seconds) to generate: " + lastKey);
+                    }
                     return null;
                 }
             }
