@@ -905,7 +905,9 @@ namespace ContractConfigurator
                 }
 
                 // Get all assemblies, but look at the ContractConfigurator ones first
-                foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies().OrderBy(a => a.FullName.Contains("ContractConfigurator") ? 0 : 1))
+                foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies().
+                    OrderBy(a => a.FullName.Contains("ContractConfigurator") ? 0 :
+                        a.FullName.Contains("Assembly-CSharp") ? 1 : 2))
                 {
                     try
                     {
