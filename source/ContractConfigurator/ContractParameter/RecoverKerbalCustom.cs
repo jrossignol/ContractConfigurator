@@ -27,15 +27,15 @@ namespace ContractConfigurator.Parameters
         {
         }
 
-        public RecoverKerbalCustom(IEnumerable<ProtoCrewMember> kerbals, int index, int count, string title)
+        public RecoverKerbalCustom(IEnumerable<string> kerbals, int index, int count, string title)
             : base(title)
         {
             this.index = index;
             this.count = count;
-            this.kerbals = kerbals.Select<ProtoCrewMember, string>(k => k.name).ToList();
-            foreach (ProtoCrewMember kerbal in kerbals)
+            this.kerbals = kerbals.ToList();
+            foreach (string kerbal in kerbals)
             {
-                recovered[kerbal.name] = false;
+                recovered[kerbal] = false;
             }
 
             if (kerbals.Count() + count == 1)

@@ -7,7 +7,15 @@ namespace ContractConfigurator
 {
     public class Kerbal
     {
-        public string name;
+        public string _name;
+        public string name
+        {
+            get
+            {
+                return _pcm == null ? _name : _pcm.name;
+            }
+        }
+
         public ProtoCrewMember _pcm;
         public ProtoCrewMember pcm
         {
@@ -19,7 +27,7 @@ namespace ContractConfigurator
 
         public Kerbal(string name)
         {
-            this.name = name;
+            this._name = name;
         }
 
         public Kerbal(ProtoCrewMember pcm)
@@ -29,7 +37,7 @@ namespace ContractConfigurator
 
         public override string ToString()
         {
-            return _pcm != null ? _pcm.name : name;
+            return _pcm != null ? _pcm.name : _name;
         }
     }
 }

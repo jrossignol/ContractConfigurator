@@ -1,7 +1,8 @@
 Contract Configurator 1.3.2
 - Now validates for empty values when parsing contracts.
 - Fixed issues with ContractVesselTracker logic for spawned vessels (thanks SirJodelstein).
-- Fix incompatibility with KRPC (thanks OvermindDL1).
+- Fixed incompatibility with KRPC (thanks OvermindDL1).
+- Fixed NRE issue with RecoverKerbal (thanks severedsolo).
 
 Contract Configurator 1.3.1
 - Contract pre-loader now allows pausing between attributes (reduces latency during contract generation).

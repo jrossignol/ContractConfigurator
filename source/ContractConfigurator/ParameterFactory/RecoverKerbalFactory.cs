@@ -34,7 +34,7 @@ namespace ContractConfigurator
 
         public override ContractParameter Generate(Contract contract)
         {
-            return new RecoverKerbalCustom(kerbal.Select<Kerbal, ProtoCrewMember>(k => k.pcm), index, count, title);
+            return new RecoverKerbalCustom(kerbal.Select<Kerbal, string>(k => k.name), index, count, title);
         }
     }
 }
