@@ -535,8 +535,17 @@ namespace ContractConfigurator
             {
                 try
                 {
-                    // Load value
-                    value = ParseValue<T>(configNode, key, true);
+                    // Check whether there's a value
+                    if (configNode.HasValue(key) && string.IsNullOrEmpty(configNode.GetValue(key)))
+                    {
+                        LoggingUtil.LogError(obj, obj.ErrorPrefix(configNode) + ": Required value '" + key + "' is empty.");
+                        valid = false;
+                    }
+                    else
+                    {
+                        // Load value
+                        value = ParseValue<T>(configNode, key, true);
+                    }
 
                     // If value was non-null, run validation
                     if (value != null)

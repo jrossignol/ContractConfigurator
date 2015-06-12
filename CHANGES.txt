@@ -1,4 +1,5 @@
 Contract Configurator 1.3.2
+- Now validates for empty values when parsing contracts.
 - Fixed issues with ContractVesselTracker logic for spawned vessels (thanks SirJodelstein).
 - Fix incompatibility with KRPC (thanks OvermindDL1).
 
