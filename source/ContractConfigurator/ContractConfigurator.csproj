@@ -87,6 +87,7 @@
     <Compile Include="ContractParameter\VesselParameter\HasPassengers.cs" />
     <Compile Include="ContractParameter\VesselParameter\IsNotVessel.cs" />
     <Compile Include="ContractParameter\VesselParameter\ReachState.cs" />
+    <Compile Include="ContractRequirement\AcceptContractRequirement.cs" />
     <Compile Include="ContractRequirement\HasCrewRequirement.cs" />
     <Compile Include="ContractRequirement\InvalidContractRequirement.cs" />
     <Compile Include="ContractRequirement\PartModuleTypeUnlockedRequirement.cs" />
