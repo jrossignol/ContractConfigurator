@@ -121,7 +121,7 @@ namespace ContractConfigurator
                         else
                         {
                             IEnumerable<uint> hashes = vessel.GetHashes();
-                            if (hashes.Count() > 0 && !hashes.Contains(vi.hash))
+                            if (hashes.Any() && !hashes.Contains(vi.hash))
                             {
                                 LoggingUtil.LogVerbose(this, "Setting hash for " + vi.id + " on save from " + vi.hash + " to " + hashes.FirstOrDefault());
                                 vi.hash = hashes.FirstOrDefault();

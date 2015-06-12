@@ -231,12 +231,11 @@ namespace ContractConfigurator.Behaviour
                 }
 
                 // Set some parameters that need to be at the part level
-                uint flightId = ShipConstruction.GetUniqueFlightID(HighLogic.CurrentGame.flightState);
                 uint missionID = (uint)Guid.NewGuid().GetHashCode();
                 uint launchID = HighLogic.CurrentGame.launchID++;
                 foreach (Part p in shipConstruct.parts)
                 {
-                    p.flightID = flightId;
+                    p.flightID = ShipConstruction.GetUniqueFlightID(HighLogic.CurrentGame.flightState);
                     p.missionID = missionID;
                     p.launchID = launchID;
                     p.flagURL = vesselData.flagURL ?? HighLogic.CurrentGame.flagURL;
