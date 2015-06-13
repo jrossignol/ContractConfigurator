@@ -139,7 +139,8 @@ namespace ContractConfigurator
             ContractParameter parameter = Generate(contract);
             if (parameter == null)
             {
-                throw new Exception(GetType().FullName + ".Generate() returned a null ContractParameter!");
+                LoggingUtil.LogWarning(this, GetType().FullName + ".Generate() returned a null ContractParameter!");
+                return null;
             }
 
             // Add ContractParameter to the host
