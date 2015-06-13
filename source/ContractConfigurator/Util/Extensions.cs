@@ -135,7 +135,7 @@ namespace ContractConfigurator
             // Do a BFS of all parts.
             uint hash = 0;
             int count = 0;
-            while (queue.Count > 0 || otherVessel.Count > 0)
+            while (queue.Any() || otherVessel.Any())
             {
                 bool decoupler = false;
 
@@ -151,9 +151,9 @@ namespace ContractConfigurator
                     hash = 0;
 
                     // Find an unhandled part to use as the new vessel
-                    ProtoPartSnapshot px;
-                    while ((px = otherVessel.Dequeue()) != null)
+                    while (otherVessel.Any())
                     {
+                        ProtoPartSnapshot px = otherVessel.Dequeue();
                         if (visited[px] != 2)
                         {
                             queue.Enqueue(px);
@@ -162,6 +162,11 @@ namespace ContractConfigurator
                     }
                     dockedParts.Clear();
                     continue;
+                }
+
+                if (!queue.Any())
+                {
+                    break;
                 }
 
                 ProtoPartSnapshot p = queue.Dequeue();
