@@ -176,7 +176,7 @@ namespace ContractConfigurator
                 // Special handling of certain modules
                 foreach (ProtoPartModuleSnapshot pm in p.modules)
                 {
-                    if (pm.moduleName == "ModuleDecouple" || pm.moduleName == "ModuleDockingNode")
+                    if (pm.moduleName == "ModuleDecouple" || pm.moduleName == "ModuleDockingNode" || pm.moduleName == "ModuleGrappleNode")
                     {
                         // Just assume all parts can decouple from this, it's easier and
                         // effectively the same thing
@@ -192,6 +192,16 @@ namespace ContractConfigurator
                         foreach (ProtoPartSnapshot child in parts.Where(childPart => childPart.parent == p))
                         {
                             dockedParts[child.flightID] = child.flightID;
+                        }
+
+                        if (pm.moduleName == "ModuleGrappleNode")
+                        {
+                            ModuleGrappleNode grapple = pm.moduleRef as ModuleGrappleNode;
+                            ProtoPartSnapshot dockedPart = parts.Where(childPart => childPart.flightID == grapple.dockedPartUId).FirstOrDefault();
+                            if (dockedPart != null)
+                            {
+                                otherVessel.Enqueue(dockedPart);
+                            }
                         }
                     }
                 }

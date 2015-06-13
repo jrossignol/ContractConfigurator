@@ -127,7 +127,6 @@ namespace ContractConfigurator
                                 vi.hash = hashes.FirstOrDefault();
                             }
                         }
-
                     }
 
                     if (vessel != null)
@@ -164,6 +163,7 @@ namespace ContractConfigurator
         protected virtual void OnVesselWasModified(Vessel vessel)
         {
             LoggingUtil.LogVerbose(this, "OnVesselWasModified: " + vessel.id);
+            vessel.GetHashes().Count();
 
             // Check for a vessel creation after a part joint break
             if (HighLogic.LoadedScene != GameScenes.FLIGHT || lastBreak == null || vessel == lastBreak)
@@ -223,7 +223,22 @@ namespace ContractConfigurator
             {
                 // Check if we need to switch over to the newly created vessel
                 VesselInfo vi = vessels[key];
-                Vessel newVessel = FlightGlobals.Vessels.Find(v => v != vessel && v.GetHashes().Contains(vi.hash));
+                Vessel newVessel = FlightGlobals.Vessels.Find(v => {
+                    if (v != vessel)
+                    {
+                        // If the vessel is loaded, refresh the protovessel.  We do this to support
+                        // grappling - when a new vessel is grappled the protovessel information
+                        // doesn't get properly updated.
+                        if (v.loaded)
+                        {
+                            v.protoVessel = new ProtoVessel(v);
+                        }
+
+                        return v.GetHashes().Contains(vi.hash);
+                    }
+                    return false;
+                });
+
                 if (newVessel != null)
                 {
                     vi.id = newVessel.id;
