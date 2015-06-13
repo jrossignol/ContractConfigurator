@@ -5,6 +5,7 @@ Contract Configurator 1.3.2
 - Fixed incompatibility with KRPC (thanks OvermindDL1).
 - Fixed NRE issue with RecoverKerbal (thanks severedsolo).
 - Fixed exception in ReachSpecificOrbit (thanks KerbMav).
+- Fixed exception when generation contracts (thanks KerbMav).
 
 Contract Configurator 1.3.1
 - Contract pre-loader now allows pausing between attributes (reduces latency during contract generation).

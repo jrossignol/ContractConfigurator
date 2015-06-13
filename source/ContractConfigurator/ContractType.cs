@@ -408,7 +408,7 @@ namespace ContractConfigurator
                 }
 
                 // Check special values are not null
-                if (contract.contractType == null || contract.ContractState == Contract.State.Generated)
+                if (contract.contractType == null)
                 {
                     foreach (KeyValuePair<string, bool> pair in dataValues)
                     {
@@ -442,7 +442,10 @@ namespace ContractConfigurator
                             }
                         }
                     }
+                }
 
+                if (contract.contractType == null || contract.ContractState == Contract.State.Generated)
+                {
                     // Check for unique values against other contracts of the same type
                     foreach (KeyValuePair<string, bool> pair in uniqueValues.Where(p => contract.uniqueData.ContainsKey(p.Key)))
                     {
