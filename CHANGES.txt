@@ -1,4 +1,8 @@
 Contract Configurator 1.3.2
+- Major rewrite of contract generation logic to improve performance and reduce latency on contract generation while in flight.
+- Contract pre-loader now allows pausing between attributes (reduces latency during contract generation).
+- Added Vessel.Location() method for expressions.
+- Fixed NRE in RecoverKerbal (thanks severedsolo).
 - Added AcceptContract requirement.
 - Now validates for empty values when parsing contracts.
 - Fixed issues with ContractVesselTracker logic for spawned vessels (thanks SirJodelstein).
@@ -7,14 +11,6 @@ Contract Configurator 1.3.2
 - Fixed NRE issue with RecoverKerbal (thanks severedsolo).
 - Fixed exception in ReachSpecificOrbit (thanks KerbMav).
 - Fixed exception when generation contracts (thanks KerbMav).
-
-Contract Configurator 1.3.1
-- Contract pre-loader now allows pausing between attributes (reduces latency during contract generation).
-
-Contract Configurator 1.3.0
-- Major rewrite of contract generation logic to improve performance and reduce latency on contract generation while in flight.
-- Added Vessel.Location() method for expressions.
-- Fixed NRE in RecoverKerbal (thanks severedsolo).
 
 Contract Configurator 1.2.6
 - Added AvailableExperiments() expression to better filter experiments.
