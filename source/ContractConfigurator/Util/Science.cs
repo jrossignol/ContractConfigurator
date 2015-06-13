@@ -85,6 +85,12 @@ namespace ContractConfigurator.Util
             // Get all the available experiments
             IEnumerable<ScienceExperiment> experiments = AvailableExperiments();
 
+            // Filter experiments
+            if (experimentFilter != null)
+            {
+                experiments = experiments.Where(experimentFilter);
+            }
+
             // Return subjects for each celestial body
             foreach (CelestialBody body in celestialBodies.Where(cb => cb != null))
             {
