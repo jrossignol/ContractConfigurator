@@ -417,6 +417,11 @@ namespace ContractConfigurator
                         {
                             string name = pair.Key;
 
+                            if (!dataNode.IsInitialized(name))
+                            {
+                                throw new ContractRequirementException("'" + name + "' was not initialized.");
+                            }
+
                             object o = dataNode[name];
                             if (o == null)
                             {

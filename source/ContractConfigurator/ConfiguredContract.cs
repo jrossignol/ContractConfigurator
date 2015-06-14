@@ -146,7 +146,7 @@ namespace ContractConfigurator
             }
             catch (Exception e)
             {
-                LoggingUtil.LogError(this, "Error initializing contract!");
+                LoggingUtil.LogError(this, "Error initializing contract " + contractType);
                 LoggingUtil.LogException(e);
                 ExceptionLogWindow.DisplayFatalException(ExceptionLogWindow.ExceptionSituation.CONTRACT_GENERATION, e,
                     contractType == null ? "unknown" : contractType.name);
