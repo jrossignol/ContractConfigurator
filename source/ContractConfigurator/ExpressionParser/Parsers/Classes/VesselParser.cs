@@ -24,34 +24,34 @@ namespace ContractConfigurator.ExpressionParser
 
         internal static void RegisterMethods()
         {
-            RegisterMethod(new Method<Vessel, bool>("IsLanded", v => v != null && v.Landed));
-            RegisterMethod(new Method<Vessel, bool>("IsSplashed", v => v != null && v.Splashed));
-            RegisterMethod(new Method<Vessel, bool>("IsOrbiting", v => v != null && !v.LandedOrSplashed));
+            RegisterMethod(new Method<Vessel, bool>("IsLanded", v => v != null && v.Landed, false));
+            RegisterMethod(new Method<Vessel, bool>("IsSplashed", v => v != null && v.Splashed, false));
+            RegisterMethod(new Method<Vessel, bool>("IsOrbiting", v => v != null && !v.LandedOrSplashed, false));
 
             RegisterMethod(new Method<Vessel, List<Kerbal>>("Crew", v => v == null ? new List<Kerbal>() : v.GetVesselCrew().
-                Select<ProtoCrewMember, Kerbal>(pcm => new Kerbal(pcm)).ToList()));
+                Select<ProtoCrewMember, Kerbal>(pcm => new Kerbal(pcm)).ToList(), false));
             RegisterMethod(new Method<Vessel, List<AvailablePart>>("Parts", v => v == null ? new List<AvailablePart>() :
-                v.parts.Select<Part, AvailablePart>(p => p.protoPartSnapshot.partInfo).ToList()));
+                v.parts.Select<Part, AvailablePart>(p => p.protoPartSnapshot.partInfo).ToList(), false));
 
-            RegisterMethod(new Method<Vessel, CelestialBody>("CelestialBody", v => v == null ? null : v.mainBody));
-            RegisterMethod(new Method<Vessel, VesselType>("VesselType", v => v == null ? VesselType.Unknown : v.vesselType));
+            RegisterMethod(new Method<Vessel, CelestialBody>("CelestialBody", v => v == null ? null : v.mainBody, false));
+            RegisterMethod(new Method<Vessel, VesselType>("VesselType", v => v == null ? VesselType.Unknown : v.vesselType, false));
 
-            RegisterMethod(new Method<Vessel, double>("Altitude", v => v == null ? 0.0 : v.altitude));
+            RegisterMethod(new Method<Vessel, double>("Altitude", v => v == null ? 0.0 : v.altitude, false));
 
-            RegisterMethod(new Method<Vessel, int>("CrewCount", GetCrewCount));
-            RegisterMethod(new Method<Vessel, int>("CrewCapacity", GetCrewCapacity));
-            RegisterMethod(new Method<Vessel, int>("EmptyCrewSpace", v => GetCrewCapacity(v) - GetCrewCount(v)));
-            RegisterMethod(new Method<Vessel, int>("FreeDockingPorts", FreeDockingPorts));
-            RegisterMethod(new Method<Vessel, Resource, double>("ResourceQuantity", (v, r) => v == null || r == null ? 0.0 : v.ResourceQuantity(r.res)));
-            RegisterMethod(new Method<Vessel, Resource, double>("ResourceCapacity", (v, r) => v == null || r == null ? 0.0 : v.ResourceCapacity(r.res)));
+            RegisterMethod(new Method<Vessel, int>("CrewCount", GetCrewCount, false));
+            RegisterMethod(new Method<Vessel, int>("CrewCapacity", GetCrewCapacity, false));
+            RegisterMethod(new Method<Vessel, int>("EmptyCrewSpace", v => GetCrewCapacity(v) - GetCrewCount(v), false));
+            RegisterMethod(new Method<Vessel, int>("FreeDockingPorts", FreeDockingPorts, false));
+            RegisterMethod(new Method<Vessel, Resource, double>("ResourceQuantity", (v, r) => v == null || r == null ? 0.0 : v.ResourceQuantity(r.res), false));
+            RegisterMethod(new Method<Vessel, Resource, double>("ResourceCapacity", (v, r) => v == null || r == null ? 0.0 : v.ResourceCapacity(r.res), false));
 
-            RegisterMethod(new Method<Vessel, float>("Mass", v => v == null ? 0.0f : v.GetTotalMass()));
-            RegisterMethod(new Method<Vessel, double>("XDimension", GetXDimension));
-            RegisterMethod(new Method<Vessel, double>("YDimension", GetYDimension));
-            RegisterMethod(new Method<Vessel, double>("ZDimension", GetZDimension));
-            RegisterMethod(new Method<Vessel, double>("SmallestDimension", GetSmallestDimension));
-            RegisterMethod(new Method<Vessel, double>("LargestDimension", GetLargestDimension));
-            RegisterMethod(new Method<Vessel, Location>("Location", v => v == null ? null : new Location(v.mainBody, v.latitude, v.longitude)));
+            RegisterMethod(new Method<Vessel, float>("Mass", v => v == null ? 0.0f : v.GetTotalMass(), false));
+            RegisterMethod(new Method<Vessel, double>("XDimension", GetXDimension, false));
+            RegisterMethod(new Method<Vessel, double>("YDimension", GetYDimension, false));
+            RegisterMethod(new Method<Vessel, double>("ZDimension", GetZDimension, false));
+            RegisterMethod(new Method<Vessel, double>("SmallestDimension", GetSmallestDimension, false));
+            RegisterMethod(new Method<Vessel, double>("LargestDimension", GetLargestDimension, false));
+            RegisterMethod(new Method<Vessel, Location>("Location", v => v == null ? null : new Location(v.mainBody, v.latitude, v.longitude), false));
 
             RegisterGlobalFunction(new Function<List<Vessel>>("AllVessels", () => FlightGlobals.Vessels, false));
             RegisterGlobalFunction(new Function<Vessel, Vessel>("Vessel", v => v));
