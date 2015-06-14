@@ -108,14 +108,14 @@ namespace ContractConfigurator
                     VesselInfo vi = p.Value;
 
                     // First find the vessel by id
-                    Vessel vessel = FlightGlobals.Vessels.Find(v => v.id == vi.id);
+                    Vessel vessel = FlightGlobals.Vessels.Find(v => v != null && v.id == vi.id);
 
                     if (HighLogic.LoadedScene == GameScenes.FLIGHT)
                     {
                         // If not found, attempt to find it by hash
                         if (vessel == null)
                         {
-                            vessel = FlightGlobals.Vessels.Find(v => v.GetHashes().Contains(vi.hash));
+                            vessel = FlightGlobals.Vessels.Find(v => v != null && v.GetHashes().Contains(vi.hash));
                         }
                         // If found, verify the hash
                         else
@@ -224,7 +224,7 @@ namespace ContractConfigurator
                 // Check if we need to switch over to the newly created vessel
                 VesselInfo vi = vessels[key];
                 Vessel newVessel = FlightGlobals.Vessels.Find(v => {
-                    if (v != vessel)
+                    if (v != null && v != vessel)
                     {
                         // If the vessel is loaded, refresh the protovessel.  We do this to support
                         // grappling - when a new vessel is grappled the protovessel information
@@ -276,7 +276,7 @@ namespace ContractConfigurator
             if (vessels.ContainsKey(key))
             {
                 Guid oldVesselId = vessels[key].id;
-                Vessel oldVessel = FlightGlobals.Vessels.Find(v => v.id == oldVesselId);
+                Vessel oldVessel = FlightGlobals.Vessels.Find(v => v != null && v.id == oldVesselId);
                 vessels.Remove(key);
 
                 if (oldVessel != null)
@@ -304,7 +304,7 @@ namespace ContractConfigurator
         {
             if (vessels.ContainsKey(key))
             {
-                return FlightGlobals.Vessels.Find(v => v.id == vessels[key].id);
+                return FlightGlobals.Vessels.Find(v => v != null && v.id == vessels[key].id);
             }
             return null;
         }
