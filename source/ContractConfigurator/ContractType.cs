@@ -107,6 +107,7 @@ namespace ContractConfigurator
         public float advanceFunds;
         public double weight;
         public bool trace = false;
+        public bool loaded = false;
 
         private Dictionary<string, bool> dataValues = new Dictionary<string, bool>();
         public Dictionary<string, bool> uniqueValues = new Dictionary<string, bool>();
@@ -328,6 +329,7 @@ namespace ContractConfigurator
             finally
             {
                 LoggingUtil.logLevel = origLogLevel;
+                loaded = true;
             }
         }
 

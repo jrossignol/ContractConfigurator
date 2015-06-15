@@ -422,7 +422,7 @@ namespace ContractConfigurator
                 // Fetch the contractType
                 string name = contractConfig.GetValue("name");
                 ContractType contractType = ContractType.GetContractType(name);
-                if (contractType != null)
+                if (contractType != null && !contractType.loaded)
                 {
                     LoggingUtil.LogDebug(this.GetType(), "Loading CONTRACT_TYPE: '" + name + "'");
                     // Perform the load
