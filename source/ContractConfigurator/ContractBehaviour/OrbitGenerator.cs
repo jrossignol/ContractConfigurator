@@ -75,6 +75,8 @@ namespace ContractConfigurator.Behaviour
         private List<OrbitData> orbits = new List<OrbitData>();
 
         protected static List<OrbitGenerator> allOrbitGenerators = new List<OrbitGenerator>();
+
+        public static System.Random random = new System.Random();
         
         public OrbitGenerator() {}
 
@@ -93,18 +95,16 @@ namespace ContractConfigurator.Behaviour
                 }
             }
 
-            System.Random random = new System.Random(contract.MissionSeed);
 
             // Find/add the AlwaysTrue parameter
             AlwaysTrue alwaysTrue = AlwaysTrue.FetchOrAdd(contract);
 
-            int index = 0;
             foreach (OrbitData obData in orbits)
             {
                 // Do type specific handling
                 if (obData.type == "RANDOM_ORBIT")
                 {
-                    obData.orbit = CelestialUtilities.GenerateOrbit(obData.orbitType, contract.MissionSeed + index++, obData.targetBody, 0.8, 0.8);
+                    obData.orbit = CelestialUtilities.GenerateOrbit(obData.orbitType, random.Next(int.MaxValue), obData.targetBody, 0.8, 0.8);
                 }
                 else
                 {
