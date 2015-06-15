@@ -2,6 +2,7 @@ Contract Configurator 1.3.4
 - Fixed rare NRE in ContractVesselTracker (thanks Morashtak).
 - Fixed loading of duplicate Contract Types (thanks jakkarth).
 - Fixed issue where random orbits aren't so random (thanks KerbMav).
+- Fixed exception loading SpawnKerbal (thanks mega_newblar).
 
 Contract Configurator 1.3.3
 - Fixed issue with some load errors getting thrown as an exception.

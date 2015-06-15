@@ -373,10 +373,13 @@ namespace ContractConfigurator.Behaviour
                 }
 
                 // Find the ProtoCrewMember
-                kd.crewMember = HighLogic.CurrentGame.CrewRoster.AllKerbals().Where(cm => cm.name == kd.name).First();
+                kd.crewMember = HighLogic.CurrentGame.CrewRoster.AllKerbals().Where(cm => cm != null && cm.name == kd.name).FirstOrDefault();
 
                 // Add to the global list
-                kerbals.Add(kd);
+                if (kd.crewMember != null)
+                {
+                    kerbals.Add(kd);
+                }
             }
         }
 

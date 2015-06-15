@@ -44,11 +44,11 @@ namespace ContractConfigurator
                     actionString = "The contract failed to generate, and you may see additional exceptions";
                     break;
                 case ExceptionSituation.CONTRACT_SAVE:
-                    situationString = String.Format("while saving contract contract '{0}'", args);
+                    situationString = String.Format("while saving contract '{0}'", args);
                     actionString = "The contract data was not correctly saved - reloading the save may result in further errors.  Best case - the contract in question is no longer valid.";
                     break;
                 case ExceptionSituation.CONTRACT_LOAD:
-                    situationString = String.Format("while loading contract contract '{0}'", args);
+                    situationString = String.Format("while loading contract '{0}'", args);
                     actionString = "The contract data was not correctly loaded.  Avoid saving your game and backup your save file immediately if you wish to prevent contract loss!";
                     break;
                 case ExceptionSituation.SCENARIO_MODULE_SAVE:
