@@ -26,6 +26,8 @@ namespace ContractConfigurator
 
         public Dictionary<string, object> uniqueData = new Dictionary<string, object>();
 
+        public static System.Random random = new System.Random();
+
 		public static string contractTypeName(Contract c)
 		{
             if (c == null || c.GetType() != typeof(ConfiguredContract))
@@ -121,7 +123,7 @@ namespace ContractConfigurator
                 {
                     // Generate the contract description
                     description = TextGen.GenerateBackStories(agent.Name, agent.GetMindsetString(),
-                        contractType.topic, contractType.subject, contractType.motivation, MissionSeed);
+                        contractType.topic, contractType.subject, contractType.motivation, random.Next());
                 }
                 else
                 {
@@ -151,12 +153,6 @@ namespace ContractConfigurator
                 ExceptionLogWindow.DisplayFatalException(ExceptionLogWindow.ExceptionSituation.CONTRACT_GENERATION, e,
                     contractType == null ? "unknown" : contractType.name);
 
-                try
-                {
-                    GenerateFailed();
-                }
-                catch { }
-
                 return false;
             }
             finally
@@ -167,6 +163,12 @@ namespace ContractConfigurator
 
         protected override bool Generate()
         {
+            // Special case for pre-loader
+            if (ContractState == State.Withdrawn)
+            {
+                return true;
+            }
+
             try
             {
                 if (contractType != null)
@@ -435,6 +437,12 @@ namespace ContractConfigurator
 
         public override bool MeetRequirements()
         {
+            // Special case for pre-loader
+            if (ContractState == State.Withdrawn)
+            {
+                return true;
+            }
+
             // No ContractType chosen
             if (contractType == null)
             {

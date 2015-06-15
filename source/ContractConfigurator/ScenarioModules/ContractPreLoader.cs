@@ -145,7 +145,7 @@ namespace ContractConfigurator
 
             if (UnityEngine.Time.realtimeSinceStartup - start > 0.1)
             {
-                LoggingUtil.LogWarning(this, "Contract attribute took too long (" + (UnityEngine.Time.realtimeSinceStartup - start) +
+                LoggingUtil.LogDebug(this, "Contract attribute took too long (" + (UnityEngine.Time.realtimeSinceStartup - start) +
                     " seconds) to generate: " + lastKey);
             }
         }
@@ -167,7 +167,8 @@ namespace ContractConfigurator
 
         private IEnumerable<KeyValuePair<ConfiguredContract, bool>?> ContractGenerator(Contract.ContractPrestige prestige, ContractGroup group)
         {
-            ConfiguredContract templateContract = new ConfiguredContract(prestige);
+            ConfiguredContract templateContract =
+                Contract.Generate(typeof(ConfiguredContract), prestige, rand.Next(), Contract.State.Withdrawn) as ConfiguredContract;
 
             // Build a weighted list of ContractTypes to choose from
             Dictionary<ContractType, double> validContractTypes = new Dictionary<ContractType, double>();
@@ -316,7 +317,7 @@ namespace ContractConfigurator
                     LoggingUtil.LogVerbose(this, "   Timeout generating contract...");
                     if (UnityEngine.Time.realtimeSinceStartup - start > 0.1)
                     {
-                        LoggingUtil.LogWarning(this, "Contract attribute took too long (" + (UnityEngine.Time.realtimeSinceStartup - start) +
+                        LoggingUtil.LogDebug(this, "Contract attribute took too long (" + (UnityEngine.Time.realtimeSinceStartup - start) +
                             " seconds) to generate: " + lastKey);
                     }
                     return null;

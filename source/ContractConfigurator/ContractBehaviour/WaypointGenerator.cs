@@ -201,18 +201,6 @@ namespace ContractConfigurator.Behaviour
                 initialized = false;
             }
         }
- 
-        /// <summary>
-        /// Set the contract for all waypoints
-        /// </summary>
-        /// <param name="contract"></param>
-        public void SetContract(Contract contract)
-        {
-            foreach (WaypointData wpd in waypoints)
-            {
-                wpd.SetContract(contract);
-            }
-        }
 
         public static WaypointGenerator Create(ConfigNode configNode, WaypointGeneratorFactory factory)
         {
