@@ -8,10 +8,94 @@ using KSP;
 
 namespace ContractConfigurator.Util
 {
-    public static class Science
+    [KSPAddon(KSPAddon.Startup.MainMenu, true)]
+    public class Science : MonoBehaviour
     {
+        private class ExperimentRules
+        {
+            public string id;
+            public bool ignored;
+            public bool requireEVA;
+            public bool requireSurfaceSample;
+            public bool requireAsteroidTracking;
+            public bool requireAtmosphere;
+            public bool requireNoAtmosphere;
+            public bool requireSurface;
+            public bool requireNoSurface;
+            public bool disallowHomeSurface;
+            public bool disallowHomeFlying;
+            public List<CelestialBody> validBodies;
+            public string partModule;
+
+            public ExperimentRules(string id)
+            {
+                this.id = id;
+            }
+        }
+        private static Dictionary<string, ExperimentRules> experimentRules = new Dictionary<string, ExperimentRules>();
+        private static List<string> experimentModules = new List<string>();
+
+        public Science Instance;
+        private bool loaded = false;
+
         private static Dictionary<string, List<AvailablePart>> experimentParts = null;
         private static IEnumerable<ExperimentSituations> allSituations = Enum.GetValues(typeof(ExperimentSituations)).OfType<ExperimentSituations>();
+
+        void Start()
+        {
+            DontDestroyOnLoad(this);
+            Instance = this;
+        }
+
+        void Update()
+        {
+            if (!loaded && ResearchAndDevelopment.Instance != null)
+            {
+                Load();
+            }
+        }
+
+        private void Load()
+        {
+            ConfigNode[] experimentConfigs = GameDatabase.Instance.GetConfigNodes("CC_EXPERIMENT_DEFINITIONS");
+
+            foreach (ConfigNode experimentConfig in experimentConfigs)
+            {
+                LoggingUtil.LogDebug(this, "Loading experiment definitions for " + experimentConfig.GetValue("name"));
+
+                foreach (ConfigNode config in experimentConfig.GetNodes("EXPERIMENT"))
+                {
+                    string name = ConfigNodeUtil.ParseValue<string>(config, "name");
+                    LoggingUtil.LogVerbose(this, "    loading experiment " + name);
+
+                    ExperimentRules exp = new ExperimentRules(name);
+                    experimentRules[name] = exp;
+
+                    exp.ignored = ConfigNodeUtil.ParseValue<bool?>(config, "ignored", (bool?)false).Value;
+                    exp.requireEVA = ConfigNodeUtil.ParseValue<bool?>(config, "requireEVA", (bool?)false).Value;
+                    exp.requireSurfaceSample = ConfigNodeUtil.ParseValue<bool?>(config, "requireSurfaceSample", (bool?)false).Value;
+                    exp.requireAsteroidTracking = ConfigNodeUtil.ParseValue<bool?>(config, "requireAsteroidTracking", (bool?)false).Value;
+                    exp.requireAtmosphere = ConfigNodeUtil.ParseValue<bool?>(config, "requireAtmosphere", (bool?)false).Value;
+                    exp.requireNoAtmosphere = ConfigNodeUtil.ParseValue<bool?>(config, "requireNoAtmosphere", (bool?)false).Value;
+                    exp.requireSurface = ConfigNodeUtil.ParseValue<bool?>(config, "requireSurface", (bool?)false).Value;
+                    exp.requireNoSurface = ConfigNodeUtil.ParseValue<bool?>(config, "requireNoSurface", (bool?)false).Value;
+                    exp.disallowHomeSurface = ConfigNodeUtil.ParseValue<bool?>(config, "disallowHomeSurface", (bool?)false).Value;
+                    exp.disallowHomeFlying = ConfigNodeUtil.ParseValue<bool?>(config, "disallowHomeFlying", (bool?)false).Value;
+                    exp.partModule = ConfigNodeUtil.ParseValue<string>(config, "partModule", null);
+                    exp.validBodies = ConfigNodeUtil.ParseValue<List<CelestialBody>>(config, "validBody", null);
+                }
+
+                foreach (ConfigNode config in experimentConfig.GetNodes("MODULE"))
+                {
+                    string name = ConfigNodeUtil.ParseValue<string>(config, "name");
+                    LoggingUtil.LogVerbose(this, "    loading module " + name);
+
+                    experimentModules.Add(name);
+                }
+            }
+
+            loaded = true;
+        }
 
         /// <summary>
         /// Gets the science subject for the given values.
@@ -32,9 +116,6 @@ namespace ContractConfigurator.Util
         {
             IEnumerable<ExperimentSituations> situations = Enum.GetValues(typeof(ExperimentSituations)).Cast<ExperimentSituations>();
 
-            bool evaCheckRequired = !GameVariables.Instance.UnlockedEVA(ScenarioUpgradeableFacilities.GetFacilityLevel(SpaceCenterFacility.AstronautComplex)) &&
-                (experiment.id == "surfaceSample" || experiment.id == "evaReport");
-
             // Set up the biome filter
             bool biomesFiltered = biomeFilter != null;
             if (biomeFilter == null)
@@ -49,8 +130,7 @@ namespace ContractConfigurator.Util
             return situations
                 .Where(sit => ExperimentAvailable(experiment, sit, body) &&
                     (sit != ExperimentSituations.SrfSplashed || body.ocean) &&
-                    ((sit != ExperimentSituations.FlyingLow && sit != ExperimentSituations.FlyingHigh) || body.atmosphere) &&
-                    (!evaCheckRequired || sit == ExperimentSituations.SrfLanded || sit == ExperimentSituations.SrfSplashed))
+                    ((sit != ExperimentSituations.FlyingLow && sit != ExperimentSituations.FlyingHigh) || body.atmosphere))
                 .SelectMany<ExperimentSituations, ScienceSubject>(sit =>
                 {
                     if (experiment.BiomeIsRelevantWhile(sit))
@@ -206,14 +286,49 @@ namespace ContractConfigurator.Util
                 return false;
             }
 
-            if ((exp.id == "ImpactSeismometer" || exp.id == "ImpactSpectrometer") && body.atmosphere)
+            // Get the experiment rules
+            ExperimentRules rules = GetExperimentRules(exp.id);
+
+            if (rules.ignored)
             {
                 return false;
             }
 
-            if (exp.id == "dmbiodrillscan" && !body.atmosphere)
+            if (rules.requireAtmosphere && !body.atmosphere)
             {
                 return false;
+            }
+
+            if (rules.requireNoAtmosphere && body.atmosphere)
+            {
+                return false;
+            }
+
+            if (rules.requireSurface && body.pqsController == null)
+            {
+                return false;
+            }
+
+            if (rules.requireNoSurface && body.pqsController != null)
+            {
+                return false;
+            }
+
+            if (rules.validBodies != null)
+            {
+                if (!rules.validBodies.Contains(body))
+                {
+                    return false;
+                }
+            }
+
+            // Filter out asteroid samples if not unlocked
+            if (rules.requireAsteroidTracking)
+            {
+                if (!GameVariables.Instance.UnlockedSpaceObjectDiscovery(ScenarioUpgradeableFacilities.GetFacilityLevel(SpaceCenterFacility.TrackingStation)))
+                {
+                    return false;
+                }
             }
 
             return allSituations.Any(sit => exp.IsAvailableWhile(sit, body));
@@ -231,30 +346,44 @@ namespace ContractConfigurator.Util
                 return false;
             }
 
-            if (exp.id == "surfaceSample")
-            {
-                // Check if surface samples have been unlocked
-                if (ScenarioUpgradeableFacilities.GetFacilityLevel(SpaceCenterFacility.ResearchAndDevelopment) < 0.5f)
-                {
-                    return false;
-                }
+            // Get the experiment rules
+            ExperimentRules rules = GetExperimentRules(exp.id);
 
-                bool evaUnlocked = GameVariables.Instance.UnlockedEVA(ScenarioUpgradeableFacilities.GetFacilityLevel(SpaceCenterFacility.AstronautComplex));
-                if (!evaUnlocked && !body.isHomeWorld)
+            // Check if surface samples have been unlocked
+            if (rules.requireSurfaceSample)
+            {
+                if (ScenarioUpgradeableFacilities.GetFacilityLevel(SpaceCenterFacility.ResearchAndDevelopment) < 0.5f)
                 {
                     return false;
                 }
             }
 
-            if (exp.id == "evaReport")
+            // Check for EVA unlock
+            if (rules.requireEVA)
             {
-                if (!body.isHomeWorld)
+                if (!body.isHomeWorld || (sit != ExperimentSituations.SrfLanded && sit != ExperimentSituations.SrfSplashed))
                 {
                     bool evaUnlocked = GameVariables.Instance.UnlockedEVA(ScenarioUpgradeableFacilities.GetFacilityLevel(SpaceCenterFacility.AstronautComplex));
                     if (!evaUnlocked)
                     {
                         return false;
                     }
+                }
+            }
+
+            if (rules.disallowHomeSurface)
+            {
+                if (body.isHomeWorld && sit == ExperimentSituations.SrfLanded || sit == ExperimentSituations.SrfSplashed)
+                {
+                    return false;
+                }
+            }
+
+            if (rules.disallowHomeFlying)
+            {
+                if (body.isHomeWorld && sit == ExperimentSituations.FlyingLow || sit == ExperimentSituations.FlyingHigh)
+                {
+                    return false;
                 }
             }
 
@@ -274,35 +403,16 @@ namespace ContractConfigurator.Util
 
             IEnumerable<ScienceExperiment> experiments = ResearchAndDevelopment.GetExperimentIDs().Select<string, ScienceExperiment>(ResearchAndDevelopment.GetExperiment);
 
-            // Filter out asteroid samples if not unlocked
-            bool asteroidTracking = GameVariables.Instance.UnlockedSpaceObjectDiscovery(ScenarioUpgradeableFacilities.GetFacilityLevel(SpaceCenterFacility.TrackingStation));
-            experiments = experiments.Where(exp => exp.id != "asteroidSample" || asteroidTracking);
-
             // Build a mapping of experiment => parts
             if (experimentParts == null)
             {
                 experimentParts = new Dictionary<string, List<AvailablePart>>();
 
-                string[] scienceModules = new string[] {
-                    "ScienceExperiment",
-                    "ModuleScienceExperiment",
-                    "DMModuleScienceAnimate",
-                    "DMAnomalyScanner",
-                    "DMAsteroidScanner",
-                    "DMBioDrill",
-                    "DMEnviroSensor",
-                    "DMMagBoomModule",
-                    "DMRoverGooMat",
-                    "DMSoilMoisture",
-                    "DMSolarCollector",
-                    "DMXRayDiffract",
-                };
-
                 // Check the stock experiment
                 foreach (KeyValuePair<AvailablePart, string> pair in PartLoader.Instance.parts.
-                    Where(p => p.moduleInfos.Any(mod => scienceModules.Contains(mod.moduleName.Replace(" ", "")))).
+                    Where(p => p.moduleInfos.Any(mod => experimentModules.Contains(mod.moduleName.Replace(" ", "")))).
                     SelectMany(p => p.partConfig.GetNodes("MODULE").
-                        Where(node => scienceModules.Contains(node.GetValue("name"))).
+                        Where(node => experimentModules.Contains(node.GetValue("name"))).
                         Select(node => new KeyValuePair<AvailablePart, string>(p, node.GetValue("experimentID")))))
                 {
                     if (!string.IsNullOrEmpty(pair.Value))
@@ -315,21 +425,13 @@ namespace ContractConfigurator.Util
                     }
                 }
 
-                //
-                // Hardcoded support for other mods follows!
-                //
-                Dictionary<string, string> modExpToModule = new Dictionary<string, string>();
-
-                // tomf's Impact!
-                modExpToModule["ImpactSeismometer"] = "Seismometer";
-                modExpToModule["ImpactSpectrometer"] = "Spectrometer";
-
-                foreach (string exp in ResearchAndDevelopment.GetExperimentIDs().Where(e => modExpToModule.ContainsKey(e)))
+                // Check for specific modules specified in configurator
+                foreach (ExperimentRules rules in experiments.Select(exp => GetExperimentRules(exp.id)).Where(r => !string.IsNullOrEmpty(r.partModule)))
                 {
-                    string module = modExpToModule[exp];
+                    string module = rules.partModule;
                     foreach (AvailablePart p in PartLoader.Instance.parts.Where(p => p.moduleInfos.Any(mod => mod.moduleName == module)))
                     {
-                        experimentParts[exp].Add(p);
+                        experimentParts[rules.id].Add(p);
                     }
                 }
             }
@@ -352,6 +454,17 @@ namespace ContractConfigurator.Util
             }
 
             return AvailableExperiments().Where(exp => ExperimentAvailable(exp, body));
+        }
+
+        private static ExperimentRules GetExperimentRules(string id)
+        {
+            // Get the experiment rules
+            if (!experimentRules.ContainsKey(id))
+            {
+                LoggingUtil.LogWarning(typeof(Science), "Experiment '" + id + "' is unknown, assuming a standard experiment.");
+                experimentRules[id] = new ExperimentRules(id);
+            }
+            return experimentRules[id];
         }
     }
 

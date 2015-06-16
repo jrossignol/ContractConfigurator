@@ -1,6 +1,11 @@
+Contract Configurator 1.4.0
+- Move extra science experiment definition to configuration files.
+- Add support in science modules for Station Science.
+- Add support in science modules for Solar Science.
+
 Contract Configurator 1.3.4
 - Added support in parameters for completedMessage.
-- Fixed rare NRE in ContractVesselTracker (thanks Morashtak).
+- Fixed NRE in ContractVesselTracker (thanks Morashtak).
 - Fixed loading of duplicate Contract Types (thanks jakkarth).
 - Fixed issue where random orbits aren't so random (thanks KerbMav).
 - Fixed exception loading SpawnKerbal (thanks mega_newblar).
