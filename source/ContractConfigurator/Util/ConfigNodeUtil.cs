@@ -894,7 +894,7 @@ namespace ContractConfigurator
         private static Vessel ParseVesselValue(string name)
         {
             Guid id = new Guid(name);
-            return FlightGlobals.Vessels.Find(v => v.id == id);
+            return FlightGlobals.Vessels.Find(v => v != null && v.id == id);
         }
 
         public static Type ParseTypeValue(string name)
