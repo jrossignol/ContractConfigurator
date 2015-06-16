@@ -30,7 +30,8 @@ namespace ContractConfigurator
             valid &= ConfigNodeUtil.ParseValue<Biome>(configNode, "biome", x => biome = x, this, (Biome)null);
             valid &= ConfigNodeUtil.ParseValue<ExperimentSituations?>(configNode, "situation", x => situation = x, this, (ExperimentSituations?)null);
             valid &= ConfigNodeUtil.ParseValue<BodyLocation?>(configNode, "location", x => location = x, this, (BodyLocation?)null);
-            valid &= ConfigNodeUtil.ParseValue<List<ScienceExperiment>>(configNode, "experiment", x => experiment = x, this, new List<ScienceExperiment>());
+            valid &= ConfigNodeUtil.ParseValue<List<ScienceExperiment>>(configNode, "experiment", x => experiment = x, this, new List<ScienceExperiment>(), x =>
+                x.All(Validation.NotNull<ScienceExperiment>));
             valid &= ConfigNodeUtil.ParseValue<ScienceRecoveryMethod>(configNode, "recoveryMethod", x => recoveryMethod = x, this, ScienceRecoveryMethod.None);
 
             valid &= ConfigNodeUtil.ParseValue<List<ScienceSubject>>(configNode, "subject", x => subjects = x, this, new List<ScienceSubject>());

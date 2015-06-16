@@ -3,6 +3,7 @@ Contract Configurator 1.4.0
 - Add support in science modules for Station Science.
 - Add support in science modules for Solar Science.
 - Add support in science modules for N3h3miah's science mods.
+- Add additional experiment validation.
 
 Contract Configurator 1.3.4
 - Added support in parameters for completedMessage.

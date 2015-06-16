@@ -87,6 +87,16 @@ namespace ContractConfigurator
             return true;
         }
 
+        public static bool NotNull<T>(T val)
+        {
+            if (val == null)
+            {
+                throw new ArgumentException("Cannot be null!");
+            }
+
+            return true;
+        }
+
         /// <summary>
         /// Checks that the given PartModule is valid.
         /// </summary>
