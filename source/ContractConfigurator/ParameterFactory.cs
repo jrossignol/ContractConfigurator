@@ -39,6 +39,7 @@ namespace ContractConfigurator
         protected List<ContractRequirement> requirements = new List<ContractRequirement>();
         protected string title;
         protected string notes;
+        protected string completedMessage;
 
         public bool enabled = true;
         public bool hasWarnings { get; set; }
@@ -91,6 +92,7 @@ namespace ContractConfigurator
             // Get title and notes
             valid &= ConfigNodeUtil.ParseValue<string>(configNode, "title", x => title = x, this, (string)null);
             valid &= ConfigNodeUtil.ParseValue<string>(configNode, "notes", x => notes = x, this, (string)null);
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "completedMessage", x => completedMessage = x, this, (string)null);
 
             config = configNode.ToString();
             return valid;
@@ -165,6 +167,7 @@ namespace ContractConfigurator
             {
                 ccParam.completeInSequence = completeInSequence;
                 ccParam.notes = notes;
+                ccParam.completedMessage = completedMessage;
                 ccParam.hideChildren = hideChildren;
             }
 

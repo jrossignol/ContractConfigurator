@@ -14,6 +14,7 @@ namespace ContractConfigurator.Parameters
     public abstract class ContractConfiguratorParameter : ContractParameter
     {
         protected string title;
+        public string completedMessage;
         public string notes;
         public bool completeInSequence;
         public bool hideChildren;
@@ -44,6 +45,11 @@ namespace ContractConfigurator.Parameters
             return notes;
         }
 
+        protected override string GetMessageComplete()
+        {
+            return string.IsNullOrEmpty(completedMessage) ? base.GetMessageComplete() : completedMessage;
+        }
+
         protected sealed override void OnSave(ConfigNode node)
         {
             try
@@ -54,6 +60,7 @@ namespace ContractConfigurator.Parameters
                 }
                 node.AddValue("title", title ?? "");
                 node.AddValue("notes", notes ?? "");
+                node.AddValue("completedMessage", completedMessage ?? "");
                 if (completeInSequence)
                 {
                     node.AddValue("completeInSequence", completeInSequence);
@@ -95,6 +102,7 @@ namespace ContractConfigurator.Parameters
             {
                 title = ConfigNodeUtil.ParseValue<string>(node, "title", "");
                 notes = ConfigNodeUtil.ParseValue<string>(node, "notes", "");
+                completedMessage = ConfigNodeUtil.ParseValue<string>(node, "completedMessage", "");
                 hideChildren = ConfigNodeUtil.ParseValue<bool?>(node, "hideChildren", (bool?)false).Value;
                 completeInSequence = ConfigNodeUtil.ParseValue<bool?>(node, "completeInSequence", (bool?)false).Value;
                 fakeFailures = ConfigNodeUtil.ParseValue<bool?>(node, "fakeFailures", (bool?)false).Value;
