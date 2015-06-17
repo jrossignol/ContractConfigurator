@@ -611,7 +611,7 @@ namespace ContractConfigurator.Behaviour
         {
             foreach (VesselData vd in vessels)
             {
-                Vessel vessel = FlightGlobals.Vessels.Find(v => v.id == vd.id);
+                Vessel vessel = FlightGlobals.Vessels.Find(v => v != null && v.id == vd.id);
                 if (vessel != null)
                 {
                     vessel.state = Vessel.State.DEAD;

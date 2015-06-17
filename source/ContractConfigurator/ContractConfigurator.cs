@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -13,6 +14,14 @@ namespace ContractConfigurator
     [KSPAddon(KSPAddon.Startup.MainMenu, true)]
     public class ContractConfigurator : MonoBehaviour
     {
+        public static string Win64WarningFileName
+        {
+            get
+            {
+                return string.Join(Path.DirectorySeparatorChar.ToString(), new string[] { KSPUtil.ApplicationRootPath, "GameData", "ContractConfigurator", "Win64Warning.cfg" });
+            }
+        }
+
         private enum ReloadStep
         {
             GAME_DATABASE,
@@ -67,19 +76,8 @@ namespace ContractConfigurator
                     typeof(AssemblyInformationalVersionAttribute)) as AssemblyInformationalVersionAttribute;
                 LoggingUtil.LogInfo(this, "Contract Configurator " + ainfoV.InformationalVersion + " loading...");
 
-                // First check for Win64
-                if (Util.Version.IsWin64())
-                {
-                    string title = "Contract Configurator " + ainfoV.InformationalVersion + " Message";
-                    string message = "Due to wildly random bugs that take a huge amount of my (nightingale's) " +
-                        " time to investigate, Contract Configurator is no longer supported on Win64.  Please use a " +
-                        " supported build/OS combination.";
-                    DialogOption dialogOption = new DialogOption("Okay", new Callback(DoNothing), true);
-                    PopupDialog.SpawnPopupDialog(new MultiOptionDialog(message, title, HighLogic.Skin, dialogOption), false, HighLogic.Skin);
-
-                    Destroy(this);
-                    return;
-                }
+                // Check for Win64
+                DoWin64Check();
 
                 LoggingUtil.LoadDebuggingConfig();
 
@@ -579,6 +577,39 @@ namespace ContractConfigurator
                         yield return foundType;
                     }
                 }
+            }
+        }
+
+        private void DoWin64Check()
+        {
+            if (Util.Version.IsWin64())
+            {
+                var ainfoV = Attribute.GetCustomAttribute(typeof(ContractConfigurator).Assembly,
+                    typeof(AssemblyInformationalVersionAttribute)) as AssemblyInformationalVersionAttribute;
+
+                if (File.Exists(Win64WarningFileName))
+                {
+                    ConfigNode configNode = ConfigNode.Load(Win64WarningFileName);
+                    string version = configNode.GetValue("version");
+                    if (version == ainfoV.InformationalVersion)
+                    {
+                        return;
+                    }
+                }
+
+                Debug.Log("doing win64 warn");
+
+                string title = "Contract Configurator Windows 64-bit Support";
+                string message = "Contract Configurator is not officially supported on Win64 builds of KSP " +
+                    "due to wildly random bugs that take a huge amount of my (nightingale's) " +
+                    "time to investigate.  It will continue to work as normal, but please do not request " +
+                    "support for any issues unless they can be reproduced in a 32-bit build.";
+                DialogOption dialogOption = new DialogOption("Okay", new Callback(DoNothing), true);
+                PopupDialog.SpawnPopupDialog(new MultiOptionDialog(message, title, HighLogic.Skin, dialogOption), false, HighLogic.Skin);
+
+                ConfigNode node = new ConfigNode("CC_WIN64_WARNING");
+                node.AddValue("version", ainfoV.InformationalVersion);
+                node.Save(Win64WarningFileName, "Contract Configurator Win64 warning configuration");
             }
         }
 

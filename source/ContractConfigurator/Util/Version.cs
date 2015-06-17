@@ -72,7 +72,6 @@ namespace ContractConfigurator.Util
             return new System.Version(major, minor, build, revision);
         }
 
-        private static IntPtr intPtr = new IntPtr(long.MaxValue);
 
         /// <summary>
         /// Checks if running KSP on Win64.
@@ -80,7 +79,13 @@ namespace ContractConfigurator.Util
         /// <returns></returns>
         public static bool IsWin64()
         {
-            return (intPtr.ToInt64() == long.MaxValue) && (Environment.OSVersion.Platform == PlatformID.Win32NT);
+            if (isWin64 == null)
+            {
+                IntPtr intPtr = new IntPtr(long.MaxValue);
+                isWin64 = (intPtr.ToInt64() == long.MaxValue) && (Environment.OSVersion.Platform == PlatformID.Win32NT);
+            }
+            return isWin64.Value;
         }
+        private static bool? isWin64 = null;
     }
 }
