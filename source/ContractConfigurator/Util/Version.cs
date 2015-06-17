@@ -13,7 +13,6 @@ namespace ContractConfigurator.Util
     /// </summary>
     public static class Version
     {
-
         /// <summary>
         /// Verify the loaded assembly meets a minimum version number.
         /// </summary>
@@ -71,6 +70,17 @@ namespace ContractConfigurator.Util
             int revision = m.Groups[7].Value.Equals("") ? 0 : Convert.ToInt32(m.Groups[7].Value);
 
             return new System.Version(major, minor, build, revision);
+        }
+
+        private static IntPtr intPtr = new IntPtr(long.MaxValue);
+
+        /// <summary>
+        /// Checks if running KSP on Win64.
+        /// </summary>
+        /// <returns></returns>
+        public static bool IsWin64()
+        {
+            return (intPtr.ToInt64() == long.MaxValue) && (Environment.OSVersion.Platform == PlatformID.Win32NT);
         }
     }
 }

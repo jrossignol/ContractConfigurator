@@ -48,6 +48,7 @@ namespace ContractConfigurator
         {
             DontDestroyOnLoad(this);
             Instance = this;
+
             OnParameterChange.Add(new EventData<Contract, ContractParameter>.OnEvent(ParameterChange));
         }
 
@@ -61,11 +62,26 @@ namespace ContractConfigurator
             // Load all the contract configurator configuration
             if (HighLogic.LoadedScene == GameScenes.MAINMENU && !loading)
             {
-                LoggingUtil.LoadDebuggingConfig();
-
                 // Log version info
-                var ainfoV = Attribute.GetCustomAttribute(typeof(ExceptionLogWindow).Assembly, typeof(AssemblyInformationalVersionAttribute)) as AssemblyInformationalVersionAttribute;
+                var ainfoV = Attribute.GetCustomAttribute(typeof(ContractConfigurator).Assembly,
+                    typeof(AssemblyInformationalVersionAttribute)) as AssemblyInformationalVersionAttribute;
                 LoggingUtil.LogInfo(this, "Contract Configurator " + ainfoV.InformationalVersion + " loading...");
+
+                // First check for Win64
+                if (Util.Version.IsWin64())
+                {
+                    string title = "Contract Configurator " + ainfoV.InformationalVersion + " Message";
+                    string message = "Due to wildly random bugs that take a huge amount of my (nightingale's) " +
+                        " time to investigate, Contract Configurator is no longer supported on Win64.  Please use a " +
+                        " supported build/OS combination.";
+                    DialogOption dialogOption = new DialogOption("Okay", new Callback(DoNothing), true);
+                    PopupDialog.SpawnPopupDialog(new MultiOptionDialog(message, title, HighLogic.Skin, dialogOption), false, HighLogic.Skin);
+
+                    Destroy(this);
+                    return;
+                }
+
+                LoggingUtil.LoadDebuggingConfig();
 
                 RegisterParameterFactories();
                 RegisterBehaviourFactories();
@@ -565,5 +581,7 @@ namespace ContractConfigurator
                 }
             }
         }
+
+        private void DoNothing() { }
     }
 }
