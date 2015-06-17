@@ -1,3 +1,6 @@
+Contract Configurator 1.4.1
+- Remove warnings for Mkerb Inc. Science Instruments (worked just fine before, now is officially supported).
+
 Contract Configurator 1.4.0
 - Move extra science experiment definition to configuration files.
 - Add support in science modules for Station Science.
