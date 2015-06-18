@@ -119,6 +119,7 @@ namespace ContractConfigurator.Behaviour
                 alwaysTrue.AddParameter(s);
                 obData.index = alwaysTrue.ParameterCount - 1;
             }
+
         }
 
         public static OrbitGenerator Create(ConfigNode configNode, OrbitGeneratorFactory factory)
@@ -173,6 +174,11 @@ namespace ContractConfigurator.Behaviour
             allOrbitGenerators.Add(obGenerator);
 
             return valid ? obGenerator : null;
+        }
+
+        protected override void OnOffered()
+        {
+            base.OnOffered();
         }
 
         protected override void OnUnregister()
@@ -245,6 +251,19 @@ namespace ContractConfigurator.Behaviour
                 {
                     SpecificOrbitParameter s = AlwaysTrue.FetchOrAdd(contract).GetParameter(obData.index) as SpecificOrbitParameter;
                     s.updateMapIcons(CelestialUtilities.MapFocusBody() == obData.orbit.referenceBody);
+                }
+            }
+            else if (contract.ContractState == Contract.State.Withdrawn)
+            {
+                // Hide waypoint icons
+                foreach (OrbitData obData in orbits)
+                {
+                    SpecificOrbitParameter s = AlwaysTrue.FetchOrAdd(contract).GetParameter(obData.index) as SpecificOrbitParameter;
+
+                    foreach (Waypoint w in s.iconWaypoints)
+                    {
+                        w.visible = false;
+                    }
                 }
             }
         }

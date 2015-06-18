@@ -247,6 +247,9 @@ namespace ContractConfigurator
                 parameter.Load(node);
             }
 
+            // Run the OnOffered for behaviours
+            OnOffered();
+
             LoggingUtil.LogInfo(this, "Generated contract: " + contractType);
         }
 
