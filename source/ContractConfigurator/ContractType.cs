@@ -487,6 +487,11 @@ namespace ContractConfigurator
                 LoggingUtil.Log(level, this.GetType(), prefix + e.Message);
                 return false;
             }
+            catch
+            {
+                LoggingUtil.LogError(this, "Exception while attempting to check requirements of contract type " + name);
+                throw;
+            }
         }
 
         protected bool CheckContractGroup(ConfiguredContract contract, ContractGroup group)
