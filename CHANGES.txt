@@ -1,4 +1,5 @@
 Contract Configurator 1.4.1
+- Add support for heading/roll/pitch in SpawnVessel.
 - Fixed ghost icons in OrbitGenerator (thanks KerbMav).
 - Remove warnings for Mkerb Inc. Science Instruments (worked just fine before, now is officially supported).
 - Re-add limited support for Win64.

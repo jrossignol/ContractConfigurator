@@ -43,6 +43,9 @@ namespace ContractConfigurator.Behaviour
             public bool landed = false;
             public bool owned = false;
             public List<CrewData> crew = new List<CrewData>();
+            public float heading;
+            public float pitch;
+            public float roll;
 
             public VesselData() { }
             public VesselData(VesselData vd)
@@ -59,6 +62,9 @@ namespace ContractConfigurator.Behaviour
                 altitude = vd.altitude;
                 landed = vd.landed;
                 owned = vd.owned;
+                heading = vd.heading;
+                pitch = vd.pitch;
+                roll = vd.roll;
 
                 foreach (CrewData cd in vd.crew)
                 {
@@ -141,6 +147,10 @@ namespace ContractConfigurator.Behaviour
                     {
                         valid &= ConfigNodeUtil.ParseValue<Orbit>(child, "ORBIT", x => vessel.orbit = x, factory);
                     }
+
+                    valid &= ConfigNodeUtil.ParseValue<float>(child, "heading", x => vessel.heading = x, factory, 0.0f);
+                    valid &= ConfigNodeUtil.ParseValue<float>(child, "pitch", x => vessel.pitch = x, factory, 0.0f);
+                    valid &= ConfigNodeUtil.ParseValue<float>(child, "roll", x => vessel.roll = x, factory, 0.0f);
 
                     // Get additional flags
                     valid &= ConfigNodeUtil.ParseValue<bool>(child, "owned", x => vessel.owned = x, factory, false);
@@ -378,7 +388,8 @@ namespace ContractConfigurator.Behaviour
 
                     // Figure out the surface height and rotation
                     Vector3d norm = vesselData.body.GetRelSurfaceNVector(vesselData.latitude, vesselData.longitude);
-                    Quaternion rotation = Quaternion.LookRotation(new Vector3((float)norm.x, (float)norm.y, (float)norm.z));
+                    Quaternion normal = Quaternion.LookRotation(new Vector3((float)norm.x, (float)norm.y, (float)norm.z));
+                    Quaternion rotation = Quaternion.identity;
                     if (shipConstruct.shipFacility == EditorFacility.SPH)
                     {
                         rotation = rotation * Quaternion.FromToRotation(Vector3.forward, -Vector3.forward);
@@ -388,15 +399,31 @@ namespace ContractConfigurator.Behaviour
                         rotation = rotation * Quaternion.FromToRotation(Vector3.up, Vector3.forward);
                     }
 
+                    rotation = rotation * Quaternion.AngleAxis(180.0f + vesselData.heading, Vector3.forward);
+                    rotation = rotation * Quaternion.AngleAxis(vesselData.roll, Vector3.up);
+                    rotation = rotation * Quaternion.AngleAxis(vesselData.pitch, Vector3.right);
+
                     // Set the height and rotation
                     protoVesselNode.SetValue("hgt", (shipConstruct.parts[0].localRoot.attPos0.y - lowest).ToString());
-                    protoVesselNode.SetValue("rot", KSPUtil.WriteQuaternion(rotation));
+                    protoVesselNode.SetValue("rot", KSPUtil.WriteQuaternion(normal * rotation));
+
+                    Debug.Log("vessel = " + vesselData.name);
+
+                    // Figure out the rotation
+                    Debug.Log("r01 = " + Vector3.right);
+                    Debug.Log("r02 = " + Vector3.up);
+                    Debug.Log("r03 = " + Vector3.forward);
+                    Debug.Log("r11 = " + (rotation * Vector3.right));
+                    Debug.Log("r12 = " + (rotation * Vector3.up));
+                    Debug.Log("r13 = " + (rotation * Vector3.forward));
 
                     // Set the normal vector relative to the surface
-                    if (shipConstruct.shipFacility == EditorFacility.SPH)
+                    Vector3 nrm = (rotation * Vector3.forward);
+                    protoVesselNode.SetValue("nrm", nrm.x + "," + nrm.y + "," + nrm.z);
+/*                    if (shipConstruct.shipFacility == EditorFacility.SPH)
                     {
                         protoVesselNode.SetValue("nrm", "0,0,-1");
-                    }
+                    }*/
                 }
 
                 // Add vessel to the game
