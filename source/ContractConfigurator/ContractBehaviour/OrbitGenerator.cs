@@ -249,7 +249,8 @@ namespace ContractConfigurator.Behaviour
                 // Update the map icons
                 foreach (OrbitData obData in orbits)
                 {
-                    SpecificOrbitParameter s = AlwaysTrue.FetchOrAdd(contract).GetParameter(obData.index) as SpecificOrbitParameter;
+                    SpecificOrbitParameter s = GetOrbitParameter(obData.index);
+                    s.setVisible(true);
                     s.updateMapIcons(CelestialUtilities.MapFocusBody() == obData.orbit.referenceBody);
                 }
             }
@@ -258,11 +259,15 @@ namespace ContractConfigurator.Behaviour
                 // Hide waypoint icons
                 foreach (OrbitData obData in orbits)
                 {
-                    SpecificOrbitParameter s = AlwaysTrue.FetchOrAdd(contract).GetParameter(obData.index) as SpecificOrbitParameter;
+                    SpecificOrbitParameter s = GetOrbitParameter(obData.index);
 
-                    foreach (Waypoint w in s.iconWaypoints)
+                    if (s != null && s.iconWaypoints != null)
                     {
-                        w.visible = false;
+                        foreach (Waypoint w in s.iconWaypoints)
+                        {
+                            w.visible = false;
+                        }
+                        s.setVisible(false);
                     }
                 }
             }
