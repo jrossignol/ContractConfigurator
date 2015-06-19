@@ -92,7 +92,7 @@ namespace ContractConfigurator
             }
 
             // Check cooldown
-            if (cooldownDuration.Value > 0.0 && finished > 0 && lastFinished + cooldownDuration.Value > Planetarium.GetUniversalTime())
+            if (cooldownDuration.Value > 0.0 && finished > 0 && lastFinished + cooldownDuration.Value <= Planetarium.GetUniversalTime())
             {
                 LoggingUtil.LogDebug(this, "Returning false due to cooldown for " + contractType.name);
                 return false;
