@@ -399,31 +399,17 @@ namespace ContractConfigurator.Behaviour
                         rotation = rotation * Quaternion.FromToRotation(Vector3.up, Vector3.forward);
                     }
 
-                    rotation = rotation * Quaternion.AngleAxis(180.0f + vesselData.heading, Vector3.forward);
-                    rotation = rotation * Quaternion.AngleAxis(vesselData.roll, Vector3.up);
-                    rotation = rotation * Quaternion.AngleAxis(vesselData.pitch, Vector3.right);
+                    rotation = rotation * Quaternion.AngleAxis(180.0f + vesselData.heading, Vector3.back);
+                    rotation = rotation * Quaternion.AngleAxis(vesselData.roll, Vector3.down);
+                    rotation = rotation * Quaternion.AngleAxis(vesselData.pitch, Vector3.left);
 
                     // Set the height and rotation
                     protoVesselNode.SetValue("hgt", (shipConstruct.parts[0].localRoot.attPos0.y - lowest).ToString());
                     protoVesselNode.SetValue("rot", KSPUtil.WriteQuaternion(normal * rotation));
 
-                    Debug.Log("vessel = " + vesselData.name);
-
-                    // Figure out the rotation
-                    Debug.Log("r01 = " + Vector3.right);
-                    Debug.Log("r02 = " + Vector3.up);
-                    Debug.Log("r03 = " + Vector3.forward);
-                    Debug.Log("r11 = " + (rotation * Vector3.right));
-                    Debug.Log("r12 = " + (rotation * Vector3.up));
-                    Debug.Log("r13 = " + (rotation * Vector3.forward));
-
                     // Set the normal vector relative to the surface
                     Vector3 nrm = (rotation * Vector3.forward);
                     protoVesselNode.SetValue("nrm", nrm.x + "," + nrm.y + "," + nrm.z);
-/*                    if (shipConstruct.shipFacility == EditorFacility.SPH)
-                    {
-                        protoVesselNode.SetValue("nrm", "0,0,-1");
-                    }*/
                 }
 
                 // Add vessel to the game
