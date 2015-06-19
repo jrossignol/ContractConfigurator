@@ -262,6 +262,10 @@ namespace ContractConfigurator
             {
                 return;
             }
+            else if (vessel == null && !vessels.ContainsKey(key))
+            {
+                return;
+            }
 
             if (vessel != null)
             {

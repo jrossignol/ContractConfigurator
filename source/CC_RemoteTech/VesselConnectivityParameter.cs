@@ -103,6 +103,7 @@ namespace ContractConfigurator.RemoteTech
             {
                 GetTitle();
             }
+            CheckVessel(hta.host);
         }
 
         protected void OnVesselDisassociation(GameEvents.HostTargetAction<Vessel, string> hta)
@@ -112,6 +113,7 @@ namespace ContractConfigurator.RemoteTech
             {
                 GetTitle();
             }
+            CheckVessel(hta.host);
         }
 
         protected override void OnUpdate()

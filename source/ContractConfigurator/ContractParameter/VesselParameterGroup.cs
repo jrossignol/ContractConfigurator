@@ -404,6 +404,7 @@ namespace ContractConfigurator.Parameters
                         // Set the tracked vessel association
                         if (!string.IsNullOrEmpty(define))
                         {
+                            LoggingUtil.LogVerbose(this, "setting " + define + " as " + (trackedVessel != null ? trackedVessel.name : "null"));
                             ContractVesselTracker.Instance.AssociateVessel(define, trackedVessel);
                         }
                     }
@@ -414,12 +415,13 @@ namespace ContractConfigurator.Parameters
                     if (state == ParameterState.Complete)
                     {
                         SetState(ParameterState.Incomplete);
+                    }
 
-                        // Set the tracked vessel association
-                        if (!string.IsNullOrEmpty(define))
-                        {
-                            ContractVesselTracker.Instance.AssociateVessel(define, null);
-                        }
+                    // Set the tracked vessel association
+                    if (!string.IsNullOrEmpty(define))
+                    {
+                        LoggingUtil.LogVerbose(this, "setting " + define + " as null");
+                        ContractVesselTracker.Instance.AssociateVessel(define, null);
                     }
 
                     // Find any failed non-VesselParameter parameters

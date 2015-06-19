@@ -1,6 +1,7 @@
 Contract Configurator 1.4.2
 - Fixed asteroid sample showing up in KSC contracts for Field Research (thanks maculator).
 - Fixed mirrored heading/roll/pitch in SpawnVessel (thanks Xephan).
+- Fixed issue with RemoteTech vessel tracking (thanks johnpmayer).
 
 Contract Configurator 1.4.1
 - Add support for heading/roll/pitch in SpawnVessel.
