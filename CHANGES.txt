@@ -1,5 +1,4 @@
 Contract Configurator 1.4.3
-- Fixed inverted logic on cooldownDuration (thanks dunadirect).
 - Fixed contracts that appear and disappear in mission control due to requirement issues (thanks dunadirect).
 
 Contract Configurator 1.4.2
