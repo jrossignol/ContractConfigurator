@@ -440,21 +440,9 @@ namespace ContractConfigurator
 
         public override bool MeetRequirements()
         {
-            // Special case for pre-loader
-            if (ContractState == State.Withdrawn)
+            // ContractType already chosen, check if still meets requirements.
+            if (contractType != null)
             {
-                return true;
-            }
-
-            // No ContractType chosen
-            if (contractType == null)
-            {
-                LoggingUtil.LogVerbose(this, "MeetRequirements()");
-                return ContractPreLoader.Instance.GenerateContract(this);
-            }
-            else 
-            {
-                // ContractType already chosen, check if still meets requirements.
                 bool meets = contractType.MeetRequirements(this);
                 if (ContractState == State.Active && !meets)
                 {
@@ -462,6 +450,14 @@ namespace ContractConfigurator
                 }
                 return meets;
             }
+            else if (ContractState == State.Withdrawn)
+            {
+                // Special case for pre-loader
+                return true;
+            }
+            // No ContractType chosen
+            LoggingUtil.LogVerbose(this, "MeetRequirements()");
+            return ContractPreLoader.Instance.GenerateContract(this);
         }
 
         public override string MissionControlTextRich()
