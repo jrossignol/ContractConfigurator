@@ -444,14 +444,15 @@ namespace ContractConfigurator
             if (contractType != null)
             {
                 bool meets = contractType.MeetRequirements(this);
-                if (ContractState == State.Active && !meets) {
+                if (ContractState == State.Active && !meets)
+                {
                     LoggingUtil.LogWarning(this, "Removed contract '" + title + "', as it no longer meets the requirements.");
                 }
                 return meets;
             }
-            // Special case for pre-loader
             else if (ContractState == State.Withdrawn)
             {
+                // Special case for pre-loader
                 return true;
             }
             // No ContractType chosen
