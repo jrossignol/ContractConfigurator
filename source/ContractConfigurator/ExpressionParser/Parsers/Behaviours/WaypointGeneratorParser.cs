@@ -71,7 +71,6 @@ namespace ContractConfigurator.ExpressionParser
             switch(type)
             {
                 case "WAYPOINT":
-                    yield return "altitude";
                     yield return "latitude";
                     yield return "longitude";
                     break;
@@ -79,8 +78,11 @@ namespace ContractConfigurator.ExpressionParser
                 case "RANDOM_WAYPOINT_NEAR":
                     yield return "count";
                     yield return "waterAllowed";
-                    yield return "forceEquatorial";
-                    if (type == "RANDOM_WAYPOINT_NEAR")
+                    if (type == "RANDOM_WAYPOINT")
+                    {
+                        yield return "forceEquatorial";
+                    }
+                    else
                     {
                         yield return "nearIndex";
                         yield return "minDistance";

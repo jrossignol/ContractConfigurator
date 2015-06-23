@@ -1,7 +1,8 @@
 Contract Configurator 1.4.3
 - Added support for SpawnVessel in expressions.
-- Fixed contracts that appear and disappear in mission control due to requirement issues (thanks dunadirect).
 - Improved logic so child REQUIREMENT nodes can hide PARAMETER nodes even when they fail validation (thanks CosmoBro).
+- Fixed contracts that appear and disappear in mission control due to requirement issues (thanks dunadirect).
+- Fixed issue with WaypointGenerator incorrectly requesting forceEquatorial attribute for RANDOM_WAYPOINT_NEAR (thanks AlphaAsh).
 
 Contract Configurator 1.4.2
 - Fixed asteroid sample showing up in KSC contracts for Field Research (thanks maculator).
