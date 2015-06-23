@@ -274,7 +274,6 @@ namespace ContractConfigurator.Behaviour
                     ConfigNode protoVesselNode = ProtoVessel.CreateVesselNode(vesselData.name, vesselData.vesselType, vesselData.orbit, 0, partNodes, additionalNodes);
 
                     // Additional seetings for a landed vessel
-                    LoggingUtil.LogVerbose(this, "landed");
                     if (vesselData.landed)
                     {
                         bool splashed = vesselData.altitude.Value < 0.001;
@@ -327,11 +326,9 @@ namespace ContractConfigurator.Behaviour
                         protoVesselNode.SetValue("nrm", nrm.x + "," + nrm.y + "," + nrm.z);
                     }
 
-                    LoggingUtil.LogVerbose(this, "got to the end");
 
                     // Add vessel to the VesselData object
                     ProtoVessel protoVessel = new ProtoVessel(protoVesselNode, HighLogic.CurrentGame);
-                    LoggingUtil.LogVerbose(this, "a");
                     protoVessel.vesselID = Guid.NewGuid();
                     protoVessel.Load(HighLogic.CurrentGame.flightState);
                     FlightGlobals.Vessels.Remove(protoVessel.vesselRef);
