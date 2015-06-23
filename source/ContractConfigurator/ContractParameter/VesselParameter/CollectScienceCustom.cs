@@ -59,6 +59,7 @@ namespace ContractConfigurator.Parameters
 
         private float lastUpdate = 0.0f;
         private const float UPDATE_FREQUENCY = 0.25f;
+        private int updateTicks = 0;
 
         public CollectScienceCustom()
             : base(null)
@@ -318,7 +319,15 @@ namespace ContractConfigurator.Parameters
                 
                 // Run the OnVesselChange, this will pick up a kerbal that grabbed science,
                 // or science that was dumped from a pod.
-                OnVesselChange(v);
+                if (updateTicks++ % 4 == 0)
+                {
+                    OnVesselChange(v);
+                }
+                // Just update the delegates, that will do the biome check
+                else
+                {
+                    UpdateDelegates();
+                }
             }
         }
 
@@ -453,6 +462,8 @@ namespace ContractConfigurator.Parameters
         /// <param name="vessel">The vessel</param>
         protected override void OnVesselChange(Vessel vessel)
         {
+            int count = matchingSubjects.Count;
+
             matchingSubjects.Clear();
             foreach (ScienceSubject subject in GetVesselSubjects(vessel).GroupBy(subjid => subjid).Select(grp => ResearchAndDevelopment.GetSubjectByID(grp.Key)))
             {
@@ -466,8 +477,12 @@ namespace ContractConfigurator.Parameters
                 }
             }
 
-            UpdateDelegates();
-            base.OnVesselChange(vessel);
+            // Only do a full check if something changed
+            if (count != matchingSubjects.Count)
+            {
+                UpdateDelegates();
+                CheckVessel(vessel);
+            }
         }
 
         private IEnumerable<string> GetVesselSubjects(ProtoVessel v)
