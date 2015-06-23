@@ -284,8 +284,34 @@ namespace ContractConfigurator
             paramFactory.contractType = contractType;
             paramFactory.dataNode = new DataNode(name, parent != null ? parent.dataNode : contractType.dataNode, paramFactory);
 
+            // Load child requirements
+            foreach (ConfigNode childNode in ConfigNodeUtil.GetChildNodes(parameterConfig, "REQUIREMENT"))
+            {
+                ContractRequirement req = null;
+                valid &= ContractRequirement.GenerateRequirement(childNode, contractType, out req, paramFactory);
+                if (req != null)
+                {
+                    paramFactory.requirements.Add(req);
+                    if (req.hasWarnings)
+                    {
+                        paramFactory.hasWarnings = true;
+                    }
+                }
+            }
+
             // Load config
-            valid &= paramFactory.Load(parameterConfig);
+            if (!paramFactory.Load(parameterConfig))
+            {
+                // If there was a load failure, check if there are requirements
+                if (paramFactory.requirements.Count > 0)
+                {
+                    LoggingUtil.LogWarning(paramFactory, "Ignoring failed parameter with child requirements.");
+                }
+                else
+                {
+                    valid = false;
+                }
+            }
 
             // Check for unexpected values - always do this last
             if (paramFactory.GetType() != typeof(InvalidParameterFactory))
@@ -305,21 +331,6 @@ namespace ContractConfigurator
                 {
                     paramFactory.childNodes.Add(child);
                     if (child.hasWarnings)
-                    {
-                        paramFactory.hasWarnings = true;
-                    }
-                }
-            }
-
-            // Load child requirements
-            foreach (ConfigNode childNode in ConfigNodeUtil.GetChildNodes(parameterConfig, "REQUIREMENT"))
-            {
-                ContractRequirement req = null;
-                valid &= ContractRequirement.GenerateRequirement(childNode, contractType, out req, paramFactory);
-                if (req != null)
-                {
-                    paramFactory.requirements.Add(req);
-                    if (req.hasWarnings)
                     {
                         paramFactory.hasWarnings = true;
                     }
