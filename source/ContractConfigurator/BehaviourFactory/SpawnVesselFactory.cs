@@ -14,6 +14,19 @@ namespace ContractConfigurator.Behaviour
     public class SpawnVesselFactory : BehaviourFactory
     {
         SpawnVessel spawnVessel;
+        public SpawnVessel Current
+        {
+            get
+            {
+                if (HighLogic.CurrentGame == null)
+                {
+                    return null;
+                }
+
+                spawnVessel.Initialize();
+                return spawnVessel;
+            }
+        }
 
         public override bool Load(ConfigNode configNode)
         {

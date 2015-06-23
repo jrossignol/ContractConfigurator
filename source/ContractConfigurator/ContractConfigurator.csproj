@@ -96,6 +96,7 @@
     <Compile Include="ContractRequirement\ReputationRequirement.cs" />
     <Compile Include="ContractRequirement\FundsRequirement.cs" />
     <Compile Include="ContractGroup.cs" />
+    <Compile Include="ExpressionParser\Parsers\Behaviours\SpawnVesselParser.cs" />
     <Compile Include="ScenarioModules\ContractPreLoader.cs" />
     <Compile Include="ExpressionParser\BaseParser.cs" />
     <Compile Include="ExpressionParser\Parsers\Behaviours\BehaviourParser.cs" />

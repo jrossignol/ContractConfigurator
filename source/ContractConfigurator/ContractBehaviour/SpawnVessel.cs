@@ -46,6 +46,7 @@ namespace ContractConfigurator.Behaviour
             public float heading;
             public float pitch;
             public float roll;
+            public ProtoVessel protoVessel;
 
             public VesselData() { }
             public VesselData(VesselData vd)
@@ -65,6 +66,7 @@ namespace ContractConfigurator.Behaviour
                 heading = vd.heading;
                 pitch = vd.pitch;
                 roll = vd.roll;
+                protoVessel = vd.protoVessel;
 
                 foreach (CrewData cd in vd.crew)
                 {
@@ -75,6 +77,7 @@ namespace ContractConfigurator.Behaviour
         private List<VesselData> vessels = new List<VesselData>();
         private bool vesselsCreated = false;
         private bool deferVesselCreation = false;
+        private bool initialized = false;
 
         public int KerbalCount
         {
@@ -92,10 +95,251 @@ namespace ContractConfigurator.Behaviour
         /// <param name="orig"></param>
         public SpawnVessel(SpawnVessel orig)
         {
-            deferVesselCreation = orig.deferVesselCreation; 
+            deferVesselCreation = orig.deferVesselCreation;
             foreach (VesselData vd in orig.vessels)
             {
                 vessels.Add(new VesselData(vd));
+            }
+
+            if (orig.initialized)
+            {
+                foreach (VesselData vd in orig.vessels)
+                {
+                    vd.protoVessel = null;
+                }
+                orig.initialized = false;
+            }
+            else
+            {
+                Initialize();
+            }
+        }
+
+        public void Initialize()
+        {
+            if (!initialized)
+            {
+                LoggingUtil.LogVerbose(this, "Initializing SpawnVessel.");
+
+                String gameDataDir = KSPUtil.ApplicationRootPath;
+                gameDataDir = gameDataDir.Replace("\\", "/");
+                if (!gameDataDir.EndsWith("/"))
+                {
+                    gameDataDir += "/";
+                }
+                gameDataDir += "GameData";
+
+                // Spawn the vessel in the game world
+                foreach (VesselData vesselData in vessels)
+                {
+                    LoggingUtil.LogVerbose(this, "Spawning a vessel named '" + vesselData.name + "'");
+
+                    // Save the current ShipConstruction ship, otherwise the player will see the spawned ship next time they enter the VAB!
+                    ConfigNode currentShip = ShipConstruction.ShipConfig;
+
+                    ShipConstruct shipConstruct = ShipConstruction.LoadShip(gameDataDir + "/" + vesselData.craftURL);
+                    if (shipConstruct == null)
+                    {
+                        LoggingUtil.LogError(this, "ShipConstruct was null when tried to load '" + vesselData.craftURL +
+                            "' (usually this means the file could not be found).");
+                        continue;
+                    }
+
+                    // Restore ShipConstruction ship
+                    ShipConstruction.ShipConfig = currentShip;
+
+                    // Set the name
+                    if (string.IsNullOrEmpty(vesselData.name))
+                    {
+                        vesselData.name = shipConstruct.shipName;
+                    }
+
+                    // Set some parameters that need to be at the part level
+                    uint missionID = (uint)Guid.NewGuid().GetHashCode();
+                    uint launchID = HighLogic.CurrentGame.launchID++;
+                    foreach (Part p in shipConstruct.parts)
+                    {
+                        p.flightID = ShipConstruction.GetUniqueFlightID(HighLogic.CurrentGame.flightState);
+                        p.missionID = missionID;
+                        p.launchID = launchID;
+                        p.flagURL = vesselData.flagURL ?? HighLogic.CurrentGame.flagURL;
+
+                        // Had some issues with this being set to -1 for some ships - can't figure out
+                        // why.  End result is the vessel exploding, so let's just set it to a positive
+                        // value.
+                        p.temperature = 1.0;
+                    }
+
+                    // Assign crew to the vessel
+                    foreach (CrewData cd in vesselData.crew)
+                    {
+                        bool success = false;
+
+                        // Find a seat for the crew
+                        Part part = shipConstruct.parts.Find(p => p.protoModuleCrew.Count < p.CrewCapacity);
+
+                        // Add the crew member
+                        if (part != null)
+                        {
+                            // Create the ProtoCrewMember
+                            ProtoCrewMember crewMember = HighLogic.CurrentGame.CrewRoster.GetNewKerbal(ProtoCrewMember.KerbalType.Unowned);
+                            if (cd.name != null)
+                            {
+                                crewMember.name = cd.name;
+                            }
+
+                            // Add them to the part
+                            success = part.AddCrewmemberAt(crewMember, part.protoModuleCrew.Count);
+                        }
+
+                        if (!success)
+                        {
+                            LoggingUtil.LogWarning(this, "Unable to add crew to vessel named '" + vesselData.name + "'.  Perhaps there's no room?");
+                            break;
+                        }
+                    }
+
+                    // Set additional info for landed vessels
+                    if (vesselData.landed)
+                    {
+                        if (vesselData.altitude == null)
+                        {
+                            vesselData.altitude = LocationUtil.TerrainHeight(vesselData.latitude, vesselData.longitude, vesselData.body);
+                        }
+
+                        Vector3d pos = vesselData.body.GetWorldSurfacePosition(vesselData.latitude, vesselData.longitude, vesselData.altitude.Value);
+
+                        vesselData.orbit = new Orbit(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, vesselData.body);
+                        vesselData.orbit.UpdateFromStateVectors(pos, vesselData.body.getRFrmVel(pos), vesselData.body, Planetarium.GetUniversalTime());
+                    }
+                    else
+                    {
+                        vesselData.orbit.referenceBody = vesselData.body;
+                    }
+
+                    // Create a dummy ProtoVessel, we will use this to dump the parts to a config node.
+                    // We can't use the config nodes from the .craft file, because they are in a
+                    // slightly different format than those required for a ProtoVessel (seriously
+                    // Squad?!?).
+                    ConfigNode empty = new ConfigNode();
+                    ProtoVessel dummyProto = new ProtoVessel(empty, null);
+                    Vessel dummyVessel = new Vessel();
+                    dummyVessel.parts = shipConstruct.parts;
+                    dummyProto.vesselRef = dummyVessel;
+
+                    // Create the ProtoPartSnapshot objects and then initialize them
+                    foreach (Part p in shipConstruct.parts)
+                    {
+                        dummyProto.protoPartSnapshots.Add(new ProtoPartSnapshot(p, dummyProto));
+                    }
+                    foreach (ProtoPartSnapshot p in dummyProto.protoPartSnapshots)
+                    {
+                        p.storePartRefs();
+                    }
+
+                    // Estimate an object class, numbers are based on the in game description of the
+                    // size classes.
+                    float size = shipConstruct.shipSize.magnitude / 2.0f;
+                    UntrackedObjectClass sizeClass;
+                    if (size < 4.0f)
+                    {
+                        sizeClass = UntrackedObjectClass.A;
+                    }
+                    else if (size < 7.0f)
+                    {
+                        sizeClass = UntrackedObjectClass.B;
+                    }
+                    else if (size < 12.0f)
+                    {
+                        sizeClass = UntrackedObjectClass.C;
+                    }
+                    else if (size < 18.0f)
+                    {
+                        sizeClass = UntrackedObjectClass.D;
+                    }
+                    else
+                    {
+                        sizeClass = UntrackedObjectClass.E;
+                    }
+
+                    // Create the ship's parts
+                    ConfigNode[] partNodes = dummyProto.protoPartSnapshots.Select<ProtoPartSnapshot, ConfigNode>(GetNodeForPart).ToArray();
+
+                    // Create additional nodes
+                    ConfigNode[] additionalNodes = new ConfigNode[1];
+                    DiscoveryLevels discoveryLevel = vesselData.owned ? DiscoveryLevels.Owned : DiscoveryLevels.Unowned;
+                    additionalNodes[0] = ProtoVessel.CreateDiscoveryNode(discoveryLevel, sizeClass, KSPUtil.KerbinYear * 1000, KSPUtil.KerbinYear * 1000);
+
+                    // Create the config node representation of the ProtoVessel
+                    ConfigNode protoVesselNode = ProtoVessel.CreateVesselNode(vesselData.name, vesselData.vesselType, vesselData.orbit, 0, partNodes, additionalNodes);
+
+                    // Additional seetings for a landed vessel
+                    LoggingUtil.LogVerbose(this, "landed");
+                    if (vesselData.landed)
+                    {
+                        bool splashed = vesselData.altitude.Value < 0.001;
+
+                        // Create the config node representation of the ProtoVessel
+                        protoVesselNode.SetValue("sit", (splashed ? Vessel.Situations.SPLASHED : Vessel.Situations.LANDED).ToString());
+                        protoVesselNode.SetValue("landed", (!splashed).ToString());
+                        protoVesselNode.SetValue("splashed", splashed.ToString());
+                        protoVesselNode.SetValue("lat", vesselData.latitude.ToString());
+                        protoVesselNode.SetValue("lon", vesselData.longitude.ToString());
+                        protoVesselNode.SetValue("alt", vesselData.altitude.ToString());
+                        protoVesselNode.SetValue("landedAt", vesselData.body.name);
+
+                        // Figure out the additional height to subtract
+                        float lowest = float.MaxValue;
+                        foreach (Part p in shipConstruct.parts)
+                        {
+                            foreach (Collider collider in p.GetComponentsInChildren<Collider>())
+                            {
+                                if (collider.gameObject.layer != 21 && collider.enabled)
+                                {
+                                    lowest = Mathf.Min(lowest, collider.bounds.min.y);
+                                }
+                            }
+                        }
+
+                        // Figure out the surface height and rotation
+                        Vector3d norm = vesselData.body.GetRelSurfaceNVector(vesselData.latitude, vesselData.longitude);
+                        Quaternion normal = Quaternion.LookRotation(new Vector3((float)norm.x, (float)norm.y, (float)norm.z));
+                        Quaternion rotation = Quaternion.identity;
+                        if (shipConstruct.shipFacility == EditorFacility.SPH)
+                        {
+                            rotation = rotation * Quaternion.FromToRotation(Vector3.forward, -Vector3.forward);
+                        }
+                        else
+                        {
+                            rotation = rotation * Quaternion.FromToRotation(Vector3.up, Vector3.forward);
+                        }
+
+                        rotation = rotation * Quaternion.AngleAxis(180.0f + vesselData.heading, Vector3.back);
+                        rotation = rotation * Quaternion.AngleAxis(vesselData.roll, Vector3.down);
+                        rotation = rotation * Quaternion.AngleAxis(vesselData.pitch, Vector3.left);
+
+                        // Set the height and rotation
+                        protoVesselNode.SetValue("hgt", (shipConstruct.parts[0].localRoot.attPos0.y - lowest).ToString());
+                        protoVesselNode.SetValue("rot", KSPUtil.WriteQuaternion(normal * rotation));
+
+                        // Set the normal vector relative to the surface
+                        Vector3 nrm = (rotation * Vector3.forward);
+                        protoVesselNode.SetValue("nrm", nrm.x + "," + nrm.y + "," + nrm.z);
+                    }
+
+                    LoggingUtil.LogVerbose(this, "got to the end");
+
+                    // Add vessel to the VesselData object
+                    ProtoVessel protoVessel = new ProtoVessel(protoVesselNode, HighLogic.CurrentGame);
+                    LoggingUtil.LogVerbose(this, "a");
+                    protoVessel.vesselID = Guid.NewGuid();
+                    protoVessel.Load(HighLogic.CurrentGame.flightState);
+                    FlightGlobals.Vessels.Remove(protoVessel.vesselRef);
+                    vesselData.protoVessel = protoVessel;
+                }
+
+                initialized = true;
+                LoggingUtil.LogVerbose(this, "SpawnVessel initialized.");
             }
         }
 
@@ -220,200 +464,16 @@ namespace ContractConfigurator.Behaviour
             {
                 LoggingUtil.LogVerbose(this, "Spawning a vessel named '" + vesselData.name + "'");
 
-                // Save the current ShipConstruction ship, otherwise the player will see the spawned ship next time they enter the VAB!
-                ConfigNode currentShip = ShipConstruction.ShipConfig;
-
-                ShipConstruct shipConstruct = ShipConstruction.LoadShip(gameDataDir + "/" + vesselData.craftURL);
-                if (shipConstruct == null)
-                {
-                    LoggingUtil.LogError(this, "ShipConstruct was null when tried to load '" + vesselData.craftURL +
-                        "' (usually this means the file could not be found).");
-                    continue;
-                }
-
-                // Restore ShipConstruction ship
-                ShipConstruction.ShipConfig = currentShip;
-
-                // Set the name
-                if (string.IsNullOrEmpty(vesselData.name))
-                {
-                    vesselData.name = shipConstruct.shipName;
-                }
-
-                // Set some parameters that need to be at the part level
-                uint missionID = (uint)Guid.NewGuid().GetHashCode();
-                uint launchID = HighLogic.CurrentGame.launchID++;
-                foreach (Part p in shipConstruct.parts)
-                {
-                    p.flightID = ShipConstruction.GetUniqueFlightID(HighLogic.CurrentGame.flightState);
-                    p.missionID = missionID;
-                    p.launchID = launchID;
-                    p.flagURL = vesselData.flagURL ?? HighLogic.CurrentGame.flagURL;
-
-                    // Had some issues with this being set to -1 for some ships - can't figure out
-                    // why.  End result is the vessel exploding, so let's just set it to a positive
-                    // value.
-                    p.temperature = 1.0;
-                }
-
-                // Assign crew to the vessel
-                foreach (CrewData cd in vesselData.crew)
-                {
-                    bool success = false;
-
-                    // Find a seat for the crew
-                    Part part = shipConstruct.parts.Find(p => p.protoModuleCrew.Count < p.CrewCapacity);
-
-                    // Add the crew member
-                    if (part != null)
-                    {
-                        // Create the ProtoCrewMember
-                        ProtoCrewMember crewMember = HighLogic.CurrentGame.CrewRoster.GetNewKerbal(ProtoCrewMember.KerbalType.Unowned);
-                        if (cd.name != null)
-                        {
-                            crewMember.name = cd.name;
-                        }
-
-                        // Add them to the part
-                        success = part.AddCrewmemberAt(crewMember, part.protoModuleCrew.Count);
-                    }
-
-                    if (!success)
-                    {
-                        LoggingUtil.LogWarning(this, "Unable to add crew to vessel named '" + vesselData.name + "'.  Perhaps there's no room?");
-                        break;
-                    }
-                }
-
-                // Set additional info for landed vessels
-                if (vesselData.landed)
-                {
-                    if (vesselData.altitude == null)
-                    {
-                        vesselData.altitude = LocationUtil.TerrainHeight(vesselData.latitude, vesselData.longitude, vesselData.body);
-                    }
-
-                    Vector3d pos = vesselData.body.GetWorldSurfacePosition(vesselData.latitude, vesselData.longitude, vesselData.altitude.Value);
-
-                    vesselData.orbit = new Orbit(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, vesselData.body);
-                    vesselData.orbit.UpdateFromStateVectors(pos, vesselData.body.getRFrmVel(pos), vesselData.body, Planetarium.GetUniversalTime());
-                }
-                else
-                {
-                    vesselData.orbit.referenceBody = vesselData.body;
-                }
-                
-                // Create a dummy ProtoVessel, we will use this to dump the parts to a config node.
-                // We can't use the config nodes from the .craft file, because they are in a
-                // slightly different format than those required for a ProtoVessel (seriously
-                // Squad?!?).
-                ConfigNode empty = new ConfigNode();
-                ProtoVessel dummyProto = new ProtoVessel(empty, null);
-                Vessel dummyVessel = new Vessel();
-                dummyVessel.parts = shipConstruct.parts;
-                dummyProto.vesselRef = dummyVessel;
-
-                // Create the ProtoPartSnapshot objects and then initialize them
-                foreach (Part p in shipConstruct.parts)
-                {
-                    dummyProto.protoPartSnapshots.Add(new ProtoPartSnapshot(p, dummyProto));
-                }
-                foreach (ProtoPartSnapshot p in dummyProto.protoPartSnapshots)
-                {
-                    p.storePartRefs();
-                }
-
-                // Estimate an object class, numbers are based on the in game description of the
-                // size classes.
-                float size = shipConstruct.shipSize.magnitude / 2.0f;
-                UntrackedObjectClass sizeClass;
-                if (size < 4.0f)
-                {
-                    sizeClass = UntrackedObjectClass.A;
-                }
-                else if (size < 7.0f)
-                {
-                    sizeClass = UntrackedObjectClass.B;
-                }
-                else if (size < 12.0f)
-                {
-                    sizeClass = UntrackedObjectClass.C;
-                }
-                else if (size < 18.0f)
-                {
-                    sizeClass = UntrackedObjectClass.D;
-                }
-                else
-                {
-                    sizeClass = UntrackedObjectClass.E;
-                }
-
-                // Create the ship's parts
-                ConfigNode[] partNodes = dummyProto.protoPartSnapshots.Select<ProtoPartSnapshot, ConfigNode>(GetNodeForPart).ToArray();
-
-                // Create additional nodes
-                ConfigNode[] additionalNodes = new ConfigNode[1];
-                DiscoveryLevels discoveryLevel = vesselData.owned ? DiscoveryLevels.Owned : DiscoveryLevels.Unowned;
-                additionalNodes[0] = ProtoVessel.CreateDiscoveryNode(discoveryLevel, sizeClass, contract.TimeDeadline, contract.TimeDeadline);
-
-                // Create the config node representation of the ProtoVessel
-                ConfigNode protoVesselNode = ProtoVessel.CreateVesselNode(vesselData.name, vesselData.vesselType, vesselData.orbit, 0, partNodes, additionalNodes);
-
-                // Additional seetings for a landed vessel
-                if (vesselData.landed)
-                {
-                    bool splashed = vesselData.altitude.Value < 0.001;
-
-                    // Create the config node representation of the ProtoVessel
-                    protoVesselNode.SetValue("sit", (splashed ? Vessel.Situations.SPLASHED : Vessel.Situations.LANDED).ToString());
-                    protoVesselNode.SetValue("landed", (!splashed).ToString());
-                    protoVesselNode.SetValue("splashed", splashed.ToString());
-                    protoVesselNode.SetValue("lat", vesselData.latitude.ToString());
-                    protoVesselNode.SetValue("lon", vesselData.longitude.ToString());
-                    protoVesselNode.SetValue("alt", vesselData.altitude.ToString());
-                    protoVesselNode.SetValue("landedAt", vesselData.body.name);
-
-                    // Figure out the additional height to subtract
-                    float lowest = float.MaxValue;
-                    foreach (Part p in shipConstruct.parts)
-                    {
-                        foreach (Collider collider in p.GetComponentsInChildren<Collider>())
-                        {
-                            if (collider.gameObject.layer != 21 && collider.enabled)
-                            {
-                                lowest = Mathf.Min(lowest, collider.bounds.min.y);
-                            }
-                        }
-                    }
-
-                    // Figure out the surface height and rotation
-                    Vector3d norm = vesselData.body.GetRelSurfaceNVector(vesselData.latitude, vesselData.longitude);
-                    Quaternion normal = Quaternion.LookRotation(new Vector3((float)norm.x, (float)norm.y, (float)norm.z));
-                    Quaternion rotation = Quaternion.identity;
-                    if (shipConstruct.shipFacility == EditorFacility.SPH)
-                    {
-                        rotation = rotation * Quaternion.FromToRotation(Vector3.forward, -Vector3.forward);
-                    }
-                    else
-                    {
-                        rotation = rotation * Quaternion.FromToRotation(Vector3.up, Vector3.forward);
-                    }
-
-                    rotation = rotation * Quaternion.AngleAxis(180.0f + vesselData.heading, Vector3.back);
-                    rotation = rotation * Quaternion.AngleAxis(vesselData.roll, Vector3.down);
-                    rotation = rotation * Quaternion.AngleAxis(vesselData.pitch, Vector3.left);
-
-                    // Set the height and rotation
-                    protoVesselNode.SetValue("hgt", (shipConstruct.parts[0].localRoot.attPos0.y - lowest).ToString());
-                    protoVesselNode.SetValue("rot", KSPUtil.WriteQuaternion(normal * rotation));
-
-                    // Set the normal vector relative to the surface
-                    Vector3 nrm = (rotation * Vector3.forward);
-                    protoVesselNode.SetValue("nrm", nrm.x + "," + nrm.y + "," + nrm.z);
-                }
-
                 // Add vessel to the game
+                ConfigNode protoVesselNode = new ConfigNode();
+                vesselData.protoVessel.Save(protoVesselNode);
                 ProtoVessel protoVessel = HighLogic.CurrentGame.AddVessel(protoVesselNode);
+                protoVessel.vesselID = vesselData.protoVessel.vesselID;
+                if (protoVessel.vesselRef != null)
+                {
+                    protoVessel.vesselRef.id = vesselData.protoVessel.vesselID;
+                }
+                vesselData.protoVessel = null;
 
                 // Store the id for later use
                 vesselData.id = protoVessel.vesselRef.id;
@@ -474,6 +534,13 @@ namespace ContractConfigurator.Behaviour
                     child.AddNode(crewNode);
                 }
 
+                if (vd.protoVessel != null)
+                {
+                    ConfigNode protoVesselNode = new ConfigNode("PROTO_VESSEL");
+                    vd.protoVessel.Save(protoVesselNode);
+                    child.AddNode(protoVesselNode);
+                }
+
                 configNode.AddNode(child);
             }
         }
@@ -514,6 +581,11 @@ namespace ContractConfigurator.Behaviour
                     cd.addToRoster = ConfigNodeUtil.ParseValue<bool>(crewNode, "addToRoster");
 
                     vd.crew.Add(cd);
+                }
+
+                if (child.HasNode("PROTO_VESSEL"))
+                {
+                    vd.protoVessel = new ProtoVessel(child.GetNode("PROTO_VESSEL"), HighLogic.CurrentGame);
                 }
 
                 // Add to the global list
@@ -655,5 +727,15 @@ namespace ContractConfigurator.Behaviour
                 " is out of range for number of Kerbals spawned (" + KerbalCount + ").");
         }
 
+        public IEnumerable<ProtoVessel> Vessels()
+        {
+            foreach (VesselData vd in vessels)
+            {
+                if (vd.protoVessel != null)
+                {
+                    yield return vd.protoVessel;
+                }
+            }
+        }
     }
 }
