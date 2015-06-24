@@ -205,7 +205,18 @@ namespace ContractConfigurator
                     selectedContractType = validContractTypes.First().Key;
                 }
 
-                // Try to refresh non-deterministic values before we check requirements
+                // First, check the basic requirements
+                if (!selectedContractType.MeetBasicRequirements(templateContract))
+                {
+                    LoggingUtil.LogVerbose(this, selectedContractType.name + " was not generated: basic requirements not met.");
+                    validContractTypes.Remove(selectedContractType);
+                    totalWeight -= selectedContractType.weight;
+
+                    yield return null;
+                    continue;
+                }
+
+                // Try to refresh non-deterministic values before we check extended requirements
                 LoggingUtil.LogLevel origLogLevel = LoggingUtil.logLevel;
                 LoggingUtil.LogLevel newLogLevel = selectedContractType.trace ? LoggingUtil.LogLevel.VERBOSE : LoggingUtil.logLevel;
                 try
@@ -256,7 +267,7 @@ namespace ContractConfigurator
                 }
 
                 // Check the requirements for our selection
-                if (selectedContractType.MeetRequirements(templateContract) && templateContract.Initialize(selectedContractType))
+                if (selectedContractType.MeetExtendedRequirements(templateContract) && templateContract.Initialize(selectedContractType))
                 {
                     yield return new KeyValuePair<ConfiguredContract, bool>(templateContract, true);
                     yield break;

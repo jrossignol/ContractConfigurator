@@ -354,20 +354,14 @@ namespace ContractConfigurator
         }
 
         /// <summary>
-        /// Tests whether a contract can be offered.
+        /// Checks if the "basic" requirements that shouldn't change due to expressions are met.
         /// </summary>
         /// <param name="contract">The contract</param>
         /// <returns>Whether the contract can be offered.</returns>
-        public bool MeetRequirements(ConfiguredContract contract)
+        public bool MeetBasicRequirements(ConfiguredContract contract)
         {
             try
             {
-                // Hash check
-                if (contract.ContractState == Contract.State.Offered && contract.hash != hash)
-                {
-                    throw new ContractRequirementException("Contract definition changed.");
-                }
-
                 // Check prestige
                 if (prestige.Count > 0 && !prestige.Contains(contract.Prestige))
                 {
@@ -407,6 +401,38 @@ namespace ContractConfigurator
                 if (group != null)
                 {
                     CheckContractGroup(contract, group);
+                }
+
+                return true;
+            }
+            catch (ContractRequirementException e)
+            {
+                LoggingUtil.LogLevel level = contract.ContractState == Contract.State.Active ? LoggingUtil.LogLevel.DEBUG : LoggingUtil.LogLevel.VERBOSE;
+                string prefix = contract.contractType != null ? "Cancelling contract of type " + name + " (" + contract.Title + "): " :
+                    "Didn't generate contract type " + name + ": ";
+                LoggingUtil.Log(level, this.GetType(), prefix + e.Message);
+                return false;
+            }
+            catch
+            {
+                LoggingUtil.LogError(this, "Exception while attempting to check requirements of contract type " + name);
+                throw;
+            }
+        }
+        
+        /// <summary>
+        /// Checks if the "extended" requirements that change due to expressions.
+        /// </summary>
+        /// <param name="contract">The contract</param>
+        /// <returns>Whether the contract can be offered.</returns>
+        public bool MeetExtendedRequirements(ConfiguredContract contract)
+        {
+            try
+            {
+                // Hash check
+                if (contract.ContractState == Contract.State.Offered && contract.hash != hash)
+                {
+                    throw new ContractRequirementException("Contract definition changed.");
                 }
 
                 // Check special values are not null
@@ -492,6 +518,16 @@ namespace ContractConfigurator
                 LoggingUtil.LogError(this, "Exception while attempting to check requirements of contract type " + name);
                 throw;
             }
+        }
+
+        /// <summary>
+        /// Tests whether a contract can be offered.
+        /// </summary>
+        /// <param name="contract">The contract</param>
+        /// <returns>Whether the contract can be offered.</returns>
+        public bool MeetRequirements(ConfiguredContract contract)
+        {
+            return MeetBasicRequirements(contract) && MeetExtendedRequirements(contract);
         }
 
         protected bool CheckContractGroup(ConfiguredContract contract, ContractGroup group)
