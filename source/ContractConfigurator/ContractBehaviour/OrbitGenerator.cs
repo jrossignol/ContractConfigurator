@@ -48,6 +48,10 @@ namespace ContractConfigurator.Behaviour
             public int index = 0;
             public int count = 1;
             public CelestialBody targetBody;
+            public double altitudeFactor;
+            public double inclinationFactor;
+            public double eccentricity;
+            public double deviationWindow;
 
             public OrbitData()
             {
@@ -66,6 +70,10 @@ namespace ContractConfigurator.Behaviour
                 index = orig.index;
                 count = orig.count;
                 targetBody = orig.targetBody;
+                altitudeFactor = orig.altitudeFactor;
+                inclinationFactor = orig.inclinationFactor;
+                eccentricity = orig.eccentricity;
+                deviationWindow = orig.deviationWindow;
 
                 // Lazy copy of orbit - only really used to store the orbital parameters, so not
                 // a huge deal.
@@ -104,7 +112,8 @@ namespace ContractConfigurator.Behaviour
                 // Do type specific handling
                 if (obData.type == "RANDOM_ORBIT")
                 {
-                    obData.orbit = CelestialUtilities.GenerateOrbit(obData.orbitType, contract.MissionSeed + index++, obData.targetBody, 0.8, 0.8);
+                    obData.orbit = CelestialUtilities.GenerateOrbit(obData.orbitType, contract.MissionSeed + index++, obData.targetBody,
+                        obData.altitudeFactor, obData.inclinationFactor, obData.eccentricity);
                 }
                 else
                 {
@@ -114,12 +123,11 @@ namespace ContractConfigurator.Behaviour
                 // Create the wrapper to the SpecificOrbit parameter that will do the rendering work
                 SpecificOrbitWrapper s = new SpecificOrbitWrapper(obData.orbitType, obData.orbit.inclination,
                     obData.orbit.eccentricity, obData.orbit.semiMajorAxis, obData.orbit.LAN, obData.orbit.argumentOfPeriapsis,
-                    obData.orbit.meanAnomalyAtEpoch, obData.orbit.epoch, obData.orbit.referenceBody, 3.0);
+                    obData.orbit.meanAnomalyAtEpoch, obData.orbit.epoch, obData.orbit.referenceBody, obData.deviationWindow);
                 s.DisableOnStateChange = false;
                 alwaysTrue.AddParameter(s);
                 obData.index = alwaysTrue.ParameterCount - 1;
             }
-
         }
 
         public static OrbitGenerator Create(ConfigNode configNode, OrbitGeneratorFactory factory)
@@ -146,6 +154,10 @@ namespace ContractConfigurator.Behaviour
                     {
                         valid &= ConfigNodeUtil.ParseValue<OrbitType>(child, "type", x => obData.orbitType = x, factory);
                         valid &= ConfigNodeUtil.ParseValue<int>(child, "count", x => obData.count = x, factory, 1, x => Validation.GE(x, 1));
+                        valid &= ConfigNodeUtil.ParseValue<double>(child, "altitudeFactor", x => obData.altitudeFactor = x, factory, 0.8, x => Validation.Between(x, 0.0, 1.0));
+                        valid &= ConfigNodeUtil.ParseValue<double>(child, "inclinationFactor", x => obData.inclinationFactor = x, factory, 0.8, x => Validation.Between(x, 0.0, 1.0));
+                        valid &= ConfigNodeUtil.ParseValue<double>(child, "eccentricity", x => obData.eccentricity = x, factory, 0.0, x => Validation.GE(x, 0.0));
+                        valid &= ConfigNodeUtil.ParseValue<double>(child, "deviationWindow", x => obData.deviationWindow = x, factory, 10.0, x => Validation.GE(x, 0.0));
                     }
                     else
                     {

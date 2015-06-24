@@ -1,5 +1,6 @@
-Contract Configurator 1.4.3
+Contract Configurator 1.5.0
 - Added support for SpawnVessel in expressions.
+- Added support for altitudeFactor, inclinationFactor, eccentricity and deviationWindow in OrbitGenerator.
 - Improved logic so child REQUIREMENT nodes can hide PARAMETER nodes even when they fail validation (thanks CosmoBro).
 - Fixed contracts that appear and disappear in mission control due to requirement issues (thanks dunadirect).
 - Fixed issue with WaypointGenerator incorrectly requesting forceEquatorial attribute for RANDOM_WAYPOINT_NEAR (thanks AlphaAsh).
