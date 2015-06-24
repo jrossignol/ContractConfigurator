@@ -25,16 +25,16 @@ namespace ContractConfigurator.ExpressionParser
 
         internal static void RegisterMethods()
         {
-            RegisterMethod(new Method<SpawnVesselFactory, List<ProtoVessel>>("Vessels",
+            RegisterMethod(new Method<SpawnVesselFactory, List<Vessel>>("Vessels",
                 svf => {
                     if (svf.Current != null)
                     {
-                        return svf.Current.Vessels().ToList();
+                        return svf.Current.Vessels().Select(v => v.vesselRef).ToList();
                     }
                     else
                     {
                         CheckInitialized(svf);
-                        return new List<ProtoVessel>();
+                        return new List<Vessel>();
                     }
                 }, false));
         }
