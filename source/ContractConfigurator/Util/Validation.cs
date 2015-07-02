@@ -101,7 +101,7 @@ namespace ContractConfigurator
         /// Checks that the given PartModule is valid.
         /// </summary>
         /// <param name="name">name of the PartModule</param>
-        /// <returns>True if valid, exeption otherwise</returns>
+        /// <returns>True if valid, exception otherwise</returns>
         public static bool ValidatePartModule(string name)
         {
             Type classType = AssemblyLoader.GetClassByName(typeof(PartModule), name);
@@ -117,12 +117,27 @@ namespace ContractConfigurator
         /// Checks that the given type of PartModule is valid.
         /// </summary>
         /// <param name="name">name of the PartModule type</param>
-        /// <returns>True if valid, exeption otherwise</returns>
+        /// <returns>True if valid, exception otherwise</returns>
         public static bool ValidatePartModuleType(string name)
         {
             if (ContractDefs.GetModules(name).Count == 0)
             {
                 throw new ArgumentException("No PartModules found for type '" + name + "'.");
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Checks that a CelestialBody with the given name exists.
+        /// </summary>
+        /// <param name="celestialName">Name to check for.</param>
+        /// <returns>True if valid, exception otherwise</returns>
+        public static bool CheckCelestialBody(string celestialName)
+        {
+            if (!FlightGlobals.Bodies.Any(b => b.name == celestialName))
+            {
+                throw new ArgumentException("No CelestialBody with name '" + celestialName + "'.");
             }
 
             return true;
