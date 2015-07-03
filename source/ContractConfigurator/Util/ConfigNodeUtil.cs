@@ -548,7 +548,7 @@ namespace ContractConfigurator
                     }
 
                     // If value was non-null, run validation
-                    if (value != null)
+                    if (value != null && (typeof(T) != typeof(string) || ((string)(object)value) != ""))
                     {
                         try
                         {
