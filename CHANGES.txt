@@ -1,5 +1,6 @@
 Contract Configurator 1.5.1
 - Added validation for CelestialBody name in WaypointGenerator (thanks Arctic Sesquipedalian).
+- Additional performance fixes for CollectScience (Field Research).
 
 Contract Configurator 1.5.0
 - Added support for SpawnVessel in expressions.

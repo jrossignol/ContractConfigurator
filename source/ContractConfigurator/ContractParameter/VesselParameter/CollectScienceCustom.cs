@@ -60,6 +60,8 @@ namespace ContractConfigurator.Parameters
         private float lastUpdate = 0.0f;
         private const float UPDATE_FREQUENCY = 0.25f;
         private int updateTicks = 0;
+        private static Vessel lastVessel = null;
+        private static string lastBiome = null;
 
         public CollectScienceCustom()
             : base(null)
@@ -182,6 +184,11 @@ namespace ContractConfigurator.Parameters
             foreach (ContractParameter genericParam in this.GetAllDescendents())
             {
                 ParameterDelegate<Vessel> param = genericParam as ParameterDelegate<Vessel>;
+                if (param == null)
+                {
+                    continue;
+                }
+
                 string oldTitle = param.Title;
                 if (matchingSubjects.Count == experiment.Count)
                 {
@@ -316,6 +323,15 @@ namespace ContractConfigurator.Parameters
             if (UnityEngine.Time.fixedTime - lastUpdate > UPDATE_FREQUENCY)
             {
                 lastUpdate = UnityEngine.Time.fixedTime;
+                string biome;
+                if (landedSituations.Contains(v.situation) && !string.IsNullOrEmpty(v.landedAt))
+                {
+                    biome = Vessel.GetLandedAtString(v.landedAt).Replace(" ", "");
+                }
+                else
+                {
+                    biome = ScienceUtil.GetExperimentBiome(v.mainBody, v.latitude, v.longitude);
+                }
                 
                 // Run the OnVesselChange, this will pick up a kerbal that grabbed science,
                 // or science that was dumped from a pod.
@@ -323,11 +339,18 @@ namespace ContractConfigurator.Parameters
                 {
                     OnVesselChange(v);
                 }
-                // Just update the delegates, that will do the biome check
                 else
                 {
-                    UpdateDelegates();
+                    // Check if there was a biome change
+                    if (biome != lastBiome)
+                    {
+                        // Update the delegates, that will do the biome check
+                        UpdateDelegates();
+                    }
                 }
+
+                lastVessel = v;
+                lastBiome = biome;
             }
         }
 
@@ -462,8 +485,6 @@ namespace ContractConfigurator.Parameters
         /// <param name="vessel">The vessel</param>
         protected override void OnVesselChange(Vessel vessel)
         {
-            int count = matchingSubjects.Count;
-
             matchingSubjects.Clear();
             foreach (ScienceSubject subject in GetVesselSubjects(vessel).GroupBy(subjid => subjid).Select(grp => ResearchAndDevelopment.GetSubjectByID(grp.Key)))
             {
@@ -477,12 +498,8 @@ namespace ContractConfigurator.Parameters
                 }
             }
 
-            // Only do a full check if something changed
-            if (count != matchingSubjects.Count)
-            {
-                UpdateDelegates();
-                CheckVessel(vessel);
-            }
+            UpdateDelegates();
+            CheckVessel(vessel);
         }
 
         private IEnumerable<string> GetVesselSubjects(ProtoVessel v)
@@ -510,18 +527,15 @@ namespace ContractConfigurator.Parameters
             {
                 for (int i = 0; i < p.Modules.Count; i++)
                 {
-                    PartModule pm = p.Modules[i];
-
-                    // Ugh, not figuring out how to get this stuff in two ways, just dump it to a config node
-                    ConfigNode mod = new ConfigNode("MODULE");
-                    pm.Save(mod);
-
-                    foreach (ConfigNode scienceData in mod.GetNodes("ScienceData"))
+                    IScienceDataContainer scienceContainer = p.Modules[i] as IScienceDataContainer;
+                    if (scienceContainer != null)
                     {
-                        string subjectID = ConfigNodeUtil.ParseValue<string>(scienceData, "subjectID");
-                        if (!string.IsNullOrEmpty(subjectID))
+                        foreach (ScienceData data in scienceContainer.GetData())
                         {
-                            yield return subjectID;
+                            if (!string.IsNullOrEmpty(data.subjectID))
+                            {
+                                yield return data.subjectID;
+                            }
                         }
                     }
                 }
