@@ -279,6 +279,7 @@ namespace ContractConfigurator
                     validContractTypes.Remove(selectedContractType);
                     totalWeight -= selectedContractType.weight;
                     templateContract.uniqueData.Clear();
+                    templateContract.contractType = null;
                 }
 
                 // Take a pause
@@ -294,7 +295,7 @@ namespace ContractConfigurator
             {
                 ConfiguredContract contract = contractDetails[prestige].contracts.Dequeue();
 
-                if (contract.MeetRequirements())
+                if (contract.contractType.MeetRequirements(contract))
                 {
                     return contract;
                 }

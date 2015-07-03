@@ -477,7 +477,7 @@ namespace ContractConfigurator
                     }
                 }
 
-                if (contract.contractType == null || contract.ContractState == Contract.State.Generated)
+                if (contract.contractType == null || contract.ContractState == Contract.State.Generated || contract.ContractState == Contract.State.Withdrawn)
                 {
                     // Check for unique values against other contracts of the same type
                     foreach (KeyValuePair<string, bool> pair in uniqueValues.Where(p => contract.uniqueData.ContainsKey(p.Key)))
