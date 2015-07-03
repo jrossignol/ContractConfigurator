@@ -62,16 +62,25 @@ namespace ContractConfigurator.Parameters
         private int updateTicks = 0;
         private static Vessel lastVessel = null;
         private static string lastBiome = null;
+        private static float nextOffset = 0.0f;
+        private const float OFFSET_INCREMENT = 0.7f;
 
         public CollectScienceCustom()
             : base(null)
         {
+            lastUpdate = UnityEngine.Time.fixedTime + nextOffset;
+            nextOffset += OFFSET_INCREMENT;
+            nextOffset -= (int)nextOffset;
         }
 
         public CollectScienceCustom(CelestialBody targetBody, string biome, ExperimentSituations? situation, BodyLocation? location,
             List<string> experiment, ScienceRecoveryMethod recoveryMethod, string title)
             : base(title)
         {
+            lastUpdate = UnityEngine.Time.fixedTime + nextOffset;
+            nextOffset += OFFSET_INCREMENT;
+            nextOffset -= (int)nextOffset;
+
             this.targetBody = targetBody;
             this.biome = biome;
             this.situation = situation;

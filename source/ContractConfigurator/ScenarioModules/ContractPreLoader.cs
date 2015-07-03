@@ -145,7 +145,7 @@ namespace ContractConfigurator
 
             if (UnityEngine.Time.realtimeSinceStartup - start > 0.1)
             {
-                LoggingUtil.LogWarning(this, "Contract attribute took too long (" + (UnityEngine.Time.realtimeSinceStartup - start) +
+                LoggingUtil.LogDebug(this, "Contract attribute took too long (" + (UnityEngine.Time.realtimeSinceStartup - start) +
                     " seconds) to generate: " + lastKey);
             }
         }
@@ -328,7 +328,7 @@ namespace ContractConfigurator
                     LoggingUtil.LogVerbose(this, "   Timeout generating contract...");
                     if (UnityEngine.Time.realtimeSinceStartup - start > 0.1)
                     {
-                        LoggingUtil.LogWarning(this, "Contract attribute took too long (" + (UnityEngine.Time.realtimeSinceStartup - start) +
+                        LoggingUtil.LogDebug(this, "Contract attribute took too long (" + (UnityEngine.Time.realtimeSinceStartup - start) +
                             " seconds) to generate: " + lastKey);
                     }
                     return null;
