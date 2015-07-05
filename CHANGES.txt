@@ -1,4 +1,5 @@
 Contract Configurator 1.5.1
+- Added new ChangeVesselOwnership contract behaviour.
 - Added support for Tarsier Space Technology in science subsystem - ChemCam only (thanks GrafZahl).
 - Added validation for CelestialBody name in WaypointGenerator (thanks Arctic Sesquipedalian).
 - Additional performance fixes for CollectScience (Field Research).
