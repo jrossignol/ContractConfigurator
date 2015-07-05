@@ -40,7 +40,7 @@ namespace ContractConfigurator.Parameters
             endTime = 0.0;
         }
 
-        protected override string GetTitle()
+        protected override string GetParameterTitle()
         {
             if (endTime > 0.01)
             {

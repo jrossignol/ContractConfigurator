@@ -41,7 +41,7 @@ namespace ContractConfigurator.SCANsat
             this.targetBody = targetBody;
         }
 
-        protected override string GetTitle()
+        protected override string GetParameterTitle()
         {
             string output;
             if (string.IsNullOrEmpty(title))

@@ -31,7 +31,7 @@ namespace ContractConfigurator.Parameters
             this.delegateParam = delegateParam;
         }
 
-        protected override string GetTitle()
+        protected override string GetParameterTitle()
         {
             if (string.IsNullOrEmpty(title))
             {

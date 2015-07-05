@@ -30,7 +30,7 @@ namespace ContractConfigurator.Parameters
             this.vesselKey = vesselKey;
         }
 
-        protected override string GetTitle()
+        protected override string GetParameterTitle()
         {
             string output;
             if (string.IsNullOrEmpty(title))

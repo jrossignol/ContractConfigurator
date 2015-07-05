@@ -27,7 +27,7 @@ namespace ContractConfigurator.Parameters
             this.count = count;
         }
 
-        protected override string GetTitle()
+        protected override string GetParameterTitle()
         {
             string output = null;
             if (string.IsNullOrEmpty(title))

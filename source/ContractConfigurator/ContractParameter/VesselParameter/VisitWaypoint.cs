@@ -67,7 +67,7 @@ namespace ContractConfigurator.Parameters
             this.hideOnCompletion = hideOnCompletion;
         }
 
-        protected override string GetTitle()
+        protected override string GetParameterTitle()
         {
             if (waypoint == null && Root != null)
             {

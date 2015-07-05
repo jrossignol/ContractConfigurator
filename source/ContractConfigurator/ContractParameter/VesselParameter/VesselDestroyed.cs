@@ -29,7 +29,7 @@ namespace ContractConfigurator.Parameters
             this.mustImpactTerrain = mustImpactTerrain;
         }
 
-        protected override string GetTitle()
+        protected override string GetParameterTitle()
         {
             string output = "";
             if (string.IsNullOrEmpty(title))

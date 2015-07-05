@@ -5,6 +5,7 @@ Contract Configurator 1.5.1
 - Fixed issue where activeUniqueValue and uniqueValue flags were not checked (thanks severedsolo).
 - Fixed asteroid science subject from being offered unless asteroid tracking is unlocked.
 - Fixed issue with "ghosting" vessels in SpawnVessel.
+- Fixed parameters that weren't being hidden by the hideChildren attribute (thanks CosmoBro).
 - Minor bug fixes.
 
 Contract Configurator 1.5.0

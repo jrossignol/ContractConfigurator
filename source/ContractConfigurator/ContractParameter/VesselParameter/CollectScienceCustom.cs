@@ -98,7 +98,7 @@ namespace ContractConfigurator.Parameters
             CreateDelegates();
         }
 
-        protected override string GetTitle()
+        protected override string GetParameterTitle()
         {
             string output = null;
             if (string.IsNullOrEmpty(title))

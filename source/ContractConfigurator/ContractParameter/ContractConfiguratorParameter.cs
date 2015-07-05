@@ -37,6 +37,11 @@ namespace ContractConfigurator.Parameters
             {
                 return "";
             }
+            return GetParameterTitle();
+        }
+
+        protected virtual string GetParameterTitle()
+        {
             return title;
         }
 

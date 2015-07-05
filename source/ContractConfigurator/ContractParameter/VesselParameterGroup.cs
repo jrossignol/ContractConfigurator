@@ -45,7 +45,7 @@ namespace ContractConfigurator.Parameters
             waiting = false;
         }
 
-        protected override string GetTitle()
+        protected override string GetParameterTitle()
         {
             // Set the first part of the output
             string output;

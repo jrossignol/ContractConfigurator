@@ -34,7 +34,7 @@ namespace ContractConfigurator.Parameters
             disableOnStateChange = false;
         }
 
-        protected override string GetTitle()
+        protected override string GetParameterTitle()
         {
             if (state == ParameterState.Failed)
             {
