@@ -3,6 +3,7 @@ Contract Configurator 1.5.1
 - Added validation for CelestialBody name in WaypointGenerator (thanks Arctic Sesquipedalian).
 - Additional performance fixes for CollectScience (Field Research).
 - Fixed issue where activeUniqueValue and uniqueValue flags were not checked (thanks severedsolo).
+- Fixed asteroid science subject from being offered unless asteroid tracking is unlocked.
 
 Contract Configurator 1.5.0
 - Added support for SpawnVessel in expressions.
