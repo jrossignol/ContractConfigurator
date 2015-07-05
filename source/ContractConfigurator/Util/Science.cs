@@ -26,6 +26,7 @@ namespace ContractConfigurator.Util
             public bool disallowHomeFlying;
             public List<CelestialBody> validBodies;
             public string partModule;
+            public List<string> part;
 
             public ExperimentRules(string id)
             {
@@ -81,6 +82,7 @@ namespace ContractConfigurator.Util
                     exp.requireNoSurface = ConfigNodeUtil.ParseValue<bool?>(config, "requireNoSurface", (bool?)false).Value;
                     exp.disallowHomeSurface = ConfigNodeUtil.ParseValue<bool?>(config, "disallowHomeSurface", (bool?)false).Value;
                     exp.disallowHomeFlying = ConfigNodeUtil.ParseValue<bool?>(config, "disallowHomeFlying", (bool?)false).Value;
+                    exp.part = ConfigNodeUtil.ParseValue<List<string>>(config, "part", null);
                     exp.partModule = ConfigNodeUtil.ParseValue<string>(config, "partModule", null);
                     exp.validBodies = ConfigNodeUtil.ParseValue<List<CelestialBody>>(config, "validBody", null);
                 }
@@ -428,10 +430,33 @@ namespace ContractConfigurator.Util
                 // Check for specific modules specified in configurator
                 foreach (ExperimentRules rules in experiments.Select(exp => GetExperimentRules(exp.id)).Where(r => !string.IsNullOrEmpty(r.partModule)))
                 {
+                    if (!experimentParts.ContainsKey(rules.id))
+                    {
+                        experimentParts[rules.id] = new List<AvailablePart>();
+                    }
+
                     string module = rules.partModule;
                     foreach (AvailablePart p in PartLoader.Instance.parts.Where(p => p.moduleInfos.Any(mod => mod.moduleName == module)))
                     {
                         experimentParts[rules.id].Add(p);
+                    }
+                }
+
+                // Add part-specific rules
+                foreach (ExperimentRules rules in experiments.Select(exp => GetExperimentRules(exp.id)).Where(r => r.part != null))
+                {
+                    if (!experimentParts.ContainsKey(rules.id))
+                    {
+                        experimentParts[rules.id] = new List<AvailablePart>();
+                    }
+
+                    foreach (string pname in rules.part)
+                    {
+                        foreach (AvailablePart p in PartLoader.Instance.parts.Where(p => p.name == pname))
+                        {
+                            LoggingUtil.LogVerbose(typeof(Science), "Adding entry for " + rules.id + " = " + p.name);
+                            experimentParts[rules.id].Add(p);
+                        }
                     }
                 }
             }
