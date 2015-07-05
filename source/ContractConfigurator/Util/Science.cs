@@ -87,6 +87,7 @@ namespace ContractConfigurator.Util
                     exp.validBodies = ConfigNodeUtil.ParseValue<List<CelestialBody>>(config, "validBody", null);
                 }
 
+                // Add the experiment modules
                 foreach (ConfigNode config in experimentConfig.GetNodes("MODULE"))
                 {
                     string name = ConfigNodeUtil.ParseValue<string>(config, "name");
@@ -94,6 +95,13 @@ namespace ContractConfigurator.Util
 
                     experimentModules.Add(name);
                 }
+            }
+
+            // Add experiment modules based on class
+            foreach (Type expModule in ContractConfigurator.GetAllTypes<ModuleScienceExperiment>())
+            {
+                LoggingUtil.LogVerbose(this, "    adding module for class " + expModule.Name);
+                experimentModules.AddUnique(expModule.Name);
             }
 
             loaded = true;
