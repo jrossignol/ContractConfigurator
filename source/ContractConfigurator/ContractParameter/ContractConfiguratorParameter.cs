@@ -40,6 +40,10 @@ namespace ContractConfigurator.Parameters
             return GetParameterTitle();
         }
 
+        /// <summary>
+        /// Override this instead of GetTitle.
+        /// </summary>
+        /// <returns></returns>
         protected virtual string GetParameterTitle()
         {
             return title;
