@@ -27,8 +27,16 @@ namespace ContractConfigurator
         private static Rect windowPos = new Rect(Screen.width / 2.0f - 300.0f, Screen.height / 2.0f - 240.0f, 600f, 480f);
         private static Vector2 scrollPosition;
 
+        private static Dictionary<string, bool> loggedExceptions = new Dictionary<string, bool>();
+
         public static void DisplayFatalException(ExceptionSituation situation, Exception e, params object[] args)
         {
+            // Only log once
+            if (loggedExceptions.ContainsKey(e.StackTrace))
+            {
+                return;
+            }
+
             switch(situation)
             {
                 case ExceptionSituation.PARAMETER_SAVE:
@@ -97,10 +105,17 @@ namespace ContractConfigurator
             scrollPosition = GUILayout.BeginScrollView(scrollPosition, GUILayout.Height(280));
             GUILayout.TextArea("Exception occured " + situationString + ":\n" + message, GUILayout.ExpandHeight(true));
             GUILayout.EndScrollView();
+            GUILayout.BeginHorizontal();
             if (GUILayout.Button("OK"))
             {
                 displayedException = null;
             }
+            if (GUILayout.Button("Ignore Exception"))
+            {
+                loggedExceptions[displayedException.StackTrace] = true;
+                displayedException = null;
+            }
+            GUILayout.EndHorizontal();
 
             GUILayout.EndVertical();
 
