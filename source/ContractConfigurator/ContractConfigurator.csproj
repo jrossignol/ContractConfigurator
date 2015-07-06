@@ -80,6 +80,7 @@
     <Compile Include="ContractParameter\VesselParameter\CollectScienceCustom.cs" />
     <Compile Include="ContractParameter\VesselParameter\Rendezvous.cs" />
     <Compile Include="ContractParameter\VesselParameter\PlantFlagCustom.cs" />
+    <Compile Include="ContractParameter\VesselParameter\NewVessel.cs" />
     <Compile Include="ContractParameter\VesselParameter\VesselIsType.cs" />
     <Compile Include="ContractParameter\VesselParameter\VesselDestroyed.cs" />
     <Compile Include="ContractParameter\VesselParameter\VesselNotDestroyed.cs" />
@@ -98,6 +99,7 @@
     <Compile Include="ContractRequirement\ReputationRequirement.cs" />
     <Compile Include="ContractRequirement\FundsRequirement.cs" />
     <Compile Include="ContractGroup.cs" />
+    <Compile Include="ParameterFactory\NewVesselFactory.cs" />
     <Compile Include="ScenarioModules\ContractPreLoader.cs" />
     <Compile Include="ExpressionParser\BaseParser.cs" />
     <Compile Include="ExpressionParser\Parsers\Behaviours\BehaviourParser.cs" />
