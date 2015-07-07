@@ -197,6 +197,16 @@ namespace ContractConfigurator.Parameters
         {
             LoggingUtil.LogVerbose(this, "Checking VesselMeetsCondition: " + vessel.id);
 
+            // Make sure we have a waypoint
+            if (waypoint == null && Root != null)
+            {
+                waypoint = FetchWaypoint(Root, true);
+            }
+            if (waypoint == null)
+            {
+                return false;
+            }
+
             // Not even close
             if (vessel.mainBody.name != waypoint.celestialName)
             {

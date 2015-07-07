@@ -1,3 +1,6 @@
+Contract Configurator 1.5.2
+- Fixed possible exception in VisitWaypoint (thanks AlphaAsh).
+
 Contract Configurator 1.5.1
 - Added new ChangeVesselOwnership contract behaviour.
 - Added new NewVessel parameter.
