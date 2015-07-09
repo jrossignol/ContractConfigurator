@@ -40,7 +40,7 @@ namespace ContractConfigurator
             if (configNode.HasValue("part") || configNode.HasValue("partModule") || configNode.HasValue("category") || configNode.HasValue("manufacturer"))
             {
                 PartValidation.Filter filter = new PartValidation.Filter(defaultMatch);
-                valid &= ConfigNodeUtil.ParseValue<AvailablePart>(configNode, "part", x => filter.part = x, this, (AvailablePart)null);
+                valid &= ConfigNodeUtil.ParseValue<List<AvailablePart>>(configNode, "part", x => filter.parts = x, this, new List<AvailablePart>());
                 valid &= ConfigNodeUtil.ParseValue<List<string>>(configNode, "partModule", x => filter.partModules = x, this, new List<string>(), x => x.All(Validation.ValidatePartModule));
                 valid &= ConfigNodeUtil.ParseValue<PartCategories?>(configNode, "category", x => filter.category = x, this, (PartCategories?)null);
                 valid &= ConfigNodeUtil.ParseValue<string>(configNode, "manufacturer", x => filter.manufacturer = x, this, (string)null);
@@ -80,7 +80,7 @@ namespace ContractConfigurator
                 }
 
                 PartValidation.Filter filter = new PartValidation.Filter(matchType);
-                valid &= ConfigNodeUtil.ParseValue<AvailablePart>(child, "part", x => filter.part = x, this, (AvailablePart)null);
+                valid &= ConfigNodeUtil.ParseValue<List<AvailablePart>>(child, "part", x => filter.parts = x, this, new List<AvailablePart>());
                 valid &= ConfigNodeUtil.ParseValue<List<string>>(child, "partModule", x => filter.partModules = x, this, new List<string>(), x => x.All(Validation.ValidatePartModule));
                 valid &= ConfigNodeUtil.ParseValue<PartCategories?>(child, "category", x => filter.category = x, this, (PartCategories?)null);
                 valid &= ConfigNodeUtil.ParseValue<string>(child, "manufacturer", x => filter.manufacturer = x, this, (string)null);

@@ -1,5 +1,6 @@
 Contract Configurator 1.5.2
 - Fixed possible exception in VisitWaypoint (thanks AlphaAsh).
+- Allow multiple parts to be specified in the PartValidation parameter.
 
 Contract Configurator 1.5.1
 - Added new ChangeVesselOwnership contract behaviour.

@@ -18,7 +18,7 @@ namespace ContractConfigurator.Parameters
         public class Filter
         {
             public ParameterDelegateMatchType type = ParameterDelegateMatchType.FILTER;
-            public AvailablePart part = null;
+            public List<AvailablePart> parts = new List<AvailablePart>();
             public List<string> partModules = new List<string>();
             public PartCategories? category = null;
             public string manufacturer = null;
@@ -71,17 +71,17 @@ namespace ContractConfigurator.Parameters
             foreach (Filter filter in filters)
             {
                 // Filter by part name
-                if (filter.part != null)
+                foreach (AvailablePart part in filter.parts)
                 {
                     if (filter.type == ParameterDelegateMatchType.VALIDATE)
                     {
-                        AddParameter(new CountParameterDelegate<Part>(filter.minCount, filter.maxCount, p => p.partInfo.name == filter.part.name,
-                            filter.part.title));
+                        AddParameter(new CountParameterDelegate<Part>(filter.minCount, filter.maxCount, p => p.partInfo.name == part.name,
+                            part.title));
                     }
                     else
                     {
-                        AddParameter(new ParameterDelegate<Part>(filter.type.Prefix() + "type: " + filter.part.title,
-                            p => p.partInfo.name == filter.part.name, filter.type));
+                        AddParameter(new ParameterDelegate<Part>(filter.type.Prefix() + "type: " + part.title,
+                            p => p.partInfo.name == part.name, filter.type));
                     }
                 }
 
@@ -170,9 +170,9 @@ namespace ContractConfigurator.Parameters
                 ConfigNode child = new ConfigNode("FILTER");
                 child.AddValue("type", filter.type);
 
-                if (filter.part != null)
+                foreach (AvailablePart part in filter.parts)
                 {
-                    child.AddValue("part", filter.part.name);
+                    child.AddValue("part", part.name);
                 }
                 foreach (string partModule in filter.partModules)
                 {
@@ -209,7 +209,7 @@ namespace ContractConfigurator.Parameters
                 Filter filter = new Filter();
                 filter.type = ConfigNodeUtil.ParseValue<ParameterDelegateMatchType>(child, "type");
 
-                filter.part = ConfigNodeUtil.ParseValue<AvailablePart>(child, "part", (AvailablePart)null);
+                filter.parts = ConfigNodeUtil.ParseValue<List<AvailablePart>>(child, "part", new List<AvailablePart>());
                 filter.partModules = child.GetValues("partModule").ToList();
                 filter.category = ConfigNodeUtil.ParseValue<PartCategories?>(child, "category", (PartCategories?)null);
                 filter.manufacturer = ConfigNodeUtil.ParseValue<string>(child, "manufacturer", (string)null);
