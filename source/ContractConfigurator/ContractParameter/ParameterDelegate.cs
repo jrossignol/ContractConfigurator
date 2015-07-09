@@ -218,6 +218,7 @@ namespace ContractConfigurator.Parameters
                     {
                         case ParameterDelegateMatchType.FILTER:
                             conditionMet &= values.Any();
+                            count = values.Count();
                             break;
                         case ParameterDelegateMatchType.VALIDATE:
                             conditionMet &= newValues.Any();

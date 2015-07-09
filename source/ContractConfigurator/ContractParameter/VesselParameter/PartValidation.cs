@@ -70,19 +70,19 @@ namespace ContractConfigurator.Parameters
         {
             foreach (Filter filter in filters)
             {
-                // Filter by part name
-                foreach (AvailablePart part in filter.parts)
+                if (filter.type == ParameterDelegateMatchType.VALIDATE)
                 {
-                    if (filter.type == ParameterDelegateMatchType.VALIDATE)
+                    foreach (AvailablePart part in filter.parts)
                     {
                         AddParameter(new CountParameterDelegate<Part>(filter.minCount, filter.maxCount, p => p.partInfo.name == part.name,
                             part.title));
                     }
-                    else
-                    {
-                        AddParameter(new ParameterDelegate<Part>(filter.type.Prefix() + "type: " + part.title,
-                            p => p.partInfo.name == part.name, filter.type));
-                    }
+                }
+                else if (filter.parts.Any())
+                {
+                    AddParameter(new ParameterDelegate<Part>(filter.type.Prefix() + "type: " +
+                        filter.parts.Select(p => p.title).Aggregate((sum, s) => sum + " or " + s),
+                        p => filter.parts.Any(pp => p.partInfo.name == pp.name), filter.type));
                 }
 
                 // Filter by part modules
