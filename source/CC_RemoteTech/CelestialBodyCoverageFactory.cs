@@ -4,9 +4,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using ContractConfigurator;
 using UnityEngine;
 using RemoteTech;
+using ContractConfigurator;
 
 namespace ContractConfigurator.RemoteTech
 {
@@ -20,7 +20,7 @@ namespace ContractConfigurator.RemoteTech
             bool valid = base.Load(configNode);
 
             // Before loading, verify the RemoteTech version
-            valid &= Util.VerifyRemoteTechVersion();
+            valid &= Util.Version.VerifyRemoteTechVersion();
 
             valid &= ConfigNodeUtil.ParseValue<double>(configNode, "coverage", x => coverage = x, this, 1.0, x => Validation.BetweenInclusive(x, 0.0, 1.0));
             valid &= ValidateTargetBody(configNode);

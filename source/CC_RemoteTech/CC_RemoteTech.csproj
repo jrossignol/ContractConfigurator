@@ -59,7 +59,6 @@
     <Compile Include="RemoteTechProgressTracker.cs" />
     <Compile Include="RemoteTechAssistant.cs" />
     <Compile Include="RemoteTechParameter.cs" />
-    <Compile Include="Util.cs" />
     <Compile Include="VesselConnectivityFactory.cs" />
     <Compile Include="VesselConnectivityParameter.cs" />
     <Compile Include="SignalDelayFactory.cs" />

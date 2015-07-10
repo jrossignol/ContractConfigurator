@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using UnityEngine;
 using KSPAchievements;
@@ -48,6 +49,8 @@ namespace ContractConfigurator.ExpressionParser
 
             RegisterMethod(new Method<CelestialBody, string>("Name", cb => cb != null ? cb.name : ""));
 
+            RegisterMethod(new Method<CelestialBody, double>("RemoteTechCoverage", cb => cb != null ? RemoteTechCoverage(cb) : 0.0d));
+
             RegisterGlobalFunction(new Function<CelestialBody>("HomeWorld", () => FlightGlobals.Bodies.Where(cb => cb.isHomeWorld).First()));
             RegisterGlobalFunction(new Function<List<CelestialBody>>("AllBodies", () => FlightGlobals.Bodies));
             RegisterGlobalFunction(new Function<List<CelestialBody>>("OrbitedBodies", () => ProgressTracking.Instance == null ?
@@ -72,6 +75,20 @@ namespace ContractConfigurator.ExpressionParser
                 return (U)(object)value.theName;
             }
             return base.ConvertType<U>(value);
+        }
+
+        private static double RemoteTechCoverage(CelestialBody cb)
+        {
+            if (!Util.Version.VerifyRemoteTechVersion())
+            {
+                return 0.0;
+            }
+
+            Type rtProgressTracker = Util.Version.CC_RemoteTechAssembly.GetType("ContractConfigurator.RemoteTech.RemoteTechProgressTracker");
+
+            // Get and invoke the method
+            MethodInfo methodGetCoverage = rtProgressTracker.GetMethod("GetCoverage");
+            return (double)methodGetCoverage.Invoke(null, new object[] { cb });
         }
 
         internal override CelestialBody ParseIdentifier(Token token)

@@ -1,5 +1,6 @@
 Contract Configurator 1.5.2
 - Allow multiple parts to be specified in the PartValidation parameter.
+- Added new CelestialBody.RemoteTechCoverage() method for expressions.
 - Fixed possible exception in VisitWaypoint (thanks AlphaAsh).
 - Fixed bug in PartValidation where using FILTER would prevent the parameter from completing.
 

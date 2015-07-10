@@ -72,7 +72,7 @@ namespace ContractConfigurator.RemoteTech
             if (RemoteTechProgressTracker.Instance != null)
             {
                 double oldCoverage = currentCoverage;
-                currentCoverage = RemoteTechProgressTracker.Instance.GetCoverage(targetBody);
+                currentCoverage = RemoteTechProgressTracker.GetCoverage(targetBody);
                 if (currentCoverage >= coverage)
                 {
                     SetState(ParameterState.Complete);
