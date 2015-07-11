@@ -379,6 +379,19 @@ namespace ContractConfigurator.ExpressionParser
                             result = ConvertType<TResult>((token as ValueToken<T>).val);
                             verbose &= LogExitDebug<TResult>("ParseSimpleStatement", result);
                             return result;
+                        case TokenType.QUOTE:
+                            if (typeof(TResult) == typeof(string))
+                            {
+                                expression = token.sval + expression;
+                                result = parser.ParseStatement<TResult>();
+                                verbose &= LogExitDebug<TResult>("ParseSimpleStatement", result);
+                                return result;
+                            }
+                            else
+                            {
+                                expression = token.sval + expression;
+                                throw new DataStoreCastException(typeof(TResult), typeof(string));
+                            }
                         default:
                             expression = token.sval + expression;
                             throw new ArgumentException("Unexpected value: " + token.sval);
