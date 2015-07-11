@@ -15,6 +15,11 @@ namespace ContractConfigurator.Parameters
     /// </summary>
     public class VesselParameterDelegator : VesselParameter
     {
+        public interface INotesProvider
+        {
+            string VesselParameterNotes();
+        }
+
         protected ContractParameter delegateParam { get; set; }
 
         private float lastUpdate = 0.0f;
@@ -40,6 +45,27 @@ namespace ContractConfigurator.Parameters
             else
             {
                 return title;
+            }
+        }
+
+        protected override string GetNotes()
+        {
+            string baseNotes = base.GetNotes();
+            if (string.IsNullOrEmpty(baseNotes))
+            {
+                INotesProvider notesProvider = delegateParam as INotesProvider;
+                if (notesProvider != null)
+                {
+                    return notesProvider.VesselParameterNotes();
+                }
+                else
+                {
+                    return delegateParam.Notes;
+                }
+            }
+            else
+            {
+                return baseNotes;
             }
         }
 
