@@ -113,6 +113,8 @@ namespace ContractConfigurator.ExpressionParser
             RegisterLocalFunction(new Function<T, T, T>("Max", Max));
             RegisterLocalFunction(new Function<T, T, T>("Min", Min));
 
+            RegisterLocalFunction(new Function<T, T, T>("Pow", Pow));
+
             RegisterMethod(new Method<T, string>("Print", (tval) =>
             {
                 if (typeof(T) == typeof(int) || typeof(T) == typeof(short))
@@ -160,6 +162,11 @@ namespace ContractConfigurator.ExpressionParser
         private static T Max(T a, T b)
         {
             return a.CompareTo(b) > 0 ? a : b;
+        }
+
+        private static T Pow(T a, T b)
+        {
+            return (T)(object)Math.Pow((double)(object)a, (double)(object)b);
         }
 
         public NumericValueExpressionParser()
