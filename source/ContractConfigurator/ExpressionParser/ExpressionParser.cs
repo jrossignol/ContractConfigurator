@@ -749,6 +749,10 @@ namespace ContractConfigurator.ExpressionParser
         internal void ParseToken(string expected)
         {
             Token token = ParseToken();
+            if (token == null)
+            {
+                throw new ArgumentException("Expected '" + expected + "', but reached end of expression!");
+            }
             if (token.sval != expected)
             {
                 throw new ArgumentException("Expected '" + expected + "', got: " + token.sval);
