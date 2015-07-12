@@ -29,6 +29,8 @@ namespace ContractConfigurator.ExpressionParser
             RegisterMethod(new Method<Location, double>("Latitude", location => location == null ? 0.0 : location.lat));
             RegisterMethod(new Method<Location, double>("Longitude", location => location == null ? 0.0 : location.lon));
             RegisterMethod(new Method<Location, Biome>("Biome", BiomeAtLocation));
+
+            RegisterGlobalFunction(new Function<Location>("KSCLocation", KSCLocation));
         }
 
         private static Biome BiomeAtLocation(Location location)
@@ -43,6 +45,14 @@ namespace ContractConfigurator.ExpressionParser
             string biome = location.body.BiomeMap.GetAtt(latRads, lonRads).name.Replace(" ", "");
 
             return new Biome(location.body, biome);
+        }
+
+        private static Location KSCLocation()
+        {
+            CelestialBody home = FlightGlobals.Bodies.Where(cb => cb.isHomeWorld).First();
+            PQSCity ksc = home.GetComponentsInChildren<PQSCity>(true).Where(pqs => pqs.name == "KSC").First();
+
+            return new Location(home, home.GetLatitude(ksc.transform.position), home.GetLongitude(ksc.transform.position));
         }
 
         public LocationParser()

@@ -582,7 +582,7 @@ namespace ContractConfigurator
 
         public bool IsWin64()
         {
-            // This method stops the Win64 Enabler from working, but I won't explain how.
+            // This makes no sense
             return !Util.Version.IsWin64();
         }
 
@@ -606,8 +606,8 @@ namespace ContractConfigurator
                 string title = "Contract Configurator Win64 Support";
                 string message = "Contract Configurator is not officially supported on Windown 64-bit builds of KSP " +
                     "due to wildly random bugs that take a huge amount of my (nightingale's) time to investigate.  " +
-                    "It will continue to work as normal, but please do not request support for support " +
-                    "for any issues unless they can be reproduced in a supported build.";
+                    "It will continue to work as normal, but please do not request support for any issues " +
+                    "unless they can be reproduced in a supported build.";
                 DialogOption dialogOption = new DialogOption("Okay", new Callback(DoNothing), true);
                 PopupDialog.SpawnPopupDialog(new MultiOptionDialog(message, title, HighLogic.Skin, dialogOption), false, HighLogic.Skin);
 
