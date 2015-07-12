@@ -359,25 +359,43 @@ namespace ContractConfigurator
 
         public override void OnSave(ConfigNode node)
         {
-            foreach (ContractDetails cd in contractDetails.Values)
+            try
             {
-                foreach (ConfiguredContract contract in cd.contracts)
+                foreach (ContractDetails cd in contractDetails.Values)
                 {
-                    ConfigNode child = new ConfigNode("CONTRACT");
-                    node.AddNode(child);
-                    contract.Save(child);
+                    foreach (ConfiguredContract contract in cd.contracts)
+                    {
+                        ConfigNode child = new ConfigNode("CONTRACT");
+                        node.AddNode(child);
+                        contract.Save(child);
+                    }
                 }
+            }
+            catch (Exception e)
+            {
+                LoggingUtil.LogError(this, "Error saving ContractPreLoader to persistance file!");
+                LoggingUtil.LogException(e);
+                ExceptionLogWindow.DisplayFatalException(ExceptionLogWindow.ExceptionSituation.SCENARIO_MODULE_SAVE, e, "ContractPreLoader");
             }
         }
 
         public override void OnLoad(ConfigNode node)
         {
-            foreach (ConfigNode child in node.GetNodes("CONTRACT"))
+            try
             {
-                ConfiguredContract contract = new ConfiguredContract();
-                Contract.Load(contract, child);
+                foreach (ConfigNode child in node.GetNodes("CONTRACT"))
+                {
+                    ConfiguredContract contract = new ConfiguredContract();
+                    Contract.Load(contract, child);
 
-                contractDetails[contract.Prestige].contracts.Enqueue(contract);
+                    contractDetails[contract.Prestige].contracts.Enqueue(contract);
+                }
+            }
+            catch (Exception e)
+            {
+                LoggingUtil.LogError(this, "Error loading ContractPreLoader from persistance file!");
+                LoggingUtil.LogException(e);
+                ExceptionLogWindow.DisplayFatalException(ExceptionLogWindow.ExceptionSituation.SCENARIO_MODULE_LOAD, e, "ContractPreLoader");
             }
         }
     }

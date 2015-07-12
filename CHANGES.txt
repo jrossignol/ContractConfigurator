@@ -1,6 +1,7 @@
 Contract Configurator 1.5.2
 - Allow multiple parts to be specified in the PartValidation parameter.
 - Added new CelestialBody.RemoteTechCoverage() method for expressions.
+- Fixed issue in BiomeTracker when uninstalling a previously installed planet pack (thanks herman and xEvilReeperx).
 - Fixed possible exception in VisitWaypoint (thanks AlphaAsh).
 - Fixed bug in PartValidation where using FILTER would prevent the parameter from completing.
 - Fixed ReachSpecificOrbit so it outputs the orbit details in a note (thanks FinnishGameBox).
