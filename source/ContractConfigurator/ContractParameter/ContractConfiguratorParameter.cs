@@ -215,9 +215,12 @@ namespace ContractConfigurator.Parameters
                 PenalizeFailure();
             }
 
-            OnStateChange.Fire(this, state);
-            ContractConfigurator.OnParameterChange.Fire(Root, this);
-            Parent.ParameterStateUpdate(this);
+            if (!fakeFailures || state != ParameterState.Failed)
+            {
+                OnStateChange.Fire(this, state);
+                ContractConfigurator.OnParameterChange.Fire(Root, this);
+                Parent.ParameterStateUpdate(this);
+            }
         }
 
         /// <summary>

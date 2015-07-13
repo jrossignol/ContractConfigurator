@@ -14,23 +14,35 @@ namespace ContractConfigurator.Parameters
     /// </summary>
     public class Timer : ContractConfiguratorParameter
     {
-        protected double duration { get; set; }
-        protected double endTime { get; set; }
+        public enum TimerType
+        {
+            CONTRACT_ACCEPTANCE,
+            NEXT_LAUNCH,
+            PARAMETER_COMPLETION
+        }
+
+        protected double duration = 0.0;
+        protected double endTime = 0.0;
+        protected TimerType timerType;
+        protected string parameter = "";
 
         private double lastUpdate = 0.0;
 
         private TitleTracker titleTracker = new TitleTracker();
 
         public Timer()
-            : this(0.0)
+            : base()
         {
         }
 
-        public Timer(double duration)
+        public Timer(double duration, TimerType timerType, string parameter, bool failContract)
             : base("")
         {
             this.duration = duration;
-            endTime = 0.0;
+            this.timerType = timerType;
+            this.parameter = parameter;
+            this.fakeFailures = !failContract;
+            
             disableOnStateChange = false;
         }
 
@@ -61,41 +73,78 @@ namespace ContractConfigurator.Parameters
         {
             node.AddValue("duration", duration);
             node.AddValue("endTime", endTime);
+            node.AddValue("timerType", timerType);
+            if (!string.IsNullOrEmpty(parameter))
+            {
+                node.AddValue("parameter", parameter);
+            }
         }
 
         protected override void OnParameterLoad(ConfigNode node)
         {
             duration = Convert.ToDouble(node.GetValue("duration"));
             endTime = Convert.ToDouble(node.GetValue("endTime"));
+            timerType = ConfigNodeUtil.ParseValue<TimerType>(node, "timerType", TimerType.CONTRACT_ACCEPTANCE);
+            parameter = ConfigNodeUtil.ParseValue<string>(node, "parameter", "");
         }
 
         protected override void OnRegister()
         {
             base.OnRegister();
             GameEvents.Contract.onAccepted.Add(new EventData<Contract>.OnEvent(OnContractAccepted));
+            GameEvents.onLaunch.Add(new EventData<EventReport>.OnEvent(OnLaunch));
+            GameEvents.Contract.onParameterChange.Add(new EventData<Contract, ContractParameter>.OnEvent(OnParameterChange));
         }
 
         protected override void OnUnregister()
         {
             base.OnUnregister();
             GameEvents.Contract.onAccepted.Remove(new EventData<Contract>.OnEvent(OnContractAccepted));
+            GameEvents.onLaunch.Remove(new EventData<EventReport>.OnEvent(OnLaunch));
+            GameEvents.Contract.onParameterChange.Remove(new EventData<Contract, ContractParameter>.OnEvent(OnParameterChange));
         }
 
         protected void OnContractAccepted(Contract contract)
         {
             // Set the end time
-            if (contract == Root)
+            if (contract == Root && timerType == TimerType.CONTRACT_ACCEPTANCE)
             {
-                endTime = Planetarium.GetUniversalTime() + duration;
-                
-                // We are completed...  until the time runs out
-                SetState(ParameterState.Complete);
+                SetEndTime();
             }
+        }
+
+        protected void OnLaunch(EventReport er)
+        {
+            if (timerType == TimerType.NEXT_LAUNCH && endTime == 0.0)
+            {
+                SetEndTime();
+            }
+        }
+
+        protected void OnParameterChange(Contract c, ContractParameter p)
+        {
+            if (c == Root && p.ID == parameter && timerType == TimerType.PARAMETER_COMPLETION && endTime == 0.0)
+            {
+                SetEndTime();
+            }
+        }
+
+        private void SetEndTime()
+        {
+            endTime = Planetarium.GetUniversalTime() + duration;
+
+            // We are completed...  until the time runs out
+            SetState(ParameterState.Complete);
         }
 
         protected override void OnUpdate()
         {
             base.OnUpdate();
+
+            if (endTime == 0.0)
+            {
+                return;
+            }
 
             // Every time the clock ticks over, make an attempt to update the contract window
             // title.  We do this because otherwise the window will only ever read the title once,
