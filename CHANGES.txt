@@ -7,6 +7,7 @@ Contract Configurator 1.5.2
 - Fixed possible exception in VisitWaypoint (thanks AlphaAsh).
 - Fixed bug in PartValidation where using FILTER would prevent the parameter from completing.
 - Fixed ReachSpecificOrbit so it outputs the orbit details in a note (thanks FinnishGameBox).
+- Fixed VesselNotDestroyed firing for debris.
 - Minor bug fixes.
 
 Contract Configurator 1.5.1
