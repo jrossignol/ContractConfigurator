@@ -169,6 +169,17 @@ namespace ContractConfigurator.ExpressionParser
 
         public DataNode(string name, DataNode parent, IContractConfiguratorFactory factory)
         {
+            if (parent != null)
+            {
+                // Check for duplicate name - probably could be more efficient here
+                string origName = name;
+                int i = 1;
+                while (parent.children.Any(dn => dn.name == name))
+                {
+                    name = origName + "_" + i++;
+                }
+            }
+
             this.parent = parent;
             this.factory = factory;
             this.name = name;
