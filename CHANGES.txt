@@ -1,3 +1,7 @@
+Contract Configurator 1.5.3
+- Added AvailablePart.IsUnlocked and AvailablePart.CrewCapacity.
+- Minor bug fixes.
+
 Contract Configurator 1.5.2
 - Allow multiple parts to be specified in the PartValidation parameter.
 - Added CelestialBody.RemoteTechCoverage() method for expressions.

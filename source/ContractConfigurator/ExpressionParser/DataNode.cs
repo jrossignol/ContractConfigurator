@@ -218,9 +218,13 @@ namespace ContractConfigurator.ExpressionParser
             {
                 output = ((ScienceSubject)(value)).id;
             }
-            if (type == typeof(ScienceExperiment))
+            else if (type == typeof(ScienceExperiment))
             {
                 output = ((ScienceExperiment)(value)).id;
+            }
+            else if (type == typeof(AvailablePart))
+            {
+                output = ((AvailablePart)(value)).name;
             }
             else if (type.Name == "List`1")
             {

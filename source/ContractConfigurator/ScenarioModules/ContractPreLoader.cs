@@ -295,7 +295,7 @@ namespace ContractConfigurator
             {
                 ConfiguredContract contract = contractDetails[prestige].contracts.Dequeue();
 
-                if (contract.contractType.MeetRequirements(contract))
+                if (contract != null && contract.contractType != null && contract.contractType.MeetRequirements(contract))
                 {
                     return contract;
                 }
