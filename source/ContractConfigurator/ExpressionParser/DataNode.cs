@@ -226,6 +226,10 @@ namespace ContractConfigurator.ExpressionParser
             {
                 output = ((AvailablePart)(value)).name;
             }
+            else if (type == typeof(Vessel))
+            {
+                output = ((Vessel)(value)).vesselName;
+            }
             else if (type.Name == "List`1")
             {
                 output = "[ ";
