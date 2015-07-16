@@ -114,6 +114,7 @@ namespace ContractConfigurator.ExpressionParser
             RegisterLocalFunction(new Function<T, T, T>("Min", Min));
 
             RegisterLocalFunction(new Function<T, T, T>("Pow", Pow));
+            RegisterLocalFunction(new Function<T, T, T>("Log", Log));
 
             RegisterMethod(new Method<T, string>("Print", (tval) =>
             {
@@ -167,6 +168,11 @@ namespace ContractConfigurator.ExpressionParser
         private static T Pow(T a, T b)
         {
             return (T)(object)Math.Pow((double)(object)a, (double)(object)b);
+        }
+
+        private static T Log(T a, T b)
+        {
+            return (T)(object)Math.Log((double)(object)a, (double)(object)b);
         }
 
         public NumericValueExpressionParser()

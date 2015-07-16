@@ -614,6 +614,8 @@ namespace ContractConfigurator
                 ConfigNode node = new ConfigNode("CC_WIN64_WARNING");
                 node.AddValue("version", ainfoV.InformationalVersion);
                 node.Save(Win64WarningFileName, "Contract Configurator Win64 warning configuration");
+
+                LoggingUtil.LogWarning(this, "ContractConfigurator on Win64 detected.");
             }
         }
 

@@ -1,5 +1,6 @@
 Contract Configurator 1.5.3
 - Added AvailablePart.IsUnlocked and AvailablePart.CrewCapacity.
+- Added Log() function for expressions.
 - Minor bug fixes.
 
 Contract Configurator 1.5.2
