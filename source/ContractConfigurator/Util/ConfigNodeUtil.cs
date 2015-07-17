@@ -594,13 +594,15 @@ namespace ContractConfigurator
                     }
 
                     LoggingUtil.LogError(obj, obj.ErrorPrefix(configNode) + ": Error parsing " + key);
-                    LoggingUtil.LogException(e);
 
                     // Return immediately on deferred load error
                     if (e.GetType() == typeof(DataNode.ValueNotInitialized))
                     {
+                        DataNode.ValueNotInitialized vni = e as DataNode.ValueNotInitialized;
+                        LoggingUtil.LogException(new Exception("Unknown identifier '@" + vni.key + "'."));
                         return false;
                     }
+                    LoggingUtil.LogException(e);
 
                     valid = false;
                 }
