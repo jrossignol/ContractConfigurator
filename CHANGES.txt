@@ -3,6 +3,7 @@ Contract Configurator 1.5.3
 - Added CanResearchTech requirement.
 - Added AvailablePart.IsUnlocked and AvailablePart.CrewCapacity.
 - Added Log() function for expressions.
+- Added new basic type-conversion functions for expressions (int(), float(), double(), etc.).
 - Fixed issue with Vessel.Parts() (thanks Whyren).
 - Minor bug fixes.
 
