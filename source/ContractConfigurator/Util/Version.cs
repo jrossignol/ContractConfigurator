@@ -13,6 +13,9 @@ namespace ContractConfigurator.Util
     /// </summary>
     public static class Version
     {
+        public static Assembly RemoteTechAssembly;
+        public static Assembly CC_RemoteTechAssembly;
+
         /// <summary>
         /// Verify the loaded assembly meets a minimum version number.
         /// </summary>
@@ -72,6 +75,20 @@ namespace ContractConfigurator.Util
             return new System.Version(major, minor, build, revision);
         }
 
+        /// <summary>
+        /// Verifies that the RemoteTech version the player has is compatible.
+        /// </summary>
+        /// <returns>Whether the check passed.</returns>
+        public static bool VerifyRemoteTechVersion()
+        {
+            string minVersion = "1.6.2";
+            if (RemoteTechAssembly == null)
+            {
+                RemoteTechAssembly = Version.VerifyAssemblyVersion("RemoteTech", minVersion);
+                CC_RemoteTechAssembly = AssemblyLoader.loadedAssemblies.SingleOrDefault(a => a.assembly.GetName().Name == "CC_RemoteTech").assembly;
+            }
+            return RemoteTechAssembly != null;
+        }
 
         /// <summary>
         /// Checks if running KSP on Win64.

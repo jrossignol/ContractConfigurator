@@ -580,9 +580,15 @@ namespace ContractConfigurator
             }
         }
 
+        public bool IsWin64()
+        {
+            // This makes no sense
+            return !Util.Version.IsWin64();
+        }
+
         private void DoWin64Check()
         {
-            if (Util.Version.IsWin64())
+            if (Util.Version.IsWin64() || !IsWin64())
             {
                 var ainfoV = Attribute.GetCustomAttribute(typeof(ContractConfigurator).Assembly,
                     typeof(AssemblyInformationalVersionAttribute)) as AssemblyInformationalVersionAttribute;
@@ -597,19 +603,19 @@ namespace ContractConfigurator
                     }
                 }
 
-                Debug.Log("doing win64 warn");
-
-                string title = "Contract Configurator Windows 64-bit Support";
-                string message = "Contract Configurator is not officially supported on Win64 builds of KSP " +
-                    "due to wildly random bugs that take a huge amount of my (nightingale's) " +
-                    "time to investigate.  It will continue to work as normal, but please do not request " +
-                    "support for any issues unless they can be reproduced in a 32-bit build.";
+                string title = "Contract Configurator Win64 Support";
+                string message = "Contract Configurator is not officially supported on Windown 64-bit builds of KSP " +
+                    "due to wildly random bugs that take a huge amount of my (nightingale's) time to investigate.  " +
+                    "It will continue to work as normal, but please do not request support for any issues " +
+                    "unless they can be reproduced in a supported build.";
                 DialogOption dialogOption = new DialogOption("Okay", new Callback(DoNothing), true);
                 PopupDialog.SpawnPopupDialog(new MultiOptionDialog(message, title, HighLogic.Skin, dialogOption), false, HighLogic.Skin);
 
                 ConfigNode node = new ConfigNode("CC_WIN64_WARNING");
                 node.AddValue("version", ainfoV.InformationalVersion);
                 node.Save(Win64WarningFileName, "Contract Configurator Win64 warning configuration");
+
+                LoggingUtil.LogWarning(this, "ContractConfigurator on Win64 detected.");
             }
         }
 

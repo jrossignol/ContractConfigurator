@@ -230,39 +230,73 @@ namespace ContractConfigurator
 
         public override void OnLoad(ConfigNode node)
         {
-            foreach (ConfigNode bodyNode in node.GetNodes("CELESTIAL_BODY"))
+            try
             {
-                int version = ConfigNodeUtil.ParseValue<int>(bodyNode, "version", 1);
-
-                if (version == 2)
+                foreach (ConfigNode bodyNode in node.GetNodes("CELESTIAL_BODY"))
                 {
-                    CelestialBody body = ConfigNodeUtil.ParseValue<CelestialBody>(bodyNode, "body");
-                    Dictionary<string, BiomeData> biomeDetails = bodyInfo[body] = new Dictionary<string, BiomeData>();
+                    int version = ConfigNodeUtil.ParseValue<int>(bodyNode, "version", 1);
 
-                    foreach (ConfigNode biomeNode in bodyNode.GetNodes("BIOME"))
+                    if (version == 2)
                     {
-                        BiomeData biomeData = BiomeData.Load(biomeNode);
-                        biomeDetails.Add(biomeData.name, biomeData);
+                        CelestialBody body;
+                        try
+                        {
+                            body = ConfigNodeUtil.ParseValue<CelestialBody>(bodyNode, "body");
+                        }
+                        // Check for invalidated celestial bodies, and ignore those entries
+                        catch (ArgumentException e)
+                        {
+                            if (e.Message.Contains("not a valid CelestialBody"))
+                            {
+                                continue;
+                            }
+                            else
+                            {
+                                throw;
+                            }
+                        }
+                        Dictionary<string, BiomeData> biomeDetails = bodyInfo[body] = new Dictionary<string, BiomeData>();
+
+                        foreach (ConfigNode biomeNode in bodyNode.GetNodes("BIOME"))
+                        {
+                            BiomeData biomeData = BiomeData.Load(biomeNode);
+                            biomeDetails.Add(biomeData.name, biomeData);
+                        }
                     }
                 }
+            }
+            catch (Exception e)
+            {
+                LoggingUtil.LogError(this, "Error loading BiomeTracker from persistance file!");
+                LoggingUtil.LogException(e);
+                ExceptionLogWindow.DisplayFatalException(ExceptionLogWindow.ExceptionSituation.SCENARIO_MODULE_LOAD, e, "BiomeTracker");
             }
         }
 
         public override void OnSave(ConfigNode node)
         {
-            foreach (KeyValuePair<CelestialBody, Dictionary<string, BiomeData>> pair in bodyInfo)
+            try
             {
-                ConfigNode bodyNode = new ConfigNode("CELESTIAL_BODY");
-                node.AddNode(bodyNode);
-                bodyNode.AddValue("body", pair.Key.name);
-                bodyNode.AddValue("version", 2);
-
-                foreach (BiomeData biomeData in pair.Value.Values)
+                foreach (KeyValuePair<CelestialBody, Dictionary<string, BiomeData>> pair in bodyInfo)
                 {
-                    ConfigNode biomeNode = new ConfigNode("BIOME");
-                    bodyNode.AddNode(biomeNode);
-                    biomeData.Save(biomeNode);
+                    ConfigNode bodyNode = new ConfigNode("CELESTIAL_BODY");
+                    node.AddNode(bodyNode);
+                    bodyNode.AddValue("body", pair.Key.name);
+                    bodyNode.AddValue("version", 2);
+
+                    foreach (BiomeData biomeData in pair.Value.Values)
+                    {
+                        ConfigNode biomeNode = new ConfigNode("BIOME");
+                        bodyNode.AddNode(biomeNode);
+                        biomeData.Save(biomeNode);
+                    }
                 }
+            }
+            catch (Exception e)
+            {
+                LoggingUtil.LogError(this, "Error saving BiomeTracker to persistance file!");
+                LoggingUtil.LogException(e);
+                ExceptionLogWindow.DisplayFatalException(ExceptionLogWindow.ExceptionSituation.SCENARIO_MODULE_SAVE, e, "BiomeTracker");
             }
         }
 

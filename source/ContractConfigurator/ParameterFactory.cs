@@ -74,7 +74,11 @@ namespace ContractConfigurator
             valid &= ConfigNodeUtil.ParseValue<string>(configNode, "type", x => type = x, this);
             valid &= ConfigNodeUtil.ParseValue<string>(configNode, "name", x => name = x, this, type);
 
-            valid &= ConfigNodeUtil.ParseValue<CelestialBody>(configNode, "targetBody", x => _targetBody = x, this, (CelestialBody)null);
+            if (!configNode.HasValue("targetBody"))
+            {
+                configNode.AddValue("targetBody", "@/targetBody");
+            }
+            valid &= ConfigNodeUtil.ParseValue<CelestialBody>(configNode, "targetBody", x => _targetBody = x, this);
 
             // Load rewards
             valid &= ConfigNodeUtil.ParseValue<float>(configNode, "rewardFunds", x => rewardFunds = x, this, 0.0f, x => Validation.GE(x, 0.0f));

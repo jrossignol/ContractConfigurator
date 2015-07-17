@@ -116,6 +116,10 @@ namespace ContractConfigurator.Parameters
             {
                 vesselIterator = ((VesselParameterGroup)Parent).VesselList;
             }
+            else if (v.vesselType == VesselType.Debris)
+            {
+                return;
+            }
             else
             {
                 LoggingUtil.LogVerbose(this, "Any vessel match, failing parameter.");

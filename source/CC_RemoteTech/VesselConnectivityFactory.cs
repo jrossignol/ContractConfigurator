@@ -13,7 +13,7 @@ namespace ContractConfigurator.RemoteTech
     public class VesselConnectivityFactory : ParameterFactory
     {
         protected bool hasConnectivity;
-        protected string vessel;
+        protected VesselIdentifier vessel;
 
         public override bool Load(ConfigNode configNode)
         {
@@ -21,17 +21,17 @@ namespace ContractConfigurator.RemoteTech
             bool valid = base.Load(configNode);
 
             // Before loading, verify the RemoteTech version
-            valid &= Util.VerifyRemoteTechVersion();
+            valid &= Util.Version.VerifyRemoteTechVersion();
 
             valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "hasConnectivity", x => hasConnectivity = x, this, true);
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "vessel", x => vessel = x, this);
+            valid &= ConfigNodeUtil.ParseValue<VesselIdentifier>(configNode, "vessel", x => vessel = x, this);
 
             return valid;
         }
 
         public override ContractParameter Generate(Contract contract)
         {
-            return new VesselConnectivityParameter(vessel, hasConnectivity, title);
+            return new VesselConnectivityParameter(vessel.identifier, hasConnectivity, title);
         }
     }
 }

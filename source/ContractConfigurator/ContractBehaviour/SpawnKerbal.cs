@@ -278,7 +278,8 @@ namespace ContractConfigurator.Behaviour
 
                 // Create part nodes
                 ConfigNode[] partNodes = new ConfigNode[1];
-                partNodes[0] = ProtoVessel.CreatePartNode("kerbalEVA", flightId, crewArray);
+                partNodes[0] = ProtoVessel.CreatePartNode(kerbal.crewMember.gender == ProtoCrewMember.Gender.Male ? "kerbalEVA" : "kerbalEVAfemale",
+                    flightId, crewArray);
 
                 // Create additional nodes
                 ConfigNode[] additionalNodes = new ConfigNode[1];

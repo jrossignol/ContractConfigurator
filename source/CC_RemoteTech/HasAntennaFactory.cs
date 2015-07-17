@@ -24,11 +24,20 @@ namespace ContractConfigurator.RemoteTech
 
         public override bool Load(ConfigNode configNode)
         {
+            bool hasTargetBody = configNode.HasValue("targetBody");
+
             // Load base class
             bool valid = base.Load(configNode);
 
+            // Base class attempts to load a default, remove it and re-load
+            if (!hasTargetBody)
+            {
+                configNode.RemoveValue("targetBody");
+                valid &= ConfigNodeUtil.ParseValue<CelestialBody>(configNode, "targetBody", x => _targetBody = x, this, (CelestialBody)null);
+            }
+
             // Before loading, verify the RemoteTech version
-            valid &= Util.VerifyRemoteTechVersion();
+            valid &= Util.Version.VerifyRemoteTechVersion();
 
             valid &= ConfigNodeUtil.ParseValue<int>(configNode, "minCount", x => minCount = x, this, 1, x => Validation.GE(x, 0));
             valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxCount", x => maxCount = x, this, int.MaxValue, x => Validation.GE(x, 0));

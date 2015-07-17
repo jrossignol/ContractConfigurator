@@ -56,6 +56,10 @@ namespace ContractConfigurator
             valid &= ConfigNodeUtil.ParseValue<string>(configNode, "type", x => type = x, this);
             valid &= ConfigNodeUtil.ParseValue<string>(configNode, "name", x => name = x, this, type);
 
+            if (!configNode.HasValue("targetBody"))
+            {
+                configNode.AddValue("targetBody", "@/targetBody");
+            }
             valid &= ConfigNodeUtil.ParseValue<CelestialBody>(configNode, "targetBody", x => _targetBody = x, this, (CelestialBody)null);
 
             // By default, do not check the requirement for active contracts

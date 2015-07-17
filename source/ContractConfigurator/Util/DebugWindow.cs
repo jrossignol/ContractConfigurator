@@ -559,10 +559,31 @@ namespace ContractConfigurator
         {
             foreach (ContractType contractType in ContractType.AllValidContractTypes)
             {
+                foreach (ParameterFactory paramFactory in contractType.ParamFactories)
+                {
+                    CheckRequirement(paramFactory);
+                }
+
                 foreach (ContractRequirement requirement in contractType.Requirements)
                 {
                     CheckRequirement(requirement);
                 }
+            }
+        }
+
+        /// <summary>
+        /// Forced check of contract requirement and its children.
+        /// </summary>
+        static void CheckRequirement(ParameterFactory paramFactory)
+        {
+            foreach (ParameterFactory child in paramFactory.ChildParameters)
+            {
+                CheckRequirement(child);
+            }
+
+            foreach (ContractRequirement child in paramFactory.ChildRequirements)
+            {
+                CheckRequirement(child);
             }
         }
 

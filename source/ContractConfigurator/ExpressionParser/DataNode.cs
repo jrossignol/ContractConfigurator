@@ -169,6 +169,17 @@ namespace ContractConfigurator.ExpressionParser
 
         public DataNode(string name, DataNode parent, IContractConfiguratorFactory factory)
         {
+            if (parent != null)
+            {
+                // Check for duplicate name - probably could be more efficient here
+                string origName = name;
+                int i = 1;
+                while (parent.children.Any(dn => dn.name == name))
+                {
+                    name = origName + "_" + i++;
+                }
+            }
+
             this.parent = parent;
             this.factory = factory;
             this.name = name;
@@ -207,9 +218,17 @@ namespace ContractConfigurator.ExpressionParser
             {
                 output = ((ScienceSubject)(value)).id;
             }
-            if (type == typeof(ScienceExperiment))
+            else if (type == typeof(ScienceExperiment))
             {
                 output = ((ScienceExperiment)(value)).id;
+            }
+            else if (type == typeof(AvailablePart))
+            {
+                output = ((AvailablePart)(value)).name;
+            }
+            else if (type == typeof(Vessel))
+            {
+                output = ((Vessel)(value)).vesselName;
             }
             else if (type.Name == "List`1")
             {

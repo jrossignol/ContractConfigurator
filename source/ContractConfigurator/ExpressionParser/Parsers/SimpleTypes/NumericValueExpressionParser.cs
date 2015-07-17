@@ -13,8 +13,10 @@ namespace ContractConfigurator.ExpressionParser
     {
         public void RegisterExpressionParsers()
         {
-            BaseParser.RegisterParserType(typeof(uint), typeof(NumericValueExpressionParser<uint>));
             BaseParser.RegisterParserType(typeof(int), typeof(NumericValueExpressionParser<int>));
+            BaseParser.RegisterParserType(typeof(long), typeof(NumericValueExpressionParser<long>));
+            BaseParser.RegisterParserType(typeof(uint), typeof(NumericValueExpressionParser<uint>));
+            BaseParser.RegisterParserType(typeof(ulong), typeof(NumericValueExpressionParser<ulong>));
             BaseParser.RegisterParserType(typeof(float), typeof(NumericValueExpressionParser<float>));
             BaseParser.RegisterParserType(typeof(double), typeof(NumericValueExpressionParser<double>));
         }
@@ -42,6 +44,17 @@ namespace ContractConfigurator.ExpressionParser
         public override bool NE(int a, int b) { return a != b; }
     }
 
+    public class LongCalculator : Calculator<long>
+    {
+        public override long Negate(long val) { return -val; }
+        public override long Add(long a, long b) { return a + b; }
+        public override long Sub(long a, long b) { return a - b; }
+        public override long Mult(long a, long b) { return a * b; }
+        public override long Div(long a, long b) { return a / b; }
+        public override bool EQ(long a, long b) { return a == b; }
+        public override bool NE(long a, long b) { return a != b; }
+    }
+
     public class UIntCalculator : Calculator<uint>
     {
         public override uint Negate(uint val)
@@ -54,6 +67,20 @@ namespace ContractConfigurator.ExpressionParser
         public override uint Div(uint a, uint b) { return a / b; }
         public override bool EQ(uint a, uint b) { return a == b; }
         public override bool NE(uint a, uint b) { return a != b; }
+    }
+
+    public class ULongCalculator : Calculator<ulong>
+    {
+        public override ulong Negate(ulong val)
+        {
+            throw new NotSupportedException("Negation (-) not supported for type " + typeof(ulong));
+        }
+        public override ulong Add(ulong a, ulong b) { return a + b; }
+        public override ulong Sub(ulong a, ulong b) { return a - b; }
+        public override ulong Mult(ulong a, ulong b) { return a * b; }
+        public override ulong Div(ulong a, ulong b) { return a / b; }
+        public override bool EQ(ulong a, ulong b) { return a == b; }
+        public override bool NE(ulong a, ulong b) { return a != b; }
     }
 
     public class FloatCalculator : Calculator<float>
@@ -94,9 +121,17 @@ namespace ContractConfigurator.ExpressionParser
             {
                 calculator = new IntCalculator() as Calculator<T>;
             }
+            else if (typeof(T) == typeof(long))
+            {
+                calculator = new LongCalculator() as Calculator<T>;
+            }
             else if (typeof(T) == typeof(uint))
             {
                 calculator = new UIntCalculator() as Calculator<T>;
+            }
+            else if (typeof(T) == typeof(ulong))
+            {
+                calculator = new ULongCalculator() as Calculator<T>;
             }
             else if (typeof(T) == typeof(float))
             {
@@ -112,6 +147,16 @@ namespace ContractConfigurator.ExpressionParser
             RegisterLocalFunction(new Function<T, T, T>("Random", RandomMinMax, false));
             RegisterLocalFunction(new Function<T, T, T>("Max", Max));
             RegisterLocalFunction(new Function<T, T, T>("Min", Min));
+
+            RegisterLocalFunction(new Function<T, T, T>("Pow", Pow));
+            RegisterLocalFunction(new Function<T, T, T>("Log", Log));
+
+            RegisterGlobalFunction(new Function<T, int>("int", val => (int)Convert.ChangeType(val, typeof(int))));
+            RegisterGlobalFunction(new Function<T, long>("long", val => (long)Convert.ChangeType(val, typeof(long))));
+            RegisterGlobalFunction(new Function<T, uint>("uint", val => (uint)Convert.ChangeType(val, typeof(uint))));
+            RegisterGlobalFunction(new Function<T, ulong>("ulong", val => (ulong)Convert.ChangeType(val, typeof(ulong))));
+            RegisterGlobalFunction(new Function<T, float>("float", val => (float)Convert.ChangeType(val, typeof(float))));
+            RegisterGlobalFunction(new Function<T, double>("double", val => (double)Convert.ChangeType(val, typeof(double))));
 
             RegisterMethod(new Method<T, string>("Print", (tval) =>
             {
@@ -160,6 +205,16 @@ namespace ContractConfigurator.ExpressionParser
         private static T Max(T a, T b)
         {
             return a.CompareTo(b) > 0 ? a : b;
+        }
+
+        private static T Pow(T a, T b)
+        {
+            return (T)(object)Math.Pow((double)(object)a, (double)(object)b);
+        }
+
+        private static T Log(T a, T b)
+        {
+            return (T)(object)Math.Log((double)(object)a, (double)(object)b);
         }
 
         public NumericValueExpressionParser()

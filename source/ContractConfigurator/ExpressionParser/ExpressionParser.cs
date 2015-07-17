@@ -342,14 +342,17 @@ namespace ContractConfigurator.ExpressionParser
                             return result;
                         case TokenType.IDENTIFIER:
                             result = parser.ParseVarOrIdentifier(token);
+                            expression = parser.expression;
                             verbose &= LogExitDebug<TResult>("ParseSimpleStatement", result);
                             return result;
                         case TokenType.FUNCTION:
                             result = parser.ParseFunction(token);
+                            expression = parser.expression;
                             verbose &= LogExitDebug<TResult>("ParseSimpleStatement", result);
                             return result;
                         case TokenType.SPECIAL_IDENTIFIER:
                             result = parser.ParseSpecialIdentifier(token);
+                            expression = parser.expression;
                             verbose &= LogExitDebug<TResult>("ParseSimpleStatement", result);
                             return result;
                         case TokenType.OPERATOR:
@@ -360,6 +363,7 @@ namespace ContractConfigurator.ExpressionParser
                                         TResult value = ParseSimpleStatement<TResult>();
                                         parser.expression = expression;
                                         result = parser.Negate(value);
+                                        expression = parser.expression;
                                         verbose &= LogExitDebug<TResult>("ParseSimpleStatement", result);
                                         return result;
                                     }
@@ -368,6 +372,7 @@ namespace ContractConfigurator.ExpressionParser
                                         TResult value = ParseSimpleStatement<TResult>();
                                         parser.expression = expression;
                                         result = parser.Not(value);
+                                        expression = parser.expression;
                                         verbose &= LogExitDebug<TResult>("ParseSimpleStatement", result);
                                         return result;
                                     }
@@ -379,6 +384,20 @@ namespace ContractConfigurator.ExpressionParser
                             result = ConvertType<TResult>((token as ValueToken<T>).val);
                             verbose &= LogExitDebug<TResult>("ParseSimpleStatement", result);
                             return result;
+                        case TokenType.QUOTE:
+                            if (typeof(TResult) == typeof(string))
+                            {
+                                parser.expression = token.sval + expression;
+                                result = parser.ParseStatement<TResult>();
+                                expression = parser.expression;
+                                verbose &= LogExitDebug<TResult>("ParseSimpleStatement", result);
+                                return result;
+                            }
+                            else
+                            {
+                                expression = token.sval + expression;
+                                throw new DataStoreCastException(typeof(TResult), typeof(string));
+                            }
                         default:
                             expression = token.sval + expression;
                             throw new ArgumentException("Unexpected value: " + token.sval);
@@ -730,6 +749,10 @@ namespace ContractConfigurator.ExpressionParser
         internal void ParseToken(string expected)
         {
             Token token = ParseToken();
+            if (token == null)
+            {
+                throw new ArgumentException("Expected '" + expected + "', but reached end of expression!");
+            }
             if (token.sval != expected)
             {
                 throw new ArgumentException("Expected '" + expected + "', got: " + token.sval);

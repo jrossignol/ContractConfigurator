@@ -15,7 +15,7 @@ namespace ContractConfigurator.Parameters
     /// Special wrapper parameter for wrapping the stock SpecificOrbit parameter (necessary due to
     /// how they use it for rendering).
     /// </summary>
-    public class SpecificOrbitWrapper : SpecificOrbitParameter
+    public class SpecificOrbitWrapper : SpecificOrbitParameter, VesselParameterDelegator.INotesProvider
     {
         public SpecificOrbitWrapper()
         {
@@ -29,6 +29,11 @@ namespace ContractConfigurator.Parameters
         protected override string GetNotes()
         {
             return "";
+        }
+
+        public string VesselParameterNotes()
+        {
+            return base.GetNotes();
         }
     }
 }

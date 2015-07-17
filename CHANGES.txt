@@ -1,7 +1,24 @@
+Contract Configurator 1.5.3
+- Added UnlockPart behaviour.
+- Added CanResearchTech requirement.
+- Added AvailablePart.IsUnlocked and AvailablePart.CrewCapacity.
+- Added Log() function for expressions.
+- Added new basic type-conversion functions for expressions (int(), float(), double(), etc.).
+- Fixed issue with Vessel.Parts() (thanks Whyren).
+- Minor bug fixes.
+
 Contract Configurator 1.5.2
 - Allow multiple parts to be specified in the PartValidation parameter.
+- Added CelestialBody.RemoteTechCoverage() method for expressions.
+- Added CelestialBody.Mass() and CelestialBody.RotationalPeriod() for expressions.
+- Added KSCLocation() function for expressions.
+- Enhancements to Timer parameter.
+- Fixed issue in BiomeTracker when uninstalling a previously installed planet pack (thanks herman and xEvilReeperx).
 - Fixed possible exception in VisitWaypoint (thanks AlphaAsh).
 - Fixed bug in PartValidation where using FILTER would prevent the parameter from completing.
+- Fixed ReachSpecificOrbit so it outputs the orbit details in a note (thanks FinnishGameBox).
+- Fixed VesselNotDestroyed firing for debris.
+- Minor bug fixes.
 
 Contract Configurator 1.5.1
 - Added new ChangeVesselOwnership contract behaviour.

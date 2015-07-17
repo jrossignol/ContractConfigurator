@@ -333,19 +333,19 @@ namespace ContractConfigurator.RemoteTech
         /// </summary>
         /// <param name="body">The body to check coverage for.</param>
         /// <returns>The coverage ration (between 0.0 and 1.0)</returns>
-        public double GetCoverage(CelestialBody body)
+        public static double GetCoverage(CelestialBody body)
         {
             // Calculate the coverage
-            if (celestialBodies.ContainsKey(body))
+            if (Instance != null && Instance.celestialBodies.ContainsKey(body))
             {
-                UInt32 cov = celestialBodies[body].coverage;
+                UInt32 cov = Instance.celestialBodies[body].coverage;
                 UInt32 count = 0;
                 while (cov > 0)
                 {
                     count += cov & 1;
                     cov = cov >> 1;
                 }
-                return (double)count / POINT_COUNT;
+                return (double)count / Instance.POINT_COUNT;
             }
 
             return 0.0;

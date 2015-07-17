@@ -229,7 +229,7 @@ namespace ContractConfigurator
                         // If the vessel is loaded, refresh the protovessel.  We do this to support
                         // grappling - when a new vessel is grappled the protovessel information
                         // doesn't get properly updated.
-                        if (v.loaded)
+                        if (v.loaded && !Util.Version.IsWin64())
                         {
                             v.protoVessel = new ProtoVessel(v);
                         }

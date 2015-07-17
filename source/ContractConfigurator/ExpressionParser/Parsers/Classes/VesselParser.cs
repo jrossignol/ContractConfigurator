@@ -30,8 +30,7 @@ namespace ContractConfigurator.ExpressionParser
 
             RegisterMethod(new Method<Vessel, List<Kerbal>>("Crew", v => v == null ? new List<Kerbal>() : v.GetVesselCrew().
                 Select<ProtoCrewMember, Kerbal>(pcm => new Kerbal(pcm)).ToList(), false));
-            RegisterMethod(new Method<Vessel, List<AvailablePart>>("Parts", v => v == null ? new List<AvailablePart>() :
-                v.parts.Select<Part, AvailablePart>(p => p.protoPartSnapshot.partInfo).ToList(), false));
+            RegisterMethod(new Method<Vessel, List<AvailablePart>>("Parts", PartList, false));
 
             RegisterMethod(new Method<Vessel, CelestialBody>("CelestialBody", v => v == null ? null : v.mainBody, false));
             RegisterMethod(new Method<Vessel, VesselType>("VesselType", v => v == null ? VesselType.Unknown : v.vesselType, false));
@@ -59,6 +58,22 @@ namespace ContractConfigurator.ExpressionParser
 
         public VesselParser()
         {
+        }
+
+        static List<AvailablePart> PartList(Vessel v)
+        {
+            if (v == null)
+            {
+                return new List<AvailablePart>();
+            }
+            else if (v.loaded)
+            {
+                return v.parts.Select<Part, AvailablePart>(p => p.protoPartSnapshot.partInfo).ToList();
+            }
+            else
+            {
+                return v.protoVessel.protoPartSnapshots.Select<ProtoPartSnapshot, AvailablePart>(pps => pps.partInfo).ToList();
+            }
         }
 
         /// <summary>

@@ -54,6 +54,7 @@
     <Compile Include="BehaviourFactory\OrbitGeneratorFactory.cs" />
     <Compile Include="BehaviourFactory\SpawnPassengersFactory.cs" />
     <Compile Include="BehaviourFactory\SpawnVesselFactory.cs" />
+    <Compile Include="BehaviourFactory\UnlockPartFactory.cs" />
     <Compile Include="BehaviourFactory\UnlockTechFactory.cs" />
     <Compile Include="BehaviourFactory\WaypointGeneratorFactory.cs" />
     <Compile Include="BehaviourFactory\SpawnKerbalFactory.cs" />
@@ -63,6 +64,7 @@
     <Compile Include="ContractBehaviour\IHasKerbalBehaviour.cs" />
     <Compile Include="ContractBehaviour\SpawnPassengers.cs" />
     <Compile Include="ContractBehaviour\SpawnVessel.cs" />
+    <Compile Include="ContractBehaviour\UnlockPart.cs" />
     <Compile Include="ContractBehaviour\UnlockTech.cs" />
     <Compile Include="ContractParameter\HasAstronaut.cs" />
     <Compile Include="ContractParameter\None.cs" />
@@ -99,6 +101,7 @@
     <Compile Include="ContractRequirement\ReputationRequirement.cs" />
     <Compile Include="ContractRequirement\FundsRequirement.cs" />
     <Compile Include="ContractGroup.cs" />
+    <Compile Include="ContractRequirement\CanResearchTechRequirement.cs" />
     <Compile Include="ParameterFactory\NewVesselFactory.cs" />
     <Compile Include="ScenarioModules\ContractPreLoader.cs" />
     <Compile Include="ExpressionParser\BaseParser.cs" />

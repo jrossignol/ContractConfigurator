@@ -4,9 +4,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using ContractConfigurator;
 using UnityEngine;
 using RemoteTech;
+using ContractConfigurator;
 
 namespace ContractConfigurator.RemoteTech
 {
@@ -20,7 +20,7 @@ namespace ContractConfigurator.RemoteTech
             bool valid = base.Load(configNode);
 
             // Before loading, verify the RemoteTech version
-            valid &= Util.VerifyRemoteTechVersion();
+            valid &= Util.Version.VerifyRemoteTechVersion();
 
             valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "hasConnectivity", x => hasConnectivity = x, this, true);
 

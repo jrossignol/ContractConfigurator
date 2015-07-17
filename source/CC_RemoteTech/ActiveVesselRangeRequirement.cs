@@ -23,7 +23,7 @@ namespace ContractConfigurator.RemoteTech
             bool valid = base.Load(configNode);
 
             // Before loading, verify the RemoteTech version
-            valid &= Util.VerifyRemoteTechVersion();
+            valid &= Util.Version.VerifyRemoteTechVersion();
 
             // Do not check on active contracts
             checkOnActiveContract = configNode.HasValue("checkOnActiveContract") ? checkOnActiveContract : false;
