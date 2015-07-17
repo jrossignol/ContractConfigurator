@@ -98,8 +98,7 @@ namespace ContractConfigurator.Util
         {
             if (isWin64 == null)
             {
-                IntPtr intPtr = new IntPtr(long.MaxValue);
-                isWin64 = (intPtr.ToInt64() == long.MaxValue) && (Environment.OSVersion.Platform == PlatformID.Win32NT);
+                isWin64 = (IntPtr.Size == 8) && (Environment.OSVersion.Platform == PlatformID.Win32NT);
             }
             return isWin64.Value;
         }
