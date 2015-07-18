@@ -41,6 +41,7 @@ namespace ContractConfigurator.Behaviour
             public double longitude = 0.0;
             public double? altitude = null;
             public bool landed = false;
+            public bool orbiting = false;
             public bool owned = false;
             public List<CrewData> crew = new List<CrewData>();
             public float heading;
@@ -61,6 +62,7 @@ namespace ContractConfigurator.Behaviour
                 longitude = vd.longitude;
                 altitude = vd.altitude;
                 landed = vd.landed;
+                orbiting = vd.orbiting;
                 owned = vd.owned;
                 heading = vd.heading;
                 pitch = vd.pitch;
@@ -140,12 +142,14 @@ namespace ContractConfigurator.Behaviour
                         valid &= ConfigNodeUtil.ParseValue<double>(child, "lat", x => vessel.latitude = x, factory);
                         valid &= ConfigNodeUtil.ParseValue<double>(child, "lon", x => vessel.longitude = x, factory);
                         valid &= ConfigNodeUtil.ParseValue<double?>(child, "alt", x => vessel.altitude = x, factory, (double?)null);
-                        vessel.landed = true;
+                        valid &= ConfigNodeUtil.ParseValue<bool>(child, "landed", x => vessel.landed = x, factory, true);
+                        vessel.orbiting = false;
                     }
                     // Get orbit
                     else
                     {
                         valid &= ConfigNodeUtil.ParseValue<Orbit>(child, "ORBIT", x => vessel.orbit = x, factory);
+                        vessel.orbiting = true;
                     }
 
                     valid &= ConfigNodeUtil.ParseValue<float>(child, "heading", x => vessel.heading = x, factory, 0.0f);
@@ -286,7 +290,7 @@ namespace ContractConfigurator.Behaviour
                 }
 
                 // Set additional info for landed vessels
-                if (vesselData.landed)
+                if (!vesselData.orbiting)
                 {
                     if (vesselData.altitude == null)
                     {
@@ -360,13 +364,14 @@ namespace ContractConfigurator.Behaviour
                 ConfigNode protoVesselNode = ProtoVessel.CreateVesselNode(vesselData.name, vesselData.vesselType, vesselData.orbit, 0, partNodes, additionalNodes);
 
                 // Additional seetings for a landed vessel
-                if (vesselData.landed)
+                if (!vesselData.orbiting)
                 {
-                    bool splashed = vesselData.altitude.Value < 0.001;
+                    bool splashed = vesselData.landed && vesselData.altitude.Value < 0.001;
 
                     // Create the config node representation of the ProtoVessel
-                    protoVesselNode.SetValue("sit", (splashed ? Vessel.Situations.SPLASHED : Vessel.Situations.LANDED).ToString());
-                    protoVesselNode.SetValue("landed", (!splashed).ToString());
+                    protoVesselNode.SetValue("sit", (splashed ? Vessel.Situations.SPLASHED : vesselData.landed ?
+                        Vessel.Situations.LANDED : Vessel.Situations.FLYING).ToString());
+                    protoVesselNode.SetValue("landed", (vesselData.landed && !splashed).ToString());
                     protoVesselNode.SetValue("splashed", splashed.ToString());
                     protoVesselNode.SetValue("lat", vesselData.latitude.ToString());
                     protoVesselNode.SetValue("lon", vesselData.longitude.ToString());
