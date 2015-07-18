@@ -40,7 +40,6 @@ namespace ContractConfigurator.Behaviour
             public double latitude = 0.0;
             public double longitude = 0.0;
             public double? altitude = null;
-            public bool landed = false;
             public bool orbiting = false;
             public bool owned = false;
             public List<CrewData> crew = new List<CrewData>();
@@ -61,7 +60,6 @@ namespace ContractConfigurator.Behaviour
                 latitude = vd.latitude;
                 longitude = vd.longitude;
                 altitude = vd.altitude;
-                landed = vd.landed;
                 orbiting = vd.orbiting;
                 owned = vd.owned;
                 heading = vd.heading;
@@ -142,7 +140,6 @@ namespace ContractConfigurator.Behaviour
                         valid &= ConfigNodeUtil.ParseValue<double>(child, "lat", x => vessel.latitude = x, factory);
                         valid &= ConfigNodeUtil.ParseValue<double>(child, "lon", x => vessel.longitude = x, factory);
                         valid &= ConfigNodeUtil.ParseValue<double?>(child, "alt", x => vessel.altitude = x, factory, (double?)null);
-                        valid &= ConfigNodeUtil.ParseValue<bool>(child, "landed", x => vessel.landed = x, factory, true);
                         vessel.orbiting = false;
                     }
                     // Get orbit
@@ -290,10 +287,12 @@ namespace ContractConfigurator.Behaviour
                 }
 
                 // Set additional info for landed vessels
+                bool landed = false;
                 if (!vesselData.orbiting)
                 {
                     if (vesselData.altitude == null)
                     {
+                        landed = true;
                         vesselData.altitude = LocationUtil.TerrainHeight(vesselData.latitude, vesselData.longitude, vesselData.body);
                     }
 
@@ -366,12 +365,12 @@ namespace ContractConfigurator.Behaviour
                 // Additional seetings for a landed vessel
                 if (!vesselData.orbiting)
                 {
-                    bool splashed = vesselData.landed && vesselData.altitude.Value < 0.001;
+                    bool splashed = landed && vesselData.altitude.Value < 0.001;
 
                     // Create the config node representation of the ProtoVessel
-                    protoVesselNode.SetValue("sit", (splashed ? Vessel.Situations.SPLASHED : vesselData.landed ?
+                    protoVesselNode.SetValue("sit", (splashed ? Vessel.Situations.SPLASHED : landed ?
                         Vessel.Situations.LANDED : Vessel.Situations.FLYING).ToString());
-                    protoVesselNode.SetValue("landed", (vesselData.landed && !splashed).ToString());
+                    protoVesselNode.SetValue("landed", (landed && !splashed).ToString());
                     protoVesselNode.SetValue("splashed", splashed.ToString());
                     protoVesselNode.SetValue("lat", vesselData.latitude.ToString());
                     protoVesselNode.SetValue("lon", vesselData.longitude.ToString());
@@ -455,7 +454,7 @@ namespace ContractConfigurator.Behaviour
                 {
                     child.AddValue("alt", vd.altitude);
                 }
-                child.AddValue("landed", vd.landed);
+                child.AddValue("orbiting", vd.orbiting);
                 child.AddValue("owned", vd.owned);
 
                 if (vd.orbit != null)
@@ -502,7 +501,7 @@ namespace ContractConfigurator.Behaviour
                 vd.latitude = ConfigNodeUtil.ParseValue<double>(child, "lat");
                 vd.longitude = ConfigNodeUtil.ParseValue<double>(child, "lon");
                 vd.altitude = ConfigNodeUtil.ParseValue<double?>(child, "alt", (double?)null);
-                vd.landed = ConfigNodeUtil.ParseValue<bool>(child, "landed");
+                vd.orbiting = ConfigNodeUtil.ParseValue<bool?>(child, "orbiting", (bool?)child.HasNode("ORBIT")).Value;
                 vd.owned = ConfigNodeUtil.ParseValue<bool>(child, "owned");
 
                 if (child.HasNode("ORBIT"))
