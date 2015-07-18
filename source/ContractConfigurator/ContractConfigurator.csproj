@@ -103,6 +103,7 @@
     <Compile Include="ContractGroup.cs" />
     <Compile Include="ContractRequirement\CanResearchTechRequirement.cs" />
     <Compile Include="ParameterFactory\NewVesselFactory.cs" />
+    <Compile Include="ScenarioModules\ContractConfiguratorSettings.cs" />
     <Compile Include="ScenarioModules\ContractPreLoader.cs" />
     <Compile Include="ExpressionParser\BaseParser.cs" />
     <Compile Include="ExpressionParser\Parsers\Behaviours\BehaviourParser.cs" />
