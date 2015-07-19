@@ -1,5 +1,6 @@
 Contract Configurator 1.5.4
 - Added additional validation to WaypointGenerator.RANDOM_WAYPOINT_NEAR (thanks Xaegr).
+- Improved handling of flying vessels in VesselSpawner.
 
 Contract Configurator 1.5.3
 - Added UnlockPart behaviour.
