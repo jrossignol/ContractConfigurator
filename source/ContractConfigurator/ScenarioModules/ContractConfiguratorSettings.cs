@@ -17,7 +17,8 @@ namespace ContractConfigurator
         private ApplicationLauncherButton launcherButton = null;
         
         private Rect windowPos = new Rect(580f, 40f, 1f, 1f);
-        private bool showGUI = true;
+        private bool showGUI = false;
+        private static IEnumerable<ContractType> guiContracts;
 
         private static Texture2D closeIcon;
         private static Texture2D toolbarIcon;
@@ -88,17 +89,19 @@ namespace ContractConfigurator
                 {
                     stylesSetup = true;
                     windowStyle = new GUIStyle(GUI.skin.window);
-                    windowStyle..contentOffset = new Vector2(4, 4);
+                    windowStyle.normal.textColor = Color.white;
                 }
 
                 GUI.skin.window = windowStyle;
 
+                   var ainfoV = Attribute.GetCustomAttribute(typeof(ContractConfigurator).Assembly, typeof(AssemblyInformationalVersionAttribute)) as AssemblyInformationalVersionAttribute;
+
                 windowPos.xMin = Screen.width - 300 - 12;
                 windowPos = GUILayout.Window(
-                    typeof(ContractConfigurator).FullName.GetHashCode(),
+                    typeof(ContractConfiguratorSettings).FullName.GetHashCode(),
                     windowPos,
                     WindowGUI,
-                    "");
+                    "Contract Configurator " + ainfoV.InformationalVersion + " Settings");
             }
         }
 
@@ -106,8 +109,19 @@ namespace ContractConfigurator
         {
             GUILayout.BeginVertical(GUILayout.Width(300));
 
-            var ainfoV = Attribute.GetCustomAttribute(typeof(ContractConfigurator).Assembly, typeof(AssemblyInformationalVersionAttribute)) as AssemblyInformationalVersionAttribute;
-            GUILayout.Label("Contract Configurator " + ainfoV.InformationalVersion + " Settings", GUILayout.ExpandWidth(true));
+            if (Event.current.type == EventType.layout)
+            {
+                guiContracts = ContractType.AllContractTypes;
+            }
+            
+            foreach (ContractGroup contractGroup in ContractGroup.AllGroups.Where(g => g == null || g.parent == null))
+            {
+                if (guiContracts.Any(ct => contractGroup == null ? ct.group == null : contractGroup.BelongsToGroup(ct)))
+                {
+                    GUILayout.Label(contractGroup == null ? "No Group" : contractGroup.name);
+                }
+            }
+
             GUILayout.EndVertical();
         }
     }
