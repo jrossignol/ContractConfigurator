@@ -1,6 +1,7 @@
 Contract Configurator 1.5.4
 - Added additional validation to WaypointGenerator.RANDOM_WAYPOINT_NEAR (thanks Xaegr).
-- Improved handling of flying vessels in VesselSpawner.
+- Minor changes to VesselSpawner.
+- Fixed issue with VesselNotDestroyed firing for EVA Kerbals boarding a vessel (thanks Cooper42).
 
 Contract Configurator 1.5.3
 - Added UnlockPart behaviour.
