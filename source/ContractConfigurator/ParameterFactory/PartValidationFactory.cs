@@ -85,6 +85,16 @@ namespace ContractConfigurator
                 valid &= ConfigNodeUtil.ParseValue<PartCategories?>(child, "category", x => filter.category = x, this, (PartCategories?)null);
                 valid &= ConfigNodeUtil.ParseValue<string>(child, "manufacturer", x => filter.manufacturer = x, this, (string)null);
 
+                foreach (ConfigNode moduleNode in child.GetNodes("MODULE"))
+                {
+                    ConfigNode.ValueList tmp = new ConfigNode.ValueList();
+                    foreach (ConfigNode.Value v in moduleNode.values)
+                    {
+                        tmp.Add(new ConfigNode.Value(v.name, v.value));
+                    }
+                    filter.partModuleExtended.Add(tmp);
+                }
+
                 if (matchType == ParameterDelegateMatchType.VALIDATE)
                 {
                     valid &= ConfigNodeUtil.ParseValue<int>(child, "minCount", x => filter.minCount = x, this, 1, x => Validation.GE(x, 0));

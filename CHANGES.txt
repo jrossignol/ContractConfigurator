@@ -1,4 +1,5 @@
 Contract Configurator 1.5.4
+- Added new extended PartModule mode to PartValidation parameter (thanks NathanKell).
 - Added additional validation to WaypointGenerator.RANDOM_WAYPOINT_NEAR (thanks Xaegr).
 - Minor changes to VesselSpawner.
 - Fixed issue with VesselNotDestroyed firing for EVA Kerbals boarding a vessel (thanks Cooper42).
