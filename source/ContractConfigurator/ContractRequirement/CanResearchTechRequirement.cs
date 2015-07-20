@@ -15,6 +15,8 @@ namespace ContractConfigurator
     {
         protected List<string> techs;
 
+        private static ConfigNode techTree = null;
+
         public override bool Load(ConfigNode configNode)
         {
             // Load base class
@@ -43,17 +45,50 @@ namespace ContractConfigurator
 
         public override bool RequirementMet(ConfiguredContract contract)
         {
+            // Cache the tech tree
+            if (techTree == null)
+            {
+                ConfigNode techTreeRoot = ConfigNode.Load(HighLogic.CurrentGame.Parameters.Career.TechTreeUrl);
+                if (techTreeRoot != null)
+                {
+                    techTree = techTreeRoot.GetNode("TechTree");
+                }
+
+                if (techTreeRoot == null || techTree == null)
+                {
+                    LoggingUtil.LogError(this, "Couldn't load tech tree from " + HighLogic.CurrentGame.Parameters.Career.TechTreeUrl);
+                    return false;
+                }
+            }
+
             foreach (string tech in techs)
             {
-                RDNode node = RDController.Instance.nodes.Where(rdn => rdn.tech.techID == tech).First();
+                ConfigNode techNode = techTree.GetNodes("RDNode").Where(n => n.GetValue("id") == tech).FirstOrDefault();
 
-                if (!node.IsResearched &&
-                    !(node.AnyParentToUnlock && node.parents.Any(p => p.parent.node.IsResearched)) &&
-                    !(!node.AnyParentToUnlock && node.parents.All(p => p.parent.node.IsResearched)))
+                if (techNode == null)
+                {
+                    LoggingUtil.LogWarning(this, "No tech node found with id '" + tech + "'");
+                    return false;
+                }
+
+                // Get the state of the parents, as well as the anyToUnlock flag
+                bool anyToUnlock = ConfigNodeUtil.ParseValue<bool>(techNode, "anyToUnlock");
+                IEnumerable<bool> parentsUnlocked = techNode.GetNodes("Parent").
+                    Select(n => ResearchAndDevelopment.Instance.GetTechState(n.GetValue("parentID"))).
+                    Select(p => p != null && p.state == RDTech.State.Available);
+
+                // Check if the parents have met the unlock criteria
+                if (anyToUnlock && parentsUnlocked.Any(unlocked => unlocked) ||
+                    !anyToUnlock && parentsUnlocked.All(unlocked => unlocked))
+                {
+                    continue;
+                }
+                else
                 {
                     return false;
                 }
             }
+
             return true;
         }
     }
