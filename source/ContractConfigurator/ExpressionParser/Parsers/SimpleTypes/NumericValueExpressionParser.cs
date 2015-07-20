@@ -209,12 +209,20 @@ namespace ContractConfigurator.ExpressionParser
 
         private static T Pow(T a, T b)
         {
-            return (T)(object)Math.Pow((double)(object)a, (double)(object)b);
+            double da = (double)Convert.ChangeType(a, typeof(double));
+            double db = (double)Convert.ChangeType(b, typeof(double));
+
+            double val = Math.Pow(da, db);
+            return (T)Convert.ChangeType(val, typeof(T));
         }
 
         private static T Log(T a, T b)
         {
-            return (T)(object)Math.Log((double)(object)a, (double)(object)b);
+            double da = (double)Convert.ChangeType(a, typeof(double));
+            double db = (double)Convert.ChangeType(b, typeof(double));
+
+            double val = Math.Log(da, db);
+            return (T)Convert.ChangeType(val, typeof(T));
         }
 
         public NumericValueExpressionParser()

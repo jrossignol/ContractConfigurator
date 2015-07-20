@@ -33,7 +33,12 @@ namespace ContractConfigurator.ExpressionParser
             RegisterMethod(new Method<AvailablePart, bool>("IsUnlocked", p => p == null ? false : ResearchAndDevelopment.PartTechAvailable(p), false));
             RegisterMethod(new Method<AvailablePart, int>("CrewCapacity", p => p == null ? 0 : p.partPrefab.CrewCapacity));
 
-            RegisterGlobalFunction(new Function<List<AvailablePart>>("AllParts", () => PartLoader.Instance.parts));
+            RegisterMethod(new Method<AvailablePart, float>("EngineAtmosphereThrust", GetEngineAtmoThrust));
+            RegisterMethod(new Method<AvailablePart, float>("EngineVacuumThrust", GetEngineVacThrust));
+            RegisterMethod(new Method<AvailablePart, float>("EngineAtmosphereISP", GetEngineAtmoISP));
+            RegisterMethod(new Method<AvailablePart, float>("EngineVacuumISP", GetEngineVacISP));
+
+            RegisterGlobalFunction(new Function<List<AvailablePart>>("AllParts", () => PartLoader.Instance.parts.ToList()));
             RegisterGlobalFunction(new Function<AvailablePart, AvailablePart>("AvailablePart", p => p));
         }
 
@@ -56,6 +61,82 @@ namespace ContractConfigurator.ExpressionParser
             Token t = new Token(TokenType.IDENTIFIER);
             t.sval = "";
             return t;
+        }
+
+        private static float GetEngineVacThrust(AvailablePart p)
+        {
+            if (p == null)
+            {
+                return 0.0f;
+            }
+
+            foreach (PartModule pm in p.partPrefab.Modules)
+            {
+                if (pm.moduleName.StartsWith("ModuleEngines"))
+                {
+                    ModuleEngines enginePM = pm as ModuleEngines;
+                    return enginePM.maxThrust;
+                }
+            }
+
+            return 0.0f;
+        }
+
+        private static float GetEngineAtmoThrust(AvailablePart p)
+        {
+            if (p == null)
+            {
+                return 0.0f;
+            }
+
+            foreach (PartModule pm in p.partPrefab.Modules)
+            {
+                if (pm.moduleName.StartsWith("ModuleEngines"))
+                {
+                    ModuleEngines enginePM = pm as ModuleEngines;
+                    return enginePM.maxThrust * enginePM.atmosphereCurve.Evaluate(1) / enginePM.atmosphereCurve.Evaluate(0);
+                }
+            }
+
+            return 0.0f;
+        }
+
+        private static float GetEngineVacISP(AvailablePart p)
+        {
+            if (p == null)
+            {
+                return 0.0f;
+            }
+
+            foreach (PartModule pm in p.partPrefab.Modules)
+            {
+                if (pm.moduleName.StartsWith("ModuleEngines"))
+                {
+                    ModuleEngines enginePM = pm as ModuleEngines;
+                    return enginePM.atmosphereCurve.Evaluate(0);
+                }
+            }
+
+            return 0.0f;
+        }
+
+        private static float GetEngineAtmoISP(AvailablePart p)
+        {
+            if (p == null)
+            {
+                return 0.0f;
+            }
+
+            foreach (PartModule pm in p.partPrefab.Modules)
+            {
+                if (pm.moduleName.StartsWith("ModuleEngines"))
+                {
+                    ModuleEngines enginePM = pm as ModuleEngines;
+                    return enginePM.atmosphereCurve.Evaluate(1);
+                }
+            }
+
+            return 0.0f;
         }
 
         internal override AvailablePart ParseIdentifier(Token token)

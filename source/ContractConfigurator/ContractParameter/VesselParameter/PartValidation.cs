@@ -20,6 +20,7 @@ namespace ContractConfigurator.Parameters
             public ParameterDelegateMatchType type = ParameterDelegateMatchType.FILTER;
             public List<AvailablePart> parts = new List<AvailablePart>();
             public List<string> partModules = new List<string>();
+            public List<ConfigNode.ValueList> partModuleExtended = new List<ConfigNode.ValueList>();
             public PartCategories? category = null;
             public string manufacturer = null;
             public int minCount = 1;
@@ -77,32 +78,58 @@ namespace ContractConfigurator.Parameters
                         AddParameter(new CountParameterDelegate<Part>(filter.minCount, filter.maxCount, p => p.partInfo.name == part.name,
                             part.title));
                     }
-                }
-                else if (filter.parts.Any())
-                {
-                    AddParameter(new ParameterDelegate<Part>(filter.type.Prefix() + "type: " +
-                        filter.parts.Select(p => p.title).Aggregate((sum, s) => sum + " or " + s),
-                        p => filter.parts.Any(pp => p.partInfo.name == pp.name), filter.type));
-                }
 
-                // Filter by part modules
-                foreach (string partModule in filter.partModules)
-                {
-                    AddParameter(new ParameterDelegate<Part>(filter.type.Prefix() + "module: " + ModuleName(partModule), p => PartHasModule(p, partModule), filter.type));
+                    // Filter by part modules
+                    foreach (string partModule in filter.partModules)
+                    {
+                        AddParameter(new CountParameterDelegate<Part>(filter.minCount, filter.maxCount, p => PartHasModule(p, partModule),
+                            "with module: " + ModuleName(partModule)));
+                    }
                 }
-
-                // Filter by category
-                if (filter.category != null)
+                else
                 {
-                    AddParameter(new ParameterDelegate<Part>(filter.type.Prefix() + "category: " + filter.category,
-                        p => p.partInfo.category == filter.category.Value, filter.type));
-                }
+                    // Filter by part
+                    if (filter.parts.Any())
+                    {
+                        AddParameter(new ParameterDelegate<Part>(filter.type.Prefix() + "type: " +
+                            filter.parts.Select(p => p.title).Aggregate((sum, s) => sum + " or " + s),
+                            p => filter.parts.Any(pp => p.partInfo.name == pp.name), filter.type));
+                    }
 
-                // Filter by manufacturer
-                if (filter.manufacturer != null)
-                {
-                    AddParameter(new ParameterDelegate<Part>(filter.type.Prefix() + "manufacturer: " + filter.manufacturer,
-                        p => p.partInfo.manufacturer == filter.manufacturer, filter.type));
+                    // Filter by part modules
+                    foreach (string partModule in filter.partModules)
+                    {
+                        AddParameter(new ParameterDelegate<Part>(filter.type.Prefix() + "module: " + ModuleName(partModule), p => PartHasModule(p, partModule), filter.type));
+                    }
+
+                    // Filter by part modules - extended mode
+                    foreach (ConfigNode.ValueList list in filter.partModuleExtended)
+                    {
+                        ContractParameter wrapperParam = AddParameter(new AllParameterDelegate<Part>(filter.type.Prefix() + "module", filter.type));
+
+                        foreach (ConfigNode.Value v in list)
+                        {
+                            string name = Regex.Replace(v.name, @"([A-Z]+?(?=[A-Z][^A-Z])|\B[A-Z]+?(?=[^A-Z]))", " $1");
+                            name = name.Substring(0, 1).ToUpper() + name.Substring(1);
+                            string value = v.name == "name" ? ModuleName(v.value) : v.value;
+
+                            wrapperParam.AddParameter(new ParameterDelegate<Part>(filter.type.Prefix() + name + ": " + value, p => PartModuleCheck(p, v), filter.type));
+                        }
+                    }
+
+                    // Filter by category
+                    if (filter.category != null)
+                    {
+                        AddParameter(new ParameterDelegate<Part>(filter.type.Prefix() + "category: " + filter.category,
+                            p => p.partInfo.category == filter.category.Value, filter.type));
+                    }
+
+                    // Filter by manufacturer
+                    if (filter.manufacturer != null)
+                    {
+                        AddParameter(new ParameterDelegate<Part>(filter.type.Prefix() + "manufacturer: " + filter.manufacturer,
+                            p => p.partInfo.manufacturer == filter.manufacturer, filter.type));
+                    }
                 }
             }
 
@@ -137,6 +164,29 @@ namespace ContractConfigurator.Parameters
                 if (pm.moduleName == partModule)
                 {
                     return true;
+                }
+            }
+            return false;
+        }
+
+        private bool PartModuleCheck(Part p, ConfigNode.Value v)
+        {
+            foreach (PartModule pm in p.Modules)
+            {
+                if (v.name == "name")
+                {
+                    if (pm.moduleName == v.value)
+                    {
+                        return true;
+                    }
+                }
+
+                foreach (BaseField field in pm.Fields)
+                {
+                    if (field.name == v.name && field.originalValue.ToString() == v.value)
+                    {
+                        return true;
+                    }
                 }
             }
             return false;
@@ -178,6 +228,16 @@ namespace ContractConfigurator.Parameters
                 {
                     child.AddValue("partModule", partModule);
                 }
+                foreach (ConfigNode.ValueList list in filter.partModuleExtended)
+                {
+                    ConfigNode moduleNode = new ConfigNode("MODULE");
+                    child.AddNode(moduleNode);
+
+                    foreach (ConfigNode.Value v in list)
+                    {
+                        moduleNode.AddValue(v.name, v.value);
+                    }
+                }
                 if (filter.category != null)
                 {
                     child.AddValue("category", filter.category);
@@ -215,6 +275,16 @@ namespace ContractConfigurator.Parameters
                 filter.manufacturer = ConfigNodeUtil.ParseValue<string>(child, "manufacturer", (string)null);
                 filter.minCount = ConfigNodeUtil.ParseValue<int>(child, "minCount", 1);
                 filter.maxCount = ConfigNodeUtil.ParseValue<int>(child, "maxCount", int.MaxValue);
+
+                foreach (ConfigNode moduleNode in child.GetNodes("MODULE"))
+                {
+                    ConfigNode.ValueList tmp = new ConfigNode.ValueList();
+                    foreach (ConfigNode.Value v in moduleNode.values)
+                    {
+                        tmp.Add(new ConfigNode.Value(v.name, v.value));
+                    }
+                    filter.partModuleExtended.Add(tmp);
+                }
 
                 filters.Add(filter);
             }

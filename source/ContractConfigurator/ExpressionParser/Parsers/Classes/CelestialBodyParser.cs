@@ -44,7 +44,7 @@ namespace ContractConfigurator.ExpressionParser
             RegisterMethod(new Method<CelestialBody, double>("SemiMajorAxis", cb => cb != null && cb.orbit != null ? cb.orbit.semiMajorAxis : 0.0));
 
             RegisterMethod(new Method<CelestialBody, CelestialBody>("Parent", cb => cb != null ? cb.referenceBody : null));
-            RegisterMethod(new Method<CelestialBody, List<CelestialBody>>("Children", cb => cb != null ? cb.orbitingBodies : new List<CelestialBody>()));
+            RegisterMethod(new Method<CelestialBody, List<CelestialBody>>("Children", cb => cb != null ? cb.orbitingBodies.ToList() : new List<CelestialBody>()));
 
             RegisterMethod(new Method<CelestialBody, List<Biome>>("Biomes", cb => cb != null && cb.BiomeMap != null ?
                 cb.BiomeMap.Attributes.Select(att => new Biome(cb, att.name)).ToList() : new List<Biome>()));
@@ -54,7 +54,7 @@ namespace ContractConfigurator.ExpressionParser
             RegisterMethod(new Method<CelestialBody, double>("RemoteTechCoverage", cb => cb != null ? RemoteTechCoverage(cb) : 0.0d));
 
             RegisterGlobalFunction(new Function<CelestialBody>("HomeWorld", () => FlightGlobals.Bodies.Where(cb => cb.isHomeWorld).First()));
-            RegisterGlobalFunction(new Function<List<CelestialBody>>("AllBodies", () => FlightGlobals.Bodies));
+            RegisterGlobalFunction(new Function<List<CelestialBody>>("AllBodies", () => FlightGlobals.Bodies.ToList()));
             RegisterGlobalFunction(new Function<List<CelestialBody>>("OrbitedBodies", () => ProgressTracking.Instance == null ?
                 new List<CelestialBody>() :
                 ProgressTracking.Instance.celestialBodyNodes.Where(subtree => subtree.orbit.IsReached).
