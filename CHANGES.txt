@@ -5,6 +5,7 @@ Contract Configurator 1.5.4
 - Fixed issue with VesselNotDestroyed firing for EVA Kerbals boarding a vessel (thanks Cooper42).
 - Fixed Pow() and Log() expression functions to work correctly with types other than double (thanks NathanKell).
 - Fixed major issues with CanResearchTech requirement (thanks NathanKell).
+- Fixed holes where expressions could modify underlying KSP lists (thanks Whyren).
 
 Contract Configurator 1.5.3
 - Added UnlockPart behaviour.
