@@ -1,3 +1,6 @@
+Contract Configurator 1.5.5
+- Made contract deadline independent of targetBody multiplier (thanks NathanKell).
+
 Contract Configurator 1.5.4
 - Added new extended PartModule mode to PartValidation parameter.
 - Added new methods for determining engine thurst and ISP in expressions.
