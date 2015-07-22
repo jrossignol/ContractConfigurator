@@ -71,6 +71,7 @@ namespace ContractConfigurator
         private static GUIStyle regularText;
         private static GUIStyle disabledText;
         private static GUIStyle toggleStyle;
+        private static GUIStyle expandButtonStyle;
         private GUIStyle tipStyle;
 
         private void SetupStyles()
@@ -85,6 +86,9 @@ namespace ContractConfigurator
             disabledText.normal.textColor = Color.grey;
 
             toggleStyle = new GUIStyle(GUI.skin.toggle);
+
+            expandButtonStyle = new GUIStyle(GUI.skin.button);
+            expandButtonStyle.padding = new RectOffset(-2, 0, 4, 0);
 
             // Tooltips
             tipStyle = new GUIStyle(GUI.skin.box);
@@ -152,13 +156,6 @@ namespace ContractConfigurator
                     WindowGUI,
                     "Contract Configurator " + ainfoV.InformationalVersion + " Settings");
 
-                if (Event.current.type == EventType.Repaint && GUI.tooltip != toolTip)
-                {
-                    toolTipTime = Time.fixedTime;
-                    toolTip = GUI.tooltip;
-                    Debug.Log("set tool tip: " + toolTip);
-                }
-
                 GUI.depth = 0;
                 DrawToolTip();
             }
@@ -182,9 +179,16 @@ namespace ContractConfigurator
             }
 
             GUILayout.EndVertical();
+
+            if (Event.current.type == EventType.Repaint && GUI.tooltip != toolTip)
+            {
+                toolTipTime = Time.fixedTime;
+                toolTip = GUI.tooltip;
+                Debug.Log("tooltip set to " + toolTip);
+            }
         }
 
-        private void ContractGroupLine(ContractGroup contractGroup)
+        private void ContractGroupLine(ContractGroup contractGroup, int indent = 0)
         {
             if (!contractGroupDetails.ContainsKey(contractGroup))
             {
@@ -193,13 +197,33 @@ namespace ContractConfigurator
             ContractGroupDetails details = contractGroupDetails[contractGroup];
 
             GUILayout.BeginHorizontal();
-            if (GUILayout.Button(details.expanded ? "-" : "+", GUILayout.Width(20), GUILayout.Height(20)))
+
+            if (indent != 0)
+            {
+                GUILayout.Label("", GUILayout.ExpandWidth(false), GUILayout.Width(indent * 16));
+            }
+
+            if (GUILayout.Button(details.expanded ? "-" : "+", expandButtonStyle, GUILayout.Width(20), GUILayout.Height(20)))
             {
                 details.expanded = !details.expanded;
             }
-            GUILayout.Label(contractGroup == null ? "No Group" : contractGroup.name, details.enabled ? regularText : disabledText, GUILayout.ExpandWidth(true));
-            details.enabled = GUILayout.Toggle(details.enabled, "", toggleStyle, GUILayout.ExpandWidth(false));
+            string groupName = contractGroup == null ? "No Group" : contractGroup.name;
+            GUILayout.Label(groupName, details.enabled ? regularText : disabledText, GUILayout.ExpandWidth(true));
+            if (contractGroup != null && contractGroup.parent == null)
+            {
+                details.enabled = GUILayout.Toggle(details.enabled,
+                    new GUIContent("", "Click to " + (details.enabled ? "disable " : "enable ") + contractGroup.name + " contracts."),
+                    toggleStyle, GUILayout.ExpandWidth(false));
+            }
             GUILayout.EndHorizontal();
+
+            if (details.expanded)
+            {
+                foreach (ContractGroup childGroup in ContractGroup.AllGroups.Where(g => g != null && g.parent == contractGroup).OrderBy(g => g.name))
+                {
+                    ContractGroupLine(childGroup, indent+1);
+                }
+            }
         }
 
         /// <summary>
@@ -209,11 +233,11 @@ namespace ContractConfigurator
         {
             if (!string.IsNullOrEmpty(toolTip))
             {
-                if (Time.fixedTime > toolTipTime + 0.5)
+                if (Time.fixedTime > toolTipTime + 0.25)
                 {
                     GUIContent tip = new GUIContent(toolTip);
 
-                    Vector2 textDimensions = GUI.skin.box.CalcSize(tip);
+                    Vector2 textDimensions = tipStyle.CalcSize(tip);
                     if (textDimensions.x > 240)
                     {
                         textDimensions.x = 240;
@@ -258,5 +282,14 @@ namespace ContractConfigurator
         }
 
         #endregion
+
+        public static bool IsEnabled(ContractGroup group)
+        {
+            if (Instance != null && Instance.contractGroupDetails.ContainsKey(group))
+            {
+                return Instance.contractGroupDetails[group].enabled;
+            }
+            return true;
+        }
     }
 }

@@ -534,6 +534,12 @@ namespace ContractConfigurator
         {
             if (group != null)
             {
+                // Check the group is enabled
+                if (!ContractConfiguratorSettings.IsEnabled(group))
+                {
+                    throw new ContractRequirementException("Contract group " + group.name + " is not enabled.");
+                }
+
                 // Check the group active limit
                 int activeContracts = ContractSystem.Instance.GetCurrentContracts<ConfiguredContract>().Count(c => c.contractType != null && group.BelongsToGroup(c.contractType));
                 if (contract.ContractState == Contract.State.Offered || contract.ContractState == Contract.State.Active)
