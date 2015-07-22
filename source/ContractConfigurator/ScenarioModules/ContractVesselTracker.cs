@@ -229,6 +229,10 @@ namespace ContractConfigurator
                         // If the vessel is loaded, refresh the protovessel.  We do this to support
                         // grappling - when a new vessel is grappled the protovessel information
                         // doesn't get properly updated.
+                        //
+                        // Win64 - This trips a bad bug in 64-bit Unity, so don't do the check under
+                        // that version at the cost of slightly incorrect functionality with the
+                        // claw.
                         if (v.loaded && !Util.Version.IsWin64())
                         {
                             v.protoVessel = new ProtoVessel(v);

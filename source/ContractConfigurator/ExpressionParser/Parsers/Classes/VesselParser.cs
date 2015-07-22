@@ -52,7 +52,7 @@ namespace ContractConfigurator.ExpressionParser
             RegisterMethod(new Method<Vessel, double>("LargestDimension", GetLargestDimension, false));
             RegisterMethod(new Method<Vessel, Location>("Location", v => v == null ? null : new Location(v.mainBody, v.latitude, v.longitude), false));
 
-            RegisterGlobalFunction(new Function<List<Vessel>>("AllVessels", () => FlightGlobals.Vessels, false));
+            RegisterGlobalFunction(new Function<List<Vessel>>("AllVessels", () => FlightGlobals.Vessels.ToList(), false));
             RegisterGlobalFunction(new Function<Vessel, Vessel>("Vessel", v => v));
         }
 

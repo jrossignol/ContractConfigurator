@@ -202,8 +202,21 @@ namespace ContractConfigurator.Parameters
         public static bool CheckChildConditions(ContractParameter param, IEnumerable<T> values, bool checkOnly = false)
         {
             bool conditionMet = true;
+            CheckChildConditions(param, values, ref conditionMet, checkOnly);
+            return conditionMet;
+        }
+
+        /// <summary>
+        /// Checks the child conditions for each child parameter delegate in the given parent.
+        /// </summary>
+        /// <param name="param">The contract parameter that we are called from.</param>
+        /// <param name="values">The values to enumerator over.</param>
+        /// <param name="checkOnly">Only perform a check, don't change values.</param>
+        /// <returns></returns>
+        protected static IEnumerable<T> CheckChildConditions(ContractParameter param, IEnumerable<T> values, ref bool conditionMet, bool checkOnly = false)
+        {
             int count = values.Count();
-            foreach (ContractParameter child in param.AllParameters)
+            foreach (ContractParameter child in param.GetChildren())
             {
                 if (child is ParameterDelegate<T>)
                 {
@@ -233,7 +246,7 @@ namespace ContractConfigurator.Parameters
                 }
             }
 
-            return conditionMet;
+            return values;
         }
 
         /// <summary>
@@ -261,12 +274,12 @@ namespace ContractConfigurator.Parameters
         /// Gets the text of all the child delegates in one big string.  Useful for printing out
         /// the full details for completed parameters.
         /// </summary>
-        /// <param name="param">Th parent parameters.</param>
+        /// <param name="param">The parent parameters.</param>
         /// <returns>The full delegate string</returns>
         public static string GetDelegateText(ContractParameter param)
         {
             string output = "";
-            foreach (ContractParameter child in param.AllParameters)
+            foreach (ContractParameter child in param.GetChildren())
             {
                 if (child is ParameterDelegate<T> && !((ParameterDelegate<T>)child).trivial)
                 {
@@ -275,11 +288,42 @@ namespace ContractConfigurator.Parameters
                         output += "; ";
                     }
                     output += ((ParameterDelegate<T>)child).title;
+
+                    if (child is AllParameterDelegate<T>)
+                    {
+                        output += ": " + GetDelegateText(child);
+                    }
                 }
             }
             return output;
         }
     }
+    
+    /// <summary>
+    /// Special ParameterDelegate class that looks for child parameters.
+    /// </summary>
+    /// <typeparam name="T">The type that will be enumerated over, ignored.</typeparam>
+    public class AllParameterDelegate<T> : ParameterDelegate<T>
+    {
+        public AllParameterDelegate()
+            : base(null, null, false)
+        {
+        }
+
+        public AllParameterDelegate(string title, ParameterDelegateMatchType matchType = ParameterDelegateMatchType.FILTER)
+            : base(title, null, matchType)
+        {
+            filterFunc = (t => this.AllChildParametersComplete());
+        }
+
+        protected override IEnumerable<T> SetState(IEnumerable<T> values, ref bool conditionMet, bool checkOnly = false)
+        {
+            IEnumerable<T> newValues = ParameterDelegate<T>.CheckChildConditions(this, values, ref conditionMet, checkOnly);
+            base.SetState(values, ref conditionMet, checkOnly);
+            return newValues;
+        }
+    }
+
 
     /// <summary>
     /// Special ParameterDelegate class that counts the number of matches.

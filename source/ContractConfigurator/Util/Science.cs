@@ -24,6 +24,7 @@ namespace ContractConfigurator.Util
             public bool requireNoSurface;
             public bool disallowHomeSurface;
             public bool disallowHomeFlying;
+            public bool partless;
             public List<CelestialBody> validBodies;
             public string partModule;
             public List<string> part;
@@ -40,6 +41,7 @@ namespace ContractConfigurator.Util
         private bool loaded = false;
 
         private static Dictionary<string, List<AvailablePart>> experimentParts = null;
+        private static Dictionary<string, bool> partlessExperiments = new Dictionary<string, bool>();
         private static IEnumerable<ExperimentSituations> allSituations = Enum.GetValues(typeof(ExperimentSituations)).OfType<ExperimentSituations>();
 
         void Start()
@@ -82,6 +84,7 @@ namespace ContractConfigurator.Util
                     exp.requireNoSurface = ConfigNodeUtil.ParseValue<bool?>(config, "requireNoSurface", (bool?)false).Value;
                     exp.disallowHomeSurface = ConfigNodeUtil.ParseValue<bool?>(config, "disallowHomeSurface", (bool?)false).Value;
                     exp.disallowHomeFlying = ConfigNodeUtil.ParseValue<bool?>(config, "disallowHomeFlying", (bool?)false).Value;
+                    exp.partless = ConfigNodeUtil.ParseValue<bool?>(config, "partless", (bool?)false).Value;
                     exp.part = ConfigNodeUtil.ParseValue<List<string>>(config, "part", null);
                     exp.partModule = ConfigNodeUtil.ParseValue<string>(config, "partModule", null);
                     exp.validBodies = ConfigNodeUtil.ParseValue<List<CelestialBody>>(config, "validBody", null);
@@ -467,10 +470,17 @@ namespace ContractConfigurator.Util
                         }
                     }
                 }
+
+                // List out the partless experiments
+                foreach (ScienceExperiment exp in experiments.Where(exp => GetExperimentRules(exp.id).partless))
+                {
+                    partlessExperiments[exp.id] = true;
+                }
             }
 
             // Filter out anything tied to a part that isn't unlocked
-            experiments = experiments.Where(exp => !experimentParts.ContainsKey(exp.id) || experimentParts[exp.id].Any(ResearchAndDevelopment.PartTechAvailable));
+            experiments = experiments.Where(exp => partlessExperiments.ContainsKey(exp.id) ||
+                experimentParts.ContainsKey(exp.id) && experimentParts[exp.id].Any(ResearchAndDevelopment.PartTechAvailable));
 
             return experiments;
         }

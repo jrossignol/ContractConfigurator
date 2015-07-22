@@ -16,6 +16,8 @@ namespace ContractConfigurator.Parameters
     {
         protected List<string> vessels { get; set; }
 
+        private float lastVesselChange = 0.0f;
+
         public VesselNotDestroyed()
             : base(null)
         {
@@ -104,9 +106,23 @@ namespace ContractConfigurator.Parameters
             GameEvents.onVesselWillDestroy.Remove(new EventData<Vessel>.OnEvent(OnVesselWillDestroy));
         }
 
+        protected override void OnVesselChange(Vessel vessel)
+        {
+            base.OnVesselChange(vessel);
+
+            lastVesselChange = Time.fixedTime;
+        }
+
         protected virtual void OnVesselWillDestroy(Vessel v)
         {
             LoggingUtil.LogVerbose(this, "OnVesselWillDestroy: " + v.id);
+
+            // Give a quarter second grace for detecting a "destroyed" EVA that is actually just a boarding event
+            if (v.vesselType == VesselType.EVA && Time.fixedTime - lastVesselChange < 0.25)
+            {
+                return;
+            }
+
             IEnumerable<string> vesselIterator;
             if (vessels.Count != 0)
             {

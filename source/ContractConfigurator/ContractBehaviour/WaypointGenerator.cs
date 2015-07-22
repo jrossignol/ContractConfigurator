@@ -283,7 +283,8 @@ namespace ContractConfigurator.Behaviour
                         valid &= ConfigNodeUtil.ParseValue<bool>(child, "waterAllowed", x => wpData.waterAllowed = x, factory, true);
 
                         // Get near waypoint details
-                        valid &= ConfigNodeUtil.ParseValue<int>(child, "nearIndex", x => wpData.nearIndex = x, factory, x => Validation.GE(x, 0));
+                        valid &= ConfigNodeUtil.ParseValue<int>(child, "nearIndex", x => wpData.nearIndex = x, factory,
+                            x => Validation.GE(x, 0) && Validation.LT(x, wpGenerator.waypoints.Count));
                         valid &= ConfigNodeUtil.ParseValue<int>(child, "count", x => wpData.count = x, factory, 1, x => Validation.GE(x, 1));
 
                         // Get distances
