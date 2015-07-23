@@ -24,12 +24,32 @@ namespace ContractConfigurator.ExpressionParser
 
         internal new static void RegisterMethods()
         {
+            RegisterMethod(new Method<Contract.ContractPrestige, double>("Multiplier", p => GameVariables.Instance.GetContractPrestigeFactor(p)));
+
             RegisterGlobalFunction(new Function<Contract.ContractPrestige>("Prestige", () =>
                 ConfiguredContract.currentContract != null ? ConfiguredContract.currentContract.Prestige : Contract.ContractPrestige.Trivial, false));
+            RegisterGlobalFunction(new Function<double>("ContractMultiplier", ContractMultiplier, false));
         }
 
         public PrestigeParser()
         {
+        }
+
+        public static double ContractMultiplier()
+        {
+            double multiplier = 1.0;
+            if (ConfiguredContract.currentContract != null)
+            {
+                multiplier *= GameVariables.Instance.GetContractPrestigeFactor(ConfiguredContract.currentContract.Prestige);
+
+                if (ConfiguredContract.currentContract.contractType != null &&
+                    ConfiguredContract.currentContract.contractType.targetBody!= null)
+                {
+                    multiplier *= GameVariables.Instance.GetContractDestinationWeight(ConfiguredContract.currentContract.contractType.targetBody);
+                }
+            }
+
+            return multiplier;
         }
     }
 }

@@ -1,5 +1,6 @@
 Contract Configurator 1.5.5
 - New MissionTimer parameter for displaying a count-up timer (use it for challenges!).
+- New functions/methods related to contract multipliers - ContractMultiplier(), CelestialBody.Multiplier() ContractPrestige.Multiplier().
 - Made contract deadline independent of targetBody multiplier (thanks NathanKell).
 
 Contract Configurator 1.5.4
