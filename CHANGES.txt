@@ -1,3 +1,6 @@
+Contract Configurator 1.5.5
+- New MissionTimer parameter for displaying a count-up timer (use it for challenges!).
+
 Contract Configurator 1.5.4
 - Added new extended PartModule mode to PartValidation parameter.
 - Added new methods for determining engine thurst and ISP in expressions.

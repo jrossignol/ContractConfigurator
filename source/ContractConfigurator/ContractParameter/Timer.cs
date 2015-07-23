@@ -94,6 +94,7 @@ namespace ContractConfigurator.Parameters
             GameEvents.Contract.onAccepted.Add(new EventData<Contract>.OnEvent(OnContractAccepted));
             GameEvents.onLaunch.Add(new EventData<EventReport>.OnEvent(OnLaunch));
             GameEvents.Contract.onParameterChange.Add(new EventData<Contract, ContractParameter>.OnEvent(OnParameterChange));
+            GameEvents.Contract.onParameterChange.Add(new EventData<Contract, ContractParameter>.OnEvent(OnParameterChange));
         }
 
         protected override void OnUnregister()
@@ -101,6 +102,7 @@ namespace ContractConfigurator.Parameters
             base.OnUnregister();
             GameEvents.Contract.onAccepted.Remove(new EventData<Contract>.OnEvent(OnContractAccepted));
             GameEvents.onLaunch.Remove(new EventData<EventReport>.OnEvent(OnLaunch));
+            GameEvents.Contract.onParameterChange.Remove(new EventData<Contract, ContractParameter>.OnEvent(OnParameterChange));
             GameEvents.Contract.onParameterChange.Remove(new EventData<Contract, ContractParameter>.OnEvent(OnParameterChange));
         }
 
