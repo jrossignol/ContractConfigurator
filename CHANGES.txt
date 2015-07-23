@@ -1,5 +1,6 @@
 Contract Configurator 1.5.5
 - New MissionTimer parameter for displaying a count-up timer (use it for challenges!).
+- Made contract deadline independent of targetBody multiplier (thanks NathanKell).
 
 Contract Configurator 1.5.4
 - Added new extended PartModule mode to PartValidation parameter.

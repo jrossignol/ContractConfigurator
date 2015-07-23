@@ -28,8 +28,8 @@ namespace ContractConfigurator
 
         public static System.Random random = new System.Random();
 
-		public static string contractTypeName(Contract c)
-		{
+        public static string contractTypeName(Contract c)
+        {
             if (c == null || c.GetType() != typeof(ConfiguredContract))
             {
                 return "";
@@ -37,7 +37,7 @@ namespace ContractConfigurator
 
             ConfiguredContract cc = (ConfiguredContract)c;
             return cc.contractType != null ? cc.contractType.name : "";
-		}
+        }
 
         protected string title;
         protected string description;
@@ -94,7 +94,7 @@ namespace ContractConfigurator
                 }
                 else
                 {
-                    SetDeadlineDays(contractType.deadline, contractType.targetBody);
+                    SetDeadlineDays(contractType.deadline, null);
                 }
 
                 // Set rewards
