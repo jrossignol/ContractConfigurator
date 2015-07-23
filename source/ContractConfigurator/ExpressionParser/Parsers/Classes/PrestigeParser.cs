@@ -29,6 +29,8 @@ namespace ContractConfigurator.ExpressionParser
             RegisterGlobalFunction(new Function<Contract.ContractPrestige>("Prestige", () =>
                 ConfiguredContract.currentContract != null ? ConfiguredContract.currentContract.Prestige : Contract.ContractPrestige.Trivial, false));
             RegisterGlobalFunction(new Function<double>("ContractMultiplier", ContractMultiplier, false));
+
+            RegisterGlobalFunction(new Function<Contract.ContractPrestige, Contract.ContractPrestige>("ContractPrestige", p => p));
         }
 
         public PrestigeParser()
