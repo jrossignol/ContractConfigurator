@@ -198,7 +198,7 @@ namespace ContractConfigurator
 
         private void WindowGUI(int windowID)
         {
-            scrollPosition = GUILayout.BeginScrollView(scrollPosition, GUILayout.Width(336), GUILayout.Height(640));
+            scrollPosition = GUILayout.BeginScrollView(scrollPosition, false, true, GUILayout.Width(336), GUILayout.Height(640));
             GUILayout.BeginVertical(GUILayout.Width(300), GUILayout.ExpandWidth(false));
 
             GUILayout.Space(8);
@@ -207,7 +207,7 @@ namespace ContractConfigurator
 
             if (Event.current.type == EventType.layout)
             {
-                guiContracts = ContractType.AllContractTypes;
+                guiContracts = ContractType.AllValidContractTypes;
             }
             
             foreach (ContractGroup contractGroup in ContractGroup.AllGroups.Where(g => g == null || g.parent == null).OrderBy(g => g == null ? "ZZZ" : g.name))
@@ -242,37 +242,43 @@ namespace ContractConfigurator
 
             GUILayout.BeginHorizontal();
 
-            if (indent != 0)
-            {
-                GUILayout.Label("", GUILayout.ExpandWidth(false), GUILayout.Width(indent * 16));
-            }
+            GUILayout.Label("", contractRegularText, GUILayout.ExpandWidth(false), GUILayout.Width((indent+1) * 16));
 
-            if (GUILayout.Button(details.expanded ? "-" : "+", expandButtonStyle, GUILayout.Width(20), GUILayout.Height(20)))
-            {
-                details.expanded = !details.expanded;
-            }
             string groupName = contractGroup == null ? "No Group" : contractGroup.name;
-            GUILayout.Label(groupName, details.enabled ? groupRegularText : groupDisabledText, GUILayout.ExpandWidth(true));
+            GUILayout.Label(groupName, details.enabled ? contractRegularText : contractDisabledText, GUILayout.ExpandWidth(true));
             if (contractGroup != null && contractGroup.parent == null)
             {
-                details.enabled = GUILayout.Toggle(details.enabled,
+                bool enabled = GUILayout.Toggle(details.enabled,
                     new GUIContent("", "Click to " + (details.enabled ? "disable " : "enable ") + contractGroup.name + " contracts."),
-                    groupToggleStyle, GUILayout.ExpandWidth(false));
-            }
-            GUILayout.EndHorizontal();
+                    contractToggleStyle, GUILayout.ExpandWidth(false));
 
-            if (details.expanded)
-            {
-                if (contractGroup != null)
+                if (enabled != details.enabled)
                 {
-                    foreach (ContractGroup childGroup in ContractGroup.AllGroups.Where(g => g != null && g.parent == contractGroup).OrderBy(g => g.name))
+                    details.enabled = enabled;
+                    if (enabled)
                     {
-                        ContractGroupLine(childGroup, indent + 1);
+                        foreach (KeyValuePair<Type, StockContractDetails> pair in stockContractDetails.
+                            Where(p => ContractDisabler.DisablingGroups(p.Key).Contains(contractGroup)))
+                        {
+                            pair.Value.enabled = false;
+                            ContractDisabler.SetContractState(pair.Key, false);
+                        }
+                    }
+                    else
+                    {
+                        foreach (KeyValuePair<Type, StockContractDetails> pair in stockContractDetails.
+                            Where(p => ContractDisabler.DisablingGroups(p.Key).Contains(contractGroup) &&
+                                ContractDisabler.DisablingGroups(p.Key).All(g => !IsEnabled(g))))
+                        {
+                            pair.Value.enabled = true;
+                            ContractDisabler.SetContractState(pair.Key, true);
+                        }
                     }
                 }
             }
+            GUILayout.EndHorizontal();
         }
-
+        
         private void StockGroupLine()
         {
             foreach (KeyValuePair<Module, ContractGroupDetails> gpair in stockGroupDetails.OrderBy(p => p.Key.Name == "Assembly-CSharp.dll" ? "ZZZ" : p.Key.Name))
