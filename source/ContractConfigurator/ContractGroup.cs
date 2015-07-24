@@ -36,6 +36,7 @@ namespace ContractConfigurator
         public string minVersion;
         public int maxCompletions;
         public int maxSimultaneous;
+        public List<string> disabledContractType;
 
         public bool expandInDebug = false;
         public bool hasWarnings { get; set; }
@@ -71,6 +72,7 @@ namespace ContractConfigurator
                 valid &= ConfigNodeUtil.ParseValue<string>(configNode, "minVersion", x => minVersion = x, this, "");
                 valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxCompletions", x => maxCompletions = x, this, 0, x => Validation.GE(x, 0));
                 valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxSimultaneous", x => maxSimultaneous = x, this, 0, x => Validation.GE(x, 0));
+                valid &= ConfigNodeUtil.ParseValue<List<string>>(configNode, "disabledContractType", x => disabledContractType = x, this, new List<string>());
 
                 if (!string.IsNullOrEmpty(minVersion))
                 {

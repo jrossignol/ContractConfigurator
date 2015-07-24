@@ -22,31 +22,44 @@ namespace ContractConfigurator
             }
         }
         private static Dictionary<Type, ContractDetails> contractDetails = new Dictionary<Type, ContractDetails>();
+        private static IEnumerable<Type> contractTypes = ContractConfigurator.GetAllTypes<Contract>();
+        private static bool contractsDisabled = false;
 
-        public static void SetContractToDisabled(Type contract, ContractGroup group)
+        public static bool SetContractToDisabled(string contract, ContractGroup group)
         {
-            if (!contractDetails.ContainsKey(contract))
+            Type contractType = contractTypes.Where(t => t.Name == contract).FirstOrDefault();
+            if (contractType == null)
             {
-                contractDetails[contract] = new ContractDetails(contract);
+                LoggingUtil.LogWarning(typeof(ContractDisabler), "Couldn't find ContractType '" + contract + "' to disable.");
+                return false;
             }
-            ContractDetails details = contractDetails[contract];
+
+            if (!contractDetails.ContainsKey(contractType))
+            {
+                contractDetails[contractType] = new ContractDetails(contractType);
+            }
+            ContractDetails details = contractDetails[contractType];
 
             details.disablingGroups.AddUnique(group);
-            SetContractState(contract, false);
+            return SetContractState(contractType, false);
         }
 
-        public static void SetContractState(Type contract, bool enabled)
+        public static bool  SetContractState(Type contract, bool enabled)
         {
             if (!enabled && ContractSystem.ContractTypes.Contains(contract))
             {
                 LoggingUtil.LogDebug(typeof(ContractDisabler), "Disabling ContractType: " + contract.FullName + " (" + contract.Module + ")");
                 ContractSystem.ContractTypes.Remove(contract);
+                return true;
             }
             else if (enabled && !ContractSystem.ContractTypes.Contains(contract))
             {
                 LoggingUtil.LogDebug(typeof(ContractDisabler), "Enabling ContractType: " + contract.FullName + " (" + contract.Module + ")");
                 ContractSystem.ContractTypes.Add(contract);
+                return true;
             }
+
+            return false;
         }
 
         public static bool IsEnabled(Type contract)
@@ -62,6 +75,62 @@ namespace ContractConfigurator
             }
 
             return contractDetails[contract].disablingGroups;
+        }
+
+        /// <summary>
+        /// Disables standard contract types as requested by contract packs.
+        /// </summary>
+        /// <returns>True if the disabling is done.</returns>
+        public static bool DisableContracts()
+        {
+            if (contractsDisabled)
+            {
+                return true;
+            }
+
+            // Don't do anything if the contract system has not yet loaded
+            if (ContractSystem.ContractTypes == null)
+            {
+                return false;
+            }
+
+            LoggingUtil.LogDebug(typeof(ContractDisabler), "Loading CONTRACT_CONFIGURATOR nodes.");
+            ConfigNode[] nodes = GameDatabase.Instance.GetConfigNodes("CONTRACT_CONFIGURATOR");
+
+            int disabledCounter = 0;
+
+            // Start disabling via legacy method
+            Dictionary<string, Type> contractsToDisable = new Dictionary<string, Type>();
+            foreach (ConfigNode node in nodes)
+            {
+                foreach (string contractType in node.GetValues("disabledContractType"))
+                {
+                    LoggingUtil.LogWarning(typeof(ContractDisabler), "Disabling contract " + contractType +
+                        " via legacy method.  Recommend using the disableContractType attribute of the CONTRACT_GROUP node instead.");
+
+                    if (SetContractToDisabled(contractType, null))
+                    {
+                        disabledCounter++;
+                    }
+                }
+            }
+
+            // Disable via new method
+            foreach (ContractGroup contractGroup in ContractGroup.AllGroups.Where(g => g != null && g.parent == null))
+            {
+                foreach (string contractType in contractGroup.disabledContractType)
+                {
+                    if (SetContractToDisabled(contractType, contractGroup))
+                    {
+                        disabledCounter++;
+                    }
+                }
+            }
+
+            LoggingUtil.LogInfo(typeof(ContractDisabler), "Disabled " + disabledCounter + " ContractTypes.");
+
+            contractsDisabled = true;
+            return true;
         }
     }
 }

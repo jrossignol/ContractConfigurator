@@ -302,7 +302,7 @@ namespace ContractConfigurator
                         if (disablingGroups.Any())
                         {
                             hintText = subclass.Name + " disabled by: " +
-                                string.Join(", ", disablingGroups.Select(g => g == null ? "unknown" : g.name).ToArray()) + ".\n";
+                                string.Join(", ", disablingGroups.Select(g => g == null ? "unknown" : g.name).ToArray()) + "\n";
                             hintText += "Click to " + (details.enabled ? "disable " : "re-enable ") + subclass.Name + ".";
                         }
                         else
@@ -421,7 +421,8 @@ namespace ContractConfigurator
 
         private void SeedStockContractDetails()
         {
-            ContractConfigurator.AdjustContractTypes();
+            // Make sure that the initial state has been correctly set
+            ContractDisabler.DisableContracts();
 
             foreach (Type subclass in ContractConfigurator.GetAllTypes<Contract>().Where(t => t != typeof(ConfiguredContract)))
             {
