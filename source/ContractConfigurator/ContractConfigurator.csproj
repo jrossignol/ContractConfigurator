@@ -254,6 +254,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ScenarioModules\ContractVesselTracker.cs" />
     <Compile Include="Util\Version.cs" />
+    <Compile Include="Util\ContractDisabler.cs" />
     <Compile Include="Util\WaypointUtil.cs" />
   </ItemGroup>
   <ItemGroup />

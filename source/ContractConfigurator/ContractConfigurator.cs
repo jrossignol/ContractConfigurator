@@ -478,15 +478,21 @@ namespace ContractConfigurator
         /// number on contract types.
         /// </summary>
         /// <returns>Whether the changes took place</returns>
-        bool AdjustContractTypes()
+        public static bool AdjustContractTypes()
         {
+            // Already adjusted
+            if (contractTypesAdjusted)
+            {
+                return false;
+            }
+
             // Don't do anything if the contract system has not yet loaded
             if (ContractSystem.ContractTypes == null)
             {
                 return false;
             }
 
-            LoggingUtil.LogDebug(this.GetType(), "Loading CONTRACT_CONFIGURATOR nodes.");
+            LoggingUtil.LogDebug(typeof(ContractConfigurator), "Loading CONTRACT_CONFIGURATOR nodes.");
             ConfigNode[] nodes = GameDatabase.Instance.GetConfigNodes("CONTRACT_CONFIGURATOR");
 
             // Build a unique list of contract types to disable, in case multiple mods try to
@@ -518,30 +524,29 @@ namespace ContractConfigurator
                 // Didn't find a type
                 if (p.Value == null)
                 {
-                    LoggingUtil.LogWarning(this.GetType(), "Couldn't find ContractType '" + p.Key + "' to disable.");
+                    LoggingUtil.LogWarning(typeof(ContractConfigurator), "Couldn't find ContractType '" + p.Key + "' to disable.");
                 }
                 else
                 {
-                    LoggingUtil.LogDebug(this.GetType(), "Disabling ContractType: " + p.Value.FullName + " (" + p.Value.Module + ")");
-                    ContractSystem.ContractTypes.Remove(p.Value);
+                    ContractDisabler.SetContractToDisabled(p.Value, null);
                     disabledCounter++;
                 }
             }
 
-            LoggingUtil.LogInfo(this.GetType(), "Disabled " + disabledCounter + " ContractTypes.");
+            LoggingUtil.LogInfo(typeof(ContractConfigurator), "Disabled " + disabledCounter + " ContractTypes.");
 
             // Now add the ConfiguredContract type
             int countByType = (int)(Math.Pow(ContractType.AllValidContractTypes.Count(), 0.6) / 2.0);
             int countByGroup = (int)(Math.Pow(ContractGroup.AllGroups.Count(g => g != null && g.parent == null), 0.7) * 1.5);
             int count = Math.Min(countByGroup, countByType);
-            LoggingUtil.LogDebug(this.GetType(), "Setting ConfiguredContract count to " + count);
+            LoggingUtil.LogDebug(typeof(ContractConfigurator), "Setting ConfiguredContract count to " + count);
 
             for (int i = 1; i < count; i++)
             {
                 ContractSystem.ContractTypes.Add(typeof(ConfiguredContract));
             }
 
-            LoggingUtil.LogInfo(this.GetType(), "Finished Adjusting ContractTypes");
+            LoggingUtil.LogInfo(typeof(ContractConfigurator), "Finished Adjusting ContractTypes");
 
             return true;
         }
