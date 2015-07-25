@@ -1,5 +1,6 @@
 Contract Configurator 1.6.0
 - New settings window (only available in space center) that allows contract packs to be enabled/disabled per save.  Also supports disabling of stock contract types.
+- Added new extended mode to HasResource parameter.
 
 Contract Configurator 1.5.4
 - Added new extended PartModule mode to PartValidation parameter.
