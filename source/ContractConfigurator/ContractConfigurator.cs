@@ -482,7 +482,12 @@ namespace ContractConfigurator
         /// <returns>Whether the changes took place</returns>
         static bool AdjustContractTypes()
         {
-            // Now add the ConfiguredContract type
+            if (ContractSystem.Instance == null)
+            {
+                return false;
+            }
+
+            // Add the ConfiguredContract type
             int countByType = (int)(Math.Pow(ContractType.AllValidContractTypes.Count(), 0.6) / 2.0);
             int countByGroup = (int)(Math.Pow(ContractGroup.AllGroups.Count(g => g != null && g.parent == null), 0.7) * 1.5);
             int count = Math.Min(countByGroup, countByType);
