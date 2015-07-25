@@ -2,6 +2,7 @@ Contract Configurator 1.5.5
 - New MissionTimer parameter for displaying a count-up timer (use it for challenges!).
 - New functions/methods related to contract multipliers - ContractMultiplier(), CelestialBody.Multiplier() ContractPrestige.Multiplier().
 - Made contract deadline independent of targetBody multiplier (thanks NathanKell).
+- Correctly update Contracts Window Plus when contract state + titles changes at the same time.
 
 Contract Configurator 1.5.4
 - Added new extended PartModule mode to PartValidation parameter.
