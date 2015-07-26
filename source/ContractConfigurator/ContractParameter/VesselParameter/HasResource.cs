@@ -123,33 +123,39 @@ namespace ContractConfigurator.Parameters
 
         protected override void OnParameterLoad(ConfigNode node)
         {
-            base.OnParameterLoad(node);
-
-            foreach (ConfigNode childNode in node.GetNodes("RESOURCE"))
+            try
             {
-                Filter filter = new Filter();
+                base.OnParameterLoad(node);
 
-                filter.resource = ConfigNodeUtil.ParseValue<PartResourceDefinition>(childNode, "resource");
-                filter.minQuantity = ConfigNodeUtil.ParseValue<double>(childNode, "minQuantity");
-                filter.maxQuantity = ConfigNodeUtil.ParseValue<double>(childNode, "maxQuantity", double.MaxValue);
+                foreach (ConfigNode childNode in node.GetNodes("RESOURCE"))
+                {
+                    Filter filter = new Filter();
 
-                filters.Add(filter);
+                    filter.resource = ConfigNodeUtil.ParseValue<PartResourceDefinition>(childNode, "resource");
+                    filter.minQuantity = ConfigNodeUtil.ParseValue<double>(childNode, "minQuantity");
+                    filter.maxQuantity = ConfigNodeUtil.ParseValue<double>(childNode, "maxQuantity", double.MaxValue);
+
+                    filters.Add(filter);
+                }
+
+                // Legacy
+                if (node.HasValue("resource"))
+                {
+                    Filter filter = new Filter();
+
+                    filter.resource = ConfigNodeUtil.ParseValue<PartResourceDefinition>(node, "resource");
+                    filter.minQuantity = ConfigNodeUtil.ParseValue<double>(node, "minQuantity");
+                    filter.maxQuantity = ConfigNodeUtil.ParseValue<double>(node, "maxQuantity", double.MaxValue);
+
+                    filters.Add(filter);
+                }
+
+                CreateDelegates();
             }
-
-            // Legacy
-            if (node.HasValue("resource"))
+            finally
             {
-                Filter filter = new Filter();
-
-                filter.resource = ConfigNodeUtil.ParseValue<PartResourceDefinition>(node, "resource");
-                filter.minQuantity = ConfigNodeUtil.ParseValue<double>(node, "minQuantity");
-                filter.maxQuantity = ConfigNodeUtil.ParseValue<double>(node, "maxQuantity", double.MaxValue);
-
-                filters.Add(filter);
+                ParameterDelegate<Part>.OnDelegateContainerLoad(node);
             }
-
-            ParameterDelegate<Part>.OnDelegateContainerLoad(node);
-            CreateDelegates();
         }
 
         protected override void OnRegister()
