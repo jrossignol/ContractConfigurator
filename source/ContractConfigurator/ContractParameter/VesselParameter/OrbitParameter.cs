@@ -264,24 +264,30 @@ namespace ContractConfigurator.Parameters
 
         protected override void OnParameterLoad(ConfigNode node)
         {
-            base.OnParameterLoad(node);
-            situation = ConfigNodeUtil.ParseValue<Vessel.Situations>(node, "situation", Vessel.Situations.ORBITING);
-            minAltitude = ConfigNodeUtil.ParseValue<double>(node, "minAltitude");
-            maxAltitude = ConfigNodeUtil.ParseValue<double>(node, "maxAltitude", double.MaxValue);
-            minApoapsis = ConfigNodeUtil.ParseValue<double>(node, "minApoapsis");
-            maxApoapsis = ConfigNodeUtil.ParseValue<double>(node, "maxApoapsis", double.MaxValue);
-            minPeriapsis = ConfigNodeUtil.ParseValue<double>(node, "minPeriapsis");
-            maxPeriapsis = ConfigNodeUtil.ParseValue<double>(node, "maxPeriapsis", double.MaxValue);
-            minEccentricity = ConfigNodeUtil.ParseValue<double>(node, "minEccentricity");
-            maxEccentricity = ConfigNodeUtil.ParseValue<double>(node, "maxEccentricity", double.MaxValue);
-            minInclination = ConfigNodeUtil.ParseValue<double>(node, "minInclination");
-            maxInclination = ConfigNodeUtil.ParseValue<double>(node, "maxInclination", double.MaxValue);
-            minPeriod = ConfigNodeUtil.ParseValue<double>(node, "minPeriod");
-            maxPeriod = ConfigNodeUtil.ParseValue<double>(node, "maxPeriod", double.MaxValue);
-            targetBody = ConfigNodeUtil.ParseValue<CelestialBody>(node, "targetBody");
+            try
+            {
+                base.OnParameterLoad(node);
+                situation = ConfigNodeUtil.ParseValue<Vessel.Situations>(node, "situation", Vessel.Situations.ORBITING);
+                minAltitude = ConfigNodeUtil.ParseValue<double>(node, "minAltitude");
+                maxAltitude = ConfigNodeUtil.ParseValue<double>(node, "maxAltitude", double.MaxValue);
+                minApoapsis = ConfigNodeUtil.ParseValue<double>(node, "minApoapsis");
+                maxApoapsis = ConfigNodeUtil.ParseValue<double>(node, "maxApoapsis", double.MaxValue);
+                minPeriapsis = ConfigNodeUtil.ParseValue<double>(node, "minPeriapsis");
+                maxPeriapsis = ConfigNodeUtil.ParseValue<double>(node, "maxPeriapsis", double.MaxValue);
+                minEccentricity = ConfigNodeUtil.ParseValue<double>(node, "minEccentricity");
+                maxEccentricity = ConfigNodeUtil.ParseValue<double>(node, "maxEccentricity", double.MaxValue);
+                minInclination = ConfigNodeUtil.ParseValue<double>(node, "minInclination");
+                maxInclination = ConfigNodeUtil.ParseValue<double>(node, "maxInclination", double.MaxValue);
+                minPeriod = ConfigNodeUtil.ParseValue<double>(node, "minPeriod");
+                maxPeriod = ConfigNodeUtil.ParseValue<double>(node, "maxPeriod", double.MaxValue);
+                targetBody = ConfigNodeUtil.ParseValue<CelestialBody>(node, "targetBody");
 
-            ParameterDelegate<Vessel>.OnDelegateContainerLoad(node);
-            CreateDelegates();
+                CreateDelegates();
+            }
+            finally
+            {
+                ParameterDelegate<Vessel>.OnDelegateContainerLoad(node);
+            }
         }
 
         protected override void OnUpdate()
