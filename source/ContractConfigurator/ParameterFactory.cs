@@ -273,7 +273,7 @@ namespace ContractConfigurator
             {
                 LoggingUtil.LogError(typeof(ParameterFactory), "CONTRACT_TYPE '" + contractType.name + "'," +
                     "PARAMETER '" + parameterConfig.GetValue("name") + "' of type '" + parameterConfig.GetValue("type") + "': " +
-                    "No ParameterFactory has been registered for type '" + type + "'.");
+                    "Unknown parameter '" + type + "'.");
                 paramFactory = new InvalidParameterFactory();
                 valid = false;
             }
