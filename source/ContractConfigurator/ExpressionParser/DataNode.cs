@@ -263,10 +263,10 @@ namespace ContractConfigurator.ExpressionParser
         }
 
         /// <summary>
-        /// Parses the child DATA nodes out of the given config node, and returns the parsed values back in dataValues
+        /// Parses the child DATA nodes out of the given config node, and returns the parsed values back in dataValues.
         /// </summary>
-        /// <param name="configNode"></param>
-        /// <param name="obj"></param>
+        /// <param name="configNode">The ConfigNode to load child DATA nodes from.</param>
+        /// <param name="obj">The ContractConfigurator object to load from.</param>
         /// <param name="dataValues"></param>
         /// <param name="uniqueValues"></param>
         /// <returns></returns>
