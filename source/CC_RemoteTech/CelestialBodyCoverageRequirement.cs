@@ -40,6 +40,12 @@ namespace ContractConfigurator.RemoteTech
         {
             LoggingUtil.LogVerbose(this, "Checking requirement");
 
+            // Perform another validation of the target body to catch late validation issues due to expressions
+            if (!ValidateTargetBody())
+            {
+                return false;
+            }
+
             if (RemoteTechProgressTracker.Instance == null)
             {
                 // Assume no coverage

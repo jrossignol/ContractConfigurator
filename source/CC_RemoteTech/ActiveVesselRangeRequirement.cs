@@ -37,6 +37,13 @@ namespace ContractConfigurator.RemoteTech
         public override bool RequirementMet(ConfiguredContract contract)
         {
             LoggingUtil.LogVerbose(this, "Checking requirement");
+
+            // Perform another validation of the target body to catch late validation issues due to expressions
+            if (!ValidateTargetBody())
+            {
+                return false;
+            }
+
             return RemoteTechProgressTracker.Instance.ActiveRange(targetBody) > range;
         }
     }

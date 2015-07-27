@@ -371,7 +371,7 @@ namespace ContractConfigurator
         /// Validates whether the targetBody value has been loaded. 
         /// </summary>
         /// <param name="configNode">The ConfigNode to validate against</param>
-        /// <returns>True if the targetBody has been loaded, logs and error and returns false otherwise.</returns>
+        /// <returns>True if the targetBody has been loaded, logs an error and returns false otherwise.</returns>
         protected virtual bool ValidateTargetBody(ConfigNode configNode)
         {
             if (targetBody == null && dataNode.IsDeterministic("targetBody") && dataNode.IsInitialized("targetBody"))
@@ -380,6 +380,15 @@ namespace ContractConfigurator
                 return false;
             }
             return true;
+        }
+
+        /// <summary>
+        /// Validates whether the targetBody value has been loaded. 
+        /// </summary>
+        /// <returns>True if the targetBody has been loaded, false otherwise.</returns>
+        protected virtual bool ValidateTargetBody()
+        {
+            return targetBody != null;
         }
 
         /// <summary>

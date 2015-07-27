@@ -271,6 +271,15 @@ namespace ContractConfigurator
         }
 
         /// <summary>
+        /// Validates whether the targetBody value has been loaded. 
+        /// </summary>
+        /// <returns>True if the targetBody has been loaded, false otherwise.</returns>
+        protected virtual bool ValidateTargetBody()
+        {
+            return targetBody != null;
+        }
+
+        /// <summary>
         /// Gets the identifier for the parameter.
         /// </summary>
         /// <returns>String for the parameter.</returns>
