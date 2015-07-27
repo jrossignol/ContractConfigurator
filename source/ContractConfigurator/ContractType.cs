@@ -206,48 +206,7 @@ namespace ContractConfigurator
                 valid &= ConfigNodeUtil.ParseValue<double>(configNode, "weight", x => weight = x, this, 1.0, x => Validation.GE(x, 0.0f));
 
                 // Load DATA nodes
-                foreach (ConfigNode data in ConfigNodeUtil.GetChildNodes(configNode, "DATA"))
-                {
-                    Type type = null;
-                    bool requiredValue = true;
-                    bool uniqueValue = false;
-                    bool activeUniqueValue = false;
-                    valid &= ConfigNodeUtil.ParseValue<Type>(data, "type", x => type = x, this);
-                    valid &= ConfigNodeUtil.ParseValue<bool>(data, "requiredValue", x => requiredValue = x, this, true);
-                    valid &= ConfigNodeUtil.ParseValue<bool>(data, "uniqueValue", x => uniqueValue = x, this, false);
-                    valid &= ConfigNodeUtil.ParseValue<bool>(data, "activeUniqueValue", x => activeUniqueValue = x, this, false);
-
-                    if (type != null)
-                    {
-                        foreach (ConfigNode.Value pair in data.values)
-                        {
-                            string name = pair.name;
-                            if (name != "type" && name != "requiredValue" && name != "uniqueValue" && name != "activeUniqueValue")
-                            {
-                                object value = null;
-
-                                // Create the setter function
-                                Type actionType = typeof(Action<>).MakeGenericType(type);
-                                Delegate del = Delegate.CreateDelegate(actionType, value, typeof(ContractType).GetMethod("NullAction"));
-
-                                // Get the ParseValue method
-                                MethodInfo method = typeof(ConfigNodeUtil).GetMethods(BindingFlags.Static | BindingFlags.Public).
-                                    Where(m => m.Name == "ParseValue" && m.GetParameters().Count() == 4).Single();
-                                method = method.MakeGenericMethod(new Type[] { type });
-
-                                // Invoke the ParseValue method
-                                valid &= (bool)method.Invoke(null, new object[] { data, name, del, this });
-
-                                dataValues[name] = requiredValue;
-
-                                if (uniqueValue || activeUniqueValue)
-                                {
-                                    uniqueValues[name] = activeUniqueValue;
-                                }
-                            }
-                        }
-                    }
-                }
+                valid &= DataNode.ParseDataNodes(configNode, this, dataValues, uniqueValues);
 
                 // Check for unexpected values - always do this last
                 valid &= ConfigNodeUtil.ValidateUnexpectedValues(configNode, this);

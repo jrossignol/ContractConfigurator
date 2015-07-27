@@ -261,5 +261,64 @@ namespace ContractConfigurator.ExpressionParser
 
             return "/" + path;
         }
+
+        /// <summary>
+        /// Parses the child DATA nodes out of the given config node, and returns the parsed values back in dataValues
+        /// </summary>
+        /// <param name="configNode"></param>
+        /// <param name="obj"></param>
+        /// <param name="dataValues"></param>
+        /// <param name="uniqueValues"></param>
+        /// <returns></returns>
+        public static bool ParseDataNodes(ConfigNode configNode, IContractConfiguratorFactory obj,
+            Dictionary<string, bool> dataValues, Dictionary<string, bool> uniqueValues)
+        {
+            bool valid = true;
+
+            foreach (ConfigNode data in ConfigNodeUtil.GetChildNodes(configNode, "DATA"))
+            {
+                Type type = null;
+                bool requiredValue = true;
+                bool uniqueValue = false;
+                bool activeUniqueValue = false;
+                valid &= ConfigNodeUtil.ParseValue<Type>(data, "type", x => type = x, obj);
+                valid &= ConfigNodeUtil.ParseValue<bool>(data, "requiredValue", x => requiredValue = x, obj, true);
+                valid &= ConfigNodeUtil.ParseValue<bool>(data, "uniqueValue", x => uniqueValue = x, obj, false);
+                valid &= ConfigNodeUtil.ParseValue<bool>(data, "activeUniqueValue", x => activeUniqueValue = x, obj, false);
+
+                if (type != null)
+                {
+                    foreach (ConfigNode.Value pair in data.values)
+                    {
+                        string name = pair.name;
+                        if (name != "type" && name != "requiredValue" && name != "uniqueValue" && name != "activeUniqueValue")
+                        {
+                            object value = null;
+
+                            // Create the setter function
+                            Type actionType = typeof(Action<>).MakeGenericType(type);
+                            Delegate del = Delegate.CreateDelegate(actionType, value, typeof(ContractType).GetMethod("NullAction"));
+
+                            // Get the ParseValue method
+                            MethodInfo method = typeof(ConfigNodeUtil).GetMethods(BindingFlags.Static | BindingFlags.Public).
+                                Where(m => m.Name == "ParseValue" && m.GetParameters().Count() == 4).Single();
+                            method = method.MakeGenericMethod(new Type[] { type });
+
+                            // Invoke the ParseValue method
+                            valid &= (bool)method.Invoke(null, new object[] { data, name, del, obj });
+
+                            dataValues[name] = requiredValue;
+
+                            if (uniqueValue || activeUniqueValue)
+                            {
+                                uniqueValues[name] = activeUniqueValue;
+                            }
+                        }
+                    }
+                }
+            }
+
+            return valid;
+        }
     }
 }
