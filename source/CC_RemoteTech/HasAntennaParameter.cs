@@ -165,17 +165,23 @@ namespace ContractConfigurator.RemoteTech
 
         protected override void OnParameterLoad(ConfigNode node)
         {
-            base.OnParameterLoad(node);
-            minRange = ConfigNodeUtil.ParseValue<double>(node, "minRange");
-            maxRange = ConfigNodeUtil.ParseValue<double>(node, "maxRange", double.MaxValue);
-            targetBody = ConfigNodeUtil.ParseValue<CelestialBody>(node, "targetBody", (CelestialBody)null);
-            activeVessel = ConfigNodeUtil.ParseValue<bool>(node, "activeVessel");
-            minCount = ConfigNodeUtil.ParseValue<int>(node, "minCount");
-            maxCount = ConfigNodeUtil.ParseValue<int>(node, "maxCount");
-            antennaType = ConfigNodeUtil.ParseValue<AntennaType?>(node, "antennaType", (AntennaType?)null);
+            try
+            {
+                base.OnParameterLoad(node);
+                minRange = ConfigNodeUtil.ParseValue<double>(node, "minRange");
+                maxRange = ConfigNodeUtil.ParseValue<double>(node, "maxRange", double.MaxValue);
+                targetBody = ConfigNodeUtil.ParseValue<CelestialBody>(node, "targetBody", (CelestialBody)null);
+                activeVessel = ConfigNodeUtil.ParseValue<bool>(node, "activeVessel");
+                minCount = ConfigNodeUtil.ParseValue<int>(node, "minCount");
+                maxCount = ConfigNodeUtil.ParseValue<int>(node, "maxCount");
+                antennaType = ConfigNodeUtil.ParseValue<AntennaType?>(node, "antennaType", (AntennaType?)null);
 
-            ParameterDelegate<IAntenna>.OnDelegateContainerLoad(node);
-            CreateDelegates();
+                CreateDelegates();
+            }
+            finally
+            {
+                ParameterDelegate<IAntenna>.OnDelegateContainerLoad(node);
+            }
         }
 
         /// <summary>

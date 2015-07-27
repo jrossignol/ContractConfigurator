@@ -198,6 +198,9 @@ namespace ContractConfigurator
 
             // Add the contract to the list of ones to update
             contractsToUpdate.AddUnique(c);
+
+            // Also update contracts window plus title
+            ContractsWindow.SetParameterTitle(p, p.Title);
         }
 
         public void OnGUI()

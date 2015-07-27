@@ -173,16 +173,22 @@ namespace ContractConfigurator.Parameters
 
         protected override void OnParameterLoad(ConfigNode node)
         {
-            base.OnParameterLoad(node);
-            trait = ConfigNodeUtil.ParseValue<string>(node, "trait", (string)null);
-            minExperience = Convert.ToInt32(node.GetValue("minExperience"));
-            maxExperience = Convert.ToInt32(node.GetValue("maxExperience"));
-            minCrew = Convert.ToInt32(node.GetValue("minCrew"));
-            maxCrew = Convert.ToInt32(node.GetValue("maxCrew"));
-            kerbals = ConfigNodeUtil.ParseValue<List<string>>(node, "kerbal", new List<string>());
+            try
+            {
+                base.OnParameterLoad(node);
+                trait = ConfigNodeUtil.ParseValue<string>(node, "trait", (string)null);
+                minExperience = Convert.ToInt32(node.GetValue("minExperience"));
+                maxExperience = Convert.ToInt32(node.GetValue("maxExperience"));
+                minCrew = Convert.ToInt32(node.GetValue("minCrew"));
+                maxCrew = Convert.ToInt32(node.GetValue("maxCrew"));
+                kerbals = ConfigNodeUtil.ParseValue<List<string>>(node, "kerbal", new List<string>());
 
-            ParameterDelegate<Vessel>.OnDelegateContainerLoad(node);
-            CreateDelegates();
+                CreateDelegates();
+            }
+            finally
+            {
+                ParameterDelegate<Vessel>.OnDelegateContainerLoad(node);
+            }
         }
 
         protected override void OnRegister()

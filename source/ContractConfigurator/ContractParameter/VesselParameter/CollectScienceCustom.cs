@@ -301,22 +301,28 @@ namespace ContractConfigurator.Parameters
 
         protected override void OnParameterLoad(ConfigNode node)
         {
-            base.OnParameterLoad(node);
-            targetBody = ConfigNodeUtil.ParseValue<CelestialBody>(node, "targetBody", (CelestialBody)null);
-            biome = ConfigNodeUtil.ParseValue<string>(node, "biome", "");
-            situation = ConfigNodeUtil.ParseValue<ExperimentSituations?>(node, "situation", (ExperimentSituations?)null);
-            location = ConfigNodeUtil.ParseValue<BodyLocation?>(node, "location", (BodyLocation?)null);
-            experiment = ConfigNodeUtil.ParseValue<List<string>>(node, "experiment", new string[] { "" }.ToList());
-            recoveryMethod = ConfigNodeUtil.ParseValue<ScienceRecoveryMethod>(node, "recoveryMethod");
-
-            List<string> recoveredExp = ConfigNodeUtil.ParseValue<List<string>>(node, "recovery", new List<string>());
-            foreach (string exp in recoveredExp)
+            try
             {
-                recoveryDone[exp] = true;
-            }
+                base.OnParameterLoad(node);
+                targetBody = ConfigNodeUtil.ParseValue<CelestialBody>(node, "targetBody", (CelestialBody)null);
+                biome = ConfigNodeUtil.ParseValue<string>(node, "biome", "");
+                situation = ConfigNodeUtil.ParseValue<ExperimentSituations?>(node, "situation", (ExperimentSituations?)null);
+                location = ConfigNodeUtil.ParseValue<BodyLocation?>(node, "location", (BodyLocation?)null);
+                experiment = ConfigNodeUtil.ParseValue<List<string>>(node, "experiment", new string[] { "" }.ToList());
+                recoveryMethod = ConfigNodeUtil.ParseValue<ScienceRecoveryMethod>(node, "recoveryMethod");
 
-            ParameterDelegate<Vessel>.OnDelegateContainerLoad(node);
-            CreateDelegates();
+                List<string> recoveredExp = ConfigNodeUtil.ParseValue<List<string>>(node, "recovery", new List<string>());
+                foreach (string exp in recoveredExp)
+                {
+                    recoveryDone[exp] = true;
+                }
+
+                CreateDelegates();
+            }
+            finally
+            {
+                ParameterDelegate<Vessel>.OnDelegateContainerLoad(node);
+            }
         }
 
         protected override void OnUpdate()

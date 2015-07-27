@@ -78,6 +78,7 @@
     <Compile Include="ContractParameter\RecoverKerbalCustom.cs" />
     <Compile Include="ContractParameter\TargetDestroyed.cs" />
     <Compile Include="ContractParameter\ReachSpaceCustom.cs" />
+    <Compile Include="ContractParameter\MissionTimer.cs" />
     <Compile Include="ContractParameter\VesselParameter\HasCrewCapacity.cs" />
     <Compile Include="ContractParameter\VesselParameter\CollectScienceCustom.cs" />
     <Compile Include="ContractParameter\VesselParameter\Rendezvous.cs" />
@@ -104,6 +105,7 @@
     <Compile Include="ContractRequirement\CanResearchTechRequirement.cs" />
     <Compile Include="ParameterFactory\NewVesselFactory.cs" />
     <Compile Include="ScenarioModules\ContractConfiguratorSettings.cs" />
+    <Compile Include="ParameterFactory\MissionTimerFactory.cs" />
     <Compile Include="ScenarioModules\ContractPreLoader.cs" />
     <Compile Include="ExpressionParser\BaseParser.cs" />
     <Compile Include="ExpressionParser\Parsers\Behaviours\BehaviourParser.cs" />

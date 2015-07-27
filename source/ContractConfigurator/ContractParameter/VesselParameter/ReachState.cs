@@ -218,19 +218,25 @@ namespace ContractConfigurator.Parameters
 
         protected override void OnParameterLoad(ConfigNode node)
         {
-            base.OnParameterLoad(node);
-            targetBody = ConfigNodeUtil.ParseValue<CelestialBody>(node, "targetBody", (CelestialBody)null);
-            biome = ConfigNodeUtil.ParseValue<string>(node, "biome");
-            situation = ConfigNodeUtil.ParseValue<Vessel.Situations?>(node, "situation", (Vessel.Situations?)null);
-            minAltitude = ConfigNodeUtil.ParseValue<float>(node, "minAltitude");
-            maxAltitude = ConfigNodeUtil.ParseValue<float>(node, "maxAltitude", float.MaxValue);
-            minTerrainAltitude = ConfigNodeUtil.ParseValue<float>(node, "minTerrainAltitude", 0.0f);
-            maxTerrainAltitude = ConfigNodeUtil.ParseValue<float>(node, "maxTerrainAltitude", float.MaxValue);
-            minSpeed = ConfigNodeUtil.ParseValue<double>(node, "minSpeed");
-            maxSpeed = ConfigNodeUtil.ParseValue<double>(node, "maxSpeed", Double.MaxValue);
+            try
+            {
+                base.OnParameterLoad(node);
+                targetBody = ConfigNodeUtil.ParseValue<CelestialBody>(node, "targetBody", (CelestialBody)null);
+                biome = ConfigNodeUtil.ParseValue<string>(node, "biome");
+                situation = ConfigNodeUtil.ParseValue<Vessel.Situations?>(node, "situation", (Vessel.Situations?)null);
+                minAltitude = ConfigNodeUtil.ParseValue<float>(node, "minAltitude");
+                maxAltitude = ConfigNodeUtil.ParseValue<float>(node, "maxAltitude", float.MaxValue);
+                minTerrainAltitude = ConfigNodeUtil.ParseValue<float>(node, "minTerrainAltitude", 0.0f);
+                maxTerrainAltitude = ConfigNodeUtil.ParseValue<float>(node, "maxTerrainAltitude", float.MaxValue);
+                minSpeed = ConfigNodeUtil.ParseValue<double>(node, "minSpeed");
+                maxSpeed = ConfigNodeUtil.ParseValue<double>(node, "maxSpeed", Double.MaxValue);
 
-            ParameterDelegate<Vessel>.OnDelegateContainerLoad(node);
-            CreateDelegates();
+                CreateDelegates();
+            }
+            finally
+            {
+                ParameterDelegate<Vessel>.OnDelegateContainerLoad(node);
+            }
         }
 
         protected override void OnUpdate()

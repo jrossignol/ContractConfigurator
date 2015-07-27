@@ -61,6 +61,12 @@ namespace ContractConfigurator.SCANsat
 
         public override bool RequirementMet(ConfiguredContract contract)
         {
+            // Perform another validation of the target body to catch late validation issues due to expressions
+            if (!ValidateTargetBody())
+            {
+                return false;
+            }
+
             if (pqsCity != null)
             {
                 latitude = targetBody.GetLatitude(pqsCity.transform.position);

@@ -198,7 +198,7 @@ namespace ContractConfigurator
             {
                 LoggingUtil.LogError(typeof(ParameterFactory), "CONTRACT_TYPE '" + contractType.name + "'," +
                     "REQUIREMENT '" + configNode.GetValue("name") + "' of type '" + configNode.GetValue("type") + "': " +
-                    "No ContractRequirement has been registered for type '" + type + "'.");
+                    "Unknown requirement '" + type + "'.");
                 requirement = new InvalidContractRequirement();
                 valid = false;
             }
@@ -268,6 +268,15 @@ namespace ContractConfigurator
                 return false;
             }
             return true;
+        }
+
+        /// <summary>
+        /// Validates whether the targetBody value has been loaded. 
+        /// </summary>
+        /// <returns>True if the targetBody has been loaded, false otherwise.</returns>
+        protected virtual bool ValidateTargetBody()
+        {
+            return targetBody != null;
         }
 
         /// <summary>

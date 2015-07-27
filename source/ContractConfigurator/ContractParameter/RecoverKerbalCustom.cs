@@ -91,18 +91,25 @@ namespace ContractConfigurator.Parameters
 
         protected override void OnParameterLoad(ConfigNode node)
         {
-            count = ConfigNodeUtil.ParseValue<int>(node, "count");
-            index = ConfigNodeUtil.ParseValue<int>(node, "index");
-
-            foreach (ConfigNode childNode in node.GetNodes("KERBAL"))
+            try
             {
-                string kerbal = ConfigNodeUtil.ParseValue<string>(childNode, "kerbal");
-                kerbals.Add(kerbal);
-                recovered[kerbal] = ConfigNodeUtil.ParseValue<bool>(childNode, "recovered");
-            }
+                count = ConfigNodeUtil.ParseValue<int>(node, "count");
+                index = ConfigNodeUtil.ParseValue<int>(node, "index");
 
-            ParameterDelegate<string>.OnDelegateContainerLoad(node);
-            CreateDelegates();
+                foreach (ConfigNode childNode in node.GetNodes("KERBAL"))
+                {
+                    string kerbal = ConfigNodeUtil.ParseValue<string>(childNode, "kerbal");
+                    kerbals.Add(kerbal);
+                    recovered[kerbal] = ConfigNodeUtil.ParseValue<bool>(childNode, "recovered");
+                }
+
+
+                CreateDelegates();
+            }
+            finally
+            {
+                ParameterDelegate<string>.OnDelegateContainerLoad(node);
+            }
         }
 
         protected override void OnRegister()

@@ -30,6 +30,12 @@ namespace ContractConfigurator.RemoteTech
 
         public override ContractParameter Generate(Contract contract)
         {
+            // Perform another validation of the target body to catch late validation issues due to expressions
+            if (!ValidateTargetBody())
+            {
+                return null;
+            }
+
             return new CelestialBodyCoverageParameter(coverage, targetBody, title);
         }
     }
