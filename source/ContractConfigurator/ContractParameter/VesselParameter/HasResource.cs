@@ -14,72 +14,148 @@ namespace ContractConfigurator.Parameters
     /// </summary>
     public class HasResource : VesselParameter
     {
-        protected PartResourceDefinition resource { get; set; }
-        protected double minQuantity { get; set; }
-        protected double maxQuantity { get; set; }
+        public class Filter
+        {
+            public PartResourceDefinition resource { get; set; }
+            public double minQuantity { get; set; }
+            public double maxQuantity { get; set; }
+
+            public Filter() { }
+        }
+
+        protected List<Filter> filters = new List<Filter>();
 
         private float lastUpdate = 0.0f;
         private const float UPDATE_FREQUENCY = 0.25f;
 
         public HasResource()
-            : this(null)
+            : base(null)
         {
         }
 
-        public HasResource(PartResourceDefinition resource, double minQuantity = 0.01, double maxQuantity = double.MaxValue, string title = null)
+        public HasResource(List<Filter> filters, string title = null)
             : base(title)
         {
-            this.resource = resource;
-            this.minQuantity = minQuantity;
-            this.maxQuantity = maxQuantity;
-            if (title == null && resource != null)
-            {
-                this.title = "Resource: " + resource.name + ": ";
+            this.filters = filters;
 
-                if (maxQuantity == 0)
+            CreateDelegates();
+        }
+
+        protected override string GetParameterTitle()
+        {
+            string output = null;
+            if (string.IsNullOrEmpty(title))
+            {
+                output = "Resources";
+                if (state == ParameterState.Complete)
                 {
-                    this.title += "None";
-                }
-                else if (maxQuantity == double.MaxValue && (minQuantity > 0.0 && minQuantity <= 0.01))
-                {
-                    this.title += "Not zero units";
-                }
-                else if (maxQuantity == double.MaxValue)
-                {
-                    this.title += "At least " + minQuantity + " units";
-                }
-                else if (minQuantity == 0)
-                {
-                    this.title += "At most " + maxQuantity + " units";
-                }
-                else
-                {
-                    this.title += "Between " + minQuantity + " and " + maxQuantity + " units";
+                    output += ": " + ParameterDelegate<Vessel>.GetDelegateText(this);
                 }
             }
             else
             {
-                this.title = title;
+                output = title;
             }
+            return output;
+        }
+
+        protected void CreateDelegates()
+        {
+            foreach (Filter filter in filters)
+            {
+                string output = "Resource: " + filter.resource.name + ": ";
+                if (filter.maxQuantity == 0)
+                {
+                    output += "None";
+                }
+                else if (filter.maxQuantity == double.MaxValue && (filter.minQuantity > 0.0 && filter.minQuantity <= 0.01))
+                {
+                    output += "Not zero units";
+                }
+                else if (filter.maxQuantity == double.MaxValue)
+                {
+                    output += "At least " + filter.minQuantity + " units";
+                }
+                else if (filter.minQuantity == 0)
+                {
+                    output += "At most " + filter.maxQuantity + " units";
+                }
+                else
+                {
+                    output += "Between " + filter.minQuantity + " and " + filter.maxQuantity + " units";
+                }
+
+
+                AddParameter(new ParameterDelegate<Vessel>(output, v => VesselHasResource(v, filter.resource, filter.minQuantity, filter.maxQuantity),
+                    ParameterDelegateMatchType.VALIDATE));
+            }
+
+            if (this.GetChildren().Count() == 1 && string.IsNullOrEmpty(title))
+            {
+                this.hideChildren = true;
+                this.title = ParameterDelegate<Vessel>.GetDelegateText(this);
+            }
+        }
+
+        protected static bool VesselHasResource(Vessel vessel, PartResourceDefinition resource, double minQuantity, double maxQuantity)
+        {
+            double quantity = vessel.ResourceQuantity(resource);
+            return quantity >= minQuantity && quantity <= maxQuantity;
         }
 
         protected override void OnParameterSave(ConfigNode node)
         {
             base.OnParameterSave(node);
-            node.AddValue("minQuantity", minQuantity);
-            if (maxQuantity != double.MaxValue)
+
+            foreach (Filter filter in filters)
             {
-                node.AddValue("maxQuantity", maxQuantity);
+                ConfigNode childNode = new ConfigNode("RESOURCE");
+                node.AddNode(childNode);
+
+                childNode.AddValue("resource", filter.resource.name);
+                childNode.AddValue("minQuantity", filter.minQuantity);
+                if (filter.maxQuantity != double.MaxValue)
+                {
+                    childNode.AddValue("maxQuantity", filter.maxQuantity);
+                }
             }
-            node.AddValue("resource", resource.name);
         }
 
         protected override void OnParameterLoad(ConfigNode node)
         {
-            base.OnParameterLoad(node);
-            minQuantity = Convert.ToDouble(node.GetValue("minQuantity"));
-            maxQuantity = node.HasValue("maxQuantity") ? Convert.ToDouble(node.GetValue("maxQuantity")) : double.MaxValue;
-            resource = ConfigNodeUtil.ParseValue<PartResourceDefinition>(node, "resource");
+            try
+            {
+                base.OnParameterLoad(node);
+
+                foreach (ConfigNode childNode in node.GetNodes("RESOURCE"))
+                {
+                    Filter filter = new Filter();
+
+                    filter.resource = ConfigNodeUtil.ParseValue<PartResourceDefinition>(childNode, "resource");
+                    filter.minQuantity = ConfigNodeUtil.ParseValue<double>(childNode, "minQuantity");
+                    filter.maxQuantity = ConfigNodeUtil.ParseValue<double>(childNode, "maxQuantity", double.MaxValue);
+
+                    filters.Add(filter);
+                }
+
+                // Legacy
+                if (node.HasValue("resource"))
+                {
+                    Filter filter = new Filter();
+
+                    filter.resource = ConfigNodeUtil.ParseValue<PartResourceDefinition>(node, "resource");
+                    filter.minQuantity = ConfigNodeUtil.ParseValue<double>(node, "minQuantity");
+                    filter.maxQuantity = ConfigNodeUtil.ParseValue<double>(node, "maxQuantity", double.MaxValue);
+
+                    filters.Add(filter);
+                }
+
+                CreateDelegates();
+            }
+            finally
+            {
+                ParameterDelegate<Part>.OnDelegateContainerLoad(node);
+            }
         }
 
         protected override void OnRegister()
@@ -110,8 +186,8 @@ namespace ContractConfigurator.Parameters
         protected override bool VesselMeetsCondition(Vessel vessel)
         {
             LoggingUtil.LogVerbose(this, "Checking VesselMeetsCondition: " + vessel.id);
-            double quantity = vessel.ResourceQuantity(resource);
-            return quantity >= minQuantity && quantity <= maxQuantity;
+
+            return ParameterDelegate<Vessel>.CheckChildConditions(this, vessel);
         }
     }
 }

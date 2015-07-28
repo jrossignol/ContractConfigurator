@@ -15,25 +15,36 @@ namespace ContractConfigurator
     /// </summary>
     public class HasResourceFactory : ParameterFactory
     {
-        protected double minQuantity;
-        protected double maxQuantity;
-        protected PartResourceDefinition resource;
+        protected List<HasResource.Filter> filters = new List<HasResource.Filter>();
 
         public override bool Load(ConfigNode configNode)
         {
             // Load base class
             bool valid = base.Load(configNode);
 
-            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "minQuantity", x => minQuantity = x, this, 0.01, x => Validation.GE(x, 0.0));
-            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "maxQuantity", x => maxQuantity = x, this, double.MaxValue, x => Validation.GE(x, 0.0));
-            valid &= ConfigNodeUtil.ParseValue<PartResourceDefinition>(configNode, "resource", x => resource = x, this);
+            IEnumerable<ConfigNode> nodes = ConfigNodeUtil.GetChildNodes(configNode, "RESOURCE");
+            if (configNode.HasValue("resource"))
+            {
+                nodes = nodes.Concat(new ConfigNode[]{configNode});
+            }
+
+            foreach (ConfigNode childNode in nodes)
+            {
+                HasResource.Filter filter = new HasResource.Filter();
+
+                valid &= ConfigNodeUtil.ParseValue<double>(childNode, "minQuantity", x => filter.minQuantity = x, this, 0.01, x => Validation.GE(x, 0.0));
+                valid &= ConfigNodeUtil.ParseValue<double>(childNode, "maxQuantity", x => filter.maxQuantity = x, this, double.MaxValue, x => Validation.GE(x, 0.0));
+                valid &= ConfigNodeUtil.ParseValue<PartResourceDefinition>(childNode, "resource", x => filter.resource = x, this);
+
+                filters.Add(filter);
+            }
 
             return valid;
         }
 
         public override ContractParameter Generate(Contract contract)
         {
-            return new HasResource(resource, minQuantity, maxQuantity, title);
+            return new HasResource(filters, title);
         }
     }
 }

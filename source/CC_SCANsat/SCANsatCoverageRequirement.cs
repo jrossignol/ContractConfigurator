@@ -41,6 +41,12 @@ namespace ContractConfigurator.SCANsat
 
         public override bool RequirementMet(ConfiguredContract contract)
         {
+            // Perform another validation of the target body to catch late validation issues due to expressions
+            if (!ValidateTargetBody())
+            {
+                return false;
+            }
+
             double coverageInPercentage = SCANsatUtil.GetCoverage(SCANsatUtil.GetSCANtype(scanType), targetBody);
             return coverageInPercentage >= minCoverage && coverageInPercentage <= maxCoverage;
         }

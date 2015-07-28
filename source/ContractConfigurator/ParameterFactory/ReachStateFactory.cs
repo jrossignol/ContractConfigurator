@@ -50,6 +50,12 @@ namespace ContractConfigurator
 
         public override ContractParameter Generate(Contract contract)
         {
+            // Perform another validation of the target body to catch late validation issues due to expressions
+            if (!ValidateTargetBody())
+            {
+                return null;
+            }
+
             return new ReachState(targetBody, biome == null ? "" : biome.biome, situation, minAltitude, maxAltitude, minTerrainAltitude, maxTerrainAltitude, minSpeed, maxSpeed, title);
         }
     }

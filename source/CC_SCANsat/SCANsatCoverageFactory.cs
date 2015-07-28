@@ -34,6 +34,12 @@ namespace ContractConfigurator.SCANsat
 
         public override ContractParameter Generate(Contract contract)
         {
+            // Perform another validation of the target body to catch late validation issues due to expressions
+            if (!ValidateTargetBody())
+            {
+                return null;
+            }
+
             return new SCANsatCoverage(coverage, scanType, targetBody, title);
         }
     }

@@ -91,9 +91,11 @@ namespace ContractConfigurator
 
                 LoggingUtil.LogInfo(this, "Contract Configurator " + ainfoV.InformationalVersion + " finished loading.");
             }
-            // Try to disable the contract types
-            else if ((HighLogic.LoadedScene == GameScenes.SPACECENTER) && !contractTypesAdjusted)
+            // Make contract type adjustments
+            else if (HighLogic.LoadedScene == GameScenes.SPACECENTER && !contractTypesAdjusted)
             {
+                ContractDisabler.DisableContracts();
+
                 if (AdjustContractTypes())
                 {
                     contractTypesAdjusted = true;
@@ -196,6 +198,9 @@ namespace ContractConfigurator
 
             // Add the contract to the list of ones to update
             contractsToUpdate.AddUnique(c);
+
+            // Also update contracts window plus title
+            ContractsWindow.SetParameterTitle(p, p.Title);
         }
 
         public void OnGUI()
@@ -478,70 +483,25 @@ namespace ContractConfigurator
         /// number on contract types.
         /// </summary>
         /// <returns>Whether the changes took place</returns>
-        bool AdjustContractTypes()
+        static bool AdjustContractTypes()
         {
-            // Don't do anything if the contract system has not yet loaded
-            if (ContractSystem.ContractTypes == null)
+            if (ContractSystem.Instance == null)
             {
                 return false;
             }
 
-            LoggingUtil.LogDebug(this.GetType(), "Loading CONTRACT_CONFIGURATOR nodes.");
-            ConfigNode[] nodes = GameDatabase.Instance.GetConfigNodes("CONTRACT_CONFIGURATOR");
-
-            // Build a unique list of contract types to disable, in case multiple mods try to
-            // disable the same ones.
-            Dictionary<string, Type> contractsToDisable = new Dictionary<string, Type>();
-            foreach (ConfigNode node in nodes)
-            {
-                foreach (string contractType in node.GetValues("disabledContractType"))
-                {
-                    // No type for now
-                    contractsToDisable[contractType] = null;
-                }
-            }
-
-            // Map the string to a type
-            foreach (Type subclass in GetAllTypes<Contract>())
-            {
-                string name = subclass.Name;
-                if (contractsToDisable.ContainsKey(name))
-                {
-                    contractsToDisable[name] = subclass;
-                }
-            }
-
-            // Start disabling!
-            int disabledCounter = 0;
-            foreach (KeyValuePair<string, Type> p in contractsToDisable)
-            {
-                // Didn't find a type
-                if (p.Value == null)
-                {
-                    LoggingUtil.LogWarning(this.GetType(), "Couldn't find ContractType '" + p.Key + "' to disable.");
-                }
-                else
-                {
-                    LoggingUtil.LogDebug(this.GetType(), "Disabling ContractType: " + p.Value.FullName + " (" + p.Value.Module + ")");
-                    ContractSystem.ContractTypes.Remove(p.Value);
-                    disabledCounter++;
-                }
-            }
-
-            LoggingUtil.LogInfo(this.GetType(), "Disabled " + disabledCounter + " ContractTypes.");
-
-            // Now add the ConfiguredContract type
+            // Add the ConfiguredContract type
             int countByType = (int)(Math.Pow(ContractType.AllValidContractTypes.Count(), 0.6) / 2.0);
             int countByGroup = (int)(Math.Pow(ContractGroup.AllGroups.Count(g => g != null && g.parent == null), 0.7) * 1.5);
             int count = Math.Min(countByGroup, countByType);
-            LoggingUtil.LogDebug(this.GetType(), "Setting ConfiguredContract count to " + count);
+            LoggingUtil.LogDebug(typeof(ContractConfigurator), "Setting ConfiguredContract count to " + count);
 
             for (int i = 1; i < count; i++)
             {
                 ContractSystem.ContractTypes.Add(typeof(ConfiguredContract));
             }
 
-            LoggingUtil.LogInfo(this.GetType(), "Finished Adjusting ContractTypes");
+            LoggingUtil.LogInfo(typeof(ContractConfigurator), "Finished Adjusting ContractTypes");
 
             return true;
         }

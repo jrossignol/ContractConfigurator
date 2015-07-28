@@ -141,7 +141,7 @@ namespace ContractConfigurator
             {
                 LoggingUtil.LogError(typeof(ParameterFactory), "CONTRACT_TYPE '" + contractType.name + "'," +
                     "BEHAVIOUR '" + behaviourConfig.GetValue("name") + "' of type '" + behaviourConfig.GetValue("type") + "': " +
-                    "No BehaviourFactory has been registered for type '" + type + "'.");
+                    "Unknown behaviour '" + type + "'.");
                 behaviourFactory = new InvalidBehaviourFactory();
                 valid = false;
             }

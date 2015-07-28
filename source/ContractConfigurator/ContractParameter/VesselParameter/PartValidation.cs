@@ -258,39 +258,45 @@ namespace ContractConfigurator.Parameters
 
         protected override void OnParameterLoad(ConfigNode node)
         {
-            base.OnParameterLoad(node);
-            minCount = Convert.ToInt32(node.GetValue("minCount"));
-            maxCount = Convert.ToInt32(node.GetValue("maxCount"));
-
-            filters = new List<Filter>();
-
-            foreach (ConfigNode child in node.GetNodes("FILTER"))
+            try
             {
-                Filter filter = new Filter();
-                filter.type = ConfigNodeUtil.ParseValue<ParameterDelegateMatchType>(child, "type");
+                base.OnParameterLoad(node);
+                minCount = Convert.ToInt32(node.GetValue("minCount"));
+                maxCount = Convert.ToInt32(node.GetValue("maxCount"));
 
-                filter.parts = ConfigNodeUtil.ParseValue<List<AvailablePart>>(child, "part", new List<AvailablePart>());
-                filter.partModules = child.GetValues("partModule").ToList();
-                filter.category = ConfigNodeUtil.ParseValue<PartCategories?>(child, "category", (PartCategories?)null);
-                filter.manufacturer = ConfigNodeUtil.ParseValue<string>(child, "manufacturer", (string)null);
-                filter.minCount = ConfigNodeUtil.ParseValue<int>(child, "minCount", 1);
-                filter.maxCount = ConfigNodeUtil.ParseValue<int>(child, "maxCount", int.MaxValue);
+                filters = new List<Filter>();
 
-                foreach (ConfigNode moduleNode in child.GetNodes("MODULE"))
+                foreach (ConfigNode child in node.GetNodes("FILTER"))
                 {
-                    ConfigNode.ValueList tmp = new ConfigNode.ValueList();
-                    foreach (ConfigNode.Value v in moduleNode.values)
+                    Filter filter = new Filter();
+                    filter.type = ConfigNodeUtil.ParseValue<ParameterDelegateMatchType>(child, "type");
+
+                    filter.parts = ConfigNodeUtil.ParseValue<List<AvailablePart>>(child, "part", new List<AvailablePart>());
+                    filter.partModules = child.GetValues("partModule").ToList();
+                    filter.category = ConfigNodeUtil.ParseValue<PartCategories?>(child, "category", (PartCategories?)null);
+                    filter.manufacturer = ConfigNodeUtil.ParseValue<string>(child, "manufacturer", (string)null);
+                    filter.minCount = ConfigNodeUtil.ParseValue<int>(child, "minCount", 1);
+                    filter.maxCount = ConfigNodeUtil.ParseValue<int>(child, "maxCount", int.MaxValue);
+
+                    foreach (ConfigNode moduleNode in child.GetNodes("MODULE"))
                     {
-                        tmp.Add(new ConfigNode.Value(v.name, v.value));
+                        ConfigNode.ValueList tmp = new ConfigNode.ValueList();
+                        foreach (ConfigNode.Value v in moduleNode.values)
+                        {
+                            tmp.Add(new ConfigNode.Value(v.name, v.value));
+                        }
+                        filter.partModuleExtended.Add(tmp);
                     }
-                    filter.partModuleExtended.Add(tmp);
+
+                    filters.Add(filter);
                 }
 
-                filters.Add(filter);
+                CreateDelegates();
             }
-
-            ParameterDelegate<Part>.OnDelegateContainerLoad(node);
-            CreateDelegates();
+            finally
+            {
+                ParameterDelegate<Part>.OnDelegateContainerLoad(node);
+            }
         }
 
         protected override void OnPartAttach(GameEvents.HostTargetAction<Part, Part> e)

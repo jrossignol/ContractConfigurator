@@ -48,40 +48,7 @@ namespace ContractConfigurator
         /// <returns></returns>
         public static string StringValue(double duration)
         {
-            double time = duration;
-            SetTimeConsts();
-
-            int years = (int)(time / SecondsPerYear);
-            time -= years * SecondsPerYear;
-
-            int days = (int)(time / SecondsPerDay);
-            time -= days * SecondsPerDay;
-
-            int hours = (int)(time / SecondsPerHour);
-            time -= hours * SecondsPerHour;
-
-            int minutes = (int)(time / SecondsPerMinute);
-            time -= minutes * SecondsPerMinute;
-
-            int seconds = (int)(time);
-
-            string output = "";
-            if (years != 0)
-            {
-                output += years + (years == 1 ? " year" : " years");
-            }
-            if (days != 0)
-            {
-                if (output.Length != 0) output += ", ";
-                output += days + (days == 1 ? " day" : " days");
-            }
-            if (hours != 0 || minutes != 0 || seconds != 0 || output.Length == 0)
-            {
-                if (output.Length != 0) output += ", ";
-                output += hours.ToString("D2") + ":" + minutes.ToString("D2") + ":" + seconds.ToString("D2");
-            }
-
-            return output;
+            return StringValue(duration, true);
         }
 
         /// <summary>
@@ -89,8 +56,9 @@ namespace ContractConfigurator
         /// </summary>
         /// <param name="duration"></param>
         /// <param name="displayDaysAndYears"></param>
+        /// <param name="displayMilli">Whether to display milliseconds</param>
         /// <returns></returns>
-        public static string StringValue(double duration, bool displayDaysAndYears = true)
+        public static string StringValue(double duration, bool displayDaysAndYears, bool displayMilli = false)
         {
             double time = duration;
             SetTimeConsts();
@@ -129,6 +97,14 @@ namespace ContractConfigurator
                 if (output.Length != 0) output += ", ";
                 output += hours.ToString("D2") + ":" + minutes.ToString("D2") + ":" + seconds.ToString("D2");
             }
+
+            if (displayMilli)
+            {
+                time -= seconds;
+                int millis = (int)(time * 1000);
+                output += "." + millis.ToString("D3");
+            }
+
 
             return output;
         }

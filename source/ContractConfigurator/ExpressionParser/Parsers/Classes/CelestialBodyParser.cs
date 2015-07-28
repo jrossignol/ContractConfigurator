@@ -51,6 +51,8 @@ namespace ContractConfigurator.ExpressionParser
 
             RegisterMethod(new Method<CelestialBody, string>("Name", cb => cb != null ? cb.name : ""));
 
+            RegisterMethod(new Method<CelestialBody, double>("Multiplier", cb => cb != null ? GameVariables.Instance.GetContractDestinationWeight(cb) : 1.0));
+
             RegisterMethod(new Method<CelestialBody, double>("RemoteTechCoverage", cb => cb != null ? RemoteTechCoverage(cb) : 0.0d));
 
             RegisterGlobalFunction(new Function<CelestialBody>("HomeWorld", () => FlightGlobals.Bodies.Where(cb => cb.isHomeWorld).First()));

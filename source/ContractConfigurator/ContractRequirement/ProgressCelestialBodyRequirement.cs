@@ -39,8 +39,8 @@ namespace ContractConfigurator
 
         public override bool RequirementMet(ConfiguredContract contract)
         {
-            // Target body could be null if an expression didn't satisfy its conditions
-            if (targetBody == null)
+            // Perform another validation of the target body to catch late validation issues due to expressions
+            if (!ValidateTargetBody())
             {
                 return false;
             }

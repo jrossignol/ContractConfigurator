@@ -98,12 +98,18 @@ namespace ContractConfigurator.Parameters
 
         protected override void OnParameterLoad(ConfigNode node)
         {
-            base.OnParameterLoad(node);
-            count = Convert.ToInt32(node.GetValue("count"));
-            passengers = ConfigNodeUtil.ParseValue<List<ProtoCrewMember>>(node, "passenger", new List<ProtoCrewMember>());
+            try
+            {
+                base.OnParameterLoad(node);
+                count = Convert.ToInt32(node.GetValue("count"));
+                passengers = ConfigNodeUtil.ParseValue<List<ProtoCrewMember>>(node, "passenger", new List<ProtoCrewMember>());
 
-            ParameterDelegate<Vessel>.OnDelegateContainerLoad(node);
-            CreateDelegates();
+                CreateDelegates();
+            }
+            finally
+            {
+                ParameterDelegate<Vessel>.OnDelegateContainerLoad(node);
+            }
         }
 
         protected override void OnRegister()

@@ -93,11 +93,17 @@ namespace ContractConfigurator.Parameters
 
         protected override void OnParameterLoad(ConfigNode node)
         {
-            vessels = ConfigNodeUtil.ParseValue<List<string>>(node, "vessel", new List<string>());
-            destroyedTargets = ConfigNodeUtil.ParseValue<List<string>>(node, "destroyedTarget", new List<string>());
+            try
+            {
+                vessels = ConfigNodeUtil.ParseValue<List<string>>(node, "vessel", new List<string>());
+                destroyedTargets = ConfigNodeUtil.ParseValue<List<string>>(node, "destroyedTarget", new List<string>());
 
-            ParameterDelegate<string>.OnDelegateContainerLoad(node);
-            CreateDelegates();
+                CreateDelegates();
+            }
+            finally
+            {
+                ParameterDelegate<string>.OnDelegateContainerLoad(node);
+            }
         }
 
         protected override void OnRegister()
