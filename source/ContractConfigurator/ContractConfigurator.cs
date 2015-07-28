@@ -493,7 +493,7 @@ namespace ContractConfigurator
             // Add the ConfiguredContract type
             int countByType = (int)(Math.Pow(ContractType.AllValidContractTypes.Count(), 0.6) / 2.0);
             int countByGroup = (int)(Math.Pow(ContractGroup.AllGroups.Count(g => g != null && g.parent == null), 0.7) * 1.5);
-            int count = Math.Min(countByGroup, countByType);
+            int count = Math.Max(countByGroup, countByType);
             LoggingUtil.LogDebug(typeof(ContractConfigurator), "Setting ConfiguredContract count to " + count);
 
             for (int i = 1; i < count; i++)
