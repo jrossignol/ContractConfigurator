@@ -45,6 +45,9 @@ namespace ContractConfigurator
         public string log { get; private set; }
         public DataNode dataNode { get; private set; }
 
+        public Dictionary<string, bool> dataValues = new Dictionary<string, bool>();
+        public Dictionary<string, bool> uniqueValues = new Dictionary<string, bool>();
+
         public ContractGroup parent = null;
 
         public ContractGroup(string name)
@@ -120,6 +123,9 @@ namespace ContractConfigurator
                         hasWarnings = true;
                     }
                 }
+
+                // Load DATA nodes
+                valid &= dataNode.ParseDataNodes(configNode, this, dataValues, uniqueValues);
 
                 // Check for unexpected values - always do this last
                 valid &= ConfigNodeUtil.ValidateUnexpectedValues(configNode, this);

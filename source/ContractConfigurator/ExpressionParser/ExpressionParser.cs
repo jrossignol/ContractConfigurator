@@ -1228,7 +1228,7 @@ namespace ContractConfigurator.ExpressionParser
 
         internal Token ParseSpecialIdentifier()
         {
-            Match m = Regex.Match(expression, @"^@(/?(?>([A-Za-z][\w\d]*|\.\.)/)*[A-Za-z][\w\d]*).*");
+            Match m = Regex.Match(expression, @"^@(/?(?>([A-Za-z][\w\d]*|\.\.)/)*[A-Za-z][\w\d:]*).*");
             string identifier = m.Groups[1].Value;
             expression = (expression.Length > identifier.Length + 1 ? expression.Substring(identifier.Length + 1) : "");
 

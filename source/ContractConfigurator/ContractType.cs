@@ -152,11 +152,15 @@ namespace ContractConfigurator
             {
                 // Logging on
                 LoggingUtil.CaptureLog = true;
+                ConfigNodeUtil.SetCurrentDataNode(null);
 
-                dataNode = new DataNode(configNode.GetValue("name"), this);
-
-                ConfigNodeUtil.SetCurrentDataNode(dataNode);
+                // Load values that are immediately required
                 bool valid = true;
+                valid &= ConfigNodeUtil.ParseValue<ContractGroup>(configNode, "group", x => group = x, this, (ContractGroup)null);
+
+                // Set up the data node
+                dataNode = new DataNode(configNode.GetValue("name"), group != null ? group.dataNode : null, this);
+                ConfigNodeUtil.SetCurrentDataNode(dataNode);
 
                 valid &= ConfigNodeUtil.ParseValue<string>(configNode, "name", x => name = x, this);
 
@@ -169,7 +173,6 @@ namespace ContractConfigurator
                 }
 
                 // Load contract text details
-                valid &= ConfigNodeUtil.ParseValue<ContractGroup>(configNode, "group", x => group = x, this, (ContractGroup)null);
                 valid &= ConfigNodeUtil.ParseValue<string>(configNode, "title", x => title = x, this);
                 valid &= ConfigNodeUtil.ParseValue<string>(configNode, "tag", x => tag = x, this, "");
                 valid &= ConfigNodeUtil.ParseValue<string>(configNode, "description", x => description = x, this, (string)null);
@@ -205,8 +208,24 @@ namespace ContractConfigurator
                 // Load other values
                 valid &= ConfigNodeUtil.ParseValue<double>(configNode, "weight", x => weight = x, this, 1.0, x => Validation.GE(x, 0.0f));
 
+                // Merge in data from the parent contract group
+                for (ContractGroup currentGroup = group; currentGroup != null; currentGroup = currentGroup.parent)
+                {
+                    // Merge dataValues - this is a flag saying what values need to be unique at the contract level
+                    foreach (KeyValuePair<string, bool> pair in currentGroup.dataValues)
+                    {
+                        dataValues[group.name + ":" + pair.Key] = pair.Value;
+                    }
+
+                    // Merge uniqueValues - this is just a flag saying what values to do uniqueness checks on
+                    foreach (KeyValuePair<string, bool> pair in currentGroup.uniqueValues)
+                    {
+                        uniqueValues[group.name + ":" + pair.Key] = pair.Value;
+                    }
+                }
+
                 // Load DATA nodes
-                valid &= DataNode.ParseDataNodes(configNode, this, dataValues, uniqueValues);
+                valid &= dataNode.ParseDataNodes(configNode, this, dataValues, uniqueValues);
 
                 // Check for unexpected values - always do this last
                 valid &= ConfigNodeUtil.ValidateUnexpectedValues(configNode, this);

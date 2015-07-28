@@ -574,7 +574,7 @@ namespace ContractConfigurator
                         string dependency = ((DataNode.ValueNotInitialized)e).key;
                         string path = currentDataNode.Path() + key;
 
-                        LoggingUtil.LogVerbose(typeof(ConfigNodeUtil), "Trying to load " + key + ", but " + dependency + " is uninitialized.");
+                        LoggingUtil.LogVerbose(typeof(ConfigNodeUtil), "Trying to load " + path + ", but " + dependency + " is uninitialized.");
 
                         // Defer loading this value
                         DeferredLoadObject<T> loadObj = null;

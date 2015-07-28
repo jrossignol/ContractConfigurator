@@ -64,28 +64,30 @@ namespace ContractConfigurator.ExpressionParser
         {
             get
             {
-                return data[s].value;
+                DataNode node = NodeForKey(ref s);
+                return node.data[s].value;
             }
             set
             {
+                DataNode node = NodeForKey(ref s);
                 lastModified = Time.fixedTime;
-                if (!data.ContainsKey(s))
+                if (!node.data.ContainsKey(s))
                 {
-                    data[s] = new Value(value);
+                    node.data[s] = new Value(value);
                 }
                 else
                 {
-                    data[s].value = value;
-                    data[s].initialized = true;
+                    node.data[s].value = value;
+                    node.data[s].initialized = true;
                 }
 
-                LoggingUtil.LogVerbose(this, "DataNode[" + name + "], storing " + s + " = " + OutputValue(value));
+                LoggingUtil.LogVerbose(this, "DataNode[" + node.name + "], storing " + s + " = " + OutputValue(value));
             }
         }
 
         public List<ConfigNodeUtil.DeferredLoadBase> DeferredLoads
         {
-            get { return Root.deferredLoads; }
+            get { return (root != null ? root : this).deferredLoads; }
         }
 
         public IContractConfiguratorFactory Factory
@@ -98,22 +100,24 @@ namespace ContractConfigurator.ExpressionParser
 
         public bool IsDeterministic(string s)
         {
-            if (!data.ContainsKey(s))
+            DataNode node = NodeForKey(ref s);
+            if (!node.data.ContainsKey(s))
             {
                 return true;
             }
 
-            return data[s].deterministic;
+            return node.data[s].deterministic;
         }
 
         public void SetDeterministic(string s, bool value)
         {
-            if (!data.ContainsKey(s))
+            DataNode node = NodeForKey(ref s);
+            if (!node.data.ContainsKey(s))
             {
-                data[s] = new Value(null);
-                data[s].initialized = false;
+                node.data[s] = new Value(null);
+                node.data[s].initialized = false;
             }
-            data[s].deterministic = value;
+            node.data[s].deterministic = value;
         }
 
         /// <summary>
@@ -123,20 +127,23 @@ namespace ContractConfigurator.ExpressionParser
         /// <returns>True if the value has been read</returns>
         public bool IsInitialized(string key)
         {
-            return data.ContainsKey(key) && data[key] != null && data[key].initialized;
+            DataNode node = NodeForKey(ref key);
+            return node.data.ContainsKey(key) && node.data[key] != null && node.data[key].initialized;
         }
 
         public void BlankInit(string key, Type type)
         {
-            if (!data.ContainsKey(key))
+            DataNode node = NodeForKey(ref key);
+            if (!node.data.ContainsKey(key))
             {
-                data[key] = new Value(type);
+                node.data[key] = new Value(type);
             }
         }
 
         public Type GetType(string key)
         {
-            return data.ContainsKey(key) && data[key] != null ? data[key].type : null;
+            DataNode node = NodeForKey(ref key);
+            return node.data.ContainsKey(key) && node.data[key] != null ? node.data[key].type : null;
         }
 
         public DataNode Parent
@@ -169,40 +176,51 @@ namespace ContractConfigurator.ExpressionParser
 
         public DataNode(string name, DataNode parent, IContractConfiguratorFactory factory)
         {
-            if (parent != null)
-            {
-                // Check for duplicate name - probably could be more efficient here
-                string origName = name;
-                int i = 1;
-                while (parent.children.Any(dn => dn.name == name))
-                {
-                    name = origName + "_" + i++;
-                }
-            }
-
             this.parent = parent;
             this.factory = factory;
             this.name = name;
-            if (parent != null)
+            
+            if (parent != null && parent.factory.GetType() != typeof(ContractGroup))
             {
+                // Check for duplicate name - probably could be more efficient here
+                int i = 1;
+                while (parent.children.Any(dn => dn.name == this.name))
+                {
+                    this.name = name + "_" + i++;
+                }
+
                 parent.children.Add(this);
                 root = parent.root;
             }
-            else
+            else if (factory.GetType() != typeof(ContractGroup))
             {
                 root = this;
+            }
+            else
+            {
+                root = null;
             }
         }
 
         public string DebugString()
         {
-            string result = "<i>" + Name + "</i>\n";
+            string result = "";
 
-            foreach (KeyValuePair<string, Value> pair in data)
+            for (DataNode node = this; node != null; node = (this == root ? node.parent : null))
             {
-                result += "    <color=lime>" + pair.Key + "</color> = " + OutputValue(pair.Value.value) + ", deterministic = " + pair.Value.deterministic + "\n";
+                string nodeResults = "";
+                string prefix = node == this ? "" : node.name + ":";
+                if (node == this || node.root == null)
+                {
+                    foreach (KeyValuePair<string, Value> pair in node.data)
+                    {
+                        nodeResults += "    <color=lime>" + prefix + pair.Key + "</color> = " + OutputValue(pair.Value.value) +
+                            ", deterministic = " + pair.Value.deterministic + "\n";
+                    }
+                }
+                result = nodeResults + result;
             }
-            return result;
+            return "<i>" + Name + "</i>\n" + result;
         }
 
         private static string OutputValue(object value)
@@ -270,7 +288,7 @@ namespace ContractConfigurator.ExpressionParser
         /// <param name="dataValues"></param>
         /// <param name="uniqueValues"></param>
         /// <returns></returns>
-        public static bool ParseDataNodes(ConfigNode configNode, IContractConfiguratorFactory obj,
+        public bool ParseDataNodes(ConfigNode configNode, IContractConfiguratorFactory obj,
             Dictionary<string, bool> dataValues, Dictionary<string, bool> uniqueValues)
         {
             bool valid = true;
@@ -281,10 +299,12 @@ namespace ContractConfigurator.ExpressionParser
                 bool requiredValue = true;
                 bool uniqueValue = false;
                 bool activeUniqueValue = false;
+                ConfigNodeUtil.SetCurrentDataNode(null);
                 valid &= ConfigNodeUtil.ParseValue<Type>(data, "type", x => type = x, obj);
                 valid &= ConfigNodeUtil.ParseValue<bool>(data, "requiredValue", x => requiredValue = x, obj, true);
                 valid &= ConfigNodeUtil.ParseValue<bool>(data, "uniqueValue", x => uniqueValue = x, obj, false);
                 valid &= ConfigNodeUtil.ParseValue<bool>(data, "activeUniqueValue", x => activeUniqueValue = x, obj, false);
+                ConfigNodeUtil.SetCurrentDataNode(this);
 
                 if (type != null)
                 {
@@ -319,6 +339,33 @@ namespace ContractConfigurator.ExpressionParser
             }
 
             return valid;
+        }
+
+        private DataNode NodeForKey(ref string key)
+        {
+            if (!key.Contains(':'))
+            {
+                return this;
+            }
+
+            string[] names = key.Split(':');
+            if (names.Count() > 2)
+            {
+                throw new ArgumentException("Key value '" + key + "' is invalid, can only have one namespace preceeded by a colon (:).");
+            }
+
+            string group = names[0];
+
+            for (DataNode node = (root != null ? root : this).parent; node != null; node = node.parent)
+            {
+                if (node.name == group)
+                {
+                    key = names[1];
+                    return node;
+                }
+            }
+
+            throw new ArgumentException("Contract group '" + group + "' does not exist, or is not a parent of this contract.");
         }
     }
 }
