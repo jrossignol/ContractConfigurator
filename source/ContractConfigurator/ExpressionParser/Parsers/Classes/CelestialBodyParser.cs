@@ -40,6 +40,8 @@ namespace ContractConfigurator.ExpressionParser
             RegisterMethod(new Method<CelestialBody, double>("Mass", cb => cb != null ? cb.Mass : 0.0));
             RegisterMethod(new Method<CelestialBody, double>("RotationalPeriod", cb => cb != null ? cb.rotationPeriod : 0.0));
             RegisterMethod(new Method<CelestialBody, double>("AtmosphereAltitude", cb => cb != null ? cb.atmosphereDepth : 0.0));
+            RegisterMethod(new Method<CelestialBody, float>("FlyingAltitudeThreshold", cb => cb != null ? cb.scienceValues.flyingAltitudeThreshold : 0.0f));
+            RegisterMethod(new Method<CelestialBody, float>("SpaceAltitudeThreshold", cb => cb != null ? cb.scienceValues.spaceAltitudeThreshold : 0.0f));
             RegisterMethod(new Method<CelestialBody, double>("SphereOfInfluence", cb => cb != null ? cb.sphereOfInfluence : 0.0));
             RegisterMethod(new Method<CelestialBody, double>("SemiMajorAxis", cb => cb != null && cb.orbit != null ? cb.orbit.semiMajorAxis : 0.0));
 
