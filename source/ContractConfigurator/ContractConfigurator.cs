@@ -53,8 +53,6 @@ namespace ContractConfigurator
 
         public static EventData<Contract, ContractParameter> OnParameterChange = new EventData<Contract, ContractParameter>("OnParameterChange");
 
-        static int[] foo = { 1, 2, 3 };
-
         void Start()
         {
             DontDestroyOnLoad(this);
