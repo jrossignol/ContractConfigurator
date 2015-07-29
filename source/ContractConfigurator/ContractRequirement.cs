@@ -166,6 +166,10 @@ namespace ContractConfigurator
             }
             else
             {
+                // Make sure we can instantiate it (this will also run any static initializers)
+                Activator.CreateInstance(crType);
+
+                // Add it to our list
                 requirementTypes.Add(typeName, crType);
             }
         }

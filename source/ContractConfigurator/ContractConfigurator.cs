@@ -53,6 +53,8 @@ namespace ContractConfigurator
 
         public static EventData<Contract, ContractParameter> OnParameterChange = new EventData<Contract, ContractParameter>("OnParameterChange");
 
+        static int[] foo = { 1, 2, 3 };
+
         void Start()
         {
             DontDestroyOnLoad(this);
@@ -299,7 +301,7 @@ namespace ContractConfigurator
             LoggingUtil.LogDebug(this.GetType(), "Start Registering ParameterFactories");
 
             // Register each type with the parameter factory
-            foreach (Type subclass in GetAllTypes<ParameterFactory>())
+            foreach (Type subclass in GetAllTypes<ParameterFactory>().Where(t => !t.IsAbstract))
             {
                 string name = subclass.Name;
                 if (name.EndsWith("Factory"))
@@ -307,7 +309,15 @@ namespace ContractConfigurator
                     name = name.Remove(name.Length - 7, 7);
                 }
 
-                ParameterFactory.Register(subclass, name);
+                try
+                {
+                    ParameterFactory.Register(subclass, name);
+                }
+                catch (Exception e)
+                {
+                    LoggingUtil.LogError(this, "Error registering parameter factory " + subclass.Name);
+                    LoggingUtil.LogException(e);
+                }
             }
 
             LoggingUtil.LogInfo(this.GetType(), "Finished Registering ParameterFactories");
@@ -321,14 +331,23 @@ namespace ContractConfigurator
             LoggingUtil.LogDebug(this.GetType(), "Start Registering BehaviourFactories");
 
             // Register each type with the behaviour factory
-            foreach (Type subclass in GetAllTypes<BehaviourFactory>())
+            foreach (Type subclass in GetAllTypes<BehaviourFactory>().Where(t => !t.IsAbstract))
             {
                 string name = subclass.Name;
                 if (name.EndsWith("Factory"))
                 {
                     name = name.Remove(name.Length - 7, 7);
                 }
-                BehaviourFactory.Register(subclass, name);
+
+                try
+                {
+                    BehaviourFactory.Register(subclass, name);
+                }
+                catch (Exception e)
+                {
+                    LoggingUtil.LogError(this, "Error registering behaviour factory " + subclass.Name);
+                    LoggingUtil.LogException(e);
+                }
             }
 
             LoggingUtil.LogInfo(this.GetType(), "Finished Registering BehaviourFactories");
@@ -341,15 +360,24 @@ namespace ContractConfigurator
         {
             LoggingUtil.LogDebug(this.GetType(), "Start Registering ContractRequirements");
 
-            // Register each type with the parameter factory
-            foreach (Type subclass in GetAllTypes<ContractRequirement>())
+            // Register each type
+            foreach (Type subclass in GetAllTypes<ContractRequirement>().Where(t => !t.IsAbstract))
             {
                 string name = subclass.Name;
                 if (name.EndsWith("Requirement"))
                 {
                     name = name.Remove(name.Length - 11, 11);
                 }
-                ContractRequirement.Register(subclass, name);
+
+                try
+                {
+                    ContractRequirement.Register(subclass, name);
+                }
+                catch (Exception e)
+                {
+                    LoggingUtil.LogError(this, "Error registering contract requirement " + subclass.Name);
+                    LoggingUtil.LogException(e);
+                }
             }
 
             LoggingUtil.LogInfo(this.GetType(), "Finished Registering ContractRequirements");

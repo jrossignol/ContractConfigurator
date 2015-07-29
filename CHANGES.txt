@@ -2,6 +2,7 @@ Contract Configurator 1.6.0
 - Support for DATA nodes within CONTRACT_GROUP (allows defining an expression once and using it in multiple contracts).
 - New settings window (only available in space center) that allows contract packs to be enabled/disabled per save.  Also supports disabling of stock contract types.
 - Added new extended mode to HasResource parameter.
+- New AwardExperience behaviour for giving extra experience to crew.
 
 Contract Configurator 1.5.5
 - New MissionTimer parameter for displaying a count-up timer (use it for challenges!).
