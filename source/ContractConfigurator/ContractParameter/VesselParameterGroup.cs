@@ -17,6 +17,9 @@ namespace ContractConfigurator.Parameters
         private const string notePrefix = "<#acfcff>[-] Note: ";
         protected string define { get; set; }
         protected List<string> vesselList { get; set; }
+        protected bool dissassociateVesselsOnContractFailure;
+        protected bool dissassociateVesselsOnContractCompletion;
+
         public IEnumerable<string> VesselList { get { return vesselList; } }
         protected double duration { get; set; }
         protected ParameterDelegate<double> durationParameter;
@@ -33,16 +36,19 @@ namespace ContractConfigurator.Parameters
         private TitleTracker titleTracker = new TitleTracker();
 
         public VesselParameterGroup()
-            : this(null, null, null, 0.0)
+            : base("")
         {
         }
 
-        public VesselParameterGroup(string title, string define, IEnumerable<string> vesselList, double duration)
+        public VesselParameterGroup(string title, string define, IEnumerable<string> vesselList, double duration,
+            bool dissassociateVesselsOnContractFailure, bool dissassociateVesselsOnContractCompletion)
             : base(title)
         {
             this.define = define;
             this.duration = duration;
             this.vesselList = vesselList == null ? new List<string>() : vesselList.ToList();
+            this.dissassociateVesselsOnContractFailure = dissassociateVesselsOnContractFailure;
+            this.dissassociateVesselsOnContractCompletion = dissassociateVesselsOnContractCompletion;
             waiting = false;
 
             CreateTimerParameter();
@@ -277,6 +283,8 @@ namespace ContractConfigurator.Parameters
                 }
                 node.AddValue("trackedVessel", trackedVesselGuid);
             }
+            node.AddValue("dissassociateVesselsOnContractFailure", dissassociateVesselsOnContractFailure);
+            node.AddValue("dissassociateVesselsOnContractCompletion", dissassociateVesselsOnContractCompletion);
         }
 
         protected override void OnParameterLoad(ConfigNode node)
@@ -285,6 +293,8 @@ namespace ContractConfigurator.Parameters
             {
                 define = node.GetValue("define");
                 duration = Convert.ToDouble(node.GetValue("duration"));
+                dissassociateVesselsOnContractFailure = ConfigNodeUtil.ParseValue<bool?>(node, "dissassociateVesselsOnContractFailure", (bool?)true).Value;
+                dissassociateVesselsOnContractCompletion = ConfigNodeUtil.ParseValue<bool?>(node, "dissassociateVesselsOnContractCompletion", (bool?)false).Value;
                 vesselList = ConfigNodeUtil.ParseValue<List<string>>(node, "vessel", new List<string>());
                 if (node.HasValue("completionTime"))
                 {
@@ -316,6 +326,10 @@ namespace ContractConfigurator.Parameters
             GameEvents.onVesselRename.Add(new EventData<GameEvents.HostedFromToAction<Vessel, string>>.OnEvent(OnVesselRename));
             ContractVesselTracker.OnVesselAssociation.Add(new EventData<GameEvents.HostTargetAction<Vessel, string>>.OnEvent(OnVesselAssociation));
             ContractVesselTracker.OnVesselDisassociation.Add(new EventData<GameEvents.HostTargetAction<Vessel, string>>.OnEvent(OnVesselDisassociation));
+
+            GameEvents.Contract.onCompleted.Add(new EventData<Contract>.OnEvent(OnContractCompleted));
+            GameEvents.Contract.onFailed.Add(new EventData<Contract>.OnEvent(OnContractFailed));
+            GameEvents.Contract.onCancelled.Add(new EventData<Contract>.OnEvent(OnContractFailed));
         }
 
         protected override void OnUnregister()
@@ -324,6 +338,28 @@ namespace ContractConfigurator.Parameters
             GameEvents.onVesselRename.Remove(new EventData<GameEvents.HostedFromToAction<Vessel, string>>.OnEvent(OnVesselRename));
             ContractVesselTracker.OnVesselAssociation.Remove(new EventData<GameEvents.HostTargetAction<Vessel, string>>.OnEvent(OnVesselAssociation));
             ContractVesselTracker.OnVesselDisassociation.Remove(new EventData<GameEvents.HostTargetAction<Vessel, string>>.OnEvent(OnVesselDisassociation));
+
+            GameEvents.Contract.onCompleted.Remove(new EventData<Contract>.OnEvent(OnContractCompleted));
+            GameEvents.Contract.onFailed.Remove(new EventData<Contract>.OnEvent(OnContractFailed));
+            GameEvents.Contract.onCancelled.Remove(new EventData<Contract>.OnEvent(OnContractFailed));
+        }
+
+        protected void OnContractCompleted(Contract c)
+        {
+            if (c == Root && dissassociateVesselsOnContractCompletion && !string.IsNullOrEmpty(define) && trackedVessel != null)
+            {
+                LoggingUtil.LogVerbose(this, "Removing defined vessel " + define);
+                ContractVesselTracker.Instance.AssociateVessel(define, null);
+            }
+        }
+
+        protected void OnContractFailed(Contract c)
+        {
+            if (c == Root && dissassociateVesselsOnContractFailure && !string.IsNullOrEmpty(define) && trackedVessel != null)
+            {
+                LoggingUtil.LogVerbose(this, "Removing defined vessel " + define);
+                ContractVesselTracker.Instance.AssociateVessel(define, null);
+            }
         }
 
         protected void OnVesselAssociation(GameEvents.HostTargetAction<Vessel, string> hta)
