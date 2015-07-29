@@ -44,18 +44,26 @@ namespace ContractConfigurator
             return SetContractState(contractType, false);
         }
 
-        public static bool  SetContractState(Type contract, bool enabled)
+        public static bool  SetContractState(Type contractType, bool enabled)
         {
-            if (!enabled && ContractSystem.ContractTypes.Contains(contract))
+            if (!enabled && ContractSystem.ContractTypes.Contains(contractType))
             {
-                LoggingUtil.LogDebug(typeof(ContractDisabler), "Disabling ContractType: " + contract.FullName + " (" + contract.Module + ")");
-                ContractSystem.ContractTypes.Remove(contract);
+                LoggingUtil.LogDebug(typeof(ContractDisabler), "Disabling ContractType: " + contractType.FullName + " (" + contractType.Module + ")");
+                ContractSystem.ContractTypes.Remove(contractType);
+
+                // Remove Offered and active contracts 
+                foreach (Contract contract in ContractSystem.Instance.Contracts.Where(c => c != null && c.GetType() == contractType &&
+                    (c.ContractState == Contract.State.Offered || c.ContractState == Contract.State.Active)))
+                {
+                    contract.Withdraw();
+                }
+
                 return true;
             }
-            else if (enabled && !ContractSystem.ContractTypes.Contains(contract))
+            else if (enabled && !ContractSystem.ContractTypes.Contains(contractType))
             {
-                LoggingUtil.LogDebug(typeof(ContractDisabler), "Enabling ContractType: " + contract.FullName + " (" + contract.Module + ")");
-                ContractSystem.ContractTypes.Add(contract);
+                LoggingUtil.LogDebug(typeof(ContractDisabler), "Enabling ContractType: " + contractType.FullName + " (" + contractType.Module + ")");
+                ContractSystem.ContractTypes.Add(contractType);
                 return true;
             }
 
