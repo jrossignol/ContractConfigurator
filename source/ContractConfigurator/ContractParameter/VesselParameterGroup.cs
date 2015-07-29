@@ -19,6 +19,7 @@ namespace ContractConfigurator.Parameters
         protected List<string> vesselList { get; set; }
         public IEnumerable<string> VesselList { get { return vesselList; } }
         protected double duration { get; set; }
+        protected ParameterDelegate<double> durationParameter;
         protected double completionTime { get; set; }
         protected bool waiting { get; set; }
 
@@ -43,6 +44,8 @@ namespace ContractConfigurator.Parameters
             this.duration = duration;
             this.vesselList = vesselList == null ? new List<string>() : vesselList.ToList();
             waiting = false;
+
+            CreateTimerParameter();
         }
 
         protected override string GetParameterTitle()
@@ -92,21 +95,8 @@ namespace ContractConfigurator.Parameters
                 }
             }
 
-            // Not yet complete, add duration
-            if (state != ParameterState.Complete)
-            {
-                // Add duration
-                if (waiting && completionTime - Planetarium.GetUniversalTime() > 0.0)
-                {
-                    output += "; Time Remaining: " + DurationUtil.StringValue(completionTime - Planetarium.GetUniversalTime());
-                }
-                else if (duration > 0.0)
-                {
-                    output += "; Duration: " + DurationUtil.StringValue(duration);
-                }
-            }
             // If we're complete and a custom title hasn't been provided, try to get a better title
-            else if (string.IsNullOrEmpty(title))
+            if (state == ParameterState.Complete && string.IsNullOrEmpty(title))
             {
                 if (ParameterCount == 1)
                 {
@@ -148,9 +138,16 @@ namespace ContractConfigurator.Parameters
             return base.GetNotes();
         }
 
-        protected override string GetHashString()
+        protected void CreateTimerParameter()
         {
-            return (this.Root.MissionSeed.ToString() + this.Root.DateAccepted.ToString() + this.ID);
+            if (duration > 0.0)
+            {
+                durationParameter = new ParameterDelegate<double>("Duration: " + DurationUtil.StringValue(duration),
+                    t => t - Planetarium.GetUniversalTime() <= 0.0);
+                durationParameter.Optional = true;
+
+                AddParameter(durationParameter);
+            }
         }
 
         /// <summary>
@@ -284,23 +281,32 @@ namespace ContractConfigurator.Parameters
 
         protected override void OnParameterLoad(ConfigNode node)
         {
-            define = node.GetValue("define");
-            duration = Convert.ToDouble(node.GetValue("duration"));
-            vesselList = ConfigNodeUtil.ParseValue<List<string>>(node, "vessel", new List<string>());
-            if (node.HasValue("completionTime"))
+            try
             {
-                waiting = true;
-                completionTime = Convert.ToDouble(node.GetValue("completionTime"));
-            }
-            else
-            {
-                waiting = false;
-            }
+                define = node.GetValue("define");
+                duration = Convert.ToDouble(node.GetValue("duration"));
+                vesselList = ConfigNodeUtil.ParseValue<List<string>>(node, "vessel", new List<string>());
+                if (node.HasValue("completionTime"))
+                {
+                    waiting = true;
+                    completionTime = Convert.ToDouble(node.GetValue("completionTime"));
+                }
+                else
+                {
+                    waiting = false;
+                }
 
-            if (node.HasValue("trackedVessel"))
+                if (node.HasValue("trackedVessel"))
+                {
+                    trackedVesselGuid = new Guid(node.GetValue("trackedVessel"));
+                    trackedVessel = FlightGlobals.Vessels.Find(v => v != null && v.id == trackedVesselGuid);
+                }
+
+                CreateTimerParameter();
+            }
+            finally
             {
-                trackedVesselGuid = new Guid(node.GetValue("trackedVessel"));
-                trackedVessel = FlightGlobals.Vessels.Find(v => v != null && v.id == trackedVesselGuid);
+                ParameterDelegate<Vessel>.OnDelegateContainerLoad(node);
             }
         }
 
@@ -448,11 +454,22 @@ namespace ContractConfigurator.Parameters
             // Every time the clock ticks over, make an attempt to update the contract window
             // notes.  We do this because otherwise the window will only ever read the notes once,
             // so this is the only way to get our fancy timer to work.
-            else if (waiting && trackedVessel != null && Planetarium.GetUniversalTime() - lastUpdate > 1.0f)
+            else if (waiting && trackedVessel != null)
             {
-                lastUpdate = Planetarium.GetUniversalTime();
+                if (Planetarium.GetUniversalTime() - lastUpdate > 1.0f)
+                {
+                    lastUpdate = Planetarium.GetUniversalTime();
 
-                titleTracker.UpdateContractWindow(this, GetTitle());
+                    titleTracker.UpdateContractWindow(this, GetTitle());
+                    durationParameter.SetTitle("Time Remaining: " + DurationUtil.StringValue(completionTime - Planetarium.GetUniversalTime()));
+                }
+            }
+            else
+            {
+                if (durationParameter != null)
+                {
+                    durationParameter.SetTitle("Duration: " + DurationUtil.StringValue(duration));
+                }
             }
         }
 

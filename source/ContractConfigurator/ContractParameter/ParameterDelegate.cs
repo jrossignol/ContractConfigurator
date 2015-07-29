@@ -57,6 +57,8 @@ namespace ContractConfigurator.Parameters
         protected ParameterDelegateMatchType matchType;
         protected bool trivial;
 
+        private TitleTracker titleTracker = new TitleTracker();
+
         public ParameterDelegate()
             : this(null, null, false)
         {
@@ -77,6 +79,13 @@ namespace ContractConfigurator.Parameters
             disableOnStateChange = false;
 
             OnRegister();
+        }
+
+        protected override string GetParameterTitle()
+        {
+            string output = base.GetParameterTitle();
+            titleTracker.Add(output);
+            return output;
         }
 
         protected override void OnParameterSave(ConfigNode node)
@@ -117,7 +126,11 @@ namespace ContractConfigurator.Parameters
 
         public void SetTitle(string newTitle)
         {
-            title = newTitle;
+            if (title != newTitle)
+            {
+                title = newTitle;
+                titleTracker.UpdateContractWindow(this, newTitle);
+            }
         }
 
         /// <summary>
@@ -188,8 +201,14 @@ namespace ContractConfigurator.Parameters
         /// <param name="node">The config node to operate on.</param>
         public static void OnDelegateContainerLoad(ConfigNode node)
         {
-            // No child parameters allowed!
-            node.RemoveNodes("PARAM");
+            // No delegate child parameters allowed!
+            foreach (ConfigNode child in node.GetNodes("PARAM"))
+            {
+                if (child.GetValue("name").EndsWith("`1"))
+                {
+                    node.RemoveNode(child);
+                }
+            }
         }
 
         /// <summary>
@@ -261,9 +280,10 @@ namespace ContractConfigurator.Parameters
             bool conditionMet = true;
             foreach (ContractParameter child in param.AllParameters)
             {
-                if (child is ParameterDelegate<T>)
+                ParameterDelegate<T> delegateParam = child as ParameterDelegate<T>;
+                if (delegateParam != null)
                 {
-                    conditionMet &= ((ParameterDelegate<T>)child).SetState(value);
+                    conditionMet &= delegateParam.SetState(value);
                 }
             }
 

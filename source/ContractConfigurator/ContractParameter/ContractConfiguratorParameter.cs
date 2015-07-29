@@ -40,6 +40,11 @@ namespace ContractConfigurator.Parameters
             return GetParameterTitle();
         }
 
+        protected override string GetHashString()
+        {
+            return (this.Root.MissionSeed.ToString() + this.Root.DateAccepted.ToString() + this.ID);
+        }
+
         /// <summary>
         /// Override this instead of GetTitle.
         /// </summary>
