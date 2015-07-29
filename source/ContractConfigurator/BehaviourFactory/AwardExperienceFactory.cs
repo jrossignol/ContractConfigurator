@@ -91,8 +91,8 @@ namespace ContractConfigurator.Behaviour
             bool valid = base.Load(configNode);
 
             valid &= ConfigNodeUtil.ParseValue<List<string>>(configNode, "parameter", x => parameter = x, this);
-            valid &= ConfigNodeUtil.ParseValue<int>(configNode, "experience", x => experience = x, this);
-            valid &= ConfigNodeUtil.ParseValue<bool?>(configNode, "awardImmediately", x => awardImmediately = x.Value, this, (bool?)true);
+            valid &= ConfigNodeUtil.ParseValue<int>(configNode, "experience", x => experience = x, this, 1);
+            valid &= ConfigNodeUtil.ParseValue<bool?>(configNode, "awardImmediately", x => awardImmediately = x.Value, this, (bool?)false);
 
             return valid;
         }
