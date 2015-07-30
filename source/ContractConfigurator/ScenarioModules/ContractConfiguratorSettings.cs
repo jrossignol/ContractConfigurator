@@ -244,12 +244,12 @@ namespace ContractConfigurator
 
             GUILayout.Label("", contractRegularText, GUILayout.ExpandWidth(false), GUILayout.Width((indent+1) * 16));
 
-            string groupName = contractGroup == null ? "No Group" : contractGroup.name;
+            string groupName = contractGroup == null ? "No Group" : contractGroup.displayName;
             GUILayout.Label(groupName, details.enabled ? contractRegularText : contractDisabledText, GUILayout.ExpandWidth(true));
             if (contractGroup != null && contractGroup.parent == null)
             {
                 bool enabled = GUILayout.Toggle(details.enabled,
-                    new GUIContent("", "Click to " + (details.enabled ? "disable " : "enable ") + contractGroup.name + " contracts."),
+                    new GUIContent("", "Click to " + (details.enabled ? "disable " : "enable ") + contractGroup.displayName + " contracts."),
                     contractToggleStyle, GUILayout.ExpandWidth(false));
 
                 if (enabled != details.enabled)
