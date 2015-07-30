@@ -105,6 +105,8 @@
     <Compile Include="ContractRequirement\FundsRequirement.cs" />
     <Compile Include="ContractGroup.cs" />
     <Compile Include="ContractRequirement\CanResearchTechRequirement.cs" />
+    <Compile Include="ExpressionParser\Parsers\Classes\TechParser.cs" />
+    <Compile Include="ExpressionParser\Wrappers\Tech.cs" />
     <Compile Include="ParameterFactory\NewVesselFactory.cs" />
     <Compile Include="ScenarioModules\ContractConfiguratorSettings.cs" />
     <Compile Include="ParameterFactory\MissionTimerFactory.cs" />

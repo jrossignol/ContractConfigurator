@@ -8,6 +8,7 @@ Contract Configurator 1.6.0
 - Tweak weighting between stock contracts and Contract Configurator contracts towards Contract Configurator.
 - Duration portion of VesselParameterGroup parameters is now displayed as a child parameter (makes it harder to miss).
 - Added attributes to VesselParameterGroup to allow vessel definitions to elapse on contract completion/failure.
+- Added Tech class to expressions.
 
 Contract Configurator 1.5.5
 - New MissionTimer parameter for displaying a count-up timer (use it for challenges!).
