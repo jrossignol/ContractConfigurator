@@ -497,7 +497,10 @@ namespace ContractConfigurator.Parameters
                     lastUpdate = Planetarium.GetUniversalTime();
 
                     titleTracker.UpdateContractWindow(this, GetTitle());
-                    durationParameter.SetTitle("Time Remaining: " + DurationUtil.StringValue(completionTime - Planetarium.GetUniversalTime()));
+                    if (durationParameter != null)
+                    {
+                        durationParameter.SetTitle("Time Remaining: " + DurationUtil.StringValue(completionTime - Planetarium.GetUniversalTime()));
+                    }
                 }
             }
             else
