@@ -368,48 +368,66 @@ namespace ContractConfigurator
 
         public override void OnSave(ConfigNode node)
         {
-            foreach (ContractGroupDetails details in contractGroupDetails.Values)
+            try
             {
-                ConfigNode groupNode = new ConfigNode("CONTRACT_GROUP");
-                node.AddNode(groupNode);
+                foreach (ContractGroupDetails details in contractGroupDetails.Values.Where(d => d.group != null))
+                {
+                    ConfigNode groupNode = new ConfigNode("CONTRACT_GROUP");
+                    node.AddNode(groupNode);
 
-                groupNode.AddValue("group", details.group.name);
-                groupNode.AddValue("enabled", details.enabled);
+                    groupNode.AddValue("group", details.group.name);
+                    groupNode.AddValue("enabled", details.enabled);
+                }
+
+                foreach (StockContractDetails details in stockContractDetails.Values.Where(d => d.contractType != null))
+                {
+                    ConfigNode stateNode = new ConfigNode("CONTRACT_STATE");
+                    node.AddNode(stateNode);
+
+                    stateNode.AddValue("type", details.contractType.Name);
+                    stateNode.AddValue("enabled", details.enabled);
+                }
             }
-
-            foreach (StockContractDetails details in stockContractDetails.Values)
+            catch (Exception e)
             {
-                ConfigNode stateNode = new ConfigNode("CONTRACT_STATE");
-                node.AddNode(stateNode);
-
-                stateNode.AddValue("type", details.contractType.Name);
-                stateNode.AddValue("enabled", details.enabled);
+                LoggingUtil.LogError(this, "Error saving ContractPreLoader to persistance file!");
+                LoggingUtil.LogException(e);
+                ExceptionLogWindow.DisplayFatalException(ExceptionLogWindow.ExceptionSituation.SCENARIO_MODULE_SAVE, e, "ContractPreLoader");
             }
         }
 
         public override void OnLoad(ConfigNode node)
         {
-            foreach (ConfigNode groupNode in node.GetNodes("CONTRACT_GROUP"))
+            try
             {
-                ContractGroup group = ConfigNodeUtil.ParseValue<ContractGroup>(groupNode, "group");
-
-                ContractGroupDetails details = new ContractGroupDetails(group);
-                details.enabled = ConfigNodeUtil.ParseValue<bool>(groupNode, "enabled");
-            }
-
-            foreach (ConfigNode stateNode in node.GetNodes("CONTRACT_STATE"))
-            {
-                try
+                foreach (ConfigNode groupNode in node.GetNodes("CONTRACT_GROUP"))
                 {
-                    Type contractType = ConfigNodeUtil.ParseValue<Type>(stateNode, "group");
+                    ContractGroup group = ConfigNodeUtil.ParseValue<ContractGroup>(groupNode, "group");
 
-                    StockContractDetails details = new StockContractDetails(contractType);
-                    details.enabled = ConfigNodeUtil.ParseValue<bool>(stateNode, "enabled");
-
-                    stockContractDetails[contractType] = details;
+                    ContractGroupDetails details = new ContractGroupDetails(group);
+                    details.enabled = ConfigNodeUtil.ParseValue<bool>(groupNode, "enabled");
                 }
-                // Ignore ArgumentException - handles contracts that were dropped
-                catch (ArgumentException) { }
+
+                foreach (ConfigNode stateNode in node.GetNodes("CONTRACT_STATE"))
+                {
+                    try
+                    {
+                        Type contractType = ConfigNodeUtil.ParseValue<Type>(stateNode, "group");
+
+                        StockContractDetails details = new StockContractDetails(contractType);
+                        details.enabled = ConfigNodeUtil.ParseValue<bool>(stateNode, "enabled");
+
+                        stockContractDetails[contractType] = details;
+                    }
+                    // Ignore ArgumentException - handles contracts that were dropped
+                    catch (ArgumentException) { }
+                }
+            }
+            catch (Exception e)
+            {
+                LoggingUtil.LogError(this, "Error loading ContractPreLoader from persistance file!");
+                LoggingUtil.LogException(e);
+                ExceptionLogWindow.DisplayFatalException(ExceptionLogWindow.ExceptionSituation.SCENARIO_MODULE_LOAD, e, "ContractPreLoader");
             }
         }
 

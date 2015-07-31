@@ -1,3 +1,6 @@
+Contract Configurator 1.6.2
+- Fixed issue with saving contract settings (thanks rasta013).
+
 Contract Configurator 1.6.1
 - Fixed a major bug that prevented VesselParameterGroup parameters from completing in some circumstances (thanks ola).
 
