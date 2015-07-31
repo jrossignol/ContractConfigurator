@@ -8,6 +8,7 @@ Contract Configurator 1.6.0
 - Tweak weighting between stock contracts and Contract Configurator contracts towards Contract Configurator.
 - Duration portion of VesselParameterGroup parameters is now displayed as a child parameter (makes it harder to miss).
 - Added attributes to VesselParameterGroup to allow vessel definitions to elapse on contract completion/failure.
+- New CelestialBody methods for progression attributes (whether the player has reached, orbited, landed, escaped and returned from the body).
 - Added Tech class to expressions.
 
 Contract Configurator 1.5.5
