@@ -210,7 +210,7 @@ namespace ContractConfigurator
                 guiContracts = ContractType.AllValidContractTypes;
             }
             
-            foreach (ContractGroup contractGroup in ContractGroup.AllGroups.Where(g => g == null || g.parent == null).OrderBy(g => g == null ? "ZZZ" : g.name))
+            foreach (ContractGroup contractGroup in ContractGroup.AllGroups.Where(g => g != null && g.parent == null).OrderBy(g => g == null ? "ZZZ" : g.name))
             {
                 if (guiContracts.Any(ct => contractGroup == null ? ct.group == null : contractGroup.BelongsToGroup(ct)))
                 {
