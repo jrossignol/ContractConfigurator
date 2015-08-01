@@ -144,5 +144,22 @@ namespace ContractConfigurator
                 yield return tech;
             }
         }
+
+        /// <summary>
+        /// Gets all parent nodes for the given node.
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<Tech> ParentNodes()
+        {
+            if (!SetupTech())
+            {
+                yield break;
+            }
+
+            foreach (Tech tech in allTech.Values.Where(t => t.children.Contains(this)))
+            {
+                yield return tech;
+            }
+        }
     }
 }

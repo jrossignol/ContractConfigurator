@@ -1,3 +1,6 @@
+Contract Configurator 1.6.3
+- New Tech methods AnyToUnlock() and Parents().
+
 Contract Configurator 1.6.2
 - Fixed issue with saving contract settings (thanks rasta013).
 
