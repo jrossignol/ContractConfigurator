@@ -1,6 +1,24 @@
+Contract Configurator 1.6.3
+- New Tech methods Parents() and IsReadyToUnlock().
+
+Contract Configurator 1.6.2
+- Fixed issue with saving contract settings (thanks rasta013).
+
+Contract Configurator 1.6.1
+- Fixed a major bug that prevented VesselParameterGroup parameters from completing in some circumstances (thanks ola).
+
 Contract Configurator 1.6.0
 - New settings window (only available in space center) that allows contract packs to be enabled/disabled per save.  Also supports disabling of stock contract types.
+- Support for DATA nodes within CONTRACT_GROUP (allows defining an expression once and using it in multiple contracts).
+- Added displayName to CONTRACT_GROUP.
 - Added new extended mode to HasResource parameter.
+- New AwardExperience behaviour for giving extra experience to crew.
+- FlyingAltitudeThreshold and SpaceAltitudeThreshold methods added to CelestialBody.
+- Tweak weighting between stock contracts and Contract Configurator contracts towards Contract Configurator.
+- Duration portion of VesselParameterGroup parameters is now displayed as a child parameter (makes it harder to miss).
+- Added attributes to VesselParameterGroup to allow vessel definitions to elapse on contract completion/failure.
+- New CelestialBody methods for progression attributes (whether the player has reached, orbited, landed, escaped and returned from the body).
+- Added Tech class to expressions.
 
 Contract Configurator 1.5.5
 - New MissionTimer parameter for displaying a count-up timer (use it for challenges!).

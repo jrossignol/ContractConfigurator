@@ -13,6 +13,15 @@ namespace ContractConfigurator.ExpressionParser
     /// </summary>
     public class CelestialBodyParser : ClassExpressionParser<CelestialBody>, IExpressionParserRegistrer
     {
+        private enum ProgressItem
+        {
+            REACHED,
+            ORBITED,
+            LANDED,
+            ESCAPED,
+            RETURNED_FROM
+        }
+
         static CelestialBodyParser()
         {
             RegisterMethods();
@@ -36,10 +45,18 @@ namespace ContractConfigurator.ExpressionParser
             RegisterMethod(new Method<CelestialBody, bool>("IsOrbitalSurveyComplete", cb => cb != null && ResourceScenario.Instance != null &&
                 ResourceScenario.Instance.gameSettings.GetPlanetScanInfo().Where(psd => psd.PlanetId == cb.flightGlobalsIndex).Any(), false));
 
+            RegisterMethod(new Method<CelestialBody, bool>("HaveReached", cb => IsReached(cb, ProgressItem.REACHED), false));
+            RegisterMethod(new Method<CelestialBody, bool>("HaveOrbited", cb => IsReached(cb, ProgressItem.ORBITED), false));
+            RegisterMethod(new Method<CelestialBody, bool>("HaveLandedOn", cb => IsReached(cb, ProgressItem.LANDED), false));
+            RegisterMethod(new Method<CelestialBody, bool>("HaveEscaped", cb => IsReached(cb, ProgressItem.ESCAPED), false));
+            RegisterMethod(new Method<CelestialBody, bool>("HaveReturnedFrom", cb => IsReached(cb, ProgressItem.RETURNED_FROM), false));
+            
             RegisterMethod(new Method<CelestialBody, double>("Radius", cb => cb != null ? cb.Radius : 0.0));
             RegisterMethod(new Method<CelestialBody, double>("Mass", cb => cb != null ? cb.Mass : 0.0));
             RegisterMethod(new Method<CelestialBody, double>("RotationalPeriod", cb => cb != null ? cb.rotationPeriod : 0.0));
             RegisterMethod(new Method<CelestialBody, double>("AtmosphereAltitude", cb => cb != null ? cb.atmosphereDepth : 0.0));
+            RegisterMethod(new Method<CelestialBody, float>("FlyingAltitudeThreshold", cb => cb != null ? cb.scienceValues.flyingAltitudeThreshold : 0.0f));
+            RegisterMethod(new Method<CelestialBody, float>("SpaceAltitudeThreshold", cb => cb != null ? cb.scienceValues.spaceAltitudeThreshold : 0.0f));
             RegisterMethod(new Method<CelestialBody, double>("SphereOfInfluence", cb => cb != null ? cb.sphereOfInfluence : 0.0));
             RegisterMethod(new Method<CelestialBody, double>("SemiMajorAxis", cb => cb != null && cb.orbit != null ? cb.orbit.semiMajorAxis : 0.0));
 
@@ -57,14 +74,11 @@ namespace ContractConfigurator.ExpressionParser
 
             RegisterGlobalFunction(new Function<CelestialBody>("HomeWorld", () => FlightGlobals.Bodies.Where(cb => cb.isHomeWorld).First()));
             RegisterGlobalFunction(new Function<List<CelestialBody>>("AllBodies", () => FlightGlobals.Bodies.ToList()));
-            RegisterGlobalFunction(new Function<List<CelestialBody>>("OrbitedBodies", () => ProgressTracking.Instance == null ?
-                new List<CelestialBody>() :
-                ProgressTracking.Instance.celestialBodyNodes.Where(subtree => subtree.orbit.IsReached).
-                Select<CelestialBodySubtree, CelestialBody>(subtree => subtree.Body).ToList(), false));
-            RegisterGlobalFunction(new Function<List<CelestialBody>>("LandedBodies", () => ProgressTracking.Instance == null ?
-                new List<CelestialBody>() :
-                ProgressTracking.Instance.celestialBodyNodes.Where(subtree => subtree.landing.IsReached).
-                Select<CelestialBodySubtree, CelestialBody>(subtree => subtree.Body).ToList(), false));
+            RegisterGlobalFunction(new Function<List<CelestialBody>>("OrbitedBodies", () => BodiesForItem(ProgressItem.ORBITED).ToList(), false));
+            RegisterGlobalFunction(new Function<List<CelestialBody>>("LandedBodies", () => BodiesForItem(ProgressItem.LANDED).ToList(), false));
+            RegisterGlobalFunction(new Function<List<CelestialBody>>("EscapedBodies", () => BodiesForItem(ProgressItem.ESCAPED).ToList(), false));
+            RegisterGlobalFunction(new Function<List<CelestialBody>>("ReachedBodies", () => BodiesForItem(ProgressItem.REACHED).ToList(), false));
+            RegisterGlobalFunction(new Function<List<CelestialBody>>("ReturnedFromBodies", () => BodiesForItem(ProgressItem.RETURNED_FROM).ToList(), false));
             RegisterGlobalFunction(new Function<CelestialBody, CelestialBody>("CelestialBody", cb => cb));
         }
 
@@ -81,11 +95,51 @@ namespace ContractConfigurator.ExpressionParser
             return base.ConvertType<U>(value);
         }
 
+        private static IEnumerable<CelestialBody> BodiesForItem(ProgressItem pi)
+        {
+            if (ProgressTracking.Instance == null)
+            {
+                return Enumerable.Empty<CelestialBody>();
+            }
+
+            return ProgressTracking.Instance.celestialBodyNodes.Where(node => CheckTree(node, pi)).Select(node => node.Body);
+        }
+
+        private static bool IsReached(CelestialBody cb, ProgressItem pi)
+        {
+            if (ProgressTracking.Instance == null)
+            {
+                return false;
+            }
+
+            CelestialBodySubtree tree = ProgressTracking.Instance.celestialBodyNodes.Where(node => node.Body == cb).FirstOrDefault();
+            return tree == null ? false : CheckTree(tree, pi);
+        }
+
+        private static bool CheckTree(CelestialBodySubtree tree, ProgressItem pi)
+        {
+            switch (pi)
+            {
+                case ProgressItem.REACHED:
+                    return tree.IsReached;
+                case ProgressItem.ORBITED:
+                    return tree.orbit.IsComplete;
+                case ProgressItem.LANDED:
+                    return tree.landing.IsComplete;
+                case ProgressItem.ESCAPED:
+                    return tree.escape.IsComplete;
+                case ProgressItem.RETURNED_FROM:
+                    return tree.returnFromFlyby.IsComplete;
+            }
+
+            return false;
+        }
+
         private static double RemoteTechCoverage(CelestialBody cb)
         {
             if (!Util.Version.VerifyRemoteTechVersion())
             {
-                return 0.0;
+                return 1.0;
             }
 
             Type rtProgressTracker = Util.Version.CC_RemoteTechAssembly.GetType("ContractConfigurator.RemoteTech.RemoteTechProgressTracker");

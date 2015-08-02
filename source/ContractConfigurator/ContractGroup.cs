@@ -33,6 +33,7 @@ namespace ContractConfigurator
 
         // Group attributes
         public string name;
+        public string displayName;
         public string minVersion;
         public int maxCompletions;
         public int maxSimultaneous;
@@ -44,6 +45,9 @@ namespace ContractConfigurator
         public string config { get; private set; }
         public string log { get; private set; }
         public DataNode dataNode { get; private set; }
+
+        public Dictionary<string, bool> dataValues = new Dictionary<string, bool>();
+        public Dictionary<string, bool> uniqueValues = new Dictionary<string, bool>();
 
         public ContractGroup parent = null;
 
@@ -69,6 +73,7 @@ namespace ContractConfigurator
                 bool valid = true;
 
                 valid &= ConfigNodeUtil.ParseValue<string>(configNode, "name", x => name = x, this);
+                valid &= ConfigNodeUtil.ParseValue<string>(configNode, "displayName", x => displayName = x, this, name);
                 valid &= ConfigNodeUtil.ParseValue<string>(configNode, "minVersion", x => minVersion = x, this, "");
                 valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxCompletions", x => maxCompletions = x, this, 0, x => Validation.GE(x, 0));
                 valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxSimultaneous", x => maxSimultaneous = x, this, 0, x => Validation.GE(x, 0));
@@ -101,14 +106,14 @@ namespace ContractConfigurator
                 foreach (ConfigNode childNode in ConfigNodeUtil.GetChildNodes(configNode, "CONTRACT_GROUP"))
                 {
                     ContractGroup child = null;
-                    string name = childNode.GetValue("name");
+                    string childName = childNode.GetValue("name");
                     try
                     {
-                        child = new ContractGroup(name);
+                        child = new ContractGroup(childName);
                     }
                     catch (ArgumentException)
                     {
-                        LoggingUtil.LogError(this, "Couldn't load CONTRACT_GROUP '" + name + "' due to a duplicate name.");
+                        LoggingUtil.LogError(this, "Couldn't load CONTRACT_GROUP '" + childName + "' due to a duplicate name.");
                         valid = false;
                         continue;
                     }
@@ -120,6 +125,9 @@ namespace ContractConfigurator
                         hasWarnings = true;
                     }
                 }
+
+                // Load DATA nodes
+                valid &= dataNode.ParseDataNodes(configNode, this, dataValues, uniqueValues);
 
                 // Check for unexpected values - always do this last
                 valid &= ConfigNodeUtil.ValidateUnexpectedValues(configNode, this);
