@@ -161,5 +161,22 @@ namespace ContractConfigurator
                 yield return tech;
             }
         }
+
+        public bool IsReadyToUnlock()
+        {
+            if (!SetupTech() || IsUnlocked())
+            {
+                return false;
+            }
+
+            if (anyToUnlock)
+            {
+                return ParentNodes().Any(p => p.IsUnlocked());
+            }
+            else
+            {
+                return ParentNodes().All(p => p.IsUnlocked());
+            }
+        }
     }
 }

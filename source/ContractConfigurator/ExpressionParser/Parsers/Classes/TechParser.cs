@@ -25,10 +25,10 @@ namespace ContractConfigurator.ExpressionParser
         internal static void RegisterMethods()
         {
             RegisterMethod(new Method<Tech, bool>("IsUnlocked", t => t == null ? false : t.IsUnlocked(), false));
+            RegisterMethod(new Method<Tech, bool>("IsReadyToUnlock", t => t == null ? false : t.IsReadyToUnlock(), false));
             RegisterMethod(new Method<Tech, float>("Cost", t => t == null ? 0.0f : t.cost));
             RegisterMethod(new Method<Tech, string>("Description", t => t == null ? "" : t.description));
             RegisterMethod(new Method<Tech, int>("Level", t => t == null ? 0 : t.level));
-            RegisterMethod(new Method<Tech, bool>("AnyToUnlock", t => t == null ? false : t.anyToUnlock));
             RegisterMethod(new Method<Tech, List<Tech>>("Parents", t => t == null ? new List<Tech>() : t.ParentNodes().ToList()));
             RegisterMethod(new Method<Tech, List<Tech>>("Children", t => t == null ? new List<Tech>() : t.children.ToList()));
 
