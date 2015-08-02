@@ -81,7 +81,7 @@ namespace ContractConfigurator.Util
         /// <returns>Whether the check passed.</returns>
         public static bool VerifyRemoteTechVersion()
         {
-            string minVersion = "1.6.2";
+            string minVersion = "1.6.3";
             if (RemoteTechAssembly == null)
             {
                 RemoteTechAssembly = Version.VerifyAssemblyVersion("RemoteTech", minVersion);
