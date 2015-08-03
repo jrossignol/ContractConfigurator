@@ -251,7 +251,14 @@ namespace ContractConfigurator.ExpressionParser
                                 // Parse under the return type
                                 TResult val = ParseOperation<TResult>(lval, token.sval);
                                 parser.expression = expression;
-                                result = parser.ParseStatement<TResult>(val);
+                                if (string.IsNullOrEmpty(expression))
+                                {
+                                    result = val;
+                                }
+                                else
+                                {
+                                    result = parser.ParseStatement<TResult>(val);
+                                }
                                 verbose &= LogExitDebug<TResult>("ParseStatement", result);
                                 expression = parser.expression;
                                 return result;
