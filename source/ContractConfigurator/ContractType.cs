@@ -367,13 +367,6 @@ namespace ContractConfigurator
                         activeContracts--;
                     }
 
-                    if (this.name == "recordCrewedAlt" && contract.ContractState != Contract.State.Active)
-                    {
-                        Debug.Log("state = " + contract.ContractState);
-                        Debug.Log("Active count = " + activeContracts);
-                        Debug.Log("count = " + contractList.Count());
-                    }
-
                     // Check if we're breaching the active limit
                     if (maxSimultaneous != 0 && activeContracts >= maxSimultaneous)
                     {
