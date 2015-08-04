@@ -1,5 +1,6 @@
 Contract Configurator 1.6.4
 - Workaround for crash issue when parsing some ternary expressions in contracts.
+- ContractPreLoader improvements, better handling of autoAccept contracts (thanks NathanKell).
 
 Contract Configurator 1.6.3
 - New Tech methods Parents() and IsReadyToUnlock().

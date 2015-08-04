@@ -36,10 +36,13 @@ namespace ContractConfigurator
         System.Random rand = new System.Random();
 
         private Dictionary<Contract.ContractPrestige, ContractDetails> contractDetails = new Dictionary<Contract.ContractPrestige, ContractDetails>();
+        private Queue<ConfiguredContract> priorityContracts = new Queue<ConfiguredContract>();
         private IEnumerator<KeyValuePair<ConfiguredContract, bool>?> currentEnumerator = null;
         private ContractDetails currentDetails = null;
 
         private string lastKey = null;
+
+        private static MethodInfo contractRefreshMethod = typeof(ContractSystem).GetMethod("RefreshContracts", BindingFlags.Instance | BindingFlags.NonPublic);
 
         public ContractPreLoader()
         {
@@ -101,7 +104,7 @@ namespace ContractConfigurator
                 // Prepare a list of possible selections
                 IEnumerable<ContractDetails> selections = contractDetails.Values.Where(cd =>
                     UnityEngine.Time.realtimeSinceStartup - cd.lastGenerationFailure > FAILURE_WAIT_TIME &&
-                    cd.contracts.Count < MAX_CONTRACTS);
+                    cd.contracts.Count() < MAX_CONTRACTS);
 
                 // Nothing is ready
                 if (!selections.Any())
@@ -137,7 +140,14 @@ namespace ContractConfigurator
                 KeyValuePair<ConfiguredContract, bool>? pair = currentEnumerator.Current;
                 if (pair != null && pair.Value.Value)
                 {
-                    currentDetails.contracts.Enqueue(pair.Value.Key);
+                    (pair.Value.Key.contractType.autoAccept ? priorityContracts : currentDetails.contracts).Enqueue(pair.Value.Key);
+
+                    // We generated a high priority contract...  force the system to do a generation pass
+                    if (pair.Value.Key.contractType.autoAccept)
+                    {
+                        contractRefreshMethod.Invoke(ContractSystem.Instance, new object[] { });
+                    }
+
                     currentEnumerator = null;
                     break;
                 }
@@ -291,9 +301,9 @@ namespace ContractConfigurator
         {
             // First try to get one off the queue
             float start = UnityEngine.Time.realtimeSinceStartup;
-            while (contractDetails[prestige].contracts.Count > 0)
+            while (priorityContracts.Any() || contractDetails[prestige].contracts.Count > 0)
             {
-                ConfiguredContract contract = contractDetails[prestige].contracts.Dequeue();
+                ConfiguredContract contract = (priorityContracts.Any() ? priorityContracts : contractDetails[prestige].contracts).Dequeue();
 
                 if (contract != null && contract.contractType != null && contract.contractType.MeetRequirements(contract))
                 {
@@ -361,14 +371,11 @@ namespace ContractConfigurator
         {
             try
             {
-                foreach (ContractDetails cd in contractDetails.Values)
+                foreach (ConfiguredContract contract in contractDetails.Values.SelectMany(cd => cd.contracts).Union(priorityContracts))
                 {
-                    foreach (ConfiguredContract contract in cd.contracts)
-                    {
-                        ConfigNode child = new ConfigNode("CONTRACT");
-                        node.AddNode(child);
-                        contract.Save(child);
-                    }
+                    ConfigNode child = new ConfigNode("CONTRACT");
+                    node.AddNode(child);
+                    contract.Save(child);
                 }
             }
             catch (Exception e)
@@ -388,7 +395,17 @@ namespace ContractConfigurator
                     ConfiguredContract contract = new ConfiguredContract();
                     Contract.Load(contract, child);
 
-                    contractDetails[contract.Prestige].contracts.Enqueue(contract);
+                    if (contract.contractType != null)
+                    {
+                        if (contract.contractType.autoAccept)
+                        {
+                            priorityContracts.Enqueue(contract);
+                        }
+                        else
+                        {
+                            contractDetails[contract.Prestige].contracts.Enqueue(contract);
+                        }
+                    }
                 }
             }
             catch (Exception e)
@@ -397,6 +414,21 @@ namespace ContractConfigurator
                 LoggingUtil.LogException(e);
                 ExceptionLogWindow.DisplayFatalException(ExceptionLogWindow.ExceptionSituation.SCENARIO_MODULE_LOAD, e, "ContractPreLoader");
             }
+        }
+
+        public IEnumerable<ConfiguredContract> PendingContracts()
+        {
+            return contractDetails.SelectMany(p => p.Value.contracts).Union(priorityContracts);
+        }
+
+        public IEnumerable<ConfiguredContract> PendingContracts(ContractType type)
+        {
+            if (type == null)
+            {
+                return Enumerable.Empty<ConfiguredContract>();
+            }
+
+            return contractDetails.SelectMany(p => p.Value.contracts).Union(priorityContracts).Where(c => c.contractType == type);
         }
     }
 }
