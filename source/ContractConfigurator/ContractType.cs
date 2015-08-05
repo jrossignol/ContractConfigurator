@@ -546,7 +546,7 @@ namespace ContractConfigurator
                 }
 
                 // Check the group active limit
-                int activeContracts = contractList.Count(c => group.BelongsToGroup(this));
+                int activeContracts = contractList.Count(c => c.contractType != null && group.BelongsToGroup(c.contractType));
                 if (contract.ContractState == Contract.State.Offered || contract.ContractState == Contract.State.Active)
                 {
                     activeContracts--;
@@ -560,7 +560,7 @@ namespace ContractConfigurator
                 // Check the group completed limit
                 if (group.maxCompletions != 0)
                 {
-                    int finishedContracts = ContractSystem.Instance.GetCompletedContracts<ConfiguredContract>().Count(c => group.BelongsToGroup(this));
+                    int finishedContracts = ContractSystem.Instance.GetCompletedContracts<ConfiguredContract>().Count(c => c.contractType != null && group.BelongsToGroup(c.contractType));
                     if (finishedContracts + activeContracts >= maxCompletions)
                     {
                         throw new ContractRequirementException("Too many completed contracts in group (" + group.name + ").");
