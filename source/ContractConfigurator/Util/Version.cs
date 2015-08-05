@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
+using UnityEngine;
 
 namespace ContractConfigurator.Util
 {
@@ -41,6 +42,11 @@ namespace ContractConfigurator.Util
                 else
                 {
                     receivedStr = FileVersionInfo.GetVersionInfo(assembly.assembly.Location).ProductVersion;
+                }
+                // If that still fails, fall back on AssemblyVersion
+                if (string.IsNullOrEmpty(receivedStr) || receivedStr == " ")
+                {
+                    receivedStr = assembly.assembly.GetName().Version.ToString();
                 }
 
                 System.Version expected = ParseVersion(version);
