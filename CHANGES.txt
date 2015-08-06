@@ -5,6 +5,7 @@ Contract Configurator 1.6.4
 - Contract Configurator now automatically reloaded when doing a module manager reload (thanks sarbian).
 - Enhancements to ExperimentalPart to allow finer control over when parts are locked/unlocked.
 - Fixes to some string expression parsing issues (thanks Nori).
+- Fixed exception in ContractVesselTracker (thanks glilienthal).
 
 Contract Configurator 1.6.3
 - New Tech methods Parents() and IsReadyToUnlock().
