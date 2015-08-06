@@ -14,74 +14,135 @@ namespace ContractConfigurator.Behaviour
     /// </summary>
     public class ExperimentalPart : ContractBehaviour
     {
+        public enum UnlockCriteria
+        {
+            DO_NOT_UNLOCK,
+            CONTRACT_ACCEPTANCE,
+            CONTRACT_COMPLETION,
+            PARAMETER_COMPLETION
+        }
+
+        public enum LockCriteria
+        {
+            DO_NOT_LOCK,
+            CONTRACT_ACCEPTANCE,
+            CONTRACT_COMPLETION,
+            PARAMETER_COMPLETION
+        }
+
         protected List<AvailablePart> parts;
-        protected bool add;
-        protected bool remove;
+        protected ExperimentalPart.UnlockCriteria unlockCriteria;
+        protected string unlockParameter;
+        protected ExperimentalPart.LockCriteria lockCriteria;
+        protected string lockParameter;
 
         public ExperimentalPart()
             : base()
         {
         }
 
-        public ExperimentalPart(List<AvailablePart> parts, bool add, bool remove)
+        public ExperimentalPart(List<AvailablePart> parts, UnlockCriteria unlockCriteria, string unlockParameter, LockCriteria lockCriteria, string lockParameter)
         {
             this.parts = parts;
-            this.add = add;
-            this.remove = remove;
+            this.unlockCriteria = unlockCriteria;
+            this.unlockParameter = unlockParameter;
+            this.lockCriteria = lockCriteria;
+            this.lockParameter = lockParameter;
         }
 
+        protected override void OnRegister()
+        {
+            base.OnRegister();
+            GameEvents.Contract.onParameterChange.Add(new EventData<Contract, ContractParameter>.OnEvent(OnParameterChange));
+            ContractConfigurator.OnParameterChange.Add(new EventData<Contract, ContractParameter>.OnEvent(OnParameterChange));
+        }
+
+        protected override void OnUnregister()
+        {
+            base.OnUnregister();
+            GameEvents.Contract.onParameterChange.Remove(new EventData<Contract, ContractParameter>.OnEvent(OnParameterChange));
+            ContractConfigurator.OnParameterChange.Remove(new EventData<Contract, ContractParameter>.OnEvent(OnParameterChange));
+        }
+        
         protected override void OnAccepted()
         {
-            if (add)
+            if (unlockCriteria == UnlockCriteria.CONTRACT_ACCEPTANCE)
             {
-                foreach (AvailablePart part in parts)
-                {
-                    ResearchAndDevelopment.AddExperimentalPart(part);
-                }
+                UnlockParts();
+            }
+            if (lockCriteria == LockCriteria.CONTRACT_ACCEPTANCE)
+            {
+                LockParts();
             }
         }
 
         protected override void OnCancelled()
         {
-            if (add)
+            if (unlockCriteria != UnlockCriteria.DO_NOT_UNLOCK)
             {
-                foreach (AvailablePart part in parts)
-                {
-                    ResearchAndDevelopment.RemoveExperimentalPart(part);
-                }
+                LockParts();
             }
         }
 
         protected override void OnDeadlineExpired()
         {
-            if (add)
+            if (unlockCriteria != UnlockCriteria.DO_NOT_UNLOCK)
             {
-                foreach (AvailablePart part in parts)
-                {
-                    ResearchAndDevelopment.RemoveExperimentalPart(part);
-                }
+                LockParts();
             }
         }
 
         protected override void OnFailed()
         {
-            if (add)
+            if (unlockCriteria != UnlockCriteria.DO_NOT_UNLOCK)
             {
-                foreach (AvailablePart part in parts)
-                {
-                    ResearchAndDevelopment.RemoveExperimentalPart(part);
-                }
+                LockParts();
             }
         }
 
         protected override void OnCompleted()
         {
-            if (remove)
+            if (unlockCriteria == UnlockCriteria.CONTRACT_COMPLETION)
             {
-                foreach (AvailablePart part in parts)
-                {
-                    ResearchAndDevelopment.RemoveExperimentalPart(part);
-                }
+                UnlockParts();
+            }
+
+            if (lockCriteria == LockCriteria.CONTRACT_COMPLETION)
+            {
+                LockParts();
+            }
+        }
+
+        protected void OnParameterChange(Contract c, ContractParameter p)
+        {
+            if (c != contract)
+            {
+                return;
+            }
+
+            if (p.ID == unlockParameter && unlockCriteria == UnlockCriteria.PARAMETER_COMPLETION)
+            {
+                UnlockParts();
+            }
+            if (p.ID == lockParameter && lockCriteria == LockCriteria.PARAMETER_COMPLETION)
+            {
+                LockParts();
+            }
+        }
+
+        protected void UnlockParts()
+        {
+            foreach (AvailablePart part in parts)
+            {
+                ResearchAndDevelopment.AddExperimentalPart(part);
+            }
+        }
+
+        protected void LockParts()
+        {
+            foreach (AvailablePart part in parts)
+            {
+                ResearchAndDevelopment.RemoveExperimentalPart(part);
             }
         }
 
@@ -91,15 +152,43 @@ namespace ContractConfigurator.Behaviour
             {
                 configNode.AddValue("part", part.name);
             }
-            configNode.AddValue("add", add);
-            configNode.AddValue("remove", remove);
+            configNode.AddValue("unlockCriteria", unlockCriteria);
+            if (!string.IsNullOrEmpty(unlockParameter))
+            {
+                configNode.AddValue("unlockParameter", unlockParameter);
+            }
+            configNode.AddValue("lockCriteria", lockCriteria);
+            if (!string.IsNullOrEmpty(lockParameter))
+            {
+                configNode.AddValue("lockParameter", lockParameter);
+            }
         }
 
         protected override void OnLoad(ConfigNode configNode)
         {
             parts = ConfigNodeUtil.ParseValue<List<AvailablePart>>(configNode, "part");
-            add = ConfigNodeUtil.ParseValue<bool>(configNode, "add");
-            remove = ConfigNodeUtil.ParseValue<bool>(configNode, "remove");
+
+            if (configNode.HasValue("remove"))
+            {
+                bool remove = ConfigNodeUtil.ParseValue<bool>(configNode, "remove");
+                lockCriteria = remove ? ExperimentalPart.LockCriteria.CONTRACT_ACCEPTANCE : ExperimentalPart.LockCriteria.DO_NOT_LOCK;
+            }
+            else
+            {
+                lockCriteria = ConfigNodeUtil.ParseValue<LockCriteria>(configNode, "lockCriteria");
+                lockParameter = ConfigNodeUtil.ParseValue<string>(configNode, "lockParameter", "");
+            }
+
+            if (configNode.HasValue("add"))
+            {
+                bool add = ConfigNodeUtil.ParseValue<bool>(configNode, "add");
+                unlockCriteria = add ? ExperimentalPart.UnlockCriteria.CONTRACT_ACCEPTANCE : ExperimentalPart.UnlockCriteria.DO_NOT_UNLOCK;
+            }
+            else
+            {
+                unlockCriteria = ConfigNodeUtil.ParseValue<UnlockCriteria>(configNode, "unlockCriteria");
+                unlockParameter = ConfigNodeUtil.ParseValue<string>(configNode, "unlockParameter", "");
+            }
         }
     }
 }

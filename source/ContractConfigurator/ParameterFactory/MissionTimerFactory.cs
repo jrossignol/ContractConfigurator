@@ -24,7 +24,7 @@ namespace ContractConfigurator
             // Load base class
             bool valid = base.Load(configNode);
 
-            // Get duration
+            // Get criteria
             valid &= ConfigNodeUtil.ParseValue<MissionTimer.StartCriteria>(configNode, "startCriteria", x => startCriteria = x, this, MissionTimer.StartCriteria.CONTRACT_ACCEPTANCE);
             if (startCriteria == MissionTimer.StartCriteria.PARAMETER_COMPLETION)
             {
