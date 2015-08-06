@@ -4,6 +4,7 @@ Contract Configurator 1.6.4
 - Check parameter state for some parameters on contract acceptance (fixes issues with CapCom and autoAccept contracts).
 - Contract Configurator now automatically reloaded when doing a module manager reload (thanks sarbian).
 - Enhancements to ExperimentalPart to allow finer control over when parts are locked/unlocked.
+- Fixes to some string expression parsing issues (thanks Nori).
 
 Contract Configurator 1.6.3
 - New Tech methods Parents() and IsReadyToUnlock().

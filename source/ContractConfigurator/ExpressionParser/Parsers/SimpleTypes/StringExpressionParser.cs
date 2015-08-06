@@ -91,7 +91,7 @@ namespace ContractConfigurator.ExpressionParser
                     int specialIdentifierIndex = expression.IndexOf("@");
 
                     // Look for function calls
-                    Match m = Regex.Match(expression, @"\s\w[\w\d]*\(");
+                    Match m = Regex.Match(expression, @"(\A|\s)\w[\w\d]*\(");
                     int functionIndex = m.Index;
 
                     // Look for an end quote
@@ -122,7 +122,10 @@ namespace ContractConfigurator.ExpressionParser
 
                     if (functionIndex >= 0)
                     {
-                        value += expression.Substring(0, functionIndex+1);
+                        if (functionIndex > 0 || expression[0] == ' ')
+                        {
+                            value += expression.Substring(0, functionIndex + 1);
+                        }
                         expression = expression.Substring(functionIndex);
                         Token t = ParseToken();
                         value += ParseMethod<string>(t, null, true);
@@ -147,6 +150,11 @@ namespace ContractConfigurator.ExpressionParser
                 }
 
                 value = value.Replace("\\n", "\n");
+
+                if (expression.Length > 0 && parentParser == null)
+                {
+                    value = ParseStatement<string>(value);
+                }
 
                 verbose &= LogExitDebug<TResult>("ParseStatement", value);
                 return (TResult)(object)value;
