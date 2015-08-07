@@ -1107,7 +1107,7 @@ namespace ContractConfigurator.ExpressionParser
                         if (identifier[0] == '/')
                         {
                             identifier = identifier.Substring(1);
-                            dataNode = dataNode.Root;
+                            dataNode = dataNode.Root ?? dataNode;
                             continue;
                         }
                         else if (identifier.StartsWith("../"))

@@ -277,7 +277,7 @@ namespace ContractConfigurator.ExpressionParser
                 node = node.parent;
             }
 
-            return "/" + path;
+            return (node != null ? "/" : "") + path;
         }
 
         /// <summary>
@@ -343,6 +343,7 @@ namespace ContractConfigurator.ExpressionParser
 
         private DataNode NodeForKey(ref string key)
         {
+            LoggingUtil.LogVerbose(this, "Node for key: " + key);
             if (!key.Contains(':'))
             {
                 return this;

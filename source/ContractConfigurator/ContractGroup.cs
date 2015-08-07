@@ -95,6 +95,9 @@ namespace ContractConfigurator
                     }
                 }
 
+                // Load DATA nodes
+                valid &= dataNode.ParseDataNodes(configNode, this, dataValues, uniqueValues);
+
                 // Do the deferred loads
                 valid &= ConfigNodeUtil.ExecuteDeferredLoads();
 
@@ -125,9 +128,6 @@ namespace ContractConfigurator
                         hasWarnings = true;
                     }
                 }
-
-                // Load DATA nodes
-                valid &= dataNode.ParseDataNodes(configNode, this, dataValues, uniqueValues);
 
                 // Check for unexpected values - always do this last
                 valid &= ConfigNodeUtil.ValidateUnexpectedValues(configNode, this);
