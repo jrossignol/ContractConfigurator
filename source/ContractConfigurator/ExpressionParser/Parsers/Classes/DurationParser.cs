@@ -48,6 +48,17 @@ namespace ContractConfigurator.ExpressionParser
             return base.ConvertType<U>(value);
         }
 
+        internal override bool ConvertableFrom(Type type)
+        {
+            return type == typeof(int) || type == typeof(double);
+        }
+
+        internal override Duration ConvertFrom<U>(U value)
+        {
+            double dval = (double)(object)value;
+            return new Duration(dval);
+        }
+
         internal override Token ParseNumericConstant()
         {
             // Try to parse more, as durations can have spaces
