@@ -227,6 +227,7 @@ namespace ContractConfigurator
             notes = contract.notes;
             agent = contract.agent;
             description = contract.description;
+            prestige = contract.prestige;
             uniqueData = new Dictionary<string, object>(contract.uniqueData);
 
             // Copy behaviours

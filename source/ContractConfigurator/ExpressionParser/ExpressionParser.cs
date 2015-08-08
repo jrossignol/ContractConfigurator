@@ -206,8 +206,6 @@ namespace ContractConfigurator.ExpressionParser
             verbose &= LogEntryDebug<TResult>("ParseStatement", lval);
             try
             {
-                ExpressionParser<TResult> parser = GetParser<TResult>(this);
-
                 // End of statement
                 TResult result;
                 if (expression.Length == 0)
@@ -220,6 +218,7 @@ namespace ContractConfigurator.ExpressionParser
                 // Get next token
                 Token token = ParseToken();
 
+                ExpressionParser<TResult> parser = GetParser<TResult>(this);
                 while (token != null)
                 {
                     string savedExpression = expression;
@@ -252,16 +251,17 @@ namespace ContractConfigurator.ExpressionParser
                                 // Parse under the return type
                                 TResult val = ParseOperation<TResult>(lval, token.sval);
                                 parser.expression = expression;
-                                try
+                                if (string.IsNullOrEmpty(expression))
+                                {
+                                    result = val;
+                                }
+                                else
                                 {
                                     result = parser.ParseStatement<TResult>(val);
-                                    verbose &= LogExitDebug<TResult>("ParseStatement", result);
-                                    return result;
                                 }
-                                finally
-                                {
-                                    expression = parser.expression;
-                                }
+                                verbose &= LogExitDebug<TResult>("ParseStatement", result);
+                                expression = parser.expression;
+                                return result;
                             }
                             catch (Exception e)
                             {
@@ -273,6 +273,7 @@ namespace ContractConfigurator.ExpressionParser
 
                                 expression = savedExpression;
                                 lval = ParseOperation<T>(lval, token.sval);
+                                parser.expression = expression;
                                 break;
                             }
                         case TokenType.TERNARY_START:
@@ -593,25 +594,24 @@ namespace ContractConfigurator.ExpressionParser
             verbose &= LogEntryDebug<TResult>("ParseTernary", lval);
 
             ExpressionParser<TResult> parser = GetParser<TResult>(this);
+            TResult result;
             try
             {
                 TResult val1 = parser.ParseStatement<TResult>();
                 parser.ParseToken(":");
                 TResult val2 = parser.ParseStatement<TResult>();
 
-                TResult result = lval ? val1 : val2;
-                verbose &= LogExitDebug<TResult>("ParseTernary", result);
-                return result;
+                result = lval ? val1 : val2;
             }
             catch
             {
                 verbose &= LogException<TResult>("ParseTernary");
                 throw;
             }
-            finally
-            {
-                expression = parser.expression;
-            }
+
+            expression = parser.expression;
+            verbose &= LogExitDebug<TResult>("ParseTernary", result);
+            return result;
         }
 
         internal Token ParseToken()
@@ -1107,7 +1107,7 @@ namespace ContractConfigurator.ExpressionParser
                         if (identifier[0] == '/')
                         {
                             identifier = identifier.Substring(1);
-                            dataNode = dataNode.Root;
+                            dataNode = dataNode.Root ?? dataNode;
                             continue;
                         }
                         else if (identifier.StartsWith("../"))

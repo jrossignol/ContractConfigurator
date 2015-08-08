@@ -349,10 +349,20 @@ namespace ContractConfigurator
                 // Checks for maxSimultaneous/maxCompletions
                 if (maxSimultaneous != 0 || maxCompletions != 0)
                 {
+                    IEnumerable<ConfiguredContract> contractList = ContractSystem.Instance.GetCurrentContracts<ConfiguredContract>().
+                        Where(c => c.contractType != null && c.contractType.name == name);
+
+                    // Special case for pre-loader contracts
+                    if (contract.ContractState == Contract.State.Withdrawn)
+                    {
+                        contractList = contractList.Union(ContractPreLoader.Instance.PendingContracts(this));
+                    }
+
                     // Get the count of active contracts - excluding ours
-                    int activeContracts = ContractSystem.Instance.GetCurrentContracts<ConfiguredContract>().
-                        Count(c => c.contractType != null && c.contractType.name == name);
-                    if (contract.ContractState == Contract.State.Offered || contract.ContractState == Contract.State.Active)
+                    int activeContracts = contractList.Count();
+                    if (contract.ContractState == Contract.State.Offered ||
+                        contract.ContractState == Contract.State.Active ||
+                        contractList.Contains(contract))
                     {
                         activeContracts--;
                     }
@@ -463,8 +473,16 @@ namespace ContractConfigurator
                         string key = pair.Key;
                         bool checkActiveOnly = pair.Value;
 
-                        foreach (ConfiguredContract otherContract in ContractSystem.Instance.GetCurrentContracts<ConfiguredContract>().
-                            Where(c => c.contractType != null && c.contractType.name == name && c != contract && c.uniqueData.ContainsKey(key) &&
+                        IEnumerable<ConfiguredContract> contractList = ContractSystem.Instance.GetCurrentContracts<ConfiguredContract>().
+                            Where(c => c.contractType != null && c.contractType.name == name);
+
+                        // Special case for pre-loader contracts
+                        if (contract.ContractState == Contract.State.Withdrawn)
+                        {
+                            contractList = contractList.Union(ContractPreLoader.Instance.PendingContracts(this));
+                        }
+
+                        foreach (ConfiguredContract otherContract in contractList.Where(c=> c != contract && c.uniqueData.ContainsKey(key) &&
                                 (c.ContractState == Contract.State.Active || c.ContractState == Contract.State.Offered || !checkActiveOnly)))
                         {
                             if (contract.uniqueData[key].Equals(otherContract.uniqueData[key]))
@@ -518,8 +536,17 @@ namespace ContractConfigurator
                     throw new ContractRequirementException("Contract group " + group.name + " is not enabled.");
                 }
 
+                IEnumerable<ConfiguredContract> contractList = ContractSystem.Instance.GetCurrentContracts<ConfiguredContract>().
+                    Where(c => c.contractType != null);
+
+                // Special case for pre-loader contracts
+                if (contract.ContractState == Contract.State.Withdrawn)
+                {
+                    contractList = contractList.Union(ContractPreLoader.Instance.PendingContracts());
+                }
+
                 // Check the group active limit
-                int activeContracts = ContractSystem.Instance.GetCurrentContracts<ConfiguredContract>().Count(c => c.contractType != null && group.BelongsToGroup(c.contractType));
+                int activeContracts = contractList.Count(c => c.contractType != null && group.BelongsToGroup(c.contractType));
                 if (contract.ContractState == Contract.State.Offered || contract.ContractState == Contract.State.Active)
                 {
                     activeContracts--;

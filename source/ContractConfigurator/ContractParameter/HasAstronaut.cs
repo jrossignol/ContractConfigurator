@@ -109,6 +109,7 @@ namespace ContractConfigurator.Parameters
 
             GameEvents.onVesselChange.Add(new EventData<Vessel>.OnEvent(OnVesselChange));
             GameEvents.onKerbalStatusChange.Add(new EventData<ProtoCrewMember, ProtoCrewMember.RosterStatus, ProtoCrewMember.RosterStatus>.OnEvent(OnKerbalStatusChange));
+            GameEvents.Contract.onAccepted.Add(new EventData<Contract>.OnEvent(OnContractAccepted));
         }
 
         protected override void OnUnregister()
@@ -117,6 +118,7 @@ namespace ContractConfigurator.Parameters
 
             GameEvents.onVesselChange.Remove(new EventData<Vessel>.OnEvent(OnVesselChange));
             GameEvents.onKerbalStatusChange.Remove(new EventData<ProtoCrewMember, ProtoCrewMember.RosterStatus, ProtoCrewMember.RosterStatus>.OnEvent(OnKerbalStatusChange));
+            GameEvents.Contract.onAccepted.Remove(new EventData<Contract>.OnEvent(OnContractAccepted));
         }
 
         protected void OnVesselChange(Vessel v)
@@ -126,6 +128,16 @@ namespace ContractConfigurator.Parameters
 
         protected void OnKerbalStatusChange(ProtoCrewMember pcm, ProtoCrewMember.RosterStatus oldStatus, ProtoCrewMember.RosterStatus newStatus)
         {
+            CheckStatus();
+        }
+
+        private void OnContractAccepted(Contract c)
+        {
+            if (c != Root || HighLogic.LoadedScene != GameScenes.FLIGHT)
+            {
+                return;
+            }
+
             CheckStatus();
         }
 
