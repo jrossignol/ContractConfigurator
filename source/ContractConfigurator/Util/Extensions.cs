@@ -129,8 +129,11 @@ namespace ContractConfigurator
             IEnumerable<ProtoPartSnapshot> parts = vessel.protoVessel.protoPartSnapshots;
 
             // Add the root
-            queue.Enqueue(vessel.protoVessel.protoPartSnapshots.First());
-            visited[queue.First()] = 1;
+            if (vessel.protoVessel.protoPartSnapshots.Any())
+            {
+                queue.Enqueue(vessel.protoVessel.protoPartSnapshots.First());
+                visited[queue.First()] = 1;
+            }
 
             // Do a BFS of all parts.
             uint hash = 0;
