@@ -1,6 +1,7 @@
 Contract Configurator 1.6.5
 - Fix some parsing issues with the Duration class (thanks Nori).
 - Re-did fix to exception in ContractVesselTracker.
+- Fixed rare exception when removing a planet pack (thanks AlonzoTG).
 
 Contract Configurator 1.6.4
 - Workaround for crash issue when parsing some ternary expressions in contracts.
