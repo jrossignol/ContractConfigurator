@@ -203,6 +203,12 @@ namespace ContractConfigurator.Behaviour
                 }
             }
 
+            if (!configNode.HasNode("VESSEL"))
+            {
+                valid = false;
+                LoggingUtil.LogError(factory, "SpawnVessel requires at least one VESSEL node.");
+            }
+
             return valid ? spawnVessel : null;
         }
 
