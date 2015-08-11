@@ -153,7 +153,8 @@ namespace ContractConfigurator.Behaviour
                         valid &= ConfigNodeUtil.ParseValue<double>(child, "lat", x => vessel.latitude = x, factory);
                         valid &= ConfigNodeUtil.ParseValue<double>(child, "lon", x => vessel.longitude = x, factory);
                         valid &= ConfigNodeUtil.ParseValue<double?>(child, "alt", x => vessel.altitude = x, factory, (double?)null);
-                        valid &= ConfigNodeUtil.ParseValue<float>(child, "height", x => vessel.height = x, factory, 2.5f);
+                        valid &= ConfigNodeUtil.ParseValue<float>(child, "height", x => vessel.height = x, factory,
+                            !string.IsNullOrEmpty(vessel.craftURL) ? 0.0f : 2.5f);
                         vessel.orbiting = false;
                     }
                     // Get orbit
