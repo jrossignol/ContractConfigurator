@@ -43,7 +43,7 @@ namespace ContractConfigurator.ExpressionParser
         internal override Resource ParseIdentifier(Token token)
         {
             // Try to parse more, as resource names can have spaces
-            Match m = Regex.Match(expression, @"^((?>\s*[A-Za-z][\w\d]*)+).*");
+            Match m = Regex.Match(expression, @"^((?>\s*[\w\d]+)+).*");
             string identifier = m.Groups[1].Value;
             expression = (expression.Length > identifier.Length ? expression.Substring(identifier.Length) : "");
             identifier = token.sval + identifier;

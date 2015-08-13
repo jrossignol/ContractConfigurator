@@ -4,6 +4,7 @@ Contract Configurator 1.6.5
 - Fixed rare exception when removing a planet pack (thanks AlonzoTG).
 - Added support in SpawnVessel for spawning a vessel from a single part (a bit buggy, read caveats in documentation).
 - Improved SpawnVessel validation (thanks 5thHorseman).
+- Fixed issues with parsing identifiers with trailing spaces (thanks 5thHorseman).
 
 Contract Configurator 1.6.4
 - Workaround for crash issue when parsing some ternary expressions in contracts.

@@ -142,7 +142,7 @@ namespace ContractConfigurator.ExpressionParser
         internal override AvailablePart ParseIdentifier(Token token)
         {
             // Try to parse more, as part names can have spaces and other weird characters
-            Match m = Regex.Match(expression, @"^((?>\s*[\w\d-\.]*)+).*");
+            Match m = Regex.Match(expression, @"^((?>\s*[\w\d-\.]+)+).*");
             string identifier = m.Groups[1].Value;
             expression = (expression.Length > identifier.Length ? expression.Substring(identifier.Length) : "");
             identifier = token.sval + identifier;
