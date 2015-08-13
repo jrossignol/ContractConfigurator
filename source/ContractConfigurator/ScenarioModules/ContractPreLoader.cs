@@ -235,9 +235,17 @@ namespace ContractConfigurator
                     LoggingUtil.logLevel = newLogLevel;
                     ConfiguredContract.currentContract = templateContract;
 
+                    // Set up the iterator to refresh non-deterministic values
+                    IEnumerable<string> iter = ConfigNodeUtil.UpdateNonDeterministicValuesIterator(selectedContractType.dataNode);
+                    for (ContractGroup g = selectedContractType.group; g != null; g = g.parent)
+                    {
+                        iter = ConfigNodeUtil.UpdateNonDeterministicValuesIterator(g.dataNode).Concat(iter);
+                    }
+
+                    // Update the actual values
                     LoggingUtil.LogVerbose(this, "Refresh non-deterministic values for CONTRACT_TYPE = " + selectedContractType.name);
                     KeyValuePair<ConfiguredContract, bool> pair = new KeyValuePair<ConfiguredContract, bool>(templateContract, false);
-                    foreach (string val in ConfigNodeUtil.UpdateNonDeterministicValuesIterator(selectedContractType.dataNode))
+                    foreach (string val in iter)
                     {
                         lastKey = selectedContractType.name + "[" + val + "]";
 
