@@ -103,7 +103,6 @@ namespace ContractConfigurator.Parameters
                     recovered[kerbal] = ConfigNodeUtil.ParseValue<bool>(childNode, "recovered");
                 }
 
-
                 CreateDelegates();
             }
             finally
