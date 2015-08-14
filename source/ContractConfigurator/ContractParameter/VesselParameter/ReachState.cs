@@ -188,8 +188,10 @@ namespace ContractConfigurator.Parameters
         protected override void OnParameterSave(ConfigNode node)
         {
             base.OnParameterSave(node);
-            // Can't be null
-            node.AddValue("targetBody", targetBody.name);
+            if (targetBody != null)
+            {
+                node.AddValue("targetBody", targetBody.name);
+            }
             node.AddValue("biome", biome);
 
             if (situation != null)

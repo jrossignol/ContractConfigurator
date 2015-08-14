@@ -922,12 +922,12 @@ namespace ContractConfigurator
                 {
                     try
                     {
-                        Type t = assembly.GetTypes().Where(type => type.Name == name).FirstOrDefault();
-                        if (t != null)
+                        Type type = assembly.GetTypes().Where(t => t.Name == name).OrderBy(t => t.FullName.Length).FirstOrDefault();
+                        if (type != null)
                         {
                             // Cache it
-                            typeMap[name] = t;
-                            return t;
+                            typeMap[name] = type;
+                            return type;
                         }
                     }
                     catch

@@ -1369,6 +1369,27 @@ namespace ContractConfigurator.ExpressionParser
         }
 
         /// <summary>
+        /// Returns true if a reverse conversion can be done for the given type.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        internal virtual bool ConvertableFrom(Type type)
+        {
+            return false;
+        }
+
+        /// <summary>
+        /// Performs a reverse data type conversion.
+        /// </summary>
+        /// <typeparam name="U">Type to convert from</typeparam>
+        /// <param name="value">Value to convert</param>
+        /// <returns>The converted value</returns>
+        internal virtual T ConvertFrom<U>(U value)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
         /// Performs a data type conversion.
         /// </summary>
         /// <typeparam name="U">Type to convert to.</typeparam>
@@ -1406,6 +1427,13 @@ namespace ContractConfigurator.ExpressionParser
                 }
 
                 throw new DataStoreCastException(tType, typeof(U));
+            }
+
+            // Do a reverse conversion
+            ExpressionParser<U> parser = GetParser<U>(this);
+            if (parser != null && parser.ConvertableFrom(typeof(T)))
+            {
+                return (U)parser.ConvertFrom<T>(value);
             }
 
             // Try basic conversion
