@@ -170,7 +170,7 @@ namespace ContractConfigurator.Util
         public static IEnumerable<ScienceSubject> GetSubjects(IEnumerable<CelestialBody> celestialBodies, Func<ScienceExperiment, bool> experimentFilter = null,
             Func<string, bool> biomeFilter = null, bool difficult = false)
         {
-            if (ResearchAndDevelopment.Instance == null)
+            if (ResearchAndDevelopment.Instance == null || celestialBodies == null)
             {
                 yield break;
             }
