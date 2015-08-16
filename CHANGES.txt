@@ -1,6 +1,7 @@
 Contract Configurator 1.6.6
 - Fixed exception in Science sub-system (happens in latest FieldResearch release).
 - Added additional check conditions for ReturnHome (thanks Lewtz and Jirnsum).
+- Fixed another rare exception when removing a planet pack (thanks Hlaford).
 
 Contract Configurator 1.6.5
 - Fix some parsing issues with the Duration class (thanks Nori).
