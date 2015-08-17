@@ -342,6 +342,25 @@ namespace ContractConfigurator
             {
                 value = (T)(object)(ResearchAndDevelopment.Instance != null ? ResearchAndDevelopment.GetSubjectByID(stringValue) : null);
             }
+            else if (typeof(T) == typeof(Color))
+            {
+                if ((stringValue.Length != 7 && stringValue.Length != 9) || stringValue[0] != '#')
+                {
+                    throw new ArgumentException("Invalid color code '" + stringValue + "': Must be # followed by 6 or 8 hex digits (ARGB or RGB).");
+                }
+                stringValue = stringValue.Replace("#", "");
+                int a  = 255;
+                if (stringValue.Length == 8)
+                {
+                    a = byte.Parse(stringValue.Substring(0, 2), System.Globalization.NumberStyles.HexNumber);
+                    stringValue = stringValue.Substring(2, 6);
+                }
+                int r = byte.Parse(stringValue.Substring(0, 2), System.Globalization.NumberStyles.HexNumber);
+                int g = byte.Parse(stringValue.Substring(2, 2), System.Globalization.NumberStyles.HexNumber);
+                int b = byte.Parse(stringValue.Substring(4, 2), System.Globalization.NumberStyles.HexNumber);
+
+                value = (T)(object)(new Color(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f));
+            }
             // Do newline conversions
             else if (typeof(T) == typeof(string))
             {
