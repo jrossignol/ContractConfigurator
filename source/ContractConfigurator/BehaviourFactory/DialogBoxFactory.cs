@@ -80,6 +80,7 @@ namespace ContractConfigurator.Behaviour
 
                             valid &= ConfigNodeUtil.ParseValue<bool>(sectionNode, "showName", x => section.showName = x, this, true);
                             valid &= ConfigNodeUtil.ParseValue<string>(sectionNode, "characterName", x => section.characterName = x, this, "");
+                            valid &= ConfigNodeUtil.ParseValue<ProtoCrewMember.Gender>(sectionNode, "gender", x => section.gender = x, this, ProtoCrewMember.Gender.Male);
                             valid &= ConfigNodeUtil.ParseValue<Color>(sectionNode, "textColor", x => section.textColor = x, this, new Color(0.729f, 0.855f, 0.333f));
 
                             valid &= ConfigNodeUtil.ParseValue<int>(sectionNode, "crewIndex", x => section.crewIndex = x, this, 0);

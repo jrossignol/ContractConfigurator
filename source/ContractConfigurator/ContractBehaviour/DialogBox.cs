@@ -472,10 +472,10 @@ namespace ContractConfigurator.Behaviour
         {
             public int crewIndex;
             public List<string> excludeName;
+            public ProtoCrewMember.Gender gender;
 
             ProtoCrewMember kerbal = null;
             Texture texture;
-            ProtoCrewMember.Gender gender;
             bool kerbalSelected = false;
 
             static bool texturesLoaded = false;
@@ -614,6 +614,10 @@ namespace ContractConfigurator.Behaviour
                 {
                     configNode.AddValue("excludeName", exclude);
                 }
+                if (kerbal == null)
+                {
+                    configNode.AddValue("gender", gender);
+                }
             }
 
             public override void OnLoad(ConfigNode configNode)
@@ -622,6 +626,7 @@ namespace ContractConfigurator.Behaviour
 
                 crewIndex = ConfigNodeUtil.ParseValue<int>(configNode, "crewIndex");
                 excludeName = ConfigNodeUtil.ParseValue<List<string>>(configNode, "excludeName", new List<string>());
+                gender = ConfigNodeUtil.ParseValue<ProtoCrewMember.Gender>(configNode, "gender", ProtoCrewMember.Gender.Male);
             }
         }
 
