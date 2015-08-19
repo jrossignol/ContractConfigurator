@@ -20,6 +20,7 @@ namespace ContractConfigurator.Behaviour
             CONTRACT_FAILED,
             CONTRACT_ACCEPTED,
             CONTRACT_COMPLETED,
+            VESSEL_PRELAUNCH,
             PARAMETER_FAILED,
             PARAMETER_COMPLETED
         }
@@ -43,7 +44,6 @@ namespace ContractConfigurator.Behaviour
 
             void Start()
             {
-                DontDestroyOnLoad(this);
             }
 
             void OnGUI()
@@ -58,11 +58,11 @@ namespace ContractConfigurator.Behaviour
                         return;
                     }
 
+                    float multiplier = (4.0f / 3.0f) / ((float)Screen.width / Screen.height);
+                    float w = multiplier * Screen.width * detail.width - 32;
+
                     if (windowPos.width == 0 && windowPos.height == 0)
                     {
-                        float multiplier = (4.0f / 3.0f) / ((float)Screen.width / Screen.height);
-
-                        float w = Screen.width * detail.width - 32;
                         float h = Screen.height * detail.height - 144f;
                         float x = detail.position == Position.LEFT ? 16f : detail.position == Position.CENTER ? (Screen.width - w) / 2.0f : (Screen.width - w - 16f);
                         windowPos = new Rect(x, 72f, w, h);
@@ -70,7 +70,7 @@ namespace ContractConfigurator.Behaviour
 
                     UnityEngine.GUI.skin = HighLogic.Skin;
                     windowPos = GUILayout.Window(GetType().FullName.GetHashCode(),
-                        windowPos, DrawMessageBox, detail.title, windowStyle ?? HighLogic.Skin.window, GUILayout.Width(Screen.width * detail.width));
+                        windowPos, DrawMessageBox, detail.title, windowStyle ?? HighLogic.Skin.window, GUILayout.Width(w));
                 }
             }
 
@@ -114,6 +114,7 @@ namespace ContractConfigurator.Behaviour
                         section.OnDestroy();
                     }
                     dialogBox.displayQueue.Dequeue();
+                    dialogBox.details.Remove(detail);
                 }
                 GUILayout.FlexibleSpace();
                 GUILayout.EndHorizontal();
@@ -469,83 +470,134 @@ namespace ContractConfigurator.Behaviour
 
         public class KerbalSection : NamedSection
         {
+            public int crewIndex;
+            public List<string> excludeName;
+
             ProtoCrewMember kerbal = null;
-            Camera kerbalCam = null;
-            RenderTexture renderTexture;
+            Texture texture;
+            ProtoCrewMember.Gender gender;
+            bool kerbalSelected = false;
+
+            static bool texturesLoaded = false;
+            static Texture eva_ac_female;
+            static Texture eva_ac_male;
+            static Texture eva_kerbin_female;
+            static Texture eva_kerbin_male;
+            static Texture eva_space_female;
+            static Texture eva_space_male;
+            static Texture iva_female;
+            static Texture iva_male;
+
+            float nextKerbalCheck;
 
             public KerbalSection()
             {
             }
 
-            public override void OnDestroy()
+            public void SelectKerbal()
             {
-                if (kerbalCam != null && kerbalCam != kerbal.KerbalRef.kerbalCam)
+                if (kerbalSelected)
                 {
-                    UnityEngine.Object.Destroy(kerbalCam);
-                    UnityEngine.Object.Destroy(renderTexture);
+                    return;
                 }
-                kerbalCam = null;
-                renderTexture = null;
+                kerbalSelected = true;
+
+                // First, try to get a Kerbal that matches the name
+                if (!string.IsNullOrEmpty(characterName))
+                {
+                    kerbal = HighLogic.CurrentGame.CrewRoster.AllKerbals().Where(pcm => pcm.name == characterName).FirstOrDefault();
+                }
+                // Now grab from the active vessel
+                else if (kerbal == null && FlightGlobals.ActiveVessel != null)
+                {
+                    kerbal = FlightGlobals.ActiveVessel.GetVesselCrew().Where(pcm => !excludeName.Contains(pcm.name)).ElementAtOrDefault(crewIndex);
+
+                    if (kerbal != null)
+                    {
+                        characterName = kerbal.name;
+                    }
+                }
+
+                if (kerbal == null && string.IsNullOrEmpty(characterName))
+                {
+                    System.Random r = new System.Random();
+                    gender = r.Next(2) == 0 ? ProtoCrewMember.Gender.Male : ProtoCrewMember.Gender.Female;
+                    characterName = CrewGenerator.GetRandomName(gender);
+                }
             }
 
             public override void OnPreCull()
             {
-                if (kerbal != null)
+                SelectKerbal();
+
+                if (!texturesLoaded)
                 {
-                    if (kerbal.KerbalRef == null)
+                    texturesLoaded = true;
+
+                    eva_ac_female = GameDatabase.Instance.GetTexture("ContractConfigurator/ui/eva_ac_female", false);
+                    eva_ac_male = GameDatabase.Instance.GetTexture("ContractConfigurator/ui/eva_ac_male", false);
+                    eva_kerbin_female = GameDatabase.Instance.GetTexture("ContractConfigurator/ui/eva_kerbin_female", false);
+                    eva_kerbin_male = GameDatabase.Instance.GetTexture("ContractConfigurator/ui/eva_kerbin_male", false);
+                    eva_space_female = GameDatabase.Instance.GetTexture("ContractConfigurator/ui/eva_space_female", false);
+                    eva_space_male = GameDatabase.Instance.GetTexture("ContractConfigurator/ui/eva_space_male", false);
+                    iva_female = GameDatabase.Instance.GetTexture("ContractConfigurator/ui/iva_female", false);
+                    iva_male = GameDatabase.Instance.GetTexture("ContractConfigurator/ui/iva_male", false);
+                }
+
+                if (texture == null || (kerbal != null && kerbal.KerbalRef == null && texture.GetType() == typeof(RenderTexture)) || nextKerbalCheck < Time.fixedTime)
+                {
+                    nextKerbalCheck = Time.fixedTime + 0.5f;
+
+                    if (kerbal == null)
                     {
-                        Vessel kerbEVA = FlightGlobals.Vessels.Where(v => v.isEVA && v.GetVesselCrew().Contains(kerbal)).FirstOrDefault();
-                        if (kerbEVA)
-                        {
-                            if (kerbalCam == null)
-                            {
-                                renderTexture = new RenderTexture(128, 128, 8);
-
-                                kerbalCam = (Camera)UnityEngine.Object.Instantiate(FlightCamera.fetch.mainCamera);
-                                kerbalCam.targetTexture = renderTexture;
-                                kerbalCam.clearFlags = CameraClearFlags.Color;
-                                kerbalCam.backgroundColor = Color.black;
-                                kerbalCam.clearStencilAfterLightingPass = true;
-                                kerbalCam.depthTextureMode = DepthTextureMode.DepthNormals;
-                                kerbalCam.useOcclusionCulling = false;
-                                kerbalCam.cullingMask = (1 << 0) | (1 << 1) | (1 << 4) | (1 << 9) | (1 << 10) | (1 << 15) | (1 << 18) | (1 << 20) | (1 << 23);
-
-                                kerbalCam.transform.parent = kerbEVA.transform;
-                                kerbalCam.transform.localPosition = new Vector3();
-                                kerbalCam.transform.Translate(new Vector3(0.0f, 0.75f, 0.33f));
-                                kerbalCam.transform.LookAt(kerbEVA.transform.position + kerbEVA.transform.up * 0.33f, kerbEVA.transform.up);
-                            }
-                        }
+                        texture = gender == ProtoCrewMember.Gender.Male ? eva_ac_male : eva_ac_female;
+                    }
+                    else if (kerbal.KerbalRef != null)
+                    {
+                        texture = kerbal.KerbalRef.avatarTexture;
                     }
                     else
                     {
-                        renderTexture = kerbal.KerbalRef.avatarTexture;
+                        // For a kerbal out on a mission, find their ship
+                        Vessel kerbVessel = null;
+                        if (kerbal.rosterStatus == ProtoCrewMember.RosterStatus.Assigned)
+                        {
+                            kerbVessel = FlightGlobals.Vessels.Where(v => v.GetVesselCrew().Contains(kerbal)).FirstOrDefault();
+                        }
+
+                        // No Kerbal, assume they're available
+                        if (kerbVessel == null)
+                        {
+                            texture = kerbal.gender == ProtoCrewMember.Gender.Male ? eva_ac_male : eva_ac_female;
+                        }
+                        // IVA Kerbal
+                        else if (!kerbVessel.isEVA)
+                        {
+                            texture = kerbal.gender == ProtoCrewMember.Gender.Male ? iva_male : iva_female;
+                        }
+                        // EVA Kerbal - kerbin
+                        else if (kerbVessel.mainBody.isHomeWorld && kerbVessel.altitude < kerbVessel.mainBody.atmosphereDepth / 2.0)
+                        {
+                            texture = kerbal.gender == ProtoCrewMember.Gender.Male ? eva_kerbin_male : eva_kerbin_female;
+                        }
+                        // EVA Kerbal - elsewhere
+                        else
+                        {
+                            texture = kerbal.gender == ProtoCrewMember.Gender.Male ? eva_space_male : eva_space_female;
+                        }
                     }
                 }
             }
 
             public override void OnGUI()
             {
-                if (kerbal == null && FlightGlobals.ActiveVessel != null)
-                {
-                    kerbal = FlightGlobals.ActiveVessel.GetVesselCrew().FirstOrDefault();
-                    
-                    if (kerbal != null)
-                    {
-                        if (string.IsNullOrEmpty(characterName))
-                        {
-                            characterName = kerbal.name;
-                        }
-                    }
-                }
-
                 GUILayout.BeginVertical(GUILayout.Width(128));
                 GUILayout.Box("", GUILayout.Width(128), GUILayout.Height(128));
-                if (Event.current.type == EventType.Repaint && kerbal != null)
+                if (Event.current.type == EventType.Repaint && texture != null)
                 {
                     Rect rect = GUILayoutUtility.GetLastRect();
                     rect = new Rect(rect.x + 1f, rect.y + 1f, rect.width - 2f, rect.height - 2f);
-                    Graphics.DrawTexture(rect, renderTexture, new Rect(0.0f, 0.0f, 1f, 1f), 0, 0, 0, 0, Color.white, KerbalGUIManager.PortraitRenderMaterial);
+                    Graphics.DrawTexture(rect, texture, new Rect(0.0f, 0.0f, 1f, 1f), 0, 0, 0, 0, Color.white, KerbalGUIManager.PortraitRenderMaterial);
                 }
 
                 DisplayName(128);
@@ -556,11 +608,20 @@ namespace ContractConfigurator.Behaviour
             public override void OnSave(ConfigNode configNode)
             {
                 base.OnSave(configNode);
+
+                configNode.AddValue("crewIndex", crewIndex);
+                foreach (string exclude in excludeName)
+                {
+                    configNode.AddValue("excludeName", exclude);
+                }
             }
 
             public override void OnLoad(ConfigNode configNode)
             {
                 base.OnLoad(configNode);
+
+                crewIndex = ConfigNodeUtil.ParseValue<int>(configNode, "crewIndex");
+                excludeName = ConfigNodeUtil.ParseValue<List<string>>(configNode, "excludeName", new List<string>());
             }
         }
 
@@ -670,6 +731,37 @@ namespace ContractConfigurator.Behaviour
         {
             this.details = details;
         }
+
+        protected override void OnRegister()
+        {
+            GameEvents.onFlightReady.Add(new EventVoid.OnEvent(OnFlightReady));
+        }
+
+        protected override void OnUnregister()
+        {
+            GameEvents.onFlightReady.Remove(new EventVoid.OnEvent(OnFlightReady));
+        }
+
+        protected void OnFlightReady()
+        {
+            Vessel v = FlightGlobals.ActiveVessel;
+            if (v != null && v.situation == Vessel.Situations.PRELAUNCH)
+            {
+                foreach (DialogDetail detail in details.Where(d => d.condition == TriggerCondition.VESSEL_PRELAUNCH))
+                {
+                    if (!displayQueue.Contains(detail))
+                    {
+                        displayQueue.Enqueue(detail);
+                    }
+                }
+            }
+
+            if (displayQueue.Any())
+            {
+                DialogBoxGUI.DisplayMessage(this);
+            }
+        }
+
 
         protected override void OnParameterStateChange(ContractParameter param)
         {

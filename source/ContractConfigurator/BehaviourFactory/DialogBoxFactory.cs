@@ -81,6 +81,9 @@ namespace ContractConfigurator.Behaviour
                             valid &= ConfigNodeUtil.ParseValue<bool>(sectionNode, "showName", x => section.showName = x, this, true);
                             valid &= ConfigNodeUtil.ParseValue<string>(sectionNode, "characterName", x => section.characterName = x, this, "");
                             valid &= ConfigNodeUtil.ParseValue<Color>(sectionNode, "textColor", x => section.textColor = x, this, new Color(0.729f, 0.855f, 0.333f));
+
+                            valid &= ConfigNodeUtil.ParseValue<int>(sectionNode, "crewIndex", x => section.crewIndex = x, this, 0);
+                            valid &= ConfigNodeUtil.ParseValue<List<string>>(sectionNode, "excludeName", x => section.excludeName = x, this, new List<string>());
                         }
                         else if (sectionNode.name == "BREAK")
                         {
