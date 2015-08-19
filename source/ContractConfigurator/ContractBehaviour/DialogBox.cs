@@ -453,12 +453,17 @@ namespace ContractConfigurator.Behaviour
             {
                 base.OnSave(configNode);
                 configNode.AddValue("name", name);
+                if (animation != null)
+                {
+                    configNode.AddValue("animation", animation.Value);
+                }
             }
 
             public override void OnLoad(ConfigNode configNode)
             {
                 base.OnLoad(configNode);
                 name = ConfigNodeUtil.ParseValue<string>(configNode, "name");
+                animation = ConfigNodeUtil.ParseValue<Animation?>(configNode, "animation", (Animation?)null);
             }
         }
 
@@ -477,8 +482,10 @@ namespace ContractConfigurator.Behaviour
                 if (kerbalCam != null && kerbalCam != kerbal.KerbalRef.kerbalCam)
                 {
                     UnityEngine.Object.Destroy(kerbalCam);
+                    UnityEngine.Object.Destroy(renderTexture);
                 }
                 kerbalCam = null;
+                renderTexture = null;
             }
 
             public override void OnPreCull()
@@ -490,70 +497,29 @@ namespace ContractConfigurator.Behaviour
                         Vessel kerbEVA = FlightGlobals.Vessels.Where(v => v.isEVA && v.GetVesselCrew().Contains(kerbal)).FirstOrDefault();
                         if (kerbEVA)
                         {
-                            Debug.Log("got a kerbEVA");
-
                             if (kerbalCam == null)
                             {
                                 renderTexture = new RenderTexture(128, 128, 8);
+
                                 kerbalCam = (Camera)UnityEngine.Object.Instantiate(FlightCamera.fetch.mainCamera);
                                 kerbalCam.targetTexture = renderTexture;
                                 kerbalCam.clearFlags = CameraClearFlags.Color;
                                 kerbalCam.backgroundColor = Color.black;
-                                kerbalCam.cullingMask = int.MaxValue;
+                                kerbalCam.clearStencilAfterLightingPass = true;
+                                kerbalCam.depthTextureMode = DepthTextureMode.DepthNormals;
+                                kerbalCam.useOcclusionCulling = false;
+                                kerbalCam.cullingMask = (1 << 0) | (1 << 1) | (1 << 4) | (1 << 9) | (1 << 10) | (1 << 15) | (1 << 18) | (1 << 20) | (1 << 23);
+
+                                kerbalCam.transform.parent = kerbEVA.transform;
+                                kerbalCam.transform.localPosition = new Vector3();
+                                kerbalCam.transform.Translate(new Vector3(0.0f, 0.75f, 0.33f));
+                                kerbalCam.transform.LookAt(kerbEVA.transform.position + kerbEVA.transform.up * 0.33f, kerbEVA.transform.up);
                             }
-
-                            kerbalCam.transform.localPosition = kerbEVA.transform.position;
-                            kerbalCam.transform.Translate(kerbEVA.transform.forward);
-                            kerbalCam.transform.LookAt(kerbEVA.transform, kerbEVA.transform.up);
-                            kerbalCam.RenderDontRestore();
-                            Debug.Log("pos = " + kerbalCam.transform.position);
-                        }
-                        else if (kerbal.seat != null)
-                        {
-                            Debug.Log("got a seat");
-                            if (renderTexture == null)
-                            {
-                                renderTexture = new RenderTexture(128, 128, 8);
-
-                                Camera refCamera = kerbal.seat.portraitCamera;
-                                refCamera.targetTexture = renderTexture;
-                                refCamera.clearFlags = CameraClearFlags.Color;
-                                refCamera.backgroundColor = Color.black;
-                                //refCamera.cullingMask = this.kerbalCam.cullingMask;
-                            }
-
-                            kerbal.seat.portraitCamera.RenderDontRestore();
-                        }
-                        else
-                        {
-                            Debug.Log("no seat");
                         }
                     }
                     else
                     {
-                        Debug.Log("default avatar");
                         renderTexture = kerbal.KerbalRef.avatarTexture;
-                    }
-                }
-                else
-                {
-                    Debug.Log("something else");
-                }
-
-                if (kerbalCam != null)
-                {
-                    if (kerbal.KerbalRef.avatarTexture == null)
-                    {
-                    }
-
-
-                    try
-                    {
-                        //kerbalCam.RenderDontRestore();
-                    }
-                    catch (Exception ex)
-                    {
-                        LoggingUtil.LogWarning(this, ex.Message);
                     }
                 }
             }
