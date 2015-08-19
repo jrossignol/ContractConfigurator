@@ -1,5 +1,6 @@
 Contract Configurator 1.6.7
 - Improved casting between string and VesselIdentifier (thanks Nori).
+- Added Crawlerway into list of KSC biomes for contracts (thanks Rokanov).
 
 Contract Configurator 1.6.6
 - Fixed exception in Science sub-system (happens in latest FieldResearch release).

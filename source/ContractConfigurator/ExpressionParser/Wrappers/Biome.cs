@@ -44,6 +44,7 @@ namespace ContractConfigurator
                 yield return "KSC";
                 yield return "Administration";
                 yield return "AstronautComplex";
+                yield return "Crawlerway";
                 yield return "LaunchPad";
                 yield return "MissionControl";
                 yield return "R&D";
