@@ -397,7 +397,7 @@ namespace ContractConfigurator.ExpressionParser
                             else
                             {
                                 expression = token.sval + expression;
-                                throw new DataStoreCastException(typeof(TResult), typeof(string));
+                                throw new DataStoreCastException(typeof(string), typeof(TResult));
                             }
                         default:
                             expression = token.sval + expression;

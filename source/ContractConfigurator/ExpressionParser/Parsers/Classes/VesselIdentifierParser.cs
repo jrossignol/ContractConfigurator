@@ -48,6 +48,18 @@ namespace ContractConfigurator.ExpressionParser
             return base.ConvertType<U>(value);
         }
 
+
+        internal override bool ConvertableFrom(Type type)
+        {
+            return type == typeof(string);
+        }
+
+        internal override VesselIdentifier ConvertFrom<U>(U value)
+        {
+            string identifier = (string)(object)value;
+            return string.IsNullOrEmpty(identifier) ? null : new VesselIdentifier(identifier);
+        }
+
         internal override VesselIdentifier ParseIdentifier(Token token)
         {
             // Try to parse more, as vessel names can have spaces
