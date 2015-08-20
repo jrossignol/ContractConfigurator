@@ -90,6 +90,7 @@
     <Compile Include="ContractParameter\VesselParameter\Rendezvous.cs" />
     <Compile Include="ContractParameter\VesselParameter\PlantFlagCustom.cs" />
     <Compile Include="ContractParameter\VesselParameter\NewVessel.cs" />
+    <Compile Include="ContractParameter\VesselParameter\RecoverVessel.cs" />
     <Compile Include="ContractParameter\VesselParameter\VesselIsType.cs" />
     <Compile Include="ContractParameter\VesselParameter\VesselDestroyed.cs" />
     <Compile Include="ContractParameter\VesselParameter\VesselNotDestroyed.cs" />
@@ -112,6 +113,7 @@
     <Compile Include="ExpressionParser\Parsers\Classes\TechParser.cs" />
     <Compile Include="ExpressionParser\Wrappers\Tech.cs" />
     <Compile Include="ParameterFactory\NewVesselFactory.cs" />
+    <Compile Include="ParameterFactory\RecoverVesselFactory.cs" />
     <Compile Include="ScenarioModules\ContractConfiguratorSettings.cs" />
     <Compile Include="ParameterFactory\MissionTimerFactory.cs" />
     <Compile Include="ScenarioModules\ContractPreLoader.cs" />
