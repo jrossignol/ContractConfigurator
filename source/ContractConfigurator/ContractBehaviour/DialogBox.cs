@@ -19,7 +19,7 @@ namespace ContractConfigurator.Behaviour
         {
             CONTRACT_FAILED,
             CONTRACT_ACCEPTED,
-            CONTRACT_COMPLETED,
+            CONTRACT_SUCCESS,
             VESSEL_PRELAUNCH,
             PARAMETER_FAILED,
             PARAMETER_COMPLETED
@@ -805,7 +805,7 @@ namespace ContractConfigurator.Behaviour
 
         protected override void OnCompleted()
         {
-            foreach (DialogDetail detail in details.Where(d => d.condition == TriggerCondition.CONTRACT_COMPLETED))
+            foreach (DialogDetail detail in details.Where(d => d.condition == TriggerCondition.CONTRACT_SUCCESS))
             {
                 displayQueue.Enqueue(detail);
             }
