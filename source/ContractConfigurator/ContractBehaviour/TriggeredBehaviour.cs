@@ -18,6 +18,15 @@ namespace ContractConfigurator.Behaviour
     {
         public enum State
         {
+            CONTRACT_ACCEPTED,
+            CONTRACT_FAILED,
+            CONTRACT_SUCCESS,
+            CONTRACT_COMPLETED,
+            PARAMETER_COMPLETED
+        }
+
+        public enum LegacyState
+        {
             ContractAccepted,
             ContractCompletedFailure,
             ContractCompletedSuccess,
@@ -39,7 +48,7 @@ namespace ContractConfigurator.Behaviour
 
         protected override void OnAccepted()
         {
-            if (onState == State.ContractAccepted)
+            if (onState == State.CONTRACT_ACCEPTED)
             {
                 TriggerAction();
             }
@@ -47,7 +56,7 @@ namespace ContractConfigurator.Behaviour
 
         protected override void OnCancelled()
         {
-            if (onState == State.ContractCompletedFailure)
+            if (onState == State.CONTRACT_FAILED || onState == State.CONTRACT_COMPLETED)
             {
                 TriggerAction();
             }
@@ -55,7 +64,7 @@ namespace ContractConfigurator.Behaviour
 
         protected override void OnDeadlineExpired()
         {
-            if (onState == State.ContractCompletedFailure)
+            if (onState == State.CONTRACT_FAILED || onState == State.CONTRACT_COMPLETED)
             {
                 TriggerAction();
             }
@@ -63,7 +72,7 @@ namespace ContractConfigurator.Behaviour
 
         protected override void OnFailed()
         {
-            if (onState == State.ContractCompletedFailure)
+            if (onState == State.CONTRACT_FAILED || onState == State.CONTRACT_COMPLETED)
             {
                 TriggerAction();
             }
@@ -71,7 +80,7 @@ namespace ContractConfigurator.Behaviour
 
         protected override void OnCompleted()
         {
-            if (onState == State.ContractCompletedSuccess)
+            if (onState == State.CONTRACT_SUCCESS || onState == State.CONTRACT_COMPLETED)
             {
                 TriggerAction();
             }
@@ -79,7 +88,7 @@ namespace ContractConfigurator.Behaviour
 
         protected override void OnParameterStateChange(ContractParameter param)
         {
-            if (onState == State.ParameterCompleted && param.State == ParameterState.Complete && parameter.Contains(param.ID))
+            if (onState == State.PARAMETER_COMPLETED && param.State == ParameterState.Complete && parameter.Contains(param.ID))
             {
                 TriggerAction();
             }
@@ -87,7 +96,36 @@ namespace ContractConfigurator.Behaviour
 
         protected override void OnLoad(ConfigNode configNode)
         {
-            onState = ConfigNodeUtil.ParseValue<State>(configNode, "onState");
+            try
+            {
+                onState = ConfigNodeUtil.ParseValue<State>(configNode, "onState");
+            }
+            catch (ArgumentException ae)
+            {
+                try
+                {
+                    LegacyState state = ConfigNodeUtil.ParseValue<LegacyState>(configNode, "onState");
+                    switch (state)
+                    {
+                        case LegacyState.ContractAccepted:
+                            onState = State.CONTRACT_ACCEPTED;
+                            break;
+                        case LegacyState.ContractCompletedFailure:
+                            onState = State.CONTRACT_FAILED;
+                            break;
+                        case LegacyState.ContractCompletedSuccess:
+                            onState = State.CONTRACT_SUCCESS;
+                            break;
+                        case LegacyState.ParameterCompleted:
+                            onState = State.PARAMETER_COMPLETED;
+                            break;
+                    }
+                }
+                catch
+                {
+                    throw ae;
+                }
+            }
             parameter = ConfigNodeUtil.ParseValue<List<string>>(configNode, "parameter", new List<string>());
         }
 

@@ -4,6 +4,7 @@ Contract Configurator 1.7.0
 - New RecoverVessel parameter.
 - Support in WaypointGenerator for underwater waypoints.
 - Improved casting between string and VesselIdentifier (thanks Nori).
+- Made ChageVesselOwnership onState values consistent with other behaviours.
 - Added Crawlerway into list of KSC biomes for contracts (thanks Rokanov).
 - Fixed issue with grandparent contract groups not being recognized properly for experssions (thanks Rokanov).
 
