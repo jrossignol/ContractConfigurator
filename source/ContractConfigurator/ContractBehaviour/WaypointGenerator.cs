@@ -32,6 +32,7 @@ namespace ContractConfigurator.Behaviour
             public Vector3d pqsOffset;
             public string parameter = "";
             public int count = 1;
+            public bool underwater = false;
 
             public WaypointData()
             {
@@ -70,6 +71,7 @@ namespace ContractConfigurator.Behaviour
                 pqsOffset = orig.pqsOffset;
                 parameter = orig.parameter;
                 randomName = orig.randomName;
+                underwater = orig.underwater;
 
                 SetContract(contract);
             }
@@ -117,18 +119,34 @@ namespace ContractConfigurator.Behaviour
                 LoggingUtil.LogVerbose(this, "Initializing waypoint generator.");
                 foreach (WaypointData wpData in waypoints)
                 {
+                    CelestialBody body = FlightGlobals.Bodies.Where<CelestialBody>(b => b.name == wpData.waypoint.celestialName).First();
+
                     // Do type-specific waypoint handling
                     if (wpData.type == "RANDOM_WAYPOINT")
                     {
                         LoggingUtil.LogVerbose(this, "   Generating a random waypoint...");
 
-                        // Generate the position
-                        WaypointManager.ChooseRandomPosition(out wpData.waypoint.latitude, out wpData.waypoint.longitude,
-                            wpData.waypoint.celestialName, wpData.waterAllowed, wpData.forceEquatorial, random);
+                        while (true)
+                        {
+                            // Generate the position
+                            WaypointManager.ChooseRandomPosition(out wpData.waypoint.latitude, out wpData.waypoint.longitude,
+                                wpData.waypoint.celestialName, wpData.waterAllowed, wpData.forceEquatorial, random);
+                            
+                            // Force a water waypoint
+                            if (wpData.underwater)
+                            {
+                                Vector3d radialVector = QuaternionD.AngleAxis(wpData.waypoint.longitude, Vector3d.down) *
+                                  QuaternionD.AngleAxis(wpData.waypoint.latitude, Vector3d.forward) * Vector3d.right;
+                                if (body.pqsController.GetSurfaceHeight(radialVector) - body.pqsController.radius >= 0.0)
+                                {
+                                    continue;
+                                }
+                            }
+                            break;
+                        }
                     }
                     else if (wpData.type == "RANDOM_WAYPOINT_NEAR")
                     {
-                        CelestialBody body = FlightGlobals.Bodies.Where(b => b.name == wpData.waypoint.celestialName).First();
                         Waypoint nearWaypoint = waypoints[wpData.nearIndex].waypoint;
 
                         LoggingUtil.LogVerbose(this, "   Generating a random waypoint near waypoint " + nearWaypoint.name + "...");
@@ -139,6 +157,17 @@ namespace ContractConfigurator.Behaviour
                             WaypointManager.ChooseRandomPositionNear(out wpData.waypoint.latitude, out wpData.waypoint.longitude,
                                 nearWaypoint.latitude, nearWaypoint.longitude, wpData.waypoint.celestialName,
                                 wpData.maxDistance, wpData.waterAllowed, random);
+
+                            // Force a water waypoint
+                            if (wpData.underwater)
+                            {
+                                Vector3d radialVector = QuaternionD.AngleAxis(wpData.waypoint.longitude, Vector3d.down) *
+                                  QuaternionD.AngleAxis(wpData.waypoint.latitude, Vector3d.forward) * Vector3d.right;
+                                if (body.pqsController.GetSurfaceHeight(radialVector) - body.pqsController.radius >= 0.0)
+                                {
+                                    continue;
+                                }
+                            }
                         } while (WaypointUtil.GetDistance(wpData.waypoint.latitude, wpData.waypoint.longitude, nearWaypoint.latitude, nearWaypoint.longitude,
                             body.Radius) < wpData.minDistance);
                     }
@@ -146,7 +175,6 @@ namespace ContractConfigurator.Behaviour
                     {
                         LoggingUtil.LogVerbose(this, "   Generating a waypoint based on PQS city " + wpData.pqsCity.name + "...");
 
-                        CelestialBody body = FlightGlobals.Bodies.Where(b => b.name == wpData.waypoint.celestialName).First();
                         Vector3d position = wpData.pqsCity.transform.position;
 
                         // Translate by the PQS offset (inverse transform of coordinate system)
@@ -167,8 +195,15 @@ namespace ContractConfigurator.Behaviour
                     // Set altitude
                     if (wpData.randomAltitude)
                     {
-                        CelestialBody body = FlightGlobals.Bodies.Where<CelestialBody>(b => b.name == wpData.waypoint.celestialName).First();
-                        if (body.atmosphere)
+                        if (wpData.underwater && body.ocean)
+                        {
+                            Vector3d radialVector = QuaternionD.AngleAxis(wpData.waypoint.longitude, Vector3d.down) *
+                              QuaternionD.AngleAxis(wpData.waypoint.latitude, Vector3d.forward) * Vector3d.right;
+                            double oceanFloor = body.pqsController.GetSurfaceHeight(radialVector) - body.pqsController.radius;
+
+                            wpData.waypoint.altitude = random.NextDouble() * (oceanFloor);
+                        }
+                        else if (body.atmosphere)
                         {
                             wpData.waypoint.altitude = random.NextDouble() * (body.atmosphereDepth);
                         }
@@ -177,11 +212,19 @@ namespace ContractConfigurator.Behaviour
                             wpData.waypoint.altitude = 0.0;
                         }
                     }
+                    // Clamp underwater waypoints to sea-floor
+                    else if (wpData.underwater)
+                    {
+                        Vector3d radialVector = QuaternionD.AngleAxis(wpData.waypoint.longitude, Vector3d.down) *
+                          QuaternionD.AngleAxis(wpData.waypoint.latitude, Vector3d.forward) * Vector3d.right;
+                        double oceanFloor = body.pqsController.GetSurfaceHeight(radialVector) - body.pqsController.radius;
+
+                        wpData.waypoint.altitude = Math.Max(oceanFloor, wpData.waypoint.altitude);
+                    }
 
                     // Set name
                     if (wpData.randomName)
                     {
-                        CelestialBody body = FlightGlobals.Bodies.Where<CelestialBody>(b => b.name == wpData.waypoint.celestialName).First();
                         wpData.waypoint.name = StringUtilities.GenerateSiteName(random.Next(), body, !wpData.waterAllowed);
                     }
 
@@ -249,6 +292,8 @@ namespace ContractConfigurator.Behaviour
                             texInfo.name = "Squad/Contracts/Icons/" + wpData.waypoint.id;
                         }
                     }
+
+                    valid &= ConfigNodeUtil.ParseValue<bool>(child, "underwater", x => wpData.underwater = x, factory, false);
 
                     // Track the index
                     wpData.waypoint.index = index++;
