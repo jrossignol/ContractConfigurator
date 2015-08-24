@@ -62,6 +62,7 @@
     <Compile Include="BehaviourFactory\WaypointGeneratorFactory.cs" />
     <Compile Include="BehaviourFactory\SpawnKerbalFactory.cs" />
     <Compile Include="ContractBehaviour\AwardExperience.cs" />
+    <Compile Include="ContractBehaviour\TriggeredBehaviour.cs" />
     <Compile Include="ContractBehaviour\ChangeVesselOwnership.cs" />
     <Compile Include="ContractBehaviour\DialogBox.cs" />
     <Compile Include="ContractBehaviour\CopyCraftFile.cs" />

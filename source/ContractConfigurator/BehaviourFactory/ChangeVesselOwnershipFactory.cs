@@ -22,7 +22,7 @@ namespace ContractConfigurator.Behaviour
             // Load base class
             bool valid = base.Load(configNode);
 
-            valid &= ConfigNodeUtil.ParseValue<ChangeVesselOwnership.State>(configNode, "onState", x => onState = x, this, ChangeVesselOwnership.State.ParameterCompleted);
+            valid &= ConfigNodeUtil.ParseValue<TriggeredBehaviour.State>(configNode, "onState", x => onState = x, this, TriggeredBehaviour.State.ParameterCompleted);
             valid &= ConfigNodeUtil.ParseValue<bool?>(configNode, "owned", x => owned = x.Value, this, (bool?)true);
             valid &= ConfigNodeUtil.ParseValue<List<string>>(configNode, "vessel", x => vessels = x, this);
             valid &= ConfigNodeUtil.ParseValue<List<string>>(configNode, "parameter", x => parameter = x, this, new List<string>());

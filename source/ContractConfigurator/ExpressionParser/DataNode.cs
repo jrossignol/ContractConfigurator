@@ -359,7 +359,6 @@ namespace ContractConfigurator.ExpressionParser
 
             for (DataNode node = (root != null ? root : this).parent; node != null; node = node.parent)
             {
-                LoggingUtil.LogVerbose(this, "    looking at parent node: " + node.name);
                 if (node.name == group)
                 {
                     key = names[1];
