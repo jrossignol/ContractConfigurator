@@ -13,60 +13,24 @@ namespace ContractConfigurator.Behaviour
     /// <summary>
     /// Behaviour for copying a craft file into a player's save.
     /// </summary>
-    public class CopyCraftFile : ContractBehaviour
+    public class CopyCraftFile : TriggeredBehaviour
     {
-        public enum Condition
-        {
-            CONTRACT_FAILED,
-            CONTRACT_COMPLETED,
-            PARAMETER_FAILED,
-            PARAMETER_COMPLETED
-        }
-
         protected string url;
         protected EditorFacility craftType;
-        protected Condition condition;
-        protected string parameter;
 
         public CopyCraftFile()
             : base()
         {
         }
 
-        public CopyCraftFile(string url, EditorFacility craftType, Condition condition, string parameter)
+        public CopyCraftFile(string url, EditorFacility craftType, State onState, List<string> parameter)
+            : base(onState, parameter)
         {
             this.url = url;
             this.craftType = craftType;
-            this.condition = condition;
-            this.parameter = parameter;
         }
 
-        protected override void OnParameterStateChange(ContractParameter param)
-        {
-            if (param.State == ParameterState.Complete && condition == Condition.PARAMETER_COMPLETED ||
-                param.State == ParameterState.Failed && condition == Condition.PARAMETER_FAILED)
-            {
-                DoCopy();
-            }
-        }
-
-        protected override void OnCompleted()
-        {
-            if (condition == Condition.CONTRACT_COMPLETED)
-            {
-                DoCopy();
-            }
-        }
-
-        protected override void OnFailed()
-        {
-            if (condition == Condition.CONTRACT_FAILED)
-            {
-                DoCopy();
-            }
-        }
-
-        protected void DoCopy()
+        protected override void TriggerAction()
         {
             string[] srcPathComponents = new string[] { KSPUtil.ApplicationRootPath, "GameData" }.Concat(url.Split("/".ToCharArray())).ToArray();
             string[] destPathComponents = new string[] { KSPUtil.ApplicationRootPath, "saves", HighLogic.SaveFolder, "Ships", craftType.ToString(), srcPathComponents.Last() };
@@ -81,19 +45,12 @@ namespace ContractConfigurator.Behaviour
         {
             configNode.AddValue("url", url);
             configNode.AddValue("craftType", craftType);
-            configNode.AddValue("condition", condition);
-            if (!string.IsNullOrEmpty(parameter))
-            {
-                configNode.AddValue("parameter", parameter);
-            }
         }
 
         protected override void OnLoad(ConfigNode configNode)
         {
             url = ConfigNodeUtil.ParseValue<string>(configNode, "url");
             craftType = ConfigNodeUtil.ParseValue<EditorFacility>(configNode, "craftType");
-            condition = ConfigNodeUtil.ParseValue<Condition>(configNode, "condition");
-            parameter = ConfigNodeUtil.ParseValue<string>(configNode, "parameter", "");
         }
     }
 }

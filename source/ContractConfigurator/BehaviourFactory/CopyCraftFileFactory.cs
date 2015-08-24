@@ -16,8 +16,8 @@ namespace ContractConfigurator.Behaviour
     {
         protected string url;
         protected EditorFacility craftType;
-        protected CopyCraftFile.Condition condition;
-        protected string parameter;
+        protected TriggeredBehaviour.State onState;
+        protected List<string> parameter;
 
         public override bool Load(ConfigNode configNode)
         {
@@ -26,10 +26,10 @@ namespace ContractConfigurator.Behaviour
 
             valid &= ConfigNodeUtil.ParseValue<string>(configNode, "url", x => url = x, this, ValidateURL);
             valid &= ConfigNodeUtil.ParseValue<EditorFacility>(configNode, "craftType", x => craftType = x, this);
-            valid &= ConfigNodeUtil.ParseValue<CopyCraftFile.Condition>(configNode, "condition", x => condition = x, this, CopyCraftFile.Condition.CONTRACT_COMPLETED);
-            if (condition == CopyCraftFile.Condition.PARAMETER_COMPLETED || condition == CopyCraftFile.Condition.PARAMETER_FAILED)
+            valid &= ConfigNodeUtil.ParseValue<TriggeredBehaviour.State>(configNode, "onState", x => onState = x, this, TriggeredBehaviour.State.CONTRACT_SUCCESS);
+            if (onState == TriggeredBehaviour.State.PARAMETER_COMPLETED || onState == TriggeredBehaviour.State.PARAMETER_FAILED)
             {
-                valid &= ConfigNodeUtil.ParseValue<string>(configNode, "parameter", x => parameter = x, this);
+                valid &= ConfigNodeUtil.ParseValue<List<string>>(configNode, "parameter", x => parameter = x, this);
             }
 
             return valid;
@@ -48,7 +48,7 @@ namespace ContractConfigurator.Behaviour
 
         public override ContractBehaviour Generate(ConfiguredContract contract)
         {
-            return new CopyCraftFile(url, craftType, condition, parameter);
+            return new CopyCraftFile(url, craftType, onState, parameter);
         }
     }
 }

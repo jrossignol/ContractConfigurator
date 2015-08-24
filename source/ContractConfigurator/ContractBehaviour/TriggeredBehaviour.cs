@@ -22,7 +22,8 @@ namespace ContractConfigurator.Behaviour
             CONTRACT_FAILED,
             CONTRACT_SUCCESS,
             CONTRACT_COMPLETED,
-            PARAMETER_COMPLETED
+            PARAMETER_FAILED,
+            PARAMETER_COMPLETED,
         }
 
         public enum LegacyState
@@ -88,9 +89,13 @@ namespace ContractConfigurator.Behaviour
 
         protected override void OnParameterStateChange(ContractParameter param)
         {
-            if (onState == State.PARAMETER_COMPLETED && param.State == ParameterState.Complete && parameter.Contains(param.ID))
+            if (parameter.Contains(param.ID))
             {
-                TriggerAction();
+                if (onState == State.PARAMETER_COMPLETED && param.State == ParameterState.Complete ||
+                    onState == State.PARAMETER_FAILED && param.State == ParameterState.Failed)
+                {
+                    TriggerAction();
+                }
             }
         }
 
