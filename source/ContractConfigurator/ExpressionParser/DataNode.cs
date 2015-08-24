@@ -149,7 +149,7 @@ namespace ContractConfigurator.ExpressionParser
         public DataNode Parent
         {
             get { return parent; }
-            private set { parent = value; }
+            set { parent = value; }
         }
 
         public DataNode Root
@@ -359,6 +359,7 @@ namespace ContractConfigurator.ExpressionParser
 
             for (DataNode node = (root != null ? root : this).parent; node != null; node = node.parent)
             {
+                LoggingUtil.LogVerbose(this, "    looking at parent node: " + node.name);
                 if (node.name == group)
                 {
                     key = names[1];
