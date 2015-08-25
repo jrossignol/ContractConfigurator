@@ -781,7 +781,10 @@ namespace ContractConfigurator.Behaviour
 
             foreach (DialogDetail detail in details.Where(d => d.condition == cond && d.parameter == param.ID))
             {
-                displayQueue.Enqueue(detail);
+                if (!displayQueue.Contains(detail))
+                {
+                    displayQueue.Enqueue(detail);
+                }
             }
 
             if (displayQueue.Any())
@@ -794,7 +797,10 @@ namespace ContractConfigurator.Behaviour
         {
             foreach (DialogDetail detail in details.Where(d => d.condition == TriggerCondition.CONTRACT_ACCEPTED))
             {
-                displayQueue.Enqueue(detail);
+                if (!displayQueue.Contains(detail))
+                {
+                    displayQueue.Enqueue(detail);
+                }
             }
 
             if (displayQueue.Any())
@@ -807,7 +813,10 @@ namespace ContractConfigurator.Behaviour
         {
             foreach (DialogDetail detail in details.Where(d => d.condition == TriggerCondition.CONTRACT_SUCCESS))
             {
-                displayQueue.Enqueue(detail);
+                if (!displayQueue.Contains(detail))
+                {
+                    displayQueue.Enqueue(detail);
+                }
             }
 
             if (displayQueue.Any())
@@ -820,7 +829,10 @@ namespace ContractConfigurator.Behaviour
         {
             foreach (DialogDetail detail in details.Where(d => d.condition == TriggerCondition.CONTRACT_FAILED))
             {
-                displayQueue.Enqueue(detail);
+                if (!displayQueue.Contains(detail))
+                {
+                    displayQueue.Enqueue(detail);
+                }
             }
 
             if (displayQueue.Any())
