@@ -39,17 +39,27 @@ namespace ContractConfigurator.Parameters
         {
             base.OnRegister();
             GameEvents.onVesselSituationChange.Add(new EventData<GameEvents.HostedFromToAction<Vessel, Vessel.Situations>>.OnEvent(OnVesselSituationChange));
+            GameEvents.Contract.onParameterChange.Add(new EventData<Contract, ContractParameter>.OnEvent(OnParameterChange));
         }
 
         protected override void OnUnregister()
         {
             base.OnUnregister();
             GameEvents.onVesselSituationChange.Remove(new EventData<GameEvents.HostedFromToAction<Vessel, Vessel.Situations>>.OnEvent(OnVesselSituationChange));
+            GameEvents.Contract.onParameterChange.Remove(new EventData<Contract, ContractParameter>.OnEvent(OnParameterChange));
         }
 
         protected void OnVesselSituationChange(GameEvents.HostedFromToAction<Vessel, Vessel.Situations> pair)
         {
             CheckVessel(pair.host);
+        }
+
+        protected void OnParameterChange(Contract c, ContractParameter p)
+        {
+            if (c == Root)
+            {
+                CheckVessel(FlightGlobals.ActiveVessel);
+            }
         }
 
         /// <summary>

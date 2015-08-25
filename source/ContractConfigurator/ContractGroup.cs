@@ -123,6 +123,7 @@ namespace ContractConfigurator
 
                     valid &= child.Load(childNode);
                     child.parent = this;
+                    child.dataNode.Parent = dataNode;
                     if (child.hasWarnings)
                     {
                         hasWarnings = true;

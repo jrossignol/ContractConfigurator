@@ -223,7 +223,16 @@ namespace ContractConfigurator.Parameters
             if (!fakeFailures || state != ParameterState.Failed)
             {
                 OnStateChange.Fire(this, state);
-                ContractConfigurator.OnParameterChange.Fire(Root, this);
+                try
+                {
+                    ContractConfigurator.OnParameterChange.Fire(Root, this);
+                }
+                // Workaround for bug when the OnParameterChange completes the contract,
+                // and other stuff gets removed from the contract before it can fire
+                catch (ArgumentOutOfRangeException e)
+                {
+                    LoggingUtil.LogDebug(this, "Ignoring ArgumentOutOfRangeException: " + e.Message);
+                }
                 Parent.ParameterStateUpdate(this);
             }
         }

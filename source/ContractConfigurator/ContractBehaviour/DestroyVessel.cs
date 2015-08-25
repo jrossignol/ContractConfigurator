@@ -12,22 +12,20 @@ using ContractConfigurator.ExpressionParser;
 namespace ContractConfigurator.Behaviour
 {
     /// <summary>
-    /// Behaviour for changing vessel ownership.
+    /// Behaviour for destroying one or more vessels.
     /// </summary>
-    public class ChangeVesselOwnership : TriggeredBehaviour
+    public class DestroyVessel : TriggeredBehaviour
     {
         private List<string> vessels;
-        private bool owned;
 
-        public ChangeVesselOwnership()
+        public DestroyVessel()
         {
         }
 
-        public ChangeVesselOwnership(State onState, List<string> vessels, bool owned, List<string> parameter)
+        public DestroyVessel(State onState, List<string> vessels, List<string> parameter)
             : base(onState, parameter)
         {
             this.vessels = vessels;
-            this.owned = owned;
         }
 
         protected override void TriggerAction()
@@ -36,7 +34,7 @@ namespace ContractConfigurator.Behaviour
             {
                 if (vessel != null)
                 {
-                    vessel.DiscoveryInfo.SetLevel(owned ? DiscoveryLevels.Owned : DiscoveryLevels.Unowned);
+                    vessel.Die();
                 }
             }
         }
@@ -44,14 +42,12 @@ namespace ContractConfigurator.Behaviour
         protected override void OnLoad(ConfigNode configNode)
         {
             base.OnLoad(configNode);
-            owned = ConfigNodeUtil.ParseValue<bool>(configNode, "owned");
             vessels = ConfigNodeUtil.ParseValue<List<string>>(configNode, "vessel", new List<string>());
         }
 
         protected override void OnSave(ConfigNode configNode)
         {
             base.OnSave(configNode);
-            configNode.AddValue("owned", owned);
             foreach (string v in vessels)
             {
                 configNode.AddValue("vessel", v);

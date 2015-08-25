@@ -149,7 +149,7 @@ namespace ContractConfigurator.ExpressionParser
         public DataNode Parent
         {
             get { return parent; }
-            private set { parent = value; }
+            set { parent = value; }
         }
 
         public DataNode Root

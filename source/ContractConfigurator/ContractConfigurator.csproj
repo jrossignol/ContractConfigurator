@@ -48,6 +48,9 @@
   <ItemGroup>
     <Compile Include="BehaviourFactory\AwardExperienceFactory.cs" />
     <Compile Include="BehaviourFactory\ChangeVesselOwnershipFactory.cs" />
+    <Compile Include="BehaviourFactory\DestroyVesselFactory.cs" />
+    <Compile Include="BehaviourFactory\DialogBoxFactory.cs" />
+    <Compile Include="BehaviourFactory\CopyCraftFileFactory.cs" />
     <Compile Include="BehaviourFactory\MessageFactory.cs" />
     <Compile Include="BehaviourFactory\InvalidBehaviourFactory.cs" />
     <Compile Include="BehaviourFactory\ExpressionFactory.cs" />
@@ -60,7 +63,11 @@
     <Compile Include="BehaviourFactory\WaypointGeneratorFactory.cs" />
     <Compile Include="BehaviourFactory\SpawnKerbalFactory.cs" />
     <Compile Include="ContractBehaviour\AwardExperience.cs" />
+    <Compile Include="ContractBehaviour\DestroyVessel.cs" />
+    <Compile Include="ContractBehaviour\TriggeredBehaviour.cs" />
     <Compile Include="ContractBehaviour\ChangeVesselOwnership.cs" />
+    <Compile Include="ContractBehaviour\DialogBox.cs" />
+    <Compile Include="ContractBehaviour\CopyCraftFile.cs" />
     <Compile Include="ContractBehaviour\Message.cs" />
     <Compile Include="ContractBehaviour\ExperimentalPart.cs" />
     <Compile Include="ContractBehaviour\IHasKerbalBehaviour.cs" />
@@ -86,6 +93,7 @@
     <Compile Include="ContractParameter\VesselParameter\Rendezvous.cs" />
     <Compile Include="ContractParameter\VesselParameter\PlantFlagCustom.cs" />
     <Compile Include="ContractParameter\VesselParameter\NewVessel.cs" />
+    <Compile Include="ContractParameter\VesselParameter\RecoverVessel.cs" />
     <Compile Include="ContractParameter\VesselParameter\VesselIsType.cs" />
     <Compile Include="ContractParameter\VesselParameter\VesselDestroyed.cs" />
     <Compile Include="ContractParameter\VesselParameter\VesselNotDestroyed.cs" />
@@ -108,6 +116,7 @@
     <Compile Include="ExpressionParser\Parsers\Classes\TechParser.cs" />
     <Compile Include="ExpressionParser\Wrappers\Tech.cs" />
     <Compile Include="ParameterFactory\NewVesselFactory.cs" />
+    <Compile Include="ParameterFactory\RecoverVesselFactory.cs" />
     <Compile Include="ScenarioModules\ContractConfiguratorSettings.cs" />
     <Compile Include="ParameterFactory\MissionTimerFactory.cs" />
     <Compile Include="ScenarioModules\ContractPreLoader.cs" />

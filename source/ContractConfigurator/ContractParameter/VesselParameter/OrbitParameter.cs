@@ -229,7 +229,10 @@ namespace ContractConfigurator.Parameters
         {
             base.OnParameterSave(node);
             node.AddValue("situation", situation);
-            node.AddValue("targetBody", targetBody.name);
+            if (targetBody != null)
+            {
+                node.AddValue("targetBody", targetBody.name);
+            }
             node.AddValue("minAltitude", minAltitude);
             if (maxAltitude != double.MaxValue)
             {
@@ -280,7 +283,7 @@ namespace ContractConfigurator.Parameters
                 maxInclination = ConfigNodeUtil.ParseValue<double>(node, "maxInclination", double.MaxValue);
                 minPeriod = ConfigNodeUtil.ParseValue<double>(node, "minPeriod");
                 maxPeriod = ConfigNodeUtil.ParseValue<double>(node, "maxPeriod", double.MaxValue);
-                targetBody = ConfigNodeUtil.ParseValue<CelestialBody>(node, "targetBody");
+                targetBody = ConfigNodeUtil.ParseValue<CelestialBody>(node, "targetBody", (CelestialBody)null);
 
                 CreateDelegates();
             }
