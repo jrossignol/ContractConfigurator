@@ -213,15 +213,6 @@ namespace ContractConfigurator.Behaviour
             return valid ? spawnVessel : null;
         }
 
-        protected override void OnUpdate()
-        {
-            base.OnUpdate();
-            if (deferVesselCreation && (HighLogic.LoadedScene == GameScenes.FLIGHT || HighLogic.LoadedScene == GameScenes.TRACKSTATION))
-            {
-                CreateVessels();
-            }
-        }
-
         protected void CreateVessels()
         {
             if (vesselsCreated)
@@ -622,11 +613,13 @@ namespace ContractConfigurator.Behaviour
         protected override void OnRegister()
         {
             GameEvents.onVesselRecovered.Add(new EventData<ProtoVessel>.OnEvent(OnVesselRecovered));
+            GameEvents.onGameSceneLoadRequested.Add(new EventData<GameScenes>.OnEvent(OnGameSceneLoad));
         }
 
         protected override void OnUnregister()
         {
             GameEvents.onVesselRecovered.Remove(new EventData<ProtoVessel>.OnEvent(OnVesselRecovered));
+            GameEvents.onGameSceneLoadRequested.Remove(new EventData<GameScenes>.OnEvent(OnGameSceneLoad));
         }
 
         private void OnVesselRecovered(ProtoVessel v)
@@ -677,6 +670,17 @@ namespace ContractConfigurator.Behaviour
                         }
                     }
                 }
+            }
+        }
+
+        private void OnGameSceneLoad(GameScenes gameScene)
+        {
+            if (deferVesselCreation && (gameScene == GameScenes.FLIGHT || gameScene == GameScenes.TRACKSTATION))
+            {
+                CreateVessels();
+
+                // After the vessels are created, save the game again so we don't lose our changes
+                GamePersistence.SaveGame("persistent", HighLogic.SaveFolder, SaveMode.OVERWRITE);
             }
         }
 
