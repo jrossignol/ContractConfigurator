@@ -15,7 +15,7 @@ namespace ContractConfigurator.Behaviour
         private ChangeVesselOwnership.State onState;
         private List<string> vessels;
         private bool owned;
-        private List<string> parameter;
+        private List<string> parameter = new List<string>();
 
         public override bool Load(ConfigNode configNode)
         {
@@ -48,7 +48,11 @@ namespace ContractConfigurator.Behaviour
 
             valid &= ConfigNodeUtil.ParseValue<bool?>(configNode, "owned", x => owned = x.Value, this, (bool?)true);
             valid &= ConfigNodeUtil.ParseValue<List<string>>(configNode, "vessel", x => vessels = x, this);
-            valid &= ConfigNodeUtil.ParseValue<List<string>>(configNode, "parameter", x => parameter = x, this, new List<string>());
+
+            if (onState == TriggeredBehaviour.State.PARAMETER_COMPLETED || onState == TriggeredBehaviour.State.PARAMETER_FAILED)
+            {
+                valid &= ConfigNodeUtil.ParseValue<List<string>>(configNode, "parameter", x => parameter = x, this, new List<string>());
+            }
 
             return valid;
         }
