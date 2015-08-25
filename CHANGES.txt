@@ -4,6 +4,7 @@ Contract Configurator 1.7.0
 - new DestroyVessel behaviour to destroy a vessel.
 - New RecoverVessel parameter.
 - Support in WaypointGenerator for underwater waypoints.
+- Duration parameter can now be used as a child of some parameters.
 - Improved casting between string and VesselIdentifier (thanks Nori).
 - Made ChageVesselOwnership onState values consistent with other behaviours.
 - Added Crawlerway into list of KSC biomes for contracts (thanks Rokanov).

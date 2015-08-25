@@ -160,29 +160,39 @@ namespace ContractConfigurator.Parameters
         /// <returns>True if the parameter is ready to complete.</returns>
         protected bool ReadyToComplete()
         {
-            if (!completeInSequence && !(Parent is Sequence))
+            if (completeInSequence || Parent is Sequence)
             {
-                return true;
+                // Go through the parent's parameters
+                for (int i = 0; i < Parent.ParameterCount; i++)
+                {
+                    ContractParameter param = Parent.GetParameter(i);
+                    // If we've made it all the way to us, we're ready
+                    if (System.Object.ReferenceEquals(param, this))
+                    {
+                        // Passed our check
+                        break;
+                    }
+                    else if (param.State != ParameterState.Complete)
+                    {
+                        return false;
+                    }
+                }
             }
 
-            // Go through the parent's parameters
-            for (int i = 0; i < Parent.ParameterCount; i++)
+            // Special handling for the Duration parameter ideally shouldn't be here - someday I'll refactor this
+            foreach (ContractParameter child in this.GetChildren())
             {
-                ContractParameter param = Parent.GetParameter(i);
-                // If we've made it all the way to us, we're ready
-                if (System.Object.ReferenceEquals(param, this))
+                Duration duration = child as Duration;
+                if (duration != null)
                 {
-                    return true;
-                }
-                else if (param.State != ParameterState.Complete)
-                {
-                    return false;
+                    if (duration.state != ParameterState.Complete)
+                    {
+                        return false;
+                    }
                 }
             }
 
-            // Shouldn't get here unless things are really messed up
-            LoggingUtil.LogWarning(this.GetType(), "Unexpected state for sequenced parameter.  Log a GitHub issue!");
-            return false;
+            return true;
         }
 
         /// <summary>
