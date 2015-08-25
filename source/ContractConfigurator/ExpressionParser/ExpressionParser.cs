@@ -94,6 +94,24 @@ namespace ContractConfigurator.ExpressionParser
             return val;
         }
 
+        public override void ExecuteAndStoreExpression(string key, string expression, DataNode dataNode)
+        {
+            if (PersistentDataStore.Instance != null)
+            {
+                PersistentDataStore.Instance.Store<T>(key, ExecuteExpression("", expression, dataNode));
+            }
+            else
+            {
+                LoggingUtil.LogWarning(this, "Unable to store value for '" + key + "' - PersistentDataStore is null.  This is likely caused by another ScenarioModule crashing, preventing others from loading.");
+            }
+        }
+
+        public override object ParseExpressionGeneric(string key, string expression, DataNode dataNode)
+        {
+            return ParseExpression(key, expression, dataNode);
+        }
+
+
         /// <summary>
         /// Executes the given expression in parse mode.
         /// </summary>

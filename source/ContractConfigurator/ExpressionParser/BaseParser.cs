@@ -202,6 +202,15 @@ namespace ContractConfigurator.ExpressionParser
             return null;
         }
 
+        public static BaseParser NewParser(Type type)
+        {
+            MethodInfo getParserMethod = typeof(BaseParser).GetMethods(BindingFlags.Static | BindingFlags.Public).
+                Where(m => m.Name == "GetParser" && m.GetParameters().Count() == 0).Single();
+            getParserMethod = getParserMethod.MakeGenericMethod(new Type[] { type });
+
+            return (BaseParser)getParserMethod.Invoke(null, new object[] {});
+        }
+        
         protected static ExpressionParser<T> GetParser<T>(BaseParser orig)
         {
             ExpressionParser<T> newParser = GetParser<T>();
@@ -315,5 +324,8 @@ namespace ContractConfigurator.ExpressionParser
         {
             return LogExitDebug<TResult>(function, "(EXCEPTION)");
         }
+
+        public abstract void ExecuteAndStoreExpression(string key, string expression, DataNode dataNode);
+        public abstract object ParseExpressionGeneric(string key, string expression, DataNode dataNode);
     }
 }
