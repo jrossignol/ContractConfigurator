@@ -128,6 +128,14 @@ namespace ContractConfigurator.Parameters
                     }
                 }
 
+                // Additional check when under a VesselParameterGroup
+                VesselParameterGroup vpg = Parent as VesselParameterGroup;
+                if (vpg != null && vpg.VesselList.Any())
+                {
+                    completed &= ContractVesselTracker.Instance.GetAssociatedKeys(FlightGlobals.ActiveVessel).
+                        Where(key => vpg.VesselList.Contains(key)).Any();
+                }
+
                 if (completed)
                 {
                     if (endTime == 0.0)
