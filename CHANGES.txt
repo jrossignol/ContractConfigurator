@@ -9,6 +9,7 @@ Contract Configurator 1.7.0
 - Added Crawlerway into list of KSC biomes for contracts (thanks Rokanov).
 - Fixed issue with grandparent contract groups not being recognized properly for experssions (thanks Rokanov).
 - Fixed issues spawning vessels with the deferredVesselCreation flag (thanks Enceos).
+- Fixed exception in HasCrew when referencing a Kerbal that hasn't yet been spawned (thanks severedsolo).
 
 Contract Configurator 1.6.6
 - Fixed exception in Science sub-system (happens in latest FieldResearch release).
