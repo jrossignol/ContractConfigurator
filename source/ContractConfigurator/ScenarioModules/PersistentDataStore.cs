@@ -79,7 +79,7 @@ namespace ContractConfigurator
             }
             catch (InvalidCastException)
             {
-                throw new DataStoreCastException(data[key].GetType(), typeof(T));
+                throw new DataStoreCastException(typeof(T), data[key].GetType());
             }
         }
 

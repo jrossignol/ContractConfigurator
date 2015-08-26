@@ -30,6 +30,7 @@ namespace ContractConfigurator.ExpressionParser
         {
             IDENTIFIER,
             SPECIAL_IDENTIFIER,
+            DATA_STORE_IDENTIFIER,
             VALUE,
             OPERATOR,
             START_BRACKET,

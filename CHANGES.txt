@@ -7,6 +7,7 @@ Contract Configurator 1.7.0
 - Duration parameter can now be used as a child of some parameters.
 - Duration parameter now respects the vessel filter in VesselParameterGroup.
 - Expression behaviour can now store data for types other than double.
+- Data can now be retrived from the persistent data store in expressions using the $ symbol.
 - Improved casting between string and VesselIdentifier (thanks Nori).
 - Made ChageVesselOwnership onState values consistent with other behaviours.
 - Added Crawlerway into list of KSC biomes for contracts (thanks Rokanov).

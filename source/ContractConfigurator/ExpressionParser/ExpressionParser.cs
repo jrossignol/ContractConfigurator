@@ -374,6 +374,11 @@ namespace ContractConfigurator.ExpressionParser
                             expression = parser.expression;
                             verbose &= LogExitDebug<TResult>("ParseSimpleStatement", result);
                             return result;
+                        case TokenType.DATA_STORE_IDENTIFIER:
+                            result = parser.ParseDataStoreIdentifier(token);
+                            expression = parser.expression;
+                            verbose &= LogExitDebug<TResult>("ParseSimpleStatement", result);
+                            return result;
                         case TokenType.OPERATOR:
                             switch (token.sval)
                             {
@@ -692,6 +697,8 @@ namespace ContractConfigurator.ExpressionParser
                     return ParseOperator();
                 case '@':
                     return ParseSpecialIdentifier();
+                case '$':
+                    return ParseDataStoreIdentifier();
                 case '.':
                     return ParseMethod();
             }
@@ -1232,6 +1239,36 @@ namespace ContractConfigurator.ExpressionParser
             }
         }
 
+        /// <summary>
+        /// Parses an identifier for a value stored in the persistent data store.
+        /// </summary>
+        /// <param name="token">Token of the identifier to parse</param>
+        /// <returns>Value of the config node identifier</returns>
+        internal virtual T ParseDataStoreIdentifier(Token token)
+        {
+            verbose &= LogEntryDebug<T>("ParseDataStoreIdentifier", token);
+
+            T result = default(T);
+            try
+            {
+                // Stored values are always non-deterministic
+                currentDataNode.SetDeterministic(currentKey, false);
+
+                if (PersistentDataStore.Instance != null)
+                {
+                    result = PersistentDataStore.Instance.Retrieve<T>(token.sval);
+                }
+            }
+            catch
+            {
+                verbose &= LogException<T>("ParseSpecialIdentifier");
+                throw;
+            }
+
+            verbose &= LogExitDebug<T>("ParseDataStoreIdentifier", result);
+            return result;
+        }
+
         internal Token ParseIdentifier()
         {
             Match m = Regex.Match(expression, @"([A-Za-z][\w\d]*).*");
@@ -1251,6 +1288,15 @@ namespace ContractConfigurator.ExpressionParser
             expression = (expression.Length > identifier.Length + 1 ? expression.Substring(identifier.Length + 1) : "");
 
             return new Token(TokenType.SPECIAL_IDENTIFIER, identifier);
+        }
+
+        internal Token ParseDataStoreIdentifier()
+        {
+            Match m = Regex.Match(expression, @"^\$(/?(?>([A-Za-z][\w\d]*|\.\.)/)*[A-Za-z][\w\d:]*).*");
+            string identifier = m.Groups[1].Value;
+            expression = (expression.Length > identifier.Length + 1 ? expression.Substring(identifier.Length + 1) : "");
+
+            return new Token(TokenType.DATA_STORE_IDENTIFIER, identifier);
         }
 
         internal Token ParseMethod()
