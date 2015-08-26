@@ -14,6 +14,19 @@ namespace ContractConfigurator.Behaviour
     /// </summary>
     public class DialogBox : ContractBehaviour
     {
+        private static Material _portraitRenderMaterial = null;
+        public static Material PortraitRenderMaterial
+        {
+            get
+            {
+                if (_portraitRenderMaterial == null)
+                {
+                    _portraitRenderMaterial = AssetBase.GetPrefab("Instructor_Gene").GetComponent<KerbalInstructor>().PortraitRenderMaterial;
+                }
+                return _portraitRenderMaterial;
+            }
+        }
+
         #region enums
         public enum TriggerCondition
         {
@@ -442,7 +455,7 @@ namespace ContractConfigurator.Behaviour
                 {
                     Rect rect = GUILayoutUtility.GetLastRect();
                     rect = new Rect(rect.x + 1f, rect.y + 1f, rect.width - 2f, rect.height - 2f);
-                    Graphics.DrawTexture(rect, instructorTexture, new Rect(0.0f, 0.0f, 1f, 1f), 124, 124, 124, 124, Color.white, instructor.PortraitRenderMaterial);
+                    Graphics.DrawTexture(rect, instructorTexture, new Rect(0.0f, 0.0f, 1f, 1f), 124, 124, 124, 124, Color.white, PortraitRenderMaterial);
                 }
 
                 DisplayName(128);
@@ -597,7 +610,7 @@ namespace ContractConfigurator.Behaviour
                 {
                     Rect rect = GUILayoutUtility.GetLastRect();
                     rect = new Rect(rect.x + 1f, rect.y + 1f, rect.width - 2f, rect.height - 2f);
-                    Graphics.DrawTexture(rect, texture, new Rect(0.0f, 0.0f, 1f, 1f), 0, 0, 0, 0, Color.white, KerbalGUIManager.PortraitRenderMaterial);
+                    Graphics.DrawTexture(rect, texture, new Rect(0.0f, 0.0f, 1f, 1f), 0, 0, 0, 0, Color.white, PortraitRenderMaterial);
                 }
 
                 DisplayName(128);

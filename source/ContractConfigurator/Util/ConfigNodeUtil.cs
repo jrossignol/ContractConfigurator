@@ -67,7 +67,7 @@ namespace ContractConfigurator
 
         private static Dictionary<ConfigNode, Dictionary<string, int>> keysFound = new Dictionary<ConfigNode, Dictionary<string, int>>();
         private static Dictionary<ConfigNode, ConfigNode> storedValues = new Dictionary<ConfigNode, ConfigNode>();
-        private static DataNode currentDataNode;
+        public static DataNode currentDataNode;
         private static bool initialLoad = true;
 
         private static Dictionary<string, Type> typeMap = new Dictionary<string, Type>();

@@ -343,7 +343,6 @@ namespace ContractConfigurator.ExpressionParser
 
         private DataNode NodeForKey(ref string key)
         {
-            LoggingUtil.LogVerbose(this, "Node for key: " + key);
             if (!key.Contains(':'))
             {
                 return this;

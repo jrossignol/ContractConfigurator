@@ -155,6 +155,10 @@ namespace ContractConfigurator
         {
             // Set the hasWarnings flag
             IContractConfiguratorFactory ccFactory = obj as IContractConfiguratorFactory;
+            if (ccFactory == null && captureLog && ConfigNodeUtil.currentDataNode != null)
+            {
+                ccFactory = ConfigNodeUtil.currentDataNode.Factory;
+            }
             if (ccFactory != null)
             {
                 ccFactory.hasWarnings = true;

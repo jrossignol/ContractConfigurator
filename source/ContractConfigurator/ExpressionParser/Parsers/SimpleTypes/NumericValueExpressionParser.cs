@@ -299,18 +299,6 @@ namespace ContractConfigurator.ExpressionParser
             return calculator.NE(a, b);
         }
 
-        public void ExecuteAndStoreExpression(string key, string expression, DataNode dataNode)
-        {
-            if (PersistentDataStore.Instance != null)
-            {
-                PersistentDataStore.Instance.Store<T>(key, ExecuteExpression("", expression, dataNode));
-            }
-            else
-            {
-                LoggingUtil.LogWarning(this, "Unable to store value for '" + key + "' - PersistentDataStore is null.  This is likely caused by another ScenarioModule crashing, preventing others from loading.");
-            }
-        }
-
         /// <summary>
         /// Parses an identifier for a value stored in the persistant data store.
         /// </summary>

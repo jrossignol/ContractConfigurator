@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.Remoting;
 using System.Text;
 using UnityEngine;
@@ -40,49 +41,37 @@ namespace ContractConfigurator
             Instance = this;
         }
 
-        /*
-         * Call this to store a key/value pair into the persistant data store.  Only basic
-         * value types and strings are supported.
-         */
-        public void Store<T>(string key, T value) where T : struct
+        /// <summary>
+        /// Store a key/value pair into the persistent data store.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        public void Store<T>(string key, T value)
         {
-            Type type = value.GetType();
-            if (type != typeof(bool) &&
-                type != typeof(float) &&
-                type != typeof(double) &&
-                type != typeof(sbyte) &&
-                type != typeof(byte) &&
-                type != typeof(char) &&
-                type != typeof(short) &&
-                type != typeof(ushort) &&
-                type != typeof(int) &&
-                type != typeof(uint) &&
-                type != typeof(long) &&
-                type != typeof(ulong) &&
-                type != typeof(string))
-            {
-                throw new ArgumentException("ContractConfigurator: Supplied value must be of a simple value type.", "value");
-            }
             data[key] = value;
         }
-
         
-        /*
-         * Call this to store an entire config node into the persistant data store.
-         */
+        /// <summary>
+        /// Store a config node into the persistent data store.
+        /// </summary>
+        /// <param name="node"></param>
         public void Store(ConfigNode node)
         {
             configNodes[node.name] = node;
         }
 
-        /*
-         * Call this to retrieve a previously stored value from the persistant data store.
-         */
-        public T Retrieve<T>(string key) where T : struct
+        /// <summary>
+        /// Retrieve a value from the persistent data store.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public T Retrieve<T>(string key)
         {
             if (!data.ContainsKey(key))
             {
-                return new T();
+                return default(T);
             }
             try
             {
@@ -90,13 +79,15 @@ namespace ContractConfigurator
             }
             catch (InvalidCastException)
             {
-                throw new DataStoreCastException(data[key].GetType(), typeof(T));
+                throw new DataStoreCastException(typeof(T), data[key].GetType());
             }
         }
 
-        /*
-         * Call this to retrieve a previously stored config node from the persistant data store.
-         */
+        /// <summary>
+        /// Retrieve a config node from the persistent data store.
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
         public ConfigNode Retrieve(string key)
         {
             if (!configNodes.ContainsKey(key))
@@ -119,15 +110,21 @@ namespace ContractConfigurator
                     foreach (ConfigNode.Value pair in dataNode.values)
                     {
                         string typeName = pair.value.Remove(pair.value.IndexOf(":"));
-                        string value = pair.value.Substring(typeName.Length + 1, pair.value.Length - typeName.Length - 1);
-                        Type type = Type.GetType(typeName);
+                        string value = pair.value.Substring(typeName.Length + 1);
+                        Type type = ConfigNodeUtil.ParseTypeValue(typeName);
+
                         if (type == typeof(string))
                         {
-                            data[pair.name] = pair.value;
+                            data[pair.name] = value;
                         }
                         else
                         {
-                            data[pair.name] = type.InvokeMember("Parse", System.Reflection.BindingFlags.InvokeMethod, null, null, new string[] { value });
+                            // Get the ParseValue method
+                            MethodInfo parseValueMethod = typeof(ConfigNodeUtil).GetMethods().Where(m => m.Name == "ParseSingleValue").Single();
+                            parseValueMethod = parseValueMethod.MakeGenericMethod(new Type[] { type });
+
+                            // Invoke the ParseValue method
+                            data[pair.name] = parseValueMethod.Invoke(null, new object[] { pair.name, value, false });
                         }
                     }
 
@@ -158,7 +155,7 @@ namespace ContractConfigurator
                 // Handle individual values
                 foreach (KeyValuePair<string, System.Object> p in data)
                 {
-                    dataNode.AddValue(p.Key, p.Value.GetType() + ":" + p.Value);
+                    StoreToConfigNode(dataNode, p.Key, p.Value);
                 }
 
                 // Handle config nodes
@@ -173,6 +170,30 @@ namespace ContractConfigurator
                 LoggingUtil.LogException(e);
                 ExceptionLogWindow.DisplayFatalException(ExceptionLogWindow.ExceptionSituation.SCENARIO_MODULE_SAVE, e, "PersistentDataStore");
             }
+        }
+
+        public static void StoreToConfigNode(ConfigNode node, string key, object value)
+        {
+            string strValue;
+            Type type = value.GetType();
+            if (type == typeof(CelestialBody))
+            {
+                strValue = ((CelestialBody)value).name;
+            }
+            else if (type == typeof(Vessel))
+            {
+                strValue = ((Vessel)value).id.ToString();
+            }
+            else if (type == typeof(ScienceSubject))
+            {
+                strValue = ((ScienceSubject)value).id;
+            }
+            else
+            {
+                strValue = value.ToString();
+            }
+
+            node.AddValue(key, type.Name + ":" + strValue);
         }
     }
 }

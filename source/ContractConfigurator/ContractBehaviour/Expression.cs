@@ -18,23 +18,24 @@ namespace ContractConfigurator.Behaviour
     {
         private class ExpVal
         {
+            public Type type = null;
             public string key = null;
             public string val = null;
 
-            public ExpVal(string key, string val)
+            public ExpVal(Type type, string key, string val)
             {
+                this.type = type;
                 this.key = key;
                 this.val = val;
             }
         }
 
+        private List<ExpVal> onOfferExpr = new List<ExpVal>();
         private List<ExpVal> onAcceptExpr = new List<ExpVal>();
         private List<ExpVal> onSuccessExpr = new List<ExpVal>();
         private List<ExpVal> onFailExpr = new List<ExpVal>();
 
         private Dictionary<string, List<ExpVal>> onParameterComplete = new Dictionary<string, List<ExpVal>>();
-
-        private NumericValueExpressionParser<double> parser = new NumericValueExpressionParser<double>();
 
         private Dictionary<string, List<ExpVal>> map = new Dictionary<string, List<ExpVal>>();
         private DataNode dataNode;
@@ -58,6 +59,7 @@ namespace ContractConfigurator.Behaviour
         public Expression(Expression source)
         {
             dataNode = source.dataNode;
+            onOfferExpr = new List<ExpVal>(source.onOfferExpr);
             onAcceptExpr = new List<ExpVal>(source.onAcceptExpr);
             onSuccessExpr = new List<ExpVal>(source.onSuccessExpr);
             onFailExpr = new List<ExpVal>(source.onFailExpr);
@@ -67,6 +69,7 @@ namespace ContractConfigurator.Behaviour
 
         private void SetupMap()
         {
+            map["CONTRACT_OFFERED"] = onOfferExpr;
             map["CONTRACT_ACCEPTED"] = onAcceptExpr;
             map["CONTRACT_COMPLETED_SUCCESS"] = onSuccessExpr;
             map["CONTRACT_COMPLETED_FAILURE"] = onFailExpr;
@@ -80,6 +83,12 @@ namespace ContractConfigurator.Behaviour
             e.factory = null;
 
             return e;
+        }
+
+        protected override void OnOffered()
+        {
+            ExecuteExpressions(map["CONTRACT_OFFERED"]);
+            map["CONTRACT_OFFERED"].Clear();
         }
 
         protected override void OnAccepted()
@@ -125,55 +134,47 @@ namespace ContractConfigurator.Behaviour
         {
             foreach (ExpVal expVal in expressions)
             {
+                BaseParser parser = BaseParser.NewParser(expVal.type);
                 parser.ExecuteAndStoreExpression(expVal.key, expVal.val, dataNode);
             }
         }
 
         protected override void OnLoad(ConfigNode configNode)
         {
-            foreach (string node in map.Keys)
+            foreach (string node in map.Keys.Union(new string[] {"PARAMETER_COMPLETED"}))
             {
                 foreach (ConfigNode child in ConfigNodeUtil.GetChildNodes(configNode, node))
                 {
+                    string parameter = ConfigNodeUtil.ParseValue<string>(child, "parameter", "");
+                    Type type = ConfigNodeUtil.ParseValue<Type>(child, "type", typeof(double));
                     foreach (ConfigNode.Value pair in child.values)
                     {
-                        ExpVal expVal = new ExpVal(pair.name, pair.value);
-                        if (factory != null)
+                        if (pair.name != "parameter" && pair.name != "type")
                         {
-                            ConfigNodeUtil.ParseValue<string>(child, pair.name, x => expVal.val = x, factory);
+                            ExpVal expVal = new ExpVal(type, pair.name, pair.value);
+                            if (factory != null)
+                            {
+                                ConfigNodeUtil.ParseValue<string>(child, pair.name, x => expVal.val = x, factory);
+                            }
+
+                            // Parse the expression to validate
+                            BaseParser parser = BaseParser.NewParser(expVal.type);
+                            parser.ParseExpressionGeneric(pair.name, expVal.val, dataNode);
+
+                            // Store it for later
+                            if (child.name == "PARAMETER_COMPLETED")
+                            {
+                                if (!onParameterComplete.ContainsKey(parameter))
+                                {
+                                    onParameterComplete[parameter] = new List<ExpVal>();
+                                }
+                                onParameterComplete[parameter].Add(expVal);
+                            }
+                            else
+                            {
+                                map[node].Add(expVal);
+                            }
                         }
-
-                        // Parse the expression to validate
-                        parser.ParseExpression(pair.name, expVal.val, dataNode);
-
-                        // Store it for later
-                        map[node].Add(expVal);
-                    }
-                }
-            }
-
-            foreach (ConfigNode child in ConfigNodeUtil.GetChildNodes(configNode, "PARAMETER_COMPLETED"))
-            {
-                string parameter = ConfigNodeUtil.ParseValue<string>(child, "parameter");
-                foreach (ConfigNode.Value pair in child.values)
-                {
-                    if (pair.name != "parameter")
-                    {
-                        ExpVal expVal = new ExpVal(pair.name, pair.value);
-                        if (factory != null)
-                        {
-                            ConfigNodeUtil.ParseValue<string>(child, pair.name, x => expVal.val = x, factory);
-                        }
-
-                        // Parse the expression to validate
-                        parser.ParseExpression(pair.name, expVal.val, dataNode);
-
-                        // Store it for later
-                        if (!onParameterComplete.ContainsKey(parameter))
-                        {
-                            onParameterComplete[parameter] = new List<ExpVal>();
-                        }
-                        onParameterComplete[parameter].Add(expVal);
                     }
                 }
             }
@@ -184,11 +185,22 @@ namespace ContractConfigurator.Behaviour
             foreach (string node in map.Keys)
             {
                 ConfigNode child = new ConfigNode(node);
+                configNode.AddNode(child);
                 foreach (ExpVal expVal in map[node])
                 {
+                    if (!child.HasValue("type"))
+                    {
+                        child.AddValue("type", expVal.type.Name);
+                    }
+                    // Just start a new node if the type changes
+                    else if (child.GetValue("type") != expVal.type.Name)
+                    {
+                        child = new ConfigNode(node);
+                        configNode.AddNode(child);
+                        child.AddValue("type", expVal.type.Name);
+                    }
                     child.AddValue(expVal.key, expVal.val);
                 }
-                configNode.AddNode(child);
             }
 
             foreach (string parameter in onParameterComplete.Keys)
@@ -197,6 +209,10 @@ namespace ContractConfigurator.Behaviour
                 child.AddValue("parameter", parameter);
                 foreach (ExpVal expVal in onParameterComplete[parameter])
                 {
+                    if (!child.HasValue("type"))
+                    {
+                        child.AddValue("type", expVal.type.Name);
+                    }
                     child.AddValue(expVal.key, expVal.val);
                 }
                 configNode.AddNode(child);

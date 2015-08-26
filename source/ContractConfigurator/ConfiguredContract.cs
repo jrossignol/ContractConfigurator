@@ -399,26 +399,7 @@ namespace ContractConfigurator
                     node.AddNode(dataNode);
                     foreach (KeyValuePair<string, object> p in uniqueData.Where(p => p.Value != null))
                     {
-                        string value;
-                        Type type = p.Value.GetType();
-                        if (type == typeof(CelestialBody))
-                        {
-                            value = ((CelestialBody)p.Value).name;
-                        }
-                        else if (type == typeof(Vessel))
-                        {
-                            value = ((Vessel)p.Value).id.ToString();
-                        }
-                        else if (type == typeof(ScienceSubject))
-                        {
-                            value = ((ScienceSubject)p.Value).id;
-                        }
-                        else
-                        {
-                            value = p.Value.ToString();
-                        }
-
-                        dataNode.AddValue(p.Key, type.Name + ":" + value);
+                        PersistentDataStore.StoreToConfigNode(dataNode, p.Key, p.Value);
                     }
                 }
 
