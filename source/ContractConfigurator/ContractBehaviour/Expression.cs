@@ -30,6 +30,7 @@ namespace ContractConfigurator.Behaviour
             }
         }
 
+        private List<ExpVal> onOfferExpr = new List<ExpVal>();
         private List<ExpVal> onAcceptExpr = new List<ExpVal>();
         private List<ExpVal> onSuccessExpr = new List<ExpVal>();
         private List<ExpVal> onFailExpr = new List<ExpVal>();
@@ -58,6 +59,7 @@ namespace ContractConfigurator.Behaviour
         public Expression(Expression source)
         {
             dataNode = source.dataNode;
+            onOfferExpr = new List<ExpVal>(source.onOfferExpr);
             onAcceptExpr = new List<ExpVal>(source.onAcceptExpr);
             onSuccessExpr = new List<ExpVal>(source.onSuccessExpr);
             onFailExpr = new List<ExpVal>(source.onFailExpr);
@@ -67,6 +69,7 @@ namespace ContractConfigurator.Behaviour
 
         private void SetupMap()
         {
+            map["CONTRACT_OFFERED"] = onOfferExpr;
             map["CONTRACT_ACCEPTED"] = onAcceptExpr;
             map["CONTRACT_COMPLETED_SUCCESS"] = onSuccessExpr;
             map["CONTRACT_COMPLETED_FAILURE"] = onFailExpr;
@@ -80,6 +83,12 @@ namespace ContractConfigurator.Behaviour
             e.factory = null;
 
             return e;
+        }
+
+        protected override void OnOffered()
+        {
+            ExecuteExpressions(map["CONTRACT_OFFERED"]);
+            map["CONTRACT_OFFERED"].Clear();
         }
 
         protected override void OnAccepted()
