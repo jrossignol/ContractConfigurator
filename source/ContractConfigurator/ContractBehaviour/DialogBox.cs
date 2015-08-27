@@ -54,6 +54,7 @@ namespace ContractConfigurator.Behaviour
             private Rect windowPos = new Rect(0, 0, 0, 0);
             private bool visible = false;
             private DialogBox dialogBox;
+            private bool firstPositioning = false;
 
             void Start()
             {
@@ -76,6 +77,7 @@ namespace ContractConfigurator.Behaviour
 
                     if (windowPos.width == 0 && windowPos.height == 0)
                     {
+                        firstPositioning = true;
                         float h = Screen.height * detail.height - 144f;
                         float x = detail.position == Position.LEFT ? 16f : detail.position == Position.CENTER ? (Screen.width - w) / 2.0f : (Screen.width - w - 16f);
                         windowPos = new Rect(x, 72f, w, h);
@@ -84,6 +86,13 @@ namespace ContractConfigurator.Behaviour
                     UnityEngine.GUI.skin = HighLogic.Skin;
                     windowPos = GUILayout.Window(GetType().FullName.GetHashCode(),
                         windowPos, DrawMessageBox, detail.title, windowStyle ?? HighLogic.Skin.window, GUILayout.Width(w));
+
+                    // Reset the x position based on the width
+                    if (firstPositioning && windowPos.width != 0)
+                    {
+                        windowPos.x = detail.position == Position.LEFT ? 16f : detail.position == Position.CENTER ?
+                            (Screen.width - windowPos.width) / 2.0f : (Screen.width - windowPos.width - 16f);
+                    }
                 }
             }
 
