@@ -21,7 +21,7 @@ namespace ContractConfigurator
 
         public override string ToString()
         {
-            return "Duration[" + DurationUtil.StringValue(Value) + "]";
+            return DurationUtil.StringValue(Value);
         }
     }
 }
