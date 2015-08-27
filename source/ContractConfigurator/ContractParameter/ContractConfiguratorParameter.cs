@@ -18,7 +18,7 @@ namespace ContractConfigurator.Parameters
         public string notes;
         public bool completeInSequence;
         public bool hideChildren;
-        private bool hidden = false;
+        public bool hidden = false;
         protected bool fakeFailures = false;
 
         public ContractConfiguratorParameter()
@@ -37,7 +37,8 @@ namespace ContractConfigurator.Parameters
             {
                 return "";
             }
-            return GetParameterTitle();
+
+            return (optional && string.IsNullOrEmpty(title) ? "(Optional) " : "") + GetParameterTitle();
         }
 
         protected override string GetHashString()
