@@ -183,7 +183,7 @@ namespace ContractConfigurator.Parameters
             // Special handling for the Duration parameter ideally shouldn't be here - someday I'll refactor this
             foreach (ContractParameter child in this.GetChildren())
             {
-                Duration duration = child as Duration;
+                Duration2 duration = child as Duration2;
                 if (duration != null)
                 {
                     if (duration.state != ParameterState.Complete)

@@ -4,6 +4,7 @@ Contract Configurator 1.7.1
 - Added a hidden attribute for all parameters.
 - VesselParameterGroups now list out vessels that can complete the contract more clearly.
 - Fixed output text when converting a duration to a string in contracts.
+- Improved behaviour of Duration parameter when used under VesselParameterGroup.
 
 Contract Configurator 1.7.0
 - New DialogBox behaviour for creating rich text dialog boxes with images.

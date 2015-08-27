@@ -75,6 +75,7 @@
     <Compile Include="ContractBehaviour\SpawnVessel.cs" />
     <Compile Include="ContractBehaviour\UnlockPart.cs" />
     <Compile Include="ContractBehaviour\UnlockTech.cs" />
+    <Compile Include="ContractParameter\Duration2.cs" />
     <Compile Include="ContractParameter\HasAstronaut.cs" />
     <Compile Include="ContractParameter\None.cs" />
     <Compile Include="ContractParameter\AtMost.cs" />

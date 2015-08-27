@@ -35,7 +35,7 @@ namespace ContractConfigurator
 
         public override ContractParameter Generate(Contract contract)
         {
-            return new Parameters.Duration(duration.Value, preWaitText, waitingText, completionText);
+            return new Parameters.Duration2(duration.Value, preWaitText, waitingText, completionText);
         }
     }
 }
