@@ -1,3 +1,6 @@
+Contract Configurator 1.7.1
+- Fixed a backwards compatibility issue introduced in 1.7.0 (thanks Ald).
+
 Contract Configurator 1.7.0
 - New DialogBox behaviour for creating rich text dialog boxes with images.
 - New CopyCraftFile behaviour to reward a player with a craft file.
