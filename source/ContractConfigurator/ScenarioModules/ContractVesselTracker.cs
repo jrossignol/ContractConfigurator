@@ -335,9 +335,13 @@ namespace ContractConfigurator
         /// </summary>
         /// <param name="key">The key to check for.</param>
         /// <returns>The vessel name if there is a vessel associated with this key.  The key otherwise.</returns>
-        public string GetDisplayName(string key)
+        public static string GetDisplayName(string key)
         {
-            Vessel v = GetAssociatedVessel(key);
+            if (Instance == null)
+            {
+                return key;
+            }
+            Vessel v = Instance.GetAssociatedVessel(key);
             return v == null ? key + " (TBD)" : v.vesselName;
         }
     }

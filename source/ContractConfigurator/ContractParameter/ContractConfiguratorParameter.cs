@@ -43,7 +43,7 @@ namespace ContractConfigurator.Parameters
 
         protected override string GetHashString()
         {
-            return (this.Root.MissionSeed.ToString() + this.Root.DateAccepted.ToString() + this.ID);
+            return (Root != null ? (Root.MissionSeed.ToString() + Root.DateAccepted.ToString()) : "") + ID;
         }
 
         /// <summary>

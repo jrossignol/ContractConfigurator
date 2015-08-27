@@ -45,7 +45,7 @@ namespace ContractConfigurator.Parameters
                     output = "Rendezvous with: ";
                     if (vessels.Count > 0)
                     {
-                        output += ContractVesselTracker.Instance.GetDisplayName(vessels[0]);
+                        output += ContractVesselTracker.GetDisplayName(vessels[0]);
                     }
                     else
                     {
@@ -54,10 +54,10 @@ namespace ContractConfigurator.Parameters
                 }
                 else
                 {
-                    output = "Rendezvous: " + ContractVesselTracker.Instance.GetDisplayName(vessels[0]) + " and ";
+                    output = "Rendezvous: " + ContractVesselTracker.GetDisplayName(vessels[0]) + " and ";
                     if (vessels.Count > 1)
                     {
-                        output += ContractVesselTracker.Instance.GetDisplayName(vessels[1]);
+                        output += ContractVesselTracker.GetDisplayName(vessels[1]);
                     }
                     else
                     {
