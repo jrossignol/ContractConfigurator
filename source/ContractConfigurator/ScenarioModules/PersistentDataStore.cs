@@ -30,7 +30,7 @@ namespace ContractConfigurator
 
     [KSPScenario(ScenarioCreationOptions.AddToExistingCareerGames | ScenarioCreationOptions.AddToNewCareerGames,
         GameScenes.FLIGHT, GameScenes.TRACKSTATION, GameScenes.SPACECENTER)]
-    class PersistentDataStore : ScenarioModule
+    public class PersistentDataStore : ScenarioModule
     {
         static public PersistentDataStore Instance { get; private set; }
         private Dictionary<string, System.Object> data = new Dictionary<string, System.Object>();
