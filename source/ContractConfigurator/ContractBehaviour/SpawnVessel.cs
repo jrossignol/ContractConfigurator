@@ -675,7 +675,7 @@ namespace ContractConfigurator.Behaviour
 
         private void OnGameSceneLoad(GameScenes gameScene)
         {
-            if (deferVesselCreation && (gameScene == GameScenes.FLIGHT || gameScene == GameScenes.TRACKSTATION))
+            if (deferVesselCreation && (gameScene == GameScenes.FLIGHT || gameScene == GameScenes.TRACKSTATION || gameScene == GameScenes.EDITOR))
             {
                 CreateVessels();
 
