@@ -6,6 +6,7 @@ using UnityEngine;
 using KSP;
 using Contracts;
 using ContractConfigurator;
+using ContractConfigurator.ExpressionParser;
 
 namespace ContractConfigurator.Behaviour
 {
@@ -196,6 +197,8 @@ namespace ContractConfigurator.Behaviour
             public int fontSize;
             public GUIStyle labelStyle;
 
+            private string expandedText = null;
+
             public TextSection()
             {
             }
@@ -211,7 +214,16 @@ namespace ContractConfigurator.Behaviour
                     labelStyle.fontSize = fontSize;
                 }
 
-                GUILayout.Label(text, labelStyle, GUILayout.ExpandWidth(true));
+                if (expandedText == null)
+                {
+                    DataNode emptyNode = new DataNode("empty", null);
+                    ExpressionParser<string> parser = BaseParser.GetParser<string>();
+                    LoggingUtil.logLevel = LoggingUtil.LogLevel.VERBOSE;
+                    expandedText = parser.ExecuteExpression("null", text, emptyNode);
+                    LoggingUtil.logLevel = LoggingUtil.LogLevel.DEBUG;
+                }
+
+                GUILayout.Label(expandedText, labelStyle, GUILayout.ExpandWidth(true));
             }
 
             public override void OnSave(ConfigNode configNode)

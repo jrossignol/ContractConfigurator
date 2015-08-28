@@ -1,6 +1,7 @@
 Contract Configurator 1.7.2
 - Fixed issue with dialog boxes that weren't getting positioned correctly.
 - Fixed issue with SpawnVessel when switching from editor to flight scene (introduced in 1.7.0).
+- Misc bug fixes.
 
 Contract Configurator 1.7.1
 - Fixed a backwards compatibility issue introduced in 1.7.0 (thanks Ald).

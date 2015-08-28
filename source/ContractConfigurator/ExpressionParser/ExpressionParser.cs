@@ -1258,6 +1258,13 @@ namespace ContractConfigurator.ExpressionParser
                 {
                     result = PersistentDataStore.Instance.Retrieve<T>(token.sval);
                 }
+
+                // Check for a method call
+                Token methodToken = ParseMethodToken();
+                if (methodToken != null)
+                {
+                    result = ParseMethod<T>(methodToken, result);
+                }
             }
             catch
             {

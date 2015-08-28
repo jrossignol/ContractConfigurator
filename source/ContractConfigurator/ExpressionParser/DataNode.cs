@@ -192,7 +192,7 @@ namespace ContractConfigurator.ExpressionParser
                 parent.children.Add(this);
                 root = parent.root;
             }
-            else if (factory.GetType() != typeof(ContractGroup))
+            else if (factory != null && factory.GetType() != typeof(ContractGroup))
             {
                 root = this;
             }

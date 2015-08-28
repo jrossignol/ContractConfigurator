@@ -46,7 +46,13 @@ namespace ContractConfigurator.Behaviour
                             DialogBox.TextSection section = new DialogBox.TextSection();
                             detail.sections.Add(section);
 
+                            // Parse the text twice, once to ensure parsability, the other to get the unexpanded text
                             valid &= ConfigNodeUtil.ParseValue<string>(sectionNode, "text", x => section.text = x, this);
+                            if (valid)
+                            {
+                                section.text = ConfigNodeUtil.ParseValue<string>(sectionNode, "text");
+                            }
+
                             valid &= ConfigNodeUtil.ParseValue<Color>(sectionNode, "textColor", x => section.textColor = x, this, new Color(0.8f, 0.8f, 0.8f));
                             valid &= ConfigNodeUtil.ParseValue<int>(sectionNode, "fontSize", x => section.fontSize = x, this, 16);
                         }

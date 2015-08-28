@@ -31,6 +31,7 @@ namespace ContractConfigurator.ExpressionParser
             RegisterMethod(new Method<string, string>("ToLower", s => s == null ? "" : s.ToLower()));
             RegisterMethod(new Method<string, string>("ToUpper", s => s == null ? "" : s.ToUpper()));
             RegisterMethod(new Method<string, string>("FirstCap", s => s == null ? "" : s.Count() > 2 ? s.Substring(0, 1).ToUpper() + s.Substring(1) : s.ToUpper()));
+            RegisterMethod(new Method<string, string>("FirstWord", s => s == null ? "" : s.Split(new char[] {' '}).FirstOrDefault()));
 
             RegisterGlobalFunction(new Function<ProtoCrewMember.Gender, string>("RandomKerbalName", g => CrewGenerator.GetRandomName(g), false));
         }
@@ -87,8 +88,9 @@ namespace ContractConfigurator.ExpressionParser
 
                 while (expression.Length > 0)
                 {
-                    // Look for special identifiers
+                    // Look for identifiers
                     int specialIdentifierIndex = expression.IndexOf("@");
+                    int dataStoreIdentifierIndex = expression.IndexOf("$");
 
                     // Look for function calls
                     Match m = Regex.Match(expression, @"(\A|\s)\w[\w\d]*\(");
@@ -104,18 +106,29 @@ namespace ContractConfigurator.ExpressionParser
                         }
                     }
 
-                    if (m.Success && (specialIdentifierIndex == -1 || functionIndex < specialIdentifierIndex) && (quoteIndex == -1 || functionIndex < quoteIndex))
+                    if (m.Success && (specialIdentifierIndex == -1 || functionIndex < specialIdentifierIndex) &&
+                        (dataStoreIdentifierIndex == -1 || functionIndex < dataStoreIdentifierIndex) && (quoteIndex == -1 || functionIndex < quoteIndex))
                     {
                         specialIdentifierIndex = -1;
+                        dataStoreIdentifierIndex = -1;
                         quoteIndex = -1;
                     }
-                    else if (quoteIndex != -1 && (specialIdentifierIndex == -1 || quoteIndex < specialIdentifierIndex))
+                    else if (quoteIndex != -1 && (specialIdentifierIndex == -1 || quoteIndex < specialIdentifierIndex) &&
+                        (dataStoreIdentifierIndex == -1 || quoteIndex < dataStoreIdentifierIndex))
+                    {
+                        specialIdentifierIndex = -1;
+                        dataStoreIdentifierIndex = -1;
+                        functionIndex = -1;
+                    }
+                    else if (dataStoreIdentifierIndex != -1 && (specialIdentifierIndex == -1 || dataStoreIdentifierIndex < specialIdentifierIndex))
                     {
                         specialIdentifierIndex = -1;
                         functionIndex = -1;
+                        quoteIndex = -1;
                     }
                     else
                     {
+                        dataStoreIdentifierIndex = -1;
                         functionIndex = -1;
                         quoteIndex = -1;
                     }
@@ -135,6 +148,12 @@ namespace ContractConfigurator.ExpressionParser
                         value += expression.Substring(0, specialIdentifierIndex);
                         expression = expression.Substring(specialIdentifierIndex);
                         value += ParseSpecialIdentifier(ParseSpecialIdentifier());
+                    }
+                    else if (dataStoreIdentifierIndex >= 0)
+                    {
+                        value += expression.Substring(0, dataStoreIdentifierIndex);
+                        expression = expression.Substring(dataStoreIdentifierIndex);
+                        value += ParseDataStoreIdentifier(ParseDataStoreIdentifier());
                     }
                     else if (quoteIndex >= 0)
                     {
