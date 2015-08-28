@@ -83,17 +83,16 @@ namespace ContractConfigurator.Behaviour
                         float x = detail.position == Position.LEFT ? 16f : detail.position == Position.CENTER ? (Screen.width - w) / 2.0f : (Screen.width - w - 16f);
                         windowPos = new Rect(x, 72f, w, h);
                     }
+                    else if (firstPositioning && windowPos.width != 0 && Event.current.type == EventType.Layout)
+                    {
+                        firstPositioning = false;
+                        windowPos.xMin = detail.position == Position.LEFT ? 16f : detail.position == Position.CENTER ?
+                            (Screen.width - windowPos.width) / 2.0f : (Screen.width - windowPos.width - 16f);
+                    }
 
                     UnityEngine.GUI.skin = HighLogic.Skin;
                     windowPos = GUILayout.Window(GetType().FullName.GetHashCode(),
                         windowPos, DrawMessageBox, detail.title, windowStyle ?? HighLogic.Skin.window, GUILayout.Width(w));
-
-                    // Reset the x position based on the width
-                    if (firstPositioning && windowPos.width != 0)
-                    {
-                        windowPos.x = detail.position == Position.LEFT ? 16f : detail.position == Position.CENTER ?
-                            (Screen.width - windowPos.width) / 2.0f : (Screen.width - windowPos.width - 16f);
-                    }
                 }
             }
 
@@ -218,9 +217,7 @@ namespace ContractConfigurator.Behaviour
                 {
                     DataNode emptyNode = new DataNode("empty", null);
                     ExpressionParser<string> parser = BaseParser.GetParser<string>();
-                    LoggingUtil.logLevel = LoggingUtil.LogLevel.VERBOSE;
                     expandedText = parser.ExecuteExpression("null", text, emptyNode);
-                    LoggingUtil.logLevel = LoggingUtil.LogLevel.DEBUG;
                 }
 
                 GUILayout.Label(expandedText, labelStyle, GUILayout.ExpandWidth(true));
@@ -299,17 +296,36 @@ namespace ContractConfigurator.Behaviour
         public class ImageSection : NamedSection
         {
             public string imageURL;
+
             private Texture2D image = null;
+            private bool needsUnload = false;
 
             public ImageSection()
             {
+            }
+
+            public override void OnDestroy()
+            {
+                if (needsUnload && image != null)
+                {
+                    UnityEngine.Object.Destroy(image);
+                    image = null;
+                }
             }
 
             public override void OnGUI()
             {
                 if (image == null)
                 {
-                    image = GameDatabase.Instance.GetTexture(imageURL, false);
+                    if (GameDatabase.Instance.ExistsTexture(imageURL))
+                    {
+                        image = GameDatabase.Instance.GetTexture(imageURL, false);
+                    }
+                    else
+                    {
+                        needsUnload = true;
+                        image = Util.TextureUtil.LoadTexture(imageURL);
+                    }
                 }
 
                 GUILayout.BeginVertical(GUILayout.Width(image.width));

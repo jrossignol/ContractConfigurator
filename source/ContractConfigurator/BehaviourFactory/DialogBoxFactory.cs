@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
 using System.Text;
 using UnityEngine;
 using KSP;
 using ContractConfigurator;
 using ContractConfigurator.ExpressionParser;
+
 namespace ContractConfigurator.Behaviour
 {
     /// <summary>
@@ -61,7 +63,7 @@ namespace ContractConfigurator.Behaviour
                             DialogBox.ImageSection section = new DialogBox.ImageSection();
                             detail.sections.Add(section);
 
-                            valid &= ConfigNodeUtil.ParseValue<string>(sectionNode, "url", x => section.imageURL = x, this);
+                            valid &= ConfigNodeUtil.ParseValue<string>(sectionNode, "url", x => section.imageURL = x, this, ValidateImageURL);
                             valid &= ConfigNodeUtil.ParseValue<string>(sectionNode, "characterName",
                                 x => { section.characterName = x; section.showName = !string.IsNullOrEmpty(x); }, this, "");
                              
@@ -117,6 +119,20 @@ namespace ContractConfigurator.Behaviour
                 throw new ArgumentException("Required if condition is PARAMETER_COMPLETED or PARAMETER_FAILED.");
             }
             return true;
+        }
+
+        protected bool ValidateImageURL(string url)
+        {
+            if (GameDatabase.Instance.ExistsTexture(url))
+            {
+                return true;
+            }
+            else if (File.Exists(url))
+            {
+                return true;
+            }
+
+            throw new ArgumentException("Couldn't find image in gamedatabase or on file system using URL '" + url + "'.");
         }
 
         public override ContractBehaviour Generate(ConfiguredContract contract)
