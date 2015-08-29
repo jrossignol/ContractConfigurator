@@ -84,6 +84,33 @@ namespace ContractConfigurator
         }
 
         /// <summary>
+        /// Checks wether a key exists.
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public bool HasKey(string key)
+        {
+            return data.ContainsKey(key);
+        }
+
+        /// <summary>
+        /// Retrieve a value from the persistent data store.
+        /// </summary>
+        /// <param name="key">Key to retrieve for</param>
+        /// <param name="type">Type of the value retrieved</param>
+        /// <returns>The value</returns>
+        public object Retrieve(string key, out Type type)
+        {
+            if (!data.ContainsKey(key))
+            {
+                throw new Exception("Key '" + key + "' is not in persistent data store!");
+            }
+            object result = data[key];
+            type = result.GetType();
+            return result;
+        }
+
+        /// <summary>
         /// Retrieve a config node from the persistent data store.
         /// </summary>
         /// <param name="key"></param>

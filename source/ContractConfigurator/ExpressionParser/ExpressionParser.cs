@@ -1183,47 +1183,25 @@ namespace ContractConfigurator.ExpressionParser
                         dataType = dataNode.GetType(identifier);
                     }
 
-                    // Check for a method call before we start messing with types
-                    Token methodToken = ParseMethodToken();
-                    if (methodToken != null)
-                    {
-                        BaseParser methodParser = GetParser(dataType);
-
-                        MethodInfo parseMethod = methodParser.GetType().GetMethods(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy).
-                            Where(m => m.Name == "ParseMethod" && m.GetParameters().Count() == 3).Single();
-                        parseMethod = parseMethod.MakeGenericMethod(new Type[] { typeof(T) });
-
-                        try
-                        {
-                            T res = (T)parseMethod.Invoke(methodParser, new object[] { methodToken, o, false });
-                            verbose &= LogExitDebug<T>("ParseSpecialIdentifier", res);
-                            return res;
-                        }
-                        catch (TargetInvocationException tie)
-                        {
-                            Exception e = ExceptionUtil.UnwrapTargetInvokationException(tie);
-                            if (e != null)
-                            {
-                                throw e;
-                            }
-                            throw;
-                        }
-                        finally
-                        {
-                            expression = methodParser.expression;
-                        }
-                    }
-
-                    // No method, try type conversion or straight return
                     T result;
-                    if (dataType == typeof(T))
+                    try
                     {
-                        result = (T)o;
+                        MethodInfo completeIdentifierParsing = GetType().GetMethods(BindingFlags.NonPublic | BindingFlags.Instance).
+                            Where(mi => mi.Name == "CompleteIdentifierParsing").First();
+                        completeIdentifierParsing = completeIdentifierParsing.MakeGenericMethod(new Type[] { dataType });
+
+                        result = (T)completeIdentifierParsing.Invoke(this, new object[] { o });
                     }
-                    else
+                    catch (TargetInvocationException tie)
                     {
-                        result = ConvertType(o, dataType);
+                        Exception e = ExceptionUtil.UnwrapTargetInvokationException(tie);
+                        if (e != null)
+                        {
+                            throw e;
+                        }
+                        throw;
                     }
+
                     verbose &= LogExitDebug<T>("ParseSpecialIdentifier", result);
                     return result;
                 }
@@ -1239,6 +1217,51 @@ namespace ContractConfigurator.ExpressionParser
             }
         }
 
+        internal virtual T CompleteIdentifierParsing<U>(U value)
+        {
+            verbose &= LogEntryDebug<T>("CompleteIdentifierParsing", value);
+
+            try
+            {
+                // Check for a method call before we start messing with types
+                Token methodToken = ParseMethodToken();
+                if (methodToken != null)
+                {
+                    ExpressionParser<U> methodParser = GetParser<U>(this);
+
+                    try
+                    {
+                        T res = methodParser.ParseMethod<T>(methodToken, value);
+                        verbose &= LogExitDebug<T>("CompleteIdentifierParsing", res);
+                        return res;
+                    }
+                    finally
+                    {
+                        expression = methodParser.expression;
+                    }
+                }
+
+                // No method, try type conversion or straight return
+                T result;
+                if (typeof(U) == typeof(T))
+                {
+                    result = (T)(object)value;
+                }
+                else
+                {
+                    result = ConvertType(value, typeof(U));
+                }
+
+                verbose &= LogExitDebug<T>("CompleteIdentifierParsing", result);
+                return result;
+            }
+            catch
+            {
+                verbose &= LogException<T>("CompleteIdentifierParsing");
+                throw;
+            }
+        }
+
         /// <summary>
         /// Parses an identifier for a value stored in the persistent data store.
         /// </summary>
@@ -1248,27 +1271,45 @@ namespace ContractConfigurator.ExpressionParser
         {
             verbose &= LogEntryDebug<T>("ParseDataStoreIdentifier", token);
 
-            T result = default(T);
+            T result;
             try
             {
                 // Stored values are always non-deterministic
                 currentDataNode.SetDeterministic(currentKey, false);
 
-                if (PersistentDataStore.Instance != null)
+                object o;
+                Type dataType;
+                if (PersistentDataStore.Instance != null && PersistentDataStore.Instance.HasKey(token.sval))
                 {
-                    result = PersistentDataStore.Instance.Retrieve<T>(token.sval);
+                    o = PersistentDataStore.Instance.Retrieve(token.sval, out dataType);
+                }
+                else
+                {
+                    o = default(T);
+                    dataType = typeof(T);
                 }
 
-                // Check for a method call
-                Token methodToken = ParseMethodToken();
-                if (methodToken != null)
+                try
                 {
-                    result = ParseMethod<T>(methodToken, result);
+                    MethodInfo completeIdentifierParsing = GetType().GetMethods(BindingFlags.NonPublic | BindingFlags.Instance).
+                        Where(mi => mi.Name == "CompleteIdentifierParsing").First();
+                    completeIdentifierParsing = completeIdentifierParsing.MakeGenericMethod(new Type[] { dataType });
+
+                    result = (T)completeIdentifierParsing.Invoke(this, new object[] { o });
+                }
+                catch (TargetInvocationException tie)
+                {
+                    Exception e = ExceptionUtil.UnwrapTargetInvokationException(tie);
+                    if (e != null)
+                    {
+                        throw e;
+                    }
+                    throw;
                 }
             }
             catch
             {
-                verbose &= LogException<T>("ParseSpecialIdentifier");
+                verbose &= LogException<T>("ParseDataStoreIdentifier");
                 throw;
             }
 
