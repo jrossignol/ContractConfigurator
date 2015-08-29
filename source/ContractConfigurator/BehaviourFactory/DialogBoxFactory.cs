@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
 using System.Text;
 using UnityEngine;
 using KSP;
 using ContractConfigurator;
 using ContractConfigurator.ExpressionParser;
+
 namespace ContractConfigurator.Behaviour
 {
     /// <summary>
@@ -46,16 +48,22 @@ namespace ContractConfigurator.Behaviour
                             DialogBox.TextSection section = new DialogBox.TextSection();
                             detail.sections.Add(section);
 
-                            valid &= ConfigNodeUtil.ParseValue<string>(sectionNode, "text", x => section.text = x, this);
+                            // Parse the text twice, once to ensure parsability, the other to get the unexpanded text
+                            valid &= ConfigNodeUtil.ParseValue<string>(sectionNode, "text", x => { }, this);
+                            if (valid)
+                            {
+                                section.text = ConfigNodeUtil.ParseValue<string>(sectionNode, "text");
+                            }
+
                             valid &= ConfigNodeUtil.ParseValue<Color>(sectionNode, "textColor", x => section.textColor = x, this, new Color(0.8f, 0.8f, 0.8f));
-                            valid &= ConfigNodeUtil.ParseValue<int>(sectionNode, "fontSize", x => section.fontSize = x, this, 16);
+                            valid &= ConfigNodeUtil.ParseValue<int>(sectionNode, "fontSize", x => section.fontSize = x, this, 20);
                         }
                         else if (sectionNode.name == "IMAGE")
                         {
                             DialogBox.ImageSection section = new DialogBox.ImageSection();
                             detail.sections.Add(section);
 
-                            valid &= ConfigNodeUtil.ParseValue<string>(sectionNode, "url", x => section.imageURL = x, this);
+                            valid &= ConfigNodeUtil.ParseValue<string>(sectionNode, "url", x => section.imageURL = x, this, ValidateImageURL);
                             valid &= ConfigNodeUtil.ParseValue<string>(sectionNode, "characterName",
                                 x => { section.characterName = x; section.showName = !string.IsNullOrEmpty(x); }, this, "");
                              
@@ -111,6 +119,20 @@ namespace ContractConfigurator.Behaviour
                 throw new ArgumentException("Required if condition is PARAMETER_COMPLETED or PARAMETER_FAILED.");
             }
             return true;
+        }
+
+        protected bool ValidateImageURL(string url)
+        {
+            if (GameDatabase.Instance.ExistsTexture(url))
+            {
+                return true;
+            }
+            else if (File.Exists("GameData/" + url))
+            {
+                return true;
+            }
+
+            throw new ArgumentException("Couldn't find image in gamedatabase or on file system using URL '" + url + "'.");
         }
 
         public override ContractBehaviour Generate(ConfiguredContract contract)

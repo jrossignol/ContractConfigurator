@@ -33,6 +33,7 @@ namespace ContractConfigurator
         protected bool optional;
         protected bool? disableOnStateChange;
         protected bool completeInSequence;
+        protected bool hidden;
         protected bool hideChildren;
         protected ParameterFactory parent = null;
         protected List<ParameterFactory> childNodes = new List<ParameterFactory>();
@@ -91,6 +92,7 @@ namespace ContractConfigurator
             valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "optional", x => optional = x, this, false);
             valid &= ConfigNodeUtil.ParseValue<bool?>(configNode, "disableOnStateChange", x => disableOnStateChange = x, this, (bool?)null);
             valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "completeInSequence", x => completeInSequence = x, this, false);
+            valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "hidden", x => hidden = x, this, false);
             valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "hideChildren", x => hideChildren = x, this, false);
 
             // Get title and notes
@@ -172,6 +174,7 @@ namespace ContractConfigurator
                 ccParam.completeInSequence = completeInSequence;
                 ccParam.notes = notes;
                 ccParam.completedMessage = completedMessage;
+                ccParam.hidden = hidden;
                 ccParam.hideChildren = hideChildren;
             }
 

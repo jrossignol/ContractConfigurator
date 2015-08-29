@@ -927,6 +927,10 @@ namespace ContractConfigurator
                 Type listType = typeof(List<>);
                 return listType.MakeGenericType(ParseTypeValue(innerType));
             }
+            else if (name.Contains('.'))
+            {
+                return Type.GetType(name);
+            }
             else
             {
                 if (typeMap.ContainsKey(name))

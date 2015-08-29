@@ -6,6 +6,7 @@ using UnityEngine;
 using KSP;
 using Contracts;
 using ContractConfigurator;
+using ContractConfigurator.ExpressionParser;
 
 namespace ContractConfigurator.Behaviour
 {
@@ -54,6 +55,7 @@ namespace ContractConfigurator.Behaviour
             private Rect windowPos = new Rect(0, 0, 0, 0);
             private bool visible = false;
             private DialogBox dialogBox;
+            private bool firstPositioning = false;
 
             void Start()
             {
@@ -76,9 +78,16 @@ namespace ContractConfigurator.Behaviour
 
                     if (windowPos.width == 0 && windowPos.height == 0)
                     {
+                        firstPositioning = true;
                         float h = Screen.height * detail.height - 144f;
                         float x = detail.position == Position.LEFT ? 16f : detail.position == Position.CENTER ? (Screen.width - w) / 2.0f : (Screen.width - w - 16f);
                         windowPos = new Rect(x, 72f, w, h);
+                    }
+                    else if (firstPositioning && windowPos.width != 0 && Event.current.type == EventType.Layout)
+                    {
+                        firstPositioning = false;
+                        windowPos.xMin = detail.position == Position.LEFT ? 16f : detail.position == Position.CENTER ?
+                            (Screen.width - windowPos.width) / 2.0f : (Screen.width - windowPos.width - 16f);
                     }
 
                     UnityEngine.GUI.skin = HighLogic.Skin;
@@ -187,6 +196,8 @@ namespace ContractConfigurator.Behaviour
             public int fontSize;
             public GUIStyle labelStyle;
 
+            private string expandedText = null;
+
             public TextSection()
             {
             }
@@ -202,7 +213,14 @@ namespace ContractConfigurator.Behaviour
                     labelStyle.fontSize = fontSize;
                 }
 
-                GUILayout.Label(text, labelStyle, GUILayout.ExpandWidth(true));
+                if (expandedText == null)
+                {
+                    DataNode emptyNode = new DataNode("empty", null);
+                    ExpressionParser<string> parser = BaseParser.GetParser<string>();
+                    expandedText = parser.ExecuteExpression("null", text, emptyNode);
+                }
+
+                GUILayout.Label(expandedText, labelStyle, GUILayout.ExpandWidth(true));
             }
 
             public override void OnSave(ConfigNode configNode)
@@ -278,17 +296,36 @@ namespace ContractConfigurator.Behaviour
         public class ImageSection : NamedSection
         {
             public string imageURL;
+
             private Texture2D image = null;
+            private bool needsUnload = false;
 
             public ImageSection()
             {
+            }
+
+            public override void OnDestroy()
+            {
+                if (needsUnload && image != null)
+                {
+                    UnityEngine.Object.Destroy(image);
+                    image = null;
+                }
             }
 
             public override void OnGUI()
             {
                 if (image == null)
                 {
-                    image = GameDatabase.Instance.GetTexture(imageURL, false);
+                    if (GameDatabase.Instance.ExistsTexture(imageURL))
+                    {
+                        image = GameDatabase.Instance.GetTexture(imageURL, false);
+                    }
+                    else
+                    {
+                        needsUnload = true;
+                        image = Util.TextureUtil.LoadTexture(imageURL);
+                    }
                 }
 
                 GUILayout.BeginVertical(GUILayout.Width(image.width));

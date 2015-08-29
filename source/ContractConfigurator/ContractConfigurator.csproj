@@ -75,16 +75,17 @@
     <Compile Include="ContractBehaviour\SpawnVessel.cs" />
     <Compile Include="ContractBehaviour\UnlockPart.cs" />
     <Compile Include="ContractBehaviour\UnlockTech.cs" />
+    <Compile Include="ContractParameter\Duration2.cs" />
     <Compile Include="ContractParameter\HasAstronaut.cs" />
     <Compile Include="ContractParameter\None.cs" />
     <Compile Include="ContractParameter\AtMost.cs" />
     <Compile Include="ContractParameter\AtLeast.cs" />
     <Compile Include="ContractParameter\ContractConfiguratorParameter.cs" />
-    <Compile Include="ContractParameter\InvisibleWrapper.cs" />
     <Compile Include="ContractParameter\Duration.cs" />
     <Compile Include="ContractParameter\ParameterDelegate.cs" />
     <Compile Include="ContractParameter\PerformOrbitalSurvey.cs" />
     <Compile Include="ContractParameter\RecoverKerbalCustom.cs" />
+    <Compile Include="ContractParameter\SCANsatCoverage.cs" />
     <Compile Include="ContractParameter\TargetDestroyed.cs" />
     <Compile Include="ContractParameter\ReachSpaceCustom.cs" />
     <Compile Include="ContractParameter\MissionTimer.cs" />
@@ -108,6 +109,8 @@
     <Compile Include="ContractRequirement\InvalidContractRequirement.cs" />
     <Compile Include="ContractRequirement\PartModuleTypeUnlockedRequirement.cs" />
     <Compile Include="ContractRequirement\PerformOrbitalSurveyRequirement.cs" />
+    <Compile Include="ContractRequirement\SCANsatCoverageRequirement.cs" />
+    <Compile Include="ContractRequirement\SCANsatLocationCoverageRequirement.cs" />
     <Compile Include="ContractRequirement\ScienceRequirement.cs" />
     <Compile Include="ContractRequirement\ReputationRequirement.cs" />
     <Compile Include="ContractRequirement\FundsRequirement.cs" />
@@ -117,6 +120,7 @@
     <Compile Include="ExpressionParser\Wrappers\Tech.cs" />
     <Compile Include="ParameterFactory\NewVesselFactory.cs" />
     <Compile Include="ParameterFactory\RecoverVesselFactory.cs" />
+    <Compile Include="ParameterFactory\SCANsatCoverageFactory.cs" />
     <Compile Include="ScenarioModules\ContractConfiguratorSettings.cs" />
     <Compile Include="ParameterFactory\MissionTimerFactory.cs" />
     <Compile Include="ScenarioModules\ContractPreLoader.cs" />
@@ -181,7 +185,9 @@
     <Compile Include="Util\ContractsWindow.cs" />
     <Compile Include="Util\LocationUtil.cs" />
     <Compile Include="Util\PartUtil.cs" />
+    <Compile Include="Util\SCANsatUtil.cs" />
     <Compile Include="Util\Science.cs" />
+    <Compile Include="Util\TextureUtil.cs" />
     <Compile Include="Util\TitleTracker.cs" />
     <Compile Include="ParameterFactory\PartValidationFactory.cs" />
     <Compile Include="ParameterFactory\IsNotVesselFactory.cs" />

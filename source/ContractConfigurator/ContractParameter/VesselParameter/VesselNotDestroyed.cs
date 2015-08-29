@@ -37,7 +37,7 @@ namespace ContractConfigurator.Parameters
             {
                 if (vessels.Count == 1)
                 {
-                    output = ContractVesselTracker.Instance.GetDisplayName(vessels[0]) + ": Not destroyed";
+                    output = ContractVesselTracker.GetDisplayName(vessels[0]) + ": Not destroyed";
                 }
                 else if (vessels.Count != 0)
                 {
@@ -45,7 +45,7 @@ namespace ContractConfigurator.Parameters
                     bool first = true;
                     foreach (string vessel in vessels)
                     {
-                        output += (first ? "" : ", ") + ContractVesselTracker.Instance.GetDisplayName(vessel);
+                        output += (first ? "" : ", ") + ContractVesselTracker.GetDisplayName(vessel);
                         first = false;
                     }
                 }
@@ -54,7 +54,7 @@ namespace ContractConfigurator.Parameters
                     IEnumerable<string> vesselList = ((VesselParameterGroup)Parent).VesselList;
                     if (vesselList.Count() == 1)
                     {
-                        output = ContractVesselTracker.Instance.GetDisplayName(vesselList.First()) + ": Not destroyed";
+                        output = ContractVesselTracker.GetDisplayName(vesselList.First()) + ": Not destroyed";
                     }
                     else
                     {
@@ -62,7 +62,7 @@ namespace ContractConfigurator.Parameters
                         bool first = true;
                         foreach (string vessel in vesselList)
                         {
-                            output += (first ? "" : ", ") + ContractVesselTracker.Instance.GetDisplayName(vessel);
+                            output += (first ? "" : ", ") + ContractVesselTracker.GetDisplayName(vessel);
                             first = false;
                         }
                     }

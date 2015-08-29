@@ -19,6 +19,8 @@ namespace ContractConfigurator
     /// </summary>
     public class ConfiguredContract : Contract
     {
+        public static EventData<ConfiguredContract> OnContractLoaded = new EventData<ConfiguredContract>("OnContractLoaded");
+
         public ContractType contractType { get; set; }
         public string subType { get; set; }
         private List<ContractBehaviour> behaviours = new List<ContractBehaviour>();
@@ -365,6 +367,8 @@ namespace ContractConfigurator
                     catch { }
                     return;
                 }
+
+                OnContractLoaded.Fire(this);
             }
             catch (Exception e)
             {

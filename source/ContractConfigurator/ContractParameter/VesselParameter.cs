@@ -60,11 +60,6 @@ namespace ContractConfigurator.Parameters
             disableOnStateChange = false;
         }
 
-        protected override string GetHashString()
-        {
-            return (this.Root.MissionSeed.ToString() + this.Root.DateAccepted.ToString() + this.ID);
-        }
-
         protected override void OnParameterSave(ConfigNode node)
         {
             // Don't save all this stuff if the parameter is done
@@ -674,6 +669,12 @@ namespace ContractConfigurator.Parameters
                 default:
                     return false;
             }
+        }
+
+        protected Vessel CurrentVessel()
+        {
+            VesselParameterGroup vpg = GetParameterGroupHost();
+            return vpg == null ? FlightGlobals.ActiveVessel : vpg.TrackedVessel;
         }
 
         private VesselParameterGroup GetParameterGroupHost()

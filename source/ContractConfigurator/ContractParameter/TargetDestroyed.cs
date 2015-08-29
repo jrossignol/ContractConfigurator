@@ -52,7 +52,7 @@ namespace ContractConfigurator.Parameters
         {
             foreach (string vessel in vessels)
             {
-                AddParameter(new ParameterDelegate<string>("Target: " + (ContractVesselTracker.Instance != null ? ContractVesselTracker.Instance.GetDisplayName(vessel) : vessel),
+                AddParameter(new ParameterDelegate<string>("Target: " + (ContractVesselTracker.Instance != null ? ContractVesselTracker.GetDisplayName(vessel) : vessel),
                     ignored => CheckTargetDestroyed(vessel), ParameterDelegateMatchType.VALIDATE_ALL, true));
             }
         }

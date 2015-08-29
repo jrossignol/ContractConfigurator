@@ -12,7 +12,7 @@ namespace ContractConfigurator.Parameters
     /// <summary>
     /// ContractParameter that is successful when all child parameters are successful for a the same vessel over the given duration.
     /// </summary>
-    public class VesselParameterGroup : ContractConfiguratorParameter
+    public class VesselParameterGroup : ContractConfiguratorParameter, ParameterDelegateContainer
     {
         private const string notePrefix = "<#acfcff>[-] Note: ";
         protected string define { get; set; }
@@ -22,7 +22,8 @@ namespace ContractConfigurator.Parameters
 
         public IEnumerable<string> VesselList { get { return vesselList; } }
         protected double duration { get; set; }
-        protected ParameterDelegate<double> durationParameter;
+        protected ParameterDelegate<Vessel> durationParameter;
+        protected ParameterDelegate<Vessel> vesselListParam;
         protected double completionTime { get; set; }
         protected bool waiting { get; set; }
 
@@ -34,6 +35,8 @@ namespace ContractConfigurator.Parameters
         private double lastUpdate = 0.0;
 
         private TitleTracker titleTracker = new TitleTracker();
+
+        public bool ChildChanged { get; set; }
 
         public VesselParameterGroup()
             : base("")
@@ -51,6 +54,7 @@ namespace ContractConfigurator.Parameters
             this.dissassociateVesselsOnContractCompletion = dissassociateVesselsOnContractCompletion;
             waiting = false;
 
+            CreateVesselListParameter();
             CreateTimerParameter();
         }
 
@@ -85,7 +89,7 @@ namespace ContractConfigurator.Parameters
                         }
                         if (ContractVesselTracker.Instance != null)
                         {
-                            output += ContractVesselTracker.Instance.GetDisplayName(vesselName);
+                            output += ContractVesselTracker.GetDisplayName(vesselName);
                         }
                         else
                         {
@@ -144,15 +148,61 @@ namespace ContractConfigurator.Parameters
             return base.GetNotes();
         }
 
+        protected void OnContractLoaded(ConfiguredContract contract)
+        {
+            if (contract == Root)
+            {
+                CreateTimerParameter();
+            }
+        }
+
         protected void CreateTimerParameter()
         {
             if (duration > 0.0)
             {
-                durationParameter = new ParameterDelegate<double>("Duration: " + DurationUtil.StringValue(duration),
-                    t => t - Planetarium.GetUniversalTime() <= 0.0);
+                durationParameter = new ParameterDelegate<Vessel>("Duration: " + DurationUtil.StringValue(duration),
+                    v => false);
                 durationParameter.Optional = true;
 
                 AddParameter(durationParameter);
+            }
+        }
+
+        protected void CreateVesselListParameter()
+        {
+            if (vesselList.Any())
+            {
+                if (vesselList.Count() == 1)
+                {
+                    vesselListParam = new ParameterDelegate<Vessel>("Vessel: " +
+                        ContractVesselTracker.GetDisplayName(vesselList.First()), VesselCanBeConsidered);
+                    vesselListParam.Optional = true;
+
+                    AddParameter(vesselListParam);
+                }
+                else
+                {
+                    Debug.Log("In multi-list");
+                    vesselListParam = new ParameterDelegate<Vessel>("Vessel: Any of the following:", v =>
+                    {
+                        bool check = VesselCanBeConsidered(v);
+                        vesselListParam.SetTitle("Vessel: Any of the following:" + (check ? " " + ParameterDelegate<Vessel>.GetDelegateText(vesselListParam) : ""));
+                        return check;
+                    });
+                    Debug.Log("    1");
+                    vesselListParam.Optional = true;
+                    Debug.Log("    2");
+
+                    foreach (string vessel in vesselList)
+                    {
+                        Debug.Log("    loop");
+                        ContractParameter childParam = new ParameterDelegate<Vessel>(ContractVesselTracker.GetDisplayName(vessel), v => false);
+                        vesselListParam.AddParameter(childParam);
+                    }
+                    Debug.Log("    done");
+
+                    AddParameter(vesselListParam);
+                }
             }
         }
 
@@ -254,6 +304,10 @@ namespace ContractConfigurator.Parameters
                     }
                 }
                 oldTrackedVessel = trackedVessel;
+
+                // Set the tracked vessel in delegate parameters
+                Debug.Log("Doing CheckChildConditions for " + id);
+                ParameterDelegate<Vessel>.CheckChildConditions(this, trackedVessel);
             }
 
             // Fire the parameter change event to account for all the changed child parameters.
@@ -312,7 +366,11 @@ namespace ContractConfigurator.Parameters
                     trackedVessel = FlightGlobals.Vessels.Find(v => v != null && v.id == trackedVesselGuid);
                 }
 
-                CreateTimerParameter();
+                // Register this early, otherwise we'll miss the event
+                ConfiguredContract.OnContractLoaded.Add(new EventData<ConfiguredContract>.OnEvent(OnContractLoaded));
+
+                // Create the parameter delegate for the vessel list
+                CreateVesselListParameter();
             }
             finally
             {
@@ -342,6 +400,8 @@ namespace ContractConfigurator.Parameters
             GameEvents.Contract.onCompleted.Remove(new EventData<Contract>.OnEvent(OnContractCompleted));
             GameEvents.Contract.onFailed.Remove(new EventData<Contract>.OnEvent(OnContractFailed));
             GameEvents.Contract.onCancelled.Remove(new EventData<Contract>.OnEvent(OnContractFailed));
+
+            ConfiguredContract.OnContractLoaded.Remove(new EventData<ConfiguredContract>.OnEvent(OnContractLoaded));
         }
 
         protected void OnContractCompleted(Contract c)

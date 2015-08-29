@@ -18,7 +18,7 @@ namespace ContractConfigurator.Parameters
         public string notes;
         public bool completeInSequence;
         public bool hideChildren;
-        private bool hidden = false;
+        public bool hidden = false;
         protected bool fakeFailures = false;
 
         public ContractConfiguratorParameter()
@@ -37,12 +37,13 @@ namespace ContractConfigurator.Parameters
             {
                 return "";
             }
-            return GetParameterTitle();
+
+            return (optional && string.IsNullOrEmpty(title) ? "(Optional) " : "") + GetParameterTitle();
         }
 
         protected override string GetHashString()
         {
-            return (this.Root.MissionSeed.ToString() + this.Root.DateAccepted.ToString() + this.ID);
+            return (Root != null ? (Root.MissionSeed.ToString() + Root.DateAccepted.ToString()) : "") + ID;
         }
 
         /// <summary>
@@ -182,7 +183,7 @@ namespace ContractConfigurator.Parameters
             // Special handling for the Duration parameter ideally shouldn't be here - someday I'll refactor this
             foreach (ContractParameter child in this.GetChildren())
             {
-                Duration duration = child as Duration;
+                Duration2 duration = child as Duration2;
                 if (duration != null)
                 {
                     if (duration.state != ParameterState.Complete)

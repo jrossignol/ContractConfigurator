@@ -43,7 +43,7 @@ namespace ContractConfigurator.Parameters
                     output = "Docked with: ";
                     if (vessels.Count > 0)
                     {
-                        output += ContractVesselTracker.Instance.GetDisplayName(vessels[0]);
+                        output += ContractVesselTracker.GetDisplayName(vessels[0]);
                     }
                     else
                     {
@@ -52,10 +52,10 @@ namespace ContractConfigurator.Parameters
                 }
                 else
                 {
-                    output = "Docked: " + ContractVesselTracker.Instance.GetDisplayName(vessels[0]) + " and ";
+                    output = "Docked: " + ContractVesselTracker.GetDisplayName(vessels[0]) + " and ";
                     if (vessels.Count > 1)
                     {
-                        output += ContractVesselTracker.Instance.GetDisplayName(vessels[1]);
+                        output += ContractVesselTracker.GetDisplayName(vessels[1]);
                     }
                     else
                     {

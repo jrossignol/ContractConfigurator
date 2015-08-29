@@ -1,3 +1,19 @@
+Contract Configurator 1.7.2
+- DialogBox behaviour now supports loading/unloading textures for images on the fly.
+- Fixed issue with dialog boxes that weren't getting positioned correctly.
+- Fixed issue with SpawnVessel when switching from editor to flight scene (introduced in 1.7.0).
+- Fixed parser issue with early data type conversions (thanks DMagic).
+- Fixed issue with hidden parameters in Sequence not working in Contracts Window + (thanks 5thHorseman).
+- Misc bug fixes.
+
+Contract Configurator 1.7.1
+- Fixed a backwards compatibility issue introduced in 1.7.0 (thanks Ald).
+- When title isn't overriden, prefix optional parameters with "(Optional)".
+- Added a hidden attribute for all parameters.
+- VesselParameterGroups now list out vessels that can complete the contract more clearly.
+- Fixed output text when converting a duration to a string in contracts.
+- Improved behaviour of Duration parameter when used under VesselParameterGroup.
+
 Contract Configurator 1.7.0
 - New DialogBox behaviour for creating rich text dialog boxes with images.
 - New CopyCraftFile behaviour to reward a player with a craft file.

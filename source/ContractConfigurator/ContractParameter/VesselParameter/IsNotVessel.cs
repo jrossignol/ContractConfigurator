@@ -35,7 +35,7 @@ namespace ContractConfigurator.Parameters
             string output;
             if (string.IsNullOrEmpty(title))
             {
-                output = "Vessel: Not " + ContractVesselTracker.Instance.GetDisplayName(vesselKey);
+                output = "Vessel: Not " + ContractVesselTracker.GetDisplayName(vesselKey);
             }
             else
             {

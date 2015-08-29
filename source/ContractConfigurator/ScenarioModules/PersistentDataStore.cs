@@ -30,7 +30,7 @@ namespace ContractConfigurator
 
     [KSPScenario(ScenarioCreationOptions.AddToExistingCareerGames | ScenarioCreationOptions.AddToNewCareerGames,
         GameScenes.FLIGHT, GameScenes.TRACKSTATION, GameScenes.SPACECENTER)]
-    class PersistentDataStore : ScenarioModule
+    public class PersistentDataStore : ScenarioModule
     {
         static public PersistentDataStore Instance { get; private set; }
         private Dictionary<string, System.Object> data = new Dictionary<string, System.Object>();
@@ -81,6 +81,33 @@ namespace ContractConfigurator
             {
                 throw new DataStoreCastException(typeof(T), data[key].GetType());
             }
+        }
+
+        /// <summary>
+        /// Checks wether a key exists.
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public bool HasKey(string key)
+        {
+            return data.ContainsKey(key);
+        }
+
+        /// <summary>
+        /// Retrieve a value from the persistent data store.
+        /// </summary>
+        /// <param name="key">Key to retrieve for</param>
+        /// <param name="type">Type of the value retrieved</param>
+        /// <returns>The value</returns>
+        public object Retrieve(string key, out Type type)
+        {
+            if (!data.ContainsKey(key))
+            {
+                throw new Exception("Key '" + key + "' is not in persistent data store!");
+            }
+            object result = data[key];
+            type = result.GetType();
+            return result;
         }
 
         /// <summary>
