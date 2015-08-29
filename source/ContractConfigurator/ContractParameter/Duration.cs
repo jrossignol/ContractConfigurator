@@ -12,7 +12,7 @@ namespace ContractConfigurator.Parameters
     /// <summary>
     /// Parameter for ensuring that a certain time must elapse before the contract completes.
     /// </summary>
-    [Obsolete("No longer in use as of Contract Configurator 1.7.1.  Replaced by Duration2")]
+    [Obsolete("No longer in use as of Contract Configurator 1.7.2.  Replaced by Duration2")]
     public class Duration : ContractConfiguratorParameter
     {
         protected double duration { get; set; }
