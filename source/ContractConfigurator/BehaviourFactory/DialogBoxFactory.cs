@@ -56,7 +56,7 @@ namespace ContractConfigurator.Behaviour
                             }
 
                             valid &= ConfigNodeUtil.ParseValue<Color>(sectionNode, "textColor", x => section.textColor = x, this, new Color(0.8f, 0.8f, 0.8f));
-                            valid &= ConfigNodeUtil.ParseValue<int>(sectionNode, "fontSize", x => section.fontSize = x, this, 16);
+                            valid &= ConfigNodeUtil.ParseValue<int>(sectionNode, "fontSize", x => section.fontSize = x, this, 20);
                         }
                         else if (sectionNode.name == "IMAGE")
                         {
