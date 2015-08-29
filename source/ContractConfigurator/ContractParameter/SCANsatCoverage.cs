@@ -7,7 +7,7 @@ using ContractConfigurator;
 using System;
 using UnityEngine;
 
-namespace ContractConfigurator.SCANsat
+namespace ContractConfigurator
 {
     public class SCANsatCoverage : ContractConfiguratorParameter
     {

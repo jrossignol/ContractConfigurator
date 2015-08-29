@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Text;
 using UnityEngine;
 
-namespace ContractConfigurator.SCANsat
+namespace ContractConfigurator
 {
     /// <summary>
     /// Utilities for interacting with SCANsat.

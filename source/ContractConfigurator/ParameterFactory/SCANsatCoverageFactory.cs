@@ -7,7 +7,7 @@ using System.Text;
 using ContractConfigurator;
 using UnityEngine;
 
-namespace ContractConfigurator.SCANsat
+namespace ContractConfigurator
 {
     public class SCANsatCoverageFactory : ParameterFactory
     {

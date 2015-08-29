@@ -5,7 +5,7 @@ using System.Text;
 using UnityEngine;
 using KSP;
 
-namespace ContractConfigurator.SCANsat
+namespace ContractConfigurator
 {
     /// <summary>
     /// ContractRequirement for SCANsat coverage of a specific location.

@@ -5,11 +5,11 @@ using System.Text;
 using UnityEngine;
 using KSP;
 
-namespace ContractConfigurator.SCANsat
+namespace ContractConfigurator
 {
-    /*
-     * ContractRequirement for SCANsat coverage.
-     */
+    /// <summary>
+    /// ContractRequirement for SCANsat coverage.
+    /// </summary>
     public class SCANsatCoverageRequirement : ContractRequirement
     {
         protected string scanType;
