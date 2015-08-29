@@ -127,7 +127,7 @@ namespace ContractConfigurator.Behaviour
             {
                 return true;
             }
-            else if (File.Exists(url))
+            else if (File.Exists("GameData/" + url))
             {
                 return true;
             }
