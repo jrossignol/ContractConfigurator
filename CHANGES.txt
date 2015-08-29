@@ -3,6 +3,7 @@ Contract Configurator 1.7.2
 - Fixed issue with dialog boxes that weren't getting positioned correctly.
 - Fixed issue with SpawnVessel when switching from editor to flight scene (introduced in 1.7.0).
 - Fixed parser issue with early data type conversions (thanks DMagic).
+- Fixed issue with hidden parameters in Sequence not working in Contracts Window + (thanks 5thHorseman).
 - Misc bug fixes.
 
 Contract Configurator 1.7.1
