@@ -81,7 +81,6 @@
     <Compile Include="ContractParameter\AtMost.cs" />
     <Compile Include="ContractParameter\AtLeast.cs" />
     <Compile Include="ContractParameter\ContractConfiguratorParameter.cs" />
-    <Compile Include="ContractParameter\InvisibleWrapper.cs" />
     <Compile Include="ContractParameter\Duration.cs" />
     <Compile Include="ContractParameter\ParameterDelegate.cs" />
     <Compile Include="ContractParameter\PerformOrbitalSurvey.cs" />

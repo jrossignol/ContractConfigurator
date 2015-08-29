@@ -16,7 +16,6 @@ namespace ContractConfigurator.Parameters
     {
         protected List<string> hiddenParameters;
 
-        private bool paramRemoved = false;
         private bool firstRun = false;
         private bool failWhenCompleteOutOfOrder = false;
 
@@ -109,91 +108,42 @@ namespace ContractConfigurator.Parameters
             }
 
             bool foundIncomplete = false;
-            int i = 0;
-            foreach (ContractParameter child in ChildParameterIterator())
+            bool changeMade = false;
+            foreach (ContractParameter child in this.GetChildren())
             {
-                ContractParameter param = child;
-                InvisibleWrapper wrapper = null;
-
-                // Already wrapped
-                if (param.GetType() == typeof(InvisibleWrapper))
+                ContractConfiguratorParameter param = child as ContractConfiguratorParameter;
+                if (param != null)
                 {
-                    wrapper = param as InvisibleWrapper;
-                    param = wrapper.GetParameter(0);
-                }
-
-                // Need to potentially hide
-                if (foundIncomplete)
-                {
-                    if (hiddenParameters.Contains(param.ID) && wrapper == null)
+                    // Need to potentially hide
+                    if (foundIncomplete)
                     {
-                        wrapper = new InvisibleWrapper();
-                        wrapper.AddParameter(param);
-                        RemoveParameter(i);
-                        paramRemoved = true;
-                        AddParameter(wrapper);
+                        if (hiddenParameters.Contains(param.ID) && !param.hidden)
+                        {
+                            changeMade = true;
+                            param.hidden = true;
+                        }
                     }
-                }
-                // Need to potentially unhide
-                else
-                {
-                    if (hiddenParameters.Contains(param.ID) && wrapper != null)
+                    // Need to potentially unhide
+                    else
                     {
-                        RemoveParameter(i);
-                        paramRemoved = true;
-                        AddParameter(param);
+                        if (hiddenParameters.Contains(param.ID) && param.hidden)
+                        {
+                            changeMade = true;
+                            param.hidden = false;
+                        }
                     }
                 }
 
                 // Check on the state
-                if (param.State != ParameterState.Complete)
+                if (child.State != ParameterState.Complete)
                 {
                     foundIncomplete = true;
                 }
-
-                i++;
             }
 
-            if (paramRemoved)
+            if (changeMade)
             {
                 ContractConfigurator.OnParameterChange.Fire(Root, this);
-            }
-        }
-
-        IEnumerable<ContractParameter> ChildParameterIterator()
-        {
-            paramRemoved = false;
-            int startPoint = -1;
-            for (int i = 0; i < ParameterCount; i++)
-            {
-                if (paramRemoved)
-                {
-                    startPoint = i;
-                    break;
-                }
-                else
-                {
-                    yield return GetParameter(i);
-                }
-            }
-
-            // Pull everything off and re-iterate
-            if (paramRemoved && startPoint != -1)
-            {
-                List<ContractParameter> stack = new List<ContractParameter>();
-                while (startPoint < ParameterCount)
-                {
-                    stack.Add(GetParameter(startPoint-1));
-                    RemoveParameter(startPoint-1);
-                }
-
-                while (stack.Any())
-                {
-                    ContractParameter param = stack.First();
-                    AddParameter(param);
-                    stack.RemoveAt(0);
-                    yield return param;
-                }
             }
         }
     }
