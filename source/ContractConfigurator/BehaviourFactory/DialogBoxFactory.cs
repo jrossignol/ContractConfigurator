@@ -49,7 +49,7 @@ namespace ContractConfigurator.Behaviour
                             detail.sections.Add(section);
 
                             // Parse the text twice, once to ensure parsability, the other to get the unexpanded text
-                            valid &= ConfigNodeUtil.ParseValue<string>(sectionNode, "text", x => section.text = x, this);
+                            valid &= ConfigNodeUtil.ParseValue<string>(sectionNode, "text", x => { }, this);
                             if (valid)
                             {
                                 section.text = ConfigNodeUtil.ParseValue<string>(sectionNode, "text");
