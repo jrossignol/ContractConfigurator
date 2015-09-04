@@ -39,17 +39,17 @@ namespace ContractConfigurator
             valid &= ConfigNodeUtil.MutuallyExclusive(configNode, new string[] { "subject" }, new string[] { "biome", "situation", "location", "experiment" }, this);
 
             // Validate subjects
-            if (subjects != null && subjects.Count > 0)
+            if (subjects != null && subjects.Count > 1)
             {
                 Biome b = Util.Science.GetBiome(subjects[0]);
                 ExperimentSituations es = Util.Science.GetSituation(subjects[0]);
 
-                if (subjects.Any(s => Util.Science.GetBiome(s) != b))
+                if (subjects.Any(s => !Util.Science.GetBiome(s).Equals(b)))
                 {
                     LoggingUtil.LogError(this, ErrorPrefix(configNode) + ": When using 'subject', the subjects must all have the same biome.");
                     valid = false;
                 }
-                if (subjects.Any(s => Util.Science.GetSituation(s) != es))
+                if (subjects.Any(s => !Util.Science.GetSituation(s).Equals(es)))
                 {
                     LoggingUtil.LogError(this, ErrorPrefix(configNode) + ": When using 'subject', the subjects must all have the same experiment situation.");
                     valid = false;

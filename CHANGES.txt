@@ -1,6 +1,7 @@
 Contract Configurator 1.7.3
 - Added Round() function for rounding numeric values.
 - Fixed issue with hidden parameters not actually being hidden (thanks 5thHorseman).
+- Fixed issue with using subject with CollectScience (thanks severedsolo).
 
 Contract Configurator 1.7.2
 - DialogBox behaviour now supports loading/unloading textures for images on the fly.
