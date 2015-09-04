@@ -361,6 +361,12 @@ namespace ContractConfigurator
 
                 value = (T)(object)(new Color(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f));
             }
+            else if (typeof(T) == typeof(Biome))
+            {
+                string[] biomeData = stringValue.Split(new char[] {';'});
+                CelestialBody cb = ParseCelestialBodyValue(biomeData[0]);
+                value = (T)(object)(new Biome(cb, biomeData[1]));
+            }
             // Do newline conversions
             else if (typeof(T) == typeof(string))
             {
