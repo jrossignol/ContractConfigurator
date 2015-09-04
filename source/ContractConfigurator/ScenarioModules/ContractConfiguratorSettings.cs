@@ -390,9 +390,9 @@ namespace ContractConfigurator
             }
             catch (Exception e)
             {
-                LoggingUtil.LogError(this, "Error saving ContractPreLoader to persistance file!");
+                LoggingUtil.LogError(this, "Error saving ContractConfiguratorSettings to persistance file!");
                 LoggingUtil.LogException(e);
-                ExceptionLogWindow.DisplayFatalException(ExceptionLogWindow.ExceptionSituation.SCENARIO_MODULE_SAVE, e, "ContractPreLoader");
+                ExceptionLogWindow.DisplayFatalException(ExceptionLogWindow.ExceptionSituation.SCENARIO_MODULE_SAVE, e, "ContractConfiguratorSettings");
             }
         }
 
@@ -425,9 +425,9 @@ namespace ContractConfigurator
             }
             catch (Exception e)
             {
-                LoggingUtil.LogError(this, "Error loading ContractPreLoader from persistance file!");
+                LoggingUtil.LogError(this, "Error loading ContractConfiguratorSettings from persistance file!");
                 LoggingUtil.LogException(e);
-                ExceptionLogWindow.DisplayFatalException(ExceptionLogWindow.ExceptionSituation.SCENARIO_MODULE_LOAD, e, "ContractPreLoader");
+                ExceptionLogWindow.DisplayFatalException(ExceptionLogWindow.ExceptionSituation.SCENARIO_MODULE_LOAD, e, "ContractConfiguratorSettings");
             }
         }
 
