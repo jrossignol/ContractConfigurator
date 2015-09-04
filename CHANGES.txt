@@ -1,4 +1,4 @@
-Contract Configurator 1.7.2
+Contract Configurator 1.7.3
 - Added Round() function for rounding numeric values.
 
 Contract Configurator 1.7.2
