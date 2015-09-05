@@ -406,6 +406,8 @@ namespace ContractConfigurator
 
                     ContractGroupDetails details = new ContractGroupDetails(group);
                     details.enabled = ConfigNodeUtil.ParseValue<bool>(groupNode, "enabled");
+
+                    contractGroupDetails[group.name] = details;
                 }
 
                 foreach (ConfigNode stateNode in node.GetNodes("CONTRACT_STATE"))

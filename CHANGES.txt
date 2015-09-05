@@ -3,6 +3,7 @@ Contract Configurator 1.7.3
 - Fixed issue with hidden parameters not actually being hidden (thanks 5thHorseman).
 - Fixed issue with using subject with CollectScience (thanks severedsolo).
 - Fixed issue using Biome with uniqueValue in a DATA node (thanks severedsolo).
+- Fixed issue where disabling a contract pack doesn't save the fact that it is disabled (thanks Poodmund).
 
 Contract Configurator 1.7.2
 - DialogBox behaviour now supports loading/unloading textures for images on the fly.
