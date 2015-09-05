@@ -340,6 +340,13 @@ namespace ContractConfigurator
         {
             try
             {
+                // Check expiry
+                if (contract.ContractState == Contract.State.Withdrawn && Planetarium.fetch != null &&
+                    contract.DateExpire < Planetarium.fetch.time)
+                {
+                    throw new ContractRequirementException("Expired contract.");
+                }
+
                 // Check prestige
                 if (prestige.Count > 0 && !prestige.Contains(contract.Prestige))
                 {
