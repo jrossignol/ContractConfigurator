@@ -151,6 +151,9 @@ namespace ContractConfigurator.ExpressionParser
             RegisterLocalFunction(new Function<T, T, T>("Pow", Pow));
             RegisterLocalFunction(new Function<T, T, T>("Log", Log));
 
+            RegisterLocalFunction(new Function<T, T>("Round", Round));
+            RegisterLocalFunction(new Function<T, T, T>("Round", Round));
+
             RegisterGlobalFunction(new Function<T, int>("int", val => (int)Convert.ChangeType(val, typeof(int))));
             RegisterGlobalFunction(new Function<T, long>("long", val => (long)Convert.ChangeType(val, typeof(long))));
             RegisterGlobalFunction(new Function<T, uint>("uint", val => (uint)Convert.ChangeType(val, typeof(uint))));
@@ -222,6 +225,27 @@ namespace ContractConfigurator.ExpressionParser
             double db = (double)Convert.ChangeType(b, typeof(double));
 
             double val = Math.Log(da, db);
+            return (T)Convert.ChangeType(val, typeof(T));
+        }
+
+        private static T Round(T value)
+        {
+            return Round(value, 1.0);
+        }
+
+        private static T Round(T value, T precision)
+        {
+            double dprecision = (double)Convert.ChangeType(precision, typeof(double));
+
+            return Round(value, dprecision);
+        }
+
+        private static T Round(T value, double precision)
+        {
+            double dval = (double)Convert.ChangeType(value, typeof(double));
+
+            double val = precision * Math.Round(dval / precision);
+
             return (T)Convert.ChangeType(val, typeof(T));
         }
 

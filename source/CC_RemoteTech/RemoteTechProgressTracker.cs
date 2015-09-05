@@ -28,6 +28,7 @@ namespace ContractConfigurator.RemoteTech
                 public Guid Guid { get { return new Guid("a5afe68c-9fff-4e12-8f96-b63933e70c99"); } }
                 public bool Activated { get { return true; } set { } }
                 public bool Powered { get { return true; } }
+                public bool Connected { get { return true; } }
                 public bool CanTarget { get { return false; } }
                 public Guid Target { get { return Guid.Empty; } set { } }
                 public float Dish { get { return -1.0f; } }

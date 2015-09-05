@@ -215,6 +215,11 @@ namespace ContractConfigurator
             {
                 strValue = ((ScienceSubject)value).id;
             }
+            else if (type == typeof(Biome))
+            {
+                Biome b = (Biome)value;
+                strValue = b.body.name + ";" + b.biome;
+            }
             else
             {
                 strValue = value.ToString();

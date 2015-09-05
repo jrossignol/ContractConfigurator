@@ -18,7 +18,22 @@ namespace ContractConfigurator.Parameters
         public string notes;
         public bool completeInSequence;
         public bool hideChildren;
-        public bool hidden = false;
+        public bool hidden
+        {
+            set
+            {
+                _hidden = value;
+                if (value)
+                {
+                    hideChildren = true;
+                }
+            }
+            get
+            {
+                return _hidden;
+            }
+        }
+        private bool _hidden = false;
         protected bool fakeFailures = false;
 
         public ContractConfiguratorParameter()
@@ -80,6 +95,10 @@ namespace ContractConfigurator.Parameters
                 {
                     node.AddValue("completeInSequence", completeInSequence);
                 }
+                if (hidden)
+                {
+                    node.AddValue("hidden", hidden);
+                }
                 if (hideChildren)
                 {
                     node.AddValue("hideChildren", hideChildren);
@@ -118,6 +137,7 @@ namespace ContractConfigurator.Parameters
                 title = ConfigNodeUtil.ParseValue<string>(node, "title", "");
                 notes = ConfigNodeUtil.ParseValue<string>(node, "notes", "");
                 completedMessage = ConfigNodeUtil.ParseValue<string>(node, "completedMessage", "");
+                hidden = ConfigNodeUtil.ParseValue<bool?>(node, "hidden", (bool?)false).Value;
                 hideChildren = ConfigNodeUtil.ParseValue<bool?>(node, "hideChildren", (bool?)false).Value;
                 completeInSequence = ConfigNodeUtil.ParseValue<bool?>(node, "completeInSequence", (bool?)false).Value;
                 fakeFailures = ConfigNodeUtil.ParseValue<bool?>(node, "fakeFailures", (bool?)false).Value;

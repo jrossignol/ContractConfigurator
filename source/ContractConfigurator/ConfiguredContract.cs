@@ -53,11 +53,7 @@ namespace ContractConfigurator
 
         public ConfiguredContract()
         {
-        }
-
-        public ConfiguredContract(Contract.ContractPrestige prestige)
-        {
-            this.prestige = prestige;
+            this.dateExpire = Contract.GameTime + 5.0 * 3600.0 * 6.0;
         }
 
         public bool Initialize(ContractType contractType)
