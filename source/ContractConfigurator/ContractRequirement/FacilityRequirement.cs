@@ -9,9 +9,9 @@ using Upgradeables;
 
 namespace ContractConfigurator
 {
-    /*
-     * ContractRequirement to check whether the player has a facility of a certain level.
-     */
+    /// <summary>
+    /// ContractRequirement to check whether the player has a facility of a certain level.
+    /// </summary>
     public class FacilityRequirement : ContractRequirement
     {
         protected string facility;
@@ -49,7 +49,7 @@ namespace ContractConfigurator
             else
             {
                 // Should only get here if the facility name entered was bad
-                LoggingUtil.LogError(this, "Coudn't read find facility with name '" + facility + "'!");
+                LoggingUtil.LogError(this, "Coudn't find facility with name '" + facility + "'!");
                 return false;
             }
         }

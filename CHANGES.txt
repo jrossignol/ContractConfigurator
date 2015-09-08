@@ -1,3 +1,6 @@
+Contract Configurator 1.7.4
+- Fixed issue with loading settings when a contract pack is removed (thanks hyper1on).
+
 Contract Configurator 1.7.3
 - Added Round() function for rounding numeric values.
 - Contracts will now expire out of the pre-loader after a few Kerbin days.  Help prevent contracts that may no longer be valid from being generated.

@@ -402,24 +402,41 @@ namespace ContractConfigurator
             {
                 foreach (ConfigNode groupNode in node.GetNodes("CONTRACT_GROUP"))
                 {
-                    ContractGroup group = ConfigNodeUtil.ParseValue<ContractGroup>(groupNode, "group");
+                    string groupName = node.GetValue("group");
 
-                    ContractGroupDetails details = new ContractGroupDetails(group);
-                    details.enabled = ConfigNodeUtil.ParseValue<bool>(groupNode, "enabled");
+                    if (ContractGroup.contractGroups.ContainsKey(groupName))
+                    {
+                        ContractGroup group = ConfigNodeUtil.ParseValue<ContractGroup>(groupNode, "group");
 
-                    contractGroupDetails[group.name] = details;
+                        ContractGroupDetails details = new ContractGroupDetails(group);
+                        details.enabled = ConfigNodeUtil.ParseValue<bool>(groupNode, "enabled");
+
+                        contractGroupDetails[group.name] = details;
+                    }
+                    else
+                    {
+                        LoggingUtil.LogWarning(this, "Couldn't find contract group with name '" + groupName + "'");
+                    }
                 }
 
                 foreach (ConfigNode stateNode in node.GetNodes("CONTRACT_STATE"))
                 {
                     try
                     {
-                        Type contractType = ConfigNodeUtil.ParseValue<Type>(stateNode, "group");
+                        string typeName = node.GetValue("type");
+                        Type contractType = null;
+                        try
+                        {
+                            contractType = ConfigNodeUtil.ParseTypeValue(typeName);
+                            StockContractDetails details = new StockContractDetails(contractType);
+                            details.enabled = ConfigNodeUtil.ParseValue<bool>(stateNode, "enabled");
 
-                        StockContractDetails details = new StockContractDetails(contractType);
-                        details.enabled = ConfigNodeUtil.ParseValue<bool>(stateNode, "enabled");
-
-                        stockContractDetails[contractType] = details;
+                            stockContractDetails[contractType] = details;
+                        }
+                        catch (ArgumentException)
+                        {
+                            LoggingUtil.LogWarning(this, "Couldn't find contract type with name '" + typeName + "'");
+                        }
                     }
                     // Ignore ArgumentException - handles contracts that were dropped
                     catch (ArgumentException) { }
