@@ -424,18 +424,21 @@ namespace ContractConfigurator
                     try
                     {
                         string typeName = node.GetValue("type");
-                        Type contractType = null;
-                        try
+                        if (!string.IsNullOrEmpty(typeName))
                         {
-                            contractType = ConfigNodeUtil.ParseTypeValue(typeName);
-                            StockContractDetails details = new StockContractDetails(contractType);
-                            details.enabled = ConfigNodeUtil.ParseValue<bool>(stateNode, "enabled");
+                            Type contractType = null;
+                            try
+                            {
+                                contractType = ConfigNodeUtil.ParseTypeValue(typeName);
+                                StockContractDetails details = new StockContractDetails(contractType);
+                                details.enabled = ConfigNodeUtil.ParseValue<bool>(stateNode, "enabled");
 
-                            stockContractDetails[contractType] = details;
-                        }
-                        catch (ArgumentException)
-                        {
-                            LoggingUtil.LogWarning(this, "Couldn't find contract type with name '" + typeName + "'");
+                                stockContractDetails[contractType] = details;
+                            }
+                            catch (ArgumentException)
+                            {
+                                LoggingUtil.LogWarning(this, "Couldn't find contract type with name '" + typeName + "'");
+                            }
                         }
                     }
                     // Ignore ArgumentException - handles contracts that were dropped
