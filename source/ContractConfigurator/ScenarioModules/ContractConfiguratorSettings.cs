@@ -308,7 +308,7 @@ namespace ContractConfigurator
                         if (disablingGroups.Any())
                         {
                             hintText = subclass.Name + " disabled by: " +
-                                string.Join(", ", disablingGroups.Select(g => g == null ? "unknown" : g.name).ToArray()) + "\n";
+                                string.Join(", ", disablingGroups.Select(g => g == null ? "unknown" : g.displayName).ToArray()) + "\n";
                             hintText += "Click to " + (details.enabled ? "disable " : "re-enable ") + subclass.Name + ".";
                         }
                         else
