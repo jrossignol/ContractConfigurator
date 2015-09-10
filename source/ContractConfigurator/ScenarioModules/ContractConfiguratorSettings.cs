@@ -402,11 +402,11 @@ namespace ContractConfigurator
             {
                 foreach (ConfigNode groupNode in node.GetNodes("CONTRACT_GROUP"))
                 {
-                    string groupName = node.GetValue("group");
+                    string groupName = groupNode.GetValue("group");
 
                     if (ContractGroup.contractGroups.ContainsKey(groupName))
                     {
-                        ContractGroup group = ConfigNodeUtil.ParseValue<ContractGroup>(groupNode, "group");
+                        ContractGroup group = ContractGroup.contractGroups[groupName];
 
                         ContractGroupDetails details = new ContractGroupDetails(group);
                         details.enabled = ConfigNodeUtil.ParseValue<bool>(groupNode, "enabled");
