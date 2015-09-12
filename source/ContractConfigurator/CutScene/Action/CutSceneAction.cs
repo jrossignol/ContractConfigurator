@@ -43,6 +43,13 @@ namespace ContractConfigurator.CutScene
         {
         }
 
+        /// <summary>
+        /// Called from the Unity OnDestroy function.
+        /// </summary>
+        public virtual void OnDestroy()
+        {
+        }
+
         public virtual void OnSave(ConfigNode configNode)
         {
             if (async)

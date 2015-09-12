@@ -54,6 +54,10 @@ namespace ContractConfigurator.CutScene
             if (state != State.IDLE)
             {
                 EnableInputs();
+                if (currentAction != null)
+                {
+                    currentAction.OnDestroy();
+                }
             }
         }
 
@@ -169,6 +173,8 @@ namespace ContractConfigurator.CutScene
                 // Move to the next action if necessary
                 if (currentAction.async || currentAction.ReadyForNextAction())
                 {
+                    currentAction.OnDestroy();
+
                     if (++currentIndex < cutSceneDefinition.actions.Count)
                     {
                         Debug.Log("CutScene: Invoking action " + currentAction);

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using UnityEngine;
 
@@ -21,61 +22,58 @@ namespace ContractConfigurator.CutScene
         private Transform dest;
         private KerbalEVA kerbalEVA;
         private CelestialBody body;
+        private Vector3d nrm;
 
         private float lastDist = float.MaxValue;
         private bool done = false;
-        private float stateTime = 0.0f;
 
         public override void InvokeAction()
         {
             altitude = LocationUtil.TerrainHeight(latitude, longitude, FlightGlobals.currentMainBody);
 
             Vector3d pos = FlightGlobals.currentMainBody.GetWorldSurfacePosition(latitude, longitude, altitude);
-            Vector3d nrm = FlightGlobals.currentMainBody.GetSurfaceNVector(latitude, longitude);
+            nrm = FlightGlobals.currentMainBody.GetSurfaceNVector(latitude, longitude);
             actor = cutSceneDefinition.actor(actorName) as KerbalActor;
 
+            // Store a transform for the destination position
             GameObject dummyObject = new GameObject("DummyLocation");
             dest = dummyObject.transform;
             dest.position = pos;
 
+            // Get some stuff
             Vessel eva = actor.eva;
             body = eva.mainBody;
-
             kerbalEVA = eva.gameObject.GetComponent<KerbalEVA>();
-            Debug.Log("Got kerbal EVA: " + kerbalEVA);
-            kerbalEVA.SetWaypoint(dest.position);
-            //kerbalEVA.CharacterFrameMode = true;
-            stateTime = Time.time;
-            stateFrameCount = Time.frameCount;
 
+            // Set up the animation
             actor.Transform.LookAt(dest, nrm);
+            kerbalEVA.Animations.walkLowGee.State.speed = 2.7f;
+            KerbalAnimationState animState = body.GeeASL > kerbalEVA.minWalkingGee ? kerbalEVA.Animations.walkFwd : kerbalEVA.Animations.walkLowGee;
+            kerbalEVA.animation.CrossFade(animState.animationName);
         }
 
         public override void FixedUpdate()
         {
-            Debug.Log("FixedUpdate");
-            kerbalEVA.SetWaypoint(dest.position);
-            stateTime += Time.fixedTime;
-            if (stateTime > 3.0f)
-            {
-                stateTime -= 3.0f;
-            }
-            kerbalEVA.fsm.CurrentState.TimeAtStateEnter = stateTime;
-
-            float speed = (body.GeeASL > kerbalEVA.minWalkingGee ? kerbalEVA.walkSpeed : kerbalEVA.boundSpeed) * Time.fixedDeltaTime;
+            float speed = 2.0f * Time.fixedDeltaTime;
             Transform transform = actor.Transform;
+            transform.LookAt(dest, nrm);
             transform.position += transform.forward * speed;
+        }
+
+        public override void OnDestroy()
+        {
+            kerbalEVA.animation.CrossFade(kerbalEVA.Animations.idle, 0.2f);
+            UnityEngine.Object.Destroy(dest.gameObject);
+            dest = null;
         }
 
         public override void Update()
         {
             float currentDistance = Vector3.Distance(actor.Transform.position, dest.position);
-            if (currentDistance > lastDist + 0.1 || currentDistance < 0.5)
+            if (currentDistance > lastDist + 0.005 || currentDistance < 0.5)
             {
                 done = true;
             }
-            Debug.Log("Update, currentDistance = " + currentDistance);
-            stateFrameCount++;
 
             lastDist = currentDistance;
         }
