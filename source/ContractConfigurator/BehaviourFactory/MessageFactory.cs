@@ -34,7 +34,7 @@ namespace ContractConfigurator.Behaviour
                     ConfigNodeUtil.SetCurrentDataNode(childDataNode);
                     Message.ConditionDetail cd = new Message.ConditionDetail();
                     valid &= ConfigNodeUtil.ParseValue<Message.ConditionDetail.Condition>(child, "condition", x => cd.condition = x, this);
-                    valid &= ConfigNodeUtil.ParseValue<string>(child, "parameter", x => cd.parameter = x, this, (string)null, x => ValidateMandatoryParameter(x, cd.condition));
+                    valid &= ConfigNodeUtil.ParseValue<string>(child, "parameter", x => cd.parameter = x, this, "", x => ValidateMandatoryParameter(x, cd.condition));
                     conditions.Add(cd);
                 }
                 finally

@@ -1,6 +1,7 @@
 Contract Configurator 1.7.4
 - Fixed issue with loading settings when a contract pack is removed (thanks hyper1on).
 - Fixed duplication issue with settings app launcher icon (thanks ObsessedWithKSP).
+- Changed triggers for Message behaviour to make consistent with other similar behaviours.
 
 Contract Configurator 1.7.3
 - Added Round() function for rounding numeric values.
