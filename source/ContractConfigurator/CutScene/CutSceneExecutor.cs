@@ -177,7 +177,7 @@ namespace ContractConfigurator.CutScene
 
                     if (++currentIndex < cutSceneDefinition.actions.Count)
                     {
-                        Debug.Log("CutScene: Invoking action " + currentAction);
+                        LoggingUtil.LogVerbose(this, "Invoking action " + currentAction);
                         currentAction = cutSceneDefinition.actions[currentIndex];
                         currentAction.InvokeAction();
                     }

@@ -27,9 +27,7 @@ namespace ContractConfigurator.Behaviour
 
         static AwardExperience()
         {
-            Debug.Log("AwardExperience static init.");
         }
-
 
         public AwardExperience()
         {
