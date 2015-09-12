@@ -71,17 +71,12 @@ namespace ContractConfigurator
 
         void Start()
         {
-            GameEvents.onGUIApplicationLauncherReady.Add(new EventVoid.OnEvent(SetupToolbar));
-            GameEvents.onGUIApplicationLauncherUnreadifying.Add(new EventData<GameScenes>.OnEvent(TeardownToolbar));
-
-            // Manually set up the toolbar, by the time we are started we've already missed the event
             SetupToolbar();
         }
 
         void OnDestroy()
         {
-            GameEvents.onGUIApplicationLauncherReady.Remove(new EventVoid.OnEvent(SetupToolbar));
-            GameEvents.onGUIApplicationLauncherUnreadifying.Remove(new EventData<GameScenes>.OnEvent(TeardownToolbar));
+            TeardownToolbar();
         }
 
         #region Styles
@@ -162,7 +157,7 @@ namespace ContractConfigurator
             }
         }
 
-        private void TeardownToolbar(GameScenes scene)
+        private void TeardownToolbar()
         {
             if (launcherButton != null)
             {
