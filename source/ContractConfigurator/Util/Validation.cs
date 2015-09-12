@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using UnityEngine;
@@ -138,6 +139,24 @@ namespace ContractConfigurator
             if (!FlightGlobals.Bodies.Any(b => b.name == celestialName))
             {
                 throw new ArgumentException("No CelestialBody with name '" + celestialName + "'.");
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Checks whether a file exists at the given URL.
+        /// </summary>
+        /// <param name="fileURL">URL to check for a file.</param>
+        /// <returns>True if valid, exception otherwise</returns>
+        public static bool ValidateFileURL(string fileURL)
+        {
+            string fullPath = string.Join(Path.DirectorySeparatorChar.ToString(), new string[] {
+                KSPUtil.ApplicationRootPath, "GameData", fileURL });
+
+            if (!File.Exists(fullPath))
+            {
+                throw new ArgumentException("Couldn't find a file at URL '" + fileURL + "'.");
             }
 
             return true;
