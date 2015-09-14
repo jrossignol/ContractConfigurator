@@ -8,6 +8,7 @@ Contract Configurator 1.7.4
 - Fixed FacilityRequirement to actually work outside the space center.
 - Fixed rare contract load exception from part modules without a name field.
 - Fixed issue with conversions from Vessel to VesselIdentifier (thanks severedsolo).
+- Fixed errors in log from loading using legacy values on ChangeVesselOwnership and other behaviours.  Now correctly outputs a warning.
 
 Contract Configurator 1.7.3
 - Added Round() function for rounding numeric values.
