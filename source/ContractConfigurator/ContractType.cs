@@ -338,8 +338,16 @@ namespace ContractConfigurator
         /// <returns>Whether the contract can be offered.</returns>
         public bool MeetBasicRequirements(ConfiguredContract contract)
         {
+            LoggingUtil.LogLevel origLogLevel = LoggingUtil.logLevel;
             try
             {
+                // Turn tracing on
+                if (trace)
+                {
+                    LoggingUtil.logLevel = LoggingUtil.LogLevel.VERBOSE;
+                    LoggingUtil.LogWarning(this, "Tracing enabled for contract type " + name);
+                }
+
                 // Check expiry
                 if (contract.ContractState == Contract.State.Withdrawn && Planetarium.fetch != null &&
                     contract.DateExpire < Planetarium.fetch.time)
@@ -413,6 +421,11 @@ namespace ContractConfigurator
                 LoggingUtil.LogError(this, "Exception while attempting to check requirements of contract type " + name);
                 throw;
             }
+            finally
+            {
+                LoggingUtil.logLevel = origLogLevel;
+                loaded = true;
+            }
         }
         
         /// <summary>
@@ -422,8 +435,16 @@ namespace ContractConfigurator
         /// <returns>Whether the contract can be offered.</returns>
         public bool MeetExtendedRequirements(ConfiguredContract contract)
         {
+            LoggingUtil.LogLevel origLogLevel = LoggingUtil.logLevel;
             try
             {
+                // Turn tracing on
+                if (trace)
+                {
+                    LoggingUtil.logLevel = LoggingUtil.LogLevel.VERBOSE;
+                    LoggingUtil.LogWarning(this, "Tracing enabled for contract type " + name);
+                }
+
                 // Hash check
                 if (contract.ContractState == Contract.State.Offered && contract.hash != hash)
                 {
@@ -520,6 +541,11 @@ namespace ContractConfigurator
             {
                 LoggingUtil.LogError(this, "Exception while attempting to check requirements of contract type " + name);
                 throw;
+            }
+            finally
+            {
+                LoggingUtil.logLevel = origLogLevel;
+                loaded = true;
             }
         }
 
