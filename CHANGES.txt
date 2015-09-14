@@ -1,7 +1,8 @@
 Contract Configurator 1.7.4
+- Improved Sigma Binary support (contracts won't get offered for barycenters unless they've been specifically written with that in mind).
+- Changed triggers for Message behaviour to make consistent with other similar behaviours.
 - Fixed issue with loading settings when a contract pack is removed (thanks hyper1on).
 - Fixed duplication issue with settings app launcher icon (thanks ObsessedWithKSP).
-- Changed triggers for Message behaviour to make consistent with other similar behaviours.
 - Fixed issues with hidden parameters being a little to aggressive in hiding children.
 - Fixed completely broken Exclude and ExcludeAll methods (whoops).
 

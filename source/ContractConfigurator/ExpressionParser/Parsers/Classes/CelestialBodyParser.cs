@@ -13,6 +13,15 @@ namespace ContractConfigurator.ExpressionParser
     /// </summary>
     public class CelestialBodyParser : ClassExpressionParser<CelestialBody>, IExpressionParserRegistrer
     {
+        private enum CelestialBodyType
+        {
+            NOT_APPLICABLE,
+            SUN,
+            PLANET,
+            MOON
+        }
+        private const double BARYCENTER_THRESHOLD = 100;
+
         private enum ProgressItem
         {
             REACHED,
@@ -38,10 +47,9 @@ namespace ContractConfigurator.ExpressionParser
             RegisterMethod(new Method<CelestialBody, bool>("HasOcean", cb => cb != null && cb.ocean));
             RegisterMethod(new Method<CelestialBody, bool>("HasSurface", cb => cb != null && cb.pqsController != null));
             RegisterMethod(new Method<CelestialBody, bool>("IsHomeWorld", cb => cb != null && cb.isHomeWorld));
-            RegisterMethod(new Method<CelestialBody, bool>("IsPlanet", cb =>
-                cb != null && (cb.referenceBody != null && cb != FlightGlobals.Bodies[0] && cb.referenceBody == FlightGlobals.Bodies[0])));
-            RegisterMethod(new Method<CelestialBody, bool>("IsMoon", cb =>
-                cb != null && (cb.referenceBody != null && cb != FlightGlobals.Bodies[0] && cb.referenceBody != FlightGlobals.Bodies[0])));
+            RegisterMethod(new Method<CelestialBody, bool>("IsSun", cb => BodyType(cb) == CelestialBodyType.SUN));
+            RegisterMethod(new Method<CelestialBody, bool>("IsPlanet", cb => BodyType(cb) == CelestialBodyType.PLANET));
+            RegisterMethod(new Method<CelestialBody, bool>("IsMoon", cb => BodyType(cb) == CelestialBodyType.MOON));
             RegisterMethod(new Method<CelestialBody, bool>("IsOrbitalSurveyComplete", cb => cb != null && ResourceScenario.Instance != null &&
                 ResourceScenario.Instance.gameSettings.GetPlanetScanInfo().Where(psd => psd.PlanetId == cb.flightGlobalsIndex).Any(), false));
 
@@ -73,7 +81,7 @@ namespace ContractConfigurator.ExpressionParser
             RegisterMethod(new Method<CelestialBody, double>("RemoteTechCoverage", cb => cb != null ? RemoteTechCoverage(cb) : 0.0d));
 
             RegisterGlobalFunction(new Function<CelestialBody>("HomeWorld", () => FlightGlobals.Bodies.Where(cb => cb.isHomeWorld).First()));
-            RegisterGlobalFunction(new Function<List<CelestialBody>>("AllBodies", () => FlightGlobals.Bodies.ToList()));
+            RegisterGlobalFunction(new Function<List<CelestialBody>>("AllBodies", () => FlightGlobals.Bodies.Where(cb => cb != null && cb.Radius >= BARYCENTER_THRESHOLD).ToList()));
             RegisterGlobalFunction(new Function<List<CelestialBody>>("OrbitedBodies", () => BodiesForItem(ProgressItem.ORBITED).ToList(), false));
             RegisterGlobalFunction(new Function<List<CelestialBody>>("LandedBodies", () => BodiesForItem(ProgressItem.LANDED).ToList(), false));
             RegisterGlobalFunction(new Function<List<CelestialBody>>("EscapedBodies", () => BodiesForItem(ProgressItem.ESCAPED).ToList(), false));
@@ -102,7 +110,8 @@ namespace ContractConfigurator.ExpressionParser
                 return Enumerable.Empty<CelestialBody>();
             }
 
-            return ProgressTracking.Instance.celestialBodyNodes.Where(node => CheckTree(node, pi)).Select(node => node.Body);
+            return ProgressTracking.Instance.celestialBodyNodes.Where(node => CheckTree(node, pi)).Select(node => node.Body).
+                Where(cb => cb.Radius >= BARYCENTER_THRESHOLD);
         }
 
         private static bool IsReached(CelestialBody cb, ProgressItem pi)
@@ -148,6 +157,29 @@ namespace ContractConfigurator.ExpressionParser
             MethodInfo methodGetCoverage = rtProgressTracker.GetMethod("GetCoverage");
             return (double)methodGetCoverage.Invoke(null, new object[] { cb });
         }
+
+        private static CelestialBodyType BodyType(CelestialBody cb)
+        {
+            if (cb == null || cb.Radius < BARYCENTER_THRESHOLD)
+            {
+                return CelestialBodyType.NOT_APPLICABLE;
+            }
+
+            CelestialBody sun = FlightGlobals.Bodies[0];
+            if (cb == sun)
+            {
+                return CelestialBodyType.SUN;
+            }
+
+            // Add a special case for barycenters (Sigma binary)
+            if (cb.referenceBody == sun || cb.referenceBody.Radius < BARYCENTER_THRESHOLD)
+            {
+                return CelestialBodyType.PLANET;
+            }
+
+            return CelestialBodyType.MOON;
+        }
+
 
         internal override CelestialBody ParseIdentifier(Token token)
         {
