@@ -6,6 +6,7 @@ Contract Configurator 1.7.4
 - Fixed issues with hidden parameters being a little to aggressive in hiding children.
 - Fixed completely broken Exclude and ExcludeAll methods (whoops).
 - Fixed FacilityRequirement to actually work outside the space center.
+- Fixed rare contract load exception from part modules without a name field.
 
 Contract Configurator 1.7.3
 - Added Round() function for rounding numeric values.

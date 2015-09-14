@@ -72,7 +72,7 @@ namespace ContractConfigurator.ExpressionParser
 
             foreach (PartModule pm in p.partPrefab.Modules)
             {
-                if (pm.moduleName.StartsWith("ModuleEngines"))
+                if (pm.moduleName != null && pm.moduleName.StartsWith("ModuleEngines"))
                 {
                     ModuleEngines enginePM = pm as ModuleEngines;
                     return enginePM.maxThrust;
@@ -91,7 +91,7 @@ namespace ContractConfigurator.ExpressionParser
 
             foreach (PartModule pm in p.partPrefab.Modules)
             {
-                if (pm.moduleName.StartsWith("ModuleEngines"))
+                if (pm.moduleName != null && pm.moduleName.StartsWith("ModuleEngines"))
                 {
                     ModuleEngines enginePM = pm as ModuleEngines;
                     return enginePM.maxThrust * enginePM.atmosphereCurve.Evaluate(1) / enginePM.atmosphereCurve.Evaluate(0);
@@ -110,7 +110,7 @@ namespace ContractConfigurator.ExpressionParser
 
             foreach (PartModule pm in p.partPrefab.Modules)
             {
-                if (pm.moduleName.StartsWith("ModuleEngines"))
+                if (pm.moduleName != null && pm.moduleName.StartsWith("ModuleEngines"))
                 {
                     ModuleEngines enginePM = pm as ModuleEngines;
                     return enginePM.atmosphereCurve.Evaluate(0);
@@ -129,7 +129,7 @@ namespace ContractConfigurator.ExpressionParser
 
             foreach (PartModule pm in p.partPrefab.Modules)
             {
-                if (pm.moduleName.StartsWith("ModuleEngines"))
+                if (pm.moduleName != null && pm.moduleName.StartsWith("ModuleEngines"))
                 {
                     ModuleEngines enginePM = pm as ModuleEngines;
                     return enginePM.atmosphereCurve.Evaluate(1);
