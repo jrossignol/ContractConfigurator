@@ -5,6 +5,7 @@ Contract Configurator 1.7.4
 - Fixed duplication issue with settings app launcher icon (thanks ObsessedWithKSP).
 - Fixed issues with hidden parameters being a little to aggressive in hiding children.
 - Fixed completely broken Exclude and ExcludeAll methods (whoops).
+- Fixed FacilityRequirement to actually work outside the space center.
 
 Contract Configurator 1.7.3
 - Added Round() function for rounding numeric values.
