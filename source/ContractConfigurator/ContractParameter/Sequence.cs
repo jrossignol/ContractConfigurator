@@ -108,7 +108,6 @@ namespace ContractConfigurator.Parameters
             }
 
             bool foundIncomplete = false;
-            bool changeMade = false;
             foreach (ContractParameter child in this.GetChildren())
             {
                 ContractConfiguratorParameter param = child as ContractConfiguratorParameter;
@@ -119,8 +118,8 @@ namespace ContractConfigurator.Parameters
                     {
                         if (hiddenParameters.Contains(param.ID) && !param.hidden)
                         {
-                            changeMade = true;
                             param.hidden = true;
+                            ContractConfigurator.OnParameterChange.Fire(Root, param);
                         }
                     }
                     // Need to potentially unhide
@@ -128,8 +127,8 @@ namespace ContractConfigurator.Parameters
                     {
                         if (hiddenParameters.Contains(param.ID) && param.hidden)
                         {
-                            changeMade = true;
                             param.hidden = false;
+                            ContractConfigurator.OnParameterChange.Fire(Root, param);
                         }
                     }
                 }
@@ -139,11 +138,6 @@ namespace ContractConfigurator.Parameters
                 {
                     foundIncomplete = true;
                 }
-            }
-
-            if (changeMade)
-            {
-                ContractConfigurator.OnParameterChange.Fire(Root, this);
             }
         }
     }

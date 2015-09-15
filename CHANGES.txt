@@ -1,3 +1,6 @@
+Contract Configurator 1.7.5
+- Fixed issue with hidden parameters in a sequence not unhiding in Contracts Window +.
+
 Contract Configurator 1.7.4
 - Improved Sigma Binary support (contracts won't get offered for barycenters unless they've been specifically written with that in mind).
 - Changed triggers for Message behaviour to make consistent with other similar behaviours.
