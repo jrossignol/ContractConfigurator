@@ -12,16 +12,23 @@ namespace ContractConfigurator.CutScene
     /// </summary>
     public class MoveEVAKerbal : CutSceneAction
     {
+        public class Waypoint
+        {
+            public double latitude;
+            public double longitude;
+        }
+
         public string actorName;
+        public List<Waypoint> waypoints = new List<Waypoint>();
 
-        public double latitude;
-        public double longitude;
+        private IEnumerator<Waypoint> waypointEnumerator;
+        private Waypoint currentWaypoint;
 
-        private double altitude;
         private KerbalActor actor;
-        private Transform dest;
         private KerbalEVA kerbalEVA;
         private CelestialBody body;
+        private Transform dest;
+        private double altitude;
         private Vector3d nrm;
 
         private float lastDist = float.MaxValue;
@@ -29,27 +36,46 @@ namespace ContractConfigurator.CutScene
 
         public override void InvokeAction()
         {
-            altitude = LocationUtil.TerrainHeight(latitude, longitude, FlightGlobals.currentMainBody);
-
-            Vector3d pos = FlightGlobals.currentMainBody.GetWorldSurfacePosition(latitude, longitude, altitude);
-            nrm = FlightGlobals.currentMainBody.GetSurfaceNVector(latitude, longitude);
-            actor = cutSceneDefinition.actor(actorName) as KerbalActor;
-
             // Store a transform for the destination position
             GameObject dummyObject = new GameObject("DummyLocation");
             dest = dummyObject.transform;
-            dest.position = pos;
 
-            // Get some stuff
+            // Get the actor and details
+            actor = cutSceneDefinition.actor(actorName) as KerbalActor;
             Vessel eva = actor.eva;
             body = eva.mainBody;
             kerbalEVA = eva.gameObject.GetComponent<KerbalEVA>();
 
             // Set up the animation
-            actor.Transform.LookAt(dest, nrm);
             kerbalEVA.Animations.walkLowGee.State.speed = 2.7f;
             KerbalAnimationState animState = body.GeeASL > kerbalEVA.minWalkingGee ? kerbalEVA.Animations.walkFwd : kerbalEVA.Animations.walkLowGee;
             kerbalEVA.animation.CrossFade(animState.animationName);
+
+            // Create the enumerator
+            waypointEnumerator = waypoints.GetEnumerator();
+
+            // Start the next waypoint
+            NextWaypoint();
+        }
+
+        private bool NextWaypoint()
+        {
+            if (!waypointEnumerator.MoveNext())
+            {
+                return false;
+            }
+
+            // Get details for the current waypoint
+            currentWaypoint = waypointEnumerator.Current;
+            altitude = LocationUtil.TerrainHeight(currentWaypoint.latitude, currentWaypoint.longitude, FlightGlobals.currentMainBody);
+            Vector3d pos = FlightGlobals.currentMainBody.GetWorldSurfacePosition(currentWaypoint.latitude, currentWaypoint.longitude, altitude);
+            nrm = FlightGlobals.currentMainBody.GetSurfaceNVector(currentWaypoint.latitude, currentWaypoint.longitude);
+            dest.position = pos;
+
+            // Turn towards the destination
+            actor.Transform.LookAt(dest, nrm);
+
+            return true;
         }
 
         public override void FixedUpdate()
@@ -72,7 +98,14 @@ namespace ContractConfigurator.CutScene
             float currentDistance = Vector3.Distance(actor.Transform.position, dest.position);
             if (currentDistance > lastDist + 0.005 || currentDistance < 0.5)
             {
-                done = true;
+                if (NextWaypoint())
+                {
+                    currentDistance = float.MaxValue;
+                }
+                else
+                {
+                    done = true;
+                }
             }
 
             lastDist = currentDistance;
@@ -87,16 +120,26 @@ namespace ContractConfigurator.CutScene
         {
             base.OnSave(configNode);
             configNode.AddValue("actorName", actorName);
-            configNode.AddValue("latitude", latitude);
-            configNode.AddValue("longitude", longitude);
+            foreach (Waypoint w in waypoints)
+            {
+                ConfigNode waypointNode = new ConfigNode("WAYPOINT");
+                configNode.AddNode(waypointNode);
+
+                waypointNode.AddValue("latitude", w.latitude);
+                waypointNode.AddValue("longitude", w.longitude);
+            }
         }
 
         public override void OnLoad(ConfigNode configNode)
         {
             base.OnLoad(configNode);
             actorName = ConfigNodeUtil.ParseValue<string>(configNode, "actorName");
-            latitude = ConfigNodeUtil.ParseValue<double>(configNode, "latitude");
-            longitude = ConfigNodeUtil.ParseValue<double>(configNode, "longitude");
+            foreach (ConfigNode node in configNode.GetNodes("WAYPOINT"))
+            {
+                Waypoint w = new Waypoint();
+                w.latitude = ConfigNodeUtil.ParseValue<double>(node, "latitude");
+                w.longitude = ConfigNodeUtil.ParseValue<double>(node, "longitude");
+            }
         }
 
     }
