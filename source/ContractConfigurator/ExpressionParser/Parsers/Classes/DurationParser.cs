@@ -27,6 +27,7 @@ namespace ContractConfigurator.ExpressionParser
         internal static void RegisterMethods()
         {
             RegisterLocalFunction(new Function<Duration, Duration, Duration>("Random", RandomMinMax, false));
+            RegisterLocalFunction(new Function<Duration, Duration, Duration>("Round", Round));
         }
 
         public DurationParser()
@@ -36,6 +37,12 @@ namespace ContractConfigurator.ExpressionParser
         private static Duration RandomMinMax(Duration min, Duration max)
         {
             double val = random.NextDouble() * (max.Value - min.Value) + min.Value;
+            return new Duration(val);
+        }
+
+        private static Duration Round(Duration value, Duration precision)
+        {
+            double val = precision.Value * Math.Round(value.Value / precision.Value);
             return new Duration(val);
         }
 
