@@ -12,17 +12,17 @@ namespace ContractConfigurator.CutScene
     /// </summary>
     public class MoveEVAKerbal : CutSceneAction
     {
-        public class Waypoint
+        public class EVAWaypoint
         {
             public double latitude;
             public double longitude;
         }
 
         public string actorName;
-        public List<Waypoint> waypoints = new List<Waypoint>();
+        public List<EVAWaypoint> waypoints = new List<EVAWaypoint>();
 
-        private IEnumerator<Waypoint> waypointEnumerator;
-        private Waypoint currentWaypoint;
+        private IEnumerator<EVAWaypoint> waypointEnumerator;
+        private EVAWaypoint currentWaypoint;
 
         private KerbalActor actor;
         private KerbalEVA kerbalEVA;
@@ -120,7 +120,7 @@ namespace ContractConfigurator.CutScene
         {
             base.OnSave(configNode);
             configNode.AddValue("actorName", actorName);
-            foreach (Waypoint w in waypoints)
+            foreach (EVAWaypoint w in waypoints)
             {
                 ConfigNode waypointNode = new ConfigNode("WAYPOINT");
                 configNode.AddNode(waypointNode);
@@ -136,7 +136,7 @@ namespace ContractConfigurator.CutScene
             actorName = ConfigNodeUtil.ParseValue<string>(configNode, "actorName");
             foreach (ConfigNode node in configNode.GetNodes("WAYPOINT"))
             {
-                Waypoint w = new Waypoint();
+                EVAWaypoint w = new EVAWaypoint();
                 w.latitude = ConfigNodeUtil.ParseValue<double>(node, "latitude");
                 w.longitude = ConfigNodeUtil.ParseValue<double>(node, "longitude");
             }

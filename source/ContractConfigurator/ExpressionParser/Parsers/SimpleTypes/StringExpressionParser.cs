@@ -88,13 +88,16 @@ namespace ContractConfigurator.ExpressionParser
 
                 while (expression.Length > 0)
                 {
-                    // Look for identifiers
+                    // Look for special identifiers
                     int specialIdentifierIndex = expression.IndexOf("@");
-                    int dataStoreIdentifierIndex = expression.IndexOf("$");
+
+                    // Look for data store identifiers
+                    Match m = Regex.Match(expression, @"\$[A-Za-z]");
+                    int dataStoreIdentifierIndex = m.Success ? m.Index : -1;
 
                     // Look for function calls
-                    Match m = Regex.Match(expression, @"(\A|\s)\w[\w\d]*\(");
-                    int functionIndex = m.Index;
+                    m = Regex.Match(expression, @"(\A|\s)\w[\w\d]*\(");
+                    int functionIndex = m == Match.Empty ? -1 : m.Index;
 
                     // Look for an end quote
                     int quoteIndex = quoted ? expression.IndexOf('"') : -1;
