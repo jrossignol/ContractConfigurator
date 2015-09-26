@@ -1,4 +1,5 @@
 Contract Configurator 1.7.5
+- Added HasResourceCapacity parameter.
 - Added Round function for Duration class.
 - Fixed issue with hidden parameters in a sequence not unhiding in Contracts Window +.
 - Fixed issue with Duration parameter when not used with VesselParameterGroup (thanks master18).

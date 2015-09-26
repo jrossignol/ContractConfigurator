@@ -24,6 +24,7 @@ namespace ContractConfigurator.Parameters
         }
 
         protected List<Filter> filters = new List<Filter>();
+        protected bool capacity = false;
 
         private float lastUpdate = 0.0f;
         private const float UPDATE_FREQUENCY = 0.25f;
@@ -33,10 +34,11 @@ namespace ContractConfigurator.Parameters
         {
         }
 
-        public HasResource(List<Filter> filters, string title = null)
+        public HasResource(List<Filter> filters, bool capacity, string title = null)
             : base(title)
         {
             this.filters = filters;
+            this.capacity = capacity;
 
             CreateDelegates();
         }
@@ -46,7 +48,7 @@ namespace ContractConfigurator.Parameters
             string output = null;
             if (string.IsNullOrEmpty(title))
             {
-                output = "Resources";
+                output = capacity ? "Resource Capacity" : "Resources";
                 if (state == ParameterState.Complete)
                 {
                     output += ": " + ParameterDelegate<Vessel>.GetDelegateText(this);
@@ -86,7 +88,7 @@ namespace ContractConfigurator.Parameters
                 }
 
 
-                AddParameter(new ParameterDelegate<Vessel>(output, v => VesselHasResource(v, filter.resource, filter.minQuantity, filter.maxQuantity),
+                AddParameter(new ParameterDelegate<Vessel>(output, v => VesselHasResource(v, filter.resource, capacity, filter.minQuantity, filter.maxQuantity),
                     ParameterDelegateMatchType.VALIDATE));
             }
 
@@ -97,15 +99,17 @@ namespace ContractConfigurator.Parameters
             }
         }
 
-        protected static bool VesselHasResource(Vessel vessel, PartResourceDefinition resource, double minQuantity, double maxQuantity)
+        protected static bool VesselHasResource(Vessel vessel, PartResourceDefinition resource, bool capacity, double minQuantity, double maxQuantity)
         {
-            double quantity = vessel.ResourceQuantity(resource);
+            double quantity = capacity ? vessel.ResourceCapacity(resource) : vessel.ResourceQuantity(resource);
             return quantity >= minQuantity && quantity <= maxQuantity;
         }
 
         protected override void OnParameterSave(ConfigNode node)
         {
             base.OnParameterSave(node);
+
+            node.AddValue("capacity", capacity);
 
             foreach (Filter filter in filters)
             {
@@ -126,6 +130,8 @@ namespace ContractConfigurator.Parameters
             try
             {
                 base.OnParameterLoad(node);
+
+                capacity = ConfigNodeUtil.ParseValue<bool?>(node, "capacity", (bool?)false).Value;
 
                 foreach (ConfigNode childNode in node.GetNodes("RESOURCE"))
                 {

@@ -131,6 +131,7 @@
     <Compile Include="CutScene\CutSceneExecutor.cs" />
     <Compile Include="ExpressionParser\Parsers\Classes\TechParser.cs" />
     <Compile Include="ExpressionParser\Wrappers\Tech.cs" />
+    <Compile Include="ParameterFactory\HasResourceCapacityFactory.cs" />
     <Compile Include="ParameterFactory\NewVesselFactory.cs" />
     <Compile Include="ParameterFactory\RecoverVesselFactory.cs" />
     <Compile Include="ParameterFactory\SCANsatCoverageFactory.cs" />

@@ -11,9 +11,9 @@ using ContractConfigurator.Parameters;
 namespace ContractConfigurator
 {
     /// <summary>
-    /// ParameterFactory wrapper for HasResource ContractParameter.
+    /// ParameterFactory wrapper for HasResourceCapacity ContractParameter.
     /// </summary>
-    public class HasResourceFactory : ParameterFactory
+    public class HasResourceCapacityFactory : ParameterFactory
     {
         protected List<HasResource.Filter> filters = new List<HasResource.Filter>();
 
@@ -44,7 +44,7 @@ namespace ContractConfigurator
 
         public override ContractParameter Generate(Contract contract)
         {
-            return new HasResource(filters, false, title);
+            return new HasResource(filters, true, title);
         }
     }
 }
