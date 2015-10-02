@@ -1,3 +1,6 @@
+Contract Configurator 1.7.6
+- Minor cleanup of science experiment definitions.
+
 Contract Configurator 1.7.5
 - Fixed further issues with FacilityRequirement checks outside of space center (thanks qm3ster).
 - Fixed bug in contract text generator when the topic/subject/motivation aren't all specified (thanks Sebi99p).
