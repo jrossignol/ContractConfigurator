@@ -24,6 +24,7 @@ namespace ContractConfigurator.Parameters
 
         private double lastUpdate = 0.0;
         private bool resetClock = false;
+        private bool checkQueued = false;
 
         private TitleTracker titleTracker = new TitleTracker();
 
@@ -134,9 +135,22 @@ namespace ContractConfigurator.Parameters
 
         protected void OnParameterChange(Contract contract, ContractParameter param)
         {
-            // Set the end time
+            // Queue up a check
             if (contract == Root)
             {
+                checkQueued = true;
+            }
+        }
+
+        protected override void OnUpdate()
+        {
+            base.OnUpdate();
+
+            // Do a check to see if we need to play with the end time
+            if (checkQueued)
+            {
+                checkQueued = false;
+
                 bool completed = true;
                 foreach (ContractParameter child in Parent.GetChildren())
                 {
@@ -171,7 +185,7 @@ namespace ContractConfigurator.Parameters
                         }
                     }
                     // Handle case for not under a VesselParameterGroup
-                    else
+                    else if (vpg == null)
                     {
                         if (endTime == 0.0)
                         {
@@ -185,18 +199,13 @@ namespace ContractConfigurator.Parameters
                     {
                         endTimes.Remove(currentVessel);
                     }
-                    else if (currentVessel == null)
+                    else if (vpg == null)
                     {
                         endTime = 0.0;
                     }
                     resetClock = true;
                 }
             }
-        }
-
-        protected override void OnUpdate()
-        {
-            base.OnUpdate();
 
             if (Planetarium.GetUniversalTime() - lastUpdate > 1.0f)
             {

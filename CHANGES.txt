@@ -1,4 +1,5 @@
 Contract Configurator 1.7.6
+- Fixed issue with Duration parameter possibly resetting state incorrectly when switching scenes/vessels (thanks chrisl).
 - Minor cleanup of science experiment definitions.
 
 Contract Configurator 1.7.5
