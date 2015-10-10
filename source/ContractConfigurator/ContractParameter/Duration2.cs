@@ -40,6 +40,7 @@ namespace ContractConfigurator.Parameters
             this.preWaitText = preWaitText;
             this.waitingText = waitingText;
             this.completionText = completionText;
+            disableOnStateChange = true;
         }
 
         protected override string GetParameterTitle()
