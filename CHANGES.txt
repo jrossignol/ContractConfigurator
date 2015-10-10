@@ -1,4 +1,5 @@
 Contract Configurator 1.7.6
+- Added Reputation() function to get the player's current reputation.
 - Fixed issue with Duration parameter possibly resetting state incorrectly when switching scenes/vessels (thanks chrisl).
 - Minor cleanup of science experiment definitions.
 - Improved error handling for rare contract pre-loader load exceptions (thanks Laffe).
