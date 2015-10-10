@@ -400,10 +400,19 @@ namespace ContractConfigurator
             {
                 foreach (ConfigNode child in node.GetNodes("CONTRACT"))
                 {
-                    ConfiguredContract contract = new ConfiguredContract();
-                    Contract.Load(contract, child);
+                    ConfiguredContract contract = null;
+                    try
+                    {
+                        contract = new ConfiguredContract();
+                        Contract.Load(contract, child);
+                    }
+                    catch (Exception e)
+                    {
+                        LoggingUtil.LogWarning(this, "Ignored an exception while trying to load a pre-loaded contract:");
+                        LoggingUtil.LogException(e);
+                    }
 
-                    if (contract.contractType != null)
+                    if (contract != null && contract.contractType != null)
                     {
                         if (contract.contractType.autoAccept)
                         {

@@ -1,6 +1,7 @@
 Contract Configurator 1.7.6
 - Fixed issue with Duration parameter possibly resetting state incorrectly when switching scenes/vessels (thanks chrisl).
 - Minor cleanup of science experiment definitions.
+- Improved error handling for rare contract pre-loader load exceptions (thanks Laffe).
 
 Contract Configurator 1.7.5
 - Fixed further issues with FacilityRequirement checks outside of space center (thanks qm3ster).
