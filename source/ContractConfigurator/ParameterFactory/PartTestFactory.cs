@@ -6,6 +6,7 @@ using UnityEngine;
 using KSP;
 using Contracts;
 using Contracts.Parameters;
+using ContractConfigurator.Behaviour;
 
 namespace ContractConfigurator
 {
@@ -28,6 +29,12 @@ namespace ContractConfigurator
 
         public override ContractParameter Generate(Contract contract)
         {
+            ConfiguredContract cc = contract as ConfiguredContract;
+            if (!cc.Behaviours.Any(cb => cb is PartTestHandler))
+            {
+                cc.AddBehaviour(new PartTestHandler());
+            }
+
             return new PartTest(part, notes);
         }
     }

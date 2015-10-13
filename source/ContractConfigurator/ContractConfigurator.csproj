@@ -63,6 +63,7 @@
     <Compile Include="BehaviourFactory\UnlockTechFactory.cs" />
     <Compile Include="BehaviourFactory\WaypointGeneratorFactory.cs" />
     <Compile Include="BehaviourFactory\SpawnKerbalFactory.cs" />
+    <Compile Include="ContractBehaviour\PartTestHandler.cs" />
     <Compile Include="ContractBehaviour\AwardExperience.cs" />
     <Compile Include="ContractBehaviour\RunCutScene.cs" />
     <Compile Include="ContractBehaviour\DestroyVessel.cs" />
