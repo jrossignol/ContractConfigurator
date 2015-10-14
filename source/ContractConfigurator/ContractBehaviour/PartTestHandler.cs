@@ -62,15 +62,27 @@ namespace ContractConfigurator.Behaviour
 
             foreach (Part part in target.parts.Where(p => partsToTest.Contains(p.partInfo.title)))
             {
+                bool handled = false;
                 foreach (PartModule pm in part.Modules)
                 {
                     ModuleTestSubject mts = pm as ModuleTestSubject;
                     if (mts != null)
                     {
                         mts.isTestSubject = true;
-
                         mts.Events["RunTestEvent"].active = true;
+
+                        handled = true;
+                        break;
                     }
+                }
+
+                if (!handled)
+                {
+                    LoggingUtil.LogWarning(this, "Part " + part.name + " does not have a ModuleTestSubject, cannot be used as the target of a PartTest");
+                }
+                else
+                {
+                    LoggingUtil.LogVerbose(this, "    activate part " + part.name);
                 }
             }
         }
