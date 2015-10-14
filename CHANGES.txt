@@ -1,5 +1,6 @@
 Contract Configurator 1.7.7
 - Fixed issues with PartTest parameter not making the "Run Test" option show up on parts to be tested (thanks Sticky32).
+- Fixed issue with double() and other cast functions not working when casting from a non-numeric type (thanks chrisl).
 
 Contract Configurator 1.7.6
 - Added Reputation() function to get the player's current reputation.
