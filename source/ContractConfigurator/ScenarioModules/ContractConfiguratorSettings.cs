@@ -429,6 +429,8 @@ namespace ContractConfigurator
                                 details.enabled = ConfigNodeUtil.ParseValue<bool>(stateNode, "enabled");
 
                                 stockContractDetails[contractType] = details;
+
+                                ContractDisabler.SetContractState(contractType, details.enabled);
                             }
                             catch (ArgumentException)
                             {
