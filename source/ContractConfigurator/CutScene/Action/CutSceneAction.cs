@@ -9,11 +9,18 @@ namespace ContractConfigurator.CutScene
     /// <summary>
     /// A generic cut scene action.
     /// </summary>
-    public abstract class CutSceneAction
+    public abstract class CutSceneAction : CutSceneItem
     {
         public bool async = false;
         public CutSceneExecutor executor;
         public CutSceneDefinition cutSceneDefinition;
+
+        public abstract string Name();
+        public abstract string Description();
+        public string FullDescription()
+        {
+            return Name() + " (" + Description() + ")";
+        }
 
         /// <summary>
         /// Invoke the action required.  This should return fairly quickly, and any logic that
@@ -47,6 +54,9 @@ namespace ContractConfigurator.CutScene
         /// Called from the Unity OnDestroy function.
         /// </summary>
         public virtual void OnDestroy()
+        {
+        }
+        public void Draw()
         {
         }
 

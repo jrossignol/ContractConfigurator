@@ -13,6 +13,16 @@ namespace ContractConfigurator.CutScene
     {
         public string cameraName;
 
+        public override string Name()
+        {
+            return "Camera: Set Current Camera";
+        }
+
+        public override string Description()
+        {
+            return cameraName;
+        }
+
         public override void InvokeAction()
         {
             cutSceneDefinition.camera(cameraName).MakeActive();

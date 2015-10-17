@@ -10,6 +10,11 @@ namespace ContractConfigurator.CutScene
     {
         public string kerbalName;
 
+        public override string Name()
+        {
+            return "EVA Kerbal";
+        }
+
         public override void OnSave(ConfigNode configNode)
         {
             base.OnSave(configNode);

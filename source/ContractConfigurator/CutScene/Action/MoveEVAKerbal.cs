@@ -34,6 +34,16 @@ namespace ContractConfigurator.CutScene
         private float lastDist = float.MaxValue;
         private bool done = false;
 
+        public override string Name()
+        {
+            return "EVA Kerbal: Move";
+        }
+
+        public override string Description()
+        {
+            return actorName;
+        }
+
         public override void InvokeAction()
         {
             // Store a transform for the destination position

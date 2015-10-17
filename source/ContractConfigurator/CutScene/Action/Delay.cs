@@ -15,6 +15,16 @@ namespace ContractConfigurator.CutScene
 
         protected float endTime;
 
+        public override string Name()
+        {
+            return "Delay";
+        }
+
+        public override string Description()
+        {
+            return delayTime.ToString("n1") + " second" + (delayTime == 1.0f ? "" : "s");
+        }
+
         public override void InvokeAction()
         {
             endTime = UnityEngine.Time.fixedTime + delayTime;

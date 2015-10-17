@@ -16,6 +16,16 @@ namespace ContractConfigurator.CutScene
         public double longitude;
         public double altitude;
 
+        public override string Name()
+        {
+            return "Actor: Position";
+        }
+
+        public override string Description()
+        {
+            return actorName;
+        }
+
         public override void InvokeAction()
         {
             double alt = altitude + LocationUtil.TerrainHeight(latitude, longitude, FlightGlobals.currentMainBody);
