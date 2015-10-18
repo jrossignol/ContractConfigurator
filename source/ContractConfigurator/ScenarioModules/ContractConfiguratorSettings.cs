@@ -393,6 +393,7 @@ namespace ContractConfigurator
 
         public override void OnLoad(ConfigNode node)
         {
+            Debug.Log("ContractConfiguratorSettings.OnLoad");
             try
             {
                 foreach (ConfigNode groupNode in node.GetNodes("CONTRACT_GROUP"))
@@ -416,30 +417,26 @@ namespace ContractConfigurator
 
                 foreach (ConfigNode stateNode in node.GetNodes("CONTRACT_STATE"))
                 {
-                    try
+                    string typeName = stateNode.GetValue("type");
+                    if (!string.IsNullOrEmpty(typeName))
                     {
-                        string typeName = node.GetValue("type");
-                        if (!string.IsNullOrEmpty(typeName))
+                        Type contractType = null;
+                        try
                         {
-                            Type contractType = null;
-                            try
-                            {
-                                contractType = ConfigNodeUtil.ParseTypeValue(typeName);
-                                StockContractDetails details = new StockContractDetails(contractType);
-                                details.enabled = ConfigNodeUtil.ParseValue<bool>(stateNode, "enabled");
+                            contractType = ConfigNodeUtil.ParseTypeValue(typeName);
+                            StockContractDetails details = new StockContractDetails(contractType);
+                            details.enabled = ConfigNodeUtil.ParseValue<bool>(stateNode, "enabled");
 
-                                stockContractDetails[contractType] = details;
+                            stockContractDetails[contractType] = details;
+                            Debug.Log("    Set " + contractType + " to " + details.enabled);
 
-                                ContractDisabler.SetContractState(contractType, details.enabled);
-                            }
-                            catch (ArgumentException)
-                            {
-                                LoggingUtil.LogWarning(this, "Couldn't find contract type with name '" + typeName + "'");
-                            }
+                            ContractDisabler.SetContractState(contractType, details.enabled);
+                        }
+                        catch (ArgumentException)
+                        {
+                            LoggingUtil.LogWarning(this, "Couldn't find contract type with name '" + typeName + "'");
                         }
                     }
-                    // Ignore ArgumentException - handles contracts that were dropped
-                    catch (ArgumentException) { }
                 }
             }
             catch (Exception e)
@@ -464,6 +461,12 @@ namespace ContractConfigurator
 
         private void SeedStockContractDetails()
         {
+            // Enable everything
+            foreach (Type subclass in ContractConfigurator.GetAllTypes<Contract>().Where(t => t != typeof(ConfiguredContract)))
+            {
+                ContractDisabler.SetContractState(subclass, true);
+            }
+
             // Make sure that the initial state has been correctly set
             ContractDisabler.DisableContracts();
 
@@ -471,9 +474,9 @@ namespace ContractConfigurator
             {
                 if (!stockContractDetails.ContainsKey(subclass))
                 {
+                    Debug.Log("    Def " + subclass + " to " + true);
                     stockContractDetails[subclass] = new StockContractDetails(subclass);
                 }
-                StockContractDetails details = stockContractDetails[subclass];
             }
         }
     }
