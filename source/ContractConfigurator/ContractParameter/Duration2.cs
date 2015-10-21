@@ -24,7 +24,7 @@ namespace ContractConfigurator.Parameters
 
         private double lastUpdate = 0.0;
         private bool resetClock = false;
-        private bool checkQueued = false;
+        private double waitTime = double.MaxValue;
 
         private TitleTracker titleTracker = new TitleTracker();
 
@@ -139,7 +139,7 @@ namespace ContractConfigurator.Parameters
             // Queue up a check
             if (contract == Root)
             {
-                checkQueued = true;
+                waitTime = Time.fixedTime + 0.2;
             }
         }
 
@@ -148,9 +148,9 @@ namespace ContractConfigurator.Parameters
             base.OnUpdate();
 
             // Do a check to see if we need to play with the end time
-            if (checkQueued)
+            if (waitTime < Time.fixedTime)
             {
-                checkQueued = false;
+                waitTime = double.MaxValue;
 
                 bool completed = true;
                 foreach (ContractParameter child in Parent.GetChildren())
