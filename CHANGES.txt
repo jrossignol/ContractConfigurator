@@ -3,6 +3,7 @@ Contract Configurator 1.7.7
 - Fixed issue with double() and other cast functions not working when casting from a non-numeric type (thanks chrisl).
 - Fixed issue with disabled contracts not actually staying disabled (thanks DeCi & Svm420).
 - Additional fixes to Duration reset issues (thanks chrisl).
+- Additional error handling in string parsing for expressions.
 
 Contract Configurator 1.7.6
 - Added Reputation() function to get the player's current reputation.

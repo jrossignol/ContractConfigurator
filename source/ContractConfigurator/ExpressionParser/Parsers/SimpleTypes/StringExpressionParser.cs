@@ -144,7 +144,24 @@ namespace ContractConfigurator.ExpressionParser
                         }
                         expression = expression.Substring(functionIndex);
                         Token t = ParseToken();
-                        value += ParseMethod<string>(t, null, true);
+
+                        bool canParse = false;
+                        try
+                        {
+                            Function selectedMethod = null;
+                            GetCalledFunction(t.sval, ref selectedMethod, true);
+                            canParse = true;
+                        }
+                        catch { }
+
+                        if (canParse)
+                        {
+                            value += ParseMethod<string>(t, null, true);
+                        }
+                        else
+                        {
+                            value += t.sval;
+                        }
                     }
                     else if (specialIdentifierIndex >= 0)
                     {
