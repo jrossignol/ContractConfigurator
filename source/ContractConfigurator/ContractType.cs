@@ -176,9 +176,9 @@ namespace ContractConfigurator
                 valid &= ConfigNodeUtil.ParseValue<string>(configNode, "title", x => title = x, this);
                 valid &= ConfigNodeUtil.ParseValue<string>(configNode, "tag", x => tag = x, this, "");
                 valid &= ConfigNodeUtil.ParseValue<string>(configNode, "description", x => description = x, this, (string)null);
-                valid &= ConfigNodeUtil.ParseValue<string>(configNode, "topic", x => topic = x, this, (string)null);
-                valid &= ConfigNodeUtil.ParseValue<string>(configNode, "subject", x => subject = x, this, (string)null);
-                valid &= ConfigNodeUtil.ParseValue<string>(configNode, "motivation", x => motivation = x, this, (string)null);
+                valid &= ConfigNodeUtil.ParseValue<string>(configNode, "topic", x => topic = x, this, "");
+                valid &= ConfigNodeUtil.ParseValue<string>(configNode, "subject", x => subject = x, this, "");
+                valid &= ConfigNodeUtil.ParseValue<string>(configNode, "motivation", x => motivation = x, this, "");
                 valid &= ConfigNodeUtil.ParseValue<string>(configNode, "notes", x => notes = x, this, (string)null);
                 valid &= ConfigNodeUtil.ParseValue<string>(configNode, "synopsis", x => synopsis = x, this);
                 valid &= ConfigNodeUtil.ParseValue<string>(configNode, "completedMessage", x => completedMessage = x, this);
@@ -338,8 +338,16 @@ namespace ContractConfigurator
         /// <returns>Whether the contract can be offered.</returns>
         public bool MeetBasicRequirements(ConfiguredContract contract)
         {
+            LoggingUtil.LogLevel origLogLevel = LoggingUtil.logLevel;
             try
             {
+                // Turn tracing on
+                if (trace)
+                {
+                    LoggingUtil.logLevel = LoggingUtil.LogLevel.VERBOSE;
+                    LoggingUtil.LogWarning(this, "Tracing enabled for contract type " + name);
+                }
+
                 // Check expiry
                 if (contract.ContractState == Contract.State.Withdrawn && Planetarium.fetch != null &&
                     contract.DateExpire < Planetarium.fetch.time)
@@ -413,6 +421,11 @@ namespace ContractConfigurator
                 LoggingUtil.LogError(this, "Exception while attempting to check requirements of contract type " + name);
                 throw;
             }
+            finally
+            {
+                LoggingUtil.logLevel = origLogLevel;
+                loaded = true;
+            }
         }
         
         /// <summary>
@@ -422,8 +435,16 @@ namespace ContractConfigurator
         /// <returns>Whether the contract can be offered.</returns>
         public bool MeetExtendedRequirements(ConfiguredContract contract)
         {
+            LoggingUtil.LogLevel origLogLevel = LoggingUtil.logLevel;
             try
             {
+                // Turn tracing on
+                if (trace)
+                {
+                    LoggingUtil.logLevel = LoggingUtil.LogLevel.VERBOSE;
+                    LoggingUtil.LogWarning(this, "Tracing enabled for contract type " + name);
+                }
+
                 // Hash check
                 if (contract.ContractState == Contract.State.Offered && contract.hash != hash)
                 {
@@ -510,7 +531,7 @@ namespace ContractConfigurator
             }
             catch (ContractRequirementException e)
             {
-                LoggingUtil.LogLevel level = contract.ContractState == Contract.State.Active ? LoggingUtil.LogLevel.DEBUG : LoggingUtil.LogLevel.VERBOSE;
+                LoggingUtil.LogLevel level = contract.ContractState == Contract.State.Active ? LoggingUtil.LogLevel.INFO : LoggingUtil.LogLevel.VERBOSE;
                 string prefix = contract.contractType != null ? "Cancelling contract of type " + name + " (" + contract.Title + "): " :
                     "Didn't generate contract type " + name + ": ";
                 LoggingUtil.Log(level, this.GetType(), prefix + e.Message);
@@ -520,6 +541,11 @@ namespace ContractConfigurator
             {
                 LoggingUtil.LogError(this, "Exception while attempting to check requirements of contract type " + name);
                 throw;
+            }
+            finally
+            {
+                LoggingUtil.logLevel = origLogLevel;
+                loaded = true;
             }
         }
 

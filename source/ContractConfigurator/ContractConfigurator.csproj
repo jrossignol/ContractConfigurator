@@ -33,7 +33,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Assembly-CSharp">
-      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Kerbal Space Program\KSP_Data\Managed\Assembly-CSharp.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Kerbal Space Program\KSP_Data\Managed\Assembly-CSharp.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -42,11 +42,12 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
     <Reference Include="UnityEngine">
-      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Kerbal Space Program\KSP_Data\Managed\UnityEngine.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Kerbal Space Program\KSP_Data\Managed\UnityEngine.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BehaviourFactory\AwardExperienceFactory.cs" />
+    <Compile Include="BehaviourFactory\RunCutSceneFactory.cs" />
     <Compile Include="BehaviourFactory\ChangeVesselOwnershipFactory.cs" />
     <Compile Include="BehaviourFactory\DestroyVesselFactory.cs" />
     <Compile Include="BehaviourFactory\DialogBoxFactory.cs" />
@@ -62,7 +63,9 @@
     <Compile Include="BehaviourFactory\UnlockTechFactory.cs" />
     <Compile Include="BehaviourFactory\WaypointGeneratorFactory.cs" />
     <Compile Include="BehaviourFactory\SpawnKerbalFactory.cs" />
+    <Compile Include="ContractBehaviour\PartTestHandler.cs" />
     <Compile Include="ContractBehaviour\AwardExperience.cs" />
+    <Compile Include="ContractBehaviour\RunCutScene.cs" />
     <Compile Include="ContractBehaviour\DestroyVessel.cs" />
     <Compile Include="ContractBehaviour\TriggeredBehaviour.cs" />
     <Compile Include="ContractBehaviour\ChangeVesselOwnership.cs" />
@@ -105,7 +108,6 @@
     <Compile Include="ContractParameter\VesselParameter\IsNotVessel.cs" />
     <Compile Include="ContractParameter\VesselParameter\ReachState.cs" />
     <Compile Include="ContractRequirement\AcceptContractRequirement.cs" />
-    <Compile Include="ContractRequirement\HasCrewRequirement.cs" />
     <Compile Include="ContractRequirement\InvalidContractRequirement.cs" />
     <Compile Include="ContractRequirement\PartModuleTypeUnlockedRequirement.cs" />
     <Compile Include="ContractRequirement\PerformOrbitalSurveyRequirement.cs" />
@@ -116,8 +118,22 @@
     <Compile Include="ContractRequirement\FundsRequirement.cs" />
     <Compile Include="ContractGroup.cs" />
     <Compile Include="ContractRequirement\CanResearchTechRequirement.cs" />
+    <Compile Include="CutScene\Action\MoveEVAKerbal.cs" />
+    <Compile Include="CutScene\Action\PositionActor.cs" />
+    <Compile Include="CutScene\Action\SetCamera.cs" />
+    <Compile Include="CutScene\Action\Delay.cs" />
+    <Compile Include="CutScene\Action\CutSceneAction.cs" />
+    <Compile Include="CutScene\Actor\KerbalActor.cs" />
+    <Compile Include="CutScene\Actor\Actor.cs" />
+    <Compile Include="CutScene\Camera\FixedCamera.cs" />
+    <Compile Include="CutScene\Camera\CutSceneCamera.cs" />
+    <Compile Include="CutScene\CutSceneConfigurator.cs" />
+    <Compile Include="CutScene\CutSceneDefinition.cs" />
+    <Compile Include="CutScene\CutSceneExecutor.cs" />
+    <Compile Include="CutScene\CutSceneItem.cs" />
     <Compile Include="ExpressionParser\Parsers\Classes\TechParser.cs" />
     <Compile Include="ExpressionParser\Wrappers\Tech.cs" />
+    <Compile Include="ParameterFactory\HasResourceCapacityFactory.cs" />
     <Compile Include="ParameterFactory\NewVesselFactory.cs" />
     <Compile Include="ParameterFactory\RecoverVesselFactory.cs" />
     <Compile Include="ParameterFactory\SCANsatCoverageFactory.cs" />
@@ -281,7 +297,8 @@
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy /y "$(TargetPath)" "$(SolutionDir)..\GameData\ContractConfigurator\"</PostBuildEvent>
+    <PostBuildEvent>copy /y "$(TargetPath)" "$(SolutionDir)..\GameData\ContractConfigurator\"
+copy /y "$(TargetPath)" "C:\Program Files (x86)\Kerbal Space Program\GameData\ContractConfigurator\"</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

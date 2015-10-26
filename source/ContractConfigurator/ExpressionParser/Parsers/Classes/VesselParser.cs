@@ -186,6 +186,11 @@ namespace ContractConfigurator.ExpressionParser
             }
             else if (typeof(U) == typeof(VesselIdentifier))
             {
+                if (value == null)
+                {
+                    return default(U);
+                }
+
                 if (!parseMode)
                 {
                     ContractVesselTracker.Instance.AssociateVessel(value.vesselName, value);

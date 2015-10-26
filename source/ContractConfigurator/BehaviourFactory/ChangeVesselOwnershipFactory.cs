@@ -22,28 +22,39 @@ namespace ContractConfigurator.Behaviour
             // Load base class
             bool valid = base.Load(configNode);
 
-            bool stateLoadValid = ConfigNodeUtil.ParseValue<TriggeredBehaviour.State>(configNode, "onState", x => onState = x, this, TriggeredBehaviour.State.PARAMETER_COMPLETED);
-            if (!stateLoadValid)
+            if (configNode.HasValue("onState"))
             {
-                LoggingUtil.LogWarning(this, "Warning, values for onState have changed - attempting to load using obsolete values.");
-                valid &= ConfigNodeUtil.ParseValue<TriggeredBehaviour.LegacyState>(configNode, "onState", x =>
+                try
                 {
-                    switch (x)
+                    Enum.Parse(typeof(TriggeredBehaviour.LegacyState), configNode.GetValue("onState"));
+                    LoggingUtil.LogWarning(this, "Warning, values for onState have changed - attempting to load using obsolete values.");
+                    valid &= ConfigNodeUtil.ParseValue<TriggeredBehaviour.LegacyState>(configNode, "onState", x =>
                     {
-                        case TriggeredBehaviour.LegacyState.ContractAccepted:
-                            onState = TriggeredBehaviour.State.CONTRACT_ACCEPTED;
-                            break;
-                        case TriggeredBehaviour.LegacyState.ContractCompletedFailure:
-                            onState = TriggeredBehaviour.State.CONTRACT_FAILED;
-                            break;
-                        case TriggeredBehaviour.LegacyState.ContractCompletedSuccess:
-                            onState = TriggeredBehaviour.State.CONTRACT_SUCCESS;
-                            break;
-                        case TriggeredBehaviour.LegacyState.ParameterCompleted:
-                            onState = TriggeredBehaviour.State.PARAMETER_COMPLETED;
-                            break;
-                    }
-                }, this);
+                        switch (x)
+                        {
+                            case TriggeredBehaviour.LegacyState.ContractAccepted:
+                                onState = TriggeredBehaviour.State.CONTRACT_ACCEPTED;
+                                break;
+                            case TriggeredBehaviour.LegacyState.ContractCompletedFailure:
+                                onState = TriggeredBehaviour.State.CONTRACT_FAILED;
+                                break;
+                            case TriggeredBehaviour.LegacyState.ContractCompletedSuccess:
+                                onState = TriggeredBehaviour.State.CONTRACT_SUCCESS;
+                                break;
+                            case TriggeredBehaviour.LegacyState.ParameterCompleted:
+                                onState = TriggeredBehaviour.State.PARAMETER_COMPLETED;
+                                break;
+                        }
+                    }, this);
+                }
+                catch
+                {
+                    valid &= ConfigNodeUtil.ParseValue<TriggeredBehaviour.State>(configNode, "onState", x => onState = x, this, TriggeredBehaviour.State.PARAMETER_COMPLETED);
+                }
+            }
+            else
+            {
+                valid &= ConfigNodeUtil.ParseValue<TriggeredBehaviour.State>(configNode, "onState", x => onState = x, this, TriggeredBehaviour.State.PARAMETER_COMPLETED);
             }
 
             valid &= ConfigNodeUtil.ParseValue<bool?>(configNode, "owned", x => owned = x.Value, this, (bool?)true);

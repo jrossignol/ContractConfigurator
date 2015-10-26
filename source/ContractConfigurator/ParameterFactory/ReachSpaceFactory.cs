@@ -12,10 +12,12 @@ namespace ContractConfigurator
     /// <summary>
     /// ParameterFactory wrapper for ReachSpace ContractParameter.
     /// </summary>
+    [Obsolete("ReachSpace is obsolete since Contract Configurator 1.7.7, use ReachState instead.")]
     public class ReachSpaceFactory : ParameterFactory
     {
         public override ContractParameter Generate(Contract contract)
         {
+            LoggingUtil.LogWarning(this, "ReachSpace is obsolete since Contract Configurator 1.7.7, use ReachState instead.");
             return new ReachSpaceCustom(title);
         }
     }

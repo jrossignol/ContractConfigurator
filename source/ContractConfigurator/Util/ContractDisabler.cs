@@ -44,7 +44,7 @@ namespace ContractConfigurator
             return SetContractState(contractType, false);
         }
 
-        public static bool  SetContractState(Type contractType, bool enabled)
+        public static bool SetContractState(Type contractType, bool enabled)
         {
             if (!enabled && ContractSystem.ContractTypes.Contains(contractType))
             {

@@ -182,24 +182,19 @@ namespace ContractConfigurator.Parameters
                 }
                 else
                 {
-                    Debug.Log("In multi-list");
                     vesselListParam = new ParameterDelegate<Vessel>("Vessel: Any of the following:", v =>
                     {
                         bool check = VesselCanBeConsidered(v);
                         vesselListParam.SetTitle("Vessel: Any of the following:" + (check ? " " + ParameterDelegate<Vessel>.GetDelegateText(vesselListParam) : ""));
                         return check;
                     });
-                    Debug.Log("    1");
                     vesselListParam.Optional = true;
-                    Debug.Log("    2");
 
                     foreach (string vessel in vesselList)
                     {
-                        Debug.Log("    loop");
                         ContractParameter childParam = new ParameterDelegate<Vessel>(ContractVesselTracker.GetDisplayName(vessel), v => false);
                         vesselListParam.AddParameter(childParam);
                     }
-                    Debug.Log("    done");
 
                     AddParameter(vesselListParam);
                 }
@@ -306,7 +301,6 @@ namespace ContractConfigurator.Parameters
                 oldTrackedVessel = trackedVessel;
 
                 // Set the tracked vessel in delegate parameters
-                Debug.Log("Doing CheckChildConditions for " + id);
                 ParameterDelegate<Vessel>.CheckChildConditions(this, trackedVessel);
             }
 

@@ -71,17 +71,12 @@ namespace ContractConfigurator
 
         void Start()
         {
-            GameEvents.onGUIApplicationLauncherReady.Add(new EventVoid.OnEvent(SetupToolbar));
-            GameEvents.onGUIApplicationLauncherUnreadifying.Add(new EventData<GameScenes>.OnEvent(TeardownToolbar));
-
-            // Manually set up the toolbar, by the time we are started we've already missed the event
             SetupToolbar();
         }
 
         void OnDestroy()
         {
-            GameEvents.onGUIApplicationLauncherReady.Remove(new EventVoid.OnEvent(SetupToolbar));
-            GameEvents.onGUIApplicationLauncherUnreadifying.Remove(new EventData<GameScenes>.OnEvent(TeardownToolbar));
+            TeardownToolbar();
         }
 
         #region Styles
@@ -162,7 +157,7 @@ namespace ContractConfigurator
             }
         }
 
-        private void TeardownToolbar(GameScenes scene)
+        private void TeardownToolbar()
         {
             if (launcherButton != null)
             {
@@ -308,7 +303,7 @@ namespace ContractConfigurator
                         if (disablingGroups.Any())
                         {
                             hintText = subclass.Name + " disabled by: " +
-                                string.Join(", ", disablingGroups.Select(g => g == null ? "unknown" : g.name).ToArray()) + "\n";
+                                string.Join(", ", disablingGroups.Select(g => g == null ? "unknown" : g.displayName).ToArray()) + "\n";
                             hintText += "Click to " + (details.enabled ? "disable " : "re-enable ") + subclass.Name + ".";
                         }
                         else
@@ -398,31 +393,50 @@ namespace ContractConfigurator
 
         public override void OnLoad(ConfigNode node)
         {
+            Debug.Log("ContractConfiguratorSettings.OnLoad");
             try
             {
                 foreach (ConfigNode groupNode in node.GetNodes("CONTRACT_GROUP"))
                 {
-                    ContractGroup group = ConfigNodeUtil.ParseValue<ContractGroup>(groupNode, "group");
+                    string groupName = groupNode.GetValue("group");
 
-                    ContractGroupDetails details = new ContractGroupDetails(group);
-                    details.enabled = ConfigNodeUtil.ParseValue<bool>(groupNode, "enabled");
+                    if (ContractGroup.contractGroups.ContainsKey(groupName))
+                    {
+                        ContractGroup group = ContractGroup.contractGroups[groupName];
 
-                    contractGroupDetails[group.name] = details;
+                        ContractGroupDetails details = new ContractGroupDetails(group);
+                        details.enabled = ConfigNodeUtil.ParseValue<bool>(groupNode, "enabled");
+
+                        contractGroupDetails[group.name] = details;
+                    }
+                    else
+                    {
+                        LoggingUtil.LogWarning(this, "Couldn't find contract group with name '" + groupName + "'");
+                    }
                 }
 
                 foreach (ConfigNode stateNode in node.GetNodes("CONTRACT_STATE"))
                 {
-                    try
+                    string typeName = stateNode.GetValue("type");
+                    if (!string.IsNullOrEmpty(typeName))
                     {
-                        Type contractType = ConfigNodeUtil.ParseValue<Type>(stateNode, "group");
+                        Type contractType = null;
+                        try
+                        {
+                            contractType = ConfigNodeUtil.ParseTypeValue(typeName);
+                            StockContractDetails details = new StockContractDetails(contractType);
+                            details.enabled = ConfigNodeUtil.ParseValue<bool>(stateNode, "enabled");
 
-                        StockContractDetails details = new StockContractDetails(contractType);
-                        details.enabled = ConfigNodeUtil.ParseValue<bool>(stateNode, "enabled");
+                            stockContractDetails[contractType] = details;
+                            Debug.Log("    Set " + contractType + " to " + details.enabled);
 
-                        stockContractDetails[contractType] = details;
+                            ContractDisabler.SetContractState(contractType, details.enabled);
+                        }
+                        catch (ArgumentException)
+                        {
+                            LoggingUtil.LogWarning(this, "Couldn't find contract type with name '" + typeName + "'");
+                        }
                     }
-                    // Ignore ArgumentException - handles contracts that were dropped
-                    catch (ArgumentException) { }
                 }
             }
             catch (Exception e)
@@ -447,6 +461,12 @@ namespace ContractConfigurator
 
         private void SeedStockContractDetails()
         {
+            // Enable everything
+            foreach (Type subclass in ContractConfigurator.GetAllTypes<Contract>().Where(t => t != typeof(ConfiguredContract)))
+            {
+                ContractDisabler.SetContractState(subclass, true);
+            }
+
             // Make sure that the initial state has been correctly set
             ContractDisabler.DisableContracts();
 
@@ -454,9 +474,9 @@ namespace ContractConfigurator
             {
                 if (!stockContractDetails.ContainsKey(subclass))
                 {
+                    Debug.Log("    Def " + subclass + " to " + true);
                     stockContractDetails[subclass] = new StockContractDetails(subclass);
                 }
-                StockContractDetails details = stockContractDetails[subclass];
             }
         }
     }

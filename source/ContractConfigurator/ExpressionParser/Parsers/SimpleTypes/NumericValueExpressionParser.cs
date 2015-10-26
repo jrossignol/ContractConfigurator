@@ -120,27 +120,33 @@ namespace ContractConfigurator.ExpressionParser
             if (typeof(T) == typeof(int))
             {
                 calculator = new IntCalculator() as Calculator<T>;
+                RegisterGlobalFunction(new Function<int, int>("int", val => val));
             }
             else if (typeof(T) == typeof(long))
             {
                 calculator = new LongCalculator() as Calculator<T>;
+                RegisterGlobalFunction(new Function<long, long>("long", val => val));
             }
             else if (typeof(T) == typeof(uint))
             {
                 calculator = new UIntCalculator() as Calculator<T>;
+                RegisterGlobalFunction(new Function<uint, uint>("uint", val => val));
             }
             else if (typeof(T) == typeof(ulong))
             {
                 calculator = new ULongCalculator() as Calculator<T>;
+                RegisterGlobalFunction(new Function<ulong, ulong>("ulong", val => val));
             }
             else if (typeof(T) == typeof(float))
             {
                 calculator = new FloatCalculator() as Calculator<T>;
+                RegisterGlobalFunction(new Function<float, float>("float", val => val));
             }
             else if (typeof(T) == typeof(double))
             {
                 calculator = new DoubleCalculator() as Calculator<T>;
                 RegisterGlobalFunction(new Function<double>("UniversalTime", () => Planetarium.GetUniversalTime(), false));
+                RegisterGlobalFunction(new Function<double, double>("double", val => val));
             }
 
             RegisterLocalFunction(new Function<T>("Random", () => (T)Convert.ChangeType(random.NextDouble(), typeof(T)), false));
@@ -153,13 +159,6 @@ namespace ContractConfigurator.ExpressionParser
 
             RegisterLocalFunction(new Function<T, T>("Round", Round));
             RegisterLocalFunction(new Function<T, T, T>("Round", Round));
-
-            RegisterGlobalFunction(new Function<T, int>("int", val => (int)Convert.ChangeType(val, typeof(int))));
-            RegisterGlobalFunction(new Function<T, long>("long", val => (long)Convert.ChangeType(val, typeof(long))));
-            RegisterGlobalFunction(new Function<T, uint>("uint", val => (uint)Convert.ChangeType(val, typeof(uint))));
-            RegisterGlobalFunction(new Function<T, ulong>("ulong", val => (ulong)Convert.ChangeType(val, typeof(ulong))));
-            RegisterGlobalFunction(new Function<T, float>("float", val => (float)Convert.ChangeType(val, typeof(float))));
-            RegisterGlobalFunction(new Function<T, double>("double", val => (double)Convert.ChangeType(val, typeof(double))));
 
             RegisterMethod(new Method<T, string>("Print", (tval) =>
             {

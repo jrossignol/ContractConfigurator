@@ -326,6 +326,14 @@ namespace ContractConfigurator
             {
                 value = (T)(object)ParseVesselValue(stringValue);
             }
+            else if (typeof(T) == typeof(Vector3))
+            {
+                string[] vals = stringValue.Split(new char[] { ',' });
+                float x = (float)Convert.ChangeType(vals[0], typeof(float));
+                float y = (float)Convert.ChangeType(vals[1], typeof(float));
+                float z = (float)Convert.ChangeType(vals[2], typeof(float));
+                value = (T)(object)new Vector3(x, y, z);
+            }
             else if (typeof(T) == typeof(Vector3d))
             {
                 string[] vals = stringValue.Split(new char[] { ',' });

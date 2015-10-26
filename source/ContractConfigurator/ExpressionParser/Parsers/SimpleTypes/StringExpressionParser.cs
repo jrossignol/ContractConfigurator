@@ -88,13 +88,16 @@ namespace ContractConfigurator.ExpressionParser
 
                 while (expression.Length > 0)
                 {
-                    // Look for identifiers
+                    // Look for special identifiers
                     int specialIdentifierIndex = expression.IndexOf("@");
-                    int dataStoreIdentifierIndex = expression.IndexOf("$");
+
+                    // Look for data store identifiers
+                    Match m = Regex.Match(expression, @"\$[A-Za-z]");
+                    int dataStoreIdentifierIndex = m.Success ? m.Index : -1;
 
                     // Look for function calls
-                    Match m = Regex.Match(expression, @"(\A|\s)\w[\w\d]*\(");
-                    int functionIndex = m.Index;
+                    m = Regex.Match(expression, @"(\A|\s)\w[\w\d]*\(");
+                    int functionIndex = m == Match.Empty ? -1 : m.Index;
 
                     // Look for an end quote
                     int quoteIndex = quoted ? expression.IndexOf('"') : -1;
@@ -141,7 +144,24 @@ namespace ContractConfigurator.ExpressionParser
                         }
                         expression = expression.Substring(functionIndex);
                         Token t = ParseToken();
-                        value += ParseMethod<string>(t, null, true);
+
+                        bool canParse = false;
+                        try
+                        {
+                            Function selectedMethod = null;
+                            GetCalledFunction(t.sval, ref selectedMethod, true);
+                            canParse = true;
+                        }
+                        catch { }
+
+                        if (canParse)
+                        {
+                            value += ParseMethod<string>(t, null, true);
+                        }
+                        else
+                        {
+                            value += t.sval;
+                        }
                     }
                     else if (specialIdentifierIndex >= 0)
                     {

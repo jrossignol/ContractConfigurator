@@ -36,6 +36,7 @@ namespace ContractConfigurator.Behaviour
 
         private State onState;
         private List<string> parameter;
+        private bool triggered = false;
 
         public TriggeredBehaviour()
         {
@@ -89,11 +90,12 @@ namespace ContractConfigurator.Behaviour
 
         protected override void OnParameterStateChange(ContractParameter param)
         {
-            if (parameter.Contains(param.ID))
+            if (parameter.Contains(param.ID) && !triggered)
             {
                 if (onState == State.PARAMETER_COMPLETED && param.State == ParameterState.Complete ||
                     onState == State.PARAMETER_FAILED && param.State == ParameterState.Failed)
                 {
+                    triggered = true;
                     TriggerAction();
                 }
             }

@@ -1,3 +1,39 @@
+Contract Configurator 1.7.7
+- Fixed issues with PartTest parameter not making the "Run Test" option show up on parts to be tested (thanks Sticky32).
+- Fixed issue with double() and other cast functions not working when casting from a non-numeric type (thanks chrisl).
+- Fixed issue with disabled contracts not actually staying disabled (thanks DeCi & Svm420).
+- Additional fixes to Duration reset issues (thanks chrisl).
+- Additional error handling in string parsing for expressions.
+
+Contract Configurator 1.7.6
+- Added Reputation() function to get the player's current reputation.
+- Fixed issue with Duration parameter possibly resetting state incorrectly when switching scenes/vessels (thanks chrisl).
+- Minor cleanup of science experiment definitions.
+- Improved error handling for rare contract pre-loader load exceptions (thanks Laffe).
+
+Contract Configurator 1.7.5
+- Fixed further issues with FacilityRequirement checks outside of space center (thanks qm3ster).
+- Fixed bug in contract text generator when the topic/subject/motivation aren't all specified (thanks Sebi99p).
+
+Contract Configurator 1.7.5
+- Added HasResourceCapacity parameter.
+- Added Round function for Duration class.
+- Fixed issue with hidden parameters in a sequence not unhiding in Contracts Window +.
+- Fixed issue with Duration parameter when not used with VesselParameterGroup (thanks master18).
+- Fixed issue with handling of $ character in strings (thanks ManuxKerb).
+
+Contract Configurator 1.7.4
+- Improved Sigma Binary support (contracts won't get offered for barycenters unless they've been specifically written with that in mind).
+- Changed triggers for Message behaviour to make consistent with other similar behaviours.
+- Fixed issue with loading settings when a contract pack is removed (thanks hyper1on).
+- Fixed duplication issue with settings app launcher icon (thanks ObsessedWithKSP).
+- Fixed issues with hidden parameters being a little to aggressive in hiding children.
+- Fixed completely broken Exclude and ExcludeAll methods (whoops).
+- Fixed FacilityRequirement to actually work outside the space center.
+- Fixed rare contract load exception from part modules without a name field.
+- Fixed issue with conversions from Vessel to VesselIdentifier (thanks severedsolo).
+- Fixed errors in log from loading using legacy values on ChangeVesselOwnership and other behaviours.  Now correctly outputs a warning.
+
 Contract Configurator 1.7.3
 - Added Round() function for rounding numeric values.
 - Contracts will now expire out of the pre-loader after a few Kerbin days.  Help prevent contracts that may no longer be valid from being generated.

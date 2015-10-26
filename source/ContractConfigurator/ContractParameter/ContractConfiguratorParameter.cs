@@ -18,22 +18,7 @@ namespace ContractConfigurator.Parameters
         public string notes;
         public bool completeInSequence;
         public bool hideChildren;
-        public bool hidden
-        {
-            set
-            {
-                _hidden = value;
-                if (value)
-                {
-                    hideChildren = true;
-                }
-            }
-            get
-            {
-                return _hidden;
-            }
-        }
-        private bool _hidden = false;
+        public bool hidden { get; set; }
         protected bool fakeFailures = false;
 
         public ContractConfiguratorParameter()
@@ -51,6 +36,15 @@ namespace ContractConfigurator.Parameters
             if (hidden)
             {
                 return "";
+            }
+            
+            if (Parent != null)
+            {
+                ContractConfiguratorParameter ccpParent = Parent as ContractConfiguratorParameter;
+                if (ccpParent != null && ccpParent.hideChildren)
+                {
+                    return "";
+                }
             }
 
             return (optional && string.IsNullOrEmpty(title) ? "(Optional) " : "") + GetParameterTitle();
@@ -142,18 +136,6 @@ namespace ContractConfigurator.Parameters
                 completeInSequence = ConfigNodeUtil.ParseValue<bool?>(node, "completeInSequence", (bool?)false).Value;
                 fakeFailures = ConfigNodeUtil.ParseValue<bool?>(node, "fakeFailures", (bool?)false).Value;
                 OnParameterLoad(node);
-
-                if (hideChildren)
-                {
-                    foreach (ContractParameter p in this.GetChildren())
-                    {
-                        ContractConfiguratorParameter ccParam = p as ContractConfiguratorParameter;
-                        if (ccParam != null)
-                        {
-                            ccParam.Hide();
-                        }
-                    }
-                }
             }
             catch (Exception e)
             {

@@ -44,7 +44,7 @@ namespace ContractConfigurator
 
         public override ContractParameter Generate(Contract contract)
         {
-            return new HasResource(filters, title);
+            return new HasResource(filters, false, title);
         }
     }
 }

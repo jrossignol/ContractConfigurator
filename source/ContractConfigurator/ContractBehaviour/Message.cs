@@ -18,7 +18,9 @@ namespace ContractConfigurator.Behaviour
         {
             public enum Condition
             {
+                CONTRACT_ACCEPTED,
                 CONTRACT_FAILED,
+                CONTRACT_SUCCESS,
                 CONTRACT_COMPLETED,
                 PARAMETER_FAILED,
                 PARAMETER_COMPLETED
@@ -55,27 +57,49 @@ namespace ContractConfigurator.Behaviour
                 return;
             }
 
-            foreach (ConditionDetail cd in conditions.Where(cd => !cd.disabled && cd.condition == cond && cd.parameter == param.ID))
-            {
-                DisplayMessage(title, message, param.State == ParameterState.Complete ? MessageSystemButton.MessageButtonColor.GREEN : MessageSystemButton.MessageButtonColor.RED);
-                cd.disabled = true;
-            }
+            DisplayMessages(cond, param.ID,param.State == ParameterState.Complete ?
+                MessageSystemButton.MessageButtonColor.GREEN : MessageSystemButton.MessageButtonColor.RED);
+        }
+
+        protected override void OnAccepted()
+        {
+            DisplayMessages(ConditionDetail.Condition.CONTRACT_ACCEPTED);
         }
 
         protected override void OnCompleted()
         {
-            foreach (ConditionDetail cd in conditions.Where(cd => !cd.disabled && cd.condition == ConditionDetail.Condition.CONTRACT_COMPLETED))
-            {
-                DisplayMessage(title, message);
-                cd.disabled = true;
-            }
+            DisplayMessages(ConditionDetail.Condition.CONTRACT_SUCCESS);
+            DisplayMessages(ConditionDetail.Condition.CONTRACT_COMPLETED);
+        }
+
+        protected override void OnCancelled()
+        {
+            DisplayMessages(ConditionDetail.Condition.CONTRACT_FAILED, MessageSystemButton.MessageButtonColor.RED);
+            DisplayMessages(ConditionDetail.Condition.CONTRACT_COMPLETED);
+        }
+
+        protected override void OnDeadlineExpired()
+        {
+            DisplayMessages(ConditionDetail.Condition.CONTRACT_FAILED, MessageSystemButton.MessageButtonColor.RED);
+            DisplayMessages(ConditionDetail.Condition.CONTRACT_COMPLETED);
         }
 
         protected override void OnFailed()
         {
-            foreach (ConditionDetail cd in conditions.Where(cd => !cd.disabled && cd.condition == ConditionDetail.Condition.CONTRACT_FAILED))
+            DisplayMessages(ConditionDetail.Condition.CONTRACT_FAILED, MessageSystemButton.MessageButtonColor.RED);
+            DisplayMessages(ConditionDetail.Condition.CONTRACT_COMPLETED);
+        }
+
+        protected void DisplayMessages(ConditionDetail.Condition condition, MessageSystemButton.MessageButtonColor color = MessageSystemButton.MessageButtonColor.GREEN)
+        {
+            DisplayMessages(condition, "", color);
+        }
+
+        protected void DisplayMessages(ConditionDetail.Condition condition, string parameterID, MessageSystemButton.MessageButtonColor color = MessageSystemButton.MessageButtonColor.GREEN)
+        {
+            foreach (ConditionDetail cd in conditions.Where(cd => !cd.disabled && cd.condition == condition && cd.parameter == parameterID))
             {
-                DisplayMessage(title, message, MessageSystemButton.MessageButtonColor.RED);
+                DisplayMessage(title, message, color);
                 cd.disabled = true;
             }
         }
