@@ -1,5 +1,6 @@
 Contract Configurator 1.7.8
 - Fixed issue with timer parameter text not always updating (thanks mer & severedsolo).
+- Fixed issue with timer parameter not always starting up (thanks mer).
 
 Contract Configurator 1.7.7
 - Fixed issues with PartTest parameter not making the "Run Test" option show up on parts to be tested (thanks Sticky32).

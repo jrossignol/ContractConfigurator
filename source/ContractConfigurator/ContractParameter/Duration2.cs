@@ -31,6 +31,8 @@ namespace ContractConfigurator.Parameters
         public Duration2()
             : this(0.0)
         {
+            // Queue up a check on startup
+            waitTime = Time.fixedTime + 0.2;
         }
 
         public Duration2(double duration, string preWaitText = null, string waitingText = null, string completionText = null)
