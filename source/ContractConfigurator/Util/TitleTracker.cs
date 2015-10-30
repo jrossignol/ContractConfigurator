@@ -38,7 +38,6 @@ namespace ContractConfigurator
         /// <param name="newTitle">New title to display</param>
         public void UpdateContractWindow(ContractParameter param, string newTitle)
         {
-            Debug.Log("Doing a text update for " + param.ID + " to " + newTitle);
             // Try to find the cascading list in the contracts window.  Note that we may pick up
             // the ones from the Engineer's report in the VAB/SPH instead - but we don't care about
             // title updates in those scenes anyway.
