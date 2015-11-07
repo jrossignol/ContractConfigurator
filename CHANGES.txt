@@ -3,6 +3,7 @@ Contract Configurator 1.7.8
 - Fixed issue with timer parameter not always starting up (thanks mer).
 - Fixed issue with contracts not being correctly disabled when requested (thanks severedsolo).
 - Fixed minTerrainAltitude and maxTerrainAltitude to check terrain altitude and not ASL (thanks space-is-hard).
+- Fixed issue with interaction between SpawnKerbal and RecoverKerbal causing exception that didn't clean up Kerbals (thanks arilm21).
 - Minor bug fixes.
 
 Contract Configurator 1.7.7
