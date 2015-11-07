@@ -263,7 +263,7 @@ namespace ContractConfigurator.Behaviour
                 {
                     SpecificOrbitParameter s = GetOrbitParameter(obData.index);
                     s.setVisible(true);
-                    s.updateMapIcons(CelestialUtilities.MapFocusBody() == obData.orbit.referenceBody);
+                    s.UpdateWaypoints(CelestialUtilities.MapFocusBody() == obData.orbit.referenceBody);
                 }
             }
             else if (contract.ContractState == Contract.State.Withdrawn)
