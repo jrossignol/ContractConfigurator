@@ -428,7 +428,6 @@ namespace ContractConfigurator
                             details.enabled = ConfigNodeUtil.ParseValue<bool>(stateNode, "enabled");
 
                             stockContractDetails[contractType] = details;
-                            Debug.Log("    Set " + contractType + " to " + details.enabled);
 
                             ContractDisabler.SetContractState(contractType, details.enabled);
                         }
@@ -474,8 +473,11 @@ namespace ContractConfigurator
             {
                 if (!stockContractDetails.ContainsKey(subclass))
                 {
-                    Debug.Log("    Def " + subclass + " to " + true);
                     stockContractDetails[subclass] = new StockContractDetails(subclass);
+                    if (ContractSystem.ContractTypes != null)
+                    {
+                        stockContractDetails[subclass].enabled = ContractSystem.ContractTypes.Any(t => t == subclass);
+                    }
                 }
             }
         }

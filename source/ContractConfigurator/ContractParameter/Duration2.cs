@@ -31,6 +31,8 @@ namespace ContractConfigurator.Parameters
         public Duration2()
             : this(0.0)
         {
+            // Queue up a check on startup
+            waitTime = Time.fixedTime + 0.2;
         }
 
         public Duration2(double duration, string preWaitText = null, string waitingText = null, string completionText = null)
@@ -47,11 +49,11 @@ namespace ContractConfigurator.Parameters
         {
             Vessel currentVessel = CurrentVessel();
 
+            string title = null;
             if (currentVessel != null && endTimes.ContainsKey(currentVessel) && endTimes[currentVessel] > 0.01 ||
                 currentVessel == null && endTime > 0.01)
             {
                 double time = currentVessel != null ? endTimes[currentVessel] : endTime;
-                string title = null;
                 if (time - Planetarium.GetUniversalTime() > 0.0)
                 {
                     title = (waitingText ?? "Time to completion:") + " " + DurationUtil.StringValue(time - Planetarium.GetUniversalTime());
@@ -60,18 +62,18 @@ namespace ContractConfigurator.Parameters
                 {
                     title = completionText ?? "Wait time over";
                 }
-
-                // Add the string that we returned to the titleTracker.  This is used to update
-                // the contract title element in the GUI directly, as it does not support dynamic
-                // text.
-                titleTracker.Add(title);
-
-                return title;
             }
             else
             {
-                return (preWaitText ?? "Waiting time required:") + " " + DurationUtil.StringValue(duration);
+                title = (preWaitText ?? "Waiting time required:") + " " + DurationUtil.StringValue(duration);
             }
+
+            // Add the string that we returned to the titleTracker.  This is used to update
+            // the contract title element in the GUI directly, as it does not support dynamic
+            // text.
+            titleTracker.Add(title);
+
+            return title;
         }
 
         protected override void OnParameterSave(ConfigNode node)

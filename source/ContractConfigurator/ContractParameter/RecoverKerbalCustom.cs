@@ -214,7 +214,7 @@ namespace ContractConfigurator.Parameters
         private void TestConditions()
         {
             // Retest the conditions
-            bool success = ParameterDelegate<string>.CheckChildConditions(this, "");
+            bool success = ParameterDelegate<string>.CheckChildConditions(this, "") && ParameterCount > 0;
             if (ChildChanged || success)
             {
                 ChildChanged = false;

@@ -128,7 +128,7 @@ namespace ContractConfigurator.Parameters
                     output += "Between " + minTerrainAltitude.ToString("N0") + " m and " + maxTerrainAltitude.ToString("N0") + " m";
                 }
 
-                AddParameter(new ParameterDelegate<Vessel>(output, v => v.altitude >= minTerrainAltitude && v.altitude <= maxTerrainAltitude));
+                AddParameter(new ParameterDelegate<Vessel>(output, v => v.heightFromTerrain >= minTerrainAltitude && v.heightFromTerrain <= maxTerrainAltitude));
             }
 
             // Filter for speed
