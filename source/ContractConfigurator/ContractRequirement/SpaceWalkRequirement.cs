@@ -8,14 +8,14 @@ using KSPAchievements;
 
 namespace ContractConfigurator
 {
-    /*
-     * ContractRequirement to provide requirement for player having done a spacewalk
-     */
+    /// <summary>
+    /// ContractRequirement to provide requirement for player having done a spacewalk
+    /// </summary>
     public class SpacewalkRequirement : ContractRequirement
     {
         public override bool RequirementMet(ConfiguredContract contract)
         {
-            return ProgressTracking.Instance.spacewalk.IsComplete;
+            return ProgressTracking.Instance.celestialBodyHome.spacewalk.IsComplete;
         }
     }
 }
