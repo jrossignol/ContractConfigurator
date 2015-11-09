@@ -1,3 +1,6 @@
+Contract Configurator 1.8.0
+- Support for KSP 1.0.5
+
 Contract Configurator 1.7.8
 - Fixed issue with timer parameter text not always updating (thanks mer & severedsolo).
 - Fixed issue with timer parameter not always starting up (thanks mer).
