@@ -54,7 +54,7 @@ namespace ContractConfigurator.Parameters
         private void OnVesselRecovered(ProtoVessel v)
         {
             // Don't check if we're not ready to complete
-            if (!ReadyToComplete())
+            if (!ReadyToComplete() || v.vesselRef == null)
             {
                 return;
             }
