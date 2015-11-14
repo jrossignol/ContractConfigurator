@@ -1,5 +1,6 @@
 Contract Configurator 1.8.1
 - Fixed issue with index attribute not being recognized in HasPassengers (thanks inigmatus).
+- Fixed issue with speed in KSP never being zero for ReachState (thanks inigmatus).
 - Fixed exception in RecoverVessel when recovering via the VAB when another vessel is on the launchpad.
 
 Contract Configurator 1.8.0
