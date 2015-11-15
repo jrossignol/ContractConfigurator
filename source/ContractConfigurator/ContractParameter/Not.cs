@@ -23,7 +23,6 @@ namespace ContractConfigurator.Parameters
             : base(title)
         {
             disableOnStateChange = true;
-            state = ParameterState.Complete;
         }
 
         protected override string GetParameterTitle()
