@@ -28,14 +28,14 @@ namespace ContractConfigurator.Parameters
 
         private TitleTracker titleTracker = new TitleTracker();
 
-        public Duration2()
+        public Duration()
             : this(0.0)
         {
             // Queue up a check on startup
             waitTime = Time.fixedTime + 0.2;
         }
 
-        public Duration2(double duration, string preWaitText = null, string waitingText = null, string completionText = null)
+        public Duration(double duration, string preWaitText = null, string waitingText = null, string completionText = null)
             : base("")
         {
             this.duration = duration;
