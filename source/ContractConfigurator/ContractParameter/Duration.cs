@@ -12,7 +12,7 @@ namespace ContractConfigurator.Parameters
     /// <summary>
     /// Parameter for ensuring that a certain time must elapse before the contract completes.  Replacement for Duration.
     /// </summary>
-    public class Duration2 : VesselParameter
+    public class Duration : VesselParameter
     {
         protected double duration { get; set; }
         protected string preWaitText { get; set; }
