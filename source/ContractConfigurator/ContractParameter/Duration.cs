@@ -19,7 +19,7 @@ namespace ContractConfigurator.Parameters
         protected string waitingText { get; set; }
         protected string completionText { get; set; }
 
-        private Dictionary<Vessel, double> endTimes = new Dictionary<Vessel, double>();
+        private Dictionary<Guid, double> endTimes = new Dictionary<Guid, double>();
         private double endTime = 0.0;
 
         private double lastUpdate = 0.0;
@@ -50,10 +50,10 @@ namespace ContractConfigurator.Parameters
             Vessel currentVessel = CurrentVessel();
 
             string title = null;
-            if (currentVessel != null && endTimes.ContainsKey(currentVessel) && endTimes[currentVessel] > 0.01 ||
+            if (currentVessel != null && endTimes.ContainsKey(currentVessel.id) && endTimes[currentVessel.id] > 0.01 ||
                 currentVessel == null && endTime > 0.01)
             {
-                double time = currentVessel != null ? endTimes[currentVessel] : endTime;
+                double time = currentVessel != null ? endTimes[currentVessel.id] : endTime;
                 if (time - Planetarium.GetUniversalTime() > 0.0)
                 {
                     title = (waitingText ?? "Time to completion:") + " " + DurationUtil.StringValue(time - Planetarium.GetUniversalTime());
@@ -92,12 +92,12 @@ namespace ContractConfigurator.Parameters
                 node.AddValue("completionText", completionText);
             }
 
-            foreach (KeyValuePair<Vessel, double> pair in endTimes)
+            foreach (KeyValuePair<Guid, double> pair in endTimes)
             {
                 ConfigNode childNode = new ConfigNode("VESSEL_END_TIME");
                 node.AddNode(childNode);
 
-                childNode.AddValue("vessel", pair.Key.id);
+                childNode.AddValue("vessel", pair.Key);
                 childNode.AddValue("endTime", pair.Value);
             }
             node.AddValue("endTime", endTime);
@@ -113,11 +113,11 @@ namespace ContractConfigurator.Parameters
 
             foreach (ConfigNode childNode in node.GetNodes("VESSEL_END_TIME"))
             {
-                Vessel v = ConfigNodeUtil.ParseValue<Vessel>(childNode, "vessel");
-                if (v != null)
+                Guid vesselId = ConfigNodeUtil.ParseValue<Guid>(childNode, "vessel");
+                if (vesselId != null)
                 {
                     double time = ConfigNodeUtil.ParseValue<double>(childNode, "endTime");
-                    endTimes[v] = time;
+                    endTimes[vesselId] = time;
                 }
             }
         }
@@ -182,9 +182,9 @@ namespace ContractConfigurator.Parameters
                 {
                     if (currentVessel != null)
                     {
-                        if (!endTimes.ContainsKey(currentVessel))
+                        if (!endTimes.ContainsKey(currentVessel.id))
                         {
-                            endTimes[currentVessel] = Planetarium.GetUniversalTime() + duration;
+                            endTimes[currentVessel.id] = Planetarium.GetUniversalTime() + duration;
                         }
                     }
                     // Handle case for not under a VesselParameterGroup
@@ -198,9 +198,9 @@ namespace ContractConfigurator.Parameters
                 }
                 else
                 {
-                    if (currentVessel != null && endTimes.ContainsKey(currentVessel))
+                    if (currentVessel != null && endTimes.ContainsKey(currentVessel.id))
                     {
-                        endTimes.Remove(currentVessel);
+                        endTimes.Remove(currentVessel.id);
                     }
                     else if (vpg == null)
                     {
@@ -213,7 +213,7 @@ namespace ContractConfigurator.Parameters
             if (Planetarium.GetUniversalTime() - lastUpdate > 1.0f)
             {
                 Vessel currentVessel = CurrentVessel();
-                double time = currentVessel != null && endTimes.ContainsKey(currentVessel) ? endTimes[currentVessel] : endTime;
+                double time = currentVessel != null && endTimes.ContainsKey(currentVessel.id) ? endTimes[currentVessel.id] : endTime;
                 if (time != 0.0 || resetClock)
                 {
                     lastUpdate = Planetarium.GetUniversalTime();
@@ -237,12 +237,12 @@ namespace ContractConfigurator.Parameters
 
         protected override bool VesselMeetsCondition(Vessel vessel)
         {
-            if (vessel == null || !endTimes.ContainsKey(vessel))
+            if (vessel == null || !endTimes.ContainsKey(vessel.id))
             {
                 return false;
             }
 
-            return Planetarium.GetUniversalTime() > endTimes[vessel];
+            return Planetarium.GetUniversalTime() > endTimes[vessel.id];
         }
     }
 }
