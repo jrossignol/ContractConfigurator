@@ -4,6 +4,7 @@ Contract Configurator 1.8.1
 - Fixed issue with speed in KSP never being zero for ReachState (thanks inigmatus).
 - Fixed exception in RecoverVessel when recovering via the VAB when another vessel is on the launchpad.
 - Fixed issue with timers getting reset in VAB/SPH (thanks chrisl).
+- Removed long-ago deprecated CC_SCANsat.dll (this does not remove SCANsat support).
 
 Contract Configurator 1.8.0
 - Support for KSP 1.0.5
