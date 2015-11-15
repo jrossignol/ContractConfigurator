@@ -80,6 +80,7 @@
     <Compile Include="ContractBehaviour\UnlockTech.cs" />
     <Compile Include="ContractParameter\Duration2.cs" />
     <Compile Include="ContractParameter\HasAstronaut.cs" />
+    <Compile Include="ContractParameter\Not.cs" />
     <Compile Include="ContractParameter\None.cs" />
     <Compile Include="ContractParameter\AtMost.cs" />
     <Compile Include="ContractParameter\AtLeast.cs" />
@@ -135,6 +136,7 @@
     <Compile Include="ExpressionParser\Wrappers\Tech.cs" />
     <Compile Include="ParameterFactory\HasResourceCapacityFactory.cs" />
     <Compile Include="ParameterFactory\NewVesselFactory.cs" />
+    <Compile Include="ParameterFactory\NotFactory.cs" />
     <Compile Include="ParameterFactory\RecoverVesselFactory.cs" />
     <Compile Include="ParameterFactory\SCANsatCoverageFactory.cs" />
     <Compile Include="ScenarioModules\ContractConfiguratorSettings.cs" />
