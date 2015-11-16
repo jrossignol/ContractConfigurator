@@ -31,6 +31,7 @@ namespace ContractConfigurator.Behaviour
             public ProtoCrewMember.KerbalType kerbalType;
             public PQSCity pqsCity = null;
             public Vector3d pqsOffset;
+            public float heading;
 
             public KerbalData() { }
             public KerbalData(KerbalData k)
@@ -49,6 +50,7 @@ namespace ContractConfigurator.Behaviour
                 kerbalType = k.kerbalType;
                 pqsCity = k.pqsCity;
                 pqsOffset = k.pqsOffset;
+                heading = k.heading;
             }
         }
         private List<KerbalData> kerbals = new List<KerbalData>();
@@ -200,6 +202,8 @@ namespace ContractConfigurator.Behaviour
                             valid &= ConfigNodeUtil.ParseValue<double>(child, "lat", x => kerbal.latitude = x, factory);
                             valid &= ConfigNodeUtil.ParseValue<double>(child, "lon", x => kerbal.longitude = x, factory);
                         }
+
+                        valid &= ConfigNodeUtil.ParseValue<float>(child, "heading", x => kerbal.heading = x, factory, 0.0f);
                     }
                     // Get orbit
                     else if (child.HasNode("ORBIT"))
@@ -302,8 +306,9 @@ namespace ContractConfigurator.Behaviour
 
                     // Figure out the appropriate rotation
                     Vector3d norm = kerbal.body.GetRelSurfaceNVector(kerbal.latitude, kerbal.longitude);
-                    Quaternion rotation = Quaternion.LookRotation(new Vector3((float)norm.x, (float)norm.y, (float)norm.z)) *
-                        Quaternion.FromToRotation(Vector3.up, Vector3.forward);
+                    Quaternion normal = Quaternion.LookRotation(new Vector3((float)norm.x, (float)norm.y, (float)norm.z));
+                    Quaternion rotation = Quaternion.FromToRotation(Vector3.up, Vector3.forward);
+                    rotation = rotation * Quaternion.AngleAxis(kerbal.heading + 180, Vector3.up);
 
                     // Create the config node representation of the ProtoVessel
                     protoVesselNode.SetValue("sit", (splashed ? Vessel.Situations.SPLASHED : Vessel.Situations.LANDED).ToString());
@@ -312,7 +317,11 @@ namespace ContractConfigurator.Behaviour
                     protoVesselNode.SetValue("lat", kerbal.latitude.ToString());
                     protoVesselNode.SetValue("lon", kerbal.longitude.ToString());
                     protoVesselNode.SetValue("alt", kerbal.altitude.ToString());
-                    protoVesselNode.SetValue("rot", KSPUtil.WriteQuaternion(rotation));
+                    protoVesselNode.SetValue("rot", KSPUtil.WriteQuaternion(normal * rotation));
+
+                    // Set the normal vector relative to the surface
+                    Vector3 nrm = (rotation * Vector3.forward);
+                    protoVesselNode.SetValue("nrm", nrm.x + "," + nrm.y + "," + nrm.z);
                 }
 
                 // Add vessel to the game
