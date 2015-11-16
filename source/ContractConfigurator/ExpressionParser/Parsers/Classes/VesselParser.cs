@@ -34,6 +34,7 @@ namespace ContractConfigurator.ExpressionParser
 
             RegisterMethod(new Method<Vessel, CelestialBody>("CelestialBody", v => v == null ? null : v.mainBody, false));
             RegisterMethod(new Method<Vessel, VesselType>("VesselType", v => v == null ? VesselType.Unknown : v.vesselType, false));
+            RegisterMethod(new Method<Vessel, string>("VesselName", v => v == null ? "" : v.vesselName, false));
 
             RegisterMethod(new Method<Vessel, double>("Altitude", v => v == null ? 0.0 : v.altitude, false));
 

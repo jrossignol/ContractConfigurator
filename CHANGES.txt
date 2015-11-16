@@ -1,4 +1,7 @@
 Contract Configurator 1.8.1
+- Added Vessel.VesselName() method.
+
+Contract Configurator 1.8.1
 - Added new Not parameter.
 - Can now specify heading in SpawnKerbal.
 - Fixed issue with index attribute not being recognized in HasPassengers (thanks inigmatus).
