@@ -88,6 +88,7 @@
     <Compile Include="ContractParameter\ContractConfiguratorParameter.cs" />
     <Compile Include="ContractParameter\ParameterDelegate.cs" />
     <Compile Include="ContractParameter\PerformOrbitalSurvey.cs" />
+    <Compile Include="ContractParameter\KerbalDeathsCustom.cs" />
     <Compile Include="ContractParameter\RecoverKerbalCustom.cs" />
     <Compile Include="ContractParameter\SCANsatCoverage.cs" />
     <Compile Include="ContractParameter\TargetDestroyed.cs" />

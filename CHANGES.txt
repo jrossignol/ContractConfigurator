@@ -1,5 +1,6 @@
-Contract Configurator 1.8.1
+Contract Configurator 1.8.2
 - Added Vessel.VesselName() method.
+- Added support for title in KerbalDeaths parameter.
 
 Contract Configurator 1.8.1
 - Added new Not parameter.
