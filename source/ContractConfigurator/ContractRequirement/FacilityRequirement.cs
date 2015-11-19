@@ -36,7 +36,7 @@ namespace ContractConfigurator
 
         public override bool RequirementMet(ConfiguredContract contract)
         {
-            int level = ScenarioUpgradeableFacilities.GetFacilityLevelCount(facility);
+            int level = (int)(ScenarioUpgradeableFacilities.GetFacilityLevel(facility) * ScenarioUpgradeableFacilities.GetFacilityLevelCount(facility));
             return level == -1 && contract != null && contract.ContractState == Contracts.Contract.State.Active ||
                 level >= minLevel && level <= maxLevel;
         }
