@@ -182,24 +182,44 @@ namespace ContractConfigurator.ExpressionParser
 
         static double GetApA(Vessel vessel)
         {
+            if (vessel == null)
+            {
+                return 0.0;
+            }
+
             Orbit orbit = vessel.loaded ? vessel.orbit : vessel.protoVessel.orbitSnapShot.Load();
             return orbit.ApA;
         }
 
         static double GetPeA(Vessel vessel)
         {
+            if (vessel == null)
+            {
+                return 0.0;
+            }
+
             Orbit orbit = vessel.loaded ? vessel.orbit : vessel.protoVessel.orbitSnapShot.Load();
             return orbit.PeA;
         }
 
         static double GetInclination(Vessel vessel)
         {
+            if (vessel == null)
+            {
+                return 0.0;
+            }
+
             Orbit orbit = vessel.loaded ? vessel.orbit : vessel.protoVessel.orbitSnapShot.Load();
             return orbit.inclination;
         }
 
         static double GetEccentricity(Vessel vessel)
         {
+            if (vessel == null)
+            {
+                return 0.0;
+            }
+
             Orbit orbit = vessel.loaded ? vessel.orbit : vessel.protoVessel.orbitSnapShot.Load();
             return orbit.eccentricity;
         }
