@@ -53,6 +53,11 @@ namespace ContractConfigurator.ExpressionParser
             RegisterMethod(new Method<Vessel, double>("LargestDimension", GetLargestDimension, false));
             RegisterMethod(new Method<Vessel, Location>("Location", v => v == null ? null : new Location(v.mainBody, v.latitude, v.longitude), false));
 
+            RegisterMethod(new Method<Vessel, double>("OrbitApoapsis", GetApA, false));
+            RegisterMethod(new Method<Vessel, double>("OrbitPeriapsis", GetPeA, false));
+            RegisterMethod(new Method<Vessel, double>("OrbitInclination", GetInclination, false));
+            RegisterMethod(new Method<Vessel, double>("OrbitEccentricity", GetEccentricity, false));
+
             RegisterGlobalFunction(new Function<List<Vessel>>("AllVessels", () => FlightGlobals.Vessels.ToList(), false));
             RegisterGlobalFunction(new Function<Vessel, Vessel>("Vessel", v => v));
         }
@@ -173,6 +178,30 @@ namespace ContractConfigurator.ExpressionParser
         static double GetSmallestDimension(Vessel v)
         {
             return Math.Min(Math.Min(GetXDimension(v), GetYDimension(v)), GetZDimension(v));
+        }
+
+        static double GetApA(Vessel vessel)
+        {
+            Orbit orbit = vessel.loaded ? vessel.orbit : vessel.protoVessel.orbitSnapShot.Load();
+            return orbit.ApA;
+        }
+
+        static double GetPeA(Vessel vessel)
+        {
+            Orbit orbit = vessel.loaded ? vessel.orbit : vessel.protoVessel.orbitSnapShot.Load();
+            return orbit.PeA;
+        }
+
+        static double GetInclination(Vessel vessel)
+        {
+            Orbit orbit = vessel.loaded ? vessel.orbit : vessel.protoVessel.orbitSnapShot.Load();
+            return orbit.inclination;
+        }
+
+        static double GetEccentricity(Vessel vessel)
+        {
+            Orbit orbit = vessel.loaded ? vessel.orbit : vessel.protoVessel.orbitSnapShot.Load();
+            return orbit.eccentricity;
         }
 
         internal override U ConvertType<U>(Vessel value)

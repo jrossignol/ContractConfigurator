@@ -2,6 +2,7 @@ Contract Configurator 1.8.2
 - Added vessel highlighting (from contextual contracts) to TargetDestroyed, Docking, Rendezvous and VesselParameterGroup.
 - Added Vessel.VesselName() method.
 - Added support for title in KerbalDeaths parameter.
+- New orbit methods for Vessel (OrbitApoapsis(), OrbitPeriapsis(), OrbitInclination(), OrbitEccentricity()).
 - Support for showMessages attribute in VisitWaypoint.
 - Fixed issue with FacilityRequirement always thinking the player's facilities were maxed out.
 - Fixed exception in WaypointGenerator for BaseConstruction (thanks dakakeisalie).
