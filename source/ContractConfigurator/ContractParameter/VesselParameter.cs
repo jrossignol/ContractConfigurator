@@ -677,7 +677,7 @@ namespace ContractConfigurator.Parameters
             return vpg == null ? FlightGlobals.ActiveVessel : vpg.TrackedVessel;
         }
 
-        private VesselParameterGroup GetParameterGroupHost()
+        protected VesselParameterGroup GetParameterGroupHost()
         {
             IContractParameterHost host = Parent;
             while (host != Root && !(host is VesselParameterGroup))

@@ -54,9 +54,23 @@ namespace ContractConfigurator.Parameters
         private void OnVesselRecovered(ProtoVessel v)
         {
             // Don't check if we're not ready to complete
-            if (!ReadyToComplete() || v.vesselRef == null)
+            if (!ReadyToComplete())
             {
                 return;
+            }
+
+            // Special handling for null vessel cases
+            if (v.vesselRef == null)
+            {
+                VesselParameterGroup vpg = GetParameterGroupHost();
+                if (vpg == null)
+                {
+                    SetState(ParameterState.Complete);
+                }
+                else
+                {
+
+                }
             }
 
             recovered[v.vesselRef] = true;
