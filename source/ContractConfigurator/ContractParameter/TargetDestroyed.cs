@@ -16,8 +16,10 @@ namespace ContractConfigurator.Parameters
     {
         protected List<string> vessels { get; set; }
 
-        private List<string> destroyedTargets = new List<string>();
         public bool ChildChanged { get; set; }
+
+        private List<string> destroyedTargets = new List<string>();
+        private List<VesselWaypoint> vesselWaypoints = new List<VesselWaypoint>();
 
         public TargetDestroyed()
             : base(null)
@@ -111,6 +113,14 @@ namespace ContractConfigurator.Parameters
             base.OnRegister();
             GameEvents.onVesselWillDestroy.Add(new EventData<Vessel>.OnEvent(OnVesselWillDestroy));
             GameEvents.onVesselWasModified.Add(new EventData<Vessel>.OnEvent(OnVesselWasModified));
+
+            // Add a waypoint for each possible vessel in the list
+            foreach (string vesselKey in vessels)
+            {
+                VesselWaypoint vesselWaypoint = new VesselWaypoint(Root, vesselKey);
+                vesselWaypoints.Add(vesselWaypoint);
+                vesselWaypoint.Register();
+            }
         }
 
         protected override void OnUnregister()
@@ -118,6 +128,11 @@ namespace ContractConfigurator.Parameters
             base.OnUnregister();
             GameEvents.onVesselWillDestroy.Remove(new EventData<Vessel>.OnEvent(OnVesselWillDestroy));
             GameEvents.onVesselWasModified.Add(new EventData<Vessel>.OnEvent(OnVesselWasModified));
+
+            foreach (VesselWaypoint vesselWaypoint in vesselWaypoints)
+            {
+                vesselWaypoint.Unregister();
+            }
         }
 
         protected virtual void OnVesselWillDestroy(Vessel v)

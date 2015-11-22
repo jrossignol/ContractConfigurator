@@ -18,6 +18,7 @@ namespace ContractConfigurator.Parameters
         protected string defineDockedVessel { get; set; }
 
         private Vessel[] dockedVessels = new Vessel[2];
+        private List<VesselWaypoint> vesselWaypoints = new List<VesselWaypoint>();
 
         public Docking()
             : base(null)
@@ -93,12 +94,25 @@ namespace ContractConfigurator.Parameters
         {
             base.OnRegister();
             GameEvents.onVesselDestroy.Add(new EventData<Vessel>.OnEvent(OnVesselDestroy));
+
+            // Add a waypoint for each possible vessel in the list
+            foreach (string vesselKey in vessels)
+            {
+                VesselWaypoint vesselWaypoint = new VesselWaypoint(Root, vesselKey);
+                vesselWaypoints.Add(vesselWaypoint);
+                vesselWaypoint.Register();
+            }
         }
 
         protected override void OnUnregister()
         {
             base.OnUnregister();
             GameEvents.onVesselDestroy.Remove(new EventData<Vessel>.OnEvent(OnVesselDestroy));
+
+            foreach (VesselWaypoint vesselWaypoint in vesselWaypoints)
+            {
+                vesselWaypoint.Unregister();
+            }
         }
 
         protected virtual void OnVesselDestroy(Vessel v)

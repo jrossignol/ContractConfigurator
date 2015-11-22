@@ -20,6 +20,7 @@ namespace ContractConfigurator.Parameters
         private Vessel[] dockedVessels = new Vessel[2];
         private float lastUpdate = 0.0f;
         private const float UPDATE_FREQUENCY = 0.50f;
+        private List<VesselWaypoint> vesselWaypoints = new List<VesselWaypoint>();
 
         public Rendezvous()
             : base(null)
@@ -70,6 +71,29 @@ namespace ContractConfigurator.Parameters
                 output = title;
             }
             return output;
+        }
+
+        protected override void OnRegister()
+        {
+            base.OnRegister();
+
+            // Add a waypoint for each possible vessel in the list
+            foreach (string vesselKey in vessels)
+            {
+                VesselWaypoint vesselWaypoint = new VesselWaypoint(Root, vesselKey);
+                vesselWaypoints.Add(vesselWaypoint);
+                vesselWaypoint.Register();
+            }
+        }
+
+        protected override void OnUnregister()
+        {
+            base.OnUnregister();
+
+            foreach (VesselWaypoint vesselWaypoint in vesselWaypoints)
+            {
+                vesselWaypoint.Unregister();
+            }
         }
 
         protected override void OnParameterSave(ConfigNode node)

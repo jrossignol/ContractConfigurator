@@ -1,4 +1,5 @@
 Contract Configurator 1.8.2
+- Added vessel highlighting (from contextual contracts) to TargetDestroyed, Docking, Rendezvous and VesselParameterGroup.
 - Added Vessel.VesselName() method.
 - Added support for title in KerbalDeaths parameter.
 - Support for showMessages attribute in VisitWaypoint.
