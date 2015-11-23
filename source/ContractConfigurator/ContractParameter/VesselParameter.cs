@@ -674,7 +674,7 @@ namespace ContractConfigurator.Parameters
         protected Vessel CurrentVessel()
         {
             VesselParameterGroup vpg = GetParameterGroupHost();
-            return vpg == null ? FlightGlobals.ActiveVessel : vpg.TrackedVessel;
+            return vpg == null ? null : vpg.TrackedVessel;
         }
 
         protected VesselParameterGroup GetParameterGroupHost()

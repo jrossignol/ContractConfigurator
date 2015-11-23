@@ -31,8 +31,8 @@ namespace ContractConfigurator.Parameters
         public Duration()
             : this(0.0)
         {
-            // Queue up a check on startup
-            waitTime = Time.fixedTime + 0.2;
+            // Queue up a check on startup - give a comfortable delay so we don't have a timer reset
+            waitTime = Time.fixedTime + 0.5;
         }
 
         public Duration(double duration, string preWaitText = null, string waitingText = null, string completionText = null)
@@ -141,7 +141,7 @@ namespace ContractConfigurator.Parameters
             // Queue up a check
             if (contract == Root)
             {
-                waitTime = Time.fixedTime + 0.2;
+                waitTime = Time.fixedTime + 0.5;
             }
         }
 

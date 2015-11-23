@@ -6,6 +6,7 @@ Contract Configurator 1.8.2
 - Support for showMessages attribute in VisitWaypoint.
 - Fixed issue with FacilityRequirement always thinking the player's facilities were maxed out.
 - Fixed exception in WaypointGenerator for BaseConstruction (thanks dakakeisalie).
+- Fixed issue where Duration timer would reset under some very specific scenarios (thanks severedsolo).
 
 Contract Configurator 1.8.1
 - Added new Not parameter.
