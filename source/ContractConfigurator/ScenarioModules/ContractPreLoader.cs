@@ -433,19 +433,21 @@ namespace ContractConfigurator
             }
         }
 
-        public IEnumerable<ConfiguredContract> PendingContracts()
+        public IEnumerable<ConfiguredContract> PendingContracts(Contract.ContractPrestige? prestige = null)
         {
-            return contractDetails.SelectMany(p => p.Value.contracts).Union(priorityContracts);
+            return contractDetails.SelectMany(p => p.Value.contracts).Union(priorityContracts).
+                Where(c => prestige == null || prestige == c.Prestige);
         }
 
-        public IEnumerable<ConfiguredContract> PendingContracts(ContractType type)
+        public IEnumerable<ConfiguredContract> PendingContracts(ContractType type, Contract.ContractPrestige? prestige = null)
         {
             if (type == null)
             {
                 return Enumerable.Empty<ConfiguredContract>();
             }
 
-            return contractDetails.SelectMany(p => p.Value.contracts).Union(priorityContracts).Where(c => c.contractType == type);
+            return contractDetails.SelectMany(p => p.Value.contracts).Union(priorityContracts).
+                Where(c => c.contractType == type && (prestige == null || prestige == c.Prestige));
         }
     }
 }
