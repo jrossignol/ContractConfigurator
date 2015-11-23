@@ -46,6 +46,12 @@ namespace ContractConfigurator
 
         public void Register()
         {
+            // Only register in scenes with a MapView
+            if (MapView.fetch == null)
+            {
+                return;
+            }
+
             // Register the orbit drawing class
             if (MapView.MapCamera.gameObject.GetComponent<VesselWaypointRenderer>() == null)
             {
