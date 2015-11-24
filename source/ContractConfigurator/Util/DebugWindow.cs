@@ -634,6 +634,11 @@ namespace ContractConfigurator
 
         static string DataNodeDebug(DataNode node, int indent = 0)
         {
+            if (node == null)
+            {
+                return "";
+            }
+
             string indentStr = new string('\t', indent);
             string result = indentStr + node.DebugString().Replace("\n", "\n" + indentStr) + "\n";
             foreach (DataNode child in node.Children)
