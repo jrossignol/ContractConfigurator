@@ -62,10 +62,13 @@ namespace ContractConfigurator
 
         public void Unregister()
         {
-            VesselWaypointRenderer.Instance.waypoints.Remove(this);
-            if (waypoint != null)
+            if (VesselWaypointRenderer.Instance != null)
             {
-                WaypointManager.RemoveWaypoint(waypoint);
+                VesselWaypointRenderer.Instance.waypoints.Remove(this);
+                if (waypoint != null)
+                {
+                    WaypointManager.RemoveWaypoint(waypoint);
+                }
             }
         }
 

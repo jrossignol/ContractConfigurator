@@ -1,3 +1,6 @@
+Contract Configurator 1.8.3
+- Fixed NullReferenceException in code introduced in 1.8.2 (thanks kunok).
+
 Contract Configurator 1.8.2
 - Added vessel highlighting (from contextual contracts) to TargetDestroyed, Docking, Rendezvous and VesselParameterGroup.
 - Added Vessel.VesselName() method.
