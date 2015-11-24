@@ -615,6 +615,11 @@ namespace ContractConfigurator
         /// </summary>
         static string DebugInfo(IContractConfiguratorFactory obj)
         {
+            if (obj.dataNode == null)
+            {
+                return "";
+            }
+
             if (!toolTipCache.ContainsKey(obj) || toolTipCache[obj].Key != obj.dataNode.lastModified)
             {
                 string result = "";
