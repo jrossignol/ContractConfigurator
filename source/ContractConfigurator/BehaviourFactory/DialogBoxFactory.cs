@@ -25,7 +25,8 @@ namespace ContractConfigurator.Behaviour
             int index = 0;
             foreach (ConfigNode child in ConfigNodeUtil.GetChildNodes(configNode, "DIALOG_BOX"))
             {
-                DataNode childDataNode = new DataNode("DIALOG_BOX_" + index++, dataNode, this);
+                string dialogBoxNode = "DIALOG_BOX_" + index++;
+                DataNode childDataNode = new DataNode(dialogBoxNode, dataNode, this);
                 try
                 {
                     ConfigNodeUtil.SetCurrentDataNode(childDataNode);
@@ -41,8 +42,12 @@ namespace ContractConfigurator.Behaviour
                     valid &= ConfigNodeUtil.ParseValue<string>(child, "parameter", x => detail.parameter = x, this, (string)null,
                         x => ValidateMandatoryParameter(x, detail.condition));
 
+                    int sectionIndex = 0;
                     foreach (ConfigNode sectionNode in child.GetNodes())
                     {
+                        DataNode sectionDataNode = new DataNode(dialogBoxNode + "_" + sectionIndex++, childDataNode, this);
+                        ConfigNodeUtil.SetCurrentDataNode(sectionDataNode);
+
                         if (sectionNode.name == "TEXT")
                         {
                             DialogBox.TextSection section = new DialogBox.TextSection();
@@ -137,6 +142,8 @@ namespace ContractConfigurator.Behaviour
 
         public override ContractBehaviour Generate(ConfiguredContract contract)
         {
+            Debug.Log("XXX Generate DialogBox for '" + contract.Title + "'");
+            Debug.Log("    details = " + details.First().title);
             return new DialogBox(details);
         }
     }

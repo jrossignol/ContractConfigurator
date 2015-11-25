@@ -1,3 +1,6 @@
+Contract Configurator 1.8.4
+- Fixed bugs with using expressions in DialogBox.
+
 Contract Configurator 1.8.3
 - Fixed NullReferenceException in code introduced in 1.8.2 (thanks kunok).
 
