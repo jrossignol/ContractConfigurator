@@ -412,7 +412,14 @@ namespace ContractConfigurator.Behaviour
                 // Additional seetings for a landed vessel
                 if (!vesselData.orbiting)
                 {
-                    bool splashed = landed && vesselData.altitude.Value < 0.001;
+                    Vector3d norm = vesselData.body.GetRelSurfaceNVector(vesselData.latitude, vesselData.longitude);
+                    
+                    double terrainHeight = 0.0;
+                    if (vesselData.body.pqsController != null)
+                    {
+                        terrainHeight = vesselData.body.pqsController.GetSurfaceHeight(norm) - vesselData.body.pqsController.radius;
+                    }
+                    bool splashed = landed && terrainHeight < 0.001;
 
                     // Create the config node representation of the ProtoVessel
                     // Note - flying is experimental, and so far doesn't work
@@ -457,7 +464,6 @@ namespace ContractConfigurator.Behaviour
                     }
 
                     // Figure out the surface height and rotation
-                    Vector3d norm = vesselData.body.GetRelSurfaceNVector(vesselData.latitude, vesselData.longitude);
                     Quaternion normal = Quaternion.LookRotation(new Vector3((float)norm.x, (float)norm.y, (float)norm.z));
                     Quaternion rotation = Quaternion.identity;
                     float heading = vesselData.heading;
