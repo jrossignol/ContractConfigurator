@@ -59,6 +59,20 @@ namespace ContractConfigurator.Parameters
                 return;
             }
 
+            // Special handling for null vessel cases
+            if (v.vesselRef == null)
+            {
+                VesselParameterGroup vpg = GetParameterGroupHost();
+                if (vpg == null)
+                {
+                    SetState(ParameterState.Complete);
+                }
+                else
+                {
+
+                }
+            }
+
             recovered[v.vesselRef] = true;
 
             CheckVessel(v.vesselRef);

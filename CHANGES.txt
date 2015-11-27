@@ -1,3 +1,33 @@
+Contract Configurator 1.8.4
+- Fixed bugs with using expressions in DialogBox.
+
+Contract Configurator 1.8.3
+- Fixed NullReferenceException in code introduced in 1.8.2 (thanks kunok).
+
+Contract Configurator 1.8.2
+- Added vessel highlighting (from contextual contracts) to TargetDestroyed, Docking, Rendezvous and VesselParameterGroup.
+- Added Vessel.VesselName() method.
+- Added support for title in KerbalDeaths parameter.
+- Improvements to contract generation process (prevents some issues with a contract not showing up due to prestige levels).
+- New orbit methods for Vessel (OrbitApoapsis(), OrbitPeriapsis(), OrbitInclination(), OrbitEccentricity()).
+- Support for showMessages attribute in VisitWaypoint.
+- Fixed issue with FacilityRequirement always thinking the player's facilities were maxed out.
+- Fixed exception in WaypointGenerator for BaseConstruction (thanks dakakeisalie).
+- Fixed issue where Duration timer would reset under some very specific scenarios (thanks severedsolo).
+- Fixed some issues with facility level checks not working correctly.
+
+Contract Configurator 1.8.1
+- Added new Not parameter.
+- Can now specify heading in SpawnKerbal.
+- Fixed issue with index attribute not being recognized in HasPassengers (thanks inigmatus).
+- Fixed issue with speed in KSP never being zero for ReachState (thanks inigmatus).
+- Fixed exception in RecoverVessel when recovering via the VAB when another vessel is on the launchpad.
+- Fixed issue with timers getting reset in VAB/SPH (thanks chrisl).
+- Removed long-ago deprecated CC_SCANsat.dll (this does not remove SCANsat support).
+
+Contract Configurator 1.8.0
+- Support for KSP 1.0.5
+
 Contract Configurator 1.7.8
 - Fixed issue with timer parameter text not always updating (thanks mer & severedsolo).
 - Fixed issue with timer parameter not always starting up (thanks mer).

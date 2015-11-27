@@ -35,7 +35,8 @@ namespace ContractConfigurator
                 cc.AddBehaviour(new PartTestHandler());
             }
 
-            return new PartTest(part, notes);
+            System.Random random = new System.Random();
+            return new PartTest(part, notes, PartTestConstraint.TestRepeatability.ONCEPERPART, targetBody, Vessel.Situations.LANDED, random.NextDouble().ToString(), false);
         }
     }
 }

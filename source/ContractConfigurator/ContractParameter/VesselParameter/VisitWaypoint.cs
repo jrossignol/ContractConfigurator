@@ -7,6 +7,7 @@ using KSP;
 using Contracts;
 using Contracts.Parameters;
 using FinePrint;
+using FinePrint.Utilities;
 using ContractConfigurator.Behaviour;
 
 namespace ContractConfigurator.Parameters
@@ -43,8 +44,10 @@ namespace ContractConfigurator.Parameters
         protected Waypoint waypoint { get; set; }
         protected double distance { get; set; }
         protected bool hideOnCompletion { get; set; }
+        protected bool showMessages { get; set; }
         
         private double height = double.MaxValue;
+        private bool nearWaypoint = false;
 
         private float lastUpdate = 0.0f;
         private const float UPDATE_FREQUENCY = 0.25f;
@@ -57,7 +60,7 @@ namespace ContractConfigurator.Parameters
             waypointChecker = new WaypointChecker(this);
         }
 
-        public VisitWaypoint(int waypointIndex, double distance, bool hideOnCompletion, string title)
+        public VisitWaypoint(int waypointIndex, double distance, bool hideOnCompletion, bool showMessages, string title)
             : base(title)
         {
             waypointChecker = new WaypointChecker(this);
@@ -65,6 +68,7 @@ namespace ContractConfigurator.Parameters
             this.distance = distance;
             this.waypointIndex = waypointIndex;
             this.hideOnCompletion = hideOnCompletion;
+            this.showMessages = showMessages;
         }
 
         protected override string GetParameterTitle()
@@ -94,6 +98,7 @@ namespace ContractConfigurator.Parameters
             node.AddValue("distance", distance);
             node.AddValue("waypointIndex", waypointIndex);
             node.AddValue("hideOnCompletion", hideOnCompletion);
+            node.AddValue("showMessages", showMessages);
         }
 
         protected override void OnParameterLoad(ConfigNode node)
@@ -102,6 +107,7 @@ namespace ContractConfigurator.Parameters
             distance = Convert.ToDouble(node.GetValue("distance"));
             waypointIndex = Convert.ToInt32(node.GetValue("waypointIndex"));
             hideOnCompletion = ConfigNodeUtil.ParseValue<bool?>(node, "hideOnCompletion", (bool?)true).Value;
+            showMessages = ConfigNodeUtil.ParseValue<bool?>(node, "showMessages", (bool?)false).Value;
         }
 
         public void OnParameterChange(Contract c, ContractParameter p)
@@ -229,9 +235,29 @@ namespace ContractConfigurator.Parameters
 
             // Calculate the distance
             double actualDistance = WaypointUtil.GetDistanceToWaypoint(vessel, waypoint, ref height);
-
             LoggingUtil.LogVerbose(this, "Distance to waypoint '" + waypoint.name + "': " + actualDistance);
-            return actualDistance <= distance;
+
+            bool check = actualDistance <= distance;
+
+            // Output the message for entering/leaving the waypoint area.
+            if (showMessages)
+            {
+                if (check ^ nearWaypoint)
+                {
+                    nearWaypoint = check;
+                    string waypointName = waypoint.name + (waypoint.isClustered ? " " + StringUtilities.IntegerToGreek(waypoint.index) : "");
+                    string msg = "You are " + (nearWaypoint ? "entering " : "leaving ") + waypointName + ".";
+                    ScreenMessages.PostScreenMessage(msg, 5.0f, ScreenMessageStyle.UPPER_CENTER);
+                }
+
+                NavWaypoint navWaypoint = WaypointManager.navWaypoint;
+                if (navWaypoint != null && navWaypoint.latitude == waypoint.latitude && navWaypoint.longitude == waypoint.longitude)
+                {
+                    navWaypoint.blinking = nearWaypoint;
+                }
+            }
+
+            return check;
         }
     }
 }

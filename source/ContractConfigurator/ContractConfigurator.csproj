@@ -79,14 +79,16 @@
     <Compile Include="ContractBehaviour\UnlockPart.cs" />
     <Compile Include="ContractBehaviour\UnlockTech.cs" />
     <Compile Include="ContractParameter\Duration2.cs" />
+    <Compile Include="ContractParameter\Duration.cs" />
     <Compile Include="ContractParameter\HasAstronaut.cs" />
+    <Compile Include="ContractParameter\Not.cs" />
     <Compile Include="ContractParameter\None.cs" />
     <Compile Include="ContractParameter\AtMost.cs" />
     <Compile Include="ContractParameter\AtLeast.cs" />
     <Compile Include="ContractParameter\ContractConfiguratorParameter.cs" />
-    <Compile Include="ContractParameter\Duration.cs" />
     <Compile Include="ContractParameter\ParameterDelegate.cs" />
     <Compile Include="ContractParameter\PerformOrbitalSurvey.cs" />
+    <Compile Include="ContractParameter\KerbalDeathsCustom.cs" />
     <Compile Include="ContractParameter\RecoverKerbalCustom.cs" />
     <Compile Include="ContractParameter\SCANsatCoverage.cs" />
     <Compile Include="ContractParameter\TargetDestroyed.cs" />
@@ -133,8 +135,10 @@
     <Compile Include="CutScene\CutSceneItem.cs" />
     <Compile Include="ExpressionParser\Parsers\Classes\TechParser.cs" />
     <Compile Include="ExpressionParser\Wrappers\Tech.cs" />
+    <Compile Include="Other\VesselWaypoint.cs" />
     <Compile Include="ParameterFactory\HasResourceCapacityFactory.cs" />
     <Compile Include="ParameterFactory\NewVesselFactory.cs" />
+    <Compile Include="ParameterFactory\NotFactory.cs" />
     <Compile Include="ParameterFactory\RecoverVesselFactory.cs" />
     <Compile Include="ParameterFactory\SCANsatCoverageFactory.cs" />
     <Compile Include="ScenarioModules\ContractConfiguratorSettings.cs" />
@@ -247,7 +251,6 @@
     <Compile Include="ContractRequirement\Any.cs" />
     <Compile Include="ContractRequirement\TechResearchedRequirement.cs" />
     <Compile Include="ContractRequirement\SpacewalkRequirement.cs" />
-    <Compile Include="ContractRequirement\SpaceCrewTransferRequirement.cs" />
     <Compile Include="ContractRequirement\RunwayLandingRequirement.cs" />
     <Compile Include="ContractRequirement\ReachSpaceRequirement.cs" />
     <Compile Include="ContractRequirement\KSCLandingRequirement.cs" />

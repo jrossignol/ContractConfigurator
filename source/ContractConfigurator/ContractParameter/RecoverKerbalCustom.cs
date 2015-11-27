@@ -164,11 +164,28 @@ namespace ContractConfigurator.Parameters
                 return;
             }
 
-            foreach (ProtoCrewMember crew in v.GetVesselCrew())
+            // EVA vessel
+            if (v.vesselType == VesselType.EVA)
             {
-                if (recovered.ContainsKey(crew.name))
+                if (v.protoPartSnapshots != null)
                 {
-                    recovered[crew.name] = true;
+                    foreach (ProtoPartSnapshot p in v.protoPartSnapshots)
+                    {
+                        foreach (ProtoCrewMember pcm in p.protoModuleCrew)
+                        {
+                            recovered[pcm.name] = true;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                foreach (ProtoCrewMember crew in v.GetVesselCrew())
+                {
+                    if (recovered.ContainsKey(crew.name))
+                    {
+                        recovered[crew.name] = true;
+                    }
                 }
             }
 

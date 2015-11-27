@@ -370,7 +370,8 @@ namespace ContractConfigurator
                     // Special case for pre-loader contracts
                     if (contract.ContractState == Contract.State.Withdrawn)
                     {
-                        contractList = contractList.Union(ContractPreLoader.Instance.PendingContracts(this));
+                        contractList = contractList.Union(ContractPreLoader.Instance.PendingContracts(this, contract.Prestige));
+                        contractList = contractList.Where(c => c != contract);
                     }
 
                     // Get the count of active contracts - excluding ours
@@ -507,7 +508,8 @@ namespace ContractConfigurator
                         // Special case for pre-loader contracts
                         if (contract.ContractState == Contract.State.Withdrawn)
                         {
-                            contractList = contractList.Union(ContractPreLoader.Instance.PendingContracts(this));
+                            contractList = contractList.Union(ContractPreLoader.Instance.PendingContracts(this, contract.Prestige));
+                            contractList = contractList.Where(c => c != contract);
                         }
 
                         foreach (ConfiguredContract otherContract in contractList.Where(c=> c != contract && c.uniqueData.ContainsKey(key) &&
@@ -575,7 +577,8 @@ namespace ContractConfigurator
                 // Special case for pre-loader contracts
                 if (contract.ContractState == Contract.State.Withdrawn)
                 {
-                    contractList = contractList.Union(ContractPreLoader.Instance.PendingContracts());
+                    contractList = contractList.Union(ContractPreLoader.Instance.PendingContracts(contract.Prestige));
+                    contractList = contractList.Where(c => c != contract);
                 }
 
                 // Check the group active limit

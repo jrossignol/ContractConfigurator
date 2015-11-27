@@ -365,7 +365,7 @@ namespace ContractConfigurator.Util
             // Check if surface samples have been unlocked
             if (rules.requireSurfaceSample)
             {
-                if (ScenarioUpgradeableFacilities.GetFacilityLevel(SpaceCenterFacility.ResearchAndDevelopment) < 0.5f)
+                if (ScenarioUpgradeableFacilities.GetFacilityLevel(SpaceCenterFacility.ResearchAndDevelopment) < 0.3f)
                 {
                     return false;
                 }

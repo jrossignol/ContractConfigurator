@@ -615,6 +615,11 @@ namespace ContractConfigurator
         /// </summary>
         static string DebugInfo(IContractConfiguratorFactory obj)
         {
+            if (obj.dataNode == null)
+            {
+                return "";
+            }
+
             if (!toolTipCache.ContainsKey(obj) || toolTipCache[obj].Key != obj.dataNode.lastModified)
             {
                 string result = "";
@@ -634,6 +639,11 @@ namespace ContractConfigurator
 
         static string DataNodeDebug(DataNode node, int indent = 0)
         {
+            if (node == null)
+            {
+                return "";
+            }
+
             string indentStr = new string('\t', indent);
             string result = indentStr + node.DebugString().Replace("\n", "\n" + indentStr) + "\n";
             foreach (DataNode child in node.Children)

@@ -70,7 +70,7 @@ namespace ContractConfigurator.Parameters
         protected override bool VesselMeetsCondition(Vessel vessel)
         {
             LoggingUtil.LogVerbose(this, "Checking VesselMeetsCondition: " + vessel.id);
-            return VesselUtilities.VesselLaunchedAfterID(vessel, launchID);
+            return VesselUtilities.VesselLaunchedAfterID(launchID, vessel);
         }
     }
 }

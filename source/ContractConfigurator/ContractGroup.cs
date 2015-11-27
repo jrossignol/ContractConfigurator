@@ -31,6 +31,20 @@ namespace ContractConfigurator
             }
         }
 
+        /// <summary>
+        /// Static method (used by other mods via reflection) to get the contract group display name.
+        /// </summary>
+        public static string GroupDisplayName(string groupName)
+        {
+            if (string.IsNullOrEmpty(groupName))
+            {
+                return "";
+            }
+
+            ContractGroup group = contractGroups.ContainsKey(groupName) ? contractGroups[groupName] : null;
+            return group == null ? "" : group.displayName;
+        }
+
         // Group attributes
         public string name;
         public string displayName;

@@ -404,16 +404,26 @@ namespace ContractConfigurator.Behaviour
                     instructor.instructorCamera.targetTexture = instructorTexture;
                     instructor.instructorCamera.ResetAspect();
 
+                    // Remove the lights for Gene/Wernher
+                    Light mainlight = instructor.GetComponentsInChildren<Light>(true).Where(l => l.name == "mainlight").FirstOrDefault();
+                    if (mainlight != null)
+                    {
+                        UnityEngine.Object.Destroy(mainlight);
+                    }
+                    Light backlight = instructor.GetComponentsInChildren<Light>(true).Where(l => l.name == "backlight").FirstOrDefault();
+                    if (backlight != null)
+                    {
+                        UnityEngine.Object.Destroy(backlight);
+                    }
+
                     offset += 25f;
                     instructor.gameObject.transform.Translate(offset, 0.0f, 0.0f);
 
-                    if (name.StartsWith("Strategy"))
-                    {
-                        lightGameObject = new GameObject("Strategy Light");
-                        Light lightComp = lightGameObject.AddComponent<Light>();
-                        lightComp.color = new Color(0.4f, 0.4f, 0.4f);
-                        lightGameObject.transform.position = instructor.instructorCamera.transform.position;
-                    }
+                    // Add a light
+                    lightGameObject = new GameObject("Dialog Box Light");
+                    Light lightComp = lightGameObject.AddComponent<Light>();
+                    lightComp.color = new Color(0.4f, 0.4f, 0.4f);
+                    lightGameObject.transform.position = instructor.instructorCamera.transform.position;
 
                     if (string.IsNullOrEmpty(characterName))
                     {
@@ -782,9 +792,19 @@ namespace ContractConfigurator.Behaviour
         {
         }
 
-        public DialogBox(List<DialogDetail> details)
+        public DialogBox(List<DialogDetail> srcDetails)
         {
-            this.details = details;
+            // Need to do a deep copy to support expresssion.  Rather than properly doing a copy
+            // constructor, be lazy and serialize it.
+            details = new List<DialogDetail>();
+            foreach (DialogDetail srcDetail in srcDetails)
+            {
+                DialogDetail detail = new DialogDetail();
+                ConfigNode dummy = new ConfigNode("DUMMY");
+                srcDetail.OnSave(dummy);
+                detail.OnLoad(dummy);
+                details.Add(detail);
+            }
         }
 
         protected override void OnRegister()

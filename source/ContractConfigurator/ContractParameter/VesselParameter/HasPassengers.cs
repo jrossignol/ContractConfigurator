@@ -85,6 +85,7 @@ namespace ContractConfigurator.Parameters
         protected override void OnParameterSave(ConfigNode node)
         {
             base.OnParameterSave(node);
+            node.AddValue("index", index);
             node.AddValue("count", count);
 
             foreach (ProtoCrewMember passenger in passengers)
@@ -101,6 +102,7 @@ namespace ContractConfigurator.Parameters
             try
             {
                 base.OnParameterLoad(node);
+                index = Convert.ToInt32(node.GetValue("index"));
                 count = Convert.ToInt32(node.GetValue("count"));
                 passengers = ConfigNodeUtil.ParseValue<List<ProtoCrewMember>>(node, "passenger", new List<ProtoCrewMember>());
 

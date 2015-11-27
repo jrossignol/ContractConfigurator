@@ -34,6 +34,7 @@ namespace ContractConfigurator.ExpressionParser
 
             RegisterMethod(new Method<Vessel, CelestialBody>("CelestialBody", v => v == null ? null : v.mainBody, false));
             RegisterMethod(new Method<Vessel, VesselType>("VesselType", v => v == null ? VesselType.Unknown : v.vesselType, false));
+            RegisterMethod(new Method<Vessel, string>("VesselName", v => v == null ? "" : v.vesselName, false));
 
             RegisterMethod(new Method<Vessel, double>("Altitude", v => v == null ? 0.0 : v.altitude, false));
 
@@ -51,6 +52,11 @@ namespace ContractConfigurator.ExpressionParser
             RegisterMethod(new Method<Vessel, double>("SmallestDimension", GetSmallestDimension, false));
             RegisterMethod(new Method<Vessel, double>("LargestDimension", GetLargestDimension, false));
             RegisterMethod(new Method<Vessel, Location>("Location", v => v == null ? null : new Location(v.mainBody, v.latitude, v.longitude), false));
+
+            RegisterMethod(new Method<Vessel, double>("OrbitApoapsis", GetApA, false));
+            RegisterMethod(new Method<Vessel, double>("OrbitPeriapsis", GetPeA, false));
+            RegisterMethod(new Method<Vessel, double>("OrbitInclination", GetInclination, false));
+            RegisterMethod(new Method<Vessel, double>("OrbitEccentricity", GetEccentricity, false));
 
             RegisterGlobalFunction(new Function<List<Vessel>>("AllVessels", () => FlightGlobals.Vessels.ToList(), false));
             RegisterGlobalFunction(new Function<Vessel, Vessel>("Vessel", v => v));
@@ -172,6 +178,50 @@ namespace ContractConfigurator.ExpressionParser
         static double GetSmallestDimension(Vessel v)
         {
             return Math.Min(Math.Min(GetXDimension(v), GetYDimension(v)), GetZDimension(v));
+        }
+
+        static double GetApA(Vessel vessel)
+        {
+            if (vessel == null)
+            {
+                return 0.0;
+            }
+
+            Orbit orbit = vessel.loaded ? vessel.orbit : vessel.protoVessel.orbitSnapShot.Load();
+            return orbit.ApA;
+        }
+
+        static double GetPeA(Vessel vessel)
+        {
+            if (vessel == null)
+            {
+                return 0.0;
+            }
+
+            Orbit orbit = vessel.loaded ? vessel.orbit : vessel.protoVessel.orbitSnapShot.Load();
+            return orbit.PeA;
+        }
+
+        static double GetInclination(Vessel vessel)
+        {
+            if (vessel == null)
+            {
+                return 0.0;
+            }
+
+            Orbit orbit = vessel.loaded ? vessel.orbit : vessel.protoVessel.orbitSnapShot.Load();
+            return orbit.inclination;
+        }
+
+        static double GetEccentricity(Vessel vessel)
+        {
+            if (vessel == null)
+            {
+                return 0.0;
+            }
+
+            Orbit orbit = vessel.loaded ? vessel.orbit : vessel.protoVessel.orbitSnapShot.Load();
+            return orbit.eccentricity;
         }
 
         internal override U ConvertType<U>(Vessel value)

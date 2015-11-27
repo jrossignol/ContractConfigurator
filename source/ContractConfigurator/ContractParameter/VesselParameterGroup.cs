@@ -33,6 +33,7 @@ namespace ContractConfigurator.Parameters
         private Guid trackedVesselGuid = Guid.Empty;
 
         private double lastUpdate = 0.0;
+        private List<VesselWaypoint> vesselWaypoints = new List<VesselWaypoint>();
 
         private TitleTracker titleTracker = new TitleTracker();
 
@@ -382,6 +383,14 @@ namespace ContractConfigurator.Parameters
             GameEvents.Contract.onCompleted.Add(new EventData<Contract>.OnEvent(OnContractCompleted));
             GameEvents.Contract.onFailed.Add(new EventData<Contract>.OnEvent(OnContractFailed));
             GameEvents.Contract.onCancelled.Add(new EventData<Contract>.OnEvent(OnContractFailed));
+
+            // Add a waypoint for each possible vessel in the list
+            foreach (string vesselKey in vesselList)
+            {
+                VesselWaypoint vesselWaypoint = new VesselWaypoint(Root, vesselKey);
+                vesselWaypoints.Add(vesselWaypoint);
+                vesselWaypoint.Register();
+            }
         }
 
         protected override void OnUnregister()
@@ -396,6 +405,11 @@ namespace ContractConfigurator.Parameters
             GameEvents.Contract.onCancelled.Remove(new EventData<Contract>.OnEvent(OnContractFailed));
 
             ConfiguredContract.OnContractLoaded.Remove(new EventData<ConfiguredContract>.OnEvent(OnContractLoaded));
+
+            foreach (VesselWaypoint vesselWaypoint in vesselWaypoints)
+            {
+                vesselWaypoint.Unregister();
+            }
         }
 
         protected void OnContractCompleted(Contract c)

@@ -15,7 +15,7 @@ namespace ContractConfigurator
     /// </summary>
     public class PartValidationFactory : ParameterFactory
     {
-        protected int minCount;
+        protected int? minCount = null;
         protected int maxCount;
         protected List<PartValidation.Filter> filters = new List<PartValidation.Filter>();
 
@@ -27,7 +27,7 @@ namespace ContractConfigurator
             // Read min/max first
             valid &= ConfigNodeUtil.ParseValue<int>(configNode, "minCount", x => minCount = x, this,
                 configNode.HasNode("VALIDATE") || configNode.HasNode("VALIDATE_ALL") || configNode.HasNode("NONE") ? 0 : 1, x => Validation.GE(x, 0));
-            valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxCount", x => maxCount = x, this, int.MaxValue, x => Validation.GE(x, 0));
+            valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxCount", x => maxCount = x, this, minCount != null && minCount.Value == 0 ? 0 : int.MaxValue, x => Validation.GE(x, 0));
 
             // Set the default match type
             ParameterDelegateMatchType defaultMatch = ParameterDelegateMatchType.FILTER;
@@ -109,7 +109,7 @@ namespace ContractConfigurator
 
         public override ContractParameter Generate(Contract contract)
         {
-            return new PartValidation(filters, minCount, maxCount, title);
+            return new PartValidation(filters, minCount.Value, maxCount, title);
         }
     }
 }
