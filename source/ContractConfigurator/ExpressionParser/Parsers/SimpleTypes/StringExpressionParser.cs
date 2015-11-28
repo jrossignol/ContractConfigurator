@@ -12,6 +12,8 @@ namespace ContractConfigurator.ExpressionParser
     /// </summary>
     public class StringExpressionParser : ClassExpressionParser<string>, IExpressionParserRegistrer
     {
+        static System.Random random = new System.Random();
+
         static StringExpressionParser()
         {
             RegisterMethods();
@@ -36,7 +38,7 @@ namespace ContractConfigurator.ExpressionParser
             RegisterMethod(new Method<string, string, bool>("StartsWith", (s, value) => s.StartsWith(value)));
             RegisterMethod(new Method<string, string, bool>("EndsWith", (s, value) => s.EndsWith(value)));
 
-            RegisterGlobalFunction(new Function<ProtoCrewMember.Gender, string>("RandomKerbalName", g => CrewGenerator.GetRandomName(g), false));
+            RegisterGlobalFunction(new Function<ProtoCrewMember.Gender, string>("RandomKerbalName", g => CrewGenerator.GetRandomName(g, random), false));
         }
 
         /// <summary>
