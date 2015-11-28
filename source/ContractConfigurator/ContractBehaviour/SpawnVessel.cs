@@ -18,12 +18,14 @@ namespace ContractConfigurator.Behaviour
         private class CrewData
         {
             public string name = null;
+            public ProtoCrewMember.Gender? gender = null;
             public bool addToRoster = true;
 
             public CrewData() { }
             public CrewData(CrewData cd)
             {
                 name = cd.name;
+                gender = cd.gender;
                 addToRoster = cd.addToRoster;
             }
         }
@@ -306,6 +308,10 @@ namespace ContractConfigurator.Behaviour
                         {
                             // Create the ProtoCrewMember
                             ProtoCrewMember crewMember = HighLogic.CurrentGame.CrewRoster.GetNewKerbal(ProtoCrewMember.KerbalType.Unowned);
+                            if (cd.gender != null)
+                            {
+                                crewMember.gender = cd.gender.Value;
+                            }
                             if (cd.name != null)
                             {
                                 crewMember.name = cd.name;

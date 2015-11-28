@@ -1,4 +1,5 @@
 Contract Configurator 1.8.4
+- SpawnVessel CREW nodes now support specifying a gender.
 - Auto-close passenger loading dialog if vessel launches or scene changes (thanks inigmatus).
 - Fixed bugs with using expressions in DialogBox.
 - Fixed name duplication in RandomKerbalName() function (thanks inigmatus).
