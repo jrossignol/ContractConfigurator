@@ -1,5 +1,6 @@
 Contract Configurator 1.8.4
 - Fixed bugs with using expressions in DialogBox.
+- Auto-close passenger loading dialog if vessel launches or scene changes (thanks inigmatus).
 
 Contract Configurator 1.8.3
 - Fixed NullReferenceException in code introduced in 1.8.2 (thanks kunok).

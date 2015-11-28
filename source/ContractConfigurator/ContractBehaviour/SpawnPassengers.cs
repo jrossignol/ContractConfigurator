@@ -114,6 +114,11 @@ namespace ContractConfigurator.Behaviour
             {
                 if (visible && !uiHidden)
                 {
+                    if (FlightGlobals.ActiveVessel == null || FlightGlobals.ActiveVessel.situation != Vessel.Situations.PRELAUNCH)
+                    {
+                        visible = false;
+                    }
+
                     GUI.skin = HighLogic.Skin;
                     if (!stylesSetup)
                     {
