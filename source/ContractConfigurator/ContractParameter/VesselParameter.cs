@@ -49,6 +49,11 @@ namespace ContractConfigurator.Parameters
         /// conditions are not met.
         /// </summary>
         protected bool failWhenUnmet = false;
+        public bool FailWhenUnmet
+        {
+            get { return failWhenUnmet; }
+            set { failWhenUnmet = value; }
+        }
 
         public VesselParameter() : this(null) { }
 

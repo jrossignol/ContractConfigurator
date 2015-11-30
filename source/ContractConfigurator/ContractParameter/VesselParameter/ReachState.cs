@@ -23,6 +23,8 @@ namespace ContractConfigurator.Parameters
         protected float maxTerrainAltitude { get; set; }
         protected double minSpeed { get; set; }
         protected double maxSpeed { get; set; }
+        protected float minAcceleration { get; set; }
+        protected float maxAcceleration { get; set; }
 
         private float lastUpdate = 0.0f;
         private const float UPDATE_FREQUENCY = 0.1f;
@@ -35,7 +37,7 @@ namespace ContractConfigurator.Parameters
         }
 
         public ReachState(CelestialBody targetBody, string biome, Vessel.Situations? situation, float minAltitude, float maxAltitude,
-            float minTerrainAltitude, float maxTerrainAltitude, double minSpeed, double maxSpeed, string title)
+            float minTerrainAltitude, float maxTerrainAltitude, double minSpeed, double maxSpeed, float minAcceleration, float maxAcceleration, string title)
             : base(title)
         {
             this.targetBody = targetBody;
@@ -47,6 +49,8 @@ namespace ContractConfigurator.Parameters
             this.maxTerrainAltitude = maxTerrainAltitude;
             this.minSpeed = minSpeed;
             this.maxSpeed = maxSpeed;
+            this.minAcceleration = minAcceleration;
+            this.maxAcceleration = maxAcceleration;
 
             CreateDelegates();
         }
@@ -150,6 +154,27 @@ namespace ContractConfigurator.Parameters
 
                 AddParameter(new ParameterDelegate<Vessel>(output, CheckVesselSpeed));
             }
+
+            // Filter for acceleration
+            if (minAcceleration != 0.0f || maxAcceleration != float.MaxValue)
+            {
+                string output = "Acceleration: ";
+                if (minAcceleration == 0.0f)
+                {
+                    output += "Less than " + maxAcceleration.ToString("F1") + " gee" + (maxAcceleration == 1.0f ? "" : "s");
+                }
+                else if (maxAcceleration == float.MaxValue)
+                {
+                    output += "Greater than " + minAcceleration.ToString("F1") + " gee" + (maxAcceleration == 1.0f ? "" : "s");
+                }
+                else
+                {
+                    output += "Between " + minAcceleration.ToString("F1") + " and " + maxAcceleration.ToString("F1") + " gees";
+                }
+
+                AddParameter(new ParameterDelegate<Vessel>(output, v => v.acceleration.magnitude / 9.81f >= minAcceleration &&
+                    v.acceleration.magnitude / 9.81f <= maxAcceleration));
+            }
         }
 
         private bool CheckBiome(Vessel vessel)
@@ -195,29 +220,50 @@ namespace ContractConfigurator.Parameters
             {
                 node.AddValue("targetBody", targetBody.name);
             }
-            node.AddValue("biome", biome);
+            if (!string.IsNullOrEmpty(biome))
+            {
+                node.AddValue("biome", biome);
+            }
 
             if (situation != null)
             {
                 node.AddValue("situation", situation);
             }
 
-            node.AddValue("minAltitude", minAltitude);
+            if (minAltitude != 0.0f)
+            {
+                node.AddValue("minAltitude", minAltitude);
+            }
             if (maxAltitude != float.MaxValue)
             {
                 node.AddValue("maxAltitude", maxAltitude);
             }
 
-            node.AddValue("minTerrainAltitude", minTerrainAltitude);
+            if (minTerrainAltitude != 0.0f)
+            {
+                node.AddValue("minTerrainAltitude", minTerrainAltitude);
+            }
             if (maxTerrainAltitude != float.MaxValue)
             {
                 node.AddValue("maxTerrainAltitude", maxTerrainAltitude);
             }
 
-            node.AddValue("minSpeed", minSpeed);
-            if (maxSpeed != Double.MaxValue)
+            if (minSpeed != 0.0)
+            {
+                node.AddValue("minSpeed", minSpeed);
+            }
+            if (maxSpeed != double.MaxValue)
             {
                 node.AddValue("maxSpeed", maxSpeed);
+            }
+
+            if (minAcceleration != 0.0f)
+            {
+                node.AddValue("minAcceleration", minAcceleration);
+            }
+            if (maxAcceleration != float.MaxValue)
+            {
+                node.AddValue("maxAcceleration", maxAcceleration);
             }
         }
 
@@ -227,14 +273,16 @@ namespace ContractConfigurator.Parameters
             {
                 base.OnParameterLoad(node);
                 targetBody = ConfigNodeUtil.ParseValue<CelestialBody>(node, "targetBody", (CelestialBody)null);
-                biome = ConfigNodeUtil.ParseValue<string>(node, "biome");
+                biome = ConfigNodeUtil.ParseValue<string>(node, "biome", "");
                 situation = ConfigNodeUtil.ParseValue<Vessel.Situations?>(node, "situation", (Vessel.Situations?)null);
-                minAltitude = ConfigNodeUtil.ParseValue<float>(node, "minAltitude");
+                minAltitude = ConfigNodeUtil.ParseValue<float>(node, "minAltitude", 0.0f);
                 maxAltitude = ConfigNodeUtil.ParseValue<float>(node, "maxAltitude", float.MaxValue);
                 minTerrainAltitude = ConfigNodeUtil.ParseValue<float>(node, "minTerrainAltitude", 0.0f);
                 maxTerrainAltitude = ConfigNodeUtil.ParseValue<float>(node, "maxTerrainAltitude", float.MaxValue);
-                minSpeed = ConfigNodeUtil.ParseValue<double>(node, "minSpeed");
-                maxSpeed = ConfigNodeUtil.ParseValue<double>(node, "maxSpeed", Double.MaxValue);
+                minSpeed = ConfigNodeUtil.ParseValue<double>(node, "minSpeed", 0.0);
+                maxSpeed = ConfigNodeUtil.ParseValue<double>(node, "maxSpeed", double.MaxValue);
+                minAcceleration = ConfigNodeUtil.ParseValue<float>(node, "minAcceleration", 0.0f);
+                maxAcceleration = ConfigNodeUtil.ParseValue<float>(node, "maxAcceleration", float.MaxValue);
 
                 CreateDelegates();
             }
@@ -263,7 +311,6 @@ namespace ContractConfigurator.Parameters
         {
             LoggingUtil.LogVerbose(this, "Checking VesselMeetsCondition: " + vessel.id);
             return ParameterDelegate<Vessel>.CheckChildConditions(this, vessel);
-
         }
     }
 }
