@@ -54,17 +54,13 @@ namespace ContractConfigurator.Behaviour
                 ptn.state = RDTech.State.Available;
             }
 
-            if (!HighLogic.CurrentGame.Parameters.Difficulty.BypassEntryPurchaseAfterResearch)
+            if (!HighLogic.CurrentGame.Parameters.Difficulty.BypassEntryPurchaseAfterResearch && !ptn.partsPurchased.Contains(part))
             {
-                if (ptn.partsPurchased == null)
-                {
-                    ptn.partsPurchased = new List<AvailablePart>();
-                }
-
-                if (!ptn.partsPurchased.Contains(part))
-                {
-                    ptn.partsPurchased.Add(part);
-                }
+                ptn.partsPurchased.Add(part);
+            }
+            else
+            {
+                ptn.partsPurchased = new List<AvailablePart>();
             }
 
             ResearchAndDevelopment.Instance.SetTechState(part.TechRequired, ptn);
