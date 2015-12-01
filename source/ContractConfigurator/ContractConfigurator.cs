@@ -60,11 +60,13 @@ namespace ContractConfigurator
             Instance = this;
 
             OnParameterChange.Add(new EventData<Contract, ContractParameter>.OnEvent(ParameterChange));
+            GameEvents.OnTechnologyResearched.Add(new EventData<GameEvents.HostTargetAction<RDTech, RDTech.OperationResult>>.OnEvent(OnTechResearched));
         }
 
         void Destroy()
         {
             OnParameterChange.Remove(new EventData<Contract, ContractParameter>.OnEvent(ParameterChange));
+            GameEvents.OnTechnologyResearched.Remove(new EventData<GameEvents.HostTargetAction<RDTech, RDTech.OperationResult>>.OnEvent(OnTechResearched));
         }
 
         void Update()
@@ -631,5 +633,14 @@ namespace ContractConfigurator
         }
 
         private void DoNothing() { }
+
+        // Remove experimental parts when a tech is researched
+        private void OnTechResearched(GameEvents.HostTargetAction<RDTech, RDTech.OperationResult> hta)
+        {
+            foreach (AvailablePart p in hta.host.partsAssigned)
+            {
+                ResearchAndDevelopment.RemoveExperimentalPart(p);
+            }
+        }
     }
 }
