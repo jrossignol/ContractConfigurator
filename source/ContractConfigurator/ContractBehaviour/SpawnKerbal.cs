@@ -485,18 +485,30 @@ namespace ContractConfigurator.Behaviour
                 if (!kerbal.addToRoster || !onlyUnowned)
                 {
                     LoggingUtil.LogVerbose(this, "    Removing " + kerbal.crewMember.name + "...");
-                    // If it's an EVA make them disappear...
                     Vessel vessel = FlightGlobals.Vessels.Where(v => v.GetVesselCrew().Contains(kerbal.crewMember)).FirstOrDefault();
-                    if (vessel != null && vessel.isEVA)
+                    if (vessel != null)
                     {
-                        FlightGlobals.Vessels.Remove(vessel);
+                        // If it's an EVA make them disappear...
+                        if (vessel.isEVA)
+                        {
+                            FlightGlobals.Vessels.Remove(vessel);
+                        }
+                        else
+                        {
+                            foreach (Part p in vessel.parts)
+                            {
+                                if (p.protoModuleCrew.Contains(kerbal.crewMember))
+                                {
+                                    p.RemoveCrewmember(kerbal.crewMember);
+                                    break;
+                                }
+                            }
+                        }
                     }
                 }
 
-                // Do not remove kerbals from the roster - as they may have done something of note
-                // which puts them in the progress tracking logs.  If they are removed from the
-                // roster, that will fail.
-                //HighLogic.CurrentGame.CrewRoster.Remove(kerbal.crewMember.name);
+                // Remove the kerbal from the roster
+                HighLogic.CurrentGame.CrewRoster.Remove(kerbal.crewMember.name);
                 kerbal.crewMember = null;
             }
             kerbals.Clear();

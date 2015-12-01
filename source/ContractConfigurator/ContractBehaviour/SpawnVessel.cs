@@ -681,6 +681,9 @@ namespace ContractConfigurator.Behaviour
                             pcm.type = ProtoCrewMember.KerbalType.Crew;
                         }
                     }
+
+                    // Remove any other crew
+                    RemoveCrew(vd);
                 }
             }
         }
@@ -742,6 +745,44 @@ namespace ContractConfigurator.Behaviour
                 if (vessel != null)
                 {
                     vessel.state = Vessel.State.DEAD;
+                }
+
+                RemoveCrew(vd);
+            }
+
+            vessels.Clear();
+        }
+
+        private void RemoveCrew(VesselData vd)
+        {
+            foreach (CrewData cd in vd.crew)
+            {
+                ProtoCrewMember crewMember = HighLogic.CurrentGame.CrewRoster.AllKerbals().Where(pcm => pcm.name == cd.name).FirstOrDefault();
+                if (!cd.addToRoster && crewMember != null)
+                {
+                    Vessel otherVessel = FlightGlobals.Vessels.Where(v => v.GetVesselCrew().Contains(crewMember)).FirstOrDefault();
+                    if (otherVessel != null)
+                    {
+                        // If it's an EVA make them disappear...
+                        if (otherVessel.isEVA)
+                        {
+                            FlightGlobals.Vessels.Remove(otherVessel);
+                        }
+                        else
+                        {
+                            foreach (Part p in otherVessel.parts)
+                            {
+                                if (p.protoModuleCrew.Contains(crewMember))
+                                {
+                                    p.RemoveCrewmember(crewMember);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    // Remove the kerbal from the roster
+                    HighLogic.CurrentGame.CrewRoster.Remove(cd.name);
                 }
             }
         }

@@ -5,6 +5,7 @@ Contract Configurator 1.8.4
 - Fixed bugs with using expressions in DialogBox.
 - Fixed name duplication in RandomKerbalName() function (thanks inigmatus).
 - Fixed exception using UnlockPart without part unlocking set on the current game (thanks inigmatus).
+- Fixed issue with crew that aren't properly removed on contract completion (thanks inigmatus).
 
 Contract Configurator 1.8.3
 - Fixed NullReferenceException in code introduced in 1.8.2 (thanks kunok).

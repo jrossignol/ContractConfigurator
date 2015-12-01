@@ -465,16 +465,33 @@ namespace ContractConfigurator.Behaviour
 
         private void RemoveKerbals()
         {
+            LoggingUtil.LogVerbose(this, "Removing kerbals");
             foreach (ProtoCrewMember kerbal in passengers.Keys)
             {
-                kerbal.type = ProtoCrewMember.KerbalType.Tourist;
-                kerbal.hasToured = true;
-                
-                // Do a hard removal if they are not on a ship
-                if (kerbal.rosterStatus != ProtoCrewMember.RosterStatus.Assigned)
+                LoggingUtil.LogVerbose(this, "    Removing " + kerbal.name + "...");
+                Vessel vessel = FlightGlobals.Vessels.Where(v => v.GetVesselCrew().Contains(kerbal)).FirstOrDefault();
+                if (vessel != null)
                 {
-                    HighLogic.CurrentGame.CrewRoster.Remove(kerbal.name);
+                    // If it's an EVA make them disappear...
+                    if (vessel.isEVA)
+                    {
+                        FlightGlobals.Vessels.Remove(vessel);
+                    }
+                    else
+                    {
+                        foreach (Part p in vessel.parts)
+                        {
+                            if (p.protoModuleCrew.Contains(kerbal))
+                            {
+                                p.RemoveCrewmember(kerbal);
+                                break;
+                            }
+                        }
+                    }
                 }
+
+                // Remove the kerbal from the roster
+                HighLogic.CurrentGame.CrewRoster.Remove(kerbal.name);
             }
             passengers.Clear();
         }
