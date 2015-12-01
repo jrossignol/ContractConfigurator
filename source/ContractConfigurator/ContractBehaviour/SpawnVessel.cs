@@ -47,6 +47,8 @@ namespace ContractConfigurator.Behaviour
             public bool orbiting = false;
             public bool owned = false;
             public List<CrewData> crew = new List<CrewData>();
+            public PQSCity pqsCity = null;
+            public Vector3d pqsOffset;
             public float heading;
             public float pitch;
             public float roll;
@@ -68,6 +70,8 @@ namespace ContractConfigurator.Behaviour
                 height = vd.height;
                 orbiting = vd.orbiting;
                 owned = vd.owned;
+                pqsCity = vd.pqsCity;
+                pqsOffset = vd.pqsOffset;
                 heading = vd.heading;
                 pitch = vd.pitch;
                 roll = vd.roll;
@@ -150,7 +154,54 @@ namespace ContractConfigurator.Behaviour
                     valid &= ConfigNodeUtil.ParseValue<CelestialBody>(child, "targetBody", x => vessel.body = x, factory);
 
                     // Get landed stuff
-                    if (child.HasValue("lat") && child.HasValue("lon"))
+                    if (child.HasValue("pqsCity"))
+                    {
+                        string pqsCityStr = null;
+                        valid &= ConfigNodeUtil.ParseValue<string>(child, "pqsCity", x => pqsCityStr = x, factory);
+                        if (pqsCityStr != null)
+                        {
+                            try
+                            {
+                                vessel.pqsCity = vessel.body.GetComponentsInChildren<PQSCity>(true).Where(pqs => pqs.name == pqsCityStr).First();
+                            }
+                            catch (Exception e)
+                            {
+                                LoggingUtil.LogError(typeof(WaypointGenerator), "Couldn't load PQSCity with name '" + pqsCityStr + "'");
+                                LoggingUtil.LogException(e);
+                                valid = false;
+                            }
+                        }
+                        valid &= ConfigNodeUtil.ParseValue<Vector3d>(child, "pqsOffset", x => vessel.pqsOffset = x, factory, new Vector3d());
+
+                        // Don't expect these to load anything, but do it to mark as initialized
+                        valid &= ConfigNodeUtil.ParseValue<double>(child, "lat", x => vessel.latitude = x, factory, 0.0);
+                        valid &= ConfigNodeUtil.ParseValue<double>(child, "lon", x => vessel.longitude = x, factory, 0.0);
+
+                        // Do load alt and height
+                        valid &= ConfigNodeUtil.ParseValue<double?>(child, "alt", x => vessel.altitude = x, factory, (double?)null);
+                        valid &= ConfigNodeUtil.ParseValue<float>(child, "height", x => vessel.height = x, factory,
+                            !string.IsNullOrEmpty(vessel.craftURL) ? 0.0f : 2.5f);
+                        vessel.orbiting = false;
+
+                        // Generate PQS city coordinates
+                        LoggingUtil.LogVerbose(factory, "Generating coordinates from PQS city for Vessel " + vessel.name);
+
+                        // Translate by the PQS offset (inverse transform of coordinate system)
+                        Vector3d position = vessel.pqsCity.transform.position;
+                        Vector3d v = vessel.pqsOffset;
+                        Vector3d i = vessel.pqsCity.transform.right;
+                        Vector3d j = vessel.pqsCity.transform.forward;
+                        Vector3d k = vessel.pqsCity.transform.up;
+                        Vector3d offsetPos = new Vector3d(
+                            (j.y * k.z - j.z * k.y) * v.x + (i.z * k.y - i.y * k.z) * v.y + (i.y * j.z - i.z * j.y) * v.z,
+                            (j.z * k.x - j.x * k.z) * v.x + (i.x * k.z - i.z * k.x) * v.y + (i.z * j.x - i.x * j.z) * v.z,
+                            (j.x * k.y - j.y * k.x) * v.x + (i.y * k.x - i.x * k.y) * v.y + (i.x * j.y - i.y * j.x) * v.z
+                        );
+                        offsetPos *= (i.x * j.y * k.z) + (i.y * j.z * k.x) + (i.z * j.x * k.y) - (i.z * j.y * k.x) - (i.y * j.x * k.z) - (i.x * j.z * k.y);
+                        vessel.latitude = vessel.body.GetLatitude(position + offsetPos);
+                        vessel.longitude = vessel.body.GetLongitude(position + offsetPos);
+                    }
+                    else if (child.HasValue("lat") && child.HasValue("lon"))
                     {
                         valid &= ConfigNodeUtil.ParseValue<double>(child, "lat", x => vessel.latitude = x, factory);
                         valid &= ConfigNodeUtil.ParseValue<double>(child, "lon", x => vessel.longitude = x, factory);

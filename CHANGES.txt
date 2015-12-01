@@ -1,5 +1,6 @@
 Contract Configurator 1.8.4
 - SpawnVessel CREW nodes now support specifying a gender.
+- SpawnVessel supports specifying a location via PQS City now (like SpawnKerbal).
 - Added minAcceleration and maxAcceleration to ReachState.
 - Auto-close passenger loading dialog if vessel launches or scene changes (thanks inigmatus).
 - Added new Funds() and Science() expression functions to get player's funds/science.
