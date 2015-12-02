@@ -10,7 +10,7 @@ using Contracts.Parameters;
 namespace ContractConfigurator.Parameters
 {
     /// <summary>
-    /// Parameter for checking the space program's astronautts.
+    /// Parameter for checking the space program's astronauts.
     /// </summary>
     public class HasAstronaut : ContractConfiguratorParameter
     {
