@@ -134,7 +134,11 @@ namespace ContractConfigurator.Behaviour
         {
             foreach (AvailablePart part in parts)
             {
-                ResearchAndDevelopment.AddExperimentalPart(part);
+                ProtoTechNode techNode = ResearchAndDevelopment.Instance.GetTechState(part.TechRequired);
+                if (techNode == null || techNode.state != RDTech.State.Available)
+                {
+                    ResearchAndDevelopment.AddExperimentalPart(part);
+                }
             }
         }
 
