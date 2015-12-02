@@ -17,7 +17,7 @@ namespace ContractConfigurator.Parameters
     {
         protected int index;
         protected int count;
-        protected List<string> kerbals = new List<string>();
+        protected List<Kerbal> kerbals = new List<Kerbal>();
         protected Dictionary<string, bool> recovered = new Dictionary<string, bool>();
 
         public bool ChildChanged { get; set; }
@@ -27,15 +27,15 @@ namespace ContractConfigurator.Parameters
         {
         }
 
-        public RecoverKerbalCustom(IEnumerable<string> kerbals, int index, int count, string title)
+        public RecoverKerbalCustom(IEnumerable<Kerbal> kerbals, int index, int count, string title)
             : base(title)
         {
             this.index = index;
             this.count = count;
             this.kerbals = kerbals.ToList();
-            foreach (string kerbal in kerbals)
+            foreach (Kerbal kerbal in kerbals)
             {
-                recovered[kerbal] = false;
+                recovered[kerbal.name] = false;
             }
 
             if (kerbals.Count() + count == 1)
@@ -69,10 +69,10 @@ namespace ContractConfigurator.Parameters
 
         protected void CreateDelegates()
         {
-            foreach (string kerbal in kerbals)
+            foreach (Kerbal kerbal in kerbals)
             {
-                AddParameter(new ParameterDelegate<string>(kerbal + ": Recovered",
-                    unused => recovered[kerbal], ParameterDelegateMatchType.FILTER));
+                AddParameter(new ParameterDelegate<string>(kerbal.name + ": Recovered",
+                    unused => recovered[kerbal.name], ParameterDelegateMatchType.FILTER));
             }
         }
 
@@ -80,12 +80,14 @@ namespace ContractConfigurator.Parameters
         {
             node.AddValue("count", count);
             node.AddValue("index", index);
-            foreach (string kerbal in kerbals)
+
+            foreach (Kerbal kerbal in kerbals)
             {
-                ConfigNode childNode = new ConfigNode("KERBAL");
-                node.AddNode(childNode);
-                childNode.AddValue("kerbal", kerbal);
-                childNode.AddValue("recovered", recovered[kerbal]);
+                ConfigNode kerbalNode = new ConfigNode("KERBAL");
+                node.AddNode(kerbalNode);
+
+                kerbal.Save(kerbalNode);
+                kerbalNode.AddValue("recovered", recovered[kerbal.name]);
             }
         }
 
@@ -96,11 +98,16 @@ namespace ContractConfigurator.Parameters
                 count = ConfigNodeUtil.ParseValue<int>(node, "count");
                 index = ConfigNodeUtil.ParseValue<int>(node, "index");
 
-                foreach (ConfigNode childNode in node.GetNodes("KERBAL"))
+                foreach (ConfigNode kerbalNode in node.GetNodes("KERBAL"))
                 {
-                    string kerbal = ConfigNodeUtil.ParseValue<string>(childNode, "kerbal");
-                    kerbals.Add(kerbal);
-                    recovered[kerbal] = ConfigNodeUtil.ParseValue<bool>(childNode, "recovered");
+                    // Legacy support for Contract Configurator 1.8.3
+                    if (kerbalNode.HasValue("kerbal"))
+                    {
+                        kerbalNode.AddValue("name", kerbalNode.GetValue("kerbal"));
+                    }
+
+                    kerbals.Add(Kerbal.Load(kerbalNode));
+                    recovered[kerbals.Last().name] = ConfigNodeUtil.ParseValue<bool>(kerbalNode, "recovered");
                 }
 
                 CreateDelegates();
@@ -210,8 +217,17 @@ namespace ContractConfigurator.Parameters
                 for (int i = 0; i < count; i++)
                 {
                     ProtoCrewMember kerbal = ((ConfiguredContract)contract).GetSpawnedKerbal(index + i);
-                    kerbals.Add(kerbal.name);
+                    kerbals.Add(new Kerbal(kerbal.name));
                     recovered[kerbal.name] = false;
+                }
+
+                foreach (Kerbal kerbal in kerbals)
+                {
+                    // Instantiate the kerbals if necessary
+                    if (kerbal.pcm == null)
+                    {
+                        kerbal.GenerateKerbal();
+                    }
                 }
 
                 CreateDelegates();

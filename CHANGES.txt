@@ -1,6 +1,6 @@
 Contract Configurator 1.9.0
 - New functions for generating kerbals.
-- HasCrew will now automatically create kerbals in the astronaut complex when required.
+- HasCrew and RecoverKerbal will now automatically create kerbals in the astronaut complex when required.
 - SpawnVessel CREW nodes now support specifying a gender.
 - SpawnVessel supports specifying a location via PQS City now (like SpawnKerbal).
 - Added minAcceleration and maxAcceleration to ReachState.
