@@ -279,13 +279,13 @@ namespace ContractConfigurator
                 }
 
                 // Store unique data
-                foreach (string key in selectedContractType.uniqueValues.Keys)
+                foreach (string key in selectedContractType.uniquenessChecks.Keys)
                 {
                     templateContract.uniqueData[key] = selectedContractType.dataNode[key];
                 }
 
                 // Check the requirements for our selection
-                if (selectedContractType.MeetExtendedRequirements(templateContract) && templateContract.Initialize(selectedContractType))
+                if (selectedContractType.MeetExtendedRequirements(templateContract, selectedContractType) && templateContract.Initialize(selectedContractType))
                 {
                     yield return new KeyValuePair<ConfiguredContract, bool>(templateContract, true);
                     yield break;
@@ -313,7 +313,7 @@ namespace ContractConfigurator
             {
                 ConfiguredContract contract = (priorityContracts.Any() ? priorityContracts : contractDetails[prestige].contracts).Dequeue();
 
-                if (contract != null && contract.contractType != null && contract.contractType.MeetRequirements(contract))
+                if (contract != null && contract.contractType != null && contract.contractType.MeetRequirements(contract, contract.contractType))
                 {
                     return contract;
                 }

@@ -455,7 +455,7 @@ namespace ContractConfigurator
             // ContractType already chosen, check if still meets requirements.
             if (contractType != null)
             {
-                bool meets = contractType.MeetRequirements(this);
+                bool meets = contractType.MeetRequirements(this, contractType);
                 if (ContractState == State.Active && !meets)
                 {
                     LoggingUtil.LogWarning(this, "Removed contract '" + title + "', as it no longer meets the requirements.");

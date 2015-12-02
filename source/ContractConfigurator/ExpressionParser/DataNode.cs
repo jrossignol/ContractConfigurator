@@ -13,6 +13,15 @@ namespace ContractConfigurator.ExpressionParser
     /// </summary>
     public class DataNode
     {
+        public enum UniquenessCheck
+        {
+            NONE,
+            CONTRACT_ACTIVE,
+            CONTRACT_ALL,
+            GROUP_ACTIVE,
+            GROUP_ALL,
+        }
+
         public class Value
         {
             public object value;
@@ -286,10 +295,10 @@ namespace ContractConfigurator.ExpressionParser
         /// <param name="configNode">The ConfigNode to load child DATA nodes from.</param>
         /// <param name="obj">The ContractConfigurator object to load from.</param>
         /// <param name="dataValues"></param>
-        /// <param name="uniqueValues"></param>
+        /// <param name="uniquenessChecks"></param>
         /// <returns></returns>
         public bool ParseDataNodes(ConfigNode configNode, IContractConfiguratorFactory obj,
-            Dictionary<string, bool> dataValues, Dictionary<string, bool> uniqueValues)
+            Dictionary<string, bool> dataValues, Dictionary<string, UniquenessCheck> uniquenessChecks)
         {
             bool valid = true;
 
@@ -297,13 +306,29 @@ namespace ContractConfigurator.ExpressionParser
             {
                 Type type = null;
                 bool requiredValue = true;
-                bool uniqueValue = false;
-                bool activeUniqueValue = false;
+
                 ConfigNodeUtil.SetCurrentDataNode(null);
                 valid &= ConfigNodeUtil.ParseValue<Type>(data, "type", x => type = x, obj);
                 valid &= ConfigNodeUtil.ParseValue<bool>(data, "requiredValue", x => requiredValue = x, obj, true);
-                valid &= ConfigNodeUtil.ParseValue<bool>(data, "uniqueValue", x => uniqueValue = x, obj, false);
-                valid &= ConfigNodeUtil.ParseValue<bool>(data, "activeUniqueValue", x => activeUniqueValue = x, obj, false);
+
+                UniquenessCheck uniquenessCheck = UniquenessCheck.NONE;
+                // Backwards compatibility for Contract Configurator 1.8.3
+                if (configNode.HasValue("uniqueValue") || configNode.HasValue("activeUniqueValue"))
+                {
+                    LoggingUtil.LogWarning(this, "The use of uniqueValue and activeUniqueValue is obsolete since Contract Configurator 1.9.0, use uniquenessCheck instead.");
+                    
+                    bool uniqueValue = false;
+                    bool activeUniqueValue = false;
+                    valid &= ConfigNodeUtil.ParseValue<bool>(data, "uniqueValue", x => uniqueValue = x, obj, false);
+                    valid &= ConfigNodeUtil.ParseValue<bool>(data, "activeUniqueValue", x => activeUniqueValue = x, obj, false);
+
+                    uniquenessCheck = activeUniqueValue ? UniquenessCheck.CONTRACT_ACTIVE : uniqueValue ? UniquenessCheck.CONTRACT_ALL : UniquenessCheck.NONE;
+                }
+                else
+                {
+                    valid &= ConfigNodeUtil.ParseValue<UniquenessCheck>(data, "uniquenessCheck", x => uniquenessCheck = x, obj, UniquenessCheck.NONE);
+                }
+
                 ConfigNodeUtil.SetCurrentDataNode(this);
 
                 if (type != null)
@@ -311,7 +336,7 @@ namespace ContractConfigurator.ExpressionParser
                     foreach (ConfigNode.Value pair in data.values)
                     {
                         string name = pair.name;
-                        if (name != "type" && name != "requiredValue" && name != "uniqueValue" && name != "activeUniqueValue")
+                        if (name != "type" && name != "requiredValue" && name != "uniqueValue" && name != "activeUniqueValue" && name != "uniquenessCheck")
                         {
                             object value = null;
 
@@ -328,10 +353,9 @@ namespace ContractConfigurator.ExpressionParser
                             valid &= (bool)method.Invoke(null, new object[] { data, name, del, obj });
 
                             dataValues[name] = requiredValue;
-
-                            if (uniqueValue || activeUniqueValue)
+                            if (uniquenessCheck != UniquenessCheck.NONE)
                             {
-                                uniqueValues[name] = activeUniqueValue;
+                                uniquenessChecks[name] = uniquenessCheck;
                             }
                         }
                     }

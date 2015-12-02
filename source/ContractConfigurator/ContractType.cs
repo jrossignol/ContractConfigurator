@@ -110,7 +110,7 @@ namespace ContractConfigurator
         public bool loaded = false;
 
         private Dictionary<string, bool> dataValues = new Dictionary<string, bool>();
-        public Dictionary<string, bool> uniqueValues = new Dictionary<string, bool>();
+        public Dictionary<string, DataNode.UniquenessCheck> uniquenessChecks = new Dictionary<string, DataNode.UniquenessCheck>();
 
         public ContractType(string name)
         {
@@ -217,15 +217,15 @@ namespace ContractConfigurator
                         dataValues[group.name + ":" + pair.Key] = pair.Value;
                     }
 
-                    // Merge uniqueValues - this is just a flag saying what values to do uniqueness checks on
-                    foreach (KeyValuePair<string, bool> pair in currentGroup.uniqueValues)
+                    // Merge uniquenessChecks
+                    foreach (KeyValuePair<string, DataNode.UniquenessCheck> pair in currentGroup.uniquenessChecks)
                     {
-                        uniqueValues[group.name + ":" + pair.Key] = pair.Value;
+                        uniquenessChecks[group.name + ":" + pair.Key] = pair.Value;
                     }
                 }
 
                 // Load DATA nodes
-                valid &= dataNode.ParseDataNodes(configNode, this, dataValues, uniqueValues);
+                valid &= dataNode.ParseDataNodes(configNode, this, dataValues, uniquenessChecks);
 
                 // Check for unexpected values - always do this last
                 valid &= ConfigNodeUtil.ValidateUnexpectedValues(configNode, this);
@@ -434,7 +434,7 @@ namespace ContractConfigurator
         /// </summary>
         /// <param name="contract">The contract</param>
         /// <returns>Whether the contract can be offered.</returns>
-        public bool MeetExtendedRequirements(ConfiguredContract contract)
+        public bool MeetExtendedRequirements(ConfiguredContract contract, ContractType contractType)
         {
             LoggingUtil.LogLevel origLogLevel = LoggingUtil.logLevel;
             try
@@ -497,13 +497,13 @@ namespace ContractConfigurator
                 if (contract.contractType == null || contract.ContractState == Contract.State.Generated || contract.ContractState == Contract.State.Withdrawn)
                 {
                     // Check for unique values against other contracts of the same type
-                    foreach (KeyValuePair<string, bool> pair in uniqueValues.Where(p => contract.uniqueData.ContainsKey(p.Key)))
+                    foreach (KeyValuePair<string, DataNode.UniquenessCheck> pair in uniquenessChecks.Where(p => contract.uniqueData.ContainsKey(p.Key)))
                     {
                         string key = pair.Key;
-                        bool checkActiveOnly = pair.Value;
+                        DataNode.UniquenessCheck uniquenessCheck = pair.Value;
 
                         IEnumerable<ConfiguredContract> contractList = ContractSystem.Instance.GetCurrentContracts<ConfiguredContract>().
-                            Where(c => c.contractType != null && c.contractType.name == name);
+                            Where(c => c.contractType != null && c != contract && c.uniqueData.ContainsKey(key));
 
                         // Special case for pre-loader contracts
                         if (contract.ContractState == Contract.State.Withdrawn)
@@ -512,8 +512,24 @@ namespace ContractConfigurator
                             contractList = contractList.Where(c => c != contract);
                         }
 
-                        foreach (ConfiguredContract otherContract in contractList.Where(c=> c != contract && c.uniqueData.ContainsKey(key) &&
-                                (c.ContractState == Contract.State.Active || c.ContractState == Contract.State.Offered || !checkActiveOnly)))
+                        // Check for contracts of the same type
+                        if (uniquenessCheck == DataNode.UniquenessCheck.CONTRACT_ALL || uniquenessCheck == DataNode.UniquenessCheck.CONTRACT_ACTIVE)
+                        {
+                            contractList = contractList.Where(c => c.contractType.name == name);
+                        }
+                        // Check for a shared group
+                        else
+                        {
+                            contractList = contractList.Where(c => c.contractType.group.parent.name == contractType.group.name);
+                        }
+
+                        // Check only active contracts
+                        if (uniquenessCheck == DataNode.UniquenessCheck.CONTRACT_ACTIVE || uniquenessCheck == DataNode.UniquenessCheck.GROUP_ACTIVE)
+                        {
+                            contractList = contractList.Where(c => c.ContractState == Contract.State.Active || c.ContractState == Contract.State.Offered);
+                        }
+
+                        foreach (ConfiguredContract otherContract in contractList)
                         {
                             if (contract.uniqueData[key].Equals(otherContract.uniqueData[key]))
                             {
@@ -556,9 +572,9 @@ namespace ContractConfigurator
         /// </summary>
         /// <param name="contract">The contract</param>
         /// <returns>Whether the contract can be offered.</returns>
-        public bool MeetRequirements(ConfiguredContract contract)
+        public bool MeetRequirements(ConfiguredContract contract, ContractType contractType)
         {
-            return MeetBasicRequirements(contract) && MeetExtendedRequirements(contract);
+            return MeetBasicRequirements(contract) && MeetExtendedRequirements(contract, contractType);
         }
 
         protected bool CheckContractGroup(ConfiguredContract contract, ContractGroup group)

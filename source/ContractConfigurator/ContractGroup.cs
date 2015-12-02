@@ -61,7 +61,7 @@ namespace ContractConfigurator
         public DataNode dataNode { get; private set; }
 
         public Dictionary<string, bool> dataValues = new Dictionary<string, bool>();
-        public Dictionary<string, bool> uniqueValues = new Dictionary<string, bool>();
+        public Dictionary<string, DataNode.UniquenessCheck> uniquenessChecks = new Dictionary<string, DataNode.UniquenessCheck>();
 
         public ContractGroup parent = null;
 
@@ -110,7 +110,7 @@ namespace ContractConfigurator
                 }
 
                 // Load DATA nodes
-                valid &= dataNode.ParseDataNodes(configNode, this, dataValues, uniqueValues);
+                valid &= dataNode.ParseDataNodes(configNode, this, dataValues, uniquenessChecks);
 
                 // Do the deferred loads
                 valid &= ConfigNodeUtil.ExecuteDeferredLoads();
