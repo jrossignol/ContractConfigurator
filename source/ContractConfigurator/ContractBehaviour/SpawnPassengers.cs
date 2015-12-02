@@ -114,7 +114,9 @@ namespace ContractConfigurator.Behaviour
             {
                 if (visible && !uiHidden)
                 {
-                    if (FlightGlobals.ActiveVessel == null || FlightGlobals.ActiveVessel.situation != Vessel.Situations.PRELAUNCH)
+                    if (FlightGlobals.ActiveVessel == null ||
+                        FlightGlobals.ActiveVessel.situation != Vessel.Situations.PRELAUNCH &&
+                        FlightGlobals.ActiveVessel.situation != Vessel.Situations.LANDED)
                     {
                         visible = false;
                     }
