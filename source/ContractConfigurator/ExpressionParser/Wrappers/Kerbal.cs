@@ -102,7 +102,7 @@ namespace ContractConfigurator
                 RandomizeGender();
                 this.name = name ?? CrewGenerator.GetRandomName(gender, random);
                 experienceTrait = RandomExperienceTrait();
-                kerbalType = ProtoCrewMember.KerbalType.Applicant;
+                kerbalType = ProtoCrewMember.KerbalType.Crew;
             }
         }
 
@@ -148,6 +148,40 @@ namespace ContractConfigurator
         public override string ToString()
         {
             return name;
+        }
+
+        public void Save(ConfigNode node)
+        {
+            node.AddValue("name", name);
+
+            // Only save the detail if there's no ProtoCrewMember
+            if (pcm == null)
+            {
+                node.AddValue("gender", gender);
+                node.AddValue("experienceTrait", experienceTrait);
+                node.AddValue("kerbalType", kerbalType);
+            }
+        }
+
+        public static Kerbal Load(ConfigNode node)
+        {
+            string name = ConfigNodeUtil.ParseValue<string>(node, "name");
+            ProtoCrewMember crew = HighLogic.CurrentGame.CrewRoster.AllKerbals().Where(pcm => pcm.name == name).FirstOrDefault();
+
+            if (crew != null)
+            {
+                return new Kerbal(crew);
+            }
+            else
+            {
+                ProtoCrewMember.Gender gender = ConfigNodeUtil.ParseValue<ProtoCrewMember.Gender>(node, "gender");
+                string experienceTrait = ConfigNodeUtil.ParseValue<string>(node, "experienceTrait");
+                ProtoCrewMember.KerbalType kerbalType = ConfigNodeUtil.ParseValue<ProtoCrewMember.KerbalType>(node, "kerbalType");
+
+                Kerbal k = new Kerbal(gender, name, experienceTrait);
+                k.kerbalType = kerbalType;
+                return k;
+            }
         }
     }
 }

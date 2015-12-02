@@ -20,14 +20,14 @@ namespace ContractConfigurator.Parameters
         protected int maxCrew { get; set; }
         protected int minExperience { get; set; }
         protected int maxExperience { get; set; }
-        protected List<string> kerbals = new List<string>();
+        protected List<Kerbal> kerbals = new List<Kerbal>();
 
         public HasCrew()
             : base(null)
         {
         }
 
-        public HasCrew(string title, IEnumerable<string> kerbals, string trait, int minCrew = 1, int maxCrew = int.MaxValue, int minExperience = 0, int maxExperience = 5)
+        public HasCrew(string title, IEnumerable<Kerbal> kerbals, string trait, int minCrew = 1, int maxCrew = int.MaxValue, int minExperience = 0, int maxExperience = 5)
             : base(title)
         {
             this.minCrew = minCrew;
@@ -147,10 +147,10 @@ namespace ContractConfigurator.Parameters
             }
 
             // Validate specific kerbals
-            foreach (string kerbal in kerbals)
+            foreach (Kerbal kerbal in kerbals)
             {
-                AddParameter(new ParameterDelegate<ProtoCrewMember>(kerbal + ": On board",
-                    pcm => pcm.name == kerbal, ParameterDelegateMatchType.VALIDATE));
+                AddParameter(new ParameterDelegate<ProtoCrewMember>(kerbal.name + ": On board",
+                    pcm => pcm == kerbal.pcm, ParameterDelegateMatchType.VALIDATE));
             }
         }
 
@@ -165,9 +165,12 @@ namespace ContractConfigurator.Parameters
             node.AddValue("maxCrew", maxCrew);
             node.AddValue("minExperience", minExperience);
             node.AddValue("maxExperience", maxExperience);
-            foreach (string kerbal in kerbals)
+            foreach (Kerbal kerbal in kerbals)
             {
-                node.AddValue("kerbal", kerbal);
+                ConfigNode kerbalNode = new ConfigNode("KERBAL");
+                node.AddNode(kerbalNode);
+
+                kerbal.Save(kerbalNode);
             }
         }
 
@@ -181,7 +184,21 @@ namespace ContractConfigurator.Parameters
                 maxExperience = Convert.ToInt32(node.GetValue("maxExperience"));
                 minCrew = Convert.ToInt32(node.GetValue("minCrew"));
                 maxCrew = Convert.ToInt32(node.GetValue("maxCrew"));
-                kerbals = ConfigNodeUtil.ParseValue<List<string>>(node, "kerbal", new List<string>());
+
+                // Legacy support from Contract Configurator 1.8.3
+                if (node.HasValue("kerbal"))
+                {
+                    kerbals = ConfigNodeUtil.ParseValue<List<string>>(node, "kerbal", new List<string>()).Select(
+                        name => new Kerbal(name)
+                    ).ToList();
+                }
+                else
+                {
+                    foreach (ConfigNode kerbalNode in node.GetNodes("KERBAL"))
+                    {
+                        kerbals.Add(Kerbal.Load(kerbalNode));
+                    }
+                }
 
                 CreateDelegates();
             }
@@ -196,6 +213,7 @@ namespace ContractConfigurator.Parameters
             base.OnRegister();
             GameEvents.onCrewTransferred.Add(new EventData<GameEvents.HostedFromToAction<ProtoCrewMember, Part>>.OnEvent(OnCrewTransferred));
             GameEvents.onVesselWasModified.Add(new EventData<Vessel>.OnEvent(OnVesselWasModified));
+            GameEvents.Contract.onAccepted.Add(new EventData<Contract>.OnEvent(OnContractAccepted));
         }
 
         protected override void OnUnregister()
@@ -203,6 +221,24 @@ namespace ContractConfigurator.Parameters
             base.OnUnregister();
             GameEvents.onCrewTransferred.Remove(new EventData<GameEvents.HostedFromToAction<ProtoCrewMember, Part>>.OnEvent(OnCrewTransferred));
             GameEvents.onVesselWasModified.Remove(new EventData<Vessel>.OnEvent(OnVesselWasModified));
+            GameEvents.Contract.onAccepted.Remove(new EventData<Contract>.OnEvent(OnContractAccepted));
+        }
+
+        private void OnContractAccepted(Contract c)
+        {
+            if (c != Root)
+            {
+                return;
+            }
+
+            foreach (Kerbal kerbal in kerbals)
+            {
+                // Instantiate the kerbals if necessary
+                if (kerbal.pcm == null)
+                {
+                    kerbal.GenerateKerbal();
+                }
+            }
         }
 
         protected override void OnPartAttach(GameEvents.HostTargetAction<Part, Part> e)

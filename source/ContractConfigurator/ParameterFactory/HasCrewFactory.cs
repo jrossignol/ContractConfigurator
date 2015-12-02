@@ -51,7 +51,7 @@ namespace ContractConfigurator
                 minCrew = 0;
             }
 
-            return new HasCrew(title, kerbal.Select<Kerbal, string>(k => k.name), trait, minCrew, maxCrew, minExperience, maxExperience);
+            return new HasCrew(title, kerbal, trait, minCrew, maxCrew, minExperience, maxExperience);
         }
     }
 }
