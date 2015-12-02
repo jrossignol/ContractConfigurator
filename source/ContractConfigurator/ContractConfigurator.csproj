@@ -57,6 +57,7 @@
     <Compile Include="BehaviourFactory\ExpressionFactory.cs" />
     <Compile Include="BehaviourFactory\ExperimentalPartFactory.cs" />
     <Compile Include="BehaviourFactory\OrbitGeneratorFactory.cs" />
+    <Compile Include="BehaviourFactory\RemoveKerbalFactory.cs" />
     <Compile Include="BehaviourFactory\SpawnPassengersFactory.cs" />
     <Compile Include="BehaviourFactory\SpawnVesselFactory.cs" />
     <Compile Include="BehaviourFactory\UnlockPartFactory.cs" />
@@ -67,6 +68,7 @@
     <Compile Include="Behaviour\AwardExperience.cs" />
     <Compile Include="Behaviour\RunCutScene.cs" />
     <Compile Include="Behaviour\DestroyVessel.cs" />
+    <Compile Include="Behaviour\RemoveKerbal.cs" />
     <Compile Include="Behaviour\TriggeredBehaviour.cs" />
     <Compile Include="Behaviour\ChangeVesselOwnership.cs" />
     <Compile Include="Behaviour\DialogBox.cs" />
