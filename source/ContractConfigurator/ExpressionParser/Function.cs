@@ -182,4 +182,53 @@ namespace ContractConfigurator.ExpressionParser
             return typeof(TResult);
         }
     }
+
+    public class Function<T1, T2, T3, TResult> : Function
+    {
+        public string Name { get; private set; }
+        public bool Deterministic { get; private set; }
+        protected Func<T1, T2, T3, TResult> Func;
+
+        public Function(string name, Func<T1, T2, T3, TResult> function, bool deterministic = true)
+        {
+            Name = name;
+            Func = function;
+            Deterministic = deterministic;
+        }
+
+        public object Invoke(object[] parameters)
+        {
+            return Invoke((T1)parameters[0], (T2)parameters[1], (T3)parameters[2]);
+        }
+
+        public TResult Invoke(T1 p1, T2 p2, T3 p3)
+        {
+            return Func.Invoke(p1, p2, p3);
+        }
+
+        public int ParameterCount()
+        {
+            return 3;
+        }
+
+        public Type ParameterType(int i)
+        {
+            switch (i)
+            {
+                case 0:
+                    return typeof(T1);
+                case 1:
+                    return typeof(T2);
+                case 2:
+                    return typeof(T3);
+                default:
+                    throw new NotSupportedException();
+            }
+        }
+
+        public Type ReturnType()
+        {
+            return typeof(TResult);
+        }
+    }
 }

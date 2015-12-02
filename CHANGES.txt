@@ -1,4 +1,6 @@
-Contract Configurator 1.8.4
+Contract Configurator 1.9.0
+- New functions for generating kerbals.
+- Can now specify traits for generated kerbals.
 - SpawnVessel CREW nodes now support specifying a gender.
 - SpawnVessel supports specifying a location via PQS City now (like SpawnKerbal).
 - Added minAcceleration and maxAcceleration to ReachState.

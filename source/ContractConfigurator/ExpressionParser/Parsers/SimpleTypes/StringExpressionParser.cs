@@ -37,8 +37,6 @@ namespace ContractConfigurator.ExpressionParser
             RegisterMethod(new Method<string, string, bool>("Contains", (s, value) => s.Contains(value)));
             RegisterMethod(new Method<string, string, bool>("StartsWith", (s, value) => s.StartsWith(value)));
             RegisterMethod(new Method<string, string, bool>("EndsWith", (s, value) => s.EndsWith(value)));
-
-            RegisterGlobalFunction(new Function<ProtoCrewMember.Gender, string>("RandomKerbalName", g => CrewGenerator.GetRandomName(g, random), false));
         }
 
         /// <summary>
