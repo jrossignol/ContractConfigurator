@@ -29,7 +29,7 @@ namespace ContractConfigurator.ExpressionParser
                 skf => {
                     if (skf.Current != null)
                     {
-                        return skf.Current.Kerbals().Select<ProtoCrewMember, Kerbal>(pcm => new Kerbal(pcm)).ToList();
+                        return skf.Current.Kerbals().ToList();
                     }
                     else
                     {

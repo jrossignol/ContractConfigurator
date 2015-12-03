@@ -55,6 +55,15 @@ namespace ContractConfigurator
             Initialize();
         }
 
+        public Kerbal(Kerbal k)
+        {
+            _pcm = k._pcm;
+            name = k.name;
+            gender = k.gender;
+            experienceTrait = k.experienceTrait;
+            kerbalType = k.kerbalType;
+        }
+
         public Kerbal(string name)
         {
             Initialize(name);

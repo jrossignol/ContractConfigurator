@@ -845,14 +845,14 @@ namespace ContractConfigurator.Behaviour
             return node;
         }
 
-        public ProtoCrewMember GetKerbal(int index)
+        public Kerbal GetKerbal(int index)
         {
             int current = index;
             foreach (VesselData vd in vessels)
             {
                 if (current < vd.crew.Count)
                 {
-                    return HighLogic.CurrentGame.CrewRoster.AllKerbals().Where(cm => cm.name == vd.crew[current].name).First();
+                    return new Kerbal(HighLogic.CurrentGame.CrewRoster.AllKerbals().Where(cm => cm.name == vd.crew[current].name).First());
                 }
                 current -= vd.crew.Count;
             }

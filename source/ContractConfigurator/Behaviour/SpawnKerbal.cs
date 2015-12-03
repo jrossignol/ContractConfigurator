@@ -33,7 +33,7 @@ namespace ContractConfigurator.Behaviour
             public KerbalData() { }
             public KerbalData(KerbalData k)
             {
-                kerbal = k.kerbal;
+                kerbal = new Kerbal(k.kerbal);
                 body = k.body;
                 orbit = k.orbit;
                 latitude = k.latitude;
@@ -89,9 +89,6 @@ namespace ContractConfigurator.Behaviour
                 foreach (KerbalData kd in kerbals)
                 {
                     LoggingUtil.LogVerbose(this, "Positioning kerbal " + kd.kerbal.name);
-
-                    // Generate the ProtoCrewMember
-                    kd.kerbal.GenerateKerbal();
 
                     // Generate PQS city coordinates
                     if (kd.pqsCity != null)
@@ -256,6 +253,9 @@ namespace ContractConfigurator.Behaviour
             {
                 LoggingUtil.LogVerbose(this, "Spawning a Kerbal named " + kd.kerbal.name);
 
+                // Generate the ProtoCrewMember
+                kd.kerbal.GenerateKerbal();
+
                 if (kd.altitude == null)
                 {
                     kd.altitude = LocationUtil.TerrainHeight(kd.latitude, kd.longitude, kd.body);
@@ -339,7 +339,7 @@ namespace ContractConfigurator.Behaviour
             {
                 ConfigNode child = new ConfigNode("KERBAL_DETAIL");
 
-                child.AddValue("name", kd.kerbal.name);
+                kd.kerbal.Save(child);
                 child.AddValue("body", kd.body.name);
                 child.AddValue("lat", kd.latitude);
                 child.AddValue("lon", kd.longitude);
@@ -383,15 +383,9 @@ namespace ContractConfigurator.Behaviour
                     kd.orbit = new OrbitSnapshot(child.GetNode("ORBIT")).Load();
                 }
 
-                // Find the ProtoCrewMember
-                string name = child.GetValue("name");
-                kd.kerbal = new Kerbal(HighLogic.CurrentGame.CrewRoster.AllKerbals().Where(cm => cm != null && cm.name == name).FirstOrDefault());
-
-                // Add to the global list
-                if (kd.kerbal._pcm != null)
-                {
-                    kerbals.Add(kd);
-                }
+                // Load the kerbal
+                kd.kerbal = Kerbal.Load(child);
+                kerbals.Add(kd);
             }
         }
 
@@ -519,7 +513,7 @@ namespace ContractConfigurator.Behaviour
             kerbals.Clear();
         }
 
-        public ProtoCrewMember GetKerbal(int index)
+        public Kerbal GetKerbal(int index)
         {
             if (index < 0 || index >= kerbals.Count)
             {
@@ -527,14 +521,14 @@ namespace ContractConfigurator.Behaviour
                     " is out of range for number of Kerbals spawned (" + kerbals.Count + ").");
             }
 
-            return kerbals[index].kerbal.pcm;
+            return kerbals[index].kerbal;
         }
 
-        public IEnumerable<ProtoCrewMember> Kerbals()
+        public IEnumerable<Kerbal> Kerbals()
         {
             foreach (KerbalData kd in kerbals)
             {
-                yield return kd.kerbal.pcm;
+                yield return kd.kerbal;
             }
         }
     }

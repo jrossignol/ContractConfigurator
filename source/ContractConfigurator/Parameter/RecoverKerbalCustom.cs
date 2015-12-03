@@ -216,8 +216,8 @@ namespace ContractConfigurator.Parameters
                 int count = this.count == 0 ? ((ConfiguredContract)contract).GetSpawnedKerbalCount() : this.count;
                 for (int i = 0; i < count; i++)
                 {
-                    ProtoCrewMember kerbal = ((ConfiguredContract)contract).GetSpawnedKerbal(index + i);
-                    kerbals.Add(new Kerbal(kerbal.name));
+                    Kerbal kerbal = ((ConfiguredContract)contract).GetSpawnedKerbal(index + i);
+                    kerbals.Add(kerbal);
                     recovered[kerbal.name] = false;
                 }
 

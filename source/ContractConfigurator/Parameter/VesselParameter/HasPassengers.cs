@@ -137,7 +137,7 @@ namespace ContractConfigurator.Parameters
                 int count = this.count == 0 ? ((ConfiguredContract)contract).GetSpawnedKerbalCount() : this.count;
                 for (int i = 0; i < count; i++)
                 {
-                    ProtoCrewMember kerbal = ((ConfiguredContract)contract).GetSpawnedKerbal(index+i);
+                    ProtoCrewMember kerbal = ((ConfiguredContract)contract).GetSpawnedKerbal(index+i).pcm;
                     passengers.Add(kerbal);
                 }
                 CreateDelegates();

@@ -9,12 +9,12 @@ namespace ContractConfigurator
     public interface IHasKerbalBehaviour
     {
         int KerbalCount { get; }
-        ProtoCrewMember GetKerbal(int index);
+        Kerbal GetKerbal(int index);
     }
 
     public static class IHasKerbalBehaviourExtensions
     {
-        public static ProtoCrewMember GetSpawnedKerbal(this ConfiguredContract contract, int index)
+        public static Kerbal GetSpawnedKerbal(this ConfiguredContract contract, int index)
         {
             int current = index;
             int total = 0;

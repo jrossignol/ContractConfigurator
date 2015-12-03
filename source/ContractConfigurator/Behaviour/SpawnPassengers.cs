@@ -498,7 +498,7 @@ namespace ContractConfigurator.Behaviour
             passengers.Clear();
         }
 
-        public ProtoCrewMember GetKerbal(int index)
+        public Kerbal GetKerbal(int index)
         {
             if (index < 0 || index >= passengers.Count)
             {
@@ -511,7 +511,7 @@ namespace ContractConfigurator.Behaviour
             {
                 if (i++ == index)
                 {
-                    return pcm;
+                    return new Kerbal(pcm);
                 }
             }
             return null;
