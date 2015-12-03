@@ -58,12 +58,14 @@ namespace ContractConfigurator.Parameters
         {
             base.OnRegister();
             GameEvents.onVesselWasModified.Add(new EventData<Vessel>.OnEvent(OnVesselWasModified));
+            GameEvents.onVesselRename.Add(new EventData<GameEvents.HostedFromToAction<Vessel,string>>.OnEvent(OnVesselRename));
         }
 
         protected override void OnUnregister()
         {
             base.OnUnregister();
             GameEvents.onVesselWasModified.Remove(new EventData<Vessel>.OnEvent(OnVesselWasModified));
+            GameEvents.onVesselRename.Remove(new EventData<GameEvents.HostedFromToAction<Vessel, string>>.OnEvent(OnVesselRename));
         }
 
         protected override void OnFlightReady()
@@ -87,6 +89,11 @@ namespace ContractConfigurator.Parameters
         protected void OnVesselWasModified(Vessel vessel)
         {
             CheckVessel(vessel);
+        }
+
+        protected void OnVesselRename(GameEvents.HostedFromToAction<Vessel, string> hfta)
+        {
+            CheckVessel(hfta.host);
         }
 
         /// <summary>
