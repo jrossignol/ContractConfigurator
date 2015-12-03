@@ -14,6 +14,7 @@ Contract Configurator 1.9.0
 - Fixed exception using UnlockPart without part unlocking set on the current game (thanks inigmatus).
 - Fixed issue with crew that aren't properly removed on contract completion (thanks inigmatus).
 - Fixed issue where experimental status of parts never goes away - even when a tech is researched (thanks inigmatus).
+- Fixed issue with VesselDestroy causing vessel markers to appear when invoked at KSC (thanks inigmatus).
 
 Contract Configurator 1.8.3
 - Fixed NullReferenceException in code introduced in 1.8.2 (thanks kunok).
