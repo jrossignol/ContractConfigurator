@@ -171,7 +171,7 @@ namespace ContractConfigurator.ExpressionParser
                     BaseParser altParser = GetParser(type);
 
                     // Call the method on the alternate parser
-                    MethodInfo method = altParser.GetType().GetMethods(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy).
+                    MethodInfo method = altParser.GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy).
                         Where(m => m.Name == "ParseStatementInner").Single();
                     method = method.MakeGenericMethod(new Type[] { typeof(TResult) });
                     try
@@ -588,7 +588,7 @@ namespace ContractConfigurator.ExpressionParser
                 BaseParser altParser = GetParser(type);
 
                 // Call the method on the alternate parser
-                MethodInfo method = altParser.GetType().GetMethods(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy).
+                MethodInfo method = altParser.GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy).
                     Where(m => m.Name == "ParseStatementInner").Single();
                 method = method.MakeGenericMethod(new Type[] { typeof(T) });
                 try
@@ -797,7 +797,7 @@ namespace ContractConfigurator.ExpressionParser
                 {
                     BaseParser methodParser = GetParser(pair.Value);
 
-                    MethodInfo parseMethod = methodParser.GetType().GetMethods(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy).
+                    MethodInfo parseMethod = methodParser.GetType().GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy).
                         Where(m => m.Name == "ParseMethod" && m.GetParameters().Count() == 3).Single();
                     parseMethod = parseMethod.MakeGenericMethod(new Type[] { typeof(T) });
 
@@ -886,7 +886,7 @@ namespace ContractConfigurator.ExpressionParser
                 {
                     BaseParser methodParser = GetParser(returnType);
 
-                    MethodInfo parseMethod = methodParser.GetType().GetMethods(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy).
+                    MethodInfo parseMethod = methodParser.GetType().GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy).
                         Where(m => m.Name == "ParseMethod" && m.GetParameters().Count() == 3).Single();
                     parseMethod = parseMethod.MakeGenericMethod(new Type[] { typeof(TResult) });
                     returnType = typeof(TResult);
@@ -916,9 +916,9 @@ namespace ContractConfigurator.ExpressionParser
                     BaseParser parser = GetParser(selectedMethod.ReturnType());
 
                     MethodInfo getRval = parser.GetType().GetMethod("GetRval",
-                        BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
+                        BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
                     MethodInfo applyBooleanOperator = parser.GetType().GetMethod("ApplyBooleanOperator",
-                        BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
+                        BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
 
                     try
                     {
@@ -1078,7 +1078,7 @@ namespace ContractConfigurator.ExpressionParser
 
                     try
                     {
-                        MethodInfo method = parser.GetType().GetMethods(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy).
+                        MethodInfo method = parser.GetType().GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy).
                             Where(m => m.Name == "ParseStatement" && m.GetParameters().Count() == 0).Single();
                         method = method.MakeGenericMethod(new Type[] { paramType });
                         object value = method.Invoke(parser, new object[] { });
@@ -1186,7 +1186,7 @@ namespace ContractConfigurator.ExpressionParser
                     T result;
                     try
                     {
-                        MethodInfo completeIdentifierParsing = GetType().GetMethods(BindingFlags.NonPublic | BindingFlags.Instance).
+                        MethodInfo completeIdentifierParsing = GetType().GetMethods(BindingFlags.Public | BindingFlags.Instance).
                             Where(mi => mi.Name == "CompleteIdentifierParsing").First();
                         completeIdentifierParsing = completeIdentifierParsing.MakeGenericMethod(new Type[] { dataType });
 
@@ -1291,7 +1291,7 @@ namespace ContractConfigurator.ExpressionParser
 
                 try
                 {
-                    MethodInfo completeIdentifierParsing = GetType().GetMethods(BindingFlags.NonPublic | BindingFlags.Instance).
+                    MethodInfo completeIdentifierParsing = GetType().GetMethods(BindingFlags.Public | BindingFlags.Instance).
                         Where(mi => mi.Name == "CompleteIdentifierParsing").First();
                     completeIdentifierParsing = completeIdentifierParsing.MakeGenericMethod(new Type[] { dataType });
 
@@ -1602,7 +1602,7 @@ namespace ContractConfigurator.ExpressionParser
                 }
             }
 
-            MethodInfo convertMethod = GetType().GetMethod("_ConvertType", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
+            MethodInfo convertMethod = GetType().GetMethod("_ConvertType", BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
             convertMethod = convertMethod.MakeGenericMethod(new Type[] { value.GetType() });
 
             try
