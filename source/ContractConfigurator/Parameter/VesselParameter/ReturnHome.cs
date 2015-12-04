@@ -22,7 +22,8 @@ namespace ContractConfigurator.Parameters
         public ReturnHome(string title)
             : base(title)
         {
-            this.title = title != null ? title : "Return home";
+            CelestialBody home = FlightGlobals.Bodies.Where(cb => cb.isHomeWorld).First();
+            this.title = title != null ? title : "Land or splashdown on " + home.theName;
         }
 
         protected override void OnParameterSave(ConfigNode node)
