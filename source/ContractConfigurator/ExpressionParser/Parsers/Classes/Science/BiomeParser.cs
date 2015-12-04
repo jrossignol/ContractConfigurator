@@ -23,7 +23,7 @@ namespace ContractConfigurator.ExpressionParser
             RegisterParserType(typeof(Biome), typeof(BiomeParser));
         }
 
-        internal static void RegisterMethods()
+        public static void RegisterMethods()
         {
             RegisterMethod(new Method<Biome, string>("Name", biome => biome == null ? "" : Biome.PrintBiomeName(biome.biome)));
             RegisterMethod(new Method<Biome, string>("FullName", biome => biome == null ? "" : biome.ToString()));
@@ -55,7 +55,7 @@ namespace ContractConfigurator.ExpressionParser
                 subj.scienceCap * HighLogic.CurrentGame.Parameters.Career.ScienceGainMultiplier - subj.science);
         }
 
-        internal override Biome ParseIdentifier(Token token)
+        public override Biome ParseIdentifier(Token token)
         {
             // Try to parse more, as biome names can have spaces
             Match m = Regex.Match(expression, @"^((?>\s*[\w\d]+)+).*");

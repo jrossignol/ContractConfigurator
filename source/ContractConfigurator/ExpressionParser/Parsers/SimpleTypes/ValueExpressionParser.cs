@@ -24,32 +24,32 @@ namespace ContractConfigurator.ExpressionParser
         {
         }
 
-        internal override bool LT(T a, T b)
+        public override bool LT(T a, T b)
         {
             return a.CompareTo(b) < 0;
         }
 
-        internal override bool LE(T a, T b)
+        public override bool LE(T a, T b)
         {
             return a.CompareTo(b) <= 0;
         }
 
-        internal override bool EQ(T a, T b)
+        public override bool EQ(T a, T b)
         {
             return a.CompareTo(b) == 0;
         }
 
-        internal override bool NE(T a, T b)
+        public override bool NE(T a, T b)
         {
             return a.CompareTo(b) != 0;
         }
 
-        internal override bool GE(T a, T b)
+        public override bool GE(T a, T b)
         {
             return a.CompareTo(b) >= 0;
         }
 
-        internal override bool GT(T a, T b)
+        public override bool GT(T a, T b)
         {
             return a.CompareTo(b) > 0;
         }

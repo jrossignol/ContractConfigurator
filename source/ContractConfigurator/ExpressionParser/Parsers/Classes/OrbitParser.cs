@@ -22,7 +22,7 @@ namespace ContractConfigurator.ExpressionParser
             RegisterParserType(typeof(Orbit), typeof(OrbitParser));
         }
 
-        internal static void RegisterMethods()
+        public static void RegisterMethods()
         {
             RegisterLocalFunction(new Function<List<double>, int, Orbit>("CreateOrbit", CreateOrbit));
         }

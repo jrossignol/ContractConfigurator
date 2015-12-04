@@ -22,7 +22,7 @@ namespace ContractConfigurator.ExpressionParser
             RegisterParserType(typeof(Contract.ContractPrestige), typeof(PrestigeParser));
         }
 
-        internal new static void RegisterMethods()
+        public new static void RegisterMethods()
         {
             // Prestige methods
             RegisterMethod(new Method<Contract.ContractPrestige, double>("Multiplier", p => GameVariables.Instance.GetContractPrestigeFactor(p)));

@@ -41,7 +41,7 @@ namespace ContractConfigurator.ExpressionParser
             RegisterParserType(typeof(CelestialBody), typeof(CelestialBodyParser));
         }
 
-        internal static void RegisterMethods()
+        public static void RegisterMethods()
         {
             RegisterMethod(new Method<CelestialBody, bool>("HasAtmosphere", cb => cb != null && cb.atmosphere));
             RegisterMethod(new Method<CelestialBody, bool>("HasOcean", cb => cb != null && cb.ocean));
@@ -94,7 +94,7 @@ namespace ContractConfigurator.ExpressionParser
         {
         }
 
-        internal override U ConvertType<U>(CelestialBody value)
+        public override U ConvertType<U>(CelestialBody value)
         {
             if (typeof(U) == typeof(string))
             {
@@ -181,7 +181,7 @@ namespace ContractConfigurator.ExpressionParser
         }
 
 
-        internal override CelestialBody ParseIdentifier(Token token)
+        public override CelestialBody ParseIdentifier(Token token)
         {
             if (token.sval.Equals("null", StringComparison.CurrentCultureIgnoreCase))
             {

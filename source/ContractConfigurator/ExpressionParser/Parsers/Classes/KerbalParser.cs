@@ -24,7 +24,7 @@ namespace ContractConfigurator.ExpressionParser
             RegisterParserType(typeof(Kerbal), typeof(KerbalParser));
         }
 
-        internal static void RegisterMethods()
+        public static void RegisterMethods()
         {
             RegisterMethod(new Method<Kerbal, float>("Experience", k => k == null ? 0.0f : k.experience));
             RegisterMethod(new Method<Kerbal, int>("ExperienceLevel", k => k == null ? 0 : k.experienceLevel));
@@ -50,7 +50,7 @@ namespace ContractConfigurator.ExpressionParser
         {
         }
 
-        internal override U ConvertType<U>(Kerbal value)
+        public override U ConvertType<U>(Kerbal value)
         {
             if (typeof(U) == typeof(string))
             {
@@ -66,7 +66,7 @@ namespace ContractConfigurator.ExpressionParser
             return k;
         }
 
-        internal override Kerbal ParseIdentifier(Token token)
+        public override Kerbal ParseIdentifier(Token token)
         {
             // Try to parse more, as Kerbal names can have spaces
             Match m = Regex.Match(expression, @"^((?>\s*[\w\d]+)+).*");

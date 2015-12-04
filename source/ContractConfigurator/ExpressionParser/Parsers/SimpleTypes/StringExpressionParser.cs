@@ -28,7 +28,7 @@ namespace ContractConfigurator.ExpressionParser
         {
         }
 
-        internal static void RegisterMethods()
+        public static void RegisterMethods()
         {
             RegisterMethod(new Method<string, string>("ToLower", s => s == null ? "" : s.ToLower()));
             RegisterMethod(new Method<string, string>("ToUpper", s => s == null ? "" : s.ToUpper()));
@@ -44,7 +44,7 @@ namespace ContractConfigurator.ExpressionParser
         /// @identifier nodes, with the rest treated as a string literal.
         /// </summary>
         /// <returns>The full string after parsing</returns>
-        internal override TResult ParseStatement<TResult>()
+        public override TResult ParseStatement<TResult>()
         {
             verbose &= LogEntryDebug<TResult>("ParseStatement");
             try
@@ -208,7 +208,7 @@ namespace ContractConfigurator.ExpressionParser
             }
         }
 
-        internal override string Add(string a, string b)
+        public override string Add(string a, string b)
         {
             return string.Concat(a, b);
         }

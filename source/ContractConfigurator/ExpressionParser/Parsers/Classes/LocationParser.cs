@@ -24,7 +24,7 @@ namespace ContractConfigurator.ExpressionParser
             RegisterParserType(typeof(Location), typeof(LocationParser));
         }
 
-        internal static void RegisterMethods()
+        public static void RegisterMethods()
         {
             RegisterMethod(new Method<Location, double>("Latitude", location => location == null ? 0.0 : location.lat));
             RegisterMethod(new Method<Location, double>("Longitude", location => location == null ? 0.0 : location.lon));

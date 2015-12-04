@@ -23,7 +23,7 @@ namespace ContractConfigurator.ExpressionParser
             RegisterParserType(typeof(SpawnKerbalFactory), typeof(SpawnKerbalParser));
         }
 
-        internal static void RegisterMethods()
+        public static void RegisterMethods()
         {
             RegisterMethod(new Method<SpawnKerbalFactory, List<Kerbal>>("Kerbals",
                 skf => {

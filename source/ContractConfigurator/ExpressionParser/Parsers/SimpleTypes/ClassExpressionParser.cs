@@ -21,12 +21,12 @@ namespace ContractConfigurator.ExpressionParser
             RegisterClassMethods();
         }
 
-        internal static void RegisterClassMethods()
+        public static void RegisterClassMethods()
         {
             RegisterMethod(new Method<T, string>("ToString", v => v == null ? "" : GetParser<T>().ConvertType<string>(v)));
         }
 
-        internal override bool EQ(T a, T b)
+        public override bool EQ(T a, T b)
         {
             if (a == b)
             {
@@ -40,7 +40,7 @@ namespace ContractConfigurator.ExpressionParser
             return a.Equals(b);
         }
 
-        internal override bool NE(T a, T b)
+        public override bool NE(T a, T b)
         {
             return !EQ(a, b);
         }
@@ -53,37 +53,37 @@ namespace ContractConfigurator.ExpressionParser
         {
         }
 
-        internal override bool LT(T a, T b)
+        public override bool LT(T a, T b)
         {
             return a.CompareTo(b) < 0;
         }
 
-        internal override bool LE(T a, T b)
+        public override bool LE(T a, T b)
         {
             return a.CompareTo(b) <= 0;
         }
 
-        internal override bool EQ(T a, T b)
+        public override bool EQ(T a, T b)
         {
             return a.CompareTo(b) == 0;
         }
 
-        internal override bool NE(T a, T b)
+        public override bool NE(T a, T b)
         {
             return a.CompareTo(b) != 0;
         }
 
-        internal override bool GE(T a, T b)
+        public override bool GE(T a, T b)
         {
             return a.CompareTo(b) >= 0;
         }
 
-        internal override bool GT(T a, T b)
+        public override bool GT(T a, T b)
         {
             return a.CompareTo(b) > 0;
         }
 
-        internal override T ParseIdentifier(Token token)
+        public override T ParseIdentifier(Token token)
         {
             if (token.sval.Equals("null", StringComparison.CurrentCultureIgnoreCase))
             {

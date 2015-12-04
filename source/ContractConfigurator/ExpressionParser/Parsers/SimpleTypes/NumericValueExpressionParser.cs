@@ -115,7 +115,7 @@ namespace ContractConfigurator.ExpressionParser
             RegisterMethods();
         }
     
-        internal static void RegisterMethods()
+        public static void RegisterMethods()
         {
             if (typeof(T) == typeof(int))
             {
@@ -262,7 +262,7 @@ namespace ContractConfigurator.ExpressionParser
             }
         }
 
-        internal override Token ParseNumericConstant()
+        public override Token ParseNumericConstant()
         {
             try
             {
@@ -292,37 +292,37 @@ namespace ContractConfigurator.ExpressionParser
             }
         }
 
-        internal override T Negate(T val)
+        public override T Negate(T val)
         {
             return calculator.Negate(val);
         }
 
-        internal override T Add(T a, T b)
+        public override T Add(T a, T b)
         {
             return calculator.Add(a, b);
         }
 
-        internal override T Sub(T a, T b)
+        public override T Sub(T a, T b)
         {
             return calculator.Sub(a, b);
         }
 
-        internal override T Mult(T a, T b)
+        public override T Mult(T a, T b)
         {
             return calculator.Mult(a, b);
         }
 
-        internal override T Div(T a, T b)
+        public override T Div(T a, T b)
         {
             return calculator.Div(a, b);
         }
 
-        internal override bool EQ(T a, T b)
+        public override bool EQ(T a, T b)
         {
             return calculator.EQ(a, b);
         }
 
-        internal override bool NE(T a, T b)
+        public override bool NE(T a, T b)
         {
             return calculator.NE(a, b);
         }
@@ -332,7 +332,7 @@ namespace ContractConfigurator.ExpressionParser
         /// </summary>
         /// <param name="token">Token of the identifier to parse</param>
         /// <returns>Value of the identifier</returns>
-        internal override T ParseIdentifier(Token token)
+        public override T ParseIdentifier(Token token)
         {
             if (typeof(T) == typeof(double) || typeof(T) == typeof(float))
             {

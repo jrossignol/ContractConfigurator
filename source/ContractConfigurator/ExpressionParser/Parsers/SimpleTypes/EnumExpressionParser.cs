@@ -18,7 +18,7 @@ namespace ContractConfigurator.ExpressionParser
             RegisterMethods();
         }
 
-        internal static void RegisterMethods()
+        public static void RegisterMethods()
         {
             RegisterMethod(new Method<T, string>("ToString", v => GetParser<T>().ConvertType<string>(v)));
 
@@ -37,7 +37,7 @@ namespace ContractConfigurator.ExpressionParser
         {
         }
 
-        internal override U ConvertType<U>(T value)
+        public override U ConvertType<U>(T value)
         {
             // Handle the basic case
             if (typeof(U) == typeof(T))
@@ -53,17 +53,17 @@ namespace ContractConfigurator.ExpressionParser
             throw new DataStoreCastException(typeof(T), typeof(U));
         }
 
-        internal override T ParseIdentifier(Token token)
+        public override T ParseIdentifier(Token token)
         {
             return (T)Enum.Parse(typeof(T), token.sval);
         }
 
-        internal override bool EQ(T a, T b)
+        public override bool EQ(T a, T b)
         {
             return a.ToInt32(null) == b.ToInt32(null);
         }
 
-        internal override bool NE(T a, T b)
+        public override bool NE(T a, T b)
         {
             return a.ToInt32(null) != b.ToInt32(null);
         }

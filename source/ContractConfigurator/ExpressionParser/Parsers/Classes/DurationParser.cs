@@ -24,7 +24,7 @@ namespace ContractConfigurator.ExpressionParser
             RegisterParserType(typeof(Duration), typeof(DurationParser));
         }
 
-        internal static void RegisterMethods()
+        public static void RegisterMethods()
         {
             RegisterLocalFunction(new Function<Duration, Duration, Duration>("Random", RandomMinMax, false));
             RegisterLocalFunction(new Function<Duration, Duration, Duration>("Round", Round));
@@ -46,7 +46,7 @@ namespace ContractConfigurator.ExpressionParser
             return new Duration(val);
         }
 
-        internal override U ConvertType<U>(Duration value)
+        public override U ConvertType<U>(Duration value)
         {
             if (typeof(U) == typeof(double))
             {
@@ -55,18 +55,18 @@ namespace ContractConfigurator.ExpressionParser
             return base.ConvertType<U>(value);
         }
 
-        internal override bool ConvertableFrom(Type type)
+        public override bool ConvertableFrom(Type type)
         {
             return type == typeof(int) || type == typeof(double);
         }
 
-        internal override Duration ConvertFrom<U>(U value)
+        public override Duration ConvertFrom<U>(U value)
         {
             double dval = (double)(object)value;
             return new Duration(dval);
         }
 
-        internal override Token ParseNumericConstant()
+        public override Token ParseNumericConstant()
         {
             // Try to parse more, as durations can have spaces
             Match m = Regex.Match(expression, @"^((?>\s*[\d][\w\d]*[\w])+).*");

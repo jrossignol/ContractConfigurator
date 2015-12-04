@@ -24,7 +24,7 @@ namespace ContractConfigurator.ExpressionParser
             RegisterParserType(typeof(CelestialBody), typeof(CelestialBodyParser));
         }
 
-        internal static void RegisterMethods()
+        public static void RegisterMethods()
         {
             RegisterMethod(new Method<List<T>, T>("Random", l => l.Any() ? l.Skip(r.Next(l.Count)).First() : default(T), false));
             RegisterMethod(new Method<List<T>, int, List<T>>("Random", RandomList, false));
@@ -74,7 +74,7 @@ namespace ContractConfigurator.ExpressionParser
         {
         }
 
-        internal override TResult ParseMethod<TResult>(Token token, List<T> obj, bool isFunction = false)
+        public override TResult ParseMethod<TResult>(Token token, List<T> obj, bool isFunction = false)
         {
             if (token.sval == "Where")
             {
@@ -86,7 +86,7 @@ namespace ContractConfigurator.ExpressionParser
             }
         }
 
-        internal TResult ParseWhereMethod<TResult>(List<T> obj)
+        public TResult ParseWhereMethod<TResult>(List<T> obj)
         {
             verbose &= LogEntryDebug<TResult>("ParseWhereMethod", obj != null ? obj.ToString() : "null");
             try
@@ -160,7 +160,7 @@ namespace ContractConfigurator.ExpressionParser
             }
         }
         
-        internal override TResult ParseList<TResult>()
+        public override TResult ParseList<TResult>()
         {
             // Use the regular type parser to do the parting
             ExpressionParser<T> parser = GetParser<T>(this);

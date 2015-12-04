@@ -22,7 +22,7 @@ namespace ContractConfigurator.ExpressionParser
             RegisterParserType(typeof(Tech), typeof(TechParser));
         }
 
-        internal static void RegisterMethods()
+        public static void RegisterMethods()
         {
             RegisterMethod(new Method<Tech, bool>("IsUnlocked", t => t == null ? false : t.IsUnlocked(), false));
             RegisterMethod(new Method<Tech, bool>("IsReadyToUnlock", t => t == null ? false : t.IsReadyToUnlock(), false));
@@ -48,7 +48,7 @@ namespace ContractConfigurator.ExpressionParser
             return Tech.AllTech().Where(t => t.IsUnlocked()).Select(t => t.level).Max();
         }
 
-        internal override U ConvertType<U>(Tech value)
+        public override U ConvertType<U>(Tech value)
         {
             if (typeof(U) == typeof(string))
             {
@@ -57,7 +57,7 @@ namespace ContractConfigurator.ExpressionParser
             return base.ConvertType<U>(value);
         }
 
-        internal override Tech ParseIdentifier(Token token)
+        public override Tech ParseIdentifier(Token token)
         {
             // Try to parse more, as Tech names can have spaces (wait, can they?)
             Match m = Regex.Match(expression, @"^((?>\s*[\w\d]+)+).*");

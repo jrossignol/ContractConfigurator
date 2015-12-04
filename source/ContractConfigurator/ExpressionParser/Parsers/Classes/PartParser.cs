@@ -22,7 +22,7 @@ namespace ContractConfigurator.ExpressionParser
             RegisterParserType(typeof(AvailablePart), typeof(PartParser));
         }
 
-        internal static void RegisterMethods()
+        public static void RegisterMethods()
         {
             RegisterMethod(new Method<AvailablePart, PartCategories>("Category", p => p == null ? 0 : p.category));
             RegisterMethod(new Method<AvailablePart, float>("Cost", p => p == null ? 0.0f : p.cost));
@@ -46,7 +46,7 @@ namespace ContractConfigurator.ExpressionParser
         {
         }
 
-        internal override U ConvertType<U>(AvailablePart value)
+        public override U ConvertType<U>(AvailablePart value)
         {
             if (typeof(U) == typeof(string))
             {
@@ -55,7 +55,7 @@ namespace ContractConfigurator.ExpressionParser
             return base.ConvertType<U>(value);
         }
 
-        internal override Token ParseNumericConstant()
+        public override Token ParseNumericConstant()
         {
             // Parse as an identifier
             Token t = new Token(TokenType.IDENTIFIER);
@@ -139,7 +139,7 @@ namespace ContractConfigurator.ExpressionParser
             return 0.0f;
         }
 
-        internal override AvailablePart ParseIdentifier(Token token)
+        public override AvailablePart ParseIdentifier(Token token)
         {
             // Try to parse more, as part names can have spaces and other weird characters
             Match m = Regex.Match(expression, @"^((?>\s*[\w\d-\.]+)+).*");

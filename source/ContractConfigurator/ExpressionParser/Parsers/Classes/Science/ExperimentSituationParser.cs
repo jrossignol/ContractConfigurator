@@ -22,7 +22,7 @@ namespace ContractConfigurator.ExpressionParser
         {
         }
 
-        internal override U ConvertType<U>(ExperimentSituations value)
+        public override U ConvertType<U>(ExperimentSituations value)
         {
             if (typeof(U) == typeof(string))
             {

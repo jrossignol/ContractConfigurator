@@ -24,7 +24,7 @@ namespace ContractConfigurator.ExpressionParser
             RegisterParserType(typeof(WaypointGeneratorFactory), typeof(WaypointGeneratorParser));
         }
 
-        internal static void RegisterMethods()
+        public static void RegisterMethods()
         {
             RegisterMethod(new Method<WaypointGeneratorFactory, List<Waypoint>>("Waypoints",
                 wgf =>

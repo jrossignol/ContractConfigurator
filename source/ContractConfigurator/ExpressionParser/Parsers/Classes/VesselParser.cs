@@ -22,7 +22,7 @@ namespace ContractConfigurator.ExpressionParser
             RegisterParserType(typeof(Vessel), typeof(VesselParser));
         }
 
-        internal static void RegisterMethods()
+        public static void RegisterMethods()
         {
             RegisterMethod(new Method<Vessel, bool>("IsLanded", v => v != null && v.Landed, false));
             RegisterMethod(new Method<Vessel, bool>("IsSplashed", v => v != null && v.Splashed, false));
@@ -224,7 +224,7 @@ namespace ContractConfigurator.ExpressionParser
             return orbit.eccentricity;
         }
 
-        internal override U ConvertType<U>(Vessel value)
+        public override U ConvertType<U>(Vessel value)
         {
             if (typeof(U) == typeof(string))
             {
@@ -250,7 +250,7 @@ namespace ContractConfigurator.ExpressionParser
             return base.ConvertType<U>(value);
         }
 
-        internal override Vessel ParseIdentifier(Token token)
+        public override Vessel ParseIdentifier(Token token)
         {
             // Try to parse more, as vessel names can have spaces
             Match m = Regex.Match(expression, @"^((?>\s*[\w\d\-\.]+)+).*");

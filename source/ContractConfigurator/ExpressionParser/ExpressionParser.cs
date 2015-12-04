@@ -20,14 +20,14 @@ namespace ContractConfigurator.ExpressionParser
         {
         }
 
-        internal static Dictionary<string, List<Function>> classMethods = new Dictionary<string, List<Function>>();
-        internal static Dictionary<string, List<Function>> classFunctions = new Dictionary<string, List<Function>>();
+        public static Dictionary<string, List<Function>> classMethods = new Dictionary<string, List<Function>>();
+        public static Dictionary<string, List<Function>> classFunctions = new Dictionary<string, List<Function>>();
 
         /// <summary>
         /// Registers a method that can be called on the given type.
         /// </summary>
         /// <param name="method">The callable method.</param>
-        internal static void RegisterMethod(Function method)
+        public static void RegisterMethod(Function method)
         {
             if (!classMethods.ContainsKey(method.Name))
             {
@@ -40,7 +40,7 @@ namespace ContractConfigurator.ExpressionParser
         /// Registers a function that is only available in the contract of the given type.
         /// </summary>
         /// <param name="method">The callable function.</param>
-        internal static void RegisterLocalFunction(Function function)
+        public static void RegisterLocalFunction(Function function)
         {
             if (!classFunctions.ContainsKey(function.Name))
             {
@@ -54,7 +54,7 @@ namespace ContractConfigurator.ExpressionParser
         /// </summary>
         /// <param name="name">Name of the function</param>
         /// <returns>Enumeration of functions</returns>
-        internal IEnumerable<Function> GetFunctions(string name)
+        public IEnumerable<Function> GetFunctions(string name)
         {
             if (classFunctions.ContainsKey(name))
             {
@@ -147,7 +147,7 @@ namespace ContractConfigurator.ExpressionParser
             }
         }
 
-        internal virtual TResult ParseStatement<TResult>()
+        public virtual TResult ParseStatement<TResult>()
         {
             verbose &= LogEntryDebug<TResult>("ParseStatement");
             try
@@ -202,7 +202,7 @@ namespace ContractConfigurator.ExpressionParser
             }
         }
 
-        internal virtual TResult ParseStatementInner<TResult>()
+        public virtual TResult ParseStatementInner<TResult>()
         {
             verbose &= LogEntryDebug<TResult>("ParseStatementInner");
             try
@@ -219,7 +219,7 @@ namespace ContractConfigurator.ExpressionParser
             }
         }
 
-        internal TResult ParseStatement<TResult>(T lval)
+        public TResult ParseStatement<TResult>(T lval)
         {
             verbose &= LogEntryDebug<TResult>("ParseStatement", lval);
             try
@@ -333,7 +333,7 @@ namespace ContractConfigurator.ExpressionParser
             }
         }
 
-        internal TResult ParseSimpleStatement<TResult>()
+        public TResult ParseSimpleStatement<TResult>()
         {
             verbose &= LogEntryDebug<TResult>("ParseSimpleStatement");
             try
@@ -497,7 +497,7 @@ namespace ContractConfigurator.ExpressionParser
             }
         }
 
-        internal virtual TResult ParseList<TResult>()
+        public virtual TResult ParseList<TResult>()
         {
             verbose &= LogEntryDebug<TResult>("ParseList");
             try
@@ -569,7 +569,7 @@ namespace ContractConfigurator.ExpressionParser
             }
         }
 
-        internal T GetRval()
+        public T GetRval()
         {
             string savedExpression = expression;
             try
@@ -612,7 +612,7 @@ namespace ContractConfigurator.ExpressionParser
             }
         }
 
-        internal TResult ParseTernary<TResult>(bool lval)
+        public TResult ParseTernary<TResult>(bool lval)
         {
             verbose &= LogEntryDebug<TResult>("ParseTernary", lval);
 
@@ -637,7 +637,7 @@ namespace ContractConfigurator.ExpressionParser
             return result;
         }
 
-        internal Token ParseToken()
+        public Token ParseToken()
         {
             expression = expression.Trim();
 
@@ -712,7 +712,7 @@ namespace ContractConfigurator.ExpressionParser
             throw new ArgumentException("Expected a valid expression, found: '" + c + "'");
         }
 
-        internal Token ParseMethodToken()
+        public Token ParseMethodToken()
         {
             string savedExpression = expression;
             Token token;
@@ -741,7 +741,7 @@ namespace ContractConfigurator.ExpressionParser
             return null;
         }
 
-        internal Token ParseMethodEndToken()
+        public Token ParseMethodEndToken()
         {
             string savedExpression = expression;
             Token token;
@@ -771,7 +771,7 @@ namespace ContractConfigurator.ExpressionParser
             }
         }
 
-        internal void ParseToken(string expected)
+        public void ParseToken(string expected)
         {
             Token token = ParseToken();
             if (token == null)
@@ -784,7 +784,7 @@ namespace ContractConfigurator.ExpressionParser
             }
         }
 
-        internal virtual T ParseVarOrIdentifier(Token token)
+        public virtual T ParseVarOrIdentifier(Token token)
         {
             // Look it up in temporary variables
             if (tempVariables.ContainsKey(token.sval))
@@ -831,12 +831,12 @@ namespace ContractConfigurator.ExpressionParser
         /// </summary>
         /// <param name="token">Token of the identifier to parse</param>
         /// <returns>Value of the identifier</returns>
-        internal virtual T ParseIdentifier(Token token)
+        public virtual T ParseIdentifier(Token token)
         {
             throw new NotSupportedException("Can't parse identifier for type " + typeof(T) + " in class " + this.GetType() + " - not supported!");
         }
 
-        internal virtual TResult ParseMethod<TResult>(Token token, T obj, bool isFunction = false)
+        public virtual TResult ParseMethod<TResult>(Token token, T obj, bool isFunction = false)
         {
             verbose &= LogEntryDebug<TResult>("ParseMethod", token.sval, obj, isFunction);
             try
@@ -957,7 +957,7 @@ namespace ContractConfigurator.ExpressionParser
             }
         }
 
-        internal IEnumerable<object> GetCalledFunction(string functionName, ref Function selectedMethod, bool isFunction = false)
+        public IEnumerable<object> GetCalledFunction(string functionName, ref Function selectedMethod, bool isFunction = false)
         {
             IEnumerable<Function> methods;
             
@@ -1108,7 +1108,7 @@ namespace ContractConfigurator.ExpressionParser
             return parameters.Select<KeyValuePair<object, Type>, object>(x => x.Key);
         }
 
-        internal T ParseFunction(Token token)
+        public T ParseFunction(Token token)
         {
             return ParseMethod<T>(token, default(T), true);
         }
@@ -1118,7 +1118,7 @@ namespace ContractConfigurator.ExpressionParser
         /// </summary>
         /// <param name="token">Token of the identifier to parse</param>
         /// <returns>Value of the config node identifier</returns>
-        internal virtual T ParseSpecialIdentifier(Token token)
+        public virtual T ParseSpecialIdentifier(Token token)
         {
             verbose &= LogEntryDebug<T>("ParseSpecialIdentifier", token);
             try
@@ -1217,7 +1217,7 @@ namespace ContractConfigurator.ExpressionParser
             }
         }
 
-        internal virtual T CompleteIdentifierParsing<U>(U value)
+        public virtual T CompleteIdentifierParsing<U>(U value)
         {
             verbose &= LogEntryDebug<T>("CompleteIdentifierParsing", value);
 
@@ -1267,7 +1267,7 @@ namespace ContractConfigurator.ExpressionParser
         /// </summary>
         /// <param name="token">Token of the identifier to parse</param>
         /// <returns>Value of the config node identifier</returns>
-        internal virtual T ParseDataStoreIdentifier(Token token)
+        public virtual T ParseDataStoreIdentifier(Token token)
         {
             verbose &= LogEntryDebug<T>("ParseDataStoreIdentifier", token);
 
@@ -1317,7 +1317,7 @@ namespace ContractConfigurator.ExpressionParser
             return result;
         }
 
-        internal Token ParseIdentifier()
+        public Token ParseIdentifier()
         {
             Match m = Regex.Match(expression, @"([A-Za-z][\w\d]*).*");
             string identifier = m.Groups[1].Value;
@@ -1329,7 +1329,7 @@ namespace ContractConfigurator.ExpressionParser
             return new Token(type, identifier);
         }
 
-        internal Token ParseSpecialIdentifier()
+        public Token ParseSpecialIdentifier()
         {
             Match m = Regex.Match(expression, @"^@(/?(?>([A-Za-z][\w\d]*|\.\.)/)*[A-Za-z][\w\d:]*).*");
             string identifier = m.Groups[1].Value;
@@ -1338,7 +1338,7 @@ namespace ContractConfigurator.ExpressionParser
             return new Token(TokenType.SPECIAL_IDENTIFIER, identifier);
         }
 
-        internal Token ParseDataStoreIdentifier()
+        public Token ParseDataStoreIdentifier()
         {
             Match m = Regex.Match(expression, @"^\$(/?(?>([A-Za-z][\w\d]*|\.\.)/)*[A-Za-z][\w\d:]*).*");
             string identifier = m.Groups[1].Value;
@@ -1347,7 +1347,7 @@ namespace ContractConfigurator.ExpressionParser
             return new Token(TokenType.DATA_STORE_IDENTIFIER, identifier);
         }
 
-        internal Token ParseMethod()
+        public Token ParseMethod()
         {
             Match m = Regex.Match(expression, "\\.([A-Za-z][A-Za-z0-9_]*).*");
             string identifier = m.Groups[1].Value;
@@ -1363,12 +1363,12 @@ namespace ContractConfigurator.ExpressionParser
         }
 
 
-        internal virtual Token ParseNumericConstant()
+        public virtual Token ParseNumericConstant()
         {
             throw new WrongDataType(typeof(double), typeof(T));
         }
 
-        internal Token ParseOperator()
+        public Token ParseOperator()
         {
             char[] chars = expression.Substring(0, 2).ToCharArray();
             switch (chars[0])
@@ -1413,7 +1413,7 @@ namespace ContractConfigurator.ExpressionParser
             throw new ArgumentException("Expected an operator, found: " + expression.Substring(0, 2));
         }
 
-        internal Token ParseOperator(string op)
+        public Token ParseOperator(string op)
         {
             if (expression.Substring(0, op.Length) == op)
             {
@@ -1426,7 +1426,7 @@ namespace ContractConfigurator.ExpressionParser
             }
         }
 
-        internal TResult ApplyOperator<TResult>(T lval, string op, T rval)
+        public TResult ApplyOperator<TResult>(T lval, string op, T rval)
         {
             if (IsBoolean(op))
             {
@@ -1455,7 +1455,7 @@ namespace ContractConfigurator.ExpressionParser
             }
         }
 
-        internal bool ApplyBooleanOperator(T lval, string op, T rval)
+        public bool ApplyBooleanOperator(T lval, string op, T rval)
         {
             switch (op)
             {
@@ -1485,7 +1485,7 @@ namespace ContractConfigurator.ExpressionParser
         /// </summary>
         /// <param name="type"></param>
         /// <returns></returns>
-        internal virtual bool ConvertableFrom(Type type)
+        public virtual bool ConvertableFrom(Type type)
         {
             return false;
         }
@@ -1496,7 +1496,7 @@ namespace ContractConfigurator.ExpressionParser
         /// <typeparam name="U">Type to convert from</typeparam>
         /// <param name="value">Value to convert</param>
         /// <returns>The converted value</returns>
-        internal virtual T ConvertFrom<U>(U value)
+        public virtual T ConvertFrom<U>(U value)
         {
             throw new NotImplementedException();
         }
@@ -1507,7 +1507,7 @@ namespace ContractConfigurator.ExpressionParser
         /// <typeparam name="U">Type to convert to.</typeparam>
         /// <param name="value">Value to convert from.</param>
         /// <returns>The converted value.</returns>
-        internal virtual U ConvertType<U>(T value)
+        public virtual U ConvertType<U>(T value)
         {
             Type tType = typeof(T);
             Type uType = typeof(U);
@@ -1559,7 +1559,7 @@ namespace ContractConfigurator.ExpressionParser
             }
         }
 
-        internal T ConvertType(object value)
+        public T ConvertType(object value)
         {
             // Handle null input values
             if (value == null)
@@ -1575,7 +1575,7 @@ namespace ContractConfigurator.ExpressionParser
         }
 
 
-        internal T ConvertType(object value, Type type)
+        public T ConvertType(object value, Type type)
         {
             if (value == null)
             {
@@ -1621,84 +1621,84 @@ namespace ContractConfigurator.ExpressionParser
             }
         }
 
-        internal T _ConvertType<U>(U value)
+        public T _ConvertType<U>(U value)
         {
             ExpressionParser<U> parser = GetParser<U>(this);
             return parser.ConvertType<T>(value);
         }
 
-        internal bool IsBoolean(string op)
+        public bool IsBoolean(string op)
         {
             string[] booleans = { "!", "||", "&&", "<", "<=", "==", "!=", ">", ">=" };
             return booleans.Contains(op);
         }
 
-        internal virtual T Negate(T val)
+        public virtual T Negate(T val)
         {
             throw new NotSupportedException("Negation (-) not supported for type " + typeof(T));
         }
 
-        internal virtual T Add(T a, T b)
+        public virtual T Add(T a, T b)
         {
             throw new NotSupportedException("Addition (+) not supported for type " + typeof(T));
         }
 
-        internal virtual T Sub(T a, T b)
+        public virtual T Sub(T a, T b)
         {
             throw new NotSupportedException("Subtraction (-) not supported for type " + typeof(T));
         }
 
-        internal virtual T Mult(T a, T b)
+        public virtual T Mult(T a, T b)
         {
             throw new NotSupportedException("Multiplication (*) not supported for type " + typeof(T));
         }
 
-        internal virtual T Div(T a, T b)
+        public virtual T Div(T a, T b)
         {
             throw new NotSupportedException("Division (/) not supported for type " + typeof(T));
         }
 
-        internal virtual T Not(T val)
+        public virtual T Not(T val)
         {
             throw new NotSupportedException("Logical NOT (!) is not supported for type " + typeof(T));
         }
 
-        internal virtual bool Or(T a, T b)
+        public virtual bool Or(T a, T b)
         {
             throw new NotSupportedException("Logical OR (||) not supported for type " + typeof(T));
         }
 
-        internal virtual bool And(T a, T b)
+        public virtual bool And(T a, T b)
         {
             throw new NotSupportedException("Logical AND (&&) not supported for type " + typeof(T));
         }
 
-        internal virtual bool LT(T a, T b)
+        public virtual bool LT(T a, T b)
         {
             throw new NotSupportedException("Less than (<) not supported for type " + typeof(T));
         }
 
-        internal virtual bool LE(T a, T b)
+        public virtual bool LE(T a, T b)
         {
             throw new NotSupportedException("Less than or equal (<=) not supported for type " + typeof(T));
         }
 
-        internal virtual bool EQ(T a, T b)
+        public virtual bool EQ(T a, T b)
         {
             throw new NotSupportedException("Equal (==) not supported for type " + typeof(T));
         }
 
-        internal virtual bool NE(T a, T b)
+        public virtual bool NE(T a, T b)
         {
             throw new NotSupportedException("Equal (==) not supported for type " + typeof(T));
         }
 
-        internal virtual bool GE(T a, T b)
+        public virtual bool GE(T a, T b)
         {
             throw new NotSupportedException("Greater than or equal (>=) not supported for type " + typeof(T));
         }
 
-        internal virtual bool GT(T a, T b)
+        public virtual bool GT(T a, T b)
         {
             throw new NotSupportedException("Greater than (>) not supported for type " + typeof(T));
         }

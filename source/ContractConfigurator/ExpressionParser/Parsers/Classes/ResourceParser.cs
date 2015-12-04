@@ -22,7 +22,7 @@ namespace ContractConfigurator.ExpressionParser
             RegisterParserType(typeof(Resource), typeof(ResourceParser));
         }
 
-        internal static void RegisterMethods()
+        public static void RegisterMethods()
         {
             RegisterGlobalFunction(new Function<Resource, Resource>("Resource", r => r));
         }
@@ -31,7 +31,7 @@ namespace ContractConfigurator.ExpressionParser
         {
         }
 
-        internal override U ConvertType<U>(Resource value)
+        public override U ConvertType<U>(Resource value)
         {
             if (typeof(U) == typeof(string))
             {
@@ -40,7 +40,7 @@ namespace ContractConfigurator.ExpressionParser
             return base.ConvertType<U>(value);
         }
 
-        internal override Resource ParseIdentifier(Token token)
+        public override Resource ParseIdentifier(Token token)
         {
             // Try to parse more, as resource names can have spaces
             Match m = Regex.Match(expression, @"^((?>\s*[\w\d]+)+).*");

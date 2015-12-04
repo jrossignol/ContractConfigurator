@@ -22,7 +22,7 @@ namespace ContractConfigurator.ExpressionParser
             RegisterParserType(typeof(ScienceExperiment), typeof(ExperimentParser));
         }
 
-        internal static void RegisterMethods()
+        public static void RegisterMethods()
         {
             RegisterMethod(new Method<ScienceExperiment, string>("Name", e => e == null ? "" : e.experimentTitle));
 
@@ -35,7 +35,7 @@ namespace ContractConfigurator.ExpressionParser
         {
         }
 
-        internal override U ConvertType<U>(ScienceExperiment value)
+        public override U ConvertType<U>(ScienceExperiment value)
         {
             if (typeof(U) == typeof(string))
             {
@@ -44,7 +44,7 @@ namespace ContractConfigurator.ExpressionParser
             return base.ConvertType<U>(value);
         }
 
-        internal override ScienceExperiment ParseIdentifier(Token token)
+        public override ScienceExperiment ParseIdentifier(Token token)
         {
             return ResearchAndDevelopment.GetExperiment(token.sval);
         }
