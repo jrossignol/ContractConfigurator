@@ -30,7 +30,7 @@ namespace ContractConfigurator.ExpressionParser
             RegisterMethod(new Method<Location, double>("Longitude", location => location == null ? 0.0 : location.lon));
             RegisterMethod(new Method<Location, Biome>("Biome", BiomeAtLocation));
 
-            RegisterGlobalFunction(new Function<Location>("KSCLocation", KSCLocation));
+            RegisterGlobalFunction(new Function<Location>("KSCLocation", KSCLocation, false));
         }
 
         private static Biome BiomeAtLocation(Location location)
