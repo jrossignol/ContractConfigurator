@@ -45,8 +45,13 @@ namespace ContractConfigurator.Parameters
             string output = null;
             if (string.IsNullOrEmpty(title))
             {
-                if (state == ParameterState.Complete && kerbals.Count == 0)
+                if (state == ParameterState.Complete && kerbals.Count == 0 || ParameterCount == 1)
                 {
+                    if (ParameterCount == 1)
+                    {
+                        hideChildren = true;
+                    }
+
                     string traitString = String.IsNullOrEmpty(trait) ? "Kerbal" : TraitTitle(trait);
                     output = "Crew: ";
                     if (maxCrew == 0)

@@ -61,9 +61,19 @@ namespace ContractConfigurator.Parameters
             if (string.IsNullOrEmpty(title))
             {
                 output = "Vessel State";
-                if (state == ParameterState.Complete)
+                if (state == ParameterState.Complete || ParameterCount == 1)
                 {
-                    output += ": " + ParameterDelegate<Vessel>.GetDelegateText(this);
+                    if (ParameterCount == 1)
+                    {
+                        output = "";
+                        hideChildren = true;
+                    }
+                    else
+                    {
+                        output += ": ";
+                    }
+
+                    output += ParameterDelegate<Vessel>.GetDelegateText(this);
                 }
             }
             else
