@@ -108,7 +108,7 @@ namespace ContractConfigurator
             }
             else
             {
-                RandomizeGender();
+                gender = RandomGender();
                 this.name = name ?? CrewGenerator.GetRandomName(gender, random);
                 experienceTrait = RandomExperienceTrait();
                 kerbalType = ProtoCrewMember.KerbalType.Crew;
@@ -129,7 +129,7 @@ namespace ContractConfigurator
             kerbalType = pcm.type;
         }
 
-        public string RandomExperienceTrait()
+        public static string RandomExperienceTrait()
         {
             // This needs to work even when a game isn't loaded, so go to the game database instead of the classes
             if (traitConfigs == null)
@@ -141,9 +141,9 @@ namespace ContractConfigurator
             return traitConfigs.ElementAt(r).GetValue("name");
         }
 
-        public void RandomizeGender()
+        public static ProtoCrewMember.Gender RandomGender()
         {
-            gender = random.Next(2) == 0 ? ProtoCrewMember.Gender.Male : ProtoCrewMember.Gender.Female;
+            return random.Next(2) == 0 ? ProtoCrewMember.Gender.Male : ProtoCrewMember.Gender.Female;
         }
 
         public void GenerateKerbal()
@@ -183,9 +183,9 @@ namespace ContractConfigurator
             }
             else
             {
-                ProtoCrewMember.Gender gender = ConfigNodeUtil.ParseValue<ProtoCrewMember.Gender>(node, "gender");
-                string experienceTrait = ConfigNodeUtil.ParseValue<string>(node, "experienceTrait");
-                ProtoCrewMember.KerbalType kerbalType = ConfigNodeUtil.ParseValue<ProtoCrewMember.KerbalType>(node, "kerbalType");
+                ProtoCrewMember.Gender gender = ConfigNodeUtil.ParseValue<ProtoCrewMember.Gender>(node, "gender", RandomGender());
+                string experienceTrait = ConfigNodeUtil.ParseValue<string>(node, "experienceTrait", RandomExperienceTrait());
+                ProtoCrewMember.KerbalType kerbalType = ConfigNodeUtil.ParseValue<ProtoCrewMember.KerbalType>(node, "kerbalType", ProtoCrewMember.KerbalType.Crew);
 
                 Kerbal k = new Kerbal(gender, name, experienceTrait);
                 k.kerbalType = kerbalType;

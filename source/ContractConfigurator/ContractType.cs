@@ -520,7 +520,7 @@ namespace ContractConfigurator
                         // Check for a shared group
                         else
                         {
-                            contractList = contractList.Where(c => c.contractType.group.parent.name == contractType.group.name);
+                            contractList = contractList.Where(c => c.contractType.group.name == contractType.group.name);
                         }
 
                         // Check only active contracts
