@@ -1601,6 +1601,10 @@ namespace ContractConfigurator.ExpressionParser
                     throw new DataStoreCastException(type, typeof(T));
                 }
             }
+            else if (typeof(T).IsAssignableFrom(type))
+            {
+                return (T)(object)value;
+            }
 
             MethodInfo convertMethod = GetType().GetMethod("_ConvertType", BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
             convertMethod = convertMethod.MakeGenericMethod(new Type[] { value.GetType() });
@@ -1629,8 +1633,25 @@ namespace ContractConfigurator.ExpressionParser
             }
             else
             {
-                ExpressionParser<U> parser = GetParser<U>(this);
-                return parser.ConvertType<T>(value);
+                try
+                {
+                    ExpressionParser<U> parser = GetParser<U>(this);
+                    return parser.ConvertType<T>(value);
+                }
+                catch (NotSupportedException)
+                {
+                    if (typeof(U) != typeof(object))
+                    {
+                        MethodInfo convertMethod = GetType().GetMethod("_ConvertType", BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
+                        convertMethod = convertMethod.MakeGenericMethod(new Type[] { typeof(U).BaseType });
+                        T result = (T)convertMethod.Invoke(this, new object[] { value });
+                        return result;
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
             }
         }
 
