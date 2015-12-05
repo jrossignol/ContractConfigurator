@@ -77,7 +77,7 @@ namespace ContractConfigurator.ExpressionParser
                         return result;
                     }
 
-                    value = (string)(object)result;
+                    value = (string)(object)result ?? "";
                 }
                 else
                 {

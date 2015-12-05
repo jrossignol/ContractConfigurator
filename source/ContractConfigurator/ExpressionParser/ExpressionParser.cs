@@ -1623,8 +1623,15 @@ namespace ContractConfigurator.ExpressionParser
 
         public T _ConvertType<U>(U value)
         {
-            ExpressionParser<U> parser = GetParser<U>(this);
-            return parser.ConvertType<T>(value);
+            if (typeof(T).IsAssignableFrom(typeof(U)))
+            {
+                return (T)(object)value;
+            }
+            else
+            {
+                ExpressionParser<U> parser = GetParser<U>(this);
+                return parser.ConvertType<T>(value);
+            }
         }
 
         public bool IsBoolean(string op)
