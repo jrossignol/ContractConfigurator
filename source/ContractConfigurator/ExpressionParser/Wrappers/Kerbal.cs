@@ -192,5 +192,55 @@ namespace ContractConfigurator
                 return k;
             }
         }
+
+        public static void RemoveKerbal(Kerbal kerbal)
+        {
+            if (kerbal.pcm != null)
+            {
+                RemoveKerbal(kerbal.pcm);
+                kerbal._pcm = null;
+            }
+        }
+
+        public static void RemoveKerbal(ProtoCrewMember pcm)
+        {
+            LoggingUtil.LogVerbose(typeof(Kerbal), "Removing kerbal " + pcm.name + "...");
+            Vessel vessel = FlightGlobals.Vessels.Where(v => v.GetVesselCrew().Contains(pcm)).FirstOrDefault();
+            if (vessel != null)
+            {
+                // If it's an EVA make them disappear...
+                if (vessel.isEVA)
+                {
+                    FlightGlobals.Vessels.Remove(vessel);
+                }
+                else
+                {
+                    if (vessel.loaded)
+                    {
+                        foreach (Part p in vessel.parts)
+                        {
+                            if (p.protoModuleCrew.Contains(pcm))
+                            {
+                                p.RemoveCrewmember(pcm);
+                                break;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        foreach (ProtoPartSnapshot pps in vessel.protoVessel.protoPartSnapshots)
+                        {
+                            if (pps.HasCrew(pcm.name))
+                            {
+                                pps.RemoveCrew(pcm);
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Remove the kerbal from the roster
+            HighLogic.CurrentGame.CrewRoster.Remove(pcm.name);
+        }
     }
 }

@@ -87,47 +87,9 @@ namespace ContractConfigurator.Behaviour
 
             foreach (Kerbal kerbal in kerbals)
             {
-                RemoveKerbal(kerbal);
+                Kerbal.RemoveKerbal(kerbal);
             }
             kerbals.Clear();
-        }
-
-        public static void RemoveKerbal(Kerbal kerbal)
-        {
-            if (kerbal.pcm != null)
-            {
-                RemoveKerbal(kerbal.pcm);
-                kerbal._pcm = null;
-            }
-        }
-
-        public static void RemoveKerbal(ProtoCrewMember pcm)
-        {
-            LoggingUtil.LogVerbose(typeof(RemoveKerbalBehaviour), "    Removing " + pcm.name + "...");
-
-            Vessel vessel = FlightGlobals.Vessels.Where(v => v.GetVesselCrew().Contains(pcm)).FirstOrDefault();
-            if (vessel != null)
-            {
-                // If it's an EVA make them disappear...
-                if (vessel.isEVA)
-                {
-                    FlightGlobals.Vessels.Remove(vessel);
-                }
-                else
-                {
-                    foreach (Part p in vessel.parts)
-                    {
-                        if (p.protoModuleCrew.Contains(pcm))
-                        {
-                            p.RemoveCrewmember(pcm);
-                            break;
-                        }
-                    }
-                }
-            }
-
-            // Remove the kerbal from the roster
-            HighLogic.CurrentGame.CrewRoster.Remove(pcm.name);
         }
     }
 }

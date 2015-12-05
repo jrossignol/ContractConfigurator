@@ -491,12 +491,25 @@ namespace ContractConfigurator.Behaviour
                         }
                         else
                         {
-                            foreach (Part p in vessel.parts)
+                            if (vessel.loaded)
                             {
-                                if (p.protoModuleCrew.Contains(kerbal.kerbal.pcm))
+                                foreach (Part p in vessel.parts)
                                 {
-                                    p.RemoveCrewmember(kerbal.kerbal.pcm);
-                                    break;
+                                    if (p.protoModuleCrew.Contains(kerbal.kerbal.pcm))
+                                    {
+                                        p.RemoveCrewmember(kerbal.kerbal.pcm);
+                                        break;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                foreach (ProtoPartSnapshot pps in vessel.protoVessel.protoPartSnapshots)
+                                {
+                                    if (pps.HasCrew(kerbal.kerbal.name))
+                                    {
+                                        pps.RemoveCrew(kerbal.kerbal.pcm);
+                                    }
                                 }
                             }
                         }

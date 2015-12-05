@@ -19,6 +19,7 @@ Contract Configurator 1.9.0
 - Fixed issue where vessel rename doesn't trigger VesselIsType (thanks CompB).
 - Fixed issue where HasCrew counted tourists (thanks severedsolo).
 - Fixed problems with KSCLocation() returning the wrong value (thanks Rodger).
+- Fixed bug when despawning kerbals from vessels that are not currently loaded (thanks inigmatus).
 
 Contract Configurator 1.8.3
 - Fixed NullReferenceException in code introduced in 1.8.2 (thanks kunok).

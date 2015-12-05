@@ -821,12 +821,25 @@ namespace ContractConfigurator.Behaviour
                         }
                         else
                         {
-                            foreach (Part p in otherVessel.parts)
+                            if (otherVessel.loaded)
                             {
-                                if (p.protoModuleCrew.Contains(crewMember))
+                                foreach (Part p in otherVessel.parts)
                                 {
-                                    p.RemoveCrewmember(crewMember);
-                                    break;
+                                    if (p.protoModuleCrew.Contains(crewMember))
+                                    {
+                                        p.RemoveCrewmember(crewMember);
+                                        break;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                foreach (ProtoPartSnapshot pps in otherVessel.protoVessel.protoPartSnapshots)
+                                {
+                                    if (pps.HasCrew(crewMember.name))
+                                    {
+                                        pps.RemoveCrew(crewMember);
+                                    }
                                 }
                             }
                         }
