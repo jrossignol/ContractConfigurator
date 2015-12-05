@@ -45,7 +45,7 @@ namespace ContractConfigurator.Parameters
             string output = null;
             if (string.IsNullOrEmpty(title))
             {
-                if (state == ParameterState.Complete && kerbals.Count == 0 || ParameterCount == 1)
+                if (kerbals.Count == 0 && (state == ParameterState.Complete || ParameterCount == 1))
                 {
                     if (ParameterCount == 1)
                     {
@@ -94,8 +94,13 @@ namespace ContractConfigurator.Parameters
                 else
                 {
                     output = "Crew";
-                    if (state == ParameterState.Complete)
+                    if (state == ParameterState.Complete || ParameterCount == 1)
                     {
+                        if (ParameterCount == 1)
+                        {
+                            hideChildren = true;
+                        }
+
                         output += ": " + ParameterDelegate<ProtoCrewMember>.GetDelegateText(this);
                     }
                 }
