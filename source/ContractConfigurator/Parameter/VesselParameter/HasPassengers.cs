@@ -17,7 +17,7 @@ namespace ContractConfigurator.Parameters
     {
         protected int index = 0;
         protected int count = 0;
-        private List<ProtoCrewMember> passengers = new List<ProtoCrewMember>();
+        private List<Kerbal> passengers = new List<Kerbal>();
 
         public HasPassengers()
             : base(null)
@@ -33,7 +33,7 @@ namespace ContractConfigurator.Parameters
             CreateDelegates();
         }
 
-        public HasPassengers(string title, IEnumerable<ProtoCrewMember> passengers)
+        public HasPassengers(string title, IEnumerable<Kerbal> passengers)
             : base(title)
         {
             this.passengers = passengers.ToList();
@@ -49,6 +49,11 @@ namespace ContractConfigurator.Parameters
                 if (passengers.Count == 0)
                 {
                     output = "Load " + (count == 0 ? "all" : count.ToString()) + " passenger" + (count != 1 ? "s" : "") + " while on the launchpad/runway";
+                }
+                else if (passengers.Count == 1)
+                {
+                    output = "Passenger " + ParameterDelegate<Vessel>.GetDelegateText(this);
+                    hideChildren = true;
                 }
                 else if (state == ParameterState.Complete)
                 {
@@ -71,12 +76,17 @@ namespace ContractConfigurator.Parameters
             // Filter for passengers
             if (passengers.Count > 0)
             {
-                foreach (ProtoCrewMember passenger in passengers)
+                foreach (Kerbal passenger in passengers)
                 {
-                    if (passenger != null)
+                    if (passenger.pcm != null)
                     {
                         AddParameter(new ParameterDelegate<Vessel>("On Board: " + passenger.name,
-                            v => v.GetVesselCrew().Contains(passenger), ParameterDelegateMatchType.VALIDATE_ALL));
+                            v => v.GetVesselCrew().Contains(passenger.pcm), ParameterDelegateMatchType.VALIDATE_ALL));
+                    }
+                    else
+                    {
+                        AddParameter(new ParameterDelegate<Vessel>("On Board: " + passenger.name, v => false,
+                            ParameterDelegateMatchType.VALIDATE_ALL));
                     }
                 }
             }
@@ -88,12 +98,12 @@ namespace ContractConfigurator.Parameters
             node.AddValue("index", index);
             node.AddValue("count", count);
 
-            foreach (ProtoCrewMember passenger in passengers)
+            foreach (Kerbal passenger in passengers)
             {
-                if (passenger != null)
-                {
-                    node.AddValue("passenger", passenger.name);
-                }
+                ConfigNode kerbalNode = new ConfigNode("KERBAL");
+                node.AddNode(kerbalNode);
+
+                passenger.Save(kerbalNode);
             }
         }
 
@@ -104,7 +114,21 @@ namespace ContractConfigurator.Parameters
                 base.OnParameterLoad(node);
                 index = Convert.ToInt32(node.GetValue("index"));
                 count = Convert.ToInt32(node.GetValue("count"));
-                passengers = ConfigNodeUtil.ParseValue<List<ProtoCrewMember>>(node, "passenger", new List<ProtoCrewMember>());
+
+                // Legacy support from Contract Configurator 1.8.3
+                if (node.HasValue("passenger"))
+                {
+                    passengers = ConfigNodeUtil.ParseValue<List<string>>(node, "passenger", new List<string>()).Select(
+                        name => new Kerbal(name)
+                    ).ToList();
+                }
+                else
+                {
+                    foreach (ConfigNode kerbalNode in node.GetNodes("KERBAL"))
+                    {
+                        passengers.Add(Kerbal.Load(kerbalNode));
+                    }
+                }
 
                 CreateDelegates();
             }
@@ -134,11 +158,11 @@ namespace ContractConfigurator.Parameters
         {
             if (contract == Root)
             {
-                int count = this.count == 0 ? ((ConfiguredContract)contract).GetSpawnedKerbalCount() : this.count;
-                for (int i = 0; i < count; i++)
+                int count = this.count == 0 && passengers.Count() == 0 ? ((ConfiguredContract)contract).GetSpawnedKerbalCount() : this.count;
+                for (int i = passengers.Count(); i < count; i++)
                 {
                     ProtoCrewMember kerbal = ((ConfiguredContract)contract).GetSpawnedKerbal(index+i).pcm;
-                    passengers.Add(kerbal);
+                    passengers.Add(new Kerbal(kerbal));
                 }
                 CreateDelegates();
             }

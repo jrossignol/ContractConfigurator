@@ -393,9 +393,7 @@ namespace ContractConfigurator.Behaviour
                 ProtoCrewMember.KerbalType kerbalType = ConfigNodeUtil.ParseValue<ProtoCrewMember.KerbalType>(node, "kerbalType", ProtoCrewMember.KerbalType.Tourist);
                 string experienceTrait = ConfigNodeUtil.ParseValue<string>(node, "experienceTrait", Kerbal.RandomExperienceTrait());
 
-                kerbals = ConfigNodeUtil.ParseValue<List<string>>(node, "kerbal", new List<string>()).Select(
-                    name => new Kerbal(gender, name, experienceTrait)
-                ).ToList();
+                kerbals = passengerNames.Select(name => new Kerbal(gender, name, experienceTrait)).ToList();
 
                 foreach (Kerbal kerbal in kerbals)
                 {
