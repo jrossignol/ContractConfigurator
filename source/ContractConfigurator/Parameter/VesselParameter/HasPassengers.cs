@@ -76,6 +76,12 @@ namespace ContractConfigurator.Parameters
             // Filter for passengers
             if (passengers.Count > 0)
             {
+                // Clear any pre-existing child parameters
+                while (ParameterCount > 0)
+                {
+                    RemoveParameter(0);
+                }
+
                 foreach (Kerbal passenger in passengers)
                 {
                     if (passenger.pcm != null)
