@@ -17,6 +17,7 @@ Contract Configurator 1.9.0
 - Fixed issue where experimental status of parts never goes away - even when a tech is researched (thanks inigmatus).
 - Fixed issue with VesselDestroy causing vessel markers to appear when invoked at KSC (thanks inigmatus).
 - Fixed issue where vessel rename doesn't trigger VesselIsType (thanks CompB).
+- Fixed issue where HasCrew counted tourists (thanks severedsolo).
 
 Contract Configurator 1.8.3
 - Fixed NullReferenceException in code introduced in 1.8.2 (thanks kunok).
