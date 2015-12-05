@@ -201,11 +201,8 @@ namespace ContractConfigurator.Behaviour
             }
         }
 
-        protected int count { get; set; }
-        protected List<string> passengerNames { get; set; }
-        protected ProtoCrewMember.Gender? gender = null;
-        protected ProtoCrewMember.KerbalType kerbalType;
-        protected string experienceTrait;
+        protected int count;
+        protected List<Kerbal> kerbals = new List<Kerbal>();
 
         private Dictionary<ProtoCrewMember, bool> passengers = new Dictionary<ProtoCrewMember, bool>();
 
@@ -213,13 +210,10 @@ namespace ContractConfigurator.Behaviour
 
         public SpawnPassengers() {}
 
-        public SpawnPassengers(List<string> passengerNames, int minPassengers, ProtoCrewMember.Gender? gender, ProtoCrewMember.KerbalType kerbalType, string experienceTrait)
+        public SpawnPassengers(List<Kerbal> kerbals, int minPassengers)
         {
-            this.passengerNames = passengerNames;
-            this.count = passengerNames.Count != 0 ? passengerNames.Count : minPassengers;
-            this.gender = gender;
-            this.kerbalType = kerbalType;
-            this.experienceTrait = experienceTrait;
+            this.kerbals = kerbals;
+            this.count = kerbals.Count != 0 ? kerbals.Count : minPassengers;
         }
 
         protected override void OnRegister()
@@ -342,9 +336,9 @@ namespace ContractConfigurator.Behaviour
                 ProtoCrewMember crewMember = null;
 
                 // Try to get existing passenger
-                if (passengerNames.Count > i)
+                if (kerbals.Count > i)
                 {
-                    crewMember = HighLogic.CurrentGame.CrewRoster.AllKerbals().Where(pcm => pcm.name == passengerNames[i] && pcm.type == kerbalType).FirstOrDefault();
+                    crewMember = HighLogic.CurrentGame.CrewRoster.AllKerbals().Where(pcm => pcm.name == kerbals[i].name).FirstOrDefault();
                     if (crewMember != null)
                     {
                         crewMember.hasToured = false;
@@ -352,48 +346,30 @@ namespace ContractConfigurator.Behaviour
                 }
                 if (crewMember == null)
                 {
-                    crewMember = HighLogic.CurrentGame.CrewRoster.GetNewKerbal(kerbalType);
-                    if (gender != null)
-                    {
-                        crewMember.gender = gender.Value;
-                    }
-
-                    if (!string.IsNullOrEmpty(experienceTrait))
-                    {
-                        KerbalRoster.SetExperienceTrait(crewMember, experienceTrait);
-                    }
-
-                    if (passengerNames.Count > i)
-                    {
-                        crewMember.name = passengerNames[i];
-                    }
+                    // Generate the ProtoCrewMember
+                    Kerbal kerbal = (i < kerbals.Count()) ? kerbals.ElementAt(i) : new Kerbal();
+                    kerbal.GenerateKerbal();
+                    crewMember = kerbal.pcm;
                 }
 
                 passengers[crewMember] = false;
             }
 
-            passengerNames.Clear();
+            kerbals.Clear();
         }
 
         protected override void OnSave(ConfigNode node)
         {
             base.OnSave(node);
             node.AddValue("count", count);
-            if (gender != null)
-            {
-                node.AddValue("gender", gender);
-            }
-            node.AddValue("kerbalType", kerbalType);
-            if (!string.IsNullOrEmpty(experienceTrait))
-            {
-                node.AddValue("experienceTrait", experienceTrait);
-            }
 
-            foreach (string passenger in passengerNames)
+            foreach (Kerbal kerbal in kerbals)
             {
-                node.AddValue("potentialPassenger", passenger);
-            }
+                ConfigNode kerbalNode = new ConfigNode("KERBAL");
+                node.AddNode(kerbalNode);
 
+                kerbal.Save(kerbalNode);
+            }
             foreach (KeyValuePair<ProtoCrewMember, bool> pair in passengers)
             {
                 ConfigNode child = new ConfigNode("PASSENGER_DATA");
@@ -408,10 +384,31 @@ namespace ContractConfigurator.Behaviour
         {
             base.OnLoad(node);
             count = Convert.ToInt32(node.GetValue("count"));
-            passengerNames = ConfigNodeUtil.ParseValue<List<string>>(node, "potentialPassenger", new List<string>());
-            gender = ConfigNodeUtil.ParseValue<ProtoCrewMember.Gender?>(node, "gender", (ProtoCrewMember.Gender?)null);
-            kerbalType = ConfigNodeUtil.ParseValue<ProtoCrewMember.KerbalType>(node, "kerbalType", ProtoCrewMember.KerbalType.Tourist);
-            experienceTrait = ConfigNodeUtil.ParseValue<string>(node, "experienceTrait", "");
+
+            // Legacy support from Contract Configurator 1.8.3
+            if (node.HasValue("potentialPassenger"))
+            {
+                List<string> passengerNames = ConfigNodeUtil.ParseValue<List<string>>(node, "potentialPassenger", new List<string>());
+                ProtoCrewMember.Gender gender = ConfigNodeUtil.ParseValue<ProtoCrewMember.Gender>(node, "gender", Kerbal.RandomGender());
+                ProtoCrewMember.KerbalType kerbalType = ConfigNodeUtil.ParseValue<ProtoCrewMember.KerbalType>(node, "kerbalType", ProtoCrewMember.KerbalType.Tourist);
+                string experienceTrait = ConfigNodeUtil.ParseValue<string>(node, "experienceTrait", Kerbal.RandomExperienceTrait());
+
+                kerbals = ConfigNodeUtil.ParseValue<List<string>>(node, "kerbal", new List<string>()).Select(
+                    name => new Kerbal(gender, name, experienceTrait)
+                ).ToList();
+
+                foreach (Kerbal kerbal in kerbals)
+                {
+                    kerbal.kerbalType = kerbalType;
+                }
+            }
+            else
+            {
+                foreach (ConfigNode kerbalNode in node.GetNodes("KERBAL"))
+                {
+                    kerbals.Add(Kerbal.Load(kerbalNode));
+                }
+            }
 
             foreach (ConfigNode child in node.GetNodes("PASSENGER_DATA"))
             {
@@ -421,11 +418,6 @@ namespace ContractConfigurator.Behaviour
                 if (crew != null)
                 {
                     passengers[crew] = loaded;
-
-                    if (!string.IsNullOrEmpty(experienceTrait))
-                    {
-                        KerbalRoster.SetExperienceTrait(crew, experienceTrait);
-                    }
                 }
             }
         }
