@@ -7,19 +7,19 @@ Contract Configurator 1.9.0
 - SpawnVessel supports specifying a location via PQS City now (like SpawnKerbal).
 - Added minAcceleration and maxAcceleration to ReachState.
 - Added RemoveKerbal behaviour.
-- Auto-close passenger loading dialog if vessel launches or scene changes (thanks inigmatus).
+- Auto-close passenger loading dialog if vessel launches or scene changes (thanks inigma).
 - Added new Funds() and Science() expression functions to get player's funds/science.
 - Ignore USI Sounding Rocket experiments for science sub-system.
 - Fixed bugs with using expressions in DialogBox.
-- Fixed name duplication in RandomKerbalName() function (thanks inigmatus).
-- Fixed exception using UnlockPart without part unlocking set on the current game (thanks inigmatus).
-- Fixed issue with crew that aren't properly removed on contract completion (thanks inigmatus).
-- Fixed issue where experimental status of parts never goes away - even when a tech is researched (thanks inigmatus).
-- Fixed issue with VesselDestroy causing vessel markers to appear when invoked at KSC (thanks inigmatus).
+- Fixed name duplication in RandomKerbalName() function (thanks inigma).
+- Fixed exception using UnlockPart without part unlocking set on the current game (thanks inigma).
+- Fixed issue with crew that aren't properly removed on contract completion (thanks inigma).
+- Fixed issue where experimental status of parts never goes away - even when a tech is researched (thanks inigma).
+- Fixed issue with VesselDestroy causing vessel markers to appear when invoked at KSC (thanks inigma).
 - Fixed issue where vessel rename doesn't trigger VesselIsType (thanks CompB).
 - Fixed issue where HasCrew counted tourists (thanks severedsolo).
 - Fixed problems with KSCLocation() returning the wrong value (thanks Rodger).
-- Fixed bug when despawning kerbals from vessels that are not currently loaded (thanks inigmatus).
+- Fixed bug when despawning kerbals from vessels that are not currently loaded (thanks inigma).
 
 Contract Configurator 1.8.3
 - Fixed NullReferenceException in code introduced in 1.8.2 (thanks kunok).
@@ -39,8 +39,8 @@ Contract Configurator 1.8.2
 Contract Configurator 1.8.1
 - Added new Not parameter.
 - Can now specify heading in SpawnKerbal.
-- Fixed issue with index attribute not being recognized in HasPassengers (thanks inigmatus).
-- Fixed issue with speed in KSP never being zero for ReachState (thanks inigmatus).
+- Fixed issue with index attribute not being recognized in HasPassengers (thanks inigma).
+- Fixed issue with speed in KSP never being zero for ReachState (thanks inigma).
 - Fixed exception in RecoverVessel when recovering via the VAB when another vessel is on the launchpad.
 - Fixed issue with timers getting reset in VAB/SPH (thanks chrisl).
 - Removed long-ago deprecated CC_SCANsat.dll (this does not remove SCANsat support).
