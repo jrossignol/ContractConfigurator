@@ -21,6 +21,7 @@ namespace ContractConfigurator.Parameters
         protected Dictionary<string, bool> recovered = new Dictionary<string, bool>();
 
         public bool ChildChanged { get; set; }
+        public int kerbalKilledCheck = int.MaxValue;
 
         public RecoverKerbalCustom()
             : base(null)
@@ -53,11 +54,12 @@ namespace ContractConfigurator.Parameters
             {
                 if (kerbals.Count == 1)
                 {
-                    output = kerbals[0] + " recovered";
+                    output = "Recover " + kerbals[0];
+                    hideChildren = true;
                 }
                 else
                 {
-                    output = "Kerbals recovered";
+                    output = "Recover Kerbals";
                 }
             }
             else
@@ -71,7 +73,7 @@ namespace ContractConfigurator.Parameters
         {
             foreach (Kerbal kerbal in kerbals)
             {
-                AddParameter(new ParameterDelegate<string>(kerbal.name + ": Recovered",
+                AddParameter(new ParameterDelegate<string>("Recover " + kerbal.name,
                     unused => recovered[kerbal.name], ParameterDelegateMatchType.FILTER));
             }
         }
@@ -203,9 +205,26 @@ namespace ContractConfigurator.Parameters
         {
             if (recovered.ContainsKey(evt.sender))
             {
-                MessageSystem.Instance.AddMessage(new MessageSystem.Message("Contract failed", evt.sender + " has been killed!",
-                    MessageSystemButton.MessageButtonColor.RED, MessageSystemButton.ButtonIcons.MESSAGE));
-                SetState(ParameterState.Failed);
+                kerbalKilledCheck = Time.frameCount + 5;
+            }
+        }
+
+        protected override void OnUpdate()
+        {
+            if (kerbalKilledCheck <= Time.frameCount)
+            {
+                kerbalKilledCheck = int.MaxValue;
+
+                IEnumerable<ProtoCrewMember> allKerbals = HighLogic.CurrentGame.CrewRoster.AllKerbals();
+                foreach (string name in recovered.Keys.Where(n => !recovered[n] &&
+                    (!allKerbals.Any(pcm => pcm.name == n) || allKerbals.Any(pcm => pcm.name == n &&
+                        (pcm.rosterStatus == ProtoCrewMember.RosterStatus.Missing || pcm.rosterStatus == ProtoCrewMember.RosterStatus.Dead)))))
+                {
+                    MessageSystem.Instance.AddMessage(new MessageSystem.Message("Contract failed", name + " has been killed!",
+                        MessageSystemButton.MessageButtonColor.RED, MessageSystemButton.ButtonIcons.MESSAGE));
+                    SetState(ParameterState.Failed);
+                    break;
+                }
             }
         }
 
