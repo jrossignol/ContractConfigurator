@@ -218,7 +218,7 @@ namespace ContractConfigurator.Parameters
             }
 
             // Round it to avoid issues when checking for a zero speed
-            speed = Math.Round(speed, 1);
+            speed = Math.Round(speed, maxSpeed > 0.5 ? 1 : 0);
 
             return speed >= minSpeed && speed <= maxSpeed;
         }

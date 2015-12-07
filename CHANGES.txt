@@ -1,3 +1,6 @@
+Contract Configurator 1.9.1
+- Further roud when checking for a zero speed (thanks Aelfhe1m).
+
 Contract Configurator 1.9.0
 - Improved display of some parameters with only one redundant child parameter in contract window.
 - New functions for generating kerbals.
