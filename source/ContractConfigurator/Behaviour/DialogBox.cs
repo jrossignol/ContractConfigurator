@@ -582,7 +582,7 @@ namespace ContractConfigurator.Behaviour
                 {
                     System.Random r = new System.Random();
                     gender = r.Next(2) == 0 ? ProtoCrewMember.Gender.Male : ProtoCrewMember.Gender.Female;
-                    characterName = CrewGenerator.GetRandomName(gender);
+                    characterName = DraftTwitchViewers.KerbalName(CrewGenerator.GetRandomName(gender));
                 }
             }
 

@@ -193,6 +193,7 @@
     <Compile Include="ParameterFactory\VesselDestroyedFactory.cs" />
     <Compile Include="ScenarioModules\BiomeTracker.cs" />
     <Compile Include="Util\DebugWindow.cs" />
+    <Compile Include="Util\DraftTwitchViewers.cs" />
     <Compile Include="Util\ExceptionLogWindow.cs" />
     <Compile Include="Util\ExceptionUtil.cs" />
     <Compile Include="Util\Extensions.cs" />

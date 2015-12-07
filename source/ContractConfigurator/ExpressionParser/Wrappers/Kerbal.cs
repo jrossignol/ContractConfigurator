@@ -66,20 +66,17 @@ namespace ContractConfigurator
 
         public Kerbal(string name)
         {
-            Initialize(name);
+            Initialize(null, name);
         }
 
         public Kerbal(ProtoCrewMember.Gender gender)
         {
-            Initialize();
-
-            this.gender = gender;
-            name = CrewGenerator.GetRandomName(gender, random);
+            Initialize(gender);
         }
 
         public Kerbal(ProtoCrewMember.Gender gender, string name)
         {
-            Initialize(name);
+            Initialize(gender, name);
 
             this.gender = gender;
             this.name = name;
@@ -87,19 +84,28 @@ namespace ContractConfigurator
 
         public Kerbal(ProtoCrewMember.Gender gender, string name, string experienceTrait)
         {
-            Initialize(name);
+            Initialize(gender, name);
 
             this.gender = gender;
             this.name = name;
             this.experienceTrait = experienceTrait;
         }
 
-        public void Initialize(string name = null)
+        public void Initialize(ProtoCrewMember.Gender? gender = null, string name = null)
         {
             if (name != null)
             {
                 this.name = name;
                 _pcm = pcm;
+            }
+
+            if (gender != null)
+            {
+                this.gender = gender.Value;
+            }
+            else
+            {
+                this.gender = RandomGender();
             }
 
             if (_pcm != null)
@@ -108,8 +114,7 @@ namespace ContractConfigurator
             }
             else
             {
-                gender = RandomGender();
-                this.name = name ?? CrewGenerator.GetRandomName(gender, random);
+                this.name = name ?? DraftTwitchViewers.KerbalName(CrewGenerator.GetRandomName(this.gender, random));
                 experienceTrait = RandomExperienceTrait();
                 kerbalType = ProtoCrewMember.KerbalType.Crew;
             }

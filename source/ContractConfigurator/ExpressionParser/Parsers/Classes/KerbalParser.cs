@@ -37,7 +37,8 @@ namespace ContractConfigurator.ExpressionParser
                 HighLogic.CurrentGame.CrewRoster.AllKerbals().Select<ProtoCrewMember, Kerbal>(pcm => new Kerbal(pcm)).ToList(), false));
             RegisterGlobalFunction(new Function<Kerbal, Kerbal>("Kerbal", k => k));
 
-            RegisterGlobalFunction(new Function<ProtoCrewMember.Gender, string>("RandomKerbalName", g => CrewGenerator.GetRandomName(g, random), false));
+            RegisterGlobalFunction(new Function<ProtoCrewMember.Gender, string>("RandomKerbalName", g =>
+                DraftTwitchViewers.KerbalName(CrewGenerator.GetRandomName(g, random)), false));
 
             RegisterGlobalFunction(new Function<Kerbal>("NewKerbal", () => new Kerbal(), false));
             RegisterGlobalFunction(new Function<ProtoCrewMember.Gender, Kerbal>("NewKerbal", (g) => new Kerbal(g), false));
