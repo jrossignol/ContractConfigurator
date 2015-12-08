@@ -40,19 +40,9 @@ namespace ContractConfigurator.ExpressionParser
 
         public static double ContractMultiplier()
         {
-            double multiplier = 1.0;
-            if (ConfiguredContract.currentContract != null)
-            {
-                multiplier *= GameVariables.Instance.GetContractPrestigeFactor(ConfiguredContract.currentContract.Prestige);
-
-                if (ConfiguredContract.currentContract.contractType != null &&
-                    ConfiguredContract.currentContract.contractType.targetBody!= null)
-                {
-                    multiplier *= GameVariables.Instance.GetContractDestinationWeight(ConfiguredContract.currentContract.contractType.targetBody);
-                }
-            }
-
-            return multiplier;
+            DataNode rootNode = currentParser.currentDataNode.Root;
+            ExpressionParser<double> parser = BaseParser.GetParser<double>();
+            return parser.ParseExpression(currentParser.currentKey, "Prestige().Multiplier() * @/targetBody.Multiplier()", currentParser.currentDataNode);
         }
     }
 }

@@ -860,6 +860,7 @@ namespace ContractConfigurator.ExpressionParser
                 object result;
                 try
                 {
+                    currentParser = this;
                     result = selectedMethod.Invoke(parameters.ToArray());
                 }
                 catch (TargetInvocationException tie)

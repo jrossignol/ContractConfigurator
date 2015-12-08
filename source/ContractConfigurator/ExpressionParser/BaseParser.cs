@@ -243,8 +243,9 @@ namespace ContractConfigurator.ExpressionParser
         protected static Dictionary<string, List<Function>> globalFunctions = new Dictionary<string, List<Function>>();
         public string expression;
         protected bool parseMode = true;
-        protected DataNode currentDataNode = null;
-        protected string currentKey = null;
+        public DataNode currentDataNode = null;
+        public string currentKey = null;
+        protected static BaseParser currentParser = null;
 
         /// <summary>
         /// Initialize for parsing.
