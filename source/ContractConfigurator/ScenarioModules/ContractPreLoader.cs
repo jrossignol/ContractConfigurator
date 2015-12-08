@@ -42,7 +42,7 @@ namespace ContractConfigurator
 
         private string lastKey = null;
 
-        private static MethodInfo contractRefreshMethod = typeof(ContractSystem).GetMethod("RefreshContracts", BindingFlags.Instance | BindingFlags.NonPublic);
+        private static MethodInfo generateContractMethod = typeof(ContractSystem).GetMethod("GenerateContracts", BindingFlags.Instance | BindingFlags.NonPublic);
 
         public ContractPreLoader()
         {
@@ -82,7 +82,7 @@ namespace ContractConfigurator
             }
         }
 
-        void ResetGenerationFailure()
+        public void ResetGenerationFailure()
         {
             foreach (Contract.ContractPrestige prestige in contractDetails.Keys)
             {
@@ -104,7 +104,7 @@ namespace ContractConfigurator
                 // Prepare a list of possible selections
                 IEnumerable<ContractDetails> selections = contractDetails.Values.Where(cd =>
                     UnityEngine.Time.realtimeSinceStartup - cd.lastGenerationFailure > FAILURE_WAIT_TIME &&
-                    cd.contracts.Count() < MAX_CONTRACTS);
+                    (cd.contracts.Count() < MAX_CONTRACTS || cd.contracts.Any(c => c.AutoAccept)));
 
                 // Nothing is ready
                 if (!selections.Any())
@@ -145,7 +145,7 @@ namespace ContractConfigurator
                     // We generated a high priority contract...  force the system to do a generation pass
                     if (pair.Value.Key.contractType.autoAccept)
                     {
-                        contractRefreshMethod.Invoke(ContractSystem.Instance, new object[] { });
+                        generateContractMethod.Invoke(ContractSystem.Instance, new object[] { rand.Next(int.MaxValue), pair.Value.Key.Prestige, 1 });
                     }
 
                     currentEnumerator = null;
@@ -185,6 +185,12 @@ namespace ContractConfigurator
             double totalWeight = 0.0;
             foreach (ContractType ct in ContractType.AllValidContractTypes.Where(ct => ct.group == group))
             {
+                // Check if we're only looking at auto-accept contracts
+                if (currentDetails.contracts.Count() >= MAX_CONTRACTS && !ct.autoAccept)
+                {
+                    continue;
+                }
+
                 // Only select contracts with the correct prestige level
                 if (ct.prestige.Count == 0 || ct.prestige.Contains(prestige))
                 {
