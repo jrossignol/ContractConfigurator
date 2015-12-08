@@ -473,12 +473,12 @@ namespace ContractConfigurator
         {
             // Figure out the multiplier
             double multiplier = 1.0;
-            if (GameVariables.Instance != null && contractType.targetBody != null)
+            if (contractType.targetBody != null)
             {
                 multiplier *= GameVariables.Instance.GetContractDestinationWeight(contractType.targetBody);
             }
             string multInfo = baseValue.ToString("N0") + " (base) * " + multiplier.ToString("F1") + " (body)";
-            if (GameVariables.Instance != null && contractType.prestige.Count > 0)
+            if (contractType.prestige.Count > 0)
             {
                 double val = GameVariables.Instance.GetContractPrestigeFactor(contractType.prestige.First());
                 multiplier *= val;
@@ -512,10 +512,6 @@ namespace ContractConfigurator
             if (body == null)
             {
                 output += "N/A";
-            }
-            else if (GameVariables.Instance == null)
-            {
-                output += "Game not initialized.";
             }
             else
             {
