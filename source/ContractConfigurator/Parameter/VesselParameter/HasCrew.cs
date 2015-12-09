@@ -13,7 +13,7 @@ namespace ContractConfigurator.Parameters
     /// <summary>
     /// Parameter for checking whether a vessel has a crew.
     /// </summary>
-    public class HasCrew : VesselParameter
+    public class HasCrew : VesselParameter, IKerbalNameStorage
     {
         protected string trait { get; set; }
         protected int minCrew { get; set; }
@@ -347,6 +347,14 @@ namespace ContractConfigurator.Parameters
                 {
                     yield return pcm;
                 }
+            }
+        }
+
+        public IEnumerable<string> KerbalNames()
+        {
+            foreach (Kerbal kerbal in kerbals)
+            {
+                yield return kerbal.name;
             }
         }
     }

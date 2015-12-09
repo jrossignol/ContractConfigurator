@@ -13,7 +13,7 @@ namespace ContractConfigurator.Parameters
     /// <summary>
     /// Parameter for checking whether a vessel has space for passengers.
     /// </summary>
-    public class HasPassengers : VesselParameter
+    public class HasPassengers : VesselParameter, IKerbalNameStorage
     {
         protected int index = 0;
         protected int count = 0;
@@ -218,6 +218,14 @@ namespace ContractConfigurator.Parameters
             }
 
             return ParameterDelegate<Vessel>.CheckChildConditions(this, vessel);
+        }
+
+        public IEnumerable<string> KerbalNames()
+        {
+            foreach (Kerbal kerbal in passengers)
+            {
+                yield return kerbal.name;
+            }
         }
     }
 }

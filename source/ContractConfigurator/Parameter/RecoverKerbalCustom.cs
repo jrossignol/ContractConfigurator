@@ -13,7 +13,7 @@ namespace ContractConfigurator.Parameters
     /// <summary>
     /// Parameter for recovering a Kerbal.
     /// </summary>
-    public class RecoverKerbalCustom : ContractConfiguratorParameter, ParameterDelegateContainer
+    public class RecoverKerbalCustom : ContractConfiguratorParameter, ParameterDelegateContainer, IKerbalNameStorage
     {
         protected int index;
         protected int count;
@@ -279,6 +279,14 @@ namespace ContractConfigurator.Parameters
                     SetState(ParameterState.Incomplete);
                     ContractConfigurator.OnParameterChange.Fire(Root, this);
                 }
+            }
+        }
+
+        public IEnumerable<string> KerbalNames()
+        {
+            foreach (Kerbal kerbal in kerbals)
+            {
+                yield return kerbal.name;
             }
         }
     }

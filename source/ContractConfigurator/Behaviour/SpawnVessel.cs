@@ -13,7 +13,7 @@ namespace ContractConfigurator.Behaviour
     /// <summary>
     /// Behaviour class for spawning a vessel.
     /// </summary>
-    public class SpawnVessel : ContractBehaviour, IHasKerbalBehaviour
+    public class SpawnVessel : ContractBehaviour, IHasKerbalBehaviour, IKerbalNameStorage
     {
         private class CrewData
         {
@@ -873,6 +873,16 @@ namespace ContractConfigurator.Behaviour
             throw new Exception("ContractConfigurator: index " + index +
                 " is out of range for number of Kerbals spawned (" + KerbalCount + ").");
         }
-
+        
+        public IEnumerable<string> KerbalNames()
+        {
+            foreach (VesselData vd in vessels)
+            {
+                foreach (CrewData cd in vd.crew)
+                {
+                    yield return cd.name;
+                }
+            }
+        }
     }
 }

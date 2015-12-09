@@ -12,7 +12,7 @@ namespace ContractConfigurator.Behaviour
     /// <summary>
     /// Class for spawning passengers.
     /// </summary>
-    public class SpawnPassengers : ContractBehaviour, IHasKerbalBehaviour
+    public class SpawnPassengers : ContractBehaviour, IHasKerbalBehaviour, IKerbalNameStorage
     {
         public static EventVoid onPassengersLoaded = new EventVoid("onPassengersLoaded");
 
@@ -482,6 +482,14 @@ namespace ContractConfigurator.Behaviour
                 }
             }
             return null;
+        }
+
+        public IEnumerable<string> KerbalNames()
+        {
+            foreach (ProtoCrewMember pcm in passengers.Keys)
+            {
+                yield return pcm.name;
+            }
         }
     }
 }
