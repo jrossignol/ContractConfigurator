@@ -1,5 +1,6 @@
 Contract Configurator 1.9.1
 - AutoAccept contracts now more likely get generated immediately when available.
+- Added CelestialBody.SCANsatCoverage() method.
 - Fixed further issues requiring rouding when checking for a zero speed (thanks Aelfhe1m).
 - Fixed issue where ContractMultiplier() wasn't calculated correctly.
 - Fixed issue where failureFunds was not being set when the contract had an advance.
