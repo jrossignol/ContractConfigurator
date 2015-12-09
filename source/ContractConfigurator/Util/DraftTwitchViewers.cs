@@ -34,7 +34,7 @@ namespace ContractConfigurator
             Instance = this;
 
             // Do a version check
-            Assembly dtvAssembly = Util.Version.VerifyAssemblyVersion("DraftTwitchViewers", "2.0.0", true);
+            Assembly dtvAssembly = Util.Version.VerifyAssemblyVersion("DraftTwitchViewers", "2.0.1", true);
             if (dtvAssembly == null)
             {
                 Destroy(this);
