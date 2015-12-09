@@ -24,6 +24,9 @@ namespace ContractConfigurator.ExpressionParser
 
             RegisterLocalFunction(new Function<T>("Random", RandomEnumValue, false));
             RegisterLocalFunction(new Function<List<T>>("All", () => Enum.GetValues(typeof(T)).OfType<T>().ToList()));
+
+            Debug.Log("Register global function: '" + typeof(T).Name + "'");
+            RegisterGlobalFunction(new Function<T, T>(typeof(T).Name, t => t));
         }
 
         protected static T RandomEnumValue()

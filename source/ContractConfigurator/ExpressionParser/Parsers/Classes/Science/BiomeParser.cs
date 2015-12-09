@@ -30,6 +30,7 @@ namespace ContractConfigurator.ExpressionParser
             RegisterMethod(new Method<Biome, CelestialBody>("CelestialBody", biome => biome == null ? null : biome.body));
             RegisterMethod(new Method<Biome, bool>("IsKSC", biome => biome == null ? false : biome.IsKSC()));
             RegisterMethod(new Method<Biome, float>("RemainingScience", RemainingScience));
+            RegisterMethod(new Method<Biome, Vessel.Situations>("PrimarySituation", GetPrimarySituation));
 
             RegisterMethod(new Method<Biome, List<Location>>("DifficultLocations", biome => biome == null ?
                 new List<Location>() : BiomeTracker.GetDifficultLocations(biome.body, biome.biome).Select(v => new Location(biome.body, v.y, v.x)).ToList()));
@@ -53,6 +54,16 @@ namespace ContractConfigurator.ExpressionParser
 
             return Science.GetSubjects(new CelestialBody[] { biome.body }, null, b => b == biome.biome).Sum(subj =>
                 subj.scienceCap * HighLogic.CurrentGame.Parameters.Career.ScienceGainMultiplier - subj.science);
+        }
+
+        private static Vessel.Situations GetPrimarySituation(Biome biome)
+        {
+            if (biome == null)
+            {
+                return Vessel.Situations.LANDED;
+            }
+
+            return BiomeTracker.GetPrimarySituation(biome.body, biome.biome);
         }
 
         public override Biome ParseIdentifier(Token token)
