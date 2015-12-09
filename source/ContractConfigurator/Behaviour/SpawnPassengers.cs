@@ -44,6 +44,8 @@ namespace ContractConfigurator.Behaviour
             private bool visible = false;
             private Rect windowPos = new Rect((Screen.width - 480) / 2, (Screen.height - 600) / 2, 480, 600);
 
+            private double stateChangeTime = double.MaxValue;
+
             protected void Start()
             {
                 GameEvents.onHideUI.Add(new EventVoid.OnEvent(OnHideUI));
@@ -114,12 +116,21 @@ namespace ContractConfigurator.Behaviour
             {
                 if (visible && !uiHidden)
                 {
-                    if (FlightGlobals.ActiveVessel == null ||
-                        FlightGlobals.ActiveVessel.situation != Vessel.Situations.PRELAUNCH &&
-                        FlightGlobals.ActiveVessel.situation != Vessel.Situations.LANDED)
+                    if (FlightGlobals.ActiveVessel == null || stateChangeTime < Time.fixedTime)
                     {
                         visible = false;
+                        stateChangeTime = double.MaxValue;
                     }
+                    else if (FlightGlobals.ActiveVessel.situation != Vessel.Situations.PRELAUNCH &&
+                        FlightGlobals.ActiveVessel.situation != Vessel.Situations.LANDED)
+                    {
+                        stateChangeTime = Time.fixedTime + 2.5;
+                    }
+                    else
+                    {
+                        stateChangeTime = double.MaxValue;
+                    }
+                    
 
                     GUI.skin = HighLogic.Skin;
                     if (!stylesSetup)
