@@ -13,7 +13,7 @@ namespace ContractConfigurator.Behaviour
     /// <summary>
     /// Class for spawning a Kerbal.
     /// </summary>
-    public class SpawnKerbal : ContractBehaviour, IHasKerbalBehaviour
+    public class SpawnKerbal : ContractBehaviour, IHasKerbalBehaviour, IKerbalNameStorage
     {
         private class KerbalData
         {
@@ -542,6 +542,14 @@ namespace ContractConfigurator.Behaviour
             foreach (KerbalData kd in kerbals)
             {
                 yield return kd.kerbal;
+            }
+        }
+
+        public IEnumerable<string> KerbalNames()
+        {
+            foreach (KerbalData kd in kerbals)
+            {
+                yield return kd.kerbal.name;
             }
         }
     }

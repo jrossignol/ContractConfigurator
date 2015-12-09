@@ -17,7 +17,7 @@ namespace ContractConfigurator
     /// <summary>
     /// Class used for all Contract Configurator contracts.
     /// </summary>
-    public class ConfiguredContract : Contract
+    public class ConfiguredContract : Contract, IKerbalNameStorage
     {
         public static EventData<ConfiguredContract> OnContractLoaded = new EventData<ConfiguredContract>("OnContractLoaded");
 
@@ -29,6 +29,8 @@ namespace ContractConfigurator
         public Dictionary<string, object> uniqueData = new Dictionary<string, object>();
 
         public static System.Random random = new System.Random();
+
+        private List<IKerbalNameStorage> nameStorageItems = null;
 
         /// <summary>
         /// Static method (used by other mods via reflection) to get the contract type name.
@@ -654,6 +656,28 @@ namespace ContractConfigurator
         public override string ToString()
         {
             return contractType != null ? contractType.name : "unknown";
+        }
+
+        public IEnumerable<string> KerbalNames()
+        {
+            // Find all the child items that store Kerbal names
+            if (nameStorageItems == null)
+            {
+                nameStorageItems = new List<IKerbalNameStorage>();
+                foreach (IKerbalNameStorage item in AllParameters.OfType<IKerbalNameStorage>().Union(
+                    behaviours.OfType<IKerbalNameStorage>()))
+                {
+                    nameStorageItems.Add(item);
+                }
+            }
+
+            foreach (IKerbalNameStorage item in nameStorageItems)
+            {
+                foreach (string name in item.KerbalNames())
+                {
+                    yield return name;
+                }
+            }
         }
     }
 }

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using UnityEngine;
+using Contracts;
 
 namespace ContractConfigurator
 {
@@ -16,13 +17,16 @@ namespace ContractConfigurator
     {
         private static DraftTwitchViewers Instance;
         private MethodInfo draftMethod = null;
+        private MethodInfo saveMethod = null;
+        private Queue<string> recentNames = new Queue<string>();
         private Queue<string> nameQueue = new Queue<string>();
+        private HashSet<string> names = new HashSet<string>();
         private int routinesRunning = 0;
 
         private float nextAttempt = 0.0f;
 
         private const float failureDelay = 45;
-        private const int draftLimit = 5;
+        private const int draftLimit = 10;
 
         void Awake()
         {
@@ -54,29 +58,41 @@ namespace ContractConfigurator
                 return;
             }
 
-            GameEvents.onGameSceneLoadRequested.Add(new EventData<GameScenes>.OnEvent(OnGameSceneLoad));
+            saveMethod = draftManager.GetMethods(BindingFlags.Public | BindingFlags.Static).
+                Where(mi => mi.Name == "SaveSupressedDraft").FirstOrDefault();
+            if (saveMethod == null)
+            {
+                LoggingUtil.LogError(this, "Couldn't get SaveSupressedDraft method from DraftTwitchViewers!");
+                Destroy(this);
+                return;
+            }
+
+            GameEvents.Contract.onAccepted.Add(new EventData<Contract>.OnEvent(OnContractAccepted));
+            ContractPreLoader.OnInitializeValues.Add(new EventVoid.OnEvent(OnPreLoaderInitializeValues));
+            ContractPreLoader.OnInitializeFail.Add(new EventVoid.OnEvent(OnPreLoaderInitializeFail));
         }
 
         void Destroy()
         {
             Instance = null;
 
-            GameEvents.onGameSceneLoadRequested.Remove(new EventData<GameScenes>.OnEvent(OnGameSceneLoad));
-        }
-
-        void OnGameSceneLoad(GameScenes scene)
-        {
-            Debug.Log("CC.DTV: Loading scene: " + scene);
+            GameEvents.Contract.onAccepted.Remove(new EventData<Contract>.OnEvent(OnContractAccepted));
+            ContractPreLoader.OnInitializeValues.Remove(new EventVoid.OnEvent(OnPreLoaderInitializeValues));
+            ContractPreLoader.OnInitializeFail.Remove(new EventVoid.OnEvent(OnPreLoaderInitializeFail));
         }
 
         void Update()
         {
-            if (HighLogic.LoadedScene != GameScenes.MAINMENU && nameQueue.Count() + routinesRunning < draftLimit && nextAttempt < Time.time)
+            if (HighLogic.LoadedScene != GameScenes.MAINMENU &&
+                ContractSystem.Instance != null && 
+                ContractPreLoader.Instance != null &&
+                nameQueue.Count() + routinesRunning < draftLimit &&
+                nextAttempt < Time.time)
             {
                 // Start the coroutine
                 object success = (Action<string>)(OnSuccess);
                 object failure = (Action<string>)(OnFailure);
-                IEnumerator enumerator = (IEnumerator)Instance.draftMethod.Invoke(null, new object[] { success, failure, false, "Any" });
+                IEnumerator enumerator = (IEnumerator)Instance.draftMethod.Invoke(null, new object[] { success, failure, false, true, "Any" });
                 Instance.StartCoroutine(enumerator);
 
                 routinesRunning++;
@@ -85,15 +101,18 @@ namespace ContractConfigurator
 
         public static string KerbalName(string defaultName)
         {
-            Debug.Log("DraftTwitchViewers.KerbalName");
+            LoggingUtil.LogVerbose(typeof(DraftTwitchViewers), "KerbalName()");
+
             if (Instance != null && Instance.nameQueue.Any())
             {
-                Debug.Log("    " + Instance.nameQueue.Peek());
-                return Instance.nameQueue.Dequeue();
+                string name = Instance.nameQueue.Dequeue();
+                Instance.recentNames.Enqueue(name);
+
+                LoggingUtil.LogVerbose(typeof(DraftTwitchViewers), "    " + name);
+                return name;
             }
             else
             {
-                Debug.Log("    " + defaultName + " (default)");
                 return defaultName;
             }
 
@@ -101,20 +120,78 @@ namespace ContractConfigurator
 
         public static void OnSuccess(string name)
         {
-            Debug.Log("DTV Success: " + name);
+            LoggingUtil.LogVerbose(typeof(DraftTwitchViewers), "DraftTwitchViewers Success: " + name);
 
-            // Queue the name
+            // Queue the name if it is new
             Instance.routinesRunning--;
-            Instance.nameQueue.Enqueue(name);
+            if (Instance.IsUnique(name))
+            {
+                Instance.nameQueue.Enqueue(name);
+                Instance.names.Add(name);
+            }
         }
 
         public static void OnFailure(string errorMessage)
         {
-            Debug.Log("DTV Error: " + errorMessage);
+            LoggingUtil.LogVerbose(typeof(DraftTwitchViewers), "DraftTwitchViewers Error: " + errorMessage);
 
             // Wait a bit before trying again
             Instance.routinesRunning--;
             Instance.nextAttempt = Time.time + failureDelay;
+        }
+
+        protected void OnContractAccepted(Contract c)
+        {
+            LoggingUtil.LogVerbose(typeof(DraftTwitchViewers), "Contract accepted, saving names..");
+            IKerbalNameStorage storedNames = c as IKerbalNameStorage;
+            if (storedNames != null)
+            {
+                foreach (string name in storedNames.KerbalNames().Distinct().Where(n => names.Contains(n)))
+                {
+                    LoggingUtil.LogVerbose(typeof(DraftTwitchViewers), "    saving '" + name + "'");
+                    saveMethod.Invoke(null, new object[] { name });
+                }
+            }
+        }
+
+        protected bool IsUnique(string name)
+        {
+            // First check in the queue
+            if (nameQueue.Contains(name))
+            {
+                return false;
+            }
+
+            // Check all active, offered and pending contracts for this name
+            foreach (ConfiguredContract contract in ContractSystem.Instance.Contracts.OfType<ConfiguredContract>().
+                Where(c=> c != null).Where(c =>
+                c.ContractState == Contract.State.Active || c.ContractState == Contract.State.Offered).
+                Union(ContractPreLoader.Instance.PendingContracts()))
+            {
+                foreach (string usedName in contract.KerbalNames())
+                {
+                    if (name == usedName)
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        protected void OnPreLoaderInitializeValues()
+        {
+            recentNames.Clear();
+        }
+
+        protected void OnPreLoaderInitializeFail()
+        {
+            foreach (string name in recentNames)
+            {
+                nameQueue.Enqueue(name);
+            }
+            recentNames.Clear();
         }
     }
 }
