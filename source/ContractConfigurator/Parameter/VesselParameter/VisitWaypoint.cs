@@ -156,7 +156,7 @@ namespace ContractConfigurator.Parameters
         public Waypoint FetchWaypoint(Contract c, bool silent = false)
         {
             // Get the WaypointGenerator behaviour
-            WaypointGenerator waypointGenerator = ((ConfiguredContract)c).Behaviours.OfType<WaypointGenerator>().First<WaypointGenerator>();
+            WaypointGenerator waypointGenerator = ((ConfiguredContract)c).Behaviours.OfType<WaypointGenerator>().FirstOrDefault<WaypointGenerator>();
 
             if (waypointGenerator == null)
             {
