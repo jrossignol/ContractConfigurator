@@ -1,5 +1,6 @@
 Contract Configurator 1.9.1
 - Draft Twitch Viewers integration - when creating new random Kerbals for contracts will get names from Draft Twitch Viewers (thanks IRNifty for assisting on this one).
+- ITERATOR nodes for automatically duplicating PARAMETER nodes for every value in a list.
 - AutoAccept contracts now more likely get generated immediately when available.
 - Added Biome.PrimarySituation() method.
 - Added CelestialBody.SCANsatCoverage() method.

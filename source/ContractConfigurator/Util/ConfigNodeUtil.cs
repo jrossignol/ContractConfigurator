@@ -22,13 +22,13 @@ namespace ContractConfigurator
             public ConfigNode configNode;
             public IContractConfiguratorFactory obj;
             public List<string> dependencies = new List<string>();
+            public DataNode dataNode;
         }
 
         public class DeferredLoadObject<T> : DeferredLoadBase
         {
             public Action<T> setter;
             public Func<T, bool> validation;
-            public DataNode dataNode;
 
             public DeferredLoadObject(ConfigNode configNode, string key, Action<T> setter, IContractConfiguratorFactory obj, Func<T, bool> validation,
                 DataNode dataNode)
@@ -818,10 +818,11 @@ namespace ContractConfigurator
         /// Re-executes all non-deterministic values for the given node, providing new values.
         /// </summary>
         /// <param name="node">The node that should be re-executed</param>
+        /// <param name="startWith">The node to use as a root, only nodes under this node will be refreshed</param>
         /// <returns>True if it was successful, false otherwise</returns>
-        public static bool UpdateNonDeterministicValues(DataNode node)
+        public static bool UpdateNonDeterministicValues(DataNode node, DataNode startWith = null)
         {
-            foreach (string val in UpdateNonDeterministicValuesIterator(node))
+            foreach (string val in UpdateNonDeterministicValuesIterator(node, startWith))
             {
                 if (val == null)
                 {
@@ -837,7 +838,7 @@ namespace ContractConfigurator
         /// </summary>
         /// <param name="node">The node that should be re-executed</param>
         /// <returns>True if it was successful, false otherwise</returns>
-        public static IEnumerable<string> UpdateNonDeterministicValuesIterator(DataNode node)
+        public static IEnumerable<string> UpdateNonDeterministicValuesIterator(DataNode node, DataNode startWith = null)
         {
             if (node == null)
             {
@@ -848,7 +849,7 @@ namespace ContractConfigurator
             {
                 // Execute each deferred load
                 MethodInfo executeMethod = typeof(DeferredLoadUtil).GetMethods().Where(m => m.Name == "ExecuteLoad").First();
-                foreach (DeferredLoadBase loadObj in node.DeferredLoads)
+                foreach (DeferredLoadBase loadObj in node.DeferredLoads.Where(dl => startWith == null || dl.dataNode.IsChildOf(startWith)))
                 {
                     initialLoad = false;
                     LoggingUtil.LogVerbose(typeof(ConfigNodeUtil), "Doing non-deterministic load for key '" + loadObj.key + "'");

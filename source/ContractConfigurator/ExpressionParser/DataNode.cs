@@ -69,6 +69,11 @@ namespace ContractConfigurator.ExpressionParser
         private List<ConfigNodeUtil.DeferredLoadBase> deferredLoads = new List<ConfigNodeUtil.DeferredLoadBase>();
         public double lastModified = Time.fixedTime;
 
+        protected static MethodInfo parseMethodGeneric = typeof(ConfigNodeUtil).GetMethods(BindingFlags.Static | BindingFlags.Public).
+            Where(m => m.Name == "ParseValue" && m.GetParameters().Count() == 4).Single();
+
+        public static int IteratorCurrentIndex = 0;
+
         public object this[string s]
         {
             get
@@ -289,6 +294,19 @@ namespace ContractConfigurator.ExpressionParser
             return (node != null ? "/" : "") + path;
         }
 
+        public bool IsChildOf(DataNode node)
+        {
+            for (DataNode p = this; p != null; p = p.parent)
+            {
+                if (node == p)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         /// <summary>
         /// Parses the child DATA nodes out of the given config node, and returns the parsed values back in dataValues.
         /// </summary>
@@ -342,7 +360,7 @@ namespace ContractConfigurator.ExpressionParser
 
                             // Create the setter function
                             Type actionType = typeof(Action<>).MakeGenericType(type);
-                            Delegate del = Delegate.CreateDelegate(actionType, value, typeof(ContractType).GetMethod("NullAction"));
+                            Delegate del = Delegate.CreateDelegate(actionType, value, typeof(DataNode).GetMethod("NullAction"));
 
                             // Get the ParseValue method
                             MethodInfo method = typeof(ConfigNodeUtil).GetMethods(BindingFlags.Static | BindingFlags.Public).
@@ -361,6 +379,118 @@ namespace ContractConfigurator.ExpressionParser
                     }
                 }
             }
+
+            return valid;
+        }
+
+
+        /// <summary>
+        /// Loads the ITERATOR nodes.
+        /// </summary>
+        /// <param name="node"></param>
+        /// <returns>Whether the load was successful</returns>
+        public static bool LoadIteratorNodes(ConfigNode node, IContractConfiguratorFactory obj)
+        {
+            bool valid = true;
+
+            IEnumerable<ConfigNode> iteratorNodes = ConfigNodeUtil.GetChildNodes(node, "ITERATOR");
+            if (!iteratorNodes.Any())
+            {
+                return true;
+            }
+            else if (iteratorNodes.Count() > 1)
+            {
+                LoggingUtil.LogError(obj, "Multiple ITERATOR nodes found - only one iterator node allowed.");
+                return false;
+            }
+
+            ConfigNode iteratorNode = iteratorNodes.First();
+            DataNode iteratorDataNode = new DataNode("ITERATOR", obj.dataNode, obj);
+            try
+            {
+                ConfigNodeUtil.SetCurrentDataNode(iteratorDataNode);
+
+                valid &= ConfigNodeUtil.ParseValue<Type>(iteratorNode, "type", x => obj.iteratorType = x, obj);
+                if (obj.iteratorType != null)
+                {
+                    foreach (ConfigNode.Value pair in iteratorNode.values)
+                    {
+                        string name = pair.name;
+                        if (name != "type")
+                        {
+                            if (!string.IsNullOrEmpty(obj.iteratorKey))
+                            {
+                                LoggingUtil.LogError(obj, "Multiple key values found in ITERATOR node - only one key allowed.");
+                                return false;
+                            }
+
+                            // Create the list type
+                            Type listType = typeof(List<>);
+                            listType = listType.MakeGenericType(new Type[] { obj.iteratorType });
+
+                            // Create the setter function
+                            object value = null;
+                            Type listActionType = typeof(Action<>).MakeGenericType(listType);
+                            Delegate listDelegate = Delegate.CreateDelegate(listActionType, value, typeof(DataNode).GetMethod("NullAction"));
+
+                            // Get the ParseValue method
+                            MethodInfo parseListMethod = parseMethodGeneric.MakeGenericMethod(new Type[] { listType });
+
+                            // Invoke the ParseValue method
+                            valid &= (bool)parseListMethod.Invoke(null, new object[] { iteratorNode, name, listDelegate, obj });
+
+                            // Store the iterator key for later
+                            obj.iteratorKey = name;
+                        }
+                    }
+                }
+
+                // Load didn't get us a key
+                if (string.IsNullOrEmpty(obj.iteratorKey))
+                {
+                    LoggingUtil.LogError(obj, "No key field was defined for the ITERATOR!.");
+                    return false;
+                }
+            }
+            finally
+            {
+                ConfigNodeUtil.SetCurrentDataNode(obj.dataNode);
+            }
+
+            // Add a dummy value to the parent data node
+            node.AddValue(obj.iteratorKey, "@ITERATOR/" + obj.iteratorKey + ".ElementAt(IteratorCurrentIndex())");
+            node.AddValue("iteratorCount", "@ITERATOR/" + obj.iteratorKey + ".Count()");
+
+            return valid;
+        }
+
+        public static bool InitializeIteratorKey(ConfigNode node, IContractConfiguratorFactory obj)
+        {
+            bool valid = true;
+
+            // Nothing to do
+            if (obj.iteratorType == null)
+            {
+                return true;
+            }
+
+            // Check if it's already been initialized (happens when using the an existing value for a key)
+            if (obj.dataNode.IsInitialized(obj.iteratorKey))
+            {
+                return true;
+            }
+
+            // Create the setter function
+            object value = null;
+            Type actionType = typeof(Action<>).MakeGenericType(obj.iteratorType);
+            Delegate del = Delegate.CreateDelegate(actionType, value, typeof(DataNode).GetMethod("NullAction"));
+
+            // Invoke the ParseValue method
+            MethodInfo parseMethod = parseMethodGeneric.MakeGenericMethod(new Type[] { obj.iteratorType });
+            valid &= (bool)parseMethod.Invoke(null, new object[] { node, obj.iteratorKey, del, obj });
+
+            // And same for the count, but no reflection needed
+            valid &= ConfigNodeUtil.ParseValue<int>(node, "iteratorCount", x => { }, obj);
 
             return valid;
         }
@@ -390,6 +520,10 @@ namespace ContractConfigurator.ExpressionParser
             }
 
             throw new ArgumentException("Contract group '" + group + "' does not exist, or is not a parent of this contract.");
+        }
+
+        public static void NullAction(object o)
+        {
         }
     }
 }

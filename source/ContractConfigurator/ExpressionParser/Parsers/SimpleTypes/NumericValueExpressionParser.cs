@@ -121,6 +121,7 @@ namespace ContractConfigurator.ExpressionParser
             {
                 calculator = new IntCalculator() as Calculator<T>;
                 RegisterGlobalFunction(new Function<int, int>("int", val => val));
+                RegisterGlobalFunction(new Function<int>("IteratorCurrentIndex", () => DataNode.IteratorCurrentIndex, false));
             }
             else if (typeof(T) == typeof(long))
             {
