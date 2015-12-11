@@ -155,23 +155,19 @@ namespace ContractConfigurator.Parameters
         /// <returns>The waypoint used by our parameter.</returns>
         public Waypoint FetchWaypoint(Contract c, bool silent = false)
         {
-            // Get the WaypointGenerator behaviour
-            WaypointGenerator waypointGenerator = ((ConfiguredContract)c).Behaviours.OfType<WaypointGenerator>().FirstOrDefault<WaypointGenerator>();
+            // Find the WaypointGenerator behaviours
+            IEnumerable<WaypointGenerator> waypointGenerators = ((ConfiguredContract)c).Behaviours.OfType<WaypointGenerator>();
 
-            if (waypointGenerator == null)
+            if (!waypointGenerators.Any())
             {
                 LoggingUtil.LogError(this, "Could not find WaypointGenerator BEHAVIOUR to couple with VisitWaypoint PARAMETER.");
                 return null;
             }
 
-            // Get the waypoint
-            try
+            Waypoint wayoint = waypointGenerators.SelectMany(wg => wg.Waypoints()).ElementAtOrDefault(waypointIndex);
+            if (waypoint == null)
             {
-                waypoint = waypointGenerator.GetWaypoint(waypointIndex);
-            }
-            catch (Exception e)
-            {
-                LoggingUtil.LogError(this, "Couldn't find waypoint in WaypointGenerator with index " + waypointIndex + ": " + e.Message);
+                LoggingUtil.LogError(this, "Couldn't find waypoint in WaypointGenerator behaviour(s) with index " + waypointIndex + ".");
             }
 
             return waypoint;
