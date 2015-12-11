@@ -393,7 +393,6 @@ namespace ContractConfigurator
 
         public override void OnLoad(ConfigNode node)
         {
-            Debug.Log("ContractConfiguratorSettings.OnLoad");
             try
             {
                 foreach (ConfigNode groupNode in node.GetNodes("CONTRACT_GROUP"))
