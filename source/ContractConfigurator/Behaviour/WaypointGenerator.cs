@@ -271,7 +271,7 @@ namespace ContractConfigurator.Behaviour
                     {
                         child.AddValue("targetBody", "@/targetBody");
                     }
-                    valid &= ConfigNodeUtil.ParseValue<CelestialBody>(child, "targetBody", x => wpData.waypoint.celestialName = x.name, factory);
+                    valid &= ConfigNodeUtil.ParseValue<CelestialBody>(child, "targetBody", x => wpData.waypoint.celestialName = x != null ? x.name : "", factory);
 
                     valid &= ConfigNodeUtil.ParseValue<string>(child, "name", x => wpData.waypoint.name = x, factory, (string)null);
                     valid &= ConfigNodeUtil.ParseValue<double?>(child, "altitude", x => altitude = x, factory, (double?)null);

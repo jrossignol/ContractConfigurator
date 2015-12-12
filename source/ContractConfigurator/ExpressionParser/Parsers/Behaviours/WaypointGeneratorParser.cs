@@ -29,11 +29,8 @@ namespace ContractConfigurator.ExpressionParser
             RegisterMethod(new Method<WaypointGeneratorFactory, List<Waypoint>>("Waypoints",
                 wgf =>
                 {
-                    Debug.Log("wgf = " + wgf);
-                    Debug.Log("wgf.Current = " + wgf.Current);
                     if (wgf.Current != null)
                     {
-                        Debug.Log("wgf.Current.Waypoints() = " + wgf.Current.Waypoints());
                         return wgf.Current.Waypoints().ToList();
                     }
                     else
