@@ -342,6 +342,7 @@ namespace ContractConfigurator.ExpressionParser
                 Token token = ParseToken();
 
                 ExpressionParser<TResult> parser = GetParser<TResult>(this);
+                bool resetExpression = true;
 
                 try
                 {
@@ -349,34 +350,30 @@ namespace ContractConfigurator.ExpressionParser
                     switch (token.tokenType)
                     {
                         case TokenType.START_BRACKET:
+                            resetExpression = false;
                             result = ParseStatement<TResult>();
                             ParseToken(")");
                             verbose &= LogExitDebug<TResult>("ParseSimpleStatement", result);
-                            parser.expression = expression;
                             return result;
                         case TokenType.LIST_START:
+                            resetExpression = false;
                             result = ParseList<TResult>();
                             verbose &= LogExitDebug<TResult>("ParseSimpleStatement", result);
-                            parser.expression = expression;
                             return result;
                         case TokenType.IDENTIFIER:
                             result = parser.ParseVarOrIdentifier(token);
-                            expression = parser.expression;
                             verbose &= LogExitDebug<TResult>("ParseSimpleStatement", result);
                             return result;
                         case TokenType.FUNCTION:
                             result = parser.ParseFunction(token);
-                            expression = parser.expression;
                             verbose &= LogExitDebug<TResult>("ParseSimpleStatement", result);
                             return result;
                         case TokenType.SPECIAL_IDENTIFIER:
                             result = parser.ParseSpecialIdentifier(token);
-                            expression = parser.expression;
                             verbose &= LogExitDebug<TResult>("ParseSimpleStatement", result);
                             return result;
                         case TokenType.DATA_STORE_IDENTIFIER:
                             result = parser.ParseDataStoreIdentifier(token);
-                            expression = parser.expression;
                             verbose &= LogExitDebug<TResult>("ParseSimpleStatement", result);
                             return result;
                         case TokenType.OPERATOR:
@@ -384,27 +381,31 @@ namespace ContractConfigurator.ExpressionParser
                             {
                                 case "-":
                                     {
+                                        resetExpression = false;
                                         TResult value = ParseSimpleStatement<TResult>();
+                                        resetExpression = true;
                                         parser.expression = expression;
                                         result = parser.Negate(value);
-                                        expression = parser.expression;
                                         verbose &= LogExitDebug<TResult>("ParseSimpleStatement", result);
                                         return result;
                                     }
                                 case "!":
                                     {
+                                        resetExpression = false;
                                         TResult value = ParseSimpleStatement<TResult>();
+                                        resetExpression = true;
                                         parser.expression = expression;
                                         result = parser.Not(value);
-                                        expression = parser.expression;
                                         verbose &= LogExitDebug<TResult>("ParseSimpleStatement", result);
                                         return result;
                                     }
                                 default:
+                                    resetExpression = false;
                                     expression = token.sval + expression;
                                     throw new ArgumentException("Unexpected operator: " + token.sval);
                             }
                         case TokenType.VALUE:
+                            resetExpression = false;
                             result = ConvertType<TResult>((token as ValueToken<T>).val);
                             verbose &= LogExitDebug<TResult>("ParseSimpleStatement", result);
                             return result;
@@ -413,23 +414,27 @@ namespace ContractConfigurator.ExpressionParser
                             {
                                 parser.expression = token.sval + expression;
                                 result = parser.ParseStatement<TResult>();
-                                expression = parser.expression;
                                 verbose &= LogExitDebug<TResult>("ParseSimpleStatement", result);
                                 return result;
                             }
                             else
                             {
+                                resetExpression = false;
                                 expression = token.sval + expression;
                                 throw new DataStoreCastException(typeof(string), typeof(TResult));
                             }
                         default:
+                            resetExpression = false;
                             expression = token.sval + expression;
                             throw new ArgumentException("Unexpected value: " + token.sval);
                     }
                 }
                 finally
                 {
-                    expression = parser.expression;
+                    if (resetExpression)
+                    {
+                        expression = parser.expression;
+                    }
                 }
             }
             catch
@@ -983,32 +988,32 @@ namespace ContractConfigurator.ExpressionParser
                 throw new MissingMethodException("Cannot find " + (isFunction ? "function" : "method") + " '" + functionName + "' for class '" + typeof(T).Name + "'.");
             }
 
+            // Get some basic statistics
+            int minParam = int.MaxValue;
+            int maxParam = 0;
+            List<Type> paramTypes = new List<Type>();
+            foreach (Function method in methods)
+            {
+                int paramCount = method.ParameterCount();
+                minParam = Math.Min(minParam, paramCount);
+                maxParam = Math.Max(maxParam, paramCount);
+                for (int j = 0; j < paramCount; j++)
+                {
+                    if (paramTypes.Count <= j)
+                    {
+                        paramTypes.Add(method.ParameterType(j));
+                    }
+                    else if (paramTypes[j] != method.ParameterType(j))
+                    {
+                        paramTypes[j] = null;
+                    }
+                }
+            }
+
             List<KeyValuePair<object, Type>> parameters = new List<KeyValuePair<object, Type>>();
 
             while (true)
             {
-                // Get some basic statistics
-                int minParam = int.MaxValue;
-                int maxParam = 0;
-                List<Type> paramTypes = new List<Type>();
-                foreach (Function method in methods)
-                {
-                    int paramCount = method.ParameterCount();
-                    minParam = Math.Min(minParam, paramCount);
-                    maxParam = Math.Max(maxParam, paramCount);
-                    for (int j = 0; j < paramCount; j++)
-                    {
-                        if (paramTypes.Count <= j)
-                        {
-                            paramTypes.Add(method.ParameterType(j));
-                        }
-                        else if (paramTypes[j] != method.ParameterType(j))
-                        {
-                            paramTypes[j] = null;
-                        }
-                    }
-                }
-
                 // Try to end it
                 Token endToken = ParseMethodEndToken();
                 if (endToken != null)
@@ -1071,7 +1076,12 @@ namespace ContractConfigurator.ExpressionParser
                     throw new ArgumentException("Expected an expression, got end of statement");
                 }
 
-                Type paramType = paramTypes[parameters.Count];
+                if (parameters.Count >= paramTypes.Count)
+                {
+                    throw new ArgumentException("Couldn't find matching signature for " + (isFunction ? "function" : "method") + " '" + functionName + "'.");
+                }
+
+                Type paramType = paramTypes.ElementAtOrDefault(parameters.Count);
                 // Easy - we have the type!
                 if (paramType != null)
                 {
