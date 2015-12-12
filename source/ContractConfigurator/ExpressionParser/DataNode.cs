@@ -474,10 +474,13 @@ namespace ContractConfigurator.ExpressionParser
                 return true;
             }
 
+            // First initalize our iterator count variable (no reflection needed)
+            valid &= ConfigNodeUtil.ParseValue<int>(node, "iteratorCount", x => { }, obj);
+
             // Check if it's already been initialized (happens when using the an existing value for a key)
             if (obj.dataNode.IsInitialized(obj.iteratorKey))
             {
-                return true;
+                return valid;
             }
 
             // Create the setter function
@@ -488,9 +491,6 @@ namespace ContractConfigurator.ExpressionParser
             // Invoke the ParseValue method
             MethodInfo parseMethod = parseMethodGeneric.MakeGenericMethod(new Type[] { obj.iteratorType });
             valid &= (bool)parseMethod.Invoke(null, new object[] { node, obj.iteratorKey, del, obj });
-
-            // And same for the count, but no reflection needed
-            valid &= ConfigNodeUtil.ParseValue<int>(node, "iteratorCount", x => { }, obj);
 
             return valid;
         }
