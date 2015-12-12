@@ -130,21 +130,6 @@ namespace ContractConfigurator
         }
 
         /// <summary>
-        /// Checks that a CelestialBody with the given name exists.
-        /// </summary>
-        /// <param name="celestialName">Name to check for.</param>
-        /// <returns>True if valid, exception otherwise</returns>
-        public static bool CheckCelestialBody(string celestialName)
-        {
-            if (!FlightGlobals.Bodies.Any(b => b.name == celestialName))
-            {
-                throw new ArgumentException("No CelestialBody with name '" + celestialName + "'.");
-            }
-
-            return true;
-        }
-
-        /// <summary>
         /// Checks whether a file exists at the given URL.
         /// </summary>
         /// <param name="fileURL">URL to check for a file.</param>

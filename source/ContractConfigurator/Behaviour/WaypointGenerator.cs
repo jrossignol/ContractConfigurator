@@ -269,9 +269,9 @@ namespace ContractConfigurator.Behaviour
                     // Use an expression to default - then it'll work for dynamic contracts
                     if (!child.HasValue("targetBody"))
                     {
-                        child.AddValue("targetBody", "@/targetBody.Name()");
+                        child.AddValue("targetBody", "@/targetBody");
                     }
-                    valid &= ConfigNodeUtil.ParseValue<string>(child, "targetBody", x => wpData.waypoint.celestialName = x, factory, Validation.CheckCelestialBody);
+                    valid &= ConfigNodeUtil.ParseValue<CelestialBody>(child, "targetBody", x => wpData.waypoint.celestialName = x.name, factory);
 
                     valid &= ConfigNodeUtil.ParseValue<string>(child, "name", x => wpData.waypoint.name = x, factory, (string)null);
                     valid &= ConfigNodeUtil.ParseValue<double?>(child, "altitude", x => altitude = x, factory, (double?)null);
