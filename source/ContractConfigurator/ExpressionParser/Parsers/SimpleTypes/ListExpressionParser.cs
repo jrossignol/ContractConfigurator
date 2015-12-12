@@ -28,6 +28,7 @@ namespace ContractConfigurator.ExpressionParser
         {
             RegisterMethod(new Method<List<T>, T>("Random", l => l == null || !l.Any() ? default(T) : l.Skip(r.Next(l.Count)).First(), false));
             RegisterMethod(new Method<List<T>, int, List<T>>("Random", RandomList, false));
+            RegisterMethod(new Method<List<T>, int, int, List<T>>("Random", RandomList, false));
             RegisterMethod(new Method<List<T>, T>("First", l => l == null ? default(T) : l.FirstOrDefault()));
             RegisterMethod(new Method<List<T>, T>("Last", l => l == null ? default(T) : l.LastOrDefault()));
             RegisterMethod(new Method<List<T>, int, T>("ElementAt", (l, i) => l == null ? default(T) : l.ElementAtOrDefault(i)));
@@ -40,6 +41,11 @@ namespace ContractConfigurator.ExpressionParser
             RegisterMethod(new Method<List<T>, T, List<T>>("Add", (l, v) => { if (l != null) { l.ToList().Add(v); }  return l; }));
             RegisterMethod(new Method<List<T>, T, List<T>>("Exclude", (l, v) => { if (l != null) { l = l.ToList(); l.Remove(v); }  return l; }));
             RegisterMethod(new Method<List<T>, List<T>, List<T>>("ExcludeAll", (l, l2) => { if (l != null) { l = l.ToList(); if (l2 != null) { l.RemoveAll(x => l2.Contains(x)); } } return l; }));
+        }
+
+        protected static List<T> RandomList(List<T> input, int minCount, int maxCount)
+        {
+            return RandomList(input, NumericValueExpressionParser<int>.RandomMinMax(minCount, maxCount));
         }
 
         protected static List<T> RandomList(List<T> input, int count)

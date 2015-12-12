@@ -196,7 +196,7 @@ namespace ContractConfigurator.ExpressionParser
             }));
         }
 
-        private static T RandomMinMax(T min, T max)
+        public static T RandomMinMax(T min, T max)
         {
             double dmin = (double)Convert.ChangeType(min, typeof(double));
             double dmax = (double)Convert.ChangeType(max, typeof(double));
