@@ -164,7 +164,7 @@ namespace ContractConfigurator.Parameters
                 return null;
             }
 
-            Waypoint wayoint = waypointGenerators.SelectMany(wg => wg.Waypoints()).ElementAtOrDefault(waypointIndex);
+            waypoint = waypointGenerators.SelectMany(wg => wg.Waypoints()).ElementAtOrDefault(waypointIndex);
             if (waypoint == null)
             {
                 LoggingUtil.LogError(this, "Couldn't find waypoint in WaypointGenerator behaviour(s) with index " + waypointIndex + ".");
