@@ -43,12 +43,16 @@ namespace ContractConfigurator.Behaviour
 
         protected override void OnSave(ConfigNode configNode)
         {
+            base.OnLoad(configNode);
+
             configNode.AddValue("url", url);
             configNode.AddValue("craftType", craftType);
         }
 
         protected override void OnLoad(ConfigNode configNode)
         {
+            base.OnSave(configNode);
+
             url = ConfigNodeUtil.ParseValue<string>(configNode, "url");
             craftType = ConfigNodeUtil.ParseValue<EditorFacility>(configNode, "craftType");
         }

@@ -12,6 +12,7 @@ Contract Configurator 1.9.1
 - Fixed issue with load passenger dialog disappearing too early (thanks inigma).
 - Fixed parsing of CelestialBody in WaypointGenerator (thanks severedsolo).
 - Fixed some parser issues for exceptional cases (thanks inigma).
+- Fixed major issues with CopyCraftFile behaviour (thanks inigma).
 - Minor bug fixes.
 
 Contract Configurator 1.9.0
