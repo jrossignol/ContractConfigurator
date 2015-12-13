@@ -355,7 +355,7 @@ namespace ContractConfigurator
             }
 
             // Late initialize for iterator keys
-            DataNode.InitializeIteratorKey(parameterConfig, paramFactory);
+            valid &= DataNode.InitializeIteratorKey(parameterConfig, paramFactory);
 
             // Check for unexpected values - always do this last
             if (paramFactory.GetType() != typeof(InvalidParameterFactory))

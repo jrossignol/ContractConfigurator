@@ -474,11 +474,14 @@ namespace ContractConfigurator.ExpressionParser
                 return true;
             }
 
+            // Set the correct data node
+            ConfigNodeUtil.SetCurrentDataNode(obj.dataNode);
+
             // First initalize our iterator count variable (no reflection needed)
             valid &= ConfigNodeUtil.ParseValue<int>(node, "iteratorCount", x => { }, obj);
 
-            // Check if it's already been initialized (happens when using the an existing value for a key)
-            if (obj.dataNode.IsInitialized(obj.iteratorKey))
+            // Check if it already exists (happens when using the an existing value for a key)
+            if (obj.dataNode.data.ContainsKey(obj.iteratorKey)) 
             {
                 return valid;
             }
