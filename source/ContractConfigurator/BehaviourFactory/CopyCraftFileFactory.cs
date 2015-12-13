@@ -17,7 +17,7 @@ namespace ContractConfigurator.Behaviour
         protected string url;
         protected EditorFacility craftType;
         protected TriggeredBehaviour.State onState;
-        protected List<string> parameter;
+        protected List<string> parameter = new List<string>();
 
         public override bool Load(ConfigNode configNode)
         {
