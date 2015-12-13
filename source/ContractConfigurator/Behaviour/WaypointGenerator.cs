@@ -298,6 +298,7 @@ namespace ContractConfigurator.Behaviour
                     }
 
                     valid &= ConfigNodeUtil.ParseValue<bool>(child, "underwater", x => wpData.underwater = x, factory, false);
+                    valid &= ConfigNodeUtil.ParseValue<bool>(child, "clustered", x => wpData.waypoint.isClustered = x, factory, false);
 
                     // Track the index
                     wpData.waypoint.index = index++;
@@ -436,6 +437,7 @@ namespace ContractConfigurator.Behaviour
                 wpData.waypoint.altitude = Convert.ToDouble(child.GetValue("altitude"));
                 wpData.waypoint.index = Convert.ToInt32(child.GetValue("index"));
                 wpData.waypoint.visible = !(ConfigNodeUtil.ParseValue<bool?>(child, "hidden", (bool?)false).Value);
+                wpData.waypoint.isClustered = ConfigNodeUtil.ParseValue<bool?>(child, "clustered", (bool?)false).Value;
 
                 // Set contract data
                 wpData.SetContract(contract);
@@ -471,6 +473,7 @@ namespace ContractConfigurator.Behaviour
                 child.AddValue("altitude", wpData.waypoint.altitude);
                 child.AddValue("index", wpData.waypoint.index);
                 child.AddValue("hidden", !wpData.waypoint.visible);
+                child.AddValue("clustered", wpData.waypoint.isClustered);
 
                 configNode.AddNode(child);
             }
