@@ -222,6 +222,15 @@ namespace ContractConfigurator.Parameters
                 return;
             }
 
+            // Reset the tracked vessel if it no longer exists
+            if (trackedVesselGuid != Guid.Empty && !FlightGlobals.Vessels.Any(v => v.id == trackedVesselGuid))
+            {
+                LoggingUtil.LogVerbose(this, "Tracked vessel no longer exists, resetting tracking.");
+                waiting = false;
+                trackedVessel = null;
+                trackedVesselGuid = Guid.Empty;
+            }
+
             // Ignore updates to non-tracked vessels if that vessel is already winning
             if (vessel != trackedVessel && (waiting || state == ParameterState.Complete))
             {
@@ -514,7 +523,7 @@ namespace ContractConfigurator.Parameters
                         // Set the tracked vessel association
                         if (!string.IsNullOrEmpty(define))
                         {
-                            LoggingUtil.LogVerbose(this, "setting " + define + " as " + (trackedVessel != null ? trackedVessel.name : "null"));
+                            LoggingUtil.LogVerbose(this, "setting " + define + " as " + (trackedVessel != null ? trackedVessel.vesselName : "null"));
                             ContractVesselTracker.Instance.AssociateVessel(define, trackedVessel);
                         }
                     }
