@@ -501,22 +501,6 @@ namespace ContractConfigurator.Parameters
 
         protected override void OnParameterStateChange(ContractParameter contractParameter)
         {
-            if (contractParameter == this && !string.IsNullOrEmpty(define))
-            {
-                if (state == ParameterState.Complete)
-                {
-                    // Set the tracked vessel association
-                    LoggingUtil.LogVerbose(this, "setting " + define + " as " + (trackedVessel != null ? trackedVessel.name : "null"));
-                    ContractVesselTracker.Instance.AssociateVessel(define, trackedVessel);
-                }
-                else
-                {
-                    // Unset the tracked vessel association
-                    LoggingUtil.LogVerbose(this, "setting " + define + " as null");
-                    ContractVesselTracker.Instance.AssociateVessel(define, null);
-                }
-            }
-
             if (System.Object.ReferenceEquals(contractParameter.Parent, this) ||
                 System.Object.ReferenceEquals(contractParameter, this))
             {
@@ -526,6 +510,13 @@ namespace ContractConfigurator.Parameters
                     {
                         waiting = true;
                         completionTime = Planetarium.GetUniversalTime() + duration;
+
+                        // Set the tracked vessel association
+                        if (!string.IsNullOrEmpty(define))
+                        {
+                            LoggingUtil.LogVerbose(this, "setting " + define + " as " + (trackedVessel != null ? trackedVessel.name : "null"));
+                            ContractVesselTracker.Instance.AssociateVessel(define, trackedVessel);
+                        }
                     }
                 }
                 else
@@ -534,6 +525,13 @@ namespace ContractConfigurator.Parameters
                     if (state == ParameterState.Complete)
                     {
                         SetState(ParameterState.Incomplete);
+                    }
+
+                    // Set the tracked vessel association
+                    if (!string.IsNullOrEmpty(define))
+                    {
+                        LoggingUtil.LogVerbose(this, "setting " + define + " as null");
+                        ContractVesselTracker.Instance.AssociateVessel(define, null);
                     }
 
                     // Find any failed non-VesselParameter parameters
