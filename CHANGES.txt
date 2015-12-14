@@ -6,6 +6,7 @@ Contract Configurator 1.9.1
 - Added CelestialBody.SCANsatCoverage() method.
 - Allow multiple parameter identifiers in WaypointGenerator (for blocks with more than one waypoint).
 - Support for clustered waypoints in WaypoingGenerator.
+- ReachState supports multiple vessel situations.
 - Fixed VisitWaypoint support for contracts with multiple WaypointGenerator behaviours (thanks linuxgurugamer).
 - Fixed further issues requiring rouding when checking for a zero speed (thanks Aelfhe1m).
 - Fixed issue where ContractMultiplier() wasn't calculated correctly.

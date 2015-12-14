@@ -175,7 +175,8 @@ namespace ContractConfigurator
                         if (handled == null ||
                             handled.GetType() != typeof(DataStoreCastException) &&
                             handled.GetType() != typeof(NotSupportedException) &&
-                            handled.GetType() != typeof(ArgumentNullException))
+                            handled.GetType() != typeof(ArgumentNullException) &&
+                            handled.GetType() != typeof(InvalidCastException))
                         {
                             // Exceptions we explicitly rethrow
                             if (handled != null && handled.GetType() == typeof(DataNode.ValueNotInitialized))

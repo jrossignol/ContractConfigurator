@@ -81,12 +81,6 @@ namespace ContractConfigurator.ExpressionParser
                 }
                 else
                 {
-                    // Check for a start bracket
-                    if (expression.First() == '(')
-                    {
-                        return base.ParseStatement<TResult>();
-                    }
-
                     // Check for an immediate function call 
                     Match m = Regex.Match(expression, @"^\w[\w\d]*\(");
                     if (m.Success)

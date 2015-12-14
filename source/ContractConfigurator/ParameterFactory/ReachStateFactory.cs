@@ -17,7 +17,7 @@ namespace ContractConfigurator
     {
         protected bool failWhenUnmet;
         protected Biome biome;
-        protected Vessel.Situations? situation;
+        protected List<Vessel.Situations> situation;
         protected float minAltitude;
         protected float maxAltitude;
         protected float minTerrainAltitude;
@@ -34,7 +34,7 @@ namespace ContractConfigurator
 
             valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "failWhenUnmet", x => failWhenUnmet = x, this, false);
             valid &= ConfigNodeUtil.ParseValue<Biome>(configNode, "biome", x => biome = x, this, (Biome)null);
-            valid &= ConfigNodeUtil.ParseValue<Vessel.Situations?>(configNode, "situation", x => situation = x, this, (Vessel.Situations?)null);
+            valid &= ConfigNodeUtil.ParseValue<List<Vessel.Situations>>(configNode, "situation", x => situation = x, this, new List<Vessel.Situations>());
             valid &= ConfigNodeUtil.ParseValue<float>(configNode, "minAltitude", x => minAltitude = x, this, 0.0f, x => Validation.GE(x, 0.0f));
             valid &= ConfigNodeUtil.ParseValue<float>(configNode, "maxAltitude", x => maxAltitude = x, this, float.MaxValue, x => Validation.GE(x, 0.0f));
             valid &= ConfigNodeUtil.ParseValue<float>(configNode, "minTerrainAltitude", x => minTerrainAltitude = x, this, 0.0f, x => Validation.GE(x, 0.0f));

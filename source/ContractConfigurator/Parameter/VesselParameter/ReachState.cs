@@ -16,7 +16,7 @@ namespace ContractConfigurator.Parameters
     {
         protected CelestialBody targetBody { get; set; }
         protected string biome { get; set; }
-        protected Vessel.Situations? situation { get; set; }
+        protected List<Vessel.Situations> situation { get; set; }
         protected float minAltitude { get; set; }
         protected float maxAltitude { get; set; }
         protected float minTerrainAltitude { get; set; }
@@ -36,7 +36,7 @@ namespace ContractConfigurator.Parameters
         {
         }
 
-        public ReachState(CelestialBody targetBody, string biome, Vessel.Situations? situation, float minAltitude, float maxAltitude,
+        public ReachState(CelestialBody targetBody, string biome, List<Vessel.Situations> situation, float minAltitude, float maxAltitude,
             float minTerrainAltitude, float maxTerrainAltitude, double minSpeed, double maxSpeed, float minAcceleration, float maxAcceleration, string title)
             : base(title)
         {
@@ -99,10 +99,10 @@ namespace ContractConfigurator.Parameters
             }
 
             // Filter for situation
-            if (situation != null)
+            if (situation.Any())
             {
-                AddParameter(new ParameterDelegate<Vessel>("Situation: " + ReachSituation.GetTitleStringShort(situation.Value),
-                    v => v.situation == situation.Value));
+                AddParameter(new ParameterDelegate<Vessel>("Situation: " + SituationList(),
+                    v => situation.Contains(v.situation)));
             }
 
             // Filter for altitude
@@ -235,9 +235,10 @@ namespace ContractConfigurator.Parameters
                 node.AddValue("biome", biome);
             }
 
-            if (situation != null)
+            
+            foreach (Vessel.Situations sit in situation)
             {
-                node.AddValue("situation", situation);
+                node.AddValue("situation", sit);
             }
 
             if (minAltitude != 0.0f)
@@ -284,7 +285,7 @@ namespace ContractConfigurator.Parameters
                 base.OnParameterLoad(node);
                 targetBody = ConfigNodeUtil.ParseValue<CelestialBody>(node, "targetBody", (CelestialBody)null);
                 biome = ConfigNodeUtil.ParseValue<string>(node, "biome", "");
-                situation = ConfigNodeUtil.ParseValue<Vessel.Situations?>(node, "situation", (Vessel.Situations?)null);
+                situation = ConfigNodeUtil.ParseValue<List<Vessel.Situations>>(node, "situation", new List<Vessel.Situations>());
                 minAltitude = ConfigNodeUtil.ParseValue<float>(node, "minAltitude", 0.0f);
                 maxAltitude = ConfigNodeUtil.ParseValue<float>(node, "maxAltitude", float.MaxValue);
                 minTerrainAltitude = ConfigNodeUtil.ParseValue<float>(node, "minTerrainAltitude", 0.0f);
@@ -310,6 +311,22 @@ namespace ContractConfigurator.Parameters
                 lastUpdate = UnityEngine.Time.fixedTime;
                 CheckVessel(FlightGlobals.ActiveVessel);
             }
+        }
+
+        public string SituationList()
+        {
+            Vessel.Situations first = situation.First();
+            Vessel.Situations last = situation.Last();
+            string result = ReachSituation.GetTitleStringShort(first);
+            foreach (Vessel.Situations sit in situation.Where(s => s != first && s != last))
+            {
+                result += ", " + ReachSituation.GetTitleStringShort(sit);
+            }
+            if (last != first)
+            {
+                result += " or " + ReachSituation.GetTitleStringShort(last);
+            }
+            return result;
         }
 
         /// <summary>
