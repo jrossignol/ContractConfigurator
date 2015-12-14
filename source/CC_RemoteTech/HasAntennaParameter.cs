@@ -191,7 +191,7 @@ namespace ContractConfigurator.RemoteTech
         /// <returns>Whether the vessel meets the parameter condition(s).</returns>
         protected override bool VesselMeetsCondition(Vessel vessel)
         {
-            LoggingUtil.LogVerbose(this, "Checking VesselMeetsCondition: " + vessel.id);
+            LoggingUtil.LogVerbose(this, "Checking VesselMeetsCondition: " + vessel.id + " (" + vessel.vesselName + ")");
 
             // Get all the antennae
             VesselSatellite sat = RTCore.Instance.Satellites[vessel.id];
@@ -199,9 +199,10 @@ namespace ContractConfigurator.RemoteTech
 
             // If we're a VesselParameterGroup child, only do actual state change if we're the tracked vessel
             bool checkOnly = false;
-            if (Parent is VesselParameterGroup)
+            VesselParameterGroup vpg = GetParameterGroupHost();
+            if (vpg != null)
             {
-                checkOnly = ((VesselParameterGroup)Parent).TrackedVessel != vessel;
+                checkOnly = vpg.TrackedVessel != vessel;
             }
 
             return ParameterDelegate<IAntenna>.CheckChildConditions(this, antennas, checkOnly);
