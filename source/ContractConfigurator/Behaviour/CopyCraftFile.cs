@@ -38,7 +38,14 @@ namespace ContractConfigurator.Behaviour
             string destPath = string.Join(Path.DirectorySeparatorChar.ToString(), destPathComponents);
 
             LoggingUtil.LogDebug(this, "Copying from '" + srcPath + "' to '" + destPath + "'.");
-            File.Copy(srcPath, destPath);
+            try
+            {
+                File.Copy(srcPath, destPath, true);
+            }
+            catch (Exception e)
+            {
+                LoggingUtil.LogException(e);
+            }
         }
 
         protected override void OnSave(ConfigNode configNode)
