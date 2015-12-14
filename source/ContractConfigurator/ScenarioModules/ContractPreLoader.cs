@@ -107,7 +107,7 @@ namespace ContractConfigurator
                 // Prepare a list of possible selections
                 IEnumerable<ContractDetails> selections = contractDetails.Values.Where(cd =>
                     UnityEngine.Time.realtimeSinceStartup - cd.lastGenerationFailure > FAILURE_WAIT_TIME &&
-                    (cd.contracts.Count() < MAX_CONTRACTS || cd.contracts.Any(c => c.AutoAccept)));
+                    (cd.contracts.Count() < MAX_CONTRACTS || ContractType.AllValidContractTypes.Any(ct => ct.autoAccept && ct.prestige.Contains(cd.prestige))));
 
                 // Nothing is ready
                 if (!selections.Any())
