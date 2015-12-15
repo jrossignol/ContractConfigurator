@@ -203,7 +203,7 @@ namespace ContractConfigurator
                 if (paramFactory.enabled)
                 {
                     // Set up the iterator
-                    int count = 0;
+                    int count = 1;
                     int current = 0;
                     if (paramFactory.iteratorType != null)
                     {
@@ -211,13 +211,13 @@ namespace ContractConfigurator
                     }
 
                     // Loop through the iterator, or do a single parameter for non-iterated parameters
-                    do
+                    while (current++ < count)
                     {
-                        // Refresh the 
+                        // Refresh the deterministic values
                         int oldValue = DataNode.IteratorCurrentIndex;
                         if (paramFactory.iteratorType != null)
                         {
-                            DataNode.IteratorCurrentIndex = current;
+                            DataNode.IteratorCurrentIndex = current-1;
                             ConfigNodeUtil.UpdateNonDeterministicValues(paramFactory.dataNode, paramFactory.dataNode);
                         }
 
@@ -247,7 +247,7 @@ namespace ContractConfigurator
 
                         // Restore the old value for the iterator list (for recursive iterations)
                         DataNode.IteratorCurrentIndex = oldValue;
-                    } while (++current < count);
+                    }
                 }
             }
 

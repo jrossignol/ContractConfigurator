@@ -124,7 +124,7 @@ namespace ContractConfigurator.ExpressionParser
                 string identifier = m.Groups[1].Value;
                 expression = (string.IsNullOrEmpty(identifier) ? expression : m.Groups[2].Value);
 
-                List<T> values = obj.Count == 0 ? new T[] { default(T) }.ToList() : obj;
+                List<T> values = obj == null || obj.Count == 0 ? new T[] { default(T) }.ToList() : obj;
                 List<T> filteredList = new List<T>();
 
                 // Save the expression, then execute for each value
