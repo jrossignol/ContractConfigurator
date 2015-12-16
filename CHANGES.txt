@@ -15,6 +15,7 @@ Contract Configurator 1.9.1
 - Fixed parsing of CelestialBody in WaypointGenerator (thanks severedsolo).
 - Fixed some parser issues for exceptional cases (thanks inigma).
 - Fixed major issues with CopyCraftFile behaviour (thanks inigma).
+- Fixed default Kerbal type back to tourist in SpawnPassengers (thanks CovertJaguar).
 - Minor bug fixes.
 
 Contract Configurator 1.9.0

@@ -359,6 +359,7 @@ namespace ContractConfigurator.Behaviour
                 {
                     // Generate the ProtoCrewMember
                     Kerbal kerbal = (i < kerbals.Count()) ? kerbals.ElementAt(i) : new Kerbal();
+                    kerbal.kerbalType = ProtoCrewMember.KerbalType.Tourist;
                     kerbal.GenerateKerbal();
                     crewMember = kerbal.pcm;
                 }
