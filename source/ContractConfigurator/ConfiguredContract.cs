@@ -417,11 +417,26 @@ namespace ContractConfigurator
             try
             {
                 node.AddValue("subtype", subType);
-                node.AddValue("title", title.Replace("\n", "\\n"));
-                node.AddValue("description", description.Replace("\n", "\\n"));
-                node.AddValue("synopsis", synopsis.Replace("\n", "\\n"));
-                node.AddValue("completedMessage", completedMessage.Replace("\n", "\\n"));
-                node.AddValue("notes", notes.Replace("\n", "\\n"));
+                if (!string.IsNullOrEmpty(title))
+                {
+                    node.AddValue("title", title.Replace("\n", "\\n"));
+                }
+                if (!string.IsNullOrEmpty(description))
+                {
+                    node.AddValue("description", description.Replace("\n", "\\n"));
+                }
+                if (!string.IsNullOrEmpty(synopsis))
+                {
+                    node.AddValue("synopsis", synopsis.Replace("\n", "\\n"));
+                }
+                if (!string.IsNullOrEmpty(completedMessage))
+                {
+                    node.AddValue("completedMessage", completedMessage.Replace("\n", "\\n"));
+                }
+                if (!string.IsNullOrEmpty(notes))
+                {
+                    node.AddValue("notes", notes.Replace("\n", "\\n"));
+                }
                 node.AddValue("hash", hash);
 
                 // Store the unique data
