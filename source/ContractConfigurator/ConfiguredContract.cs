@@ -418,7 +418,7 @@ namespace ContractConfigurator
             {
                 node.AddValue("subtype", subType);
                 node.AddValue("title", title);
-                node.AddValue("description", description);
+                node.AddValue("description", description.Replace("\n", "\\n"));
                 node.AddValue("synopsis", synopsis);
                 node.AddValue("completedMessage", completedMessage);
                 node.AddValue("notes", notes);
