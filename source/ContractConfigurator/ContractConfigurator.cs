@@ -264,7 +264,7 @@ namespace ContractConfigurator
                 }
 
                 // Module Manager 2.6.7 and better calls our reload function for us
-                if (Util.Version.VerifyAssemblyVersion(mmAssembly.GetName().Name, "2.6.7") != null)
+                if (Util.Version.VerifyAssemblyVersion(mmAssembly.GetName().Name, "2.6.7", true) != null)
                 {
                     moduleManagerDoesReload = true;
                 }
