@@ -150,13 +150,13 @@ namespace ContractConfigurator.ExpressionParser
             // Verify the SCANsat version
             if (!SCANsatUtil.VerifySCANsatVersion())
             {
-                return 1.0;
+                return 100.0;
             }
 
             // Verify the input
             if (cb == null)
             {
-                return 1.0;
+                return 100.0;
             }
             SCANsatUtil.ValidateSCANname(scanType);
 

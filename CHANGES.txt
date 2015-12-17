@@ -1,3 +1,6 @@
+Contract Configurator 1.9.2
+- Fixed error handling in expression parser (thanks severedsolo).
+
 Contract Configurator 1.9.1
 - Draft Twitch Viewers integration - when creating new random Kerbals for contracts will get names from Draft Twitch Viewers (thanks IRNifty for assisting on this one).
 - ITERATOR nodes for automatically duplicating PARAMETER nodes for every value in a list.

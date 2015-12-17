@@ -1061,13 +1061,13 @@ namespace ContractConfigurator.ExpressionParser
                     }
                     else
                     {
-                        throw new ArgumentException("Expected ')', got: " + endToken != null ? endToken.sval : "end of statement");
+                        throw new ArgumentException("Expected ')', got: " + (endToken != null ? endToken.sval : "end of statement"));
                     }
                 }
                 else if (parameters.Count() != 0)
                 {
                     Token token = ParseToken();
-                    throw new ArgumentException("Expected ',', got: " + token != null ? token.sval : "end of statement");
+                    throw new ArgumentException("Expected ',' or ')', got: " + (token != null ? token.sval : "end of statement"));
                 }
 
                 // Check for end of statement
