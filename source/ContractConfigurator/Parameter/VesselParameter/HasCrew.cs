@@ -343,7 +343,7 @@ namespace ContractConfigurator.Parameters
             else
             {
                 // Vessel with crew
-                foreach (ProtoCrewMember pcm in v.GetVesselCrew().Where(p => p.type == ProtoCrewMember.KerbalType.Crew))
+                foreach (ProtoCrewMember pcm in v.GetVesselCrew())
                 {
                     yield return pcm;
                 }
