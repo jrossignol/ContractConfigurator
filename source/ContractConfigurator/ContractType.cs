@@ -504,14 +504,16 @@ namespace ContractConfigurator
                         string key = pair.Key;
                         DataNode.UniquenessCheck uniquenessCheck = pair.Value;
 
+                        LoggingUtil.LogVerbose(this, "Doing unique value check for " + key);
+
                         IEnumerable<ConfiguredContract> contractList = ContractSystem.Instance.GetCurrentContracts<ConfiguredContract>().
-                            Where(c => c.contractType != null && c != contract && c.uniqueData.ContainsKey(key));
+                            Where(c => c != null && c.contractType != null && c != contract && c.uniqueData.ContainsKey(key));
 
                         // Special case for pre-loader contracts
                         if (contract.ContractState == Contract.State.Withdrawn)
                         {
-                            contractList = contractList.Union(ContractPreLoader.Instance.PendingContracts(this, contract.Prestige));
-                            contractList = contractList.Where(c => c != contract);
+                            contractList = contractList.Union(ContractPreLoader.Instance.PendingContracts(this, contract.Prestige).
+                                Where(c => c != null && c != contract && c.contractType != null));
                         }
 
                         // Check for contracts of the same type
@@ -520,9 +522,14 @@ namespace ContractConfigurator
                             contractList = contractList.Where(c => c.contractType.name == name);
                         }
                         // Check for a shared group
+                        else if (contractType.group != null)
+                        {
+                            contractList = contractList.Where(c => c.contractType.group != null && c.contractType.group.name == contractType.group.name);
+                        }
+                        // Shared lack of group
                         else
                         {
-                            contractList = contractList.Where(c => c.contractType.group.name == contractType.group.name);
+                            contractList = contractList.Where(c => c.contractType.group == null);
                         }
 
                         // Check only active contracts
@@ -531,11 +538,15 @@ namespace ContractConfigurator
                             contractList = contractList.Where(c => c.ContractState == Contract.State.Active || c.ContractState == Contract.State.Offered);
                         }
 
-                        foreach (ConfiguredContract otherContract in contractList)
+                        object val = contract.uniqueData[key];
+                        if (val != null)
                         {
-                            if (contract.uniqueData[key].Equals(otherContract.uniqueData[key]))
+                            foreach (ConfiguredContract otherContract in contractList)
                             {
-                                throw new ContractRequirementException("Failed on unique value check for key '" + key + "'.");
+                                if (val.Equals(otherContract.uniqueData[key]))
+                                {
+                                    throw new ContractRequirementException("Failed on unique value check for key '" + key + "'.");
+                                }
                             }
                         }
                     }

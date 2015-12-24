@@ -2,6 +2,7 @@ Contract Configurator 1.9.2
 - Fixed major contract pre-loader exception on startup (thanks smjjames).
 - Fixed error handling in expression parser (thanks severedsolo).
 - Fixed HasCrew incorrectly only handling kerbals of type 'Crew' (thanks bertibott).
+- Fixed exception in uniqueness checks that were done at the contract group level (thanks severedsolo).
 
 Contract Configurator 1.9.1
 - Draft Twitch Viewers integration - when creating new random Kerbals for contracts will get names from Draft Twitch Viewers (thanks IRNifty for assisting on this one).
