@@ -102,7 +102,7 @@ namespace ContractConfigurator
                 return false;
             }
 
-            LoggingUtil.LogDebug(typeof(ContractDisabler), "Loading CONTRACT_CONFIGURATOR nodes.");
+            LoggingUtil.LogDebug(typeof(ContractDisabler), "Disabling contract types...");
             ConfigNode[] nodes = GameDatabase.Instance.GetConfigNodes("CONTRACT_CONFIGURATOR");
 
             int disabledCounter = 0;

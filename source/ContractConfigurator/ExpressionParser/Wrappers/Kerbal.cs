@@ -156,6 +156,7 @@ namespace ContractConfigurator
             _pcm = HighLogic.CurrentGame.CrewRoster.GetNewKerbal(kerbalType);
             _pcm.gender = gender;
             _pcm.name = name;
+            _pcm.trait = experienceTrait;
             KerbalRoster.SetExperienceTrait(_pcm, experienceTrait);
         }
 
