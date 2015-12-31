@@ -506,8 +506,16 @@ namespace ContractConfigurator
 
                         LoggingUtil.LogVerbose(this, "Doing unique value check for " + key);
 
-                        IEnumerable<ConfiguredContract> contractList = ContractSystem.Instance.GetCurrentContracts<ConfiguredContract>().
-                            Where(c => c != null && c.contractType != null && c != contract && c.uniqueData.ContainsKey(key));
+                        // Get the active/offered contract lists
+                        IEnumerable<ConfiguredContract> contractList = ContractSystem.Instance.Contracts.OfType<ConfiguredContract>().
+                            Where(c => c != null && c.contractType != null && c != contract);
+
+                        // Add in finished contracts
+                        if (uniquenessCheck == DataNode.UniquenessCheck.CONTRACT_ALL || uniquenessCheck == DataNode.UniquenessCheck.GROUP_ALL)
+                        {
+                            contractList = contractList.Union(ContractSystem.Instance.ContractsFinished.OfType<ConfiguredContract>().
+                            Where(c => c != null && c.contractType != null && c != contract));
+                        }
 
                         // Special case for pre-loader contracts
                         if (contract.ContractState == Contract.State.Withdrawn)
@@ -515,6 +523,9 @@ namespace ContractConfigurator
                             contractList = contractList.Union(ContractPreLoader.Instance.PendingContracts(this, contract.Prestige).
                                 Where(c => c != null && c != contract && c.contractType != null));
                         }
+
+                        // Fileter anything that doesn't have our key
+                        contractList = contractList.Where(c => c.uniqueData.ContainsKey(key));
 
                         // Check for contracts of the same type
                         if (uniquenessCheck == DataNode.UniquenessCheck.CONTRACT_ALL || uniquenessCheck == DataNode.UniquenessCheck.CONTRACT_ACTIVE)
@@ -532,15 +543,16 @@ namespace ContractConfigurator
                             contractList = contractList.Where(c => c.contractType.group == null);
                         }
 
-                        // Check only active contracts
-                        if (uniquenessCheck == DataNode.UniquenessCheck.CONTRACT_ACTIVE || uniquenessCheck == DataNode.UniquenessCheck.GROUP_ACTIVE)
-                        {
-                            contractList = contractList.Where(c => c.ContractState == Contract.State.Active || c.ContractState == Contract.State.Offered);
-                        }
-
                         object val = contract.uniqueData[key];
                         if (val != null)
                         {
+                            // Special case for vessels - convert to the Guid
+                            Vessel vessel = val as Vessel;
+                            if (vessel != null)
+                            {
+                                val = vessel.id;
+                            }
+
                             foreach (ConfiguredContract otherContract in contractList)
                             {
                                 if (val.Equals(otherContract.uniqueData[key]))

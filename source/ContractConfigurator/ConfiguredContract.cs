@@ -358,6 +358,12 @@ namespace ContractConfigurator
                         string value = pair.value.Substring(typeName.Length + 1);
                         Type type = ConfigNodeUtil.ParseTypeValue(typeName);
 
+                        // Prevents issues with vessels not getting loaded in some scenes (ie. VAB)
+                        if (type == typeof(Vessel))
+                        {
+                            type = typeof(Guid);
+                        }
+
                         if (type == typeof(string))
                         {
                             uniqueData[pair.name] = value;
