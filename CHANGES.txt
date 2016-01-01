@@ -6,6 +6,7 @@ Contract Configurator 1.9.2
 - Fixed issue with SpawnPassengers always spawning passengers instead of whatever the contract specified (thanks inigma).
 - Fixed issue with Vessel values not being properly saved in the VAB/SPH for uniqueness checks (thanks severedsolo).
 - Fixed issue with the GROUP_ALL and CONTRACT_ALL uniqueness checks not working as advertised (thanks severedsolo).
+- Fixed FacilityRequirement breaking down in the tracking station (thanks cordilon).
 
 Contract Configurator 1.9.1
 - Draft Twitch Viewers integration - when creating new random Kerbals for contracts will get names from Draft Twitch Viewers (thanks IRNifty for assisting on this one).
