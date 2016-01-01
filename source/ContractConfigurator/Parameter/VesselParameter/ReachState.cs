@@ -23,6 +23,8 @@ namespace ContractConfigurator.Parameters
         protected float maxTerrainAltitude { get; set; }
         protected double minSpeed { get; set; }
         protected double maxSpeed { get; set; }
+        protected double minRateOfClimb { get; set; }
+        protected double maxRateOfClimb { get; set; }
         protected float minAcceleration { get; set; }
         protected float maxAcceleration { get; set; }
 
@@ -37,7 +39,8 @@ namespace ContractConfigurator.Parameters
         }
 
         public ReachState(CelestialBody targetBody, string biome, List<Vessel.Situations> situation, float minAltitude, float maxAltitude,
-            float minTerrainAltitude, float maxTerrainAltitude, double minSpeed, double maxSpeed, float minAcceleration, float maxAcceleration, string title)
+            float minTerrainAltitude, float maxTerrainAltitude, double minSpeed, double maxSpeed, double minRateOfClimb, double maxRateOfClimb,
+            float minAcceleration, float maxAcceleration, string title)
             : base(title)
         {
             this.targetBody = targetBody;
@@ -49,6 +52,8 @@ namespace ContractConfigurator.Parameters
             this.maxTerrainAltitude = maxTerrainAltitude;
             this.minSpeed = minSpeed;
             this.maxSpeed = maxSpeed;
+            this.minRateOfClimb = minRateOfClimb;
+            this.maxRateOfClimb = maxRateOfClimb;
             this.minAcceleration = minAcceleration;
             this.maxAcceleration = maxAcceleration;
 
@@ -165,6 +170,26 @@ namespace ContractConfigurator.Parameters
                 AddParameter(new ParameterDelegate<Vessel>(output, CheckVesselSpeed));
             }
 
+            // Filter for rate of climb
+            if (minRateOfClimb != 0.0 || maxRateOfClimb != double.MaxValue)
+            {
+                string output = "Rate of Climb: ";
+                if (minRateOfClimb == 0.0)
+                {
+                    output += "Less than " + maxRateOfClimb.ToString("N0") + " m/s";
+                }
+                else if (maxRateOfClimb == double.MaxValue)
+                {
+                    output += "Greater than " + minRateOfClimb.ToString("N0") + " m/s";
+                }
+                else
+                {
+                    output += "Between " + minRateOfClimb.ToString("N0") + " m/s and " + maxRateOfClimb.ToString("N0") + " m/s";
+                }
+
+                AddParameter(new ParameterDelegate<Vessel>(output, CheckVesselRateOfClimb));
+            }
+
             // Filter for acceleration
             if (minAcceleration != 0.0f || maxAcceleration != float.MaxValue)
             {
@@ -221,6 +246,17 @@ namespace ContractConfigurator.Parameters
             speed = Math.Round(speed, maxSpeed > 0.5 ? 1 : 0);
 
             return speed >= minSpeed && speed <= maxSpeed;
+        }
+
+        private bool CheckVesselRateOfClimb(Vessel vessel)
+        {
+            Vector3d nrm = FlightGlobals.currentMainBody.GetSurfaceNVector(vessel.latitude, vessel.longitude);
+            double speed = Vector3d.Dot(vessel.srf_velocity, nrm);
+
+            // Round it to avoid issues when checking for a zero speed
+            speed = Math.Round(speed, maxSpeed > 0.5 ? 1 : 0);
+
+            return speed >= minRateOfClimb && speed <= maxRateOfClimb;
         }
 
         protected override void OnParameterSave(ConfigNode node)

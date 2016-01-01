@@ -24,6 +24,8 @@ namespace ContractConfigurator
         protected float maxTerrainAltitude;
         protected double minSpeed;
         protected double maxSpeed;
+        protected double minRateOfClimb;
+        protected double maxRateOfClimb;
         protected float minAcceleration;
         protected float maxAcceleration;
 
@@ -41,6 +43,8 @@ namespace ContractConfigurator
             valid &= ConfigNodeUtil.ParseValue<float>(configNode, "maxTerrainAltitude", x => maxTerrainAltitude = x, this, float.MaxValue, x => Validation.GE(x, 0.0f));
             valid &= ConfigNodeUtil.ParseValue<double>(configNode, "minSpeed", x => minSpeed = x, this, 0.0, x => Validation.GE(x, 0.0));
             valid &= ConfigNodeUtil.ParseValue<double>(configNode, "maxSpeed", x => maxSpeed = x, this, double.MaxValue, x => Validation.GE(x, 0.0));
+            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "minRateOfClimb", x => minRateOfClimb = x, this, 0.0, x => Validation.GE(x, 0.0));
+            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "maxRateOfClimb", x => maxRateOfClimb = x, this, double.MaxValue, x => Validation.GE(x, 0.0));
             valid &= ConfigNodeUtil.ParseValue<float>(configNode, "minAcceleration", x => minAcceleration = x, this, 0.0f, x => Validation.GE(x, 0.0f));
             valid &= ConfigNodeUtil.ParseValue<float>(configNode, "maxAcceleration", x => maxAcceleration = x, this, float.MaxValue, x => Validation.GE(x, 0.0f));
 
@@ -63,7 +67,7 @@ namespace ContractConfigurator
             }
 
             ReachState param = new ReachState(targetBody, biome == null ? "" : biome.biome, situation, minAltitude, maxAltitude,
-                minTerrainAltitude, maxTerrainAltitude, minSpeed, maxSpeed, minAcceleration, maxAcceleration, title);
+                minTerrainAltitude, maxTerrainAltitude, minSpeed, maxSpeed, minRateOfClimb, maxRateOfClimb, minAcceleration, maxAcceleration, title);
             param.FailWhenUnmet = failWhenUnmet;
             return param;
         }
