@@ -49,7 +49,10 @@ namespace ContractConfigurator
             if (!enabled && ContractSystem.ContractTypes.Contains(contractType))
             {
                 LoggingUtil.LogDebug(typeof(ContractDisabler), "Disabling ContractType: " + contractType.FullName + " (" + contractType.Module + ")");
-                ContractSystem.ContractTypes.Remove(contractType);
+                do
+                {
+                    ContractSystem.ContractTypes.Remove(contractType);
+                } while (ContractSystem.ContractTypes.Contains(contractType));
 
                 // Remove Offered and active contracts 
                 foreach (Contract contract in ContractSystem.Instance.Contracts.Where(c => c != null && c.GetType() == contractType &&
