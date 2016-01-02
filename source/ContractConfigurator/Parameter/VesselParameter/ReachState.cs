@@ -304,6 +304,15 @@ namespace ContractConfigurator.Parameters
                 node.AddValue("maxSpeed", maxSpeed);
             }
 
+            if (minRateOfClimb != 0.0)
+            {
+                node.AddValue("minRateOfClimb", minRateOfClimb);
+            }
+            if (maxRateOfClimb != double.MaxValue)
+            {
+                node.AddValue("maxRateOfClimb", maxRateOfClimb);
+            }
+
             if (minAcceleration != 0.0f)
             {
                 node.AddValue("minAcceleration", minAcceleration);
@@ -328,6 +337,8 @@ namespace ContractConfigurator.Parameters
                 maxTerrainAltitude = ConfigNodeUtil.ParseValue<float>(node, "maxTerrainAltitude", float.MaxValue);
                 minSpeed = ConfigNodeUtil.ParseValue<double>(node, "minSpeed", 0.0);
                 maxSpeed = ConfigNodeUtil.ParseValue<double>(node, "maxSpeed", double.MaxValue);
+                minRateOfClimb = ConfigNodeUtil.ParseValue<double>(node, "minRateOfClimb", 0.0);
+                maxRateOfClimb = ConfigNodeUtil.ParseValue<double>(node, "maxRateOfClimb", double.MaxValue);
                 minAcceleration = ConfigNodeUtil.ParseValue<float>(node, "minAcceleration", 0.0f);
                 maxAcceleration = ConfigNodeUtil.ParseValue<float>(node, "maxAcceleration", float.MaxValue);
 

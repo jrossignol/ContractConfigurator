@@ -69,7 +69,7 @@ namespace ContractConfigurator.Behaviour
                 maxDistance = orig.maxDistance;
                 pqsCity = orig.pqsCity;
                 pqsOffset = orig.pqsOffset;
-                parameter = orig.parameter;
+                parameter = orig.parameter.ToList();
                 randomName = orig.randomName;
                 underwater = orig.underwater;
 
@@ -102,7 +102,14 @@ namespace ContractConfigurator.Behaviour
                 // Copy waypoint data
                 for (int i = 0; i < old.count; i++)
                 {
-                    waypoints.Add(new WaypointData(old, contract));
+                    WaypointData wpData = new WaypointData(old, contract);
+                    waypoints.Add(wpData);
+
+                    if (old.parameter.Any())
+                    {
+                        wpData.parameter = new List<string>();
+                        wpData.parameter.Add(old.parameter.Count() == 1 ? old.parameter.First() : old.parameter.ElementAtOrDefault(i));
+                    }
                 }
             }
             initialized = orig.initialized;
@@ -368,12 +375,6 @@ namespace ContractConfigurator.Behaviour
                         valid = false;
                     }
 
-                    // Top up the parameter list to maintain backwards compatible behaviour
-                    while (wpData.parameter.Any() && wpData.parameter.Count() < wpData.count)
-                    {
-                        wpData.parameter.Add(wpData.parameter.Last());
-                    }
-
                     // Check for unexpected values
                     valid &= ConfigNodeUtil.ValidateUnexpectedValues(child, factory);
 
@@ -410,7 +411,7 @@ namespace ContractConfigurator.Behaviour
         {
             foreach (WaypointData wpData in waypoints)
             {
-                string paramID = wpData.parameter.ElementAtOrDefault(waypoints.IndexOf(wpData));
+                string paramID = wpData.parameter.FirstOrDefault();
                 if (wpData.waypoint.visible && (!wpData.parameter.Any() || contract.AllParameters.
                     Where(p => p.ID == paramID && p.State == ParameterState.Complete).Any()))
                 {
@@ -443,8 +444,8 @@ namespace ContractConfigurator.Behaviour
                 wpData.SetContract(contract);
 
                 // Create additional waypoint details
-                string paramID = wpData.parameter.ElementAtOrDefault(waypoints.IndexOf(wpData));
-                if (wpData.waypoint.visible && (wpData.parameter.Any() || contract.AllParameters.
+                string paramID = wpData.parameter.FirstOrDefault();
+                if (wpData.waypoint.visible && (!wpData.parameter.Any() || contract.AllParameters.
                     Where(p => p.ID == paramID && p.State == ParameterState.Complete).Any()))
                 {
                     AddWayPoint(wpData.waypoint);
@@ -464,7 +465,10 @@ namespace ContractConfigurator.Behaviour
                 ConfigNode child = new ConfigNode("WAYPOINT");
 
                 child.AddValue("type", wpData.type);
-                child.AddValue("parameter", wpData.parameter);
+                foreach (string p in wpData.parameter)
+                {
+                    child.AddValue("parameter", p);
+                }
                 child.AddValue("celestialName", wpData.waypoint.celestialName);
                 child.AddValue("name", wpData.waypoint.name);
                 child.AddValue("icon", wpData.waypoint.id);
@@ -483,11 +487,14 @@ namespace ContractConfigurator.Behaviour
         {
             if (param.State == ParameterState.Complete)
             {
+                Debug.Log("yyy OnParameterStateChange: " + param.ID);
                 foreach (WaypointData wpData in waypoints)
                 {
-                    string paramID = wpData.parameter.ElementAtOrDefault(waypoints.IndexOf(wpData));
+                    string paramID = wpData.parameter.FirstOrDefault();
+                    Debug.Log("    paramID = " + (paramID ?? "null"));
                     if (wpData.waypoint.visible && paramID == param.ID)
                     {
+                        Debug.Log("    matched!");
                         AddWayPoint(wpData.waypoint);
                     }
                 }
