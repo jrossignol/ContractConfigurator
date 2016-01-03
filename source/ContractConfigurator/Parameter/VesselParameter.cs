@@ -82,6 +82,11 @@ namespace ContractConfigurator.Parameters
             // Save state flag
             node.AddValue("allowStateReset", allowStateReset);
 
+            if (failWhenUnmet)
+            {
+                node.AddValue("failWhenUnmet", failWhenUnmet);
+            }
+
             // Save vessel information
             foreach (KeyValuePair<Guid, VesselInfo> p in vesselInfo)
             {
@@ -111,6 +116,7 @@ namespace ContractConfigurator.Parameters
         {
             // Load state flag
             allowStateReset = Convert.ToBoolean(node.GetValue("allowStateReset"));
+            failWhenUnmet = ConfigNodeUtil.ParseValue<bool?>(node, "failWhenUnmet", (bool?)false).Value;
 
             // Load completion times
             foreach (ConfigNode child in node.GetNodes("VESSEL_STATS"))
