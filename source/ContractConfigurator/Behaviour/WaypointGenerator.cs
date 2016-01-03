@@ -440,6 +440,12 @@ namespace ContractConfigurator.Behaviour
                 wpData.waypoint.visible = !(ConfigNodeUtil.ParseValue<bool?>(child, "hidden", (bool?)false).Value);
                 wpData.waypoint.isClustered = ConfigNodeUtil.ParseValue<bool?>(child, "clustered", (bool?)false).Value;
 
+                // Workaround for buggy stuff saved by older versions
+                if (wpData.parameter.Any() && wpData.parameter.First().StartsWith("System.Collections.Generic.List"))
+                {
+                    wpData.parameter.Clear();
+                }
+
                 // Set contract data
                 wpData.SetContract(contract);
 

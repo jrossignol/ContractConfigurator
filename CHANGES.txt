@@ -1,3 +1,6 @@
+Contract Configurator 1.9.3
+- Fixed problem with loading waypoints from older versions of Contract Configurator (thanks SpaceNomad).
+
 Contract Configurator 1.9.2
 - Added minRateOfClimb and maxRateOfClimb to ReachState.
 - Support negative latitudes in ReachState.
