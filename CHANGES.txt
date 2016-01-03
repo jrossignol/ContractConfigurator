@@ -1,5 +1,6 @@
 Contract Configurator 1.9.2
 - Added minRateOfClimb and maxRateOfClimb to ReachState.
+- Support negative latitudes in ReachState.
 - Fixed major contract pre-loader exception on startup (thanks smjjames).
 - Fixed error handling in expression parser (thanks severedsolo).
 - Fixed HasCrew incorrectly only handling kerbals of type 'Crew' (thanks bertibott).

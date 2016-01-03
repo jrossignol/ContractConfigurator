@@ -111,10 +111,10 @@ namespace ContractConfigurator.Parameters
             }
 
             // Filter for altitude
-            if (minAltitude != 0.0f || maxAltitude != float.MaxValue)
+            if (minAltitude != float.MinValue || maxAltitude != float.MaxValue)
             {
                 string output = "Altitude: ";
-                if (minAltitude == 0.0f)
+                if (minAltitude == float.MinValue)
                 {
                     output += "Below " + maxAltitude.ToString("N0") + " m";
                 }
@@ -127,7 +127,7 @@ namespace ContractConfigurator.Parameters
                     output += "Between " + minAltitude.ToString("N0") + " m and " + maxAltitude.ToString("N0") + " m";
                 }
 
-                AddParameter(new ParameterDelegate<Vessel>(output, v => v.altitude >= minAltitude && v.altitude <= maxAltitude));
+                AddParameter(new ParameterDelegate<Vessel>(output, CheckVesselAltitude));
             }
 
             // Filter for terrain altitude
@@ -259,6 +259,12 @@ namespace ContractConfigurator.Parameters
             return speed >= minRateOfClimb && speed <= maxRateOfClimb;
         }
 
+        private bool CheckVesselAltitude(Vessel vessel)
+        {
+            Debug.Log("   alt = " + vessel.altitude);
+            return vessel.altitude >= minAltitude && vessel.altitude <= maxAltitude;
+        }
+
         protected override void OnParameterSave(ConfigNode node)
         {
             base.OnParameterSave(node);
@@ -277,7 +283,7 @@ namespace ContractConfigurator.Parameters
                 node.AddValue("situation", sit);
             }
 
-            if (minAltitude != 0.0f)
+            if (minAltitude != float.MinValue)
             {
                 node.AddValue("minAltitude", minAltitude);
             }
@@ -331,7 +337,7 @@ namespace ContractConfigurator.Parameters
                 targetBody = ConfigNodeUtil.ParseValue<CelestialBody>(node, "targetBody", (CelestialBody)null);
                 biome = ConfigNodeUtil.ParseValue<string>(node, "biome", "");
                 situation = ConfigNodeUtil.ParseValue<List<Vessel.Situations>>(node, "situation", new List<Vessel.Situations>());
-                minAltitude = ConfigNodeUtil.ParseValue<float>(node, "minAltitude", 0.0f);
+                minAltitude = ConfigNodeUtil.ParseValue<float>(node, "minAltitude", float.MinValue);
                 maxAltitude = ConfigNodeUtil.ParseValue<float>(node, "maxAltitude", float.MaxValue);
                 minTerrainAltitude = ConfigNodeUtil.ParseValue<float>(node, "minTerrainAltitude", 0.0f);
                 maxTerrainAltitude = ConfigNodeUtil.ParseValue<float>(node, "maxTerrainAltitude", float.MaxValue);

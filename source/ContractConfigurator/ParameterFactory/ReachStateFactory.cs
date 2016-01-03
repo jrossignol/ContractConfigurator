@@ -37,7 +37,7 @@ namespace ContractConfigurator
             valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "failWhenUnmet", x => failWhenUnmet = x, this, false);
             valid &= ConfigNodeUtil.ParseValue<Biome>(configNode, "biome", x => biome = x, this, (Biome)null);
             valid &= ConfigNodeUtil.ParseValue<List<Vessel.Situations>>(configNode, "situation", x => situation = x, this, new List<Vessel.Situations>());
-            valid &= ConfigNodeUtil.ParseValue<float>(configNode, "minAltitude", x => minAltitude = x, this, 0.0f);
+            valid &= ConfigNodeUtil.ParseValue<float>(configNode, "minAltitude", x => minAltitude = x, this, float.MinValue);
             valid &= ConfigNodeUtil.ParseValue<float>(configNode, "maxAltitude", x => maxAltitude = x, this, float.MaxValue);
             valid &= ConfigNodeUtil.ParseValue<float>(configNode, "minTerrainAltitude", x => minTerrainAltitude = x, this, 0.0f, x => Validation.GE(x, 0.0f));
             valid &= ConfigNodeUtil.ParseValue<float>(configNode, "maxTerrainAltitude", x => maxTerrainAltitude = x, this, float.MaxValue, x => Validation.GE(x, 0.0f));
