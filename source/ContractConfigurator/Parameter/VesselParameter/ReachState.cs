@@ -261,7 +261,6 @@ namespace ContractConfigurator.Parameters
 
         private bool CheckVesselAltitude(Vessel vessel)
         {
-            Debug.Log("   alt = " + vessel.altitude);
             return vessel.altitude >= minAltitude && vessel.altitude <= maxAltitude;
         }
 
