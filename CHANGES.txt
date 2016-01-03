@@ -1,4 +1,4 @@
-Contract Configurator 1.9.3
+Contract Configurator 1.9.2.1
 - Fixed problem with loading waypoints from older versions of Contract Configurator (thanks SpaceNomad).
 
 Contract Configurator 1.9.2
