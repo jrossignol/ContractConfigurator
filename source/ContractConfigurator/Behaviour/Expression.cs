@@ -154,7 +154,7 @@ namespace ContractConfigurator.Behaviour
                             ExpVal expVal = new ExpVal(type, pair.name, pair.value);
                             if (factory != null)
                             {
-                                ConfigNodeUtil.ParseValue<string>(child, pair.name, x => expVal.val = x, factory);
+                                expVal.val = ConfigNodeUtil.ParseValue<string>(child, pair.name);
                             }
 
                             // Parse the expression to validate

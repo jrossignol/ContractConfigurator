@@ -1,3 +1,6 @@
+Contract Configurator 1.9.3
+- Fixed issue with some expressions being parsed twice in the Expression behaviour (thanks linuxgurugamer).
+
 Contract Configurator 1.9.2.1
 - Fixed problem with loading waypoints from older versions of Contract Configurator (thanks SpaceNomad).
 
