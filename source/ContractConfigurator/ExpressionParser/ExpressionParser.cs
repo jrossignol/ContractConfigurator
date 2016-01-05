@@ -1286,7 +1286,10 @@ namespace ContractConfigurator.ExpressionParser
             try
             {
                 // Stored values are always non-deterministic
-                currentDataNode.SetDeterministic(currentKey, false);
+                if (currentDataNode != null)
+                {
+                    currentDataNode.SetDeterministic(currentKey, false);
+                }
 
                 object o;
                 Type dataType;
