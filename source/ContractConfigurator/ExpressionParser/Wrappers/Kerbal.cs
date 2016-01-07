@@ -247,6 +247,7 @@ namespace ContractConfigurator
 
             // Remove the kerbal from the roster
             HighLogic.CurrentGame.CrewRoster.Remove(pcm.name);
+            HighLogic.CurrentGame.CrewRoster.RemoveMIA(pcm);
         }
     }
 }
