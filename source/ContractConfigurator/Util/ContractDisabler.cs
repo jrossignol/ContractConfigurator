@@ -23,7 +23,7 @@ namespace ContractConfigurator
         }
         private static Dictionary<Type, ContractDetails> contractDetails = new Dictionary<Type, ContractDetails>();
         private static IEnumerable<Type> contractTypes = ContractConfigurator.GetAllTypes<Contract>();
-        private static bool contractsDisabled = false;
+        public static bool contractsDisabled = false;
 
         public static bool SetContractToDisabled(string contract, ContractGroup group)
         {

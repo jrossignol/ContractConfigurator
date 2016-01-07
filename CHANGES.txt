@@ -1,6 +1,7 @@
 Contract Configurator 1.9.3
 - Fixed issue with some expressions being parsed twice in the Expression behaviour (thanks linuxgurugamer).
 - Fixed problem with Duration timer contracts not working when used as a child parameter (thanks TrooperCooper & NathanKell).
+- Fixed issue that caused disabled stock contracts to re-enable themselves on occasion (thanks Rokker).
 
 Contract Configurator 1.9.2.1
 - Fixed problem with loading waypoints from older versions of Contract Configurator (thanks SpaceNomad).

@@ -468,6 +468,7 @@ namespace ContractConfigurator
             }
 
             // Make sure that the initial state has been correctly set
+            ContractDisabler.contractsDisabled = false;
             ContractDisabler.DisableContracts();
 
             foreach (Type subclass in ContractConfigurator.GetAllTypes<Contract>().Where(t => t != typeof(ConfiguredContract)))
