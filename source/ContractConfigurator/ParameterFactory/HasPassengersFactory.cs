@@ -35,7 +35,7 @@ namespace ContractConfigurator
         {
             if (passengers.Count() > 0)
             {
-                return new HasPassengers(title, passengers.Select<Kerbal, ProtoCrewMember>(k => k.pcm));
+                return new HasPassengers(title, passengers);
             }
             else
             {

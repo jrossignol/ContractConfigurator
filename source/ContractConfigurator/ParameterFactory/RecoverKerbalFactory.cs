@@ -16,7 +16,7 @@ namespace ContractConfigurator
     /// </summary>
     public class RecoverKerbalFactory : ParameterFactory
     {
-        protected List<Kerbal> kerbal;
+        protected List<Kerbal> kerbals;
         protected int index;
         protected int count;
 
@@ -25,7 +25,7 @@ namespace ContractConfigurator
             // Load base class
             bool valid = base.Load(configNode);
 
-            valid &= ConfigNodeUtil.ParseValue<List<Kerbal>>(configNode, "kerbal", x => kerbal = x, this, new List<Kerbal>());
+            valid &= ConfigNodeUtil.ParseValue<List<Kerbal>>(configNode, "kerbal", x => kerbals = x, this, new List<Kerbal>());
             valid &= ConfigNodeUtil.ParseValue<int>(configNode, "index", x => index = x, this, 0, x => Validation.GE(x, 0));
             valid &= ConfigNodeUtil.ParseValue<int>(configNode, "count", x => count = x, this, 0, x => Validation.GE(x, 0));
             
@@ -34,7 +34,7 @@ namespace ContractConfigurator
 
         public override ContractParameter Generate(Contract contract)
         {
-            return new RecoverKerbalCustom(kerbal.Select<Kerbal, string>(k => k.name), index, count, title);
+            return new RecoverKerbalCustom(kerbals, index, count, title);
         }
     }
 }

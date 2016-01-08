@@ -59,13 +59,13 @@ namespace ContractConfigurator.Util
                 }
                 else
                 {
-                    LoggingUtil.Log(silent ? LoggingUtil.LogLevel.VERBOSE : LoggingUtil.LogLevel.ERROR, typeof(ContractConfigurator), "Version check for '" + name + "' failed!  Minimum required is " + version + ", version found was " + receivedStr);
+                    LoggingUtil.Log(silent ? LoggingUtil.LogLevel.DEBUG : LoggingUtil.LogLevel.ERROR, typeof(Version), "Version check for '" + name + "' failed!  Minimum required is " + version + ", version found was " + receivedStr);
                     return null;
                 }
             }
             else
             {
-                LoggingUtil.Log(silent ? LoggingUtil.LogLevel.VERBOSE : LoggingUtil.LogLevel.ERROR, typeof(ContractConfigurator), "Couldn't find assembly for '" + name + "'!");
+                LoggingUtil.Log(silent ? LoggingUtil.LogLevel.VERBOSE : LoggingUtil.LogLevel.ERROR, typeof(Version), "Couldn't find assembly for '" + name + "'!");
                 return null;
             }
         }

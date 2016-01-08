@@ -29,6 +29,8 @@ namespace ContractConfigurator
 
         public bool enabled = true;
         public bool hasWarnings { get; set; }
+        public Type iteratorType { get; set; }
+        public string iteratorKey { get; set; }
         public string config { get; private set; }
         public string log { get; private set; }
         public DataNode dataNode { get; private set; }

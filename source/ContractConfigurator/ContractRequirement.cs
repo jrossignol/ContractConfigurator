@@ -34,6 +34,8 @@ namespace ContractConfigurator
 
         public bool enabled = true;
         public bool hasWarnings { get; set; }
+        public Type iteratorType { get; set; }
+        public string iteratorKey { get; set; }
         public bool? lastResult = null;
         public virtual IEnumerable<ContractRequirement> ChildRequirements { get { return childNodes; } }
         public string config { get; private set; }

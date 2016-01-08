@@ -16,32 +16,42 @@ namespace ContractConfigurator.ExpressionParser
             RegisterParserType(typeof(bool), typeof(BooleanValueExpressionParser));
         }
 
+        static BooleanValueExpressionParser()
+        {
+            RegisterMethods();
+        }
+
+        public static void RegisterMethods()
+        {
+            RegisterGlobalFunction(new Function<bool, bool>("bool", t => t));
+        }
+
         public BooleanValueExpressionParser()
             : base()
         {
         }
 
-        internal override bool EQ(bool a, bool b)
+        public override bool EQ(bool a, bool b)
         {
             return a == b;
         }
 
-        internal override bool NE(bool a, bool b)
+        public override bool NE(bool a, bool b)
         {
             return a != b;
         }
 
-        internal override bool Not(bool val)
+        public override bool Not(bool val)
         {
             return !val;
         }
 
-        internal override bool Or(bool a, bool b)
+        public override bool Or(bool a, bool b)
         {
             return a || b;
         }
 
-        internal override bool And(bool a, bool b)
+        public override bool And(bool a, bool b)
         {
             return a && b;
         }
@@ -51,7 +61,7 @@ namespace ContractConfigurator.ExpressionParser
         /// </summary>
         /// <param name="token">Token of the identifier to parse</param>
         /// <returns>Value of the identifier</returns>
-        internal override bool ParseIdentifier(Token token)
+        public override bool ParseIdentifier(Token token)
         {
             if (string.Compare(token.sval, "true", true) == 0)
             {

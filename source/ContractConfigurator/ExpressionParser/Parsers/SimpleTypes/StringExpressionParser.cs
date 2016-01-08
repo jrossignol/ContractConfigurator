@@ -12,6 +12,8 @@ namespace ContractConfigurator.ExpressionParser
     /// </summary>
     public class StringExpressionParser : ClassExpressionParser<string>, IExpressionParserRegistrer
     {
+        static System.Random random = new System.Random();
+
         static StringExpressionParser()
         {
             RegisterMethods();
@@ -26,7 +28,7 @@ namespace ContractConfigurator.ExpressionParser
         {
         }
 
-        internal static void RegisterMethods()
+        public static void RegisterMethods()
         {
             RegisterMethod(new Method<string, string>("ToLower", s => s == null ? "" : s.ToLower()));
             RegisterMethod(new Method<string, string>("ToUpper", s => s == null ? "" : s.ToUpper()));
@@ -35,8 +37,6 @@ namespace ContractConfigurator.ExpressionParser
             RegisterMethod(new Method<string, string, bool>("Contains", (s, value) => s.Contains(value)));
             RegisterMethod(new Method<string, string, bool>("StartsWith", (s, value) => s.StartsWith(value)));
             RegisterMethod(new Method<string, string, bool>("EndsWith", (s, value) => s.EndsWith(value)));
-
-            RegisterGlobalFunction(new Function<ProtoCrewMember.Gender, string>("RandomKerbalName", g => CrewGenerator.GetRandomName(g), false));
         }
 
         /// <summary>
@@ -44,7 +44,7 @@ namespace ContractConfigurator.ExpressionParser
         /// @identifier nodes, with the rest treated as a string literal.
         /// </summary>
         /// <returns>The full string after parsing</returns>
-        internal override TResult ParseStatement<TResult>()
+        public override TResult ParseStatement<TResult>()
         {
             verbose &= LogEntryDebug<TResult>("ParseStatement");
             try
@@ -77,7 +77,7 @@ namespace ContractConfigurator.ExpressionParser
                         return result;
                     }
 
-                    value = (string)(object)result;
+                    value = (string)(object)result ?? "";
                 }
                 else
                 {
@@ -208,7 +208,7 @@ namespace ContractConfigurator.ExpressionParser
             }
         }
 
-        internal override string Add(string a, string b)
+        public override string Add(string a, string b)
         {
             return string.Concat(a, b);
         }

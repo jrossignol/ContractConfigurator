@@ -1,5 +1,69 @@
-Contract Configurator 1.8.4
+Contract Configurator 1.9.3
+- Fixed issue with some expressions being parsed twice in the Expression behaviour (thanks linuxgurugamer).
+- Fixed problem with Duration timer contracts not working when used as a child parameter (thanks TrooperCooper & NathanKell).
+- Fixed issue that caused disabled stock contracts to re-enable themselves on occasion (thanks Rokker).
+- Fixed supposedly removed Kerbals going MIA (thanks inigma).
+- Fixed major issue with RemoveKerbal (thanks inigma).
+
+Contract Configurator 1.9.2.1
+- Fixed problem with loading waypoints from older versions of Contract Configurator (thanks SpaceNomad).
+
+Contract Configurator 1.9.2
+- Added minRateOfClimb and maxRateOfClimb to ReachState.
+- Support negative latitudes in ReachState.
+- Fixed major contract pre-loader exception on startup (thanks smjjames).
+- Fixed error handling in expression parser (thanks severedsolo).
+- Fixed HasCrew incorrectly only handling kerbals of type 'Crew' (thanks bertibott).
+- Fixed exception in uniqueness checks that were done at the contract group level (thanks severedsolo).
+- Fixed issue with SpawnPassengers always spawning passengers instead of whatever the contract specified (thanks inigma).
+- Fixed issue with Vessel values not being properly saved in the VAB/SPH for uniqueness checks (thanks severedsolo).
+- Fixed issue with the GROUP_ALL and CONTRACT_ALL uniqueness checks not working as advertised (thanks severedsolo).
+- Fixed FacilityRequirement breaking down in the tracking station (thanks cordilon).
+- Fixed a number of WaypointGenerator issues (thanks linuxgurugamer).
+
+Contract Configurator 1.9.1
+- Draft Twitch Viewers integration - when creating new random Kerbals for contracts will get names from Draft Twitch Viewers (thanks IRNifty for assisting on this one).
+- ITERATOR nodes for automatically duplicating PARAMETER nodes for every value in a list.
+- AutoAccept contracts now more likely get generated immediately when available.
+- Added Biome.PrimarySituation() method.
+- Added CelestialBody.SCANsatCoverage() method.
+- Allow multiple parameter identifiers in WaypointGenerator (for blocks with more than one waypoint).
+- Support for clustered waypoints in WaypoingGenerator.
+- ReachState supports multiple vessel situations.
+- Fixed VisitWaypoint support for contracts with multiple WaypointGenerator behaviours (thanks linuxgurugamer).
+- Fixed further issues requiring rouding when checking for a zero speed (thanks Aelfhe1m).
+- Fixed issue where ContractMultiplier() wasn't calculated correctly.
+- Fixed issue where failureFunds was not being set when the contract had an advance.
+- Fixed issue with load passenger dialog disappearing too early (thanks inigma).
+- Fixed parsing of CelestialBody in WaypointGenerator (thanks severedsolo).
+- Fixed some parser issues for exceptional cases (thanks inigma).
+- Fixed major issues with CopyCraftFile behaviour (thanks inigma).
+- Fixed default Kerbal type back to tourist in SpawnPassengers (thanks CovertJaguar).
+- Minor bug fixes.
+
+Contract Configurator 1.9.0
+- Improved display of some parameters with only one redundant child parameter in contract window.
+- New functions for generating kerbals.
+- HasCrew and RecoverKerbal will now automatically create kerbals in the astronaut complex when required.
+- Reworked logic for specifying unique values in DATA nodes.
+- SpawnVessel CREW nodes now support specifying a gender.
+- SpawnVessel supports specifying a location via PQS City now (like SpawnKerbal).
+- Added minAcceleration and maxAcceleration to ReachState.
+- Added RemoveKerbal behaviour.
+- Auto-close passenger loading dialog if vessel launches or scene changes (thanks inigma).
+- Added new Funds() and Science() expression functions to get player's funds/science.
+- Ignore USI Sounding Rocket experiments for science sub-system.
 - Fixed bugs with using expressions in DialogBox.
+- Fixed name duplication in RandomKerbalName() function (thanks inigma).
+- Fixed exception using UnlockPart without part unlocking set on the current game (thanks inigma).
+- Fixed issue with crew that aren't properly removed on contract completion (thanks inigma).
+- Fixed issue where experimental status of parts never goes away - even when a tech is researched (thanks inigma).
+- Fixed issue with VesselDestroy causing vessel markers to appear when invoked at KSC (thanks inigma).
+- Fixed issue where vessel rename doesn't trigger VesselIsType (thanks CompB).
+- Fixed issue where HasCrew counted tourists (thanks severedsolo).
+- Fixed problems with KSCLocation() returning the wrong value (thanks Rodger).
+- Fixed bug when despawning kerbals from vessels that are not currently loaded (thanks inigma).
+- Fixed so Kerbals recovered via StageRecovery no longer count as killed for contracts (thanks blu3wolf).
 
 Contract Configurator 1.8.3
 - Fixed NullReferenceException in code introduced in 1.8.2 (thanks kunok).
@@ -19,8 +83,8 @@ Contract Configurator 1.8.2
 Contract Configurator 1.8.1
 - Added new Not parameter.
 - Can now specify heading in SpawnKerbal.
-- Fixed issue with index attribute not being recognized in HasPassengers (thanks inigmatus).
-- Fixed issue with speed in KSP never being zero for ReachState (thanks inigmatus).
+- Fixed issue with index attribute not being recognized in HasPassengers (thanks inigma).
+- Fixed issue with speed in KSP never being zero for ReachState (thanks inigma).
 - Fixed exception in RecoverVessel when recovering via the VAB when another vessel is on the launchpad.
 - Fixed issue with timers getting reset in VAB/SPH (thanks chrisl).
 - Removed long-ago deprecated CC_SCANsat.dll (this does not remove SCANsat support).

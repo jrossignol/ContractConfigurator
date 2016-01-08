@@ -19,7 +19,7 @@ namespace ContractConfigurator
         }
         private static SelectedPane selectedPane = SelectedPane.DEBUG_LOG;
 
-        private static Rect windowPos = new Rect(580f, 200f, 1f, 1f);
+        private static Rect windowPos = new Rect(-1, 200f, 1f, 1f);
         public static Vector2 scrollPosition, scrollPosition2;
         private static IEnumerable<ContractType> guiContracts;
 
@@ -57,6 +57,12 @@ namespace ContractConfigurator
 
         public static void OnGUI()
         {
+            // Initial window position
+            if (windowPos.xMin == -1)
+            {
+                windowPos.xMin = Screen.width - 1050 - 16;
+            }
+
             if (showGUI && HighLogic.LoadedScene != GameScenes.CREDITS && HighLogic.LoadedScene != GameScenes.LOADING &&
                 HighLogic.LoadedScene != GameScenes.LOADINGBUFFER && HighLogic.LoadedScene != GameScenes.SETTINGS)
             {
@@ -473,12 +479,12 @@ namespace ContractConfigurator
         {
             // Figure out the multiplier
             double multiplier = 1.0;
-            if (GameVariables.Instance != null && contractType.targetBody != null)
+            if (contractType.targetBody != null)
             {
                 multiplier *= GameVariables.Instance.GetContractDestinationWeight(contractType.targetBody);
             }
             string multInfo = baseValue.ToString("N0") + " (base) * " + multiplier.ToString("F1") + " (body)";
-            if (GameVariables.Instance != null && contractType.prestige.Count > 0)
+            if (contractType.prestige.Count > 0)
             {
                 double val = GameVariables.Instance.GetContractPrestigeFactor(contractType.prestige.First());
                 multiplier *= val;
@@ -512,10 +518,6 @@ namespace ContractConfigurator
             if (body == null)
             {
                 output += "N/A";
-            }
-            else if (GameVariables.Instance == null)
-            {
-                output += "Game not initialized.";
             }
             else
             {

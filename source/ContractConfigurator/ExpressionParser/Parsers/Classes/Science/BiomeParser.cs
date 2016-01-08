@@ -23,13 +23,14 @@ namespace ContractConfigurator.ExpressionParser
             RegisterParserType(typeof(Biome), typeof(BiomeParser));
         }
 
-        internal static void RegisterMethods()
+        public static void RegisterMethods()
         {
             RegisterMethod(new Method<Biome, string>("Name", biome => biome == null ? "" : Biome.PrintBiomeName(biome.biome)));
             RegisterMethod(new Method<Biome, string>("FullName", biome => biome == null ? "" : biome.ToString()));
             RegisterMethod(new Method<Biome, CelestialBody>("CelestialBody", biome => biome == null ? null : biome.body));
             RegisterMethod(new Method<Biome, bool>("IsKSC", biome => biome == null ? false : biome.IsKSC()));
             RegisterMethod(new Method<Biome, float>("RemainingScience", RemainingScience));
+            RegisterMethod(new Method<Biome, Vessel.Situations>("PrimarySituation", GetPrimarySituation));
 
             RegisterMethod(new Method<Biome, List<Location>>("DifficultLocations", biome => biome == null ?
                 new List<Location>() : BiomeTracker.GetDifficultLocations(biome.body, biome.biome).Select(v => new Location(biome.body, v.y, v.x)).ToList()));
@@ -55,7 +56,17 @@ namespace ContractConfigurator.ExpressionParser
                 subj.scienceCap * HighLogic.CurrentGame.Parameters.Career.ScienceGainMultiplier - subj.science);
         }
 
-        internal override Biome ParseIdentifier(Token token)
+        private static Vessel.Situations GetPrimarySituation(Biome biome)
+        {
+            if (biome == null)
+            {
+                return Vessel.Situations.LANDED;
+            }
+
+            return BiomeTracker.GetPrimarySituation(biome.body, biome.biome);
+        }
+
+        public override Biome ParseIdentifier(Token token)
         {
             // Try to parse more, as biome names can have spaces
             Match m = Regex.Match(expression, @"^((?>\s*[\w\d]+)+).*");

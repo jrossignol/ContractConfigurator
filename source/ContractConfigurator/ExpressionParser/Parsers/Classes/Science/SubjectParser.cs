@@ -22,7 +22,7 @@ namespace ContractConfigurator.ExpressionParser
             RegisterParserType(typeof(ScienceSubject), typeof(SubjectParser));
         }
 
-        internal static void RegisterMethods()
+        public static void RegisterMethods()
         {
             RegisterMethod(new Method<ScienceSubject, ScienceExperiment>("Experiment", Science.GetExperiment));
             RegisterMethod(new Method<ScienceSubject, ExperimentSituations>("Situation", Science.GetSituation));
@@ -52,7 +52,7 @@ namespace ContractConfigurator.ExpressionParser
         {
         }
 
-        internal override U ConvertType<U>(ScienceSubject value)
+        public override U ConvertType<U>(ScienceSubject value)
         {
             if (typeof(U) == typeof(string))
             {

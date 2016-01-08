@@ -22,7 +22,7 @@ namespace ContractConfigurator.ExpressionParser
             RegisterParserType(typeof(VesselIdentifier), typeof(VesselIdentifierParser));
         }
 
-        internal static void RegisterMethods()
+        public static void RegisterMethods()
         {
             RegisterGlobalFunction(new Function<VesselIdentifier, VesselIdentifier>("VesselIdentifier", v => v));
         }
@@ -31,7 +31,7 @@ namespace ContractConfigurator.ExpressionParser
         {
         }
 
-        internal override U ConvertType<U>(VesselIdentifier value)
+        public override U ConvertType<U>(VesselIdentifier value)
         {
             if (typeof(U) == typeof(Vessel))
             {
@@ -49,18 +49,18 @@ namespace ContractConfigurator.ExpressionParser
         }
 
 
-        internal override bool ConvertableFrom(Type type)
+        public override bool ConvertableFrom(Type type)
         {
             return type == typeof(string);
         }
 
-        internal override VesselIdentifier ConvertFrom<U>(U value)
+        public override VesselIdentifier ConvertFrom<U>(U value)
         {
             string identifier = (string)(object)value;
             return string.IsNullOrEmpty(identifier) ? null : new VesselIdentifier(identifier);
         }
 
-        internal override VesselIdentifier ParseIdentifier(Token token)
+        public override VesselIdentifier ParseIdentifier(Token token)
         {
             // Try to parse more, as vessel names can have spaces
             Match m = Regex.Match(expression, @"^((?>\s*[\w\d\-\.]+)+).*");

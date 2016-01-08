@@ -115,12 +115,13 @@ namespace ContractConfigurator.ExpressionParser
             RegisterMethods();
         }
     
-        internal static void RegisterMethods()
+        public static void RegisterMethods()
         {
             if (typeof(T) == typeof(int))
             {
                 calculator = new IntCalculator() as Calculator<T>;
                 RegisterGlobalFunction(new Function<int, int>("int", val => val));
+                RegisterGlobalFunction(new Function<int>("IteratorCurrentIndex", () => DataNode.IteratorCurrentIndex, false));
             }
             else if (typeof(T) == typeof(long))
             {
@@ -141,12 +142,17 @@ namespace ContractConfigurator.ExpressionParser
             {
                 calculator = new FloatCalculator() as Calculator<T>;
                 RegisterGlobalFunction(new Function<float, float>("float", val => val));
+
+                RegisterGlobalFunction(new Function<float>("Reputation", () => Reputation.Instance != null ? Reputation.Instance.reputation : 0.0f, false));
+                RegisterGlobalFunction(new Function<float>("Science", () => ResearchAndDevelopment.Instance != null ? ResearchAndDevelopment.Instance.Science : 0.0f, false));
             }
             else if (typeof(T) == typeof(double))
             {
                 calculator = new DoubleCalculator() as Calculator<T>;
-                RegisterGlobalFunction(new Function<double>("UniversalTime", () => Planetarium.GetUniversalTime(), false));
                 RegisterGlobalFunction(new Function<double, double>("double", val => val));
+
+                RegisterGlobalFunction(new Function<double>("UniversalTime", () => Planetarium.GetUniversalTime(), false));
+                RegisterGlobalFunction(new Function<double>("Funds", () => Funding.Instance != null ? Funding.Instance.Funds : 0.0, false));
             }
 
             RegisterLocalFunction(new Function<T>("Random", () => (T)Convert.ChangeType(random.NextDouble(), typeof(T)), false));
@@ -190,7 +196,7 @@ namespace ContractConfigurator.ExpressionParser
             }));
         }
 
-        private static T RandomMinMax(T min, T max)
+        public static T RandomMinMax(T min, T max)
         {
             double dmin = (double)Convert.ChangeType(min, typeof(double));
             double dmax = (double)Convert.ChangeType(max, typeof(double));
@@ -257,7 +263,7 @@ namespace ContractConfigurator.ExpressionParser
             }
         }
 
-        internal override Token ParseNumericConstant()
+        public override Token ParseNumericConstant()
         {
             try
             {
@@ -287,37 +293,37 @@ namespace ContractConfigurator.ExpressionParser
             }
         }
 
-        internal override T Negate(T val)
+        public override T Negate(T val)
         {
             return calculator.Negate(val);
         }
 
-        internal override T Add(T a, T b)
+        public override T Add(T a, T b)
         {
             return calculator.Add(a, b);
         }
 
-        internal override T Sub(T a, T b)
+        public override T Sub(T a, T b)
         {
             return calculator.Sub(a, b);
         }
 
-        internal override T Mult(T a, T b)
+        public override T Mult(T a, T b)
         {
             return calculator.Mult(a, b);
         }
 
-        internal override T Div(T a, T b)
+        public override T Div(T a, T b)
         {
             return calculator.Div(a, b);
         }
 
-        internal override bool EQ(T a, T b)
+        public override bool EQ(T a, T b)
         {
             return calculator.EQ(a, b);
         }
 
-        internal override bool NE(T a, T b)
+        public override bool NE(T a, T b)
         {
             return calculator.NE(a, b);
         }
@@ -327,7 +333,7 @@ namespace ContractConfigurator.ExpressionParser
         /// </summary>
         /// <param name="token">Token of the identifier to parse</param>
         /// <returns>Value of the identifier</returns>
-        internal override T ParseIdentifier(Token token)
+        public override T ParseIdentifier(Token token)
         {
             if (typeof(T) == typeof(double) || typeof(T) == typeof(float))
             {

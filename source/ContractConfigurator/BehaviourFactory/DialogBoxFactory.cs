@@ -142,8 +142,6 @@ namespace ContractConfigurator.Behaviour
 
         public override ContractBehaviour Generate(ConfiguredContract contract)
         {
-            Debug.Log("XXX Generate DialogBox for '" + contract.Title + "'");
-            Debug.Log("    details = " + details.First().title);
             return new DialogBox(details);
         }
     }

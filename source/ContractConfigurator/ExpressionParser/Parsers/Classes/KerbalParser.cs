@@ -12,6 +12,8 @@ namespace ContractConfigurator.ExpressionParser
     /// </summary>
     public class KerbalParser : ClassExpressionParser<Kerbal>, IExpressionParserRegistrer
     {
+        static System.Random random = new System.Random();
+
         static KerbalParser()
         {
             RegisterMethods();
@@ -22,25 +24,34 @@ namespace ContractConfigurator.ExpressionParser
             RegisterParserType(typeof(Kerbal), typeof(KerbalParser));
         }
 
-        internal static void RegisterMethods()
+        public static void RegisterMethods()
         {
-            RegisterMethod(new Method<Kerbal, float>("Experience", k => k == null ? 0.0f : k.pcm.experience));
-            RegisterMethod(new Method<Kerbal, int>("ExperienceLevel", k => k == null ? 0 : k.pcm.experienceLevel));
-            RegisterMethod(new Method<Kerbal, string>("ExperienceTrait", k => k == null ? null : k.pcm.experienceTrait.Title));
-            RegisterMethod(new Method<Kerbal, ProtoCrewMember.RosterStatus>("RosterStatus", k => k == null ? ProtoCrewMember.RosterStatus.Dead : k.pcm.rosterStatus));
-            RegisterMethod(new Method<Kerbal, ProtoCrewMember.KerbalType>("Type", k => k == null ? ProtoCrewMember.KerbalType.Applicant : k.pcm.type));
-            RegisterMethod(new Method<Kerbal, ProtoCrewMember.Gender>("Gender", k => k == null ? ProtoCrewMember.Gender.Male : k.pcm.gender));
+            RegisterMethod(new Method<Kerbal, float>("Experience", k => k == null ? 0.0f : k.experience));
+            RegisterMethod(new Method<Kerbal, int>("ExperienceLevel", k => k == null ? 0 : k.experienceLevel));
+            RegisterMethod(new Method<Kerbal, string>("ExperienceTrait", k => k == null ? null : k.experienceTrait));
+            RegisterMethod(new Method<Kerbal, ProtoCrewMember.RosterStatus>("RosterStatus", k => k == null ? ProtoCrewMember.RosterStatus.Dead : k.rosterStatus));
+            RegisterMethod(new Method<Kerbal, ProtoCrewMember.KerbalType>("Type", k => k == null ? ProtoCrewMember.KerbalType.Applicant : k.kerbalType));
+            RegisterMethod(new Method<Kerbal, ProtoCrewMember.Gender>("Gender", k => k == null ? ProtoCrewMember.Gender.Male : k.gender));
 
             RegisterGlobalFunction(new Function<List<Kerbal>>("AllKerbals", () => HighLogic.CurrentGame == null ? new List<Kerbal>() :
                 HighLogic.CurrentGame.CrewRoster.AllKerbals().Select<ProtoCrewMember, Kerbal>(pcm => new Kerbal(pcm)).ToList(), false));
             RegisterGlobalFunction(new Function<Kerbal, Kerbal>("Kerbal", k => k));
+
+            RegisterGlobalFunction(new Function<ProtoCrewMember.Gender, string>("RandomKerbalName", g =>
+                DraftTwitchViewers.KerbalName(CrewGenerator.GetRandomName(g, random)), false));
+
+            RegisterGlobalFunction(new Function<Kerbal>("NewKerbal", () => new Kerbal(), false));
+            RegisterGlobalFunction(new Function<ProtoCrewMember.Gender, Kerbal>("NewKerbal", (g) => new Kerbal(g), false));
+            RegisterGlobalFunction(new Function<ProtoCrewMember.Gender, string, Kerbal>("NewKerbal", (g, n) => new Kerbal(g, n), false));
+            RegisterGlobalFunction(new Function<string, Kerbal>("NewKerbalWithTrait", NewKerbal, false));
+            RegisterGlobalFunction(new Function<ProtoCrewMember.Gender, string, string, Kerbal>("NewKerbal", (g, n, t) => new Kerbal(g, n, t), false));
         }
 
         public KerbalParser()
         {
         }
 
-        internal override U ConvertType<U>(Kerbal value)
+        public override U ConvertType<U>(Kerbal value)
         {
             if (typeof(U) == typeof(string))
             {
@@ -49,7 +60,14 @@ namespace ContractConfigurator.ExpressionParser
             return base.ConvertType<U>(value);
         }
 
-        internal override Kerbal ParseIdentifier(Token token)
+        static Kerbal NewKerbal(string trait)
+        {
+            Kerbal k = new Kerbal();
+            k.experienceTrait = trait;
+            return k;
+        }
+
+        public override Kerbal ParseIdentifier(Token token)
         {
             // Try to parse more, as Kerbal names can have spaces
             Match m = Regex.Match(expression, @"^((?>\s*[\w\d]+)+).*");

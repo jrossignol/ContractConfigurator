@@ -26,7 +26,7 @@ namespace ContractConfigurator.ExpressionParser
         /// <summary>
         /// Types of expresion tokens.
         /// </summary>
-        internal enum TokenType
+        public enum TokenType
         {
             IDENTIFIER,
             SPECIAL_IDENTIFIER,
@@ -48,7 +48,7 @@ namespace ContractConfigurator.ExpressionParser
         /// <summary>
         /// A parsed token.
         /// </summary>
-        internal class Token
+        public class Token
         {
             public TokenType tokenType;
             public string sval;
@@ -102,7 +102,7 @@ namespace ContractConfigurator.ExpressionParser
         /// A token with a value type.
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        internal class ValueToken<T> : Token
+        public class ValueToken<T> : Token
         {
             public T val;
 
@@ -243,8 +243,9 @@ namespace ContractConfigurator.ExpressionParser
         protected static Dictionary<string, List<Function>> globalFunctions = new Dictionary<string, List<Function>>();
         public string expression;
         protected bool parseMode = true;
-        protected DataNode currentDataNode = null;
-        protected string currentKey = null;
+        public DataNode currentDataNode = null;
+        public string currentKey = null;
+        protected static BaseParser currentParser = null;
 
         /// <summary>
         /// Initialize for parsing.

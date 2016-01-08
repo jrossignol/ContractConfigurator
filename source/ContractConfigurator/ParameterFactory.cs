@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Reflection;
 using UnityEngine;
 using KSP;
 using Contracts;
@@ -44,6 +46,8 @@ namespace ContractConfigurator
 
         public bool enabled = true;
         public bool hasWarnings { get; set; }
+        public Type iteratorType { get; set; }
+        public string iteratorKey { get; set; }
         public virtual IEnumerable<ParameterFactory> ChildParameters { get { return childNodes; } }
         public virtual IEnumerable<ContractRequirement> ChildRequirements { get { return requirements; } }
         public string config { get; private set; }
@@ -74,6 +78,9 @@ namespace ContractConfigurator
             // Get name and type
             valid &= ConfigNodeUtil.ParseValue<string>(configNode, "type", x => type = x, this);
             valid &= ConfigNodeUtil.ParseValue<string>(configNode, "name", x => name = x, this, type);
+
+            // Load the iterator nodes
+            valid &= DataNode.LoadIteratorNodes(configNode, this);
 
             if (!configNode.HasValue("targetBody"))
             {
@@ -195,28 +202,51 @@ namespace ContractConfigurator
             {
                 if (paramFactory.enabled)
                 {
-                    ContractParameter parameter = paramFactory.Generate(contract, contractParamHost);
-
-                    // Get the child parameters
-                    if (parameter != null)
+                    // Set up the iterator
+                    int count = 1;
+                    int current = 0;
+                    if (paramFactory.iteratorType != null)
                     {
-                        if (!GenerateParameters(contract, parameter, paramFactory.childNodes))
-                        {
-                            return false;
-                        }
+                        count = (int)paramFactory.dataNode["iteratorCount"];
                     }
 
-                    ContractConfiguratorParameter ccParam = parameter as ContractConfiguratorParameter;
-                    if (ccParam != null && ccParam.hideChildren)
+                    // Loop through the iterator, or do a single parameter for non-iterated parameters
+                    while (current++ < count)
                     {
-                        foreach (ContractParameter child in ccParam.GetChildren())
+                        // Refresh the deterministic values
+                        int oldValue = DataNode.IteratorCurrentIndex;
+                        if (paramFactory.iteratorType != null)
                         {
-                            ContractConfiguratorParameter ccChild = child as ContractConfiguratorParameter;
-                            if (ccChild != null)
+                            DataNode.IteratorCurrentIndex = current-1;
+                            ConfigNodeUtil.UpdateNonDeterministicValues(paramFactory.dataNode, paramFactory.dataNode);
+                        }
+
+                        ContractParameter parameter = paramFactory.Generate(contract, contractParamHost);
+
+                        // Get the child parameters
+                        if (parameter != null)
+                        {
+                            if (!GenerateParameters(contract, parameter, paramFactory.childNodes))
                             {
-                                ccChild.Hide();
+                                return false;
                             }
                         }
+
+                        ContractConfiguratorParameter ccParam = parameter as ContractConfiguratorParameter;
+                        if (ccParam != null && ccParam.hideChildren)
+                        {
+                            foreach (ContractParameter child in ccParam.GetChildren())
+                            {
+                                ContractConfiguratorParameter ccChild = child as ContractConfiguratorParameter;
+                                if (ccChild != null)
+                                {
+                                    ccChild.Hide();
+                                }
+                            }
+                        }
+
+                        // Restore the old value for the iterator list (for recursive iterations)
+                        DataNode.IteratorCurrentIndex = oldValue;
                     }
                 }
             }
@@ -323,6 +353,9 @@ namespace ContractConfigurator
                     valid = false;
                 }
             }
+
+            // Late initialize for iterator keys
+            valid &= DataNode.InitializeIteratorKey(parameterConfig, paramFactory);
 
             // Check for unexpected values - always do this last
             if (paramFactory.GetType() != typeof(InvalidParameterFactory))

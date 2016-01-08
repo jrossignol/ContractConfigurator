@@ -24,22 +24,28 @@ namespace ContractConfigurator.ExpressionParser
             RegisterParserType(typeof(CelestialBody), typeof(CelestialBodyParser));
         }
 
-        internal static void RegisterMethods()
+        public static void RegisterMethods()
         {
-            RegisterMethod(new Method<List<T>, T>("Random", l => l.Any() ? l.Skip(r.Next(l.Count)).First() : default(T), false));
+            RegisterMethod(new Method<List<T>, T>("Random", l => l == null || !l.Any() ? default(T) : l.Skip(r.Next(l.Count)).First(), false));
             RegisterMethod(new Method<List<T>, int, List<T>>("Random", RandomList, false));
-            RegisterMethod(new Method<List<T>, T>("First", l => l.FirstOrDefault()));
-            RegisterMethod(new Method<List<T>, T>("Last", l => l.LastOrDefault()));
-            RegisterMethod(new Method<List<T>, int, T>("ElementAt", (l, i) => l.ElementAtOrDefault(i)));
+            RegisterMethod(new Method<List<T>, int, int, List<T>>("Random", RandomList, false));
+            RegisterMethod(new Method<List<T>, T>("First", l => l == null ? default(T) : l.FirstOrDefault()));
+            RegisterMethod(new Method<List<T>, T>("Last", l => l == null ? default(T) : l.LastOrDefault()));
+            RegisterMethod(new Method<List<T>, int, T>("ElementAt", (l, i) => l == null ? default(T) : l.ElementAtOrDefault(i)));
 
-            RegisterMethod(new Method<List<T>, T, bool>("Contains", (l, o) => l.Contains(o)));
+            RegisterMethod(new Method<List<T>, T, bool>("Contains", (l, o) => l == null ? false : l.Contains(o)));
 
-            RegisterMethod(new Method<List<T>, int>("Count", l => l.Count));
+            RegisterMethod(new Method<List<T>, int>("Count", l => l == null ? 0 : l.Count));
 
-            RegisterMethod(new Method<List<T>, List<T>, List<T>>("Concat", (l1, l2) => { l1.ToList().AddRange(l2); return l1; }));
-            RegisterMethod(new Method<List<T>, T, List<T>>("Add", (l, v) => { l.ToList().Add(v); return l; }));
-            RegisterMethod(new Method<List<T>, T, List<T>>("Exclude", (l, v) => { l = l.ToList(); l.Remove(v); return l; }));
-            RegisterMethod(new Method<List<T>, List<T>, List<T>>("ExcludeAll", (l, l2) => { l = l.ToList(); l.RemoveAll(x => l2.Contains(x)); return l; }));
+            RegisterMethod(new Method<List<T>, List<T>, List<T>>("Concat", Concat));
+            RegisterMethod(new Method<List<T>, T, List<T>>("Add", (l, v) => { if (l != null) { l.ToList().Add(v); }  return l; }));
+            RegisterMethod(new Method<List<T>, T, List<T>>("Exclude", (l, v) => { if (l != null) { l = l.ToList(); l.Remove(v); }  return l; }));
+            RegisterMethod(new Method<List<T>, List<T>, List<T>>("ExcludeAll", (l, l2) => { if (l != null) { l = l.ToList(); if (l2 != null) { l.RemoveAll(x => l2.Contains(x)); } } return l; }));
+        }
+
+        protected static List<T> RandomList(List<T> input, int minCount, int maxCount)
+        {
+            return RandomList(input, NumericValueExpressionParser<int>.RandomMinMax(minCount, maxCount));
         }
 
         protected static List<T> RandomList(List<T> input, int count)
@@ -70,11 +76,30 @@ namespace ContractConfigurator.ExpressionParser
             return output;
         }
 
+        protected static List<T> Concat(List<T> l1, List<T> l2)
+        {
+            if (l1 == null && l2 == null)
+            {
+                return new List<T>();
+            }
+            else if (l1 == null)
+            {
+                return l2.ToList();
+            }
+            else if (l2 == null)
+            {
+                return l1.ToList();
+            }
+
+            l1.ToList().AddRange(l2);
+            return l1;
+        }
+
         public ListExpressionParser()
         {
         }
 
-        internal override TResult ParseMethod<TResult>(Token token, List<T> obj, bool isFunction = false)
+        public override TResult ParseMethod<TResult>(Token token, List<T> obj, bool isFunction = false)
         {
             if (token.sval == "Where")
             {
@@ -86,7 +111,7 @@ namespace ContractConfigurator.ExpressionParser
             }
         }
 
-        internal TResult ParseWhereMethod<TResult>(List<T> obj)
+        public TResult ParseWhereMethod<TResult>(List<T> obj)
         {
             verbose &= LogEntryDebug<TResult>("ParseWhereMethod", obj != null ? obj.ToString() : "null");
             try
@@ -99,7 +124,7 @@ namespace ContractConfigurator.ExpressionParser
                 string identifier = m.Groups[1].Value;
                 expression = (string.IsNullOrEmpty(identifier) ? expression : m.Groups[2].Value);
 
-                List<T> values = obj.Count == 0 ? new T[] { default(T) }.ToList() : obj;
+                List<T> values = obj == null || obj.Count == 0 ? new T[] { default(T) }.ToList() : obj;
                 List<T> filteredList = new List<T>();
 
                 // Save the expression, then execute for each value
@@ -160,7 +185,7 @@ namespace ContractConfigurator.ExpressionParser
             }
         }
         
-        internal override TResult ParseList<TResult>()
+        public override TResult ParseList<TResult>()
         {
             // Use the regular type parser to do the parting
             ExpressionParser<T> parser = GetParser<T>(this);

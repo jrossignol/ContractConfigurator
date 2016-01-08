@@ -23,7 +23,7 @@ namespace ContractConfigurator.ExpressionParser
             RegisterParserType(typeof(Waypoint), typeof(WaypointParser));
         }
 
-        internal static void RegisterMethods()
+        public static void RegisterMethods()
         {
             RegisterMethod(new Method<Waypoint, string>("Name", w => w == null ? "" : w.name));
             RegisterMethod(new Method<Waypoint, double>("Latitude", w => w == null ? 0.0 : w.latitude));
@@ -37,7 +37,7 @@ namespace ContractConfigurator.ExpressionParser
         {
         }
 
-        internal override U ConvertType<U>(Waypoint value)
+        public override U ConvertType<U>(Waypoint value)
         {
             if (typeof(U) == typeof(string))
             {

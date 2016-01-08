@@ -41,7 +41,7 @@ namespace ContractConfigurator.ExpressionParser
             RegisterParserType(typeof(CelestialBody), typeof(CelestialBodyParser));
         }
 
-        internal static void RegisterMethods()
+        public static void RegisterMethods()
         {
             RegisterMethod(new Method<CelestialBody, bool>("HasAtmosphere", cb => cb != null && cb.atmosphere));
             RegisterMethod(new Method<CelestialBody, bool>("HasOcean", cb => cb != null && cb.ocean));
@@ -78,7 +78,8 @@ namespace ContractConfigurator.ExpressionParser
 
             RegisterMethod(new Method<CelestialBody, double>("Multiplier", cb => cb != null ? GameVariables.Instance.GetContractDestinationWeight(cb) : 1.0));
 
-            RegisterMethod(new Method<CelestialBody, double>("RemoteTechCoverage", cb => cb != null ? RemoteTechCoverage(cb) : 0.0d));
+            RegisterMethod(new Method<CelestialBody, double>("RemoteTechCoverage", cb => cb != null ? RemoteTechCoverage(cb) : 0.0d, false));
+            RegisterMethod(new Method<CelestialBody, string, double>("SCANsatCoverage", SCANsatCoverage, false));
 
             RegisterGlobalFunction(new Function<CelestialBody>("HomeWorld", () => FlightGlobals.Bodies.Where(cb => cb.isHomeWorld).First()));
             RegisterGlobalFunction(new Function<List<CelestialBody>>("AllBodies", () => FlightGlobals.Bodies.Where(cb => cb != null && cb.Radius >= BARYCENTER_THRESHOLD).ToList()));
@@ -94,7 +95,7 @@ namespace ContractConfigurator.ExpressionParser
         {
         }
 
-        internal override U ConvertType<U>(CelestialBody value)
+        public override U ConvertType<U>(CelestialBody value)
         {
             if (typeof(U) == typeof(string))
             {
@@ -144,6 +145,24 @@ namespace ContractConfigurator.ExpressionParser
             return false;
         }
 
+        private static double SCANsatCoverage(CelestialBody cb, string scanType)
+        {
+            // Verify the SCANsat version
+            if (!SCANsatUtil.VerifySCANsatVersion())
+            {
+                return 100.0;
+            }
+
+            // Verify the input
+            if (cb == null)
+            {
+                return 100.0;
+            }
+            SCANsatUtil.ValidateSCANname(scanType);
+
+            return SCANsatUtil.GetCoverage(SCANsatUtil.GetSCANtype(scanType), cb);
+        }
+
         private static double RemoteTechCoverage(CelestialBody cb)
         {
             if (!Util.Version.VerifyRemoteTechVersion())
@@ -181,7 +200,7 @@ namespace ContractConfigurator.ExpressionParser
         }
 
 
-        internal override CelestialBody ParseIdentifier(Token token)
+        public override CelestialBody ParseIdentifier(Token token)
         {
             if (token.sval.Equals("null", StringComparison.CurrentCultureIgnoreCase))
             {

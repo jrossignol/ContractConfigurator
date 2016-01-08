@@ -17,7 +17,7 @@ namespace ContractConfigurator
     /// <summary>
     /// Class used for all Contract Configurator contracts.
     /// </summary>
-    public class ConfiguredContract : Contract
+    public class ConfiguredContract : Contract, IKerbalNameStorage
     {
         public static EventData<ConfiguredContract> OnContractLoaded = new EventData<ConfiguredContract>("OnContractLoaded");
 
@@ -29,6 +29,8 @@ namespace ContractConfigurator
         public Dictionary<string, object> uniqueData = new Dictionary<string, object>();
 
         public static System.Random random = new System.Random();
+
+        private List<IKerbalNameStorage> nameStorageItems = null;
 
         /// <summary>
         /// Static method (used by other mods via reflection) to get the contract type name.
@@ -128,7 +130,7 @@ namespace ContractConfigurator
                 // Set rewards
                 SetScience(contractType.rewardScience, contractType.targetBody);
                 SetReputation(contractType.rewardReputation, contractType.failureReputation, contractType.targetBody);
-                SetFunds(contractType.advanceFunds, contractType.rewardFunds, contractType.failureFunds, contractType.targetBody);
+                SetFunds(contractType.advanceFunds, contractType.rewardFunds, contractType.advanceFunds + contractType.failureFunds, contractType.targetBody);
 
                 // Copy text from contract type
                 title = contractType.title;
@@ -356,6 +358,12 @@ namespace ContractConfigurator
                         string value = pair.value.Substring(typeName.Length + 1);
                         Type type = ConfigNodeUtil.ParseTypeValue(typeName);
 
+                        // Prevents issues with vessels not getting loaded in some scenes (ie. VAB)
+                        if (type == typeof(Vessel))
+                        {
+                            type = typeof(Guid);
+                        }
+
                         if (type == typeof(string))
                         {
                             uniqueData[pair.name] = value;
@@ -415,11 +423,26 @@ namespace ContractConfigurator
             try
             {
                 node.AddValue("subtype", subType);
-                node.AddValue("title", title);
-                node.AddValue("description", description);
-                node.AddValue("synopsis", synopsis);
-                node.AddValue("completedMessage", completedMessage);
-                node.AddValue("notes", notes);
+                if (!string.IsNullOrEmpty(title))
+                {
+                    node.AddValue("title", title.Replace("\n", "\\n"));
+                }
+                if (!string.IsNullOrEmpty(description))
+                {
+                    node.AddValue("description", description.Replace("\n", "\\n"));
+                }
+                if (!string.IsNullOrEmpty(synopsis))
+                {
+                    node.AddValue("synopsis", synopsis.Replace("\n", "\\n"));
+                }
+                if (!string.IsNullOrEmpty(completedMessage))
+                {
+                    node.AddValue("completedMessage", completedMessage.Replace("\n", "\\n"));
+                }
+                if (!string.IsNullOrEmpty(notes))
+                {
+                    node.AddValue("notes", notes.Replace("\n", "\\n"));
+                }
                 node.AddValue("hash", hash);
 
                 // Store the unique data
@@ -455,7 +478,7 @@ namespace ContractConfigurator
             // ContractType already chosen, check if still meets requirements.
             if (contractType != null)
             {
-                bool meets = contractType.MeetRequirements(this);
+                bool meets = contractType.MeetRequirements(this, contractType);
                 if (ContractState == State.Active && !meets)
                 {
                     LoggingUtil.LogWarning(this, "Removed contract '" + title + "', as it no longer meets the requirements.");
@@ -654,6 +677,28 @@ namespace ContractConfigurator
         public override string ToString()
         {
             return contractType != null ? contractType.name : "unknown";
+        }
+
+        public IEnumerable<string> KerbalNames()
+        {
+            // Find all the child items that store Kerbal names
+            if (nameStorageItems == null)
+            {
+                nameStorageItems = new List<IKerbalNameStorage>();
+                foreach (IKerbalNameStorage item in AllParameters.OfType<IKerbalNameStorage>().Union(
+                    behaviours.OfType<IKerbalNameStorage>()))
+                {
+                    nameStorageItems.Add(item);
+                }
+            }
+
+            foreach (IKerbalNameStorage item in nameStorageItems)
+            {
+                foreach (string name in item.KerbalNames())
+                {
+                    yield return name;
+                }
+            }
         }
     }
 }

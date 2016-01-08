@@ -340,5 +340,17 @@ namespace ContractConfigurator
                 yield return v;
             }
         }
+
+        public static Vessel.Situations GetPrimarySituation(CelestialBody body, string biome)
+        {
+            if (body == null || Instance == null || !Instance.bodyInfo.ContainsKey(body) ||
+                !Instance.bodyInfo[body].ContainsKey(biome))
+            {
+                return Vessel.Situations.LANDED;
+            }
+
+            double landRatio = Instance.bodyInfo[body][biome].landRatio;
+            return landRatio > 0.5 ? Vessel.Situations.LANDED : Vessel.Situations.SPLASHED;
+        }
     }
 }

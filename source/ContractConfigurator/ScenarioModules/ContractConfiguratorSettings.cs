@@ -298,6 +298,8 @@ namespace ContractConfigurator
                         Type subclass = pair.Key;
                         StockContractDetails details = pair.Value;
 
+                        LoggingUtil.LogDebug(this, "zzz Contract type = " + subclass.Name + ", enabled = " + details.enabled + ", in list = " + ContractSystem.ContractTypes.Contains(subclass));
+
                         string hintText;
                         IEnumerable<ContractGroup> disablingGroups = ContractDisabler.DisablingGroups(subclass);
                         if (disablingGroups.Any())
@@ -393,7 +395,6 @@ namespace ContractConfigurator
 
         public override void OnLoad(ConfigNode node)
         {
-            Debug.Log("ContractConfiguratorSettings.OnLoad");
             try
             {
                 foreach (ConfigNode groupNode in node.GetNodes("CONTRACT_GROUP"))
@@ -467,6 +468,7 @@ namespace ContractConfigurator
             }
 
             // Make sure that the initial state has been correctly set
+            ContractDisabler.contractsDisabled = false;
             ContractDisabler.DisableContracts();
 
             foreach (Type subclass in ContractConfigurator.GetAllTypes<Contract>().Where(t => t != typeof(ConfiguredContract)))

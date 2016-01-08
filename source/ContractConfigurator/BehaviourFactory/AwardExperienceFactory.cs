@@ -68,7 +68,7 @@ namespace ContractConfigurator.Behaviour
                 if (floatValues != null)
                 {
                     // Get the list of experience points for the above string entries
-                    if (floatValues.First() == 1.0f && floatValues.Count() == 5)
+                    if (floatValues.First() == 1.0f && !floatValues.Contains(2.3f))
                     {
                         LoggingUtil.LogVerbose(typeof(AwardExperienceFactory), "Adding float items");
                         List<float> newValues = floatValues.ToList();

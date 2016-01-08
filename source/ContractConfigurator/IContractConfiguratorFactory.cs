@@ -11,6 +11,8 @@ namespace ContractConfigurator
         string ErrorPrefix();
         string ErrorPrefix(ConfigNode configNode);
 
+        Type iteratorType { get; set; }
+        string iteratorKey { get; set; }
         string config { get; }
         string log { get; }
         DataNode dataNode { get; }
