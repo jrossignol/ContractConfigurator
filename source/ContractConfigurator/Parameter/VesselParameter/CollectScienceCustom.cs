@@ -388,7 +388,7 @@ namespace ContractConfigurator.Parameters
         protected void OnExperimentDeployed(ScienceData scienceData)
         {
             Vessel vessel = FlightGlobals.ActiveVessel;
-            if (vessel == null || scienceData == null)
+            if (vessel == null || scienceData == null || !ReadyToComplete())
             {
                 return;
             }
