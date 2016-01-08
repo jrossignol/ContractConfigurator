@@ -493,15 +493,12 @@ namespace ContractConfigurator.Behaviour
         {
             if (param.State == ParameterState.Complete)
             {
-                Debug.Log("yyy OnParameterStateChange: " + param.ID);
                 foreach (WaypointData wpData in waypoints)
                 {
                     string paramID = wpData.parameter.FirstOrDefault();
-                    Debug.Log("    paramID = " + (paramID ?? "null"));
                     if (wpData.waypoint.visible && paramID == param.ID)
                     {
                         Debug.Log("    matched!");
-                        AddWayPoint(wpData.waypoint);
                     }
                 }
             }
