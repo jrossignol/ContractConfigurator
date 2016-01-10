@@ -19,6 +19,7 @@ namespace ContractConfigurator.Parameters
         protected List<string> vesselList { get; set; }
         protected bool dissassociateVesselsOnContractFailure;
         protected bool dissassociateVesselsOnContractCompletion;
+        protected bool hideVesselName;
 
         public IEnumerable<string> VesselList { get { return vesselList; } }
         protected double duration { get; set; }
@@ -45,7 +46,7 @@ namespace ContractConfigurator.Parameters
         }
 
         public VesselParameterGroup(string title, string define, IEnumerable<string> vesselList, double duration,
-            bool dissassociateVesselsOnContractFailure, bool dissassociateVesselsOnContractCompletion)
+            bool dissassociateVesselsOnContractFailure, bool dissassociateVesselsOnContractCompletion, bool hideVesselName)
             : base(title)
         {
             this.define = define;
@@ -53,6 +54,7 @@ namespace ContractConfigurator.Parameters
             this.vesselList = vesselList == null ? new List<string>() : vesselList.ToList();
             this.dissassociateVesselsOnContractFailure = dissassociateVesselsOnContractFailure;
             this.dissassociateVesselsOnContractCompletion = dissassociateVesselsOnContractCompletion;
+            this.hideVesselName = hideVesselName;
             waiting = false;
 
             CreateVesselListParameter();
@@ -175,18 +177,21 @@ namespace ContractConfigurator.Parameters
             {
                 if (vesselList.Count() == 1)
                 {
-                    vesselListParam = new ParameterDelegate<Vessel>("Vessel: " +
-                        ContractVesselTracker.GetDisplayName(vesselList.First()), VesselCanBeConsidered);
+                    vesselListParam = new ParameterDelegate<Vessel>(hideVesselName ? "" : ("Vessel: " +
+                        ContractVesselTracker.GetDisplayName(vesselList.First())), VesselCanBeConsidered);
                     vesselListParam.Optional = true;
 
                     AddParameter(vesselListParam);
                 }
                 else
                 {
-                    vesselListParam = new ParameterDelegate<Vessel>("Vessel: Any of the following:", v =>
+                    vesselListParam = new ParameterDelegate<Vessel>(hideVesselName ? "" : "Vessel: Any of the following:", v =>
                     {
                         bool check = VesselCanBeConsidered(v);
-                        vesselListParam.SetTitle("Vessel: Any of the following:" + (check ? " " + ParameterDelegate<Vessel>.GetDelegateText(vesselListParam) : ""));
+                        if (!hideVesselName)
+                        {
+                            vesselListParam.SetTitle("Vessel: Any of the following:" + (check ? " " + ParameterDelegate<Vessel>.GetDelegateText(vesselListParam) : ""));
+                        }
                         return check;
                     });
                     vesselListParam.Optional = true;
@@ -343,6 +348,10 @@ namespace ContractConfigurator.Parameters
             }
             node.AddValue("dissassociateVesselsOnContractFailure", dissassociateVesselsOnContractFailure);
             node.AddValue("dissassociateVesselsOnContractCompletion", dissassociateVesselsOnContractCompletion);
+            if (hideVesselName)
+            {
+                node.AddValue("hideVesselName", hideVesselName);
+            }
         }
 
         protected override void OnParameterLoad(ConfigNode node)
@@ -353,6 +362,7 @@ namespace ContractConfigurator.Parameters
                 duration = Convert.ToDouble(node.GetValue("duration"));
                 dissassociateVesselsOnContractFailure = ConfigNodeUtil.ParseValue<bool?>(node, "dissassociateVesselsOnContractFailure", (bool?)true).Value;
                 dissassociateVesselsOnContractCompletion = ConfigNodeUtil.ParseValue<bool?>(node, "dissassociateVesselsOnContractCompletion", (bool?)false).Value;
+                hideVesselName = ConfigNodeUtil.ParseValue<bool?>(node, "hideVesselName", (bool?)false).Value;
                 vesselList = ConfigNodeUtil.ParseValue<List<string>>(node, "vessel", new List<string>());
                 if (node.HasValue("completionTime"))
                 {
