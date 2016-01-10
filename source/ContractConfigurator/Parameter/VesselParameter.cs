@@ -638,6 +638,10 @@ namespace ContractConfigurator.Parameters
                             Disable();
                         }
                     }
+                    else if (failWhenUnmet)
+                    {
+                        SetState(ParameterState.Failed);
+                    }
                     else
                     {
                         SetState(ParameterState.Incomplete);

@@ -27,6 +27,7 @@ namespace ContractConfigurator.Parameters
         {
             // Vessels should fail if they don't meet the part conditions
             failWhenUnmet = true;
+            fakeFailures = true;
 
             this.minCapacity = minCapacity;
             this.maxCapacity = maxCapacity;
