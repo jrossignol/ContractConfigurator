@@ -711,7 +711,7 @@ namespace ContractConfigurator.Parameters
         /// VesselMeetsCondition will not be called, and the vessel's state remains unchanged.</returns>
         protected virtual bool CanCheckVesselMeetsCondition(Vessel vessel)
         {
-            return true;
+            return ReadyToComplete();
         }
 
         public void CheckVesselMeetsCondition(Vessel vessel)
