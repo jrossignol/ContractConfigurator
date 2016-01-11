@@ -15,6 +15,11 @@ namespace ContractConfigurator.RemoteTech
     {
         public bool hasConnectivity { get; set; }
 
+        const int CHECK_COUNT = 10;
+        bool[] checks = new bool[CHECK_COUNT];
+        int currentCheck = 0;
+        bool initialized = false;
+
         public KSCConnectivityParameter()
             : this(true, "")
         {
@@ -55,7 +60,35 @@ namespace ContractConfigurator.RemoteTech
                 LoggingUtil.LogVerbose(this, "    Goal = " + v.Goal.Name);
                 LoggingUtil.LogVerbose(this, "    Links.Count = " + v.Links.Count);
             }
-            return API.HasConnectionToKSC(vessel.id) ^ !hasConnectivity;
+
+            // Do a single check
+            bool result = API.HasConnectionToKSC(vessel.id) ^ !hasConnectivity;
+
+            // Store the result
+            if (!initialized)
+            {
+                for (int i = 0; i < CHECK_COUNT; i++)
+                {
+                    checks[i] = result;
+                    initialized = true;
+                }
+            }
+            else
+            {
+                currentCheck = (currentCheck + 1) % CHECK_COUNT;
+                checks[currentCheck] = result;
+            }
+
+            // Only need one check to have passed
+            for (int i = 0; i < CHECK_COUNT; i++)
+            {
+                if (checks[i])
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }
