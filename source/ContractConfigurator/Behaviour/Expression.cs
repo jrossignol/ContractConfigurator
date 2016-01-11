@@ -154,12 +154,26 @@ namespace ContractConfigurator.Behaviour
                             ExpVal expVal = new ExpVal(type, pair.name, pair.value);
                             if (factory != null)
                             {
-                                expVal.val = ConfigNodeUtil.ParseValue<string>(child, pair.name);
+                                ConfigNodeUtil.ParseValue<string>(child, pair.name, x => expVal.val = x, factory, s =>
+                                {
+                                    // Parse the expression to validate
+                                    BaseParser parser = BaseParser.NewParser(expVal.type);
+                                    parser.ParseExpressionGeneric(pair.name, expVal.val, dataNode);
+                                    return true;
+                                });
                             }
+                            else
+                            {
+                                // Horrible workaround for bugged saves caused by issue in 1.9.3 - remove in a future version
+                                if (expVal.val.Contains("@Tourism:touristCount"))
+                                {
+                                    expVal.val = expVal.val.Replace("@Tourism:touristCount", "3");
+                                }
 
-                            // Parse the expression to validate
-                            BaseParser parser = BaseParser.NewParser(expVal.type);
-                            parser.ParseExpressionGeneric(pair.name, expVal.val, dataNode);
+                                // Parse the expression to validate
+                                BaseParser parser = BaseParser.NewParser(expVal.type);
+                                parser.ParseExpressionGeneric(pair.name, expVal.val, dataNode);
+                            }
 
                             // Store it for later
                             if (child.name == "PARAMETER_COMPLETED")
