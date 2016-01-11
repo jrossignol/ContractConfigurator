@@ -715,7 +715,25 @@ namespace ContractConfigurator.Parameters
         /// VesselMeetsCondition will not be called, and the vessel's state remains unchanged.</returns>
         protected virtual bool CanCheckVesselMeetsCondition(Vessel vessel)
         {
-            return ReadyToComplete();
+            if (completeInSequence || Parent is Sequence)
+            {
+                // Go through the parent's parameters
+                for (int i = 0; i < Parent.ParameterCount; i++)
+                {
+                    ContractParameter param = Parent.GetParameter(i);
+                    // If we've made it all the way to us, we're ready
+                    if (System.Object.ReferenceEquals(param, this))
+                    {
+                        // Passed our check
+                        break;
+                    }
+                    else if (param.State != ParameterState.Complete)
+                    {
+                        return false;
+                    }
+                }
+            }
+            return true;
         }
 
         public void CheckVesselMeetsCondition(Vessel vessel)
