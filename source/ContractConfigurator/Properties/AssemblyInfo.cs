@@ -34,6 +34,6 @@ using System.Runtime.InteropServices;
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("1.0")]
-[assembly: AssemblyFileVersion("1.9.3")]
-[assembly: AssemblyInformationalVersion("1.9.3")]
+[assembly: AssemblyFileVersion("1.9.3.1")]
+[assembly: AssemblyInformationalVersion("1.9.3.1")]
 [assembly: KSPAssembly("ContractConfigurator", 1, 0)]
