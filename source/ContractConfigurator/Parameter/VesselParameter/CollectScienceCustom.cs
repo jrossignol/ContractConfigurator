@@ -250,13 +250,18 @@ namespace ContractConfigurator.Parameters
                 return false;
             }
 
-            // Fixes problems with special biomes like KSC buildings (total different naming)
+            string vesselBiome = null;
             if (landedSituations.Contains(vessel.situation) && !string.IsNullOrEmpty(vessel.landedAt))
             {
-                return Vessel.GetLandedAtString(vessel.landedAt).Replace(" ", "") == biome;
+                // Fixes problems with special biomes like KSC buildings (total different naming)
+                vesselBiome = Vessel.GetLandedAtString(vessel.landedAt);
+            }
+            else
+            {
+                vesselBiome = ScienceUtil.GetExperimentBiome(vessel.mainBody, vessel.latitude, vessel.longitude);
             }
 
-            return ScienceUtil.GetExperimentBiome(vessel.mainBody, vessel.latitude, vessel.longitude) == biome;
+            return vesselBiome.Replace(" ", "") == biome;
         }
 
         protected override void OnParameterSave(ConfigNode node)

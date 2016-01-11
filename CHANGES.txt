@@ -9,6 +9,7 @@ Contract Configurator 1.9.3
 - Fixed issue with Sequence parameter not always firing (thanks Steven Mading).
 - Fixed issue where CollectScience wouldn't correctly check that it needed to be completed in sequence (thanks linuxgurugamer).
 - Fixed failWhenUnmet to actually fail contracts (thanks inigma).
+- Fixed issue with biomes with spaces in their names in CollectScience (like "Ice Caps").
 
 Contract Configurator 1.9.2.1
 - Fixed problem with loading waypoints from older versions of Contract Configurator (thanks SpaceNomad).

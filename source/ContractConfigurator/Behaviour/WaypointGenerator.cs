@@ -489,21 +489,6 @@ namespace ContractConfigurator.Behaviour
             }
         }
 
-        protected override void OnParameterStateChange(ContractParameter param)
-        {
-            if (param.State == ParameterState.Complete)
-            {
-                foreach (WaypointData wpData in waypoints)
-                {
-                    string paramID = wpData.parameter.FirstOrDefault();
-                    if (wpData.waypoint.visible && paramID == param.ID)
-                    {
-                        Debug.Log("    matched!");
-                    }
-                }
-            }
-        }
-
         private void AddWayPoint(Waypoint waypoint)
         {
             // No contract, no waypoint
