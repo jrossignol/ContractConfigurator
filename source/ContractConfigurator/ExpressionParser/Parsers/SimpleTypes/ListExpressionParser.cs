@@ -38,7 +38,7 @@ namespace ContractConfigurator.ExpressionParser
             RegisterMethod(new Method<List<T>, int>("Count", l => l == null ? 0 : l.Count));
 
             RegisterMethod(new Method<List<T>, List<T>, List<T>>("Concat", Concat));
-            RegisterMethod(new Method<List<T>, T, List<T>>("Add", (l, v) => { if (l != null) { l.ToList().Add(v); }  return l; }));
+            RegisterMethod(new Method<List<T>, T, List<T>>("Add", (l, v) => { if (l == null) { l = new List<T>(); } l.ToList().Add(v); return l; }));
             RegisterMethod(new Method<List<T>, T, List<T>>("Exclude", (l, v) => { if (l != null) { l = l.ToList(); l.Remove(v); }  return l; }));
             RegisterMethod(new Method<List<T>, List<T>, List<T>>("ExcludeAll", (l, l2) => { if (l != null) { l = l.ToList(); if (l2 != null) { l.RemoveAll(x => l2.Contains(x)); } } return l; }));
         }
