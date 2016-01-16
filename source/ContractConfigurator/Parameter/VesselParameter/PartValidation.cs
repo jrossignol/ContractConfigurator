@@ -105,7 +105,7 @@ namespace ContractConfigurator.Parameters
                     // Filter by part modules - extended mode
                     foreach (ConfigNode.ValueList list in filter.partModuleExtended)
                     {
-                        ContractParameter wrapperParam = AddParameter(new AllParameterDelegate<Part>(filter.type.Prefix() + "module", filter.type));
+                        ContractParameter wrapperParam = AddParameter(new AllParameterDelegate<Part>(filter.type.Prefix() + "module with", filter.type));
 
                         foreach (ConfigNode.Value v in list)
                         {
