@@ -142,7 +142,7 @@ namespace ContractConfigurator.Parameters
 
         private string ModuleName(string partModule)
         {
-            string output = partModule.Replace("Module", "");
+            string output = partModule.Replace("Module", "").Replace("FX", "");
 
             // Hardcoded special values
             if (output == "SAS")
@@ -161,7 +161,7 @@ namespace ContractConfigurator.Parameters
         {
             foreach (PartModule pm in p.Modules)
             {
-                if (pm.moduleName == partModule)
+                if (pm.moduleName.StartsWith(partModule))
                 {
                     return true;
                 }
