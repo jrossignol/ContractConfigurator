@@ -1,5 +1,6 @@
 Contract Configurator 1.9.4
 - Fixed defaulting of min/max count in PartValidation (thanks inigma).
+- Fixed rate of climb checking to default in a way to allow checking for negative values (thanks inigma).
 
 Contract Configurator 1.9.3.1
 - Fixed MAJOR issue introduced in 1.9.3 that broke Tourism Plus (thanks Ryusho).
