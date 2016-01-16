@@ -7,6 +7,9 @@ using UnityEngine;
 using Contracts;
 using ContractConfigurator.ExpressionParser;
 
+using System.IO;
+using System.Text.RegularExpressions;
+
 namespace ContractConfigurator
 {
     public static class DebugWindow
@@ -47,6 +50,56 @@ namespace ContractConfigurator
         private static bool drawToolTip = false;
 
         public static bool showGUI = false;
+
+		// Following added by LinuxGuruGamer, to support a new button to write the output of the debug window to a
+		// log file (not the KSP log file)
+
+		static string lastLogStr = "";
+		static bool logit = false;
+		private const string ccLogFile = @"cc_output.log";
+
+		private static string ScrubHtml(string value) {
+			var step1 = Regex.Replace(value, @"<[^>]+>|&nbsp;", "").Trim();
+			//			var step2 = Regex.Replace(step1, @"\s{2,}", " ");
+			return step1;
+		}
+		private static void logContentString(int x, int indent, string str)
+		{
+			if (!logit && x > 0)
+				return;
+			lastLogStr = str;
+			if (indent < 0)
+				indent = 0;
+			//			string s = "jbb:" + x.ToString() + "   " + new string(' ', indent * 4) + ScrubHtml(str);
+			string s = "   " + new string(' ', indent * 4) + ScrubHtml(str);
+
+			string path = ccLogFile;
+
+			// Create the file if it doesn't exist
+			if (!File.Exists(path)) 
+			{
+				// Create a file to write to.
+				using (StreamWriter sw = File.CreateText(path)) 
+				{
+					sw.WriteLine("");
+
+				}	
+			}
+			if (x < 0) {
+				logit = true;
+				using (StreamWriter sw = File.AppendText (path)) {
+					sw.WriteLine ("=========================================================================================");
+				}
+			} else {
+				// This text is always added, making the file longer over time
+				// if it is not deleted.
+				using (StreamWriter sw = File.AppendText (path)) {
+					sw.WriteLine (s);
+
+				}	
+			}
+		}
+		// End of addition by LinuxGuruGamer
 
         public static void LoadTextures()
         {
@@ -155,7 +208,9 @@ namespace ContractConfigurator
             {
                 if (GUILayout.Button("Force Check Requirements"))
                 {
+					logContentString (-1, -1, "");
                     CheckRequirements();
+					logit = false;
                 }
             }
             GUILayout.EndHorizontal();
@@ -201,6 +256,7 @@ namespace ContractConfigurator
 
             GUILayout.EndHorizontal();
             GUI.DragWindow();
+			logit = false;
         }
 
         private static void GroupGui(ContractGroup contractGroup, int indent)
@@ -291,14 +347,14 @@ namespace ContractConfigurator
             }
         }
 
-
         private static void ParamGui(ContractType contractType, IEnumerable<ParameterFactory> paramList, int indent)
         {
             foreach (ParameterFactory param in paramList)
             {
                 GUILayout.BeginHorizontal(GUILayout.ExpandWidth(false));
                 GUILayout.Space(28);
-                GUILayout.Label(new GUIContent(new string(' ', indent * 4) + param, DebugInfo(param)),
+				logContentString(1, indent, param.ToString());
+				GUILayout.Label(new GUIContent(new string(' ', indent * 4) + param, DebugInfo(param)),
                     param.enabled ? param.hasWarnings ? yellowLabel : GUI.skin.label : redLabel);
                 if (contractType.enabled)
                 {
@@ -321,6 +377,7 @@ namespace ContractConfigurator
                 GUILayout.BeginHorizontal(GUILayout.ExpandWidth(false));
                 GUILayout.Space(28);
                 GUIStyle style = requirement.lastResult == null ? GUI.skin.label : requirement.lastResult.Value ? greenLabel : yellowLabel;
+				logContentString(2, indent, requirement.ToString());
                 GUILayout.Label(new GUIContent(new string(' ', indent * 4) + requirement, DebugInfo(requirement)),
                     requirement.enabled ? requirement.hasWarnings ? yellowLabel : style : redLabel);
                 if (contractType.enabled)
@@ -342,6 +399,7 @@ namespace ContractConfigurator
             {
                 GUILayout.BeginHorizontal(GUILayout.ExpandWidth(false));
                 GUILayout.Space(28);
+				logContentString(3, indent, behaviour.ToString());
                 GUILayout.Label(new GUIContent(new string(' ', indent * 4) + behaviour, DebugInfo(behaviour)),
                     behaviour.enabled ? behaviour.hasWarnings ? yellowLabel : GUI.skin.label : redLabel);
                 if (contractType.enabled)
@@ -366,6 +424,11 @@ namespace ContractConfigurator
             {
                 selectedPane = SelectedPane.DEBUG_LOG;
             }
+			if (GUILayout.Button("Save Debug Log", selectedPane == SelectedPane.DEBUG_LOG ? selectedButton : GUI.skin.button))
+			{
+				selectedPane = SelectedPane.DEBUG_LOG;
+				logContentString (-1, -1, "");
+			}
             if (GUILayout.Button("Contract Balancing", selectedPane == SelectedPane.BALANCE_MODE ? selectedButton : GUI.skin.button))
             {
                 selectedPane = SelectedPane.BALANCE_MODE;
@@ -393,6 +456,7 @@ namespace ContractConfigurator
                 {
                     tooltip = GUI.tooltip.Replace("\t", "    ");
                 }
+				logContentString(4, 0, tooltip.ToString());
                 GUILayout.Label(tooltip, bigTipStyle);
                 GUILayout.EndScrollView();
             }
