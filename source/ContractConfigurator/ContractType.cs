@@ -9,6 +9,12 @@ using Contracts;
 using Contracts.Agents;
 using ContractConfigurator.ExpressionParser;
 
+// ++++++++++++++++++++++++++++++++++
+// Linuxgurugamer
+using System.IO;
+using System.Text.RegularExpressions;
+// ++++++++++++++++++++++++++++++++++
+
 namespace ContractConfigurator
 {
     public class ContractRequirementException : Exception
@@ -24,6 +30,12 @@ namespace ContractConfigurator
     /// </summary>
     public class ContractType : IContractConfiguratorFactory
     {
+		// ++++++++++++++++++++++++++++++++++
+		// Following lines added by LinuxGuruGamer
+		private const string ccLogFile = @"cc_output.log";
+		private static bool deleteCCLogfile = true;
+		// ++++++++++++++++++++++++++++++++++
+
         private static Dictionary<string, ContractType> contractTypes = new Dictionary<string,ContractType>();
         public static IEnumerable<ContractType> AllContractTypes { get { return contractTypes.Values; } }
         public static IEnumerable<ContractType> AllValidContractTypes
@@ -140,7 +152,7 @@ namespace ContractConfigurator
             weight = 1.0;
             enabled = true;
         }
-
+			
         /// <summary>
         /// Loads the contract type details from the given config node.
         /// </summary>
@@ -297,10 +309,58 @@ namespace ContractConfigurator
                 hash = config.GetHashCode();
                 enabled = valid;
                 log += LoggingUtil.capturedLog;
-                LoggingUtil.CaptureLog = false;
 
-                return valid;
-            }
+				//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+				// Following added by LinuxGuruGamer
+				// to write teh complete config and log for contract to both the system log and
+				// a seperate CC log file
+				string pattern = @"\[VERBOSE\] ContractConfigurator\.ExpressionParser.BaseParser.+\n";
+				string replacement = "";
+				Regex rgx = new Regex(pattern);
+
+				LoggingUtil.LogDebug(this, config);
+				// Write the log out, ignoring the BaseParser lines
+				LoggingUtil.LogDebug(this, rgx.Replace(log, replacement));
+
+				// Now write to the CC log file, in a much cleaner manner 
+				string path = ccLogFile;
+
+				// Delete the file first time through, ignore any errors
+				if (deleteCCLogfile)
+				{
+					deleteCCLogfile = false;
+					try {
+						if (File.Exists(path))
+							File.Delete(path);
+					} catch { }
+				}
+				// Create the file if it doesn't exist
+				if (!File.Exists(path)) 
+				{
+					// Create a file to write to.
+					try {
+						using (StreamWriter sw = File.CreateText(path)) {}
+					} catch {}
+				}
+
+				string pattern2 = @"\[VERBOSE\] ContractConfigurator\.ExpressionParser\.DataNode: ";
+				Regex rgx2 = new Regex(pattern2);
+
+				// Now write the config and the cleaned up log to it
+				try {
+					using (StreamWriter sw = File.AppendText (path)) {
+						sw.WriteLine (config);
+						sw.WriteLine("++++++++++\n");
+						sw.WriteLine(rgx2.Replace(rgx.Replace(log, replacement), replacement));
+						sw.WriteLine("==================================================================================");
+        		    }
+				} catch {}
+				//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+				LoggingUtil.CaptureLog = false;
+
+				return valid;
+			}
             catch
             {
                 enabled = false;
