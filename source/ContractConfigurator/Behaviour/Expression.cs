@@ -202,16 +202,17 @@ namespace ContractConfigurator.Behaviour
                 configNode.AddNode(child);
                 foreach (ExpVal expVal in map[node])
                 {
+                    string typeName = PersistentDataStore.GetTypeName(expVal.type);
                     if (!child.HasValue("type"))
                     {
-                        child.AddValue("type", expVal.type.Name);
+                        child.AddValue("type", typeName);
                     }
                     // Just start a new node if the type changes
-                    else if (child.GetValue("type") != expVal.type.Name)
+                    else if (child.GetValue("type") != typeName)
                     {
                         child = new ConfigNode(node);
                         configNode.AddNode(child);
-                        child.AddValue("type", expVal.type.Name);
+                        child.AddValue("type", typeName);
                     }
                     child.AddValue(expVal.key, expVal.val);
                 }
@@ -223,9 +224,10 @@ namespace ContractConfigurator.Behaviour
                 child.AddValue("parameter", parameter);
                 foreach (ExpVal expVal in onParameterComplete[parameter])
                 {
+                    string typeName = PersistentDataStore.GetTypeName(expVal.type);
                     if (!child.HasValue("type"))
                     {
-                        child.AddValue("type", expVal.type.Name);
+                        child.AddValue("type", typeName);
                     }
                     child.AddValue(expVal.key, expVal.val);
                 }

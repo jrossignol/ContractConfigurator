@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using UnityEngine;
 using KSPAchievements;
 
@@ -202,11 +203,17 @@ namespace ContractConfigurator.ExpressionParser
 
         public override CelestialBody ParseIdentifier(Token token)
         {
-            if (token.sval.Equals("null", StringComparison.CurrentCultureIgnoreCase))
+            // Try to parse more, as celestibla body names can have spaces
+            Match m = Regex.Match(expression, @"^((?>\s*[\w\d]+)+).*");
+            string identifier = m.Groups[1].Value;
+            expression = (expression.Length > identifier.Length ? expression.Substring(identifier.Length) : "");
+            identifier = token.sval + identifier;
+
+            if (identifier.Equals("null", StringComparison.CurrentCultureIgnoreCase))
             {
                 return null;
             }
-            return ConfigNodeUtil.ParseCelestialBodyValue(token.sval);
+            return ConfigNodeUtil.ParseCelestialBodyValue(identifier);
         }
     }
 }
