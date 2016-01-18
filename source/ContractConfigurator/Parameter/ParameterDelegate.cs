@@ -336,6 +336,18 @@ namespace ContractConfigurator.Parameters
             filterFunc = (t => this.AllChildParametersComplete());
         }
 
+        protected override string GetParameterTitle()
+        {
+            string title = base.GetParameterTitle();
+
+            if (state != ParameterState.Incomplete)
+            {
+                title += ": " + ParameterDelegate<T>.GetDelegateText(this);
+            }
+
+            return title;
+        }
+
         protected override IEnumerable<T> SetState(IEnumerable<T> values, ref bool conditionMet, bool checkOnly = false)
         {
             IEnumerable<T> newValues = ParameterDelegate<T>.CheckChildConditions(this, values, ref conditionMet, checkOnly);
