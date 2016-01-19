@@ -1,8 +1,9 @@
 Contract Configurator 1.9.4
+- Added support for lists in persistent data store values.
 - Fixed defaulting of min/max count in PartValidation (thanks inigma).
 - Fixed rate of climb checking to default in a way to allow checking for negative values (thanks inigma).
 - Fixed issue with NONE and MODULE being combined in PartValidation (thanks inigma).
-- Added support for lists in persistent data store values.
+- Fixed issue with VesselDestroyed not working for splashdown or overheat (thanks DBT85).
 
 Contract Configurator 1.9.3.1
 - Fixed MAJOR issue introduced in 1.9.3 that broke Tourism Plus (thanks Ryusho).
