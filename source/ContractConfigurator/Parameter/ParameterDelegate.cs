@@ -249,7 +249,6 @@ namespace ContractConfigurator.Parameters
                     switch (paramDelegate.matchType)
                     {
                         case ParameterDelegateMatchType.FILTER:
-                            conditionMet &= values.Any();
                             count = values.Count();
                             break;
                         case ParameterDelegateMatchType.VALIDATE:
@@ -351,7 +350,7 @@ namespace ContractConfigurator.Parameters
         protected override IEnumerable<T> SetState(IEnumerable<T> values, ref bool conditionMet, bool checkOnly = false)
         {
             IEnumerable<T> newValues = ParameterDelegate<T>.CheckChildConditions(this, values, ref conditionMet, checkOnly);
-            base.SetState(values, ref conditionMet, checkOnly);
+            base.SetState(newValues, ref conditionMet, checkOnly);
             return newValues;
         }
     }
