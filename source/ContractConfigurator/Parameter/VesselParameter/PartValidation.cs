@@ -181,6 +181,11 @@ namespace ContractConfigurator.Parameters
                         return true;
                     }
                 }
+                else if (v.name == "EngineType")
+                {
+                    ModuleEngines me = pm as ModuleEngines;
+                    return me != null && me.engineType.ToString() == v.value;
+                }
 
                 foreach (BaseField field in pm.Fields)
                 {
