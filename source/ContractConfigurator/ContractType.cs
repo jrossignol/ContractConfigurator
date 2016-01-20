@@ -10,7 +10,6 @@ using Contracts.Agents;
 using ContractConfigurator.ExpressionParser;
 
 // ++++++++++++++++++++++++++++++++++
-// Linuxgurugamer
 using System.IO;
 using System.Text.RegularExpressions;
 // ++++++++++++++++++++++++++++++++++
@@ -310,53 +309,65 @@ namespace ContractConfigurator
                 enabled = valid;
                 log += LoggingUtil.capturedLog;
 
-				//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-				// Following added by LinuxGuruGamer
-				// to write teh complete config and log for contract to both the system log and
-				// a seperate CC log file
-				string pattern = @"\[VERBOSE\] ContractConfigurator\.ExpressionParser.BaseParser.+\n";
-				string replacement = "";
-				Regex rgx = new Regex(pattern);
-
-				LoggingUtil.LogDebug(this, config);
-				// Write the log out, ignoring the BaseParser lines
-				LoggingUtil.LogDebug(this, rgx.Replace(log, replacement));
-
-				// Now write to the CC log file, in a much cleaner manner 
-				string path = ccLogFile;
-
-				// Delete the file first time through, ignore any errors
-				if (deleteCCLogfile)
+				if (LoggingUtil.logLevel == LoggingUtil.LogLevel.VERBOSE || LoggingUtil.logLevel == LoggingUtil.LogLevel.DEBUG)
 				{
-					deleteCCLogfile = false;
+					//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+					// to write the complete config and log for contract to both the system log and
+					// a seperate CC log file
+					//
+					string pattern = @"\[(VERBOSE|DEBUG|INFO|WARNING|ERROR)\] ContractConfigurator\.ExpressionParser.BaseParser.+\n";
+					string replacement = "";
+					Regex rgx = new Regex(pattern);
+
+					// First, write to the standard log file.  the regex strips out the leading text of the line, but 
+					// if you want the text there, then just remove the rgx.Replace
+					LoggingUtil.LogDebug(this, config);
+					// Write the log out, ignoring the BaseParser lines
+					LoggingUtil.LogDebug(this, rgx.Replace(log, replacement));
+
+					// Now write to the CC log file, in a much cleaner manner 
+					string path = ccLogFile;
+
+					// Delete the file first time through, ignore any errors
+					if (deleteCCLogfile)
+					{
+						deleteCCLogfile = false;
+						try {
+							if (File.Exists(path))
+								File.Delete(path);
+						} catch { 
+							LoggingUtil.LogError(this, "Exception while attempting to delete the file: " + path);
+						}
+					}
+					// Create the file if it doesn't exist
+					if (!File.Exists(path)) 
+					{
+						// Create a file to write to.
+						try {
+							using (StreamWriter sw = File.CreateText(path)) {}
+						} catch {
+							LoggingUtil.LogError(this, "Exception while attempting to create the file: " + path);
+						}
+					}
+
+					// This regex also strips out the second part of the line, so that the output is very clean 
+
+					string pattern2 = @"\[(VERBOSE|DEBUG|INFO|WARNING|ERROR)\] ContractConfigurator\.ExpressionParser\.DataNode: ";
+					Regex rgx2 = new Regex(pattern2);
+
+					// Now write the config and the cleaned up log to it
 					try {
-						if (File.Exists(path))
-							File.Delete(path);
-					} catch { }
+						using (StreamWriter sw = File.AppendText (path)) {
+							sw.WriteLine (config);
+							sw.WriteLine("++++++++++\n");
+							sw.WriteLine(rgx2.Replace(rgx.Replace(log, replacement), replacement));
+							sw.WriteLine("==================================================================================");
+	        		    }
+					} catch {
+						LoggingUtil.LogError(this, "Exception while attempting to write to the file: " + path);
+					}
+					//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 				}
-				// Create the file if it doesn't exist
-				if (!File.Exists(path)) 
-				{
-					// Create a file to write to.
-					try {
-						using (StreamWriter sw = File.CreateText(path)) {}
-					} catch {}
-				}
-
-				string pattern2 = @"\[VERBOSE\] ContractConfigurator\.ExpressionParser\.DataNode: ";
-				Regex rgx2 = new Regex(pattern2);
-
-				// Now write the config and the cleaned up log to it
-				try {
-					using (StreamWriter sw = File.AppendText (path)) {
-						sw.WriteLine (config);
-						sw.WriteLine("++++++++++\n");
-						sw.WriteLine(rgx2.Replace(rgx.Replace(log, replacement), replacement));
-						sw.WriteLine("==================================================================================");
-        		    }
-				} catch {}
-				//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 				LoggingUtil.CaptureLog = false;
 
 				return valid;
