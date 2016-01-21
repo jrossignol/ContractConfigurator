@@ -1,5 +1,6 @@
 Contract Configurator 1.9.4
 - Added support for lists in persistent data store values.
+- Added checkType to all celestial body progress requirements to allow tracking back on manned/unmanned.
 - Fixed defaulting of min/max count in PartValidation (thanks inigma).
 - Fixed rate of climb checking to default in a way to allow checking for negative values (thanks inigma).
 - Fixed issue with NONE and MODULE being combined in PartValidation (thanks inigma).
