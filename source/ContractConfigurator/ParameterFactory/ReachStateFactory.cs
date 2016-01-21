@@ -43,7 +43,7 @@ namespace ContractConfigurator
             valid &= ConfigNodeUtil.ParseValue<float>(configNode, "maxTerrainAltitude", x => maxTerrainAltitude = x, this, float.MaxValue, x => Validation.GE(x, 0.0f));
             valid &= ConfigNodeUtil.ParseValue<double>(configNode, "minSpeed", x => minSpeed = x, this, 0.0, x => Validation.GE(x, 0.0));
             valid &= ConfigNodeUtil.ParseValue<double>(configNode, "maxSpeed", x => maxSpeed = x, this, double.MaxValue, x => Validation.GE(x, 0.0));
-            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "minRateOfClimb", x => minRateOfClimb = x, this, 0.0);
+            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "minRateOfClimb", x => minRateOfClimb = x, this, double.MinValue);
             valid &= ConfigNodeUtil.ParseValue<double>(configNode, "maxRateOfClimb", x => maxRateOfClimb = x, this, double.MaxValue);
             valid &= ConfigNodeUtil.ParseValue<float>(configNode, "minAcceleration", x => minAcceleration = x, this, 0.0f, x => Validation.GE(x, 0.0f));
             valid &= ConfigNodeUtil.ParseValue<float>(configNode, "maxAcceleration", x => maxAcceleration = x, this, float.MaxValue, x => Validation.GE(x, 0.0f));

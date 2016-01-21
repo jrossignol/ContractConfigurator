@@ -13,12 +13,20 @@ namespace ContractConfigurator
     /// </summary>
     public abstract class ProgressCelestialBodyRequirement : ContractRequirement
     {
+        enum CheckType
+        {
+            UNMANNED,
+            MANNED
+        }
+        CheckType? checkType;
+
         public override bool Load(ConfigNode configNode)
         {
             // Load base class
             bool valid = base.Load(configNode);
 
             valid &= ValidateTargetBody(configNode);
+            valid &= ConfigNodeUtil.ParseValue<CheckType?>(configNode, "checkType", x => checkType = x, this, (CheckType?)null);
 
             return valid;
         }
@@ -52,6 +60,16 @@ namespace ContractConfigurator
                 LoggingUtil.LogError(this.GetType(), ": ProgressNode for targetBody " + targetBody.bodyName + " not found.");
                 return false;
             }
+
+            if (checkType == CheckType.MANNED)
+            {
+                return cbProgress.IsReached && cbProgress.IsCompleteManned;
+            }
+            else if (checkType == CheckType.UNMANNED)
+            {
+                return cbProgress.IsReached && cbProgress.IsCompleteUnmanned;
+            }
+
             return true;
         }
     }

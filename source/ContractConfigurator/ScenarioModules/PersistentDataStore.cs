@@ -7,6 +7,7 @@ using System.Text;
 using UnityEngine;
 using KSP;
 using Contracts;
+using ContractConfigurator.ExpressionParser;
 
 namespace ContractConfigurator
 {
@@ -144,6 +145,15 @@ namespace ContractConfigurator
                         {
                             data[pair.name] = value;
                         }
+                        else if (type.Name == "List`1")
+                        {
+                            BaseParser parser = BaseParser.NewParser(type);
+                            if (parser == null)
+                            {
+                                throw new Exception("Couldn't read list of values of type '" + type.GetGenericArguments().First().Name + "'.");
+                            }
+                            data[pair.name] = parser.ParseExpressionGeneric("", value, null);
+                        }
                         else
                         {
                             // Get the ParseValue method
@@ -201,8 +211,15 @@ namespace ContractConfigurator
 
         public static void StoreToConfigNode(ConfigNode node, string key, object value)
         {
+            Type type = null;
+            string outputValue = OutputValue(value, out type);
+            node.AddValue(key, GetTypeName(type) + ":" + outputValue);
+        }
+
+        public static string OutputValue(object value, out Type type)
+        {
             string strValue;
-            Type type = value.GetType();
+            type = value.GetType();
             if (type == typeof(CelestialBody))
             {
                 strValue = ((CelestialBody)value).name;
@@ -220,12 +237,34 @@ namespace ContractConfigurator
                 Biome b = (Biome)value;
                 strValue = b.body.name + ";" + b.biome;
             }
+            else if (type.Name == "List`1")
+            {
+                strValue = "[ ";
+                System.Collections.IEnumerable list = (System.Collections.IEnumerable)value;
+                foreach (object o in list)
+                {
+                    Type t;
+                    strValue += OutputValue(o, out t) + ", ";
+                }
+                strValue = strValue.Length == 2 ? "[]" : (strValue.Remove(strValue.Length - 2) + " ]");
+            }
             else
             {
                 strValue = value.ToString();
             }
+            return strValue;
+        }
 
-            node.AddValue(key, type.Name + ":" + strValue);
+        public static string GetTypeName(Type type)
+        {
+            Type[] generics = type.GetGenericArguments();
+            if (!generics.Any())
+            {
+                return type.Name;
+            }
+
+            return type.Name.Replace("`1", "") + "<" +
+                generics.First().Name + ">";
         }
     }
 }

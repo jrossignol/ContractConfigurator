@@ -880,15 +880,12 @@ namespace ContractConfigurator
 
         public static CelestialBody ParseCelestialBodyValue(string celestialName)
         {
-            foreach (CelestialBody body in FlightGlobals.Bodies)
+            CelestialBody result = FlightGlobals.Bodies.Where(cb => cb.name == celestialName || cb.theName == celestialName).FirstOrDefault();
+            if (result == null)
             {
-                if (body.name.Equals(celestialName))
-                {
-                    return body;
-                }
+                throw new ArgumentException("'" + celestialName + "' is not a valid CelestialBody.");
             }
-
-            throw new ArgumentException("'" + celestialName + "' is not a valid CelestialBody.");
+            return result;
         }
 
         private static AvailablePart ParsePartValue(string partName)

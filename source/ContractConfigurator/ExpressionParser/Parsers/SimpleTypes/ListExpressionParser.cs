@@ -198,5 +198,24 @@ namespace ContractConfigurator.ExpressionParser
                 expression = parser.expression;
             }
         }
+
+        public override U ConvertType<U>(List<T> value)
+        {
+            ExpressionParser<T> parserT = GetParser<T>();
+
+            if (typeof(U) == typeof(string))
+            {
+                string result = "[ ";
+                foreach (T t in value)
+                {
+                    result += parserT.ConvertType<string>(t);
+                    result += ",";
+                }
+                result = result.TrimEnd(new char[] { ',' }) + " ]";
+                return (U)(object)result;
+            }
+
+            return base.ConvertType<U>(value);
+        }
     }
 }
