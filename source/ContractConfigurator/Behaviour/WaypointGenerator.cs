@@ -116,7 +116,7 @@ namespace ContractConfigurator.Behaviour
                     {
                         wpData.waypoint.name = (old.names.Count() == 1 ? old.names.First() : old.names.ElementAtOrDefault(i));
                     }
-                    if (wpData.waypoint.name == null)
+                    if (string.IsNullOrEmpty(wpData.waypoint.name) || wpData.waypoint.name == "Site")
                     {
                         wpData.waypoint.name = StringUtilities.GenerateSiteName(random.Next(), wpData.waypoint.celestialBody, !wpData.waterAllowed);
                     }
@@ -431,6 +431,7 @@ namespace ContractConfigurator.Behaviour
                 WaypointData wpData = new WaypointData();
                 wpData.type = child.GetValue("type");
                 wpData.parameter = ConfigNodeUtil.ParseValue<List<string>>(child, "parameter", new List<string>());
+                wpData.names = ConfigNodeUtil.ParseValue<List<string>>(child, "names", new List<string>());
                 wpData.waypoint.celestialName = child.GetValue("celestialName");
                 wpData.waypoint.name = child.GetValue("name");
                 wpData.waypoint.id = child.GetValue("icon");
@@ -475,6 +476,10 @@ namespace ContractConfigurator.Behaviour
                 foreach (string p in wpData.parameter)
                 {
                     child.AddValue("parameter", p);
+                }
+                foreach (string n in wpData.names)
+                {
+                    child.AddValue("names", n);
                 }
                 child.AddValue("celestialName", wpData.waypoint.celestialName);
                 child.AddValue("name", wpData.waypoint.name);

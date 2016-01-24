@@ -76,7 +76,7 @@ namespace ContractConfigurator
         // Contract attributes
         public string name;
         public ContractGroup group;
-        public string title;
+        public string title = "";
         public string tag;
         public string notes;
         public string description;
@@ -469,12 +469,13 @@ namespace ContractConfigurator
                                 throw new ContractRequirementException("'" + name + "' was not initialized.");
                             }
 
+
                             object o = dataNode[name];
                             if (o == null)
                             {
                                 throw new ContractRequirementException("'" + name + "' was null.");
                             }
-                            else if (o == typeof(List<>))
+                            else if (o.GetType().GetGenericArguments().Any() && o.GetType().GetGenericTypeDefinition() == typeof(List<>))
                             {
                                 PropertyInfo prop = o.GetType().GetProperty("Count");
                                 int count = (int)prop.GetValue(o, null);
@@ -483,7 +484,7 @@ namespace ContractConfigurator
                                     throw new ContractRequirementException("'" + name + "' had zero count.");
                                 }
                             }
-                            else if (o == typeof(Vessel))
+                            else if (o.GetType() == typeof(Vessel))
                             {
                                 Vessel v = (Vessel)o;
 
