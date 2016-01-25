@@ -26,6 +26,7 @@ namespace ContractConfigurator.Behaviour
             public bool waterAllowed = true;
             public bool forceEquatorial = false;
             public int nearIndex = -1;
+            public bool chained = false;
             public double minDistance = 0.0;
             public double maxDistance = 0.0;
             public PQSCity pqsCity = null;
@@ -66,6 +67,7 @@ namespace ContractConfigurator.Behaviour
                 waterAllowed = orig.waterAllowed;
                 forceEquatorial = orig.forceEquatorial;
                 nearIndex = orig.nearIndex;
+                chained = orig.chained;
                 count = orig.count;
                 minDistance = orig.minDistance;
                 maxDistance = orig.maxDistance;
@@ -120,6 +122,12 @@ namespace ContractConfigurator.Behaviour
                     if (string.IsNullOrEmpty(wpData.waypoint.name) || wpData.waypoint.name == "Site")
                     {
                         wpData.waypoint.name = StringUtilities.GenerateSiteName(random.Next(), wpData.waypoint.celestialBody, !wpData.waterAllowed);
+                    }
+
+                    // Handle waypoint chaining
+                    if (wpData.chained)
+                    {
+                        wpData.nearIndex += i;
                     }
                 }
             }
@@ -350,6 +358,7 @@ namespace ContractConfigurator.Behaviour
                         // Get near waypoint details
                         valid &= ConfigNodeUtil.ParseValue<int>(child, "nearIndex", x => wpData.nearIndex = x, factory,
                             x => Validation.GE(x, 0) && Validation.LT(x, wpGenerator.waypoints.Count));
+                        valid &= ConfigNodeUtil.ParseValue<bool>(child, "chained", x => wpData.chained = x, factory, false);
                         valid &= ConfigNodeUtil.ParseValue<int>(child, "count", x => wpData.count = x, factory, 1, x => Validation.GE(x, 1));
 
                         // Get distances

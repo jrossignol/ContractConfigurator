@@ -2,6 +2,7 @@ Contract Configurator 1.9.4
 - Added support for lists in persistent data store values.
 - Added checkType to all celestial body progress requirements to allow tracking back on manned/unmanned.
 - Added support for multiple waypoint names in WaypointGenerator (when generating multiple waypoints from one node).
+- Added support for waypoint chaining in WaypoingGenerator.RANDOM_WAYPOINT_NEAR.
 - Duration parameter now supports a startCriteria field for more fine-grained control of starting conditions.
 - Fixed defaulting of min/max count in PartValidation (thanks inigma).
 - Fixed rate of climb checking to default in a way to allow checking for negative values (thanks inigma).
