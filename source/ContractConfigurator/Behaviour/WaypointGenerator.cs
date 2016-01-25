@@ -125,9 +125,9 @@ namespace ContractConfigurator.Behaviour
                     }
 
                     // Handle waypoint chaining
-                    if (wpData.chained)
+                    if (wpData.chained && i != 0)
                     {
-                        wpData.nearIndex += i;
+                        wpData.nearIndex = waypoints.Count - 2;
                     }
                 }
             }
