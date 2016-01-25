@@ -127,9 +127,9 @@ namespace ContractConfigurator.Behaviour
                     vessel.latitude = vessel.body.GetLatitude(position + offsetPos);
                     vessel.longitude = vessel.body.GetLongitude(position + offsetPos);
                     LoggingUtil.LogVerbose(this, "    resulting lat, lon = (" + vessel.latitude + ", " + vessel.longitude + ")");
-
-                    vessels.Add(new VesselData(vessel));
                 }
+
+                vessels.Add(new VesselData(vessel));
             }
         }
 
