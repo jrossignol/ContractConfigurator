@@ -1,5 +1,6 @@
 Contract Configurator 1.9.5
 - Limited the impact of a problem where the final Anomaly Surveyor contract causes revert to editor to leave a vessel on the pad (thanks lodestar).
+- Fixed problem introduced in 1.9.4 where all waypoints without a name get called "site" (thanks smjjames).
 
 Contract Configurator 1.9.4.1
 - Fixed a major issue where vessel spawning would sometimes fail to spawn vessels.

@@ -119,7 +119,7 @@ namespace ContractConfigurator.Behaviour
                     {
                         wpData.waypoint.name = (old.names.Count() == 1 ? old.names.First() : old.names.ElementAtOrDefault(i));
                     }
-                    if (string.IsNullOrEmpty(wpData.waypoint.name) || wpData.waypoint.name == "Site")
+                    if (string.IsNullOrEmpty(wpData.waypoint.name) || wpData.waypoint.name.ToLower() == "site")
                     {
                         wpData.waypoint.name = StringUtilities.GenerateSiteName(random.Next(), wpData.waypoint.celestialBody, !wpData.waterAllowed);
                     }
