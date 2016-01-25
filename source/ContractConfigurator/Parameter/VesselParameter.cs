@@ -88,7 +88,7 @@ namespace ContractConfigurator.Parameters
             }
 
             // Save vessel information
-            foreach (KeyValuePair<Guid, VesselInfo> p in vesselInfo)
+            foreach (KeyValuePair<Guid, VesselInfo> p in vesselInfo.Where(p => p.Value.state != ParameterState.Incomplete))
             {
                 ConfigNode child = new ConfigNode("VESSEL_STATS");
                 child.AddValue("vessel", p.Key);
