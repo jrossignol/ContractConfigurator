@@ -33,6 +33,7 @@ namespace ContractConfigurator.Behaviour
             public List<string> parameter = new List<string>();
             public int count = 1;
             public bool underwater = false;
+            public bool isAdded = false;
 
             public WaypointData()
             {
@@ -405,7 +406,14 @@ namespace ContractConfigurator.Behaviour
             {
                 WaypointManager.RemoveWaypoint(wpData.waypoint);
             }
+        }
 
+        protected override void OnParameterStateChange(ContractParameter param)
+        {
+            LoggingUtil.LogVerbose(this, "OnParameterStateChange");
+
+            // Just call OnOffered to add any missing waypoints
+            OnOffered();
         }
 
         protected override void OnOffered()
@@ -416,7 +424,7 @@ namespace ContractConfigurator.Behaviour
                 if (wpData.waypoint.visible && (!wpData.parameter.Any() || contract.AllParameters.
                     Where(p => p.ID == paramID && p.State == ParameterState.Complete).Any()))
                 {
-                    AddWayPoint(wpData.waypoint);
+                    AddWayPoint(wpData);
                 }
             }
         }
@@ -456,7 +464,7 @@ namespace ContractConfigurator.Behaviour
                 if (wpData.waypoint.visible && (!wpData.parameter.Any() || contract.AllParameters.
                     Where(p => p.ID == paramID && p.State == ParameterState.Complete).Any()))
                 {
-                    AddWayPoint(wpData.waypoint);
+                    AddWayPoint(wpData);
                 }
 
                 // Add to the global list
@@ -495,8 +503,15 @@ namespace ContractConfigurator.Behaviour
             }
         }
 
-        private void AddWayPoint(Waypoint waypoint)
+        private void AddWayPoint(WaypointData wpData)
         {
+            if (wpData.isAdded)
+            {
+                return;
+            }
+
+            Waypoint waypoint = wpData.waypoint;
+
             // No contract, no waypoint
             if (waypoint.contractReference == null)
             {
@@ -513,6 +528,7 @@ namespace ContractConfigurator.Behaviour
                 (contract.ContractState == Contract.State.Offered || contract.ContractState == Contract.State.Active))
             {
                 WaypointManager.AddWaypoint(waypoint);
+                wpData.isAdded = true;
             }
         }
 

@@ -9,6 +9,7 @@ Contract Configurator 1.9.4
 - Fixed issue with VesselDestroyed not working for splashdown or overheat (thanks DBT85).
 - Fixed incorrect latitude/longitude when using PQS offset in SpawnVessel (thanks inigma).
 - Fixed a bug that prevented the requiredValue DATA node check from checking for non-empty lists.
+- Fxied WaypointGenerator not adding waypoints when a contract causes them to become visible (thanks smjjames).
 
 Contract Configurator 1.9.3.1
 - Fixed MAJOR issue introduced in 1.9.3 that broke Tourism Plus (thanks Ryusho).
