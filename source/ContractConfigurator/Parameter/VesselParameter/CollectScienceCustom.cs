@@ -429,7 +429,11 @@ namespace ContractConfigurator.Parameters
                 return false;
             }
 
-            if (!string.IsNullOrEmpty(biome) && !subject.id.Contains(biome))
+            // Need to pick up a bit of the situation string to that Flats doesn't pick up GreaterFlats
+            if (!string.IsNullOrEmpty(biome) &&
+                !subject.id.EndsWith("High" + biome) &&
+                !subject.id.EndsWith("Low" + biome) &&
+                !subject.id.EndsWith("ed" + biome))
             {
                 return false;
             }
