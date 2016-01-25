@@ -272,11 +272,11 @@ namespace ContractConfigurator.Behaviour
             return valid ? spawnVessel : null;
         }
 
-        protected void CreateVessels()
+        protected bool CreateVessels()
         {
             if (vesselsCreated)
             {
-                return;
+                return false;
             }
 
             String gameDataDir = KSPUtil.ApplicationRootPath;
@@ -575,6 +575,7 @@ namespace ContractConfigurator.Behaviour
             }
 
             vesselsCreated = true;
+            return true;
         }
 
         protected override void OnSave(ConfigNode configNode)
@@ -749,10 +750,11 @@ namespace ContractConfigurator.Behaviour
         {
             if (deferVesselCreation && (gameScene == GameScenes.FLIGHT || gameScene == GameScenes.TRACKSTATION || gameScene == GameScenes.EDITOR))
             {
-                CreateVessels();
-
-                // After the vessels are created, save the game again so we don't lose our changes
-                GamePersistence.SaveGame("persistent", HighLogic.SaveFolder, SaveMode.OVERWRITE);
+                if (CreateVessels())
+                {
+                    // After the vessels are created, save the game again so we don't lose our changes
+                    GamePersistence.SaveGame("persistent", HighLogic.SaveFolder, SaveMode.OVERWRITE);
+                }
             }
         }
 
