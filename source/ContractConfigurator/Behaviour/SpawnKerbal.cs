@@ -505,7 +505,17 @@ namespace ContractConfigurator.Behaviour
                                 {
                                     if (p.protoModuleCrew.Contains(kerbal.kerbal.pcm))
                                     {
-                                        p.RemoveCrewmember(kerbal.kerbal.pcm);
+                                        // Command seats
+                                        if (p.partName == "kerbalEVA")
+                                        {
+                                            vessel.parts.Remove(p);
+                                        }
+                                        // Everything else
+                                        else
+                                        {
+                                            LoggingUtil.LogVerbose(this, "    Removing " + kerbal.kerbal.name + " from vessel " + vessel.vesselName);
+                                            p.RemoveCrewmember(kerbal.kerbal.pcm);
+                                        }
                                         break;
                                     }
                                 }
@@ -514,10 +524,20 @@ namespace ContractConfigurator.Behaviour
                             {
                                 foreach (ProtoPartSnapshot pps in vessel.protoVessel.protoPartSnapshots)
                                 {
-                                    if (pps.HasCrew(kerbal.kerbal.name))
+                                    if (pps.HasCrew(kerbal.kerbal.pcm.name))
                                     {
-                                        LoggingUtil.LogVerbose(this, "    Removing " + kerbal.kerbal.name + " from vessel " + vessel.vesselName);
-                                        pps.RemoveCrew(kerbal.kerbal.pcm);
+                                        // Command seats
+                                        if (pps.partName == "kerbalEVA")
+                                        {
+                                            vessel.protoVessel.protoPartSnapshots.Remove(pps);
+                                        }
+                                        // Everything else
+                                        else
+                                        {
+                                            LoggingUtil.LogVerbose(this, "    Removing " + kerbal.kerbal.name + " from vessel " + vessel.vesselName);
+                                            pps.RemoveCrew(kerbal.kerbal.pcm);
+                                        }
+                                        break;
                                     }
                                 }
                             }

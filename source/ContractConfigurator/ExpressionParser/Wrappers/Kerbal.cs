@@ -227,7 +227,17 @@ namespace ContractConfigurator
                         {
                             if (p.protoModuleCrew.Contains(pcm))
                             {
-                                p.RemoveCrewmember(pcm);
+                                // Command seats
+                                if (p.partName == "kerbalEVA")
+                                {
+                                    vessel.parts.Remove(p);
+                                }
+                                // Everything else
+                                else
+                                {
+                                    LoggingUtil.LogVerbose(typeof(Kerbal), "    Removing " + pcm.name + " from vessel " + vessel.vesselName);
+                                    p.RemoveCrewmember(pcm);
+                                }
                                 break;
                             }
                         }
@@ -238,7 +248,18 @@ namespace ContractConfigurator
                         {
                             if (pps.HasCrew(pcm.name))
                             {
-                                pps.RemoveCrew(pcm);
+                                // Command seats
+                                if (pps.partName == "kerbalEVA")
+                                {
+                                    vessel.protoVessel.protoPartSnapshots.Remove(pps);
+                                }
+                                // Everything else
+                                else
+                                {
+                                    LoggingUtil.LogVerbose(typeof(Kerbal), "    Removing " + pcm.name + " from vessel " + vessel.vesselName);
+                                    pps.RemoveCrew(pcm);
+                                }
+                                break;
                             }
                         }
                     }
