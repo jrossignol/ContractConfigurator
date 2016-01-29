@@ -118,10 +118,12 @@ namespace ContractConfigurator.Behaviour
                     if (old.names.Any())
                     {
                         wpData.waypoint.name = (old.names.Count() == 1 ? old.names.First() : old.names.ElementAtOrDefault(i));
+                        LoggingUtil.LogVerbose(this, "setting waypoint name to " + wpData.waypoint.name + "via list");
                     }
                     if (string.IsNullOrEmpty(wpData.waypoint.name) || wpData.waypoint.name.ToLower() == "site")
                     {
                         wpData.waypoint.name = StringUtilities.GenerateSiteName(random.Next(), wpData.waypoint.celestialBody, !wpData.waterAllowed);
+                        LoggingUtil.LogVerbose(this, "setting waypoint name to " + wpData.waypoint.name + "via random");
                     }
 
                     // Handle waypoint chaining
@@ -214,6 +216,8 @@ namespace ContractConfigurator.Behaviour
                         Vector3d j = wpData.pqsCity.transform.forward;
                         Vector3d k = wpData.pqsCity.transform.up;
                         LoggingUtil.LogVerbose(this, "    i, j, k = " + i + ", " + j + "," + k);
+                        LoggingUtil.LogVerbose(this, "    pqs transform = " + wpData.pqsCity.transform);
+                        LoggingUtil.LogVerbose(this, "    parent transform = " + wpData.pqsCity.transform.parent);
                         Vector3d offsetPos = new Vector3d(
                             (j.y * k.z - j.z * k.y) * v.x + (i.z * k.y - i.y * k.z) * v.y + (i.y * j.z - i.z * j.y) * v.z,
                             (j.z * k.x - j.x * k.z) * v.x + (i.x * k.z - i.z * k.x) * v.y + (i.z * j.x - i.x * j.z) * v.z,
@@ -395,8 +399,35 @@ namespace ContractConfigurator.Behaviour
                     // Check for unexpected values
                     valid &= ConfigNodeUtil.ValidateUnexpectedValues(child, factory);
 
-                    // Add to the list
-                    wpGenerator.waypoints.Add(wpData);
+                    // Copy waypoint data
+                    WaypointData old = wpData;
+                    for (int i = 0; i < old.count; i++)
+                    {
+                        wpData = new WaypointData(old, null);
+                        wpGenerator.waypoints.Add(wpData);
+
+                        if (old.parameter.Any())
+                        {
+                            wpData.parameter = new List<string>();
+                            wpData.parameter.Add(old.parameter.Count() == 1 ? old.parameter.First() : old.parameter.ElementAtOrDefault(i));
+                        }
+
+                        // Set the name
+                        if (old.names.Any())
+                        {
+                            wpData.waypoint.name = (old.names.Count() == 1 ? old.names.First() : old.names.ElementAtOrDefault(i));
+                        }
+                        if (string.IsNullOrEmpty(wpData.waypoint.name) || wpData.waypoint.name.ToLower() == "site")
+                        {
+                            wpData.waypoint.name = StringUtilities.GenerateSiteName(random.Next(), wpData.waypoint.celestialBody, !wpData.waterAllowed);
+                        }
+
+                        // Handle waypoint chaining
+                        if (wpData.chained && i != 0)
+                        {
+                            wpData.nearIndex = wpGenerator.waypoints.Count - 2;
+                        }
+                    }
                 }
                 finally
                 {
