@@ -162,7 +162,7 @@ namespace ContractConfigurator.Parameters
         {
             foreach (PartModule pm in p.Modules)
             {
-                if (pm.moduleName.StartsWith(partModule))
+                if (pm.moduleName.StartsWith(partModule) || pm.GetType().BaseType.Name.StartsWith(partModule))
                 {
                     return true;
                 }
