@@ -113,7 +113,8 @@ namespace ContractConfigurator.Parameters
                             name = name.Substring(0, 1).ToUpper() + name.Substring(1);
                             string value = v.name == "name" ? ModuleName(v.value) : v.value;
 
-                            wrapperParam.AddParameter(new ParameterDelegate<Part>(filter.type.Prefix() + name + ": " + value, p => PartModuleCheck(p, v), filter.type));
+                            ParameterDelegateMatchType childFilter = ParameterDelegateMatchType.FILTER;
+                            wrapperParam.AddParameter(new ParameterDelegate<Part>(childFilter.Prefix() + name + ": " + value, p => PartModuleCheck(p, v), childFilter));
                         }
                     }
 
@@ -142,7 +143,7 @@ namespace ContractConfigurator.Parameters
 
         private string ModuleName(string partModule)
         {
-            string output = partModule.Replace("Module", "");
+            string output = partModule.Replace("Module", "").Replace("FX", "");
 
             // Hardcoded special values
             if (output == "SAS")
@@ -161,7 +162,7 @@ namespace ContractConfigurator.Parameters
         {
             foreach (PartModule pm in p.Modules)
             {
-                if (pm.moduleName == partModule)
+                if (pm.moduleName.StartsWith(partModule))
                 {
                     return true;
                 }
@@ -179,6 +180,11 @@ namespace ContractConfigurator.Parameters
                     {
                         return true;
                     }
+                }
+                else if (v.name == "EngineType")
+                {
+                    ModuleEngines me = pm as ModuleEngines;
+                    return me != null && me.engineType.ToString() == v.value;
                 }
 
                 foreach (BaseField field in pm.Fields)

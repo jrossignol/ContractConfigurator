@@ -171,10 +171,10 @@ namespace ContractConfigurator.Parameters
             }
 
             // Filter for rate of climb
-            if (minRateOfClimb != 0.0 || maxRateOfClimb != double.MaxValue)
+            if (minRateOfClimb != double.MinValue|| maxRateOfClimb != double.MaxValue)
             {
                 string output = "Rate of Climb: ";
-                if (minRateOfClimb == 0.0)
+                if (minRateOfClimb == double.MinValue)
                 {
                     output += "Less than " + maxRateOfClimb.ToString("N0") + " m/s";
                 }
@@ -253,9 +253,6 @@ namespace ContractConfigurator.Parameters
             Vector3d nrm = FlightGlobals.currentMainBody.GetSurfaceNVector(vessel.latitude, vessel.longitude);
             double speed = Vector3d.Dot(vessel.srf_velocity, nrm);
 
-            // Round it to avoid issues when checking for a zero speed
-            speed = Math.Round(speed, maxSpeed > 0.5 ? 1 : 0);
-
             return speed >= minRateOfClimb && speed <= maxRateOfClimb;
         }
 
@@ -309,7 +306,7 @@ namespace ContractConfigurator.Parameters
                 node.AddValue("maxSpeed", maxSpeed);
             }
 
-            if (minRateOfClimb != 0.0)
+            if (minRateOfClimb != double.MinValue)
             {
                 node.AddValue("minRateOfClimb", minRateOfClimb);
             }
@@ -342,7 +339,7 @@ namespace ContractConfigurator.Parameters
                 maxTerrainAltitude = ConfigNodeUtil.ParseValue<float>(node, "maxTerrainAltitude", float.MaxValue);
                 minSpeed = ConfigNodeUtil.ParseValue<double>(node, "minSpeed", 0.0);
                 maxSpeed = ConfigNodeUtil.ParseValue<double>(node, "maxSpeed", double.MaxValue);
-                minRateOfClimb = ConfigNodeUtil.ParseValue<double>(node, "minRateOfClimb", 0.0);
+                minRateOfClimb = ConfigNodeUtil.ParseValue<double>(node, "minRateOfClimb", double.MinValue);
                 maxRateOfClimb = ConfigNodeUtil.ParseValue<double>(node, "maxRateOfClimb", double.MaxValue);
                 minAcceleration = ConfigNodeUtil.ParseValue<float>(node, "minAcceleration", 0.0f);
                 maxAcceleration = ConfigNodeUtil.ParseValue<float>(node, "maxAcceleration", float.MaxValue);

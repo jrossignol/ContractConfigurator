@@ -14,10 +14,21 @@ namespace ContractConfigurator.Parameters
     /// </summary>
     public class Duration : VesselParameter
     {
+        public enum StartCriteria
+        {
+            CONTRACT_ACCEPTANCE,
+            NEXT_LAUNCH,
+            PARAMETER_COMPLETION,
+            PARAMETER_FAILURE
+        }
+
         protected double duration { get; set; }
         protected string preWaitText { get; set; }
         protected string waitingText { get; set; }
         protected string completionText { get; set; }
+        protected StartCriteria startCriteria;
+        protected List<string> parameter;
+        protected bool triggered = false;
 
         private Dictionary<Guid, double> endTimes = new Dictionary<Guid, double>();
         private double endTime = 0.0;
@@ -29,19 +40,21 @@ namespace ContractConfigurator.Parameters
         private TitleTracker titleTracker = new TitleTracker();
 
         public Duration()
-            : this(0.0)
+            : base()
         {
             // Queue up a check on startup - give a comfortable delay so we don't have a timer reset
             waitTime = Time.fixedTime + 0.5;
         }
 
-        public Duration(double duration, string preWaitText = null, string waitingText = null, string completionText = null)
+        public Duration(double duration, string preWaitText, string waitingText, string completionText, StartCriteria startCriteria, List<string> parameter)
             : base("")
         {
             this.duration = duration;
             this.preWaitText = preWaitText;
             this.waitingText = waitingText;
             this.completionText = completionText;
+            this.startCriteria = startCriteria;
+            this.parameter = parameter;
             disableOnStateChange = true;
         }
 
@@ -101,6 +114,12 @@ namespace ContractConfigurator.Parameters
                 childNode.AddValue("endTime", pair.Value);
             }
             node.AddValue("endTime", endTime);
+            node.AddValue("startCriteria", startCriteria);
+            foreach (string p in parameter)
+            {
+                node.AddValue("parameter", p);
+            }
+            node.AddValue("triggered", triggered);
         }
 
         protected override void OnParameterLoad(ConfigNode node)
@@ -110,6 +129,10 @@ namespace ContractConfigurator.Parameters
             waitingText = ConfigNodeUtil.ParseValue<string>(node, "waitingText", (string)null);
             completionText = ConfigNodeUtil.ParseValue<string>(node, "completionText", (string)null);
             endTime = ConfigNodeUtil.ParseValue<double>(node, "endTime", 0.0);
+
+            startCriteria = ConfigNodeUtil.ParseValue<StartCriteria>(node, "startCriteria", StartCriteria.CONTRACT_ACCEPTANCE);
+            parameter = ConfigNodeUtil.ParseValue<List<string>>(node, "parameter", new List<string>());
+            triggered = ConfigNodeUtil.ParseValue<bool?>(node, "triggered", (bool?)true).Value;
 
             foreach (ConfigNode childNode in node.GetNodes("VESSEL_END_TIME"))
             {
@@ -125,6 +148,8 @@ namespace ContractConfigurator.Parameters
         protected override void OnRegister()
         {
             base.OnRegister();
+            GameEvents.Contract.onAccepted.Add(new EventData<Contract>.OnEvent(OnContractAccepted));
+            GameEvents.onLaunch.Add(new EventData<EventReport>.OnEvent(OnLaunch));
             GameEvents.Contract.onParameterChange.Add(new EventData<Contract, ContractParameter>.OnEvent(OnParameterChange));
             ContractConfigurator.OnParameterChange.Add(new EventData<Contract, ContractParameter>.OnEvent(OnParameterChange));
         }
@@ -132,12 +157,46 @@ namespace ContractConfigurator.Parameters
         protected override void OnUnregister()
         {
             base.OnUnregister();
+            GameEvents.Contract.onAccepted.Remove(new EventData<Contract>.OnEvent(OnContractAccepted));
+            GameEvents.onLaunch.Remove(new EventData<EventReport>.OnEvent(OnLaunch));
             GameEvents.Contract.onParameterChange.Remove(new EventData<Contract, ContractParameter>.OnEvent(OnParameterChange));
             ContractConfigurator.OnParameterChange.Remove(new EventData<Contract, ContractParameter>.OnEvent(OnParameterChange));
         }
 
+        protected void OnContractAccepted(Contract contract)
+        {
+            // Set the end time
+            if (contract == Root && startCriteria == StartCriteria.CONTRACT_ACCEPTANCE)
+            {
+                triggered = true;
+            }
+        }
+
+        protected void OnLaunch(EventReport er)
+        {
+            Debug.Log("OnLaunch");
+            if (startCriteria == StartCriteria.NEXT_LAUNCH)
+            {
+                triggered = true;
+            }
+        }
+
         protected void OnParameterChange(Contract contract, ContractParameter param)
         {
+            if (contract != Root)
+            {
+                return;
+            }
+
+            if (!triggered && parameter.Contains(param.ID))
+            {
+                if (startCriteria == StartCriteria.PARAMETER_COMPLETION && param.State == ParameterState.Complete ||
+                    startCriteria == StartCriteria.PARAMETER_FAILURE && param.State == ParameterState.Failed)
+                {
+                    triggered = true;
+                }
+            }
+
             // Queue up a check
             if (contract == Root)
             {
@@ -154,18 +213,21 @@ namespace ContractConfigurator.Parameters
             {
                 waitTime = double.MaxValue;
 
-                bool completed = true;
-                foreach (ContractParameter child in Parent.GetChildren())
+                bool completed = triggered;
+                if (startCriteria != StartCriteria.PARAMETER_COMPLETION && startCriteria != StartCriteria.PARAMETER_FAILURE)
                 {
-                    if (child == this)
+                    foreach (ContractParameter child in Parent.GetChildren())
                     {
-                        break;
-                    }
+                        if (child == this)
+                        {
+                            break;
+                        }
 
-                    if (child.State != ParameterState.Complete && !child.Optional)
-                    {
-                        completed = false;
-                        break;
+                        if (child.State != ParameterState.Complete && !child.Optional)
+                        {
+                            completed = false;
+                            break;
+                        }
                     }
                 }
 
