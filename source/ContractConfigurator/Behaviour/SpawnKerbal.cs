@@ -526,15 +526,16 @@ namespace ContractConfigurator.Behaviour
                                 {
                                     if (pps.HasCrew(kerbal.kerbal.pcm.name))
                                     {
+                                        LoggingUtil.LogVerbose(this, "    Removing " + kerbal.kerbal.name + " from part " + pps.partName + " on vessel " + vessel.vesselName);
+
                                         // Command seats
-                                        if (pps.partName == "kerbalEVA")
+                                        if (pps.partName.StartsWith("kerbalEVA"))
                                         {
                                             vessel.protoVessel.protoPartSnapshots.Remove(pps);
                                         }
                                         // Everything else
                                         else
                                         {
-                                            LoggingUtil.LogVerbose(this, "    Removing " + kerbal.kerbal.name + " from vessel " + vessel.vesselName);
                                             pps.RemoveCrew(kerbal.kerbal.pcm);
                                         }
                                         break;
