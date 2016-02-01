@@ -8,11 +8,8 @@ using KSP;
 using Contracts;
 using Contracts.Agents;
 using ContractConfigurator.ExpressionParser;
-
-// ++++++++++++++++++++++++++++++++++
 using System.IO;
 using System.Text.RegularExpressions;
-// ++++++++++++++++++++++++++++++++++
 
 namespace ContractConfigurator
 {
@@ -29,12 +26,6 @@ namespace ContractConfigurator
     /// </summary>
     public class ContractType : IContractConfiguratorFactory
     {
-		// ++++++++++++++++++++++++++++++++++
-		// Following lines added by LinuxGuruGamer
-		private const string ccLogFile = @"cc_output.log";
-		private static bool deleteCCLogfile = true;
-		// ++++++++++++++++++++++++++++++++++
-
         private static Dictionary<string, ContractType> contractTypes = new Dictionary<string,ContractType>();
         public static IEnumerable<ContractType> AllContractTypes { get { return contractTypes.Values; } }
         public static IEnumerable<ContractType> AllValidContractTypes
@@ -166,6 +157,7 @@ namespace ContractConfigurator
                 // Logging on
                 LoggingUtil.CaptureLog = true;
                 ConfigNodeUtil.SetCurrentDataNode(null);
+                LoggingUtil.LogInfo(this, "Loading CONTRACT_TYPE: '" + name + "'");
 
                 // Load values that are immediately required
                 bool valid = true;
@@ -304,85 +296,87 @@ namespace ContractConfigurator
                 // Do the deferred loads
                 valid &= ConfigNodeUtil.ExecuteDeferredLoads();
 
+                LoggingUtil.LogInfo(this, "Successfully loaded CONTRACT_TYPE: '" + name + "'");
                 config = configNode.ToString();
                 hash = config.GetHashCode();
                 enabled = valid;
                 log += LoggingUtil.capturedLog;
 
-				if (LoggingUtil.logLevel == LoggingUtil.LogLevel.VERBOSE || LoggingUtil.logLevel == LoggingUtil.LogLevel.DEBUG)
+				if (LoggingUtil.logLevel >= LoggingUtil.LogLevel.DEBUG)
 				{
-					//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-					// to write the complete config and log for contract to both the system log and
-					// a seperate CC log file
-					//
-					string pattern = @"\[(VERBOSE|DEBUG|INFO|WARNING|ERROR)\] ContractConfigurator\.ExpressionParser.BaseParser.+\n";
-					string replacement = "";
-					Regex rgx = new Regex(pattern);
+					// Get the contract configurator log file
+                    string[] dirComponents = new string[] { KSPUtil.ApplicationRootPath, "GameData", "ContractConfigurator", "log", (group == null ? "!NO_GROUP" : group.Root.name) };
+                    string[] pathComponents = dirComponents.Union(new string[] { name + ".log" }).ToArray();
+                    string dir = string.Join(Path.DirectorySeparatorChar.ToString(), dirComponents);
+                    string path = string.Join(Path.DirectorySeparatorChar.ToString(), pathComponents);
 
-					// First, write to the standard log file.  the regex strips out the leading text of the line, but 
-					// if you want the text there, then just remove the rgx.Replace
-					LoggingUtil.LogDebug(this, config);
-					// Write the log out, ignoring the BaseParser lines
-					LoggingUtil.LogDebug(this, rgx.Replace(log, replacement));
+					// Delete the file if it exists
+                    if (File.Exists(path))
+                    {
+                        try
+                        {
+                            File.Delete(path);
+                        }
+                        catch (Exception e)
+                        {
+                            LoggingUtil.LogException(new Exception("Exception while attempting to delete the file: " + path, e));
+                        }
+                    }
 
-					// Now write to the CC log file, in a much cleaner manner 
-					string path = ccLogFile;
-
-					// Delete the file first time through, ignore any errors
-					if (deleteCCLogfile)
-					{
-						deleteCCLogfile = false;
-						try {
-							if (File.Exists(path))
-								File.Delete(path);
-						} catch { 
-							LoggingUtil.LogError(this, "Exception while attempting to delete the file: " + path);
-						}
-					}
-					// Create the file if it doesn't exist
-					if (!File.Exists(path)) 
-					{
-						// Create a file to write to.
-						try {
-							using (StreamWriter sw = File.CreateText(path)) {}
-						} catch {
-							LoggingUtil.LogError(this, "Exception while attempting to create the file: " + path);
-						}
-					}
-
-					// This regex also strips out the second part of the line, so that the output is very clean 
-
-					string pattern2 = @"\[(VERBOSE|DEBUG|INFO|WARNING|ERROR)\] ContractConfigurator\.ExpressionParser\.DataNode: ";
-					Regex rgx2 = new Regex(pattern2);
+                    // Create the directory if it doesn't exist
+                    Directory.CreateDirectory(dir);
 
 					// Now write the config and the cleaned up log to it
-					try {
-						using (StreamWriter sw = File.AppendText (path)) {
-							sw.WriteLine (config);
-							sw.WriteLine("++++++++++\n");
-							sw.WriteLine(rgx2.Replace(rgx.Replace(log, replacement), replacement));
-							sw.WriteLine("==================================================================================");
+					try
+                    {
+						using (StreamWriter sw = File.AppendText(path))
+                        {
+                            sw.Write("Debug information for CONTRACT_TYPE '" + name + "':\n");
+                            sw.Write("\nConfiguration:\n");
+							sw.Write(config);
+                            sw.Write("\nData Nodes:\n");
+                            sw.Write(DataNodeDebug(dataNode));
+                            sw.Write("\nOutput log:\n");
+							sw.Write(log);
 	        		    }
 					} catch {
 						LoggingUtil.LogError(this, "Exception while attempting to write to the file: " + path);
 					}
-					//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 				}
-				LoggingUtil.CaptureLog = false;
 
 				return valid;
 			}
-            catch
+            catch (Exception e)
             {
                 enabled = false;
-                throw;
+                throw new Exception("Error loading CONTRACT_TYPE '" + name + "'", e);
             }
             finally
             {
+                LoggingUtil.CaptureLog = false;
                 LoggingUtil.logLevel = origLogLevel;
                 loaded = true;
             }
         }
+
+        static string DataNodeDebug(DataNode node, int indent = 0)
+        {
+            if (node == null)
+            {
+                return "";
+            }
+
+            string indentStr = new string('\t', indent);
+            string result = indentStr + node.DebugString(false).Replace("\n", "\n" + indentStr) + "\n";
+            foreach (DataNode child in node.Children)
+            {
+                result += DataNodeDebug(child, indent + 1);
+            }
+
+            return result;
+        }
+
+
 
         /// <summary>
         /// Generates and loads all the parameters required for the given contract.
