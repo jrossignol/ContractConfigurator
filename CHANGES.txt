@@ -1,10 +1,12 @@
 Contract Configurator 1.9.5
 - Output additional log files when log level is debug or higher (thanks linuxgurugamer).
+- VesselParameterGroup now supports a defineList attribute to add a vessel to a list on contract completion.
 - PartValidation module checks now check the parent type.  This allows mod-introduced PartModules that inherit from stock ones to count for PartValidation checks that look for the stock module (eg. ModuleEnginesFX = ModulesEngines).
 - Limited the impact of a problem where the final Anomaly Surveyor contract causes revert to editor to leave a vessel on the pad (thanks lodestar).
 - Fixed problem introduced in 1.9.4 where all waypoints without a name get called "site" (thanks smjjames).
 - Fixed issue where Kerbal spawning behaviours didn't clean up properly when the Kerbal was in a command chair (thanks inigma & nobodyhasthis2).
 - Fixed issue with Expression requirement bleeding through between different contracts (thanks Yemo, smjjames and nobodyhasthis2).
+- Minor bug fixes.
 
 Contract Configurator 1.9.4.1
 - Fixed a major issue where vessel spawning would sometimes fail to spawn vessels.
