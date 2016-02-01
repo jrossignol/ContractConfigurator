@@ -8,6 +8,8 @@ using KSP;
 using Contracts;
 using Contracts.Agents;
 using ContractConfigurator.ExpressionParser;
+using System.IO;
+using System.Text.RegularExpressions;
 
 namespace ContractConfigurator
 {
@@ -140,7 +142,7 @@ namespace ContractConfigurator
             weight = 1.0;
             enabled = true;
         }
-
+			
         /// <summary>
         /// Loads the contract type details from the given config node.
         /// </summary>
@@ -155,6 +157,7 @@ namespace ContractConfigurator
                 // Logging on
                 LoggingUtil.CaptureLog = true;
                 ConfigNodeUtil.SetCurrentDataNode(null);
+                LoggingUtil.LogInfo(this, "Loading CONTRACT_TYPE: '" + name + "'");
 
                 // Load values that are immediately required
                 bool valid = true;
@@ -293,25 +296,87 @@ namespace ContractConfigurator
                 // Do the deferred loads
                 valid &= ConfigNodeUtil.ExecuteDeferredLoads();
 
+                LoggingUtil.LogInfo(this, "Successfully loaded CONTRACT_TYPE: '" + name + "'");
                 config = configNode.ToString();
                 hash = config.GetHashCode();
                 enabled = valid;
                 log += LoggingUtil.capturedLog;
-                LoggingUtil.CaptureLog = false;
 
-                return valid;
-            }
-            catch
+				if (LoggingUtil.logLevel >= LoggingUtil.LogLevel.DEBUG)
+				{
+					// Get the contract configurator log file
+                    string[] dirComponents = new string[] { KSPUtil.ApplicationRootPath, "GameData", "ContractConfigurator", "log", (group == null ? "!NO_GROUP" : group.Root.name) };
+                    string[] pathComponents = dirComponents.Union(new string[] { name + ".log" }).ToArray();
+                    string dir = string.Join(Path.DirectorySeparatorChar.ToString(), dirComponents);
+                    string path = string.Join(Path.DirectorySeparatorChar.ToString(), pathComponents);
+
+					// Delete the file if it exists
+                    if (File.Exists(path))
+                    {
+                        try
+                        {
+                            File.Delete(path);
+                        }
+                        catch (Exception e)
+                        {
+                            LoggingUtil.LogException(new Exception("Exception while attempting to delete the file: " + path, e));
+                        }
+                    }
+
+                    // Create the directory if it doesn't exist
+                    Directory.CreateDirectory(dir);
+
+					// Now write the config and the cleaned up log to it
+					try
+                    {
+						using (StreamWriter sw = File.AppendText(path))
+                        {
+                            sw.Write("Debug information for CONTRACT_TYPE '" + name + "':\n");
+                            sw.Write("\nConfiguration:\n");
+							sw.Write(config);
+                            sw.Write("\nData Nodes:\n");
+                            sw.Write(DataNodeDebug(dataNode));
+                            sw.Write("\nOutput log:\n");
+							sw.Write(log);
+	        		    }
+					} catch {
+						LoggingUtil.LogError(this, "Exception while attempting to write to the file: " + path);
+					}
+				}
+
+				return valid;
+			}
+            catch (Exception e)
             {
                 enabled = false;
-                throw;
+                throw new Exception("Error loading CONTRACT_TYPE '" + name + "'", e);
             }
             finally
             {
+                LoggingUtil.CaptureLog = false;
                 LoggingUtil.logLevel = origLogLevel;
                 loaded = true;
             }
         }
+
+        static string DataNodeDebug(DataNode node, int indent = 0)
+        {
+            if (node == null)
+            {
+                return "";
+            }
+
+            string indentStr = new string('\t', indent);
+            string result = indentStr + node.DebugString(false).Replace("\n", "\n" + indentStr) + "\n";
+            foreach (DataNode child in node.Children)
+            {
+                result += DataNodeDebug(child, indent + 1);
+            }
+
+            return result;
+        }
+
+
 
         /// <summary>
         /// Generates and loads all the parameters required for the given contract.

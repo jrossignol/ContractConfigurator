@@ -45,6 +45,14 @@ namespace ContractConfigurator
             return group == null ? "" : group.displayName;
         }
 
+        public ContractGroup Root
+        {
+            get
+            {
+                return parent == null ? this : parent.Root;
+            }
+        }
+
         // Group attributes
         public string name;
         public string displayName;
