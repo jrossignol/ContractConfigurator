@@ -49,8 +49,13 @@ namespace ContractConfigurator.Parameters
             if (string.IsNullOrEmpty(title))
             {
                 output = capacity ? "Resource Capacity" : "Resources";
-                if (state == ParameterState.Complete)
+                if (state == ParameterState.Complete || ParameterCount == 1)
                 {
+                    if (ParameterCount == 1)
+                    {
+                        hideChildren = true;
+                    }
+
                     output += ": " + ParameterDelegate<Vessel>.GetDelegateText(this);
                 }
             }
@@ -87,15 +92,8 @@ namespace ContractConfigurator.Parameters
                     output += "Between " + filter.minQuantity + " and " + filter.maxQuantity + " units";
                 }
 
-
                 AddParameter(new ParameterDelegate<Vessel>(output, v => VesselHasResource(v, filter.resource, capacity, filter.minQuantity, filter.maxQuantity),
                     ParameterDelegateMatchType.VALIDATE));
-            }
-
-            if (this.GetChildren().Count() == 1 && string.IsNullOrEmpty(title))
-            {
-                this.hideChildren = true;
-                this.title = ParameterDelegate<Vessel>.GetDelegateText(this);
             }
         }
 
