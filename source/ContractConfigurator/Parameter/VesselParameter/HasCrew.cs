@@ -122,7 +122,7 @@ namespace ContractConfigurator.Parameters
             }
 
             // Filter for experience
-            if (minExperience != 0 && maxExperience != 5)
+            if (minExperience != 0 || maxExperience != 5)
             {
                 string filterText;
                 if (minExperience == 0)
