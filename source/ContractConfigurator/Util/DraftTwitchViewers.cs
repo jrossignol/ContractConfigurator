@@ -103,7 +103,7 @@ namespace ContractConfigurator
         {
             LoggingUtil.LogVerbose(typeof(DraftTwitchViewers), "KerbalName()");
 
-            if (Instance != null && Instance.nameQueue.Any())
+            if (Instance != null && Instance.nameQueue.Any() && HighLogic.LoadedScene != GameScenes.MAINMENU)
             {
                 string name = Instance.nameQueue.Dequeue();
                 Instance.recentNames.Enqueue(name);
