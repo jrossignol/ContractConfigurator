@@ -3,6 +3,7 @@ Contract Configurator 1.9.5
 - VesselParameterGroup now supports a defineList attribute to add a vessel to a list on contract completion.
 - PartValidation module checks now check the parent type.  This allows mod-introduced PartModules that inherit from stock ones to count for PartValidation checks that look for the stock module (eg. ModuleEnginesFX = ModulesEngines).
 - Added SubAssembly as a valid option for CopyCraftFile.craftType.
+- Added NewKerbals() methods to generate lists of Kerbals.
 - Limited the impact of a problem where the final Anomaly Surveyor contract causes revert to editor to leave a vessel on the pad (thanks lodestar).
 - Fixed problem introduced in 1.9.4 where all waypoints without a name get called "site" (thanks smjjames).
 - Fixed issue where Kerbal spawning behaviours didn't clean up properly when the Kerbal was in a command chair (thanks inigma & nobodyhasthis2).

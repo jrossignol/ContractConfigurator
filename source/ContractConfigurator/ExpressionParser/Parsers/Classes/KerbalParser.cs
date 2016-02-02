@@ -45,10 +45,35 @@ namespace ContractConfigurator.ExpressionParser
             RegisterGlobalFunction(new Function<ProtoCrewMember.Gender, string, Kerbal>("NewKerbal", (g, n) => new Kerbal(g, n), false));
             RegisterGlobalFunction(new Function<string, Kerbal>("NewKerbalWithTrait", NewKerbal, false));
             RegisterGlobalFunction(new Function<ProtoCrewMember.Gender, string, string, Kerbal>("NewKerbal", (g, n, t) => new Kerbal(g, n, t), false));
+
+            RegisterGlobalFunction(new Function<int, List<Kerbal>>("NewKerbals", NewKerbals, false));
+            RegisterGlobalFunction(new Function<int, string, List<Kerbal>>("NewKerbals", NewKerbals, false));
         }
 
         public KerbalParser()
         {
+        }
+
+        private static List<Kerbal> NewKerbals(int count)
+        {
+            List<Kerbal> kerbals = new List<Kerbal>();
+            for (int i = 0; i < count; i++)
+            {
+                kerbals.Add(new Kerbal());
+            }
+            return kerbals;
+        }
+
+        private static List<Kerbal> NewKerbals(int count, string trait)
+        {
+            List<Kerbal> kerbals = new List<Kerbal>();
+            for (int i = 0; i < count; i++)
+            {
+                Kerbal k = new Kerbal();
+                k.experienceTrait = trait;
+                kerbals.Add(k);
+            }
+            return kerbals;
         }
 
         public override U ConvertType<U>(Kerbal value)
