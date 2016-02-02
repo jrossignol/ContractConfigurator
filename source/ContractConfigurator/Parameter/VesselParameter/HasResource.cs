@@ -48,7 +48,6 @@ namespace ContractConfigurator.Parameters
             string output = null;
             if (string.IsNullOrEmpty(title))
             {
-                output = capacity ? "Resource Capacity" : "Resources";
                 if (state == ParameterState.Complete || ParameterCount == 1)
                 {
                     if (ParameterCount == 1)
@@ -56,7 +55,7 @@ namespace ContractConfigurator.Parameters
                         hideChildren = true;
                     }
 
-                    output += ": " + ParameterDelegate<Vessel>.GetDelegateText(this);
+                    output = ParameterDelegate<Vessel>.GetDelegateText(this);
                 }
             }
             else
@@ -70,7 +69,7 @@ namespace ContractConfigurator.Parameters
         {
             foreach (Filter filter in filters)
             {
-                string output = "Resource: " + filter.resource.name + ": ";
+                string output = (capacity ? "Resource Capacity: " : "Resource: ") + filter.resource.name + ": ";
                 if (filter.maxQuantity == 0)
                 {
                     output += "None";

@@ -15,15 +15,22 @@ namespace ContractConfigurator.Behaviour
     /// </summary>
     public class CopyCraftFile : TriggeredBehaviour
     {
+        public enum CraftType
+        {
+            VAB = 1,
+            SPH = 2,
+            SubAssembly = 3,
+        }
+
         protected string url;
-        protected EditorFacility craftType;
+        protected CraftType craftType;
 
         public CopyCraftFile()
             : base()
         {
         }
 
-        public CopyCraftFile(string url, EditorFacility craftType, State onState, List<string> parameter)
+        public CopyCraftFile(string url, CraftType craftType, State onState, List<string> parameter)
             : base(onState, parameter)
         {
             this.url = url;
@@ -33,9 +40,20 @@ namespace ContractConfigurator.Behaviour
         protected override void TriggerAction()
         {
             string[] srcPathComponents = new string[] { KSPUtil.ApplicationRootPath, "GameData" }.Concat(url.Split("/".ToCharArray())).ToArray();
-            string[] destPathComponents = new string[] { KSPUtil.ApplicationRootPath, "saves", HighLogic.SaveFolder, "Ships", craftType.ToString(), srcPathComponents.Last() };
+            List<string> destPathComponents = new string[] { KSPUtil.ApplicationRootPath, "saves", HighLogic.SaveFolder }.ToList();
+            if (craftType == CraftType.SubAssembly)
+            {
+                destPathComponents.Add("Subassemblies");
+            }
+            else
+            {
+                destPathComponents.Add("Ships");
+                destPathComponents.Add(craftType.ToString());
+            }
+            destPathComponents.Add(srcPathComponents.Last());
+
             string srcPath = string.Join(Path.DirectorySeparatorChar.ToString(), srcPathComponents);
-            string destPath = string.Join(Path.DirectorySeparatorChar.ToString(), destPathComponents);
+            string destPath = string.Join(Path.DirectorySeparatorChar.ToString(), destPathComponents.ToArray());
 
             LoggingUtil.LogDebug(this, "Copying from '" + srcPath + "' to '" + destPath + "'.");
             try
@@ -61,7 +79,7 @@ namespace ContractConfigurator.Behaviour
             base.OnLoad(configNode);
 
             url = ConfigNodeUtil.ParseValue<string>(configNode, "url");
-            craftType = ConfigNodeUtil.ParseValue<EditorFacility>(configNode, "craftType");
+            craftType = ConfigNodeUtil.ParseValue<CraftType>(configNode, "craftType");
         }
     }
 }
