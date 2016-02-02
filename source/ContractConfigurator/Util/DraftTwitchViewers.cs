@@ -26,7 +26,7 @@ namespace ContractConfigurator
         private float nextAttempt = 0.0f;
 
         private const float failureDelay = 45;
-        private const int draftLimit = 10;
+        private const int draftLimit = 20;
 
         void Awake()
         {
