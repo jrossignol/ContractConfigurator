@@ -224,7 +224,7 @@ namespace ContractConfigurator.Parameters
             // If this vessel doesn't match our list of valid vessels, ignore the update
             if (!VesselCanBeConsidered(vessel))
             {
-                LoggingUtil.LogVerbose(this, "<- UpdateState");
+                LoggingUtil.LogVerbose(this, "<- UpdateState (vessel cannot be considered)");
                 return;
             }
 
@@ -244,7 +244,7 @@ namespace ContractConfigurator.Parameters
                 SetChildState(trackedVessel);
                 if (AllChildParametersComplete())
                 {
-                    LoggingUtil.LogVerbose(this, "<- UpdateState");
+                    LoggingUtil.LogVerbose(this, "<- UpdateState (tracked vessel has already completed parameter)");
                     return;
                 }
             }
@@ -323,12 +323,13 @@ namespace ContractConfigurator.Parameters
             // Fire the parameter change event to account for all the changed child parameters.
             // We don't fire it for the child parameters, as any with a failed state will cause
             // the contract to fail, which we don't want.
+            LoggingUtil.LogVerbose(this, "Firing OnParameterChange");
             ContractConfigurator.OnParameterChange.Fire(this.Root, this);
 
             // Manually run the OnParameterStateChange
             OnParameterStateChange(this);
 
-            LoggingUtil.LogVerbose(this, "<- UpdateState");
+            LoggingUtil.LogVerbose(this, "<- UpdateState (state possibly changed)");
         }
 
         protected override void OnParameterSave(ConfigNode node)
@@ -549,9 +550,10 @@ namespace ContractConfigurator.Parameters
             if (System.Object.ReferenceEquals(contractParameter.Parent, this) ||
                 System.Object.ReferenceEquals(contractParameter, this))
             {
+                LoggingUtil.LogVerbose(this, "OnParameterStateChange");
                 if (AllChildParametersComplete())
                 {
-                    if (!waiting)
+                    if (!waiting && trackedVessel != null)
                     {
                         waiting = true;
                         completionTime = Planetarium.GetUniversalTime() + duration;
@@ -559,7 +561,7 @@ namespace ContractConfigurator.Parameters
                         // Set the tracked vessel association
                         if (!string.IsNullOrEmpty(define))
                         {
-                            LoggingUtil.LogVerbose(this, "setting " + define + " as " + (trackedVessel != null ? trackedVessel.vesselName : "null"));
+                            LoggingUtil.LogVerbose(this, "setting " + define + " as " + trackedVessel.vesselName);
                             ContractVesselTracker.Instance.AssociateVessel(define, trackedVessel);
                         }
                     }
