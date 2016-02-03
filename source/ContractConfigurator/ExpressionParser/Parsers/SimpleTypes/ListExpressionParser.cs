@@ -52,7 +52,9 @@ namespace ContractConfigurator.ExpressionParser
         {
             if (count >= input.Count())
             {
-                return input;
+                List<T> newList = input.ToList();
+                newList.Shuffle();
+                return newList;
             }
 
             List<T> output = new List<T>();
@@ -91,8 +93,9 @@ namespace ContractConfigurator.ExpressionParser
                 return l1.ToList();
             }
 
-            l1.ToList().AddRange(l2);
-            return l1;
+            List<T> newList = l1.ToList();
+            newList.AddRange(l2);
+            return newList;
         }
 
         public ListExpressionParser()
