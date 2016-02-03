@@ -20,6 +20,7 @@ namespace ContractConfigurator.Parameters
         public bool hideChildren;
         public bool hidden { get; set; }
         protected bool fakeFailures = false;
+        public bool fakeOptional = false;
 
         public ContractConfiguratorParameter()
             : this(null)
@@ -47,7 +48,7 @@ namespace ContractConfigurator.Parameters
                 }
             }
 
-            return (optional && !string.IsNullOrEmpty(title) ? "(Optional) " : "") + GetParameterTitle();
+            return (optional && !fakeOptional && !string.IsNullOrEmpty(title) ? "(Optional) " : "") + GetParameterTitle();
         }
 
         protected override string GetHashString()

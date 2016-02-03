@@ -168,6 +168,7 @@ namespace ContractConfigurator.Parameters
                 durationParameter = new ParameterDelegate<Vessel>("Duration: " + DurationUtil.StringValue(duration),
                     v => false);
                 durationParameter.Optional = true;
+                durationParameter.fakeOptional = true;
 
                 AddParameter(durationParameter);
             }
@@ -181,6 +182,7 @@ namespace ContractConfigurator.Parameters
                 {
                     vesselListParam = new ParameterDelegate<Vessel>("", VesselCanBeConsidered);
                     vesselListParam.Optional = true;
+                    vesselListParam.fakeOptional = true;
 
                     AddParameter(vesselListParam);
                 }
@@ -196,6 +198,7 @@ namespace ContractConfigurator.Parameters
                         return check;
                     });
                     vesselListParam.Optional = true;
+                    vesselListParam.fakeOptional = true;
 
                     foreach (string vessel in vesselList)
                     {
