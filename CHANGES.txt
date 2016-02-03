@@ -4,10 +4,13 @@ Contract Configurator 1.9.5
 - PartValidation module checks now check the parent type.  This allows mod-introduced PartModules that inherit from stock ones to count for PartValidation checks that look for the stock module (eg. ModuleEnginesFX = ModulesEngines).
 - Added SubAssembly as a valid option for CopyCraftFile.craftType.
 - Added NewKerbals() methods to generate lists of Kerbals.
+- AwardExperience now supports awarding experience directly to Kerbals (instead of via a VesselParameterGroup).
 - Limited the impact of a problem where the final Anomaly Surveyor contract causes revert to editor to leave a vessel on the pad (thanks lodestar).
 - Fixed problem introduced in 1.9.4 where all waypoints without a name get called "site" (thanks smjjames).
 - Fixed issue where Kerbal spawning behaviours didn't clean up properly when the Kerbal was in a command chair (thanks inigma & nobodyhasthis2).
 - Fixed issue with Expression requirement bleeding through between different contracts (thanks Yemo, smjjames and nobodyhasthis2).
+- Added logic to prevent duplicate Kerbal names from coming up in the same (or recent) contracts.
+- Fixed issue with VesselParameterGroup where the vessel wasn't set correctly when loading a Kerbal into an EVA seat triggered the completion (thanks inigma).
 - Minor bug fixes.
 
 Contract Configurator 1.9.4.1

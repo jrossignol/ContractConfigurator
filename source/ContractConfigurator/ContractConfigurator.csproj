@@ -47,6 +47,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BehaviourFactory\AwardExperienceFactory.cs" />
+    <Compile Include="BehaviourFactory\ChangeKerbalTypeFactory.cs" />
     <Compile Include="BehaviourFactory\RunCutSceneFactory.cs" />
     <Compile Include="BehaviourFactory\ChangeVesselOwnershipFactory.cs" />
     <Compile Include="BehaviourFactory\DestroyVesselFactory.cs" />
@@ -64,6 +65,7 @@
     <Compile Include="BehaviourFactory\UnlockTechFactory.cs" />
     <Compile Include="BehaviourFactory\WaypointGeneratorFactory.cs" />
     <Compile Include="BehaviourFactory\SpawnKerbalFactory.cs" />
+    <Compile Include="Behaviour\ChangeKerbalType.cs" />
     <Compile Include="Behaviour\PartTestHandler.cs" />
     <Compile Include="Behaviour\AwardExperience.cs" />
     <Compile Include="Behaviour\RunCutScene.cs" />
@@ -208,6 +210,7 @@
     <Compile Include="ParameterFactory\OrbitFactory.cs" />
     <Compile Include="Util\ContractsWindow.cs" />
     <Compile Include="Util\LocationUtil.cs" />
+    <Compile Include="Util\LRUCache.cs" />
     <Compile Include="Util\PartUtil.cs" />
     <Compile Include="Util\SCANsatUtil.cs" />
     <Compile Include="Util\Science.cs" />

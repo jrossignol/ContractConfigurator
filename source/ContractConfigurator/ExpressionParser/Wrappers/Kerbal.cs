@@ -4,11 +4,13 @@ using System.Linq;
 using System.Text;
 using KSP;
 using Experience;
+using ContractConfigurator.Util;
 
 namespace ContractConfigurator
 {
     public class Kerbal
     {
+        static LRUCache<string, int> nameCache = new LRUCache<string, int>(50);
         static Random random = new Random();
         static ConfigNode[] traitConfigs = null;
 
@@ -91,6 +93,11 @@ namespace ContractConfigurator
             this.experienceTrait = experienceTrait;
         }
 
+        public Kerbal(ProtoCrewMember pcm)
+        {
+            SetCrew(pcm);
+        }
+
         public void Initialize(ProtoCrewMember.Gender? gender = null, string name = null)
         {
             if (name != null)
@@ -114,15 +121,10 @@ namespace ContractConfigurator
             }
             else
             {
-                this.name = name ?? DraftTwitchViewers.KerbalName(CrewGenerator.GetRandomName(this.gender, random));
+                this.name = name ?? KerbalName(this.gender);
                 experienceTrait = RandomExperienceTrait();
                 kerbalType = ProtoCrewMember.KerbalType.Crew;
             }
-        }
-
-        public Kerbal(ProtoCrewMember pcm)
-        {
-            SetCrew(pcm);
         }
 
         public void SetCrew(ProtoCrewMember pcm)
@@ -132,6 +134,26 @@ namespace ContractConfigurator
             name = pcm.name;
             experienceTrait = pcm.experienceTrait.TypeName;
             kerbalType = pcm.type;
+        }
+
+        public static string KerbalName(ProtoCrewMember.Gender gender)
+        {
+            string defaultKerbalName = "";
+            do
+            {
+                defaultKerbalName = CrewGenerator.GetRandomName(gender, random);
+            }
+            while (nameCache.ContainsKey(defaultKerbalName));
+
+            string kerbalName = "";
+            do
+            {
+                kerbalName = DraftTwitchViewers.KerbalName(defaultKerbalName);
+            }
+            while (nameCache.ContainsKey(kerbalName));
+
+            nameCache.Add(kerbalName, 0);
+            return kerbalName;
         }
 
         public static string RandomExperienceTrait()

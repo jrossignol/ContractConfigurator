@@ -317,7 +317,7 @@ namespace ContractConfigurator
             }
             else if (typeof(T) == typeof(Kerbal))
             {
-                value = (T)(object)new Kerbal(ParseProtoCrewMemberValue(stringValue));
+                value = (T)(object)new Kerbal(stringValue);
             }
             else if (typeof(T) == typeof(Guid))
             {
