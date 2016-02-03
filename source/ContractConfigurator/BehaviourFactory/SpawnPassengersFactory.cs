@@ -20,6 +20,7 @@ namespace ContractConfigurator.Behaviour
         protected ProtoCrewMember.KerbalType kerbalType;
         protected string experienceTrait;
         protected bool legacy = false;
+        protected bool removePassengers;
 
         public override bool Load(ConfigNode configNode)
         {
@@ -43,6 +44,7 @@ namespace ContractConfigurator.Behaviour
 
             valid &= ConfigNodeUtil.ParseValue<int>(configNode, "count", x => count = x, this, 1, x => Validation.GE(x, 1));
             valid &= ConfigNodeUtil.ParseValue<ProtoCrewMember.KerbalType>(configNode, "kerbalType", x => kerbalType = x, this, ProtoCrewMember.KerbalType.Tourist);
+            valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "removePassengers", x => removePassengers = x, this, true);
 
             return valid;
         }
@@ -61,7 +63,7 @@ namespace ContractConfigurator.Behaviour
                 kerbal.kerbalType = kerbalType;
             }
 
-            return new SpawnPassengers(kerbals, count);
+            return new SpawnPassengers(kerbals, count, removePassengers);
         }
     }
 }

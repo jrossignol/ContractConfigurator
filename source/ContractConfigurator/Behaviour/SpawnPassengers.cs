@@ -214,6 +214,7 @@ namespace ContractConfigurator.Behaviour
 
         protected int count;
         protected List<Kerbal> kerbals = new List<Kerbal>();
+        protected bool removePassengers;
 
         private Dictionary<ProtoCrewMember, bool> passengers = new Dictionary<ProtoCrewMember, bool>();
 
@@ -221,10 +222,11 @@ namespace ContractConfigurator.Behaviour
 
         public SpawnPassengers() {}
 
-        public SpawnPassengers(List<Kerbal> kerbals, int minPassengers)
+        public SpawnPassengers(List<Kerbal> kerbals, int minPassengers, bool removePassengers)
         {
             this.kerbals = kerbals;
             this.count = kerbals.Count != 0 ? kerbals.Count : minPassengers;
+            this.removePassengers = removePassengers;
         }
 
         protected override void OnRegister()
@@ -377,6 +379,10 @@ namespace ContractConfigurator.Behaviour
         {
             base.OnSave(node);
             node.AddValue("count", count);
+            if (!removePassengers)
+            {
+                node.AddValue("removePassengers", false);
+            }
 
             foreach (Kerbal kerbal in kerbals)
             {
@@ -399,6 +405,7 @@ namespace ContractConfigurator.Behaviour
         {
             base.OnLoad(node);
             count = Convert.ToInt32(node.GetValue("count"));
+            removePassengers = ConfigNodeUtil.ParseValue<bool?>(node, "removePassengers", null) ?? true;
 
             // Legacy support from Contract Configurator 1.8.3
             if (node.HasValue("potentialPassenger"))
@@ -437,7 +444,10 @@ namespace ContractConfigurator.Behaviour
 
         protected override void OnCompleted()
         {
-            RemoveKerbals();
+            if (removePassengers)
+            {
+                RemoveKerbals();
+            }
         }
 
         protected override void OnCancelled()
