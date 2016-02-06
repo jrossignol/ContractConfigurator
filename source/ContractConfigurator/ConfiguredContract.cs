@@ -339,7 +339,7 @@ namespace ContractConfigurator
             try
             {
                 subType = node.GetValue("subtype");
-                contractType = string.IsNullOrEmpty(subType) ? null : ContractType.GetContractType(subType);
+                contractType = ContractType.GetContractType(subType);
                 title = ConfigNodeUtil.ParseValue<string>(node, "title", contractType != null ? contractType.title : subType);
                 description = ConfigNodeUtil.ParseValue<string>(node, "description", contractType != null ? contractType.description : "");
                 synopsis = ConfigNodeUtil.ParseValue<string>(node, "synopsis", contractType != null ? contractType.synopsis : "");
