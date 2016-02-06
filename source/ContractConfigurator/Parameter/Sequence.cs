@@ -62,9 +62,24 @@ namespace ContractConfigurator.Parameters
             }
         }
 
-        protected override void OnParameterStateChange(ContractParameter contractParameter)
+
+        protected override void OnRegister()
         {
-            if (System.Object.ReferenceEquals(contractParameter.Parent, this))
+            base.OnRegister();
+            GameEvents.Contract.onParameterChange.Add(new EventData<Contract, ContractParameter>.OnEvent(OnParameterChange));
+            ContractConfigurator.OnParameterChange.Add(new EventData<Contract, ContractParameter>.OnEvent(OnParameterChange));
+        }
+
+        protected override void OnUnregister()
+        {
+            base.OnUnregister();
+            GameEvents.Contract.onParameterChange.Remove(new EventData<Contract, ContractParameter>.OnEvent(OnParameterChange));
+            ContractConfigurator.OnParameterChange.Remove(new EventData<Contract, ContractParameter>.OnEvent(OnParameterChange));
+        }
+
+        protected void OnParameterChange(Contract contract, ContractParameter contractParameter)
+        {
+            if (contract == Root)
             {
                 SetupChildParameters();
 

@@ -16,6 +16,7 @@ namespace ContractConfigurator.Behaviour
     public class AwardExperienceFactory : BehaviourFactory
     {
         private List<string> parameter;
+        private List<Kerbal> kerbals;
         private int experience;
         private bool awardImmediately;
 
@@ -90,16 +91,19 @@ namespace ContractConfigurator.Behaviour
             // Load base class
             bool valid = base.Load(configNode);
 
-            valid &= ConfigNodeUtil.ParseValue<List<string>>(configNode, "parameter", x => parameter = x, this);
+            valid &= ConfigNodeUtil.ParseValue<List<string>>(configNode, "parameter", x => parameter = x, this, new List<string>());
+            valid &= ConfigNodeUtil.ParseValue<List<Kerbal>>(configNode, "kerbal", x => kerbals = x, this, new List<Kerbal>());
             valid &= ConfigNodeUtil.ParseValue<int>(configNode, "experience", x => experience = x, this, 1);
             valid &= ConfigNodeUtil.ParseValue<bool?>(configNode, "awardImmediately", x => awardImmediately = x.Value, this, (bool?)false);
+
+            valid &= ConfigNodeUtil.AtLeastOne(configNode, new string[] { "parameter", "kerbal" }, this);
 
             return valid;
         }
 
         public override ContractBehaviour Generate(ConfiguredContract contract)
         {
-            return new AwardExperience(parameter, experience, awardImmediately);
+            return new AwardExperience(parameter, kerbals, experience, awardImmediately);
         }
     }
 }

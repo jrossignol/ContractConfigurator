@@ -16,9 +16,11 @@ namespace ContractConfigurator.Parameters
     {
         private const string notePrefix = "<#acfcff>[-] Note: ";
         protected string define { get; set; }
+        protected string defineList { get; set; }
         protected List<string> vesselList { get; set; }
         protected bool dissassociateVesselsOnContractFailure;
         protected bool dissassociateVesselsOnContractCompletion;
+        protected bool hideVesselName;
 
         public IEnumerable<string> VesselList { get { return vesselList; } }
         protected double duration { get; set; }
@@ -44,15 +46,17 @@ namespace ContractConfigurator.Parameters
         {
         }
 
-        public VesselParameterGroup(string title, string define, IEnumerable<string> vesselList, double duration,
-            bool dissassociateVesselsOnContractFailure, bool dissassociateVesselsOnContractCompletion)
+        public VesselParameterGroup(string title, string define, string defineList, IEnumerable<string> vesselList, double duration,
+            bool dissassociateVesselsOnContractFailure, bool dissassociateVesselsOnContractCompletion, bool hideVesselName)
             : base(title)
         {
             this.define = define;
+            this.defineList = defineList;
             this.duration = duration;
             this.vesselList = vesselList == null ? new List<string>() : vesselList.ToList();
             this.dissassociateVesselsOnContractFailure = dissassociateVesselsOnContractFailure;
             this.dissassociateVesselsOnContractCompletion = dissassociateVesselsOnContractCompletion;
+            this.hideVesselName = hideVesselName;
             waiting = false;
 
             CreateVesselListParameter();
@@ -164,6 +168,7 @@ namespace ContractConfigurator.Parameters
                 durationParameter = new ParameterDelegate<Vessel>("Duration: " + DurationUtil.StringValue(duration),
                     v => false);
                 durationParameter.Optional = true;
+                durationParameter.fakeOptional = true;
 
                 AddParameter(durationParameter);
             }
@@ -175,21 +180,25 @@ namespace ContractConfigurator.Parameters
             {
                 if (vesselList.Count() == 1)
                 {
-                    vesselListParam = new ParameterDelegate<Vessel>("Vessel: " +
-                        ContractVesselTracker.GetDisplayName(vesselList.First()), VesselCanBeConsidered);
+                    vesselListParam = new ParameterDelegate<Vessel>("", VesselCanBeConsidered);
                     vesselListParam.Optional = true;
+                    vesselListParam.fakeOptional = true;
 
                     AddParameter(vesselListParam);
                 }
                 else
                 {
-                    vesselListParam = new ParameterDelegate<Vessel>("Vessel: Any of the following:", v =>
+                    vesselListParam = new ParameterDelegate<Vessel>(hideVesselName ? "" : "Vessel: Any of the following:", v =>
                     {
                         bool check = VesselCanBeConsidered(v);
-                        vesselListParam.SetTitle("Vessel: Any of the following:" + (check ? " " + ParameterDelegate<Vessel>.GetDelegateText(vesselListParam) : ""));
+                        if (!hideVesselName)
+                        {
+                            vesselListParam.SetTitle("Vessel: Any of the following:" + (check ? " " + ParameterDelegate<Vessel>.GetDelegateText(vesselListParam) : ""));
+                        }
                         return check;
                     });
                     vesselListParam.Optional = true;
+                    vesselListParam.fakeOptional = true;
 
                     foreach (string vessel in vesselList)
                     {
@@ -218,7 +227,7 @@ namespace ContractConfigurator.Parameters
             // If this vessel doesn't match our list of valid vessels, ignore the update
             if (!VesselCanBeConsidered(vessel))
             {
-                LoggingUtil.LogVerbose(this, "<- UpdateState");
+                LoggingUtil.LogVerbose(this, "<- UpdateState (vessel cannot be considered)");
                 return;
             }
 
@@ -238,7 +247,7 @@ namespace ContractConfigurator.Parameters
                 SetChildState(trackedVessel);
                 if (AllChildParametersComplete())
                 {
-                    LoggingUtil.LogVerbose(this, "<- UpdateState");
+                    LoggingUtil.LogVerbose(this, "<- UpdateState (tracked vessel has already completed parameter)");
                     return;
                 }
             }
@@ -317,17 +326,25 @@ namespace ContractConfigurator.Parameters
             // Fire the parameter change event to account for all the changed child parameters.
             // We don't fire it for the child parameters, as any with a failed state will cause
             // the contract to fail, which we don't want.
+            LoggingUtil.LogVerbose(this, "Firing OnParameterChange");
             ContractConfigurator.OnParameterChange.Fire(this.Root, this);
 
             // Manually run the OnParameterStateChange
             OnParameterStateChange(this);
 
-            LoggingUtil.LogVerbose(this, "<- UpdateState");
+            LoggingUtil.LogVerbose(this, "<- UpdateState (state possibly changed)");
         }
 
         protected override void OnParameterSave(ConfigNode node)
         {
-            node.AddValue("define", define);
+            if (!string.IsNullOrEmpty(define))
+            {
+                node.AddValue("define", define);
+            }
+            if (!string.IsNullOrEmpty(defineList))
+            {
+                node.AddValue("defineList", defineList);
+            }
             foreach (string vesselName in vesselList)
             {
                 node.AddValue("vessel", vesselName);
@@ -343,16 +360,22 @@ namespace ContractConfigurator.Parameters
             }
             node.AddValue("dissassociateVesselsOnContractFailure", dissassociateVesselsOnContractFailure);
             node.AddValue("dissassociateVesselsOnContractCompletion", dissassociateVesselsOnContractCompletion);
+            if (hideVesselName)
+            {
+                node.AddValue("hideVesselName", hideVesselName);
+            }
         }
 
         protected override void OnParameterLoad(ConfigNode node)
         {
             try
             {
-                define = node.GetValue("define");
+                define = ConfigNodeUtil.ParseValue<string>(node, "define", null);
+                defineList = ConfigNodeUtil.ParseValue<string>(node, "defineList", null);
                 duration = Convert.ToDouble(node.GetValue("duration"));
                 dissassociateVesselsOnContractFailure = ConfigNodeUtil.ParseValue<bool?>(node, "dissassociateVesselsOnContractFailure", (bool?)true).Value;
                 dissassociateVesselsOnContractCompletion = ConfigNodeUtil.ParseValue<bool?>(node, "dissassociateVesselsOnContractCompletion", (bool?)false).Value;
+                hideVesselName = ConfigNodeUtil.ParseValue<bool?>(node, "hideVesselName", (bool?)false).Value;
                 vesselList = ConfigNodeUtil.ParseValue<List<string>>(node, "vessel", new List<string>());
                 if (node.HasValue("completionTime"))
                 {
@@ -409,9 +432,13 @@ namespace ContractConfigurator.Parameters
             ContractVesselTracker.OnVesselAssociation.Remove(new EventData<GameEvents.HostTargetAction<Vessel, string>>.OnEvent(OnVesselAssociation));
             ContractVesselTracker.OnVesselDisassociation.Remove(new EventData<GameEvents.HostTargetAction<Vessel, string>>.OnEvent(OnVesselDisassociation));
 
-            GameEvents.Contract.onCompleted.Remove(new EventData<Contract>.OnEvent(OnContractCompleted));
-            GameEvents.Contract.onFailed.Remove(new EventData<Contract>.OnEvent(OnContractFailed));
-            GameEvents.Contract.onCancelled.Remove(new EventData<Contract>.OnEvent(OnContractFailed));
+            // Leave to catch late events
+            if (state != ParameterState.Complete)
+            {
+                GameEvents.Contract.onCompleted.Remove(new EventData<Contract>.OnEvent(OnContractCompleted));
+                GameEvents.Contract.onFailed.Remove(new EventData<Contract>.OnEvent(OnContractFailed));
+                GameEvents.Contract.onCancelled.Remove(new EventData<Contract>.OnEvent(OnContractFailed));
+            }
 
             ConfiguredContract.OnContractLoaded.Remove(new EventData<ConfiguredContract>.OnEvent(OnContractLoaded));
 
@@ -423,10 +450,23 @@ namespace ContractConfigurator.Parameters
 
         protected void OnContractCompleted(Contract c)
         {
-            if (c == Root && dissassociateVesselsOnContractCompletion && !string.IsNullOrEmpty(define) && trackedVessel != null)
+            if (c == Root)
             {
-                LoggingUtil.LogVerbose(this, "Removing defined vessel " + define);
-                ContractVesselTracker.Instance.AssociateVessel(define, null);
+                if (dissassociateVesselsOnContractCompletion && !string.IsNullOrEmpty(define) && trackedVessel != null)
+                {
+                    LoggingUtil.LogVerbose(this, "Removing defined vessel " + define);
+                }
+
+                if (!string.IsNullOrEmpty(defineList) && trackedVessel != null)
+                {
+                    // Create a vessel association
+                    ContractVesselTracker.Instance.AssociateVessel(trackedVessel.id.ToString(), trackedVessel);
+
+                    // Add to the vessel store
+                    List<VesselIdentifier> vesselStore = PersistentDataStore.Instance.Retrieve<List<VesselIdentifier>>(defineList) ?? new List<VesselIdentifier>();
+                    vesselStore.Add(new VesselIdentifier(trackedVessel.id.ToString()));
+                    PersistentDataStore.Instance.Store<List<VesselIdentifier>>(defineList, vesselStore);
+                }
             }
         }
 
@@ -513,9 +553,10 @@ namespace ContractConfigurator.Parameters
             if (System.Object.ReferenceEquals(contractParameter.Parent, this) ||
                 System.Object.ReferenceEquals(contractParameter, this))
             {
+                LoggingUtil.LogVerbose(this, "OnParameterStateChange");
                 if (AllChildParametersComplete())
                 {
-                    if (!waiting)
+                    if (!waiting && trackedVessel != null)
                     {
                         waiting = true;
                         completionTime = Planetarium.GetUniversalTime() + duration;
@@ -523,7 +564,7 @@ namespace ContractConfigurator.Parameters
                         // Set the tracked vessel association
                         if (!string.IsNullOrEmpty(define))
                         {
-                            LoggingUtil.LogVerbose(this, "setting " + define + " as " + (trackedVessel != null ? trackedVessel.vesselName : "null"));
+                            LoggingUtil.LogVerbose(this, "setting " + define + " as " + trackedVessel.vesselName);
                             ContractVesselTracker.Instance.AssociateVessel(define, trackedVessel);
                         }
                     }
@@ -630,7 +671,24 @@ namespace ContractConfigurator.Parameters
         /// <returns>Whether we can continue with this vessel.</returns>
         private bool VesselCanBeConsidered(Vessel vessel)
         {
-            return !vesselList.Any() || vesselList.Any(key => ContractVesselTracker.Instance.GetAssociatedVessel(key) == vessel);
+            if (vesselList.Any())
+            {
+                return vesselList.Any(key => ContractVesselTracker.Instance.GetAssociatedVessel(key) == vessel);
+            }
+            // If the vessel is already in the define list, don't allow it to be considered again
+            else if (!string.IsNullOrEmpty(defineList))
+            {
+                List<VesselIdentifier> vesselStore = PersistentDataStore.Instance.Retrieve<List<VesselIdentifier>>(defineList);
+                if (vesselStore == null)
+                {
+                    return true;
+                }
+
+                IEnumerable<string> vesselKeys = ContractVesselTracker.Instance.GetAssociatedKeys(vessel);
+                return !vesselStore.Any(vi => vesselKeys.Contains(vi.identifier));
+            }
+
+            return true;
         }
     }
 }

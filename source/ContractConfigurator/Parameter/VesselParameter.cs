@@ -88,7 +88,7 @@ namespace ContractConfigurator.Parameters
             }
 
             // Save vessel information
-            foreach (KeyValuePair<Guid, VesselInfo> p in vesselInfo)
+            foreach (KeyValuePair<Guid, VesselInfo> p in vesselInfo.Where(p => p.Value.state != ParameterState.Incomplete))
             {
                 ConfigNode child = new ConfigNode("VESSEL_STATS");
                 child.AddValue("vessel", p.Key);
@@ -638,6 +638,10 @@ namespace ContractConfigurator.Parameters
                             Disable();
                         }
                     }
+                    else if (failWhenUnmet)
+                    {
+                        SetState(ParameterState.Failed);
+                    }
                     else
                     {
                         SetState(ParameterState.Incomplete);
@@ -711,6 +715,24 @@ namespace ContractConfigurator.Parameters
         /// VesselMeetsCondition will not be called, and the vessel's state remains unchanged.</returns>
         protected virtual bool CanCheckVesselMeetsCondition(Vessel vessel)
         {
+            if (completeInSequence || Parent is Sequence)
+            {
+                // Go through the parent's parameters
+                for (int i = 0; i < Parent.ParameterCount; i++)
+                {
+                    ContractParameter param = Parent.GetParameter(i);
+                    // If we've made it all the way to us, we're ready
+                    if (System.Object.ReferenceEquals(param, this))
+                    {
+                        // Passed our check
+                        break;
+                    }
+                    else if (param.State != ParameterState.Complete)
+                    {
+                        return false;
+                    }
+                }
+            }
             return true;
         }
 

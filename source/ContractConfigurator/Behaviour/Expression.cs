@@ -154,12 +154,26 @@ namespace ContractConfigurator.Behaviour
                             ExpVal expVal = new ExpVal(type, pair.name, pair.value);
                             if (factory != null)
                             {
-                                expVal.val = ConfigNodeUtil.ParseValue<string>(child, pair.name);
+                                ConfigNodeUtil.ParseValue<string>(child, pair.name, x => expVal.val = x, factory, s =>
+                                {
+                                    // Parse the expression to validate
+                                    BaseParser parser = BaseParser.NewParser(expVal.type);
+                                    parser.ParseExpressionGeneric(pair.name, expVal.val, dataNode);
+                                    return true;
+                                });
                             }
+                            else
+                            {
+                                // Horrible workaround for bugged saves caused by issue in 1.9.3 - remove in a future version
+                                if (expVal.val.Contains("@Tourism:touristCount"))
+                                {
+                                    expVal.val = expVal.val.Replace("@Tourism:touristCount", "3");
+                                }
 
-                            // Parse the expression to validate
-                            BaseParser parser = BaseParser.NewParser(expVal.type);
-                            parser.ParseExpressionGeneric(pair.name, expVal.val, dataNode);
+                                // Parse the expression to validate
+                                BaseParser parser = BaseParser.NewParser(expVal.type);
+                                parser.ParseExpressionGeneric(pair.name, expVal.val, dataNode);
+                            }
 
                             // Store it for later
                             if (child.name == "PARAMETER_COMPLETED")
@@ -188,16 +202,17 @@ namespace ContractConfigurator.Behaviour
                 configNode.AddNode(child);
                 foreach (ExpVal expVal in map[node])
                 {
+                    string typeName = PersistentDataStore.GetTypeName(expVal.type);
                     if (!child.HasValue("type"))
                     {
-                        child.AddValue("type", expVal.type.Name);
+                        child.AddValue("type", typeName);
                     }
                     // Just start a new node if the type changes
-                    else if (child.GetValue("type") != expVal.type.Name)
+                    else if (child.GetValue("type") != typeName)
                     {
                         child = new ConfigNode(node);
                         configNode.AddNode(child);
-                        child.AddValue("type", expVal.type.Name);
+                        child.AddValue("type", typeName);
                     }
                     child.AddValue(expVal.key, expVal.val);
                 }
@@ -209,9 +224,10 @@ namespace ContractConfigurator.Behaviour
                 child.AddValue("parameter", parameter);
                 foreach (ExpVal expVal in onParameterComplete[parameter])
                 {
+                    string typeName = PersistentDataStore.GetTypeName(expVal.type);
                     if (!child.HasValue("type"))
                     {
-                        child.AddValue("type", expVal.type.Name);
+                        child.AddValue("type", typeName);
                     }
                     child.AddValue(expVal.key, expVal.val);
                 }

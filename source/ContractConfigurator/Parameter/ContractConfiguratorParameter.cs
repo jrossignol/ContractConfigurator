@@ -20,6 +20,7 @@ namespace ContractConfigurator.Parameters
         public bool hideChildren;
         public bool hidden { get; set; }
         protected bool fakeFailures = false;
+        public bool fakeOptional = false;
 
         public ContractConfiguratorParameter()
             : this(null)
@@ -47,7 +48,7 @@ namespace ContractConfigurator.Parameters
                 }
             }
 
-            return (optional && string.IsNullOrEmpty(title) ? "(Optional) " : "") + GetParameterTitle();
+            return (optional && !fakeOptional && !string.IsNullOrEmpty(title) ? "(Optional) " : "") + GetParameterTitle();
         }
 
         protected override string GetHashString()
@@ -241,7 +242,8 @@ namespace ContractConfigurator.Parameters
                     ContractConfigurator.OnParameterChange.Fire(Root, this);
                 }
                 // Workaround for bug when the OnParameterChange completes the contract,
-                // and other stuff gets removed from the contract before it can fire
+                // and other stuff gets removed from the contract before it can fire.  See
+                // #410.  Revisit in KSP 1.1.
                 catch (ArgumentOutOfRangeException e)
                 {
                     LoggingUtil.LogDebug(this, "Ignoring ArgumentOutOfRangeException: " + e.Message);

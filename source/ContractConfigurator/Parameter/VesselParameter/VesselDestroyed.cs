@@ -63,6 +63,7 @@ namespace ContractConfigurator.Parameters
             GameEvents.onCollision.Add(new EventData<EventReport>.OnEvent(OnVesselAboutToBeDestroyed));
             GameEvents.onCrash.Add(new EventData<EventReport>.OnEvent(OnVesselAboutToBeDestroyed));
             GameEvents.onVesselDestroy.Add(new EventData<Vessel>.OnEvent(OnVesselDestroy));
+            GameEvents.onVesselWillDestroy.Add(new EventData<Vessel>.OnEvent(OnVesselDestroy));
         }
 
         protected override void OnUnregister()
@@ -71,6 +72,7 @@ namespace ContractConfigurator.Parameters
             GameEvents.onCollision.Remove(new EventData<EventReport>.OnEvent(OnVesselAboutToBeDestroyed));
             GameEvents.onCrash.Remove(new EventData<EventReport>.OnEvent(OnVesselAboutToBeDestroyed));
             GameEvents.onVesselDestroy.Remove(new EventData<Vessel>.OnEvent(OnVesselDestroy));
+            GameEvents.onVesselWillDestroy.Remove(new EventData<Vessel>.OnEvent(OnVesselDestroy));
         }
 
         protected virtual void OnVesselAboutToBeDestroyed(EventReport report)
@@ -125,7 +127,7 @@ namespace ContractConfigurator.Parameters
         /// <returns>Always true</returns>
         protected override bool VesselMeetsCondition(Vessel vessel)
         {
-            return destroyedVessels.ContainsKey(vessel);
+            return destroyedVessels.ContainsKey(vessel) || vessel.state == Vessel.State.DEAD;
         }
     }
 }

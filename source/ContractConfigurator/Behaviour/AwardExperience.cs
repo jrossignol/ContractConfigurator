@@ -17,6 +17,7 @@ namespace ContractConfigurator.Behaviour
     public class AwardExperience : ContractBehaviour
     {
         private List<string> parameter;
+        private List<Kerbal> kerbals;
         private int experience;
         private bool awardImmediately;
 
@@ -33,9 +34,10 @@ namespace ContractConfigurator.Behaviour
         {
         }
 
-        public AwardExperience(IEnumerable<string> parameter, int experience, bool awardImmediately)
+        public AwardExperience(IEnumerable<string> parameter, List<Kerbal> kerbals, int experience, bool awardImmediately)
         {
             this.parameter = parameter.ToList();
+            this.kerbals = kerbals.ToList();
             this.experience = experience;
             this.awardImmediately = awardImmediately;
         }
@@ -77,7 +79,9 @@ namespace ContractConfigurator.Behaviour
 
         protected void DoAwarding()
         {
-            LoggingUtil.LogVerbose(this, "Awarding " + experience + " points to " + crew.Count + " crew member(s)");
+            IEnumerable<ProtoCrewMember> awardees = crew.Union(kerbals.Where(k => k.pcm != null).Select(k => k.pcm));
+
+            LoggingUtil.LogVerbose(this, "Awarding " + experience + " points to " + awardees.Count() + " crew member(s)");
 
             // Set the homeworld
             if (homeworld == null)
@@ -85,7 +89,7 @@ namespace ContractConfigurator.Behaviour
                 homeworld = FlightGlobals.Bodies.Where(cb => cb.isHomeWorld).FirstOrDefault();
             }
 
-            foreach (ProtoCrewMember pcm in crew.Where(pcm => pcm != null))
+            foreach (ProtoCrewMember pcm in awardees.Where(pcm => pcm != null))
             {
                 LoggingUtil.LogVerbose(this, "    Awarding experience to " + pcm.name);
 
@@ -120,6 +124,7 @@ namespace ContractConfigurator.Behaviour
         protected override void OnLoad(ConfigNode configNode)
         {
             parameter = ConfigNodeUtil.ParseValue<List<string>>(configNode, "parameter", new List<string>());
+            kerbals = ConfigNodeUtil.ParseValue<List<Kerbal>>(configNode, "kerbal", new List<Kerbal>());
             experience = ConfigNodeUtil.ParseValue<int>(configNode, "experience");
             awardImmediately = ConfigNodeUtil.ParseValue<bool>(configNode, "awardImmediately");
 
@@ -131,6 +136,10 @@ namespace ContractConfigurator.Behaviour
             foreach (string p in parameter)
             {
                 configNode.AddValue("parameter", p);
+            }
+            foreach (Kerbal k in kerbals)
+            {
+                configNode.AddValue("kerbal", k.name);
             }
             configNode.AddValue("experience", experience);
             configNode.AddValue("awardImmediately", awardImmediately);

@@ -250,13 +250,18 @@ namespace ContractConfigurator.Parameters
                 return false;
             }
 
-            // Fixes problems with special biomes like KSC buildings (total different naming)
+            string vesselBiome = null;
             if (landedSituations.Contains(vessel.situation) && !string.IsNullOrEmpty(vessel.landedAt))
             {
-                return Vessel.GetLandedAtString(vessel.landedAt).Replace(" ", "") == biome;
+                // Fixes problems with special biomes like KSC buildings (total different naming)
+                vesselBiome = Vessel.GetLandedAtString(vessel.landedAt);
+            }
+            else
+            {
+                vesselBiome = ScienceUtil.GetExperimentBiome(vessel.mainBody, vessel.latitude, vessel.longitude);
             }
 
-            return ScienceUtil.GetExperimentBiome(vessel.mainBody, vessel.latitude, vessel.longitude) == biome;
+            return vesselBiome.Replace(" ", "") == biome;
         }
 
         protected override void OnParameterSave(ConfigNode node)
@@ -388,7 +393,7 @@ namespace ContractConfigurator.Parameters
         protected void OnExperimentDeployed(ScienceData scienceData)
         {
             Vessel vessel = FlightGlobals.ActiveVessel;
-            if (vessel == null || scienceData == null)
+            if (vessel == null || scienceData == null || !ReadyToComplete())
             {
                 return;
             }
@@ -424,7 +429,11 @@ namespace ContractConfigurator.Parameters
                 return false;
             }
 
-            if (!string.IsNullOrEmpty(biome) && !subject.id.Contains(biome))
+            // Need to pick up a bit of the situation string to that Flats doesn't pick up GreaterFlats
+            if (!string.IsNullOrEmpty(biome) &&
+                !subject.id.EndsWith("High" + biome) &&
+                !subject.id.EndsWith("Low" + biome) &&
+                !subject.id.EndsWith("ed" + biome))
             {
                 return false;
             }

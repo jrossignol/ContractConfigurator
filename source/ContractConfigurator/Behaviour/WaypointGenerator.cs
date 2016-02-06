@@ -20,12 +20,13 @@ namespace ContractConfigurator.Behaviour
         private class WaypointData
         {
             public Waypoint waypoint = new Waypoint();
+            public List<string> names = new List<string>();
             public string type = null;
             public bool randomAltitude = false;
             public bool waterAllowed = true;
             public bool forceEquatorial = false;
-            public bool randomName = false;
             public int nearIndex = -1;
+            public bool chained = false;
             public double minDistance = 0.0;
             public double maxDistance = 0.0;
             public PQSCity pqsCity = null;
@@ -33,6 +34,7 @@ namespace ContractConfigurator.Behaviour
             public List<string> parameter = new List<string>();
             public int count = 1;
             public bool underwater = false;
+            public bool isAdded = false;
 
             public WaypointData()
             {
@@ -46,6 +48,7 @@ namespace ContractConfigurator.Behaviour
             public WaypointData(WaypointData orig, Contract contract)
             {
                 type = orig.type;
+                names = orig.names.ToList();
                 waypoint.altitude = orig.waypoint.altitude;
                 waypoint.celestialName = orig.waypoint.celestialName;
                 waypoint.height = orig.waypoint.height;
@@ -64,13 +67,13 @@ namespace ContractConfigurator.Behaviour
                 waterAllowed = orig.waterAllowed;
                 forceEquatorial = orig.forceEquatorial;
                 nearIndex = orig.nearIndex;
+                chained = orig.chained;
                 count = orig.count;
                 minDistance = orig.minDistance;
                 maxDistance = orig.maxDistance;
                 pqsCity = orig.pqsCity;
                 pqsOffset = orig.pqsOffset;
                 parameter = orig.parameter.ToList();
-                randomName = orig.randomName;
                 underwater = orig.underwater;
 
                 SetContract(contract);
@@ -104,12 +107,6 @@ namespace ContractConfigurator.Behaviour
                 {
                     WaypointData wpData = new WaypointData(old, contract);
                     waypoints.Add(wpData);
-
-                    if (old.parameter.Any())
-                    {
-                        wpData.parameter = new List<string>();
-                        wpData.parameter.Add(old.parameter.Count() == 1 ? old.parameter.First() : old.parameter.ElementAtOrDefault(i));
-                    }
                 }
             }
             initialized = orig.initialized;
@@ -187,12 +184,16 @@ namespace ContractConfigurator.Behaviour
                         LoggingUtil.LogVerbose(this, "   Generating a waypoint based on PQS city " + wpData.pqsCity.name + "...");
 
                         Vector3d position = wpData.pqsCity.transform.position;
+                        LoggingUtil.LogVerbose(this, "    pqs city position = " + position);
 
                         // Translate by the PQS offset (inverse transform of coordinate system)
                         Vector3d v = wpData.pqsOffset;
                         Vector3d i = wpData.pqsCity.transform.right;
                         Vector3d j = wpData.pqsCity.transform.forward;
                         Vector3d k = wpData.pqsCity.transform.up;
+                        LoggingUtil.LogVerbose(this, "    i, j, k = " + i + ", " + j + "," + k);
+                        LoggingUtil.LogVerbose(this, "    pqs transform = " + wpData.pqsCity.transform);
+                        LoggingUtil.LogVerbose(this, "    parent transform = " + wpData.pqsCity.transform.parent);
                         Vector3d offsetPos = new Vector3d(
                             (j.y * k.z - j.z * k.y) * v.x + (i.z * k.y - i.y * k.z) * v.y + (i.y * j.z - i.z * j.y) * v.z,
                             (j.z * k.x - j.x * k.z) * v.x + (i.x * k.z - i.z * k.x) * v.y + (i.z * j.x - i.x * j.z) * v.z,
@@ -201,6 +202,7 @@ namespace ContractConfigurator.Behaviour
                         offsetPos *= (i.x * j.y * k.z) + (i.y * j.z * k.x) + (i.z * j.x * k.y) - (i.z * j.y * k.x) - (i.y * j.x * k.z) - (i.x * j.z * k.y);
                         wpData.waypoint.latitude = body.GetLatitude(position + offsetPos);
                         wpData.waypoint.longitude = body.GetLongitude(position + offsetPos);
+                        LoggingUtil.LogVerbose(this, "    resulting lat, lon = (" + wpData.waypoint.latitude + ", " + wpData.waypoint.longitude + ")");
                     }
 
                     // Set altitude
@@ -231,12 +233,6 @@ namespace ContractConfigurator.Behaviour
                         double oceanFloor = body.pqsController.GetSurfaceHeight(radialVector) - body.pqsController.radius;
 
                         wpData.waypoint.altitude = Math.Max(oceanFloor, wpData.waypoint.altitude);
-                    }
-
-                    // Set name
-                    if (wpData.randomName)
-                    {
-                        wpData.waypoint.name = StringUtilities.GenerateSiteName(random.Next(), body, !wpData.waterAllowed);
                     }
 
                     LoggingUtil.LogVerbose(this, "   Generated waypoint " + wpData.waypoint.name + " at " +
@@ -280,7 +276,7 @@ namespace ContractConfigurator.Behaviour
                     }
                     valid &= ConfigNodeUtil.ParseValue<CelestialBody>(child, "targetBody", x => wpData.waypoint.celestialName = x != null ? x.name : "", factory);
 
-                    valid &= ConfigNodeUtil.ParseValue<string>(child, "name", x => wpData.waypoint.name = x, factory, (string)null);
+                    valid &= ConfigNodeUtil.ParseValue<List<string>>(child, "name", x => wpData.names = x, factory, new List<string>());
                     valid &= ConfigNodeUtil.ParseValue<double?>(child, "altitude", x => altitude = x, factory, (double?)null);
                     valid &= ConfigNodeUtil.ParseValue<List<string>>(child, "parameter", x => wpData.parameter = x, factory, new List<string>());
                     valid &= ConfigNodeUtil.ParseValue<bool>(child, "hidden", x => wpData.waypoint.visible = !x, factory, false);
@@ -342,6 +338,7 @@ namespace ContractConfigurator.Behaviour
                         // Get near waypoint details
                         valid &= ConfigNodeUtil.ParseValue<int>(child, "nearIndex", x => wpData.nearIndex = x, factory,
                             x => Validation.GE(x, 0) && Validation.LT(x, wpGenerator.waypoints.Count));
+                        valid &= ConfigNodeUtil.ParseValue<bool>(child, "chained", x => wpData.chained = x, factory, false);
                         valid &= ConfigNodeUtil.ParseValue<int>(child, "count", x => wpData.count = x, factory, 1, x => Validation.GE(x, 1));
 
                         // Get distances
@@ -378,14 +375,35 @@ namespace ContractConfigurator.Behaviour
                     // Check for unexpected values
                     valid &= ConfigNodeUtil.ValidateUnexpectedValues(child, factory);
 
-                    // Generate a random name
-                    if (!child.HasValue("name"))
+                    // Copy waypoint data
+                    WaypointData old = wpData;
+                    for (int i = 0; i < old.count; i++)
                     {
-                        wpData.randomName = true;
-                    }
+                        wpData = new WaypointData(old, null);
+                        wpGenerator.waypoints.Add(wpData);
 
-                    // Add to the list
-                    wpGenerator.waypoints.Add(wpData);
+                        if (old.parameter.Any())
+                        {
+                            wpData.parameter = new List<string>();
+                            wpData.parameter.Add(old.parameter.Count() == 1 ? old.parameter.First() : old.parameter.ElementAtOrDefault(i));
+                        }
+
+                        // Set the name
+                        if (old.names.Any())
+                        {
+                            wpData.waypoint.name = (old.names.Count() == 1 ? old.names.First() : old.names.ElementAtOrDefault(i));
+                        }
+                        if (string.IsNullOrEmpty(wpData.waypoint.name) || wpData.waypoint.name.ToLower() == "site")
+                        {
+                            wpData.waypoint.name = StringUtilities.GenerateSiteName(random.Next(), wpData.waypoint.celestialBody, !wpData.waterAllowed);
+                        }
+
+                        // Handle waypoint chaining
+                        if (wpData.chained && i != 0)
+                        {
+                            wpData.nearIndex = wpGenerator.waypoints.Count - 2;
+                        }
+                    }
                 }
                 finally
                 {
@@ -404,7 +422,14 @@ namespace ContractConfigurator.Behaviour
             {
                 WaypointManager.RemoveWaypoint(wpData.waypoint);
             }
+        }
 
+        protected override void OnParameterStateChange(ContractParameter param)
+        {
+            LoggingUtil.LogVerbose(this, "OnParameterStateChange");
+
+            // Just call OnOffered to add any missing waypoints
+            OnOffered();
         }
 
         protected override void OnOffered()
@@ -415,7 +440,7 @@ namespace ContractConfigurator.Behaviour
                 if (wpData.waypoint.visible && (!wpData.parameter.Any() || contract.AllParameters.
                     Where(p => p.ID == paramID && p.State == ParameterState.Complete).Any()))
                 {
-                    AddWayPoint(wpData.waypoint);
+                    AddWayPoint(wpData);
                 }
             }
         }
@@ -430,6 +455,7 @@ namespace ContractConfigurator.Behaviour
                 WaypointData wpData = new WaypointData();
                 wpData.type = child.GetValue("type");
                 wpData.parameter = ConfigNodeUtil.ParseValue<List<string>>(child, "parameter", new List<string>());
+                wpData.names = ConfigNodeUtil.ParseValue<List<string>>(child, "names", new List<string>());
                 wpData.waypoint.celestialName = child.GetValue("celestialName");
                 wpData.waypoint.name = child.GetValue("name");
                 wpData.waypoint.id = child.GetValue("icon");
@@ -454,7 +480,7 @@ namespace ContractConfigurator.Behaviour
                 if (wpData.waypoint.visible && (!wpData.parameter.Any() || contract.AllParameters.
                     Where(p => p.ID == paramID && p.State == ParameterState.Complete).Any()))
                 {
-                    AddWayPoint(wpData.waypoint);
+                    AddWayPoint(wpData);
                 }
 
                 // Add to the global list
@@ -475,6 +501,10 @@ namespace ContractConfigurator.Behaviour
                 {
                     child.AddValue("parameter", p);
                 }
+                foreach (string n in wpData.names)
+                {
+                    child.AddValue("names", n);
+                }
                 child.AddValue("celestialName", wpData.waypoint.celestialName);
                 child.AddValue("name", wpData.waypoint.name);
                 child.AddValue("icon", wpData.waypoint.id);
@@ -489,26 +519,15 @@ namespace ContractConfigurator.Behaviour
             }
         }
 
-        protected override void OnParameterStateChange(ContractParameter param)
+        private void AddWayPoint(WaypointData wpData)
         {
-            if (param.State == ParameterState.Complete)
+            if (wpData.isAdded)
             {
-                Debug.Log("yyy OnParameterStateChange: " + param.ID);
-                foreach (WaypointData wpData in waypoints)
-                {
-                    string paramID = wpData.parameter.FirstOrDefault();
-                    Debug.Log("    paramID = " + (paramID ?? "null"));
-                    if (wpData.waypoint.visible && paramID == param.ID)
-                    {
-                        Debug.Log("    matched!");
-                        AddWayPoint(wpData.waypoint);
-                    }
-                }
+                return;
             }
-        }
 
-        private void AddWayPoint(Waypoint waypoint)
-        {
+            Waypoint waypoint = wpData.waypoint;
+
             // No contract, no waypoint
             if (waypoint.contractReference == null)
             {
@@ -525,6 +544,7 @@ namespace ContractConfigurator.Behaviour
                 (contract.ContractState == Contract.State.Offered || contract.ContractState == Contract.State.Active))
             {
                 WaypointManager.AddWaypoint(waypoint);
+                wpData.isAdded = true;
             }
         }
 

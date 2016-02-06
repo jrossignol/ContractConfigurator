@@ -103,9 +103,33 @@ namespace ContractConfigurator.Behaviour
         public SpawnVessel(SpawnVessel orig)
         {
             deferVesselCreation = orig.deferVesselCreation;
-            foreach (VesselData vd in orig.vessels)
+            foreach (VesselData vessel in orig.vessels)
             {
-                vessels.Add(new VesselData(vd));
+                if (vessel.pqsCity != null)
+                {
+                    // Generate PQS city coordinates
+                    LoggingUtil.LogVerbose(this, "Generating coordinates from PQS city for Vessel " + vessel.name);
+
+                    // Translate by the PQS offset (inverse transform of coordinate system)
+                    Vector3d position = vessel.pqsCity.transform.position;
+                    LoggingUtil.LogVerbose(this, "    pqs city position = " + position);
+                    Vector3d v = vessel.pqsOffset;
+                    Vector3d i = vessel.pqsCity.transform.right;
+                    Vector3d j = vessel.pqsCity.transform.forward;
+                    Vector3d k = vessel.pqsCity.transform.up;
+                    LoggingUtil.LogVerbose(this, "    i, j, k = " + i + ", " + j + "," + k);
+                    Vector3d offsetPos = new Vector3d(
+                        (j.y * k.z - j.z * k.y) * v.x + (i.z * k.y - i.y * k.z) * v.y + (i.y * j.z - i.z * j.y) * v.z,
+                        (j.z * k.x - j.x * k.z) * v.x + (i.x * k.z - i.z * k.x) * v.y + (i.z * j.x - i.x * j.z) * v.z,
+                        (j.x * k.y - j.y * k.x) * v.x + (i.y * k.x - i.x * k.y) * v.y + (i.x * j.y - i.y * j.x) * v.z
+                    );
+                    offsetPos *= (i.x * j.y * k.z) + (i.y * j.z * k.x) + (i.z * j.x * k.y) - (i.z * j.y * k.x) - (i.y * j.x * k.z) - (i.x * j.z * k.y);
+                    vessel.latitude = vessel.body.GetLatitude(position + offsetPos);
+                    vessel.longitude = vessel.body.GetLongitude(position + offsetPos);
+                    LoggingUtil.LogVerbose(this, "    resulting lat, lon = (" + vessel.latitude + ", " + vessel.longitude + ")");
+                }
+
+                vessels.Add(new VesselData(vessel));
             }
         }
 
@@ -182,24 +206,6 @@ namespace ContractConfigurator.Behaviour
                         valid &= ConfigNodeUtil.ParseValue<float>(child, "height", x => vessel.height = x, factory,
                             !string.IsNullOrEmpty(vessel.craftURL) ? 0.0f : 2.5f);
                         vessel.orbiting = false;
-
-                        // Generate PQS city coordinates
-                        LoggingUtil.LogVerbose(factory, "Generating coordinates from PQS city for Vessel " + vessel.name);
-
-                        // Translate by the PQS offset (inverse transform of coordinate system)
-                        Vector3d position = vessel.pqsCity.transform.position;
-                        Vector3d v = vessel.pqsOffset;
-                        Vector3d i = vessel.pqsCity.transform.right;
-                        Vector3d j = vessel.pqsCity.transform.forward;
-                        Vector3d k = vessel.pqsCity.transform.up;
-                        Vector3d offsetPos = new Vector3d(
-                            (j.y * k.z - j.z * k.y) * v.x + (i.z * k.y - i.y * k.z) * v.y + (i.y * j.z - i.z * j.y) * v.z,
-                            (j.z * k.x - j.x * k.z) * v.x + (i.x * k.z - i.z * k.x) * v.y + (i.z * j.x - i.x * j.z) * v.z,
-                            (j.x * k.y - j.y * k.x) * v.x + (i.y * k.x - i.x * k.y) * v.y + (i.x * j.y - i.y * j.x) * v.z
-                        );
-                        offsetPos *= (i.x * j.y * k.z) + (i.y * j.z * k.x) + (i.z * j.x * k.y) - (i.z * j.y * k.x) - (i.y * j.x * k.z) - (i.x * j.z * k.y);
-                        vessel.latitude = vessel.body.GetLatitude(position + offsetPos);
-                        vessel.longitude = vessel.body.GetLongitude(position + offsetPos);
                     }
                     else if (child.HasValue("lat") && child.HasValue("lon"))
                     {
@@ -266,11 +272,11 @@ namespace ContractConfigurator.Behaviour
             return valid ? spawnVessel : null;
         }
 
-        protected void CreateVessels()
+        protected bool CreateVessels()
         {
             if (vesselsCreated)
             {
-                return;
+                return false;
             }
 
             String gameDataDir = KSPUtil.ApplicationRootPath;
@@ -569,6 +575,7 @@ namespace ContractConfigurator.Behaviour
             }
 
             vesselsCreated = true;
+            return true;
         }
 
         protected override void OnSave(ConfigNode configNode)
@@ -743,10 +750,11 @@ namespace ContractConfigurator.Behaviour
         {
             if (deferVesselCreation && (gameScene == GameScenes.FLIGHT || gameScene == GameScenes.TRACKSTATION || gameScene == GameScenes.EDITOR))
             {
-                CreateVessels();
-
-                // After the vessels are created, save the game again so we don't lose our changes
-                GamePersistence.SaveGame("persistent", HighLogic.SaveFolder, SaveMode.OVERWRITE);
+                if (CreateVessels())
+                {
+                    // After the vessels are created, save the game again so we don't lose our changes
+                    GamePersistence.SaveGame("persistent", HighLogic.SaveFolder, SaveMode.OVERWRITE);
+                }
             }
         }
 

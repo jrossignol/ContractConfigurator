@@ -7,6 +7,9 @@ using UnityEngine;
 using Contracts;
 using ContractConfigurator.ExpressionParser;
 
+using System.IO;
+using System.Text.RegularExpressions;
+
 namespace ContractConfigurator
 {
     public static class DebugWindow
@@ -291,14 +294,13 @@ namespace ContractConfigurator
             }
         }
 
-
         private static void ParamGui(ContractType contractType, IEnumerable<ParameterFactory> paramList, int indent)
         {
             foreach (ParameterFactory param in paramList)
             {
                 GUILayout.BeginHorizontal(GUILayout.ExpandWidth(false));
                 GUILayout.Space(28);
-                GUILayout.Label(new GUIContent(new string(' ', indent * 4) + param, DebugInfo(param)),
+				GUILayout.Label(new GUIContent(new string(' ', indent * 4) + param, DebugInfo(param)),
                     param.enabled ? param.hasWarnings ? yellowLabel : GUI.skin.label : redLabel);
                 if (contractType.enabled)
                 {

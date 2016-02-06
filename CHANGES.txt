@@ -1,9 +1,53 @@
+Contract Configurator 1.9.5
+- Output additional log files when log level is debug or higher (thanks linuxgurugamer).
+- VesselParameterGroup now supports a defineList attribute to add a vessel to a list on contract completion.
+- PartValidation module checks now check the parent type.  This allows mod-introduced PartModules that inherit from stock ones to count for PartValidation checks that look for the stock module (eg. ModuleEnginesFX = ModulesEngines).
+- Added SubAssembly as a valid option for CopyCraftFile.craftType.
+- Added NewKerbals() methods to generate lists of Kerbals.
+- AwardExperience now supports awarding experience directly to Kerbals (instead of via a VesselParameterGroup).
+- Limited the impact of a problem where the final Anomaly Surveyor contract causes revert to editor to leave a vessel on the pad (thanks lodestar).
+- Fixed problem introduced in 1.9.4 where all waypoints without a name get called "site" (thanks smjjames).
+- Fixed issue where Kerbal spawning behaviours didn't clean up properly when the Kerbal was in a command chair (thanks inigma & nobodyhasthis2).
+- Fixed issue with Expression requirement bleeding through between different contracts (thanks Yemo, smjjames and nobodyhasthis2).
+- Added logic to prevent duplicate Kerbal names from coming up in the same (or recent) contracts.
+- Fixed issue with VesselParameterGroup where the vessel wasn't set correctly when loading a Kerbal into an EVA seat triggered the completion (thanks inigma).
+- Minor bug fixes.
+
+Contract Configurator 1.9.4.1
+- Fixed a major issue where vessel spawning would sometimes fail to spawn vessels.
+
+Contract Configurator 1.9.4
+- Added support for lists in persistent data store values.
+- Added checkType to all celestial body progress requirements to allow tracking back on manned/unmanned.
+- Added support for multiple waypoint names in WaypointGenerator (when generating multiple waypoints from one node).
+- Added support for waypoint chaining in WaypoingGenerator.RANDOM_WAYPOINT_NEAR.
+- Duration parameter now supports a startCriteria field for more fine-grained control of starting conditions.
+- Fixed defaulting of min/max count in PartValidation (thanks inigma).
+- Fixed rate of climb checking to default in a way to allow checking for negative values (thanks inigma).
+- Fixed issue with NONE and MODULE being combined in PartValidation (thanks inigma).
+- Fixed issue with VesselDestroyed not working for splashdown or overheat (thanks DBT85).
+- Fixed incorrect latitude/longitude when using PQS offset in SpawnVessel (thanks inigma).
+- Fixed a bug that prevented the requiredValue DATA node check from checking for non-empty lists.
+- Fixed WaypointGenerator not adding waypoints when a contract causes them to become visible (thanks smjjames).
+- Fixed issue where Flats biome would count for GreatFlats in CollectScience (thanks Spheniscine).
+
+Contract Configurator 1.9.3.1
+- Fixed MAJOR issue introduced in 1.9.3 that broke Tourism Plus (thanks Ryusho).
+- Fixed ReachState not working with timers (thanks SoTOP).
+
 Contract Configurator 1.9.3
+- Added VesselParameterGroup.hideVesselName.
+- General improvements to behaviour of parameters with in-sequence completion (thanks inigma).
+- Improved reliability of RemoteTech parameters.
 - Fixed issue with some expressions being parsed twice in the Expression behaviour (thanks linuxgurugamer).
 - Fixed problem with Duration timer contracts not working when used as a child parameter (thanks TrooperCooper & NathanKell).
 - Fixed issue that caused disabled stock contracts to re-enable themselves on occasion (thanks Rokker).
 - Fixed supposedly removed Kerbals going MIA (thanks inigma).
 - Fixed major issue with RemoveKerbal (thanks inigma).
+- Fixed issue with Sequence parameter not always firing (thanks Steven Mading).
+- Fixed issue where CollectScience wouldn't correctly check that it needed to be completed in sequence (thanks linuxgurugamer).
+- Fixed failWhenUnmet to actually fail contracts (thanks inigma).
+- Fixed issue with biomes with spaces in their names in CollectScience (like "Ice Caps").
 
 Contract Configurator 1.9.2.1
 - Fixed problem with loading waypoints from older versions of Contract Configurator (thanks SpaceNomad).
