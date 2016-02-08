@@ -15,6 +15,7 @@ namespace ContractConfigurator
     public class KerbalDeathsFactory : ParameterFactory
     {
         protected int countMax;
+        protected List<Kerbal> kerbal;
 
         public override bool Load(ConfigNode configNode)
         {
@@ -22,13 +23,14 @@ namespace ContractConfigurator
             bool valid = base.Load(configNode);
 
             valid &= ConfigNodeUtil.ParseValue<int>(configNode, "countMax", x => countMax = x, this, 1, x => Validation.GT(x, 0));
+            valid &= ConfigNodeUtil.ParseValue<List<Kerbal>>(configNode, "kerbal", x => kerbal = x, this, new List<Kerbal>());
 
             return valid;
         }
 
         public override ContractParameter Generate(Contract contract)
         {
-            return new KerbalDeathsCustom(countMax, title);
+            return new KerbalDeathsCustom(countMax, kerbal, title);
         }
     }
 }
