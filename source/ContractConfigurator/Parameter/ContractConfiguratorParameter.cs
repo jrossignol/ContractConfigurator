@@ -48,7 +48,7 @@ namespace ContractConfigurator.Parameters
                 }
             }
 
-            return (optional && !fakeOptional && !string.IsNullOrEmpty(title) ? "(Optional) " : "") + GetParameterTitle();
+            return (optional && !fakeOptional && string.IsNullOrEmpty(title) ? "(Optional) " : "") + GetParameterTitle();
         }
 
         protected override string GetHashString()

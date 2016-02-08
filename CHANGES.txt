@@ -2,6 +2,7 @@ Contract Configurator 1.9.6
 - Added kerbal attribute to KerbalDeaths.
 - Fixed problem in CollectScience that affected bathymeter experiment from DMagic Orbital Science (thanks smjjames).
 - Fixed warnings for newer DMagic Orbital Science experiments.
+- Fixed (Optional) text being output when it shouldn't (thanks Keniamin).
 
 Contract Configurator 1.9.5
 - Output additional log files when log level is debug or higher (thanks linuxgurugamer).
