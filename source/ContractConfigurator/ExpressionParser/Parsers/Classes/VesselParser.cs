@@ -53,6 +53,7 @@ namespace ContractConfigurator.ExpressionParser
             RegisterMethod(new Method<Vessel, double>("LargestDimension", GetLargestDimension, false));
             RegisterMethod(new Method<Vessel, Location>("Location", v => v == null ? null : new Location(v.mainBody, v.latitude, v.longitude), false));
 
+            RegisterMethod(new Method<Vessel, Orbit>("Orbit", v => v == null ? null : v.orbit, false));
             RegisterMethod(new Method<Vessel, double>("OrbitApoapsis", GetApA, false));
             RegisterMethod(new Method<Vessel, double>("OrbitPeriapsis", GetPeA, false));
             RegisterMethod(new Method<Vessel, double>("OrbitInclination", GetInclination, false));
