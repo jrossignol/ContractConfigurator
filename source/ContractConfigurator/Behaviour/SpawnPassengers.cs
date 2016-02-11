@@ -77,7 +77,7 @@ namespace ContractConfigurator.Behaviour
                     List<SpawnPassengers> passengerList = new List<SpawnPassengers>();
                     foreach (SpawnPassengers sp in contract.Behaviours.Where(x => x.GetType() == typeof(SpawnPassengers)))
                     {
-                        int count = sp.passengers.Where(pair => !pair.Value).Count();
+                        int count = sp.passengers.Where(pair => !pair.Value && pair.Key.rosterStatus == ProtoCrewMember.RosterStatus.Available).Count();
                         if (count != 0)
                         {
                             passengerCount += count;
@@ -248,7 +248,7 @@ namespace ContractConfigurator.Behaviour
             IEnumerable<ProtoCrewMember> vesselCrew = v.GetVesselCrew();
             if (v != null && v.situation == Vessel.Situations.PRELAUNCH &&
                 v.mainBody.isHomeWorld &&
-                passengers.Where(pair => !pair.Value && !vesselCrew.Contains(pair.Key)).Any() &&
+                passengers.Where(pair => !pair.Value && pair.Key.rosterStatus == ProtoCrewMember.RosterStatus.Available).Any() &&
                 v.GetCrewCapacity() - v.GetCrewCount() >= count)
             {
                 PassengerLoader loader = MapView.MapCamera.gameObject.GetComponent<PassengerLoader>();
@@ -307,7 +307,7 @@ namespace ContractConfigurator.Behaviour
                 return;
             }
 
-            foreach (ProtoCrewMember crewMember in passengers.Keys.ToList())
+            foreach (ProtoCrewMember crewMember in passengers.Keys.Where(pcm => pcm.rosterStatus == ProtoCrewMember.RosterStatus.Available).ToList())
             {
                 // Find a seat for the crew
                 Part part = v.parts.Find(p => p.protoModuleCrew.Count < p.CrewCapacity);
