@@ -460,11 +460,12 @@ namespace ContractConfigurator.Parameters
                 if (!string.IsNullOrEmpty(defineList) && trackedVessel != null)
                 {
                     // Create a vessel association
-                    ContractVesselTracker.Instance.AssociateVessel(trackedVessel.id.ToString(), trackedVessel);
+                    string vesselId = "Vessel" + trackedVessel.id.ToString();
+                    ContractVesselTracker.Instance.AssociateVessel(vesselId, trackedVessel);
 
                     // Add to the vessel store
                     List<VesselIdentifier> vesselStore = PersistentDataStore.Instance.Retrieve<List<VesselIdentifier>>(defineList) ?? new List<VesselIdentifier>();
-                    vesselStore.Add(new VesselIdentifier(trackedVessel.id.ToString()));
+                    vesselStore.Add(new VesselIdentifier(vesselId));
                     PersistentDataStore.Instance.Store<List<VesselIdentifier>>(defineList, vesselStore);
                 }
             }
