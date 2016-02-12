@@ -21,6 +21,8 @@ namespace ContractConfigurator.Parameters
         public KerbalDeathsCustom()
             : base()
         {
+            disableOnStateChange = false;
+            state = ParameterState.Complete;
         }
 
         public KerbalDeathsCustom(int countMax, IEnumerable<Kerbal> kerbals, string title)
@@ -28,7 +30,10 @@ namespace ContractConfigurator.Parameters
         {
             this.countMax = countMax;
             this.kerbals = kerbals.ToList();
-        
+
+            disableOnStateChange = false;
+            state = ParameterState.Complete;
+
             CreateDelegates();
         }
 
