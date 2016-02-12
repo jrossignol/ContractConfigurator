@@ -30,6 +30,11 @@ namespace ContractConfigurator.Parameters
         public HasCrew(string title, IEnumerable<Kerbal> kerbals, string trait, int minCrew = 1, int maxCrew = int.MaxValue, int minExperience = 0, int maxExperience = 5)
             : base(title)
         {
+            if (minCrew > maxCrew)
+            {
+                minCrew = maxCrew;
+            }
+
             this.minCrew = minCrew;
             this.maxCrew = maxCrew;
             this.minExperience = minExperience;
