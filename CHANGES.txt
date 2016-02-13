@@ -1,6 +1,7 @@
 Contract Configurator 1.9.6
 - Added kerbal attribute to KerbalDeaths.
 - Added Vessel.Orbit() method.
+- Moved Vessel.OrbitX() methods to the Orbit class, added a few new ones.
 - Changed HasCrew and HasCrewCapacity to reduce min values when it is larger than the max (thanks severedsolo).
 - Fixed problem in CollectScience that affected bathymeter experiment from DMagic Orbital Science (thanks smjjames).
 - Fixed warnings for newer DMagic Orbital Science experiments.
