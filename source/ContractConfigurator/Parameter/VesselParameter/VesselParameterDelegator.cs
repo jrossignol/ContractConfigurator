@@ -25,15 +25,18 @@ namespace ContractConfigurator.Parameters
         private float lastUpdate = 0.0f;
         private const float UPDATE_FREQUENCY = 0.1f;
 
+        public bool displayNotes;
+
         public VesselParameterDelegator()
-            : this(null, null)
+            : this(null, true, null)
         {
         }
 
-        public VesselParameterDelegator(ContractParameter delegateParam, string title = null)
+        public VesselParameterDelegator(ContractParameter delegateParam, bool displayNotes, string title = null)
             : base(title)
         {
             this.delegateParam = delegateParam;
+            this.displayNotes = displayNotes;
         }
 
         protected override string GetParameterTitle()
@@ -51,7 +54,7 @@ namespace ContractConfigurator.Parameters
         protected override string GetNotes()
         {
             string baseNotes = base.GetNotes();
-            if (string.IsNullOrEmpty(baseNotes))
+            if (string.IsNullOrEmpty(baseNotes) && displayNotes)
             {
                 INotesProvider notesProvider = delegateParam as INotesProvider;
                 if (notesProvider != null)
@@ -73,12 +76,17 @@ namespace ContractConfigurator.Parameters
         {
             base.OnParameterSave(node);
             node.AddValue("paramLocation", GetPathFromParam(delegateParam).Reverse().Aggregate<int, string>("", (s, i) => s + (s == "" ? "" : ",") + i));
+            if (!displayNotes)
+            {
+                node.AddValue("displayNotes", displayNotes);
+            }
         }
 
         protected override void OnParameterLoad(ConfigNode node)
         {
             base.OnParameterLoad(node);
             delegateParam = GetParamFromPath(node.GetValue("paramLocation"));
+            displayNotes = ConfigNodeUtil.ParseValue<bool?>(node, "displayNotes", null) ?? true;
         }
 
         protected override void OnUpdate()
