@@ -10,6 +10,7 @@ Contract Configurator 1.9.6
 - Fixed (Optional) text being output when it shouldn't (thanks Keniamin).
 - Fixed issue with passenger load dialog being shown with incorrect details (thanks smjjames).
 - Fixed issue with defineList when the vessel id haapens to start with a number (thanks severedsolo).
+- Fixed exception when using expressions in Rendezvous parameter (thanks severedsolo).
 
 Contract Configurator 1.9.5
 - Output additional log files when log level is debug or higher (thanks linuxgurugamer).
