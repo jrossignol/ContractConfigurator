@@ -57,6 +57,14 @@ namespace ContractConfigurator
             contractTypes.Clear();
         }
 
+        public string FullName
+        {
+            get
+            {
+                return (group != null ? (group.Root.name + ".") : "") + name;
+            }
+        }
+
         protected List<ParameterFactory> paramFactories = new List<ParameterFactory>();
         protected List<BehaviourFactory> behaviourFactories = new List<BehaviourFactory>();
         protected List<ContractRequirement> requirements = new List<ContractRequirement>();

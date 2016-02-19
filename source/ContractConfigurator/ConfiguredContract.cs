@@ -181,7 +181,7 @@ namespace ContractConfigurator
                 LoggingUtil.LogError(this, "Error initializing contract " + contractType);
                 LoggingUtil.LogException(e);
                 ExceptionLogWindow.DisplayFatalException(ExceptionLogWindow.ExceptionSituation.CONTRACT_GENERATION, e,
-                    contractType == null ? "unknown" : contractType.name);
+                    contractType == null ? "unknown" : contractType.FullName);
 
                 return false;
             }
@@ -216,7 +216,7 @@ namespace ContractConfigurator
                 LoggingUtil.LogError(this, "Error generating contract!");
                 LoggingUtil.LogException(e);
                 ExceptionLogWindow.DisplayFatalException(ExceptionLogWindow.ExceptionSituation.CONTRACT_GENERATION, e,
-                    contractType == null ? "unknown" : contractType.name);
+                    contractType == null ? "unknown" : contractType.FullName);
 
                 try
                 {
@@ -676,7 +676,7 @@ namespace ContractConfigurator
 
         public override string ToString()
         {
-            return contractType != null ? contractType.name : "unknown";
+            return contractType != null ? contractType.FullName : "unknown";
         }
 
         public IEnumerable<string> KerbalNames()
