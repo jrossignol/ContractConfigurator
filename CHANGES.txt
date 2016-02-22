@@ -1,3 +1,6 @@
+Contract Configurator 1.9.7
+- Fixed default values for RemoteTech CelestialBodyCoverage requirement (thanks severedsolo).
+
 Contract Configurator 1.9.6
 - Added kerbal attribute to KerbalDeaths.
 - Added Vessel.Orbit() method.
