@@ -495,7 +495,7 @@ namespace ContractConfigurator
             }
             catch (ContractRequirementException e)
             {
-                LoggingUtil.LogLevel level = contract.ContractState == Contract.State.Active ? LoggingUtil.LogLevel.INFO : contract.contractType != null ? LoggingUtil.LogLevel.DEBUG : LoggingUtil.LogLevel.VERBOSE;
+                LoggingUtil.LogLevel level = contract.ContractState == Contract.State.Active ? LoggingUtil.LogLevel.INFO : LoggingUtil.LogLevel.DEBUG;
                 string prefix = contract.contractType != null ? "Cancelling contract of type " + name + " (" + contract.Title + "): " :
                     "Didn't generate contract type " + name + ": ";
                 LoggingUtil.Log(level, this.GetType(), prefix + e.Message);
@@ -657,7 +657,7 @@ namespace ContractConfigurator
             }
             catch (ContractRequirementException e)
             {
-                LoggingUtil.LogLevel level = contract.ContractState == Contract.State.Active ? LoggingUtil.LogLevel.INFO : contract.contractType != null ? LoggingUtil.LogLevel.DEBUG : LoggingUtil.LogLevel.VERBOSE;
+                LoggingUtil.LogLevel level = contract.ContractState == Contract.State.Active ? LoggingUtil.LogLevel.INFO : LoggingUtil.LogLevel.DEBUG;
                 string prefix = contract.contractType != null ? "Cancelling contract of type " + name + " (" + contract.Title + "): " :
                     "Didn't generate contract type " + name + ": ";
                 LoggingUtil.Log(level, this.GetType(), prefix + e.Message);
