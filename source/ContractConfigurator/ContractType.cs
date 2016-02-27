@@ -206,7 +206,7 @@ namespace ContractConfigurator
                 valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "autoAccept", x => autoAccept = x, this, false);
                 valid &= ConfigNodeUtil.ParseValue<List<Contract.ContractPrestige>>(configNode, "prestige", x => prestige = x, this, new List<Contract.ContractPrestige>());
                 valid &= ConfigNodeUtil.ParseValue<CelestialBody>(configNode, "targetBody", x => targetBody = x, this, (CelestialBody)null);
-            
+
                 valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxCompletions", x => maxCompletions = x, this, 0, x => Validation.GE(x, 0));
                 valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxSimultaneous", x => maxSimultaneous = x, this, 0, x => Validation.GE(x, 0));
 
@@ -304,21 +304,28 @@ namespace ContractConfigurator
                 // Do the deferred loads
                 valid &= ConfigNodeUtil.ExecuteDeferredLoads();
 
-                LoggingUtil.LogInfo(this, "Successfully loaded CONTRACT_TYPE: '" + name + "'");
+                if (valid)
+                {
+                    LoggingUtil.LogInfo(this, "Successfully loaded CONTRACT_TYPE '" + name + "'");
+                }
+                else
+                {
+                    LoggingUtil.LogWarning(this, "Errors encountered while trying to load CONTRACT_TYPE '" + name + "'");
+                }
                 config = configNode.ToString();
                 hash = config.GetHashCode();
                 enabled = valid;
                 log += LoggingUtil.capturedLog;
 
-				if (LoggingUtil.logLevel >= LoggingUtil.LogLevel.DEBUG)
-				{
-					// Get the contract configurator log file
+                if (LoggingUtil.logLevel >= LoggingUtil.LogLevel.DEBUG)
+                {
+                    // Get the contract configurator log file
                     string[] dirComponents = new string[] { KSPUtil.ApplicationRootPath, "GameData", "ContractConfigurator", "log", (group == null ? "!NO_GROUP" : group.Root.name) };
                     string[] pathComponents = dirComponents.Union(new string[] { name + ".log" }).ToArray();
                     string dir = string.Join(Path.DirectorySeparatorChar.ToString(), dirComponents);
                     string path = string.Join(Path.DirectorySeparatorChar.ToString(), pathComponents);
 
-					// Delete the file if it exists
+                    // Delete the file if it exists
                     if (File.Exists(path))
                     {
                         try
@@ -334,26 +341,28 @@ namespace ContractConfigurator
                     // Create the directory if it doesn't exist
                     Directory.CreateDirectory(dir);
 
-					// Now write the config and the cleaned up log to it
-					try
+                    // Now write the config and the cleaned up log to it
+                    try
                     {
-						using (StreamWriter sw = File.AppendText(path))
+                        using (StreamWriter sw = File.AppendText(path))
                         {
                             sw.Write("Debug information for CONTRACT_TYPE '" + name + "':\n");
                             sw.Write("\nConfiguration:\n");
-							sw.Write(config);
+                            sw.Write(config);
                             sw.Write("\nData Nodes:\n");
                             sw.Write(DataNodeDebug(dataNode));
                             sw.Write("\nOutput log:\n");
-							sw.Write(log);
-	        		    }
-					} catch {
-						LoggingUtil.LogError(this, "Exception while attempting to write to the file: " + path);
-					}
-				}
+                            sw.Write(log);
+                        }
+                    }
+                    catch
+                    {
+                        LoggingUtil.LogError(this, "Exception while attempting to write to the file: " + path);
+                    }
+                }
 
-				return valid;
-			}
+                return valid;
+            }
             catch (Exception e)
             {
                 enabled = false;
