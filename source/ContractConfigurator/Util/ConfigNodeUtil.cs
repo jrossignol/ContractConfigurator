@@ -612,7 +612,7 @@ namespace ContractConfigurator
 
                         // Defer loading this value
                         DeferredLoadObject<T> loadObj = null;
-                        if (!deferredLoads.ContainsKey(path))
+                        if (!deferredLoads.ContainsKey(path) || deferredLoads[path].GetType().GetGenericArguments().First() != typeof(T))
                         {
                             deferredLoads[path] = new DeferredLoadObject<T>(configNode, key, setter, obj, validation, currentDataNode);
                         }
