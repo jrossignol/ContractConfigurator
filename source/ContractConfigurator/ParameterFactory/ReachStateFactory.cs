@@ -28,6 +28,7 @@ namespace ContractConfigurator
         protected double maxRateOfClimb;
         protected float minAcceleration;
         protected float maxAcceleration;
+        protected List<CelestialBody> targetBodies;
 
         public override bool Load(ConfigNode configNode)
         {
@@ -48,6 +49,9 @@ namespace ContractConfigurator
             valid &= ConfigNodeUtil.ParseValue<float>(configNode, "minAcceleration", x => minAcceleration = x, this, 0.0f, x => Validation.GE(x, 0.0f));
             valid &= ConfigNodeUtil.ParseValue<float>(configNode, "maxAcceleration", x => maxAcceleration = x, this, float.MaxValue, x => Validation.GE(x, 0.0f));
 
+            // Overload targetBody
+            valid &= ConfigNodeUtil.ParseValue<List<CelestialBody>>(configNode, "targetBody", x => targetBodies = x, this);
+
             // Validate target body
             valid &= ValidateTargetBody(configNode);
 
@@ -66,7 +70,7 @@ namespace ContractConfigurator
                 return null;
             }
 
-            ReachState param = new ReachState(targetBody, biome == null ? "" : biome.biome, situation, minAltitude, maxAltitude,
+            ReachState param = new ReachState(targetBodies, biome == null ? "" : biome.biome, situation, minAltitude, maxAltitude,
                 minTerrainAltitude, maxTerrainAltitude, minSpeed, maxSpeed, minRateOfClimb, maxRateOfClimb, minAcceleration, maxAcceleration, title);
             param.FailWhenUnmet = failWhenUnmet;
             return param;
