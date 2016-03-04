@@ -157,7 +157,7 @@ namespace ContractConfigurator
                     while (otherVessel.Any())
                     {
                         ProtoPartSnapshot px = otherVessel.Dequeue();
-                        if (visited[px] != 2)
+                        if (!visited.ContainsKey(px) || visited[px] != 2)
                         {
                             queue.Enqueue(px);
                             break;
