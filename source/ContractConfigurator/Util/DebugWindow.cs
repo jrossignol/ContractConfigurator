@@ -172,7 +172,7 @@ namespace ContractConfigurator
 
             if (!ContractConfigurator.reloading)
             {
-                foreach (ContractGroup contractGroup in ContractGroup.AllGroups.Where(g => g == null || g.parent == null).OrderBy(cg => cg == null ? "~" : cg.name))
+                foreach (ContractGroup contractGroup in ContractGroup.AllGroups.Where(g => g == null || g.parent == null).OrderBy(cg => cg == null ? "zzz" : cg.name))
                 {
                     GroupGui(contractGroup, 0);
                 }
@@ -257,14 +257,14 @@ namespace ContractConfigurator
                 // Child groups
                 if (contractGroup != null)
                 {
-                    foreach (ContractGroup childGroup in ContractGroup.AllGroups.Where(g => g != null && g.parent != null && g.parent.name == contractGroup.name).OrderBy(cg => cg == null ? "~" : cg.name))
+                    foreach (ContractGroup childGroup in ContractGroup.AllGroups.Where(g => g != null && g.parent != null && g.parent.name == contractGroup.name).OrderBy(cg => cg.name))
                     {
                         GroupGui(childGroup, indent + 1);
                     }
                 }
 
                 // Child contract types
-                foreach (ContractType contractType in guiContracts.Where(ct => ct.group == contractGroup).OrderBy(ct => ct == null ? "~" : ct.name))
+                foreach (ContractType contractType in guiContracts.Where(ct => ct.group == contractGroup).OrderBy(ct => ct.name))
                 {
                     GUILayout.BeginHorizontal();
 
