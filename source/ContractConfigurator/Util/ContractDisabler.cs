@@ -75,7 +75,7 @@ namespace ContractConfigurator
 
         public static bool IsEnabled(Type contract)
         {
-            return ContractSystem.ContractTypes.Contains(contract);
+            return ContractSystem.ContractTypes != null && ContractSystem.ContractTypes.Contains(contract);
         }
 
         public static IEnumerable<ContractGroup> DisablingGroups(Type contract)

@@ -3,6 +3,7 @@ Contract Configurator 1.9.7
 - Fixed default values for RemoteTech CelestialBodyCoverage requirement (thanks severedsolo).
 - Fied minor bug in Sigma Binary support.
 - Fixed possible exception when saving in ContractVesselTracker (thanks apocriva).
+- Minor bug fixes.
 
 Contract Configurator 1.9.6
 - Added kerbal attribute to KerbalDeaths.
