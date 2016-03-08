@@ -37,8 +37,6 @@ namespace ContractConfigurator.Parameters
         private double lastUpdate = 0.0;
         private List<VesselWaypoint> vesselWaypoints = new List<VesselWaypoint>();
 
-        private TitleTracker titleTracker = new TitleTracker();
-
         public bool ChildChanged { get; set; }
 
         public VesselParameterGroup()
@@ -123,11 +121,6 @@ namespace ContractConfigurator.Parameters
                     output += GetParameter(0).Title;
                 }
             }
-
-            // Add the string that we returned to the titleTracker.  This is used to update
-            // the contract title element in the GUI directly, as it does not support dynamic
-            // text.
-            titleTracker.Add(output);
 
             return output;
         }
@@ -408,7 +401,6 @@ namespace ContractConfigurator.Parameters
         protected override void OnRegister()
         {
             GameEvents.onVesselChange.Add(new EventData<Vessel>.OnEvent(OnVesselChange));
-            GameEvents.onVesselRename.Add(new EventData<GameEvents.HostedFromToAction<Vessel, string>>.OnEvent(OnVesselRename));
             ContractVesselTracker.OnVesselAssociation.Add(new EventData<GameEvents.HostTargetAction<Vessel, string>>.OnEvent(OnVesselAssociation));
             ContractVesselTracker.OnVesselDisassociation.Add(new EventData<GameEvents.HostTargetAction<Vessel, string>>.OnEvent(OnVesselDisassociation));
 
@@ -428,7 +420,6 @@ namespace ContractConfigurator.Parameters
         protected override void OnUnregister()
         {
             GameEvents.onVesselChange.Remove(new EventData<Vessel>.OnEvent(OnVesselChange));
-            GameEvents.onVesselRename.Remove(new EventData<GameEvents.HostedFromToAction<Vessel, string>>.OnEvent(OnVesselRename));
             ContractVesselTracker.OnVesselAssociation.Remove(new EventData<GameEvents.HostTargetAction<Vessel, string>>.OnEvent(OnVesselAssociation));
             ContractVesselTracker.OnVesselDisassociation.Remove(new EventData<GameEvents.HostTargetAction<Vessel, string>>.OnEvent(OnVesselDisassociation));
 
@@ -534,14 +525,6 @@ namespace ContractConfigurator.Parameters
             }
         }
 
-        protected void OnVesselRename(GameEvents.HostedFromToAction<Vessel, string> hft)
-        {
-            if (!string.IsNullOrEmpty(define) && trackedVessel == hft.host)
-            {
-                ContractConfigurator.OnParameterChange.Fire(this.Root, this);
-            }
-        }
-
         protected void OnVesselChange(Vessel vessel)
         {
             LoggingUtil.LogVerbose(this, "OnVesselChange(" + (vessel != null && vessel.id != null ? vessel.id.ToString() : "null") + "), Active = " +
@@ -615,7 +598,9 @@ namespace ContractConfigurator.Parameters
                 {
                     lastUpdate = Planetarium.GetUniversalTime();
 
-                    titleTracker.UpdateContractWindow(this, GetTitle());
+                    // Force a call to GetTitle to update the contracts app
+                    GetTitle();
+
                     if (durationParameter != null)
                     {
                         durationParameter.SetTitle("Time Remaining: " + DurationUtil.StringValue(completionTime - Planetarium.GetUniversalTime()));

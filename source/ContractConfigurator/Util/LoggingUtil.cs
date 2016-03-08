@@ -190,14 +190,7 @@ namespace ContractConfigurator
                 CaptureException(e);
             }
 
-            if (Util.Version.IsWin64())
-            {
-                Debug.LogException(new Exception("Win64 exception: ", e));
-            }
-            else
-            {
-                Debug.LogException(e);
-            }
+            Debug.LogException(e);
         }
 
         private static void CaptureException(Exception e)
@@ -207,7 +200,7 @@ namespace ContractConfigurator
                 CaptureException(e.InnerException);
                 capturedLog += "Rethrow as ";
             }
-            capturedLog += (Util.Version.IsWin64() ? "(Win64) " : "") + e.GetType() + ": " + e.Message + "\n" + e.StackTrace + "\n";
+            capturedLog += e.GetType() + ": " + e.Message + "\n" + e.StackTrace + "\n";
         }
 
 

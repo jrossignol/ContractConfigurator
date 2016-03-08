@@ -16,14 +16,6 @@ namespace ContractConfigurator
     [KSPAddon(KSPAddon.Startup.MainMenu, true)]
     public class ContractConfigurator : MonoBehaviour
     {
-        public static string Win64WarningFileName
-        {
-            get
-            {
-                return string.Join(Path.DirectorySeparatorChar.ToString(), new string[] { KSPUtil.ApplicationRootPath, "GameData", "ContractConfigurator", "Win64Warning.cfg" });
-            }
-        }
-
         private enum ReloadStep
         {
             GAME_DATABASE,

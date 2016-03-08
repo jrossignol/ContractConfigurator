@@ -21,15 +21,19 @@ namespace ContractConfigurator.Parameters
         public bool hidden { get; set; }
         protected bool fakeFailures = false;
         public bool fakeOptional = false;
+        private TitleTracker titleTracker;
+        protected string lastTitle = null;
 
         public ContractConfiguratorParameter()
             : this(null)
         {
+            titleTracker = new TitleTracker(this);
         }
 
         public ContractConfiguratorParameter(string title)
         {
             this.title = title;
+            titleTracker = new TitleTracker(this);
         }
 
         protected override string GetTitle()
@@ -48,7 +52,17 @@ namespace ContractConfigurator.Parameters
                 }
             }
 
-            return (optional && !fakeOptional && string.IsNullOrEmpty(title) ? "(Optional) " : "") + GetParameterTitle();
+            string output = (optional && !fakeOptional && string.IsNullOrEmpty(title) ? "(Optional) " : "") + GetParameterTitle();
+
+            // Update the contract window title
+            titleTracker.Add(output);
+            if (lastTitle != output && Root != null && (Root.ContractState == Contract.State.Active || Root.ContractState == Contract.State.Failed))
+            {
+                titleTracker.UpdateContractWindow(output);
+                lastTitle = output;
+            }
+
+            return output;
         }
 
         protected override string GetHashString()

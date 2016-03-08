@@ -19,8 +19,6 @@ namespace ContractConfigurator.RemoteTech
         protected CelestialBody targetBody { get; set; }
         private double currentCoverage = -1.0;
 
-        TitleTracker titleTracker = new TitleTracker();
-
         public CelestialBodyCoverageParameter()
             : this(0.0, null)
         {
@@ -85,7 +83,7 @@ namespace ContractConfigurator.RemoteTech
                 }
 
                 // Update contract window
-                titleTracker.UpdateContractWindow(this, GetTitle());
+                GetTitle();
             }
         }
     }

@@ -18,9 +18,85 @@ namespace ContractConfigurator
     /// </summary>
     public class TitleTracker
     {
-        static FieldInfo contractsField = typeof(ContractsApp).GetFields(BindingFlags.NonPublic | BindingFlags.Instance).Where(mi => mi.FieldType == typeof(Dictionary<Guid, UICascadingList.CascadingListItem>)).First();
-        private Dictionary<Guid, UICascadingList.CascadingListItem> uiListMap = null;
+        /// <summary>
+        /// Class to cache reflected field from the contracts app.
+        /// </summary>
+        [KSPAddon(KSPAddon.Startup.EveryScene, false)]
+        private class TitleTrackerCache : MonoBehaviour
+        {
+            static TitleTrackerCache Instance;
+            static GameScenes[] validScenes = new GameScenes[] {
+                GameScenes.EDITOR,
+                GameScenes.FLIGHT,
+                GameScenes.SPACECENTER,
+                GameScenes.TRACKSTATION
+            };
+            static FieldInfo contractsField = typeof(ContractsApp).GetFields(BindingFlags.NonPublic | BindingFlags.Instance).Where(mi => mi.FieldType == typeof(Dictionary<Guid, UICascadingList.CascadingListItem>)).First();
+            private Dictionary<Guid, UICascadingList.CascadingListItem> _uiListMap = null;
+            public static Dictionary<Guid, UICascadingList.CascadingListItem> uiListMap
+            {
+                get
+                {
+                    if (Instance._uiListMap == null)
+                    {
+                        Instance._uiListMap = (Dictionary<Guid, UICascadingList.CascadingListItem>)contractsField.GetValue(ContractsApp.Instance);
+                    }
+                    return Instance._uiListMap;
+                }
+            }
+
+            void Awake()
+            {
+                if (!validScenes.Contains(HighLogic.LoadedScene))
+                {
+                    Destroy(this);
+                }
+                Instance = this;
+            }
+        }
+
+        private ContractParameter parameter;
         private List<string> titles = new List<string>();
+        private Text text;
+
+        public TitleTracker(ContractParameter parameter)
+        {
+            this.parameter = parameter;
+
+            GameEvents.Contract.onParameterChange.Add(new EventData<Contract, ContractParameter>.OnEvent(OnParameterChange));
+            GameEvents.onVesselRename.Add(new EventData<GameEvents.HostedFromToAction<Vessel, string>>.OnEvent(OnVesselRename));
+        }
+
+        ~TitleTracker()
+        {
+            GameEvents.Contract.onParameterChange.Remove(new EventData<Contract, ContractParameter>.OnEvent(OnParameterChange));
+            GameEvents.onVesselRename.Remove(new EventData<GameEvents.HostedFromToAction<Vessel, string>>.OnEvent(OnVesselRename));
+        }
+
+        private void OnParameterChange(Contract c, ContractParameter p)
+        {
+            if (c == parameter.Root)
+            {
+                text = null;
+            }
+        }
+
+        protected void OnVesselRename(GameEvents.HostedFromToAction<Vessel, string> hft)
+        {
+            // Many parameters have the vessel name in the title, so force a refresh
+            if (text != null)
+            {
+                if (text.text.Contains(hft.from))
+                {
+                    string unused = parameter.Title;
+                }
+            }
+            // No cached value, assume a refresh required
+            else
+            {
+                string unused = parameter.Title;
+            }
+        }
 
         /// <summary>
         /// Add a title to the TitleTracker to be tracked.  Call this in GetTitle() before returning a new string.
@@ -41,46 +117,54 @@ namespace ContractConfigurator
         /// the title once.
         /// </summary>
         /// <param name="newTitle">New title to display</param>
-        public void UpdateContractWindow(ContractParameter param, string newTitle)
+        public void UpdateContractWindow(string newTitle)
         {
-            if (uiListMap == null)
-            {
-                uiListMap = (Dictionary<Guid, UICascadingList.CascadingListItem>)contractsField.GetValue(ContractsApp.Instance);
-            }
-
             // Get the cascading list for our contract
-            UICascadingList.CascadingListItem list = uiListMap.ContainsKey(param.Root.ContractGuid) ? uiListMap[param.Root.ContractGuid] : null;
-            if (list != null)
+            if (text == null)
             {
-                foreach (KSP.UI.UIListItem item in list.items)
+                UICascadingList.CascadingListItem list = TitleTrackerCache.uiListMap.ContainsKey(parameter.Root.ContractGuid) ? TitleTrackerCache.uiListMap[parameter.Root.ContractGuid] : null;
+
+                if (list != null)
                 {
-                    Text text = item.GetComponentsInChildren<Text>(true).FirstOrDefault();
-                    if (text != null)
+                    foreach (KSP.UI.UIListItem item in list.items)
                     {
-                        // Check for any string in titleTracker
-                        string found = null;
-                        foreach (string title in titles)
+                        Text textComponent = item.GetComponentsInChildren<Text>(true).FirstOrDefault();
+                        if (textComponent != null)
                         {
-                            if (text.text.EndsWith(title + "</color>"))
+                            // Check for any string in titleTracker
+                            foreach (string title in titles)
                             {
-                                found = title;
+                                if (textComponent.text.EndsWith(">" + title + "</color>"))
+                                {
+                                    text = textComponent;
+                                    break;
+                                }
+                            }
+
+                            if (text != null)
+                            {
                                 break;
                             }
-                        }
-
-                        // Clear the titleTracker, and replace the text
-                        if (found != null)
-                        {
-                            titles.Clear();
-                            text.text = text.text.Replace(found, newTitle);
-                            titles.Add(newTitle);
                         }
                     }
                 }
             }
 
+            if (text != null)
+            {
+                // Clear the titleTracker, and replace the text
+                if (!text.text.Contains(">" + newTitle + "<"))
+                {
+                    titles.Clear();
+                    text.text = text.text.Substring(0, text.text.IndexOf(">") + 1) + newTitle + "</color>";
+                    titles.Add(newTitle);
+
+                    // TODO - need to handle resizing of text area
+                }
+            }
+
             // Contracts Window + update
-            ContractsWindow.SetParameterTitle(param, newTitle);
+            ContractsWindow.SetParameterTitle(parameter, newTitle);
         }
     }
 }

@@ -57,8 +57,6 @@ namespace ContractConfigurator.Parameters
         protected ParameterDelegateMatchType matchType;
         protected bool trivial;
 
-        private TitleTracker titleTracker = new TitleTracker();
-
         public ParameterDelegate()
             : this(null, null, false)
         {
@@ -79,13 +77,6 @@ namespace ContractConfigurator.Parameters
             disableOnStateChange = false;
 
             OnRegister();
-        }
-
-        protected override string GetParameterTitle()
-        {
-            string output = base.GetParameterTitle();
-            titleTracker.Add(output);
-            return output;
         }
 
         protected override void OnParameterSave(ConfigNode node)
@@ -129,7 +120,9 @@ namespace ContractConfigurator.Parameters
             if (title != newTitle)
             {
                 title = newTitle;
-                titleTracker.UpdateContractWindow(this, newTitle);
+
+                // Force a call to GetTitle to update the contracts app
+                GetTitle();
             }
         }
 
