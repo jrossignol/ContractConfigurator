@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using UnityEngine;
 using KSP;
+using KSP.UI;
+using KSP.UI.Screens;
 using Contracts;
 using Contracts.Parameters;
+using UnityEngine.UI;
 
 namespace ContractConfigurator
 {
@@ -14,8 +18,8 @@ namespace ContractConfigurator
     /// </summary>
     public class TitleTracker
     {
-        // TODO - broken
-//        private static GenericCascadingList cascadingList = null;
+        static FieldInfo contractsField = typeof(ContractsApp).GetFields(BindingFlags.NonPublic | BindingFlags.Instance).Where(mi => mi.FieldType == typeof(Dictionary<Guid, UICascadingList.CascadingListItem>)).First();
+        private Dictionary<Guid, UICascadingList.CascadingListItem> uiListMap = null;
         private List<string> titles = new List<string>();
 
         /// <summary>
@@ -39,59 +43,44 @@ namespace ContractConfigurator
         /// <param name="newTitle">New title to display</param>
         public void UpdateContractWindow(ContractParameter param, string newTitle)
         {
-/*            // Try to find the cascading list in the contracts window.  Note that we may pick up
-            // the ones from the Engineer's report in the VAB/SPH instead - but we don't care about
-            // title updates in those scenes anyway.
-            if (cascadingList == null || !cascadingList.gameObject.activeSelf)
+            if (uiListMap == null)
             {
-                cascadingList = UnityEngine.Object.FindObjectOfType<GenericCascadingList>();
+                uiListMap = (Dictionary<Guid, UICascadingList.CascadingListItem>)contractsField.GetValue(ContractsApp.Instance);
             }
 
-            // Every time the clock ticks over, make an attempt to update the contract window
-            // title.  We do this because otherwise the window will only ever read the title once,
-            // so this is the only way to get our fancy timer to work.
-
-            // Go through all the list items in the contracts window
-            if (cascadingList != null)
+            // Get the cascading list for our contract
+            UICascadingList.CascadingListItem list = uiListMap.ContainsKey(param.Root.ContractGuid) ? uiListMap[param.Root.ContractGuid] : null;
+            if (list != null)
             {
-                UIScrollList list = cascadingList.ruiList.cascadingList;
-                if (list != null)
+                foreach (KSP.UI.UIListItem item in list.items)
                 {
-                    for (int i = 0; i < list.Count; i++)
+                    Text text = item.GetComponentsInChildren<Text>(true).FirstOrDefault();
+                    if (text != null)
                     {
-                        // Try to find a rich text control that matches the expected text
-                        UIListItemContainer listObject = (UIListItemContainer)list.GetItem(i);
-                        SpriteTextRich richText = listObject.GetComponentInChildren<SpriteTextRich>();
-                        if (richText != null)
+                        // Check for any string in titleTracker
+                        string found = null;
+                        foreach (string title in titles)
                         {
-                            // Check for any string in titleTracker
-                            string found = null;
-                            foreach (string title in titles)
+                            if (text.text.EndsWith(title + "</color>"))
                             {
-                                if (richText.Text.EndsWith(title))
-                                {
-                                    found = title;
-                                    break;
-                                }
-                            }
-
-                            // Clear the titleTracker, and replace the text
-                            if (found != null)
-                            {
-                                titles.Clear();
-                                richText.Text = richText.Text.Replace(found, newTitle);
-                                titles.Add(newTitle);
+                                found = title;
+                                break;
                             }
                         }
-                    }
 
-                    // Reposition items to account for items where the height increased or decreased
-                    list.RepositionItems();
+                        // Clear the titleTracker, and replace the text
+                        if (found != null)
+                        {
+                            titles.Clear();
+                            text.text = text.text.Replace(found, newTitle);
+                            titles.Add(newTitle);
+                        }
+                    }
                 }
             }
 
             // Contracts Window + update
-            ContractsWindow.SetParameterTitle(param, newTitle);*/
+            ContractsWindow.SetParameterTitle(param, newTitle);
         }
     }
 }
