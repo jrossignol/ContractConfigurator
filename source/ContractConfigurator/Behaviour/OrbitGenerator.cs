@@ -248,7 +248,8 @@ namespace ContractConfigurator.Behaviour
 
         public void Draw()
         {
-            // No contract
+            // TODO - fixme
+/*            // No contract
             if (contract == null)
             {
                 return;
@@ -282,7 +283,7 @@ namespace ContractConfigurator.Behaviour
                         s.setVisible(false);
                     }
                 }
-            }
+            }*/
         }
 
         public SpecificOrbitWrapper GetOrbitParameter(int index)

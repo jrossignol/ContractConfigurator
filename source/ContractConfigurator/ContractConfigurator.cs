@@ -7,6 +7,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using UnityEngine;
 using KSP;
+using KSP.UI.Screens;
 using Contracts;
 using ContractConfigurator.Util;
 
@@ -46,9 +47,6 @@ namespace ContractConfigurator
         public static int successContracts = 0;
         public static int attemptedContracts = 0;
 
-        private bool contractsAppVisible = false;
-        private double lastContractsAppCheck = 0.0;
-
         private List<Contract> contractsToUpdate = new List<Contract>();
         private static List<Assembly> badAssemblies = new List<Assembly>();
 
@@ -79,9 +77,6 @@ namespace ContractConfigurator
                     typeof(AssemblyInformationalVersionAttribute)) as AssemblyInformationalVersionAttribute;
                 LoggingUtil.LogInfo(this, "Contract Configurator " + ainfoV.InformationalVersion + " loading...");
 
-                // Check for Win64
-                DoWin64Check();
-
                 LoggingUtil.LoadDebuggingConfig();
 
                 RegisterParameterFactories();
@@ -109,23 +104,6 @@ namespace ContractConfigurator
             if (GameSettings.MODIFIER_KEY.GetKey() && Input.GetKeyDown(KeyCode.F10))
             {
                 DebugWindow.showGUI = !DebugWindow.showGUI;
-            }
-
-            // Check if the ContractsApp has just become visible
-            if (!contractsAppVisible &&
-                ContractsApp.Instance != null &&
-                ContractsApp.Instance.appLauncherButton != null)
-            {
-                if (UnityEngine.Time.fixedTime - lastContractsAppCheck > 0.5)
-                {
-                    lastContractsAppCheck = UnityEngine.Time.fixedTime;
-                    GenericAppFrame contractsAppFrame = UnityEngine.Object.FindObjectOfType<GenericAppFrame>();
-                    if (contractsAppFrame != null && contractsAppFrame.gameObject.activeSelf &&
-                        contractsAppFrame.header.text == "Contracts")
-                    {
-                        contractsAppVisible = true;
-                    }
-                }
             }
 
             // Display reloading message
@@ -161,49 +139,16 @@ namespace ContractConfigurator
                         break;
                 }
             }
-
-            // Fire update events
-            if (contractsAppVisible)
-            {
-                foreach (Contract contract in contractsToUpdate)
-                {
-                    if (contract.ContractState == Contract.State.Active && contract.GetType() == typeof(ConfiguredContract))
-                    {
-                        GameEvents.Contract.onParameterChange.Fire(contract, contract.GetParameter(0));
-                    }
-                }
-                contractsToUpdate.Clear();
-            }
         }
 
+        /// <summary>
+        /// This used to be something unique to work around a bug, but the bug in stock no longer exists.  Look into removing.
+        /// </summary>
+        /// <param name="c"></param>
+        /// <param name="p"></param>
         private void ParameterChange(Contract c, ContractParameter p)
         {
-            // ContractsApp is visible
-            if (ContractsApp.Instance != null &&
-                ContractsApp.Instance.appLauncherButton != null)
-            {
-                GenericAppFrame contractsAppFrame = UnityEngine.Object.FindObjectOfType<GenericAppFrame>();
-                if (contractsAppFrame != null && contractsAppFrame.gameObject.activeSelf &&
-                    contractsAppFrame.header.text == "Contracts")
-                {
-                    contractsAppVisible = true;
-                }
-                else
-                {
-                    contractsAppVisible = false;
-                }
-            }
-            // Not visible
-            else
-            {
-                contractsAppVisible = false;
-            }
-
-            // Add the contract to the list of ones to update
-            contractsToUpdate.AddUnique(c);
-
-            // Also update contracts window plus title
-            ContractsWindow.SetParameterTitle(p, p.Title);
+            GameEvents.Contract.onParameterChange.Fire(c, p);
         }
 
         public void OnGUI()
@@ -536,6 +481,9 @@ namespace ContractConfigurator
         /// <returns>Whether the changes took place</returns>
         static bool AdjustContractTypes()
         {
+            // TODO - use the contract weight system instead
+            return true;
+            /*
             if (ContractSystem.Instance == null)
             {
                 return false;
@@ -554,7 +502,7 @@ namespace ContractConfigurator
 
             LoggingUtil.LogInfo(typeof(ContractConfigurator), "Finished Adjusting ContractTypes");
 
-            return true;
+            return true;*/
         }
 
         public static IEnumerable<Type> GetAllTypes<T>()
@@ -588,45 +536,6 @@ namespace ContractConfigurator
                         yield return foundType;
                     }
                 }
-            }
-        }
-
-        public bool IsWin64()
-        {
-            // This makes no sense
-            return !Util.Version.IsWin64();
-        }
-
-        private void DoWin64Check()
-        {
-            if (Util.Version.IsWin64() || !IsWin64())
-            {
-                var ainfoV = Attribute.GetCustomAttribute(typeof(ContractConfigurator).Assembly,
-                    typeof(AssemblyInformationalVersionAttribute)) as AssemblyInformationalVersionAttribute;
-
-                if (File.Exists(Win64WarningFileName))
-                {
-                    ConfigNode configNode = ConfigNode.Load(Win64WarningFileName);
-                    string version = configNode.GetValue("version");
-                    if (version == ainfoV.InformationalVersion)
-                    {
-                        return;
-                    }
-                }
-
-                string title = "Contract Configurator Win64 Support";
-                string message = "Contract Configurator is not officially supported on Windown 64-bit builds of KSP " +
-                    "due to wildly random bugs that take a huge amount of my (nightingale's) time to investigate.  " +
-                    "It will continue to work as normal, but please do not request support for any issues " +
-                    "unless they can be reproduced in a supported build.";
-                DialogOption dialogOption = new DialogOption("Okay", new Callback(DoNothing), true);
-                PopupDialog.SpawnPopupDialog(new MultiOptionDialog(message, title, HighLogic.Skin, dialogOption), false, HighLogic.Skin);
-
-                ConfigNode node = new ConfigNode("CC_WIN64_WARNING");
-                node.AddValue("version", ainfoV.InformationalVersion);
-                node.Save(Win64WarningFileName, "Contract Configurator Win64 warning configuration");
-
-                LoggingUtil.LogWarning(this, "ContractConfigurator on Win64 detected.");
             }
         }
 

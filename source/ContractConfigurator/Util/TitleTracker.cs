@@ -14,7 +14,8 @@ namespace ContractConfigurator
     /// </summary>
     public class TitleTracker
     {
-        private static GenericCascadingList cascadingList = null;
+        // TODO - broken
+//        private static GenericCascadingList cascadingList = null;
         private List<string> titles = new List<string>();
 
         /// <summary>
@@ -38,7 +39,7 @@ namespace ContractConfigurator
         /// <param name="newTitle">New title to display</param>
         public void UpdateContractWindow(ContractParameter param, string newTitle)
         {
-            // Try to find the cascading list in the contracts window.  Note that we may pick up
+/*            // Try to find the cascading list in the contracts window.  Note that we may pick up
             // the ones from the Engineer's report in the VAB/SPH instead - but we don't care about
             // title updates in those scenes anyway.
             if (cascadingList == null || !cascadingList.gameObject.activeSelf)
@@ -90,7 +91,7 @@ namespace ContractConfigurator
             }
 
             // Contracts Window + update
-            ContractsWindow.SetParameterTitle(param, newTitle);
+            ContractsWindow.SetParameterTitle(param, newTitle);*/
         }
     }
 }

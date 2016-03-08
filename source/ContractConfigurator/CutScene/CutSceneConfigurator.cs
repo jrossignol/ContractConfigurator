@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Text;
 using UnityEngine;
 using KSP;
+using KSP.UI.Screens;
 using ContractConfigurator;
 using ContractConfigurator.CutScene;
 

@@ -499,9 +499,13 @@ namespace ContractConfigurator
         {
             // Remove the stuff that's supposed to be hidden from the mission control text
             string str = base.MissionControlTextRich();
+
+            // Remove carriage returns
             str = Regex.Replace(str, "\r", "");
-            str = Regex.Replace(str, @"<b><#......>*:.*?\n\n", "", RegexOptions.Singleline);
-            str = Regex.Replace(str, @"<b><#......>\s*:.*?\n", "", RegexOptions.Singleline);
+
+            // Remove empty parameters
+            str = Regex.Replace(str, @"<b><color=#......>*:.*?\n\n", "", RegexOptions.Singleline);
+            str = Regex.Replace(str, @"<b><color=#......>\s*:.*?\n", "", RegexOptions.Singleline);
             return str;
         }
 

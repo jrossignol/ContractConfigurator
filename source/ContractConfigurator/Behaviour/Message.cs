@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 using KSP;
+using KSP.UI.Screens;
 using Contracts;
 using ContractConfigurator;
 

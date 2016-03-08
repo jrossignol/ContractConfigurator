@@ -21,7 +21,7 @@ namespace ContractConfigurator.Behaviour
         private bool awardImmediately;
 
         /// <summary>
-        /// Static initializer to hack the kerbal experience/flight log system to add our entries.
+        /// Static initializer to add our entries into the experience/flight log system.
         /// It's done on the factory to guarantee it's always run, otherwise uninstalling a
         /// contract pack could have the side effect of wiping some XP from a saved game.
         /// </summary>
@@ -29,60 +29,9 @@ namespace ContractConfigurator.Behaviour
         {
             LoggingUtil.LogVerbose(typeof(AwardExperienceFactory), "Doing setup of Kerbal Experience extras");
 
-            FieldInfo[] fields = typeof(KerbalRoster).GetFields(BindingFlags.NonPublic | BindingFlags.Static);
-
-            foreach (FieldInfo field in fields)
+            for (int i = 3; i <= 64; i++)
             {
-                object value = field.GetValue(null);
-                IEnumerable<string> strValues = value as IEnumerable<string>;
-                if (strValues != null)
-                {
-                    // We're looking for the Kerbin lists that contain Training, but not PlantFlag
-                    if (strValues.Contains("Training") && !strValues.Contains("PlantFlag"))
-                    {
-                        LoggingUtil.LogVerbose(typeof(AwardExperienceFactory), "Adding SpecialExperience items");
-                        List<string> newValues = strValues.ToList();
-                        // Allow up to 64 XP (max level)
-                        for (int i = 3; i <= 64; i++)
-                        {
-                            newValues.Add(AwardExperience.SPECIAL_XP + i);
-                        }
-                        field.SetValue(null, newValues.ToArray());
-                    }
-                    // Also there's the printed version
-                    else if (strValues.Contains("Train at") && !strValues.Contains("Plant flag on"))
-                    {
-                        LoggingUtil.LogVerbose(typeof(AwardExperienceFactory), "Adding 'Special experience from' items");
-                        List<string> newValues = strValues.ToList();
-                        // Allow up to 64 XP (max level)
-                        for (int i = 3; i <= 64; i++)
-                        {
-                            newValues.Add("Special experience from");
-                        }
-                        field.SetValue(null, newValues.ToArray());
-                    }
-
-                    continue;
-                }
-
-                IEnumerable<float> floatValues = value as IEnumerable<float>;
-                if (floatValues != null)
-                {
-                    // Get the list of experience points for the above string entries
-                    if (floatValues.First() == 1.0f && !floatValues.Contains(2.3f))
-                    {
-                        LoggingUtil.LogVerbose(typeof(AwardExperienceFactory), "Adding float items");
-                        List<float> newValues = floatValues.ToList();
-                        // Allow up to 64 XP (max level)
-                        for (int i = 3; i <= 64; i++)
-                        {
-                            newValues.Add((float)i);
-                        }
-                        field.SetValue(null, newValues.ToArray());
-                    }
-
-                    continue;
-                }
+                KerbalRoster.AddExperienceType(AwardExperience.SPECIAL_XP + i, "Special experience from", 0.0f, (float)i);
             }
         }
 

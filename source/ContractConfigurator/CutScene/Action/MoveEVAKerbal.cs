@@ -59,7 +59,8 @@ namespace ContractConfigurator.CutScene
             // Set up the animation
             kerbalEVA.Animations.walkLowGee.State.speed = 2.7f;
             KerbalAnimationState animState = body.GeeASL > kerbalEVA.minWalkingGee ? kerbalEVA.Animations.walkFwd : kerbalEVA.Animations.walkLowGee;
-            kerbalEVA.animation.CrossFade(animState.animationName);
+            // TODO - fixme
+            //kerbalEVA.animation.CrossFade(animState.animationName);
 
             // Create the enumerator
             waypointEnumerator = waypoints.GetEnumerator();
@@ -98,7 +99,8 @@ namespace ContractConfigurator.CutScene
 
         public override void OnDestroy()
         {
-            kerbalEVA.animation.CrossFade(kerbalEVA.Animations.idle, 0.2f);
+            // TODO - fixme
+            //kerbalEVA.animation.CrossFade(kerbalEVA.Animations.idle, 0.2f);
             UnityEngine.Object.Destroy(dest.gameObject);
             dest = null;
         }
