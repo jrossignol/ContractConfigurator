@@ -22,17 +22,19 @@ namespace ContractConfigurator
         /// Class to cache reflected field from the contracts app.
         /// </summary>
         [KSPAddon(KSPAddon.Startup.EveryScene, false)]
-        private class TitleTrackerCache : MonoBehaviour
+        private class TitleTrackerHelper : MonoBehaviour
         {
-            static TitleTrackerCache Instance;
+            static TitleTrackerHelper Instance;
             static GameScenes[] validScenes = new GameScenes[] {
                 GameScenes.EDITOR,
                 GameScenes.FLIGHT,
                 GameScenes.SPACECENTER,
                 GameScenes.TRACKSTATION
             };
+
             static FieldInfo contractsField = typeof(ContractsApp).GetFields(BindingFlags.NonPublic | BindingFlags.Instance).Where(mi => mi.FieldType == typeof(Dictionary<Guid, UICascadingList.CascadingListItem>)).First();
             private Dictionary<Guid, UICascadingList.CascadingListItem> _uiListMap = null;
+
             public static Dictionary<Guid, UICascadingList.CascadingListItem> uiListMap
             {
                 get
@@ -58,6 +60,7 @@ namespace ContractConfigurator
         private ContractParameter parameter;
         private List<string> titles = new List<string>();
         private Text text;
+        private LayoutElement layoutElement;
 
         public TitleTracker(ContractParameter parameter)
         {
@@ -122,7 +125,7 @@ namespace ContractConfigurator
             // Get the cascading list for our contract
             if (text == null)
             {
-                UICascadingList.CascadingListItem list = TitleTrackerCache.uiListMap.ContainsKey(parameter.Root.ContractGuid) ? TitleTrackerCache.uiListMap[parameter.Root.ContractGuid] : null;
+                UICascadingList.CascadingListItem list = TitleTrackerHelper.uiListMap.ContainsKey(parameter.Root.ContractGuid) ? TitleTrackerHelper.uiListMap[parameter.Root.ContractGuid] : null;
 
                 if (list != null)
                 {
@@ -137,6 +140,7 @@ namespace ContractConfigurator
                                 if (textComponent.text.EndsWith(">" + title + "</color>"))
                                 {
                                     text = textComponent;
+                                    layoutElement = item.GetComponentsInChildren<LayoutElement>(true).FirstOrDefault();
                                     break;
                                 }
                             }
@@ -150,16 +154,30 @@ namespace ContractConfigurator
                 }
             }
 
-            if (text != null)
+            if (text)
             {
                 // Clear the titleTracker, and replace the text
                 if (!text.text.Contains(">" + newTitle + "<"))
                 {
+                    float preHeight = text.preferredHeight;
+                    
                     titles.Clear();
                     text.text = text.text.Substring(0, text.text.IndexOf(">") + 1) + newTitle + "</color>";
                     titles.Add(newTitle);
 
-                    // TODO - need to handle resizing of text area
+                    float postHeight = text.preferredHeight;
+
+                    if (preHeight != postHeight)
+                    {
+                        text.rectTransform.sizeDelta = new Vector2(text.rectTransform.sizeDelta.x, postHeight + 4f);
+                        layoutElement.preferredHeight = postHeight + 6f;
+
+                        // Force an update to the layout even when not active
+                        if (!layoutElement.IsActive())
+                        {
+                            LayoutRebuilder.MarkLayoutForRebuild(layoutElement.transform as RectTransform);
+                        }
+                    }
                 }
             }
 
