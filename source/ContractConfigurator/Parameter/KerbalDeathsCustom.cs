@@ -107,6 +107,7 @@ namespace ContractConfigurator.Parameters
         {
             GameEvents.onCrewKilled.Add(new EventData<EventReport>.OnEvent(OnCrewKilled));
             GameEvents.onVesselChange.Add(new EventData<Vessel>.OnEvent(OnVesselChange));
+            GameEvents.onVesselCreate.Add(new EventData<Vessel>.OnEvent(OnVesselCreate));
             ContractVesselTracker.OnVesselAssociation.Add(new EventData<GameEvents.HostTargetAction<Vessel, string>>.OnEvent(OnVesselAssociation));
             ContractVesselTracker.OnVesselDisassociation.Add(new EventData<GameEvents.HostTargetAction<Vessel, string>>.OnEvent(OnVesselDisassociation));
             GameEvents.Contract.onParameterChange.Add(new EventData<Contract, ContractParameter>.OnEvent(OnParameterChange));
@@ -117,6 +118,7 @@ namespace ContractConfigurator.Parameters
         {
             GameEvents.onCrewKilled.Remove(new EventData<EventReport>.OnEvent(OnCrewKilled));
             GameEvents.onVesselChange.Remove(new EventData<Vessel>.OnEvent(OnVesselChange));
+            GameEvents.onVesselCreate.Remove(new EventData<Vessel>.OnEvent(OnVesselCreate));
             ContractVesselTracker.OnVesselAssociation.Remove(new EventData<GameEvents.HostTargetAction<Vessel, string>>.OnEvent(OnVesselAssociation));
             ContractVesselTracker.OnVesselDisassociation.Remove(new EventData<GameEvents.HostTargetAction<Vessel, string>>.OnEvent(OnVesselDisassociation));
             GameEvents.Contract.onParameterChange.Remove(new EventData<Contract, ContractParameter>.OnEvent(OnParameterChange));
@@ -180,6 +182,15 @@ namespace ContractConfigurator.Parameters
         private void OnVesselChange(Vessel vessel)
         {
             LoggingUtil.LogVerbose(this, "OnVesselChange");
+            if (vesselIdentifier != null && vessel != null && ContractVesselTracker.Instance.GetAssociatedVessel(vesselIdentifier.identifier) == vessel)
+            {
+                HandleVessel(vessel);
+            }
+        }
+
+        private void OnVesselCreate(Vessel vessel)
+        {
+            LoggingUtil.LogVerbose(this, "OnVesselCreate");
             if (vesselIdentifier != null && vessel != null && ContractVesselTracker.Instance.GetAssociatedVessel(vesselIdentifier.identifier) == vessel)
             {
                 HandleVessel(vessel);
