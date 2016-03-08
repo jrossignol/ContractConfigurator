@@ -12,8 +12,6 @@ namespace ContractConfigurator.ExpressionParser
     /// </summary>
     public class KerbalParser : ClassExpressionParser<Kerbal>, IExpressionParserRegistrer
     {
-        static System.Random random = new System.Random();
-
         static KerbalParser()
         {
             RegisterMethods();
@@ -37,18 +35,42 @@ namespace ContractConfigurator.ExpressionParser
                 HighLogic.CurrentGame.CrewRoster.AllKerbals().Select<ProtoCrewMember, Kerbal>(pcm => new Kerbal(pcm)).ToList(), false));
             RegisterGlobalFunction(new Function<Kerbal, Kerbal>("Kerbal", k => k));
 
-            RegisterGlobalFunction(new Function<ProtoCrewMember.Gender, string>("RandomKerbalName", g =>
-                DraftTwitchViewers.KerbalName(CrewGenerator.GetRandomName(g, random)), false));
+            RegisterGlobalFunction(new Function<ProtoCrewMember.Gender, string>("RandomKerbalName", g => Kerbal.KerbalName(g), false));
 
             RegisterGlobalFunction(new Function<Kerbal>("NewKerbal", () => new Kerbal(), false));
             RegisterGlobalFunction(new Function<ProtoCrewMember.Gender, Kerbal>("NewKerbal", (g) => new Kerbal(g), false));
             RegisterGlobalFunction(new Function<ProtoCrewMember.Gender, string, Kerbal>("NewKerbal", (g, n) => new Kerbal(g, n), false));
             RegisterGlobalFunction(new Function<string, Kerbal>("NewKerbalWithTrait", NewKerbal, false));
             RegisterGlobalFunction(new Function<ProtoCrewMember.Gender, string, string, Kerbal>("NewKerbal", (g, n, t) => new Kerbal(g, n, t), false));
+
+            RegisterGlobalFunction(new Function<int, List<Kerbal>>("NewKerbals", NewKerbals, false));
+            RegisterGlobalFunction(new Function<int, string, List<Kerbal>>("NewKerbals", NewKerbals, false));
         }
 
         public KerbalParser()
         {
+        }
+
+        private static List<Kerbal> NewKerbals(int count)
+        {
+            List<Kerbal> kerbals = new List<Kerbal>();
+            for (int i = 0; i < count; i++)
+            {
+                kerbals.Add(new Kerbal());
+            }
+            return kerbals;
+        }
+
+        private static List<Kerbal> NewKerbals(int count, string trait)
+        {
+            List<Kerbal> kerbals = new List<Kerbal>();
+            for (int i = 0; i < count; i++)
+            {
+                Kerbal k = new Kerbal();
+                k.experienceTrait = trait;
+                kerbals.Add(k);
+            }
+            return kerbals;
         }
 
         public override U ConvertType<U>(Kerbal value)

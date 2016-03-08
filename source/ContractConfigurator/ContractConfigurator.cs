@@ -264,7 +264,7 @@ namespace ContractConfigurator
                 }
 
                 // Module Manager 2.6.7 and better calls our reload function for us
-                if (Util.Version.VerifyAssemblyVersion(mmAssembly.GetName().Name, "2.6.7") != null)
+                if (Util.Version.VerifyAssemblyVersion(mmAssembly.GetName().Name, "2.6.7", true) != null)
                 {
                     moduleManagerDoesReload = true;
                 }
@@ -496,7 +496,6 @@ namespace ContractConfigurator
                 ContractType contractType = ContractType.GetContractType(name);
                 if (contractType != null && !contractType.loaded)
                 {
-                    LoggingUtil.LogDebug(this.GetType(), "Loading CONTRACT_TYPE: '" + name + "'");
                     // Perform the load
                     try
                     {
@@ -509,8 +508,7 @@ namespace ContractConfigurator
                     }
                     catch (Exception e)
                     {
-                        Exception wrapper = new Exception("Error loading CONTRACT_TYPE '" + name + "'", e);
-                        LoggingUtil.LogException(wrapper);
+                        LoggingUtil.LogException(e);
                     }
                 }
             }

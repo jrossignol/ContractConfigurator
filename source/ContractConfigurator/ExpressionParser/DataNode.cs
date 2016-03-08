@@ -216,7 +216,7 @@ namespace ContractConfigurator.ExpressionParser
             }
         }
 
-        public string DebugString()
+        public string DebugString(bool applyFormatting = true)
         {
             string result = "";
 
@@ -228,13 +228,13 @@ namespace ContractConfigurator.ExpressionParser
                 {
                     foreach (KeyValuePair<string, Value> pair in node.data)
                     {
-                        nodeResults += "    <color=lime>" + prefix + pair.Key + "</color> = " + OutputValue(pair.Value.value) +
+                        nodeResults += (applyFormatting ? "<color=lime>" : "") + "    " + prefix + pair.Key + (applyFormatting ? "</color>" : "") + " = " + OutputValue(pair.Value.value) +
                             ", deterministic = " + pair.Value.deterministic + "\n";
                     }
                 }
                 result = nodeResults + result;
             }
-            return "<i>" + Name + "</i>\n" + result;
+            return (applyFormatting ? "<i>" : "") + Name + (applyFormatting ? "</i>\n" : "\n") + result;
         }
 
         private static string OutputValue(object value)

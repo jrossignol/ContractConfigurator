@@ -25,8 +25,8 @@ namespace ContractConfigurator
             bool valid = base.Load(configNode);
 
             // Read min/max first
-            valid &= ConfigNodeUtil.ParseValue<int>(configNode, "minCount", x => minCount = x, this,
-                configNode.HasNode("VALIDATE") || configNode.HasNode("VALIDATE_ALL") || configNode.HasNode("NONE") ? 0 : 1, x => Validation.GE(x, 0));
+            valid &= ConfigNodeUtil.ParseValue<int?>(configNode, "minCount", x => minCount = x, this,
+                configNode.HasNode("VALIDATE") || configNode.HasNode("VALIDATE_ALL") || configNode.HasNode("NONE") ? (int?)null : 1, x => x == null || Validation.GE(x.Value, 0));
             valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxCount", x => maxCount = x, this, minCount != null && minCount.Value == 0 ? 0 : int.MaxValue, x => Validation.GE(x, 0));
 
             // Set the default match type
@@ -109,7 +109,7 @@ namespace ContractConfigurator
 
         public override ContractParameter Generate(Contract contract)
         {
-            return new PartValidation(filters, minCount.Value, maxCount, title);
+            return new PartValidation(filters, minCount ?? 0, maxCount, title);
         }
     }
 }

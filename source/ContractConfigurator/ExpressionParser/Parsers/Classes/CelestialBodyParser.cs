@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using UnityEngine;
 using KSPAchievements;
 
@@ -150,13 +151,13 @@ namespace ContractConfigurator.ExpressionParser
             // Verify the SCANsat version
             if (!SCANsatUtil.VerifySCANsatVersion())
             {
-                return 1.0;
+                return 100.0;
             }
 
             // Verify the input
             if (cb == null)
             {
-                return 1.0;
+                return 100.0;
             }
             SCANsatUtil.ValidateSCANname(scanType);
 
@@ -193,6 +194,12 @@ namespace ContractConfigurator.ExpressionParser
             // Add a special case for barycenters (Sigma binary)
             if (cb.referenceBody == sun || cb.referenceBody.Radius < BARYCENTER_THRESHOLD)
             {
+                // For barycenters, the biggest one is a planet, the rest are moons.
+                if (cb.referenceBody.Radius < BARYCENTER_THRESHOLD)
+                {
+                    return cb == cb.orbitingBodies.MaxAt(child => child.Mass) ? CelestialBodyType.PLANET : CelestialBodyType.MOON;
+                }
+
                 return CelestialBodyType.PLANET;
             }
 
@@ -202,11 +209,17 @@ namespace ContractConfigurator.ExpressionParser
 
         public override CelestialBody ParseIdentifier(Token token)
         {
-            if (token.sval.Equals("null", StringComparison.CurrentCultureIgnoreCase))
+            // Try to parse more, as celestibla body names can have spaces
+            Match m = Regex.Match(expression, @"^((?>\s*[\w\d]+)+).*");
+            string identifier = m.Groups[1].Value;
+            expression = (expression.Length > identifier.Length ? expression.Substring(identifier.Length) : "");
+            identifier = token.sval + identifier;
+
+            if (identifier.Equals("null", StringComparison.CurrentCultureIgnoreCase))
             {
                 return null;
             }
-            return ConfigNodeUtil.ParseCelestialBodyValue(token.sval);
+            return ConfigNodeUtil.ParseCelestialBodyValue(identifier);
         }
     }
 }

@@ -77,7 +77,7 @@ namespace ContractConfigurator.Behaviour
                     List<SpawnPassengers> passengerList = new List<SpawnPassengers>();
                     foreach (SpawnPassengers sp in contract.Behaviours.Where(x => x.GetType() == typeof(SpawnPassengers)))
                     {
-                        int count = sp.passengers.Where(pair => !pair.Value).Count();
+                        int count = sp.passengers.Where(pair => !pair.Value && pair.Key.rosterStatus == ProtoCrewMember.RosterStatus.Available).Count();
                         if (count != 0)
                         {
                             passengerCount += count;
@@ -214,6 +214,7 @@ namespace ContractConfigurator.Behaviour
 
         protected int count;
         protected List<Kerbal> kerbals = new List<Kerbal>();
+        protected bool removePassengers;
 
         private Dictionary<ProtoCrewMember, bool> passengers = new Dictionary<ProtoCrewMember, bool>();
 
@@ -221,10 +222,11 @@ namespace ContractConfigurator.Behaviour
 
         public SpawnPassengers() {}
 
-        public SpawnPassengers(List<Kerbal> kerbals, int minPassengers)
+        public SpawnPassengers(List<Kerbal> kerbals, int minPassengers, bool removePassengers)
         {
             this.kerbals = kerbals;
             this.count = kerbals.Count != 0 ? kerbals.Count : minPassengers;
+            this.removePassengers = removePassengers;
         }
 
         protected override void OnRegister()
@@ -246,7 +248,7 @@ namespace ContractConfigurator.Behaviour
             IEnumerable<ProtoCrewMember> vesselCrew = v.GetVesselCrew();
             if (v != null && v.situation == Vessel.Situations.PRELAUNCH &&
                 v.mainBody.isHomeWorld &&
-                passengers.Where(pair => !pair.Value && !vesselCrew.Contains(pair.Key)).Any() &&
+                passengers.Where(pair => !pair.Value && pair.Key.rosterStatus == ProtoCrewMember.RosterStatus.Available).Any() &&
                 v.GetCrewCapacity() - v.GetCrewCount() >= count)
             {
                 PassengerLoader loader = MapView.MapCamera.gameObject.GetComponent<PassengerLoader>();
@@ -305,7 +307,7 @@ namespace ContractConfigurator.Behaviour
                 return;
             }
 
-            foreach (ProtoCrewMember crewMember in passengers.Keys.ToList())
+            foreach (ProtoCrewMember crewMember in passengers.Keys.Where(pcm => pcm.rosterStatus == ProtoCrewMember.RosterStatus.Available).ToList())
             {
                 // Find a seat for the crew
                 Part part = v.parts.Find(p => p.protoModuleCrew.Count < p.CrewCapacity);
@@ -359,6 +361,10 @@ namespace ContractConfigurator.Behaviour
                 {
                     // Generate the ProtoCrewMember
                     Kerbal kerbal = (i < kerbals.Count()) ? kerbals.ElementAt(i) : new Kerbal();
+                    if (i >= kerbals.Count())
+                    {
+                        kerbal.kerbalType = ProtoCrewMember.KerbalType.Tourist;
+                    }
                     kerbal.GenerateKerbal();
                     crewMember = kerbal.pcm;
                 }
@@ -373,6 +379,10 @@ namespace ContractConfigurator.Behaviour
         {
             base.OnSave(node);
             node.AddValue("count", count);
+            if (!removePassengers)
+            {
+                node.AddValue("removePassengers", false);
+            }
 
             foreach (Kerbal kerbal in kerbals)
             {
@@ -395,6 +405,7 @@ namespace ContractConfigurator.Behaviour
         {
             base.OnLoad(node);
             count = Convert.ToInt32(node.GetValue("count"));
+            removePassengers = ConfigNodeUtil.ParseValue<bool?>(node, "removePassengers", null) ?? true;
 
             // Legacy support from Contract Configurator 1.8.3
             if (node.HasValue("potentialPassenger"))
@@ -433,7 +444,10 @@ namespace ContractConfigurator.Behaviour
 
         protected override void OnCompleted()
         {
-            RemoveKerbals();
+            if (removePassengers)
+            {
+                RemoveKerbals();
+            }
         }
 
         protected override void OnCancelled()

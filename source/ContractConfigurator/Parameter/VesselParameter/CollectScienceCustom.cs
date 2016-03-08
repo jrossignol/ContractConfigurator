@@ -250,13 +250,18 @@ namespace ContractConfigurator.Parameters
                 return false;
             }
 
-            // Fixes problems with special biomes like KSC buildings (total different naming)
+            string vesselBiome = null;
             if (landedSituations.Contains(vessel.situation) && !string.IsNullOrEmpty(vessel.landedAt))
             {
-                return Vessel.GetLandedAtString(vessel.landedAt).Replace(" ", "") == biome;
+                // Fixes problems with special biomes like KSC buildings (total different naming)
+                vesselBiome = Vessel.GetLandedAtString(vessel.landedAt);
+            }
+            else
+            {
+                vesselBiome = ScienceUtil.GetExperimentBiome(vessel.mainBody, vessel.latitude, vessel.longitude);
             }
 
-            return ScienceUtil.GetExperimentBiome(vessel.mainBody, vessel.latitude, vessel.longitude) == biome;
+            return vesselBiome.Replace(" ", "") == biome;
         }
 
         protected override void OnParameterSave(ConfigNode node)
@@ -388,7 +393,7 @@ namespace ContractConfigurator.Parameters
         protected void OnExperimentDeployed(ScienceData scienceData)
         {
             Vessel vessel = FlightGlobals.ActiveVessel;
-            if (vessel == null || scienceData == null)
+            if (vessel == null || scienceData == null || !ReadyToComplete())
             {
                 return;
             }
@@ -419,18 +424,26 @@ namespace ContractConfigurator.Parameters
                 return false;
             }
 
+            LoggingUtil.LogVerbose(this, "CheckSubject: " + exp + ", " + subject.id);
             if (targetBody != null && !subject.id.Contains(targetBody.name))
             {
+                LoggingUtil.LogVerbose(this, "    wrong target body");
                 return false;
             }
 
-            if (!string.IsNullOrEmpty(biome) && !subject.id.Contains(biome))
+            // Need to pick up a bit of the situation string to that Flats doesn't pick up GreaterFlats
+            if (!string.IsNullOrEmpty(biome) &&
+                !subject.id.Contains("High" + biome) &&
+                !subject.id.Contains("Low" + biome) &&
+                !subject.id.Contains("ed" + biome))
             {
+                LoggingUtil.LogVerbose(this, "    wrong situation (biome = " + (biome == null ? "null" : biome) + ")");
                 return false;
             }
 
             if (situation != null && !subject.IsFromSituation(situation.Value))
             {
+                LoggingUtil.LogVerbose(this, "    wrong situation2");
                 return false;
             }
 
@@ -440,21 +453,29 @@ namespace ContractConfigurator.Parameters
                     !subject.IsFromSituation(ExperimentSituations.SrfSplashed) &&
                     !subject.IsFromSituation(ExperimentSituations.SrfLanded))
                 {
+                    LoggingUtil.LogVerbose(this, "    wrong location");
                     return false;
                 }
                 if (location.Value == BodyLocation.Space &&
                     !subject.IsFromSituation(ExperimentSituations.InSpaceHigh) &&
                     !subject.IsFromSituation(ExperimentSituations.InSpaceLow))
                 {
+                    LoggingUtil.LogVerbose(this, "    wrong location2");
                     return false;
                 }
             }
 
+            if (!string.IsNullOrEmpty(exp))
+            {
+                LoggingUtil.LogVerbose(this, "    doing final subject check for " + subject.id + " containing " + exp);
+            }
             if (!string.IsNullOrEmpty(exp) && !subject.id.Contains(exp))
             {
+                LoggingUtil.LogVerbose(this, "    wrong subject");
                 return false;
             }
 
+            LoggingUtil.LogVerbose(this, "    got a match");
             return true;
         }
 

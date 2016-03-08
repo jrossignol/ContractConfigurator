@@ -176,7 +176,17 @@ namespace ContractConfigurator.ExpressionParser
                     {
                         value += expression.Substring(0, dataStoreIdentifierIndex);
                         expression = expression.Substring(dataStoreIdentifierIndex);
-                        value += ParseDataStoreIdentifier(ParseDataStoreIdentifier());
+                        
+                        // Workaround for limitation/bug in how the expression factory works.  Will probably need to revisit
+                        if (currentDataNode.Factory is Behaviour.ExpressionFactory)
+                        {
+                            value += expression.Substring(0, 1);
+                            expression = expression.Substring(1);
+                        }
+                        else
+                        {
+                            value += ParseDataStoreIdentifier(ParseDataStoreIdentifier());
+                        }
                     }
                     else if (quoteIndex >= 0)
                     {

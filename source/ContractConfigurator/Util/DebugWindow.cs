@@ -7,6 +7,9 @@ using UnityEngine;
 using Contracts;
 using ContractConfigurator.ExpressionParser;
 
+using System.IO;
+using System.Text.RegularExpressions;
+
 namespace ContractConfigurator
 {
     public static class DebugWindow
@@ -19,7 +22,7 @@ namespace ContractConfigurator
         }
         private static SelectedPane selectedPane = SelectedPane.DEBUG_LOG;
 
-        private static Rect windowPos = new Rect(580f, 200f, 1f, 1f);
+        private static Rect windowPos = new Rect(-1, 200f, 1f, 1f);
         public static Vector2 scrollPosition, scrollPosition2;
         private static IEnumerable<ContractType> guiContracts;
 
@@ -57,6 +60,12 @@ namespace ContractConfigurator
 
         public static void OnGUI()
         {
+            // Initial window position
+            if (windowPos.xMin == -1)
+            {
+                windowPos.xMin = Screen.width - 1050 - 16;
+            }
+
             if (showGUI && HighLogic.LoadedScene != GameScenes.CREDITS && HighLogic.LoadedScene != GameScenes.LOADING &&
                 HighLogic.LoadedScene != GameScenes.LOADINGBUFFER && HighLogic.LoadedScene != GameScenes.SETTINGS)
             {
@@ -163,7 +172,7 @@ namespace ContractConfigurator
 
             if (!ContractConfigurator.reloading)
             {
-                foreach (ContractGroup contractGroup in ContractGroup.AllGroups.Where(g => g == null || g.parent == null))
+                foreach (ContractGroup contractGroup in ContractGroup.AllGroups.Where(g => g == null || g.parent == null).OrderBy(cg => cg == null ? "zzz" : cg.name))
                 {
                     GroupGui(contractGroup, 0);
                 }
@@ -248,14 +257,14 @@ namespace ContractConfigurator
                 // Child groups
                 if (contractGroup != null)
                 {
-                    foreach (ContractGroup childGroup in ContractGroup.AllGroups.Where(g => g != null && g.parent != null && g.parent.name == contractGroup.name))
+                    foreach (ContractGroup childGroup in ContractGroup.AllGroups.Where(g => g != null && g.parent != null && g.parent.name == contractGroup.name).OrderBy(cg => cg.name))
                     {
                         GroupGui(childGroup, indent + 1);
                     }
                 }
 
                 // Child contract types
-                foreach (ContractType contractType in guiContracts.Where(ct => ct.group == contractGroup))
+                foreach (ContractType contractType in guiContracts.Where(ct => ct.group == contractGroup).OrderBy(ct => ct.name))
                 {
                     GUILayout.BeginHorizontal();
 
@@ -285,14 +294,13 @@ namespace ContractConfigurator
             }
         }
 
-
         private static void ParamGui(ContractType contractType, IEnumerable<ParameterFactory> paramList, int indent)
         {
             foreach (ParameterFactory param in paramList)
             {
                 GUILayout.BeginHorizontal(GUILayout.ExpandWidth(false));
                 GUILayout.Space(28);
-                GUILayout.Label(new GUIContent(new string(' ', indent * 4) + param, DebugInfo(param)),
+				GUILayout.Label(new GUIContent(new string(' ', indent * 4) + param, DebugInfo(param)),
                     param.enabled ? param.hasWarnings ? yellowLabel : GUI.skin.label : redLabel);
                 if (contractType.enabled)
                 {

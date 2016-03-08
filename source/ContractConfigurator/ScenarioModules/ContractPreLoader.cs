@@ -189,7 +189,7 @@ namespace ContractConfigurator
             foreach (ContractType ct in ContractType.AllValidContractTypes.Where(ct => ct.group == group))
             {
                 // Check if we're only looking at auto-accept contracts
-                if (currentDetails.contracts.Count() >= MAX_CONTRACTS && !ct.autoAccept)
+                if (currentDetails != null && currentDetails.contracts.Count() >= MAX_CONTRACTS && !ct.autoAccept)
                 {
                     continue;
                 }

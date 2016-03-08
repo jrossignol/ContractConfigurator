@@ -181,7 +181,7 @@ namespace ContractConfigurator
                 LoggingUtil.LogError(this, "Error initializing contract " + contractType);
                 LoggingUtil.LogException(e);
                 ExceptionLogWindow.DisplayFatalException(ExceptionLogWindow.ExceptionSituation.CONTRACT_GENERATION, e,
-                    contractType == null ? "unknown" : contractType.name);
+                    contractType == null ? "unknown" : contractType.FullName);
 
                 return false;
             }
@@ -216,7 +216,7 @@ namespace ContractConfigurator
                 LoggingUtil.LogError(this, "Error generating contract!");
                 LoggingUtil.LogException(e);
                 ExceptionLogWindow.DisplayFatalException(ExceptionLogWindow.ExceptionSituation.CONTRACT_GENERATION, e,
-                    contractType == null ? "unknown" : contractType.name);
+                    contractType == null ? "unknown" : contractType.FullName);
 
                 try
                 {
@@ -339,7 +339,7 @@ namespace ContractConfigurator
             try
             {
                 subType = node.GetValue("subtype");
-                contractType = string.IsNullOrEmpty(subType) ? null : ContractType.GetContractType(subType);
+                contractType = ContractType.GetContractType(subType);
                 title = ConfigNodeUtil.ParseValue<string>(node, "title", contractType != null ? contractType.title : subType);
                 description = ConfigNodeUtil.ParseValue<string>(node, "description", contractType != null ? contractType.description : "");
                 synopsis = ConfigNodeUtil.ParseValue<string>(node, "synopsis", contractType != null ? contractType.synopsis : "");
@@ -357,6 +357,12 @@ namespace ContractConfigurator
                         string typeName = pair.value.Remove(pair.value.IndexOf(":"));
                         string value = pair.value.Substring(typeName.Length + 1);
                         Type type = ConfigNodeUtil.ParseTypeValue(typeName);
+
+                        // Prevents issues with vessels not getting loaded in some scenes (ie. VAB)
+                        if (type == typeof(Vessel))
+                        {
+                            type = typeof(Guid);
+                        }
 
                         if (type == typeof(string))
                         {
@@ -417,11 +423,26 @@ namespace ContractConfigurator
             try
             {
                 node.AddValue("subtype", subType);
-                node.AddValue("title", title);
-                node.AddValue("description", description);
-                node.AddValue("synopsis", synopsis);
-                node.AddValue("completedMessage", completedMessage);
-                node.AddValue("notes", notes);
+                if (!string.IsNullOrEmpty(title))
+                {
+                    node.AddValue("title", title.Replace("\n", "\\n"));
+                }
+                if (!string.IsNullOrEmpty(description))
+                {
+                    node.AddValue("description", description.Replace("\n", "\\n"));
+                }
+                if (!string.IsNullOrEmpty(synopsis))
+                {
+                    node.AddValue("synopsis", synopsis.Replace("\n", "\\n"));
+                }
+                if (!string.IsNullOrEmpty(completedMessage))
+                {
+                    node.AddValue("completedMessage", completedMessage.Replace("\n", "\\n"));
+                }
+                if (!string.IsNullOrEmpty(notes))
+                {
+                    node.AddValue("notes", notes.Replace("\n", "\\n"));
+                }
                 node.AddValue("hash", hash);
 
                 // Store the unique data
@@ -655,7 +676,7 @@ namespace ContractConfigurator
 
         public override string ToString()
         {
-            return contractType != null ? contractType.name : "unknown";
+            return contractType != null ? contractType.FullName : "unknown";
         }
 
         public IEnumerable<string> KerbalNames()

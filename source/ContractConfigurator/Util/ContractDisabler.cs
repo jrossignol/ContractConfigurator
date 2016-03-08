@@ -23,7 +23,7 @@ namespace ContractConfigurator
         }
         private static Dictionary<Type, ContractDetails> contractDetails = new Dictionary<Type, ContractDetails>();
         private static IEnumerable<Type> contractTypes = ContractConfigurator.GetAllTypes<Contract>();
-        private static bool contractsDisabled = false;
+        public static bool contractsDisabled = false;
 
         public static bool SetContractToDisabled(string contract, ContractGroup group)
         {
@@ -49,7 +49,10 @@ namespace ContractConfigurator
             if (!enabled && ContractSystem.ContractTypes.Contains(contractType))
             {
                 LoggingUtil.LogDebug(typeof(ContractDisabler), "Disabling ContractType: " + contractType.FullName + " (" + contractType.Module + ")");
-                ContractSystem.ContractTypes.Remove(contractType);
+                do
+                {
+                    ContractSystem.ContractTypes.Remove(contractType);
+                } while (ContractSystem.ContractTypes.Contains(contractType));
 
                 // Remove Offered and active contracts 
                 foreach (Contract contract in ContractSystem.Instance.Contracts.Where(c => c != null && c.GetType() == contractType &&
@@ -72,7 +75,7 @@ namespace ContractConfigurator
 
         public static bool IsEnabled(Type contract)
         {
-            return ContractSystem.ContractTypes.Contains(contract);
+            return ContractSystem.ContractTypes != null && ContractSystem.ContractTypes.Contains(contract);
         }
 
         public static IEnumerable<ContractGroup> DisablingGroups(Type contract)
@@ -102,7 +105,7 @@ namespace ContractConfigurator
                 return false;
             }
 
-            LoggingUtil.LogDebug(typeof(ContractDisabler), "Loading CONTRACT_CONFIGURATOR nodes.");
+            LoggingUtil.LogDebug(typeof(ContractDisabler), "Disabling contract types...");
             ConfigNode[] nodes = GameDatabase.Instance.GetConfigNodes("CONTRACT_CONFIGURATOR");
 
             int disabledCounter = 0;

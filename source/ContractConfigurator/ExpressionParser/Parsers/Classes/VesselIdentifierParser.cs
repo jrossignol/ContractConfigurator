@@ -35,7 +35,7 @@ namespace ContractConfigurator.ExpressionParser
         {
             if (typeof(U) == typeof(Vessel))
             {
-                if (!parseMode)
+                if (!parseMode && value != null)
                 {
                     return (U)(object)ContractVesselTracker.Instance.GetAssociatedVessel(value.identifier);
                 }
@@ -47,8 +47,7 @@ namespace ContractConfigurator.ExpressionParser
             }
             return base.ConvertType<U>(value);
         }
-
-
+        
         public override bool ConvertableFrom(Type type)
         {
             return type == typeof(string);

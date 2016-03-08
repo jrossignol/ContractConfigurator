@@ -30,7 +30,7 @@ namespace ContractConfigurator.RemoteTech
             checkOnActiveContract = configNode.HasValue("checkOnActiveContract") ? checkOnActiveContract : false;
 
             valid &= ConfigNodeUtil.ParseValue<double>(configNode, "minCoverage", x => minCoverage = x, this, 0.0, x => Validation.BetweenInclusive(x, 0.0, 1.0));
-            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "maxCoverage", x => maxCoverage = x, this, 0.0, x => Validation.BetweenInclusive(x, 0.0, 1.0));
+            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "maxCoverage", x => maxCoverage = x, this, 1.0, x => Validation.BetweenInclusive(x, 0.0, 1.0));
             valid &= ValidateTargetBody(configNode);
 
             return valid;

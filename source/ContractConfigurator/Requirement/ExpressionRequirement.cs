@@ -30,7 +30,8 @@ namespace ContractConfigurator
 
         public override bool RequirementMet(ConfiguredContract contract)
         {
-            return expression;
+            // Always met once offered (as the expression at that point may have been changed by another contract
+            return expression || contract.ContractState == Contract.State.Offered;
         }
     }
 }

@@ -440,36 +440,43 @@ namespace ContractConfigurator.Behaviour
 
         protected override void OnCompleted()
         {
+            LoggingUtil.LogVerbose(this, "OnCompleted");
             RemoveKerbals(true);
         }
 
         protected override void OnCancelled()
         {
+            LoggingUtil.LogVerbose(this, "OnCancelled");
             RemoveKerbals();
         }
 
         protected override void OnDeadlineExpired()
         {
+            LoggingUtil.LogVerbose(this, "OnDeadlineExpired");
             RemoveKerbals();
         }
 
         protected override void OnDeclined()
         {
+            LoggingUtil.LogVerbose(this, "OnDeclined");
             RemoveKerbals();
         }
 
         protected override void OnGenerateFailed()
         {
+            LoggingUtil.LogVerbose(this, "OnGenerateFailed");
             RemoveKerbals();
         }
 
         protected override void OnOfferExpired()
         {
+            LoggingUtil.LogVerbose(this, "OnOfferExpired");
             RemoveKerbals();
         }
 
         protected override void OnWithdrawn()
         {
+            LoggingUtil.LogVerbose(this, "OnWithdrawn");
             RemoveKerbals();
         }
 
@@ -487,6 +494,7 @@ namespace ContractConfigurator.Behaviour
                         // If it's an EVA make them disappear...
                         if (vessel.isEVA)
                         {
+                            LoggingUtil.LogVerbose(this, "    Removing EVA Kerbal " + kerbal.kerbal.name + ".");
                             FlightGlobals.Vessels.Remove(vessel);
                         }
                         else
@@ -497,7 +505,17 @@ namespace ContractConfigurator.Behaviour
                                 {
                                     if (p.protoModuleCrew.Contains(kerbal.kerbal.pcm))
                                     {
-                                        p.RemoveCrewmember(kerbal.kerbal.pcm);
+                                        // Command seats
+                                        if (p.partName == "kerbalEVA")
+                                        {
+                                            vessel.parts.Remove(p);
+                                        }
+                                        // Everything else
+                                        else
+                                        {
+                                            LoggingUtil.LogVerbose(this, "    Removing " + kerbal.kerbal.name + " from vessel " + vessel.vesselName);
+                                            p.RemoveCrewmember(kerbal.kerbal.pcm);
+                                        }
                                         break;
                                     }
                                 }
@@ -506,19 +524,32 @@ namespace ContractConfigurator.Behaviour
                             {
                                 foreach (ProtoPartSnapshot pps in vessel.protoVessel.protoPartSnapshots)
                                 {
-                                    if (pps.HasCrew(kerbal.kerbal.name))
+                                    if (pps.HasCrew(kerbal.kerbal.pcm.name))
                                     {
-                                        pps.RemoveCrew(kerbal.kerbal.pcm);
+                                        LoggingUtil.LogVerbose(this, "    Removing " + kerbal.kerbal.name + " from part " + pps.partName + " on vessel " + vessel.vesselName);
+
+                                        // Command seats
+                                        if (pps.partName.StartsWith("kerbalEVA"))
+                                        {
+                                            vessel.protoVessel.protoPartSnapshots.Remove(pps);
+                                        }
+                                        // Everything else
+                                        else
+                                        {
+                                            pps.RemoveCrew(kerbal.kerbal.pcm);
+                                        }
+                                        break;
                                     }
                                 }
                             }
                         }
-                    }
 
-                    if (!onlyUnowned)
-                    {
                         // Remove the kerbal from the roster
                         HighLogic.CurrentGame.CrewRoster.Remove(kerbal.kerbal.name);
+                        if (kerbal.kerbal._pcm != null)
+                        {
+                            HighLogic.CurrentGame.CrewRoster.RemoveMIA(kerbal.kerbal._pcm);
+                        }
                         kerbal.kerbal._pcm = null;
                     }
                 }

@@ -15,7 +15,7 @@ namespace ContractConfigurator.Behaviour
     public class CopyCraftFileFactory : BehaviourFactory
     {
         protected string url;
-        protected EditorFacility craftType;
+        protected CopyCraftFile.CraftType craftType;
         protected TriggeredBehaviour.State onState;
         protected List<string> parameter = new List<string>();
 
@@ -25,7 +25,7 @@ namespace ContractConfigurator.Behaviour
             bool valid = base.Load(configNode);
 
             valid &= ConfigNodeUtil.ParseValue<string>(configNode, "url", x => url = x, this, ValidateURL);
-            valid &= ConfigNodeUtil.ParseValue<EditorFacility>(configNode, "craftType", x => craftType = x, this);
+            valid &= ConfigNodeUtil.ParseValue<CopyCraftFile.CraftType>(configNode, "craftType", x => craftType = x, this);
             valid &= ConfigNodeUtil.ParseValue<TriggeredBehaviour.State>(configNode, "onState", x => onState = x, this, TriggeredBehaviour.State.CONTRACT_SUCCESS);
             if (onState == TriggeredBehaviour.State.PARAMETER_COMPLETED || onState == TriggeredBehaviour.State.PARAMETER_FAILED)
             {

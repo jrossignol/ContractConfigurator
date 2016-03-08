@@ -30,6 +30,11 @@ namespace ContractConfigurator.Parameters
         public HasCrew(string title, IEnumerable<Kerbal> kerbals, string trait, int minCrew = 1, int maxCrew = int.MaxValue, int minExperience = 0, int maxExperience = 5)
             : base(title)
         {
+            if (minCrew > maxCrew)
+            {
+                minCrew = maxCrew;
+            }
+
             this.minCrew = minCrew;
             this.maxCrew = maxCrew;
             this.minExperience = minExperience;
@@ -75,7 +80,7 @@ namespace ContractConfigurator.Parameters
                         output += "Between " + minCrew + " and " + maxCrew + " " + traitString + "s";
                     }
 
-                    if (minExperience != 0 && maxExperience != 5)
+                    if (minExperience != 0 || maxExperience != 5)
                     {
                         if (minExperience == 0)
                         {
@@ -122,7 +127,7 @@ namespace ContractConfigurator.Parameters
             }
 
             // Filter for experience
-            if (minExperience != 0 && maxExperience != 5)
+            if (minExperience != 0 || maxExperience != 5)
             {
                 string filterText;
                 if (minExperience == 0)
@@ -343,7 +348,7 @@ namespace ContractConfigurator.Parameters
             else
             {
                 // Vessel with crew
-                foreach (ProtoCrewMember pcm in v.GetVesselCrew().Where(p => p.type == ProtoCrewMember.KerbalType.Crew))
+                foreach (ProtoCrewMember pcm in v.GetVesselCrew())
                 {
                     yield return pcm;
                 }

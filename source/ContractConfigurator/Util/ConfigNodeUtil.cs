@@ -317,7 +317,7 @@ namespace ContractConfigurator
             }
             else if (typeof(T) == typeof(Kerbal))
             {
-                value = (T)(object)new Kerbal(ParseProtoCrewMemberValue(stringValue));
+                value = (T)(object)new Kerbal(stringValue);
             }
             else if (typeof(T) == typeof(Guid))
             {
@@ -326,6 +326,10 @@ namespace ContractConfigurator
             else if (typeof(T) == typeof(Vessel))
             {
                 value = (T)(object)ParseVesselValue(stringValue);
+            }
+            else if (typeof(T) == typeof(VesselIdentifier))
+            {
+                value = (T)(object)new VesselIdentifier(stringValue);
             }
             else if (typeof(T) == typeof(Vector3))
             {
@@ -612,7 +616,7 @@ namespace ContractConfigurator
 
                         // Defer loading this value
                         DeferredLoadObject<T> loadObj = null;
-                        if (!deferredLoads.ContainsKey(path))
+                        if (!deferredLoads.ContainsKey(path) || deferredLoads[path].GetType().GetGenericArguments().First() != typeof(T))
                         {
                             deferredLoads[path] = new DeferredLoadObject<T>(configNode, key, setter, obj, validation, currentDataNode);
                         }
@@ -880,15 +884,12 @@ namespace ContractConfigurator
 
         public static CelestialBody ParseCelestialBodyValue(string celestialName)
         {
-            foreach (CelestialBody body in FlightGlobals.Bodies)
+            CelestialBody result = FlightGlobals.Bodies.Where(cb => cb.name == celestialName || cb.theName == celestialName).FirstOrDefault();
+            if (result == null)
             {
-                if (body.name.Equals(celestialName))
-                {
-                    return body;
-                }
+                throw new ArgumentException("'" + celestialName + "' is not a valid CelestialBody.");
             }
-
-            throw new ArgumentException("'" + celestialName + "' is not a valid CelestialBody.");
+            return result;
         }
 
         private static AvailablePart ParsePartValue(string partName)

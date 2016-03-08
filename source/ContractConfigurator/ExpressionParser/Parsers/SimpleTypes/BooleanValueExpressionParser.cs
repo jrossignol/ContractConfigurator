@@ -16,6 +16,16 @@ namespace ContractConfigurator.ExpressionParser
             RegisterParserType(typeof(bool), typeof(BooleanValueExpressionParser));
         }
 
+        static BooleanValueExpressionParser()
+        {
+            RegisterMethods();
+        }
+
+        public static void RegisterMethods()
+        {
+            RegisterGlobalFunction(new Function<bool, bool>("bool", t => t));
+        }
+
         public BooleanValueExpressionParser()
             : base()
         {

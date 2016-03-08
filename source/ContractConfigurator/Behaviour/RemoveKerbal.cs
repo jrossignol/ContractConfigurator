@@ -14,7 +14,7 @@ namespace ContractConfigurator.Behaviour
     /// </summary>
     public class RemoveKerbalBehaviour : ContractBehaviour
     {
-        protected List<Kerbal> kerbals;
+        protected List<Kerbal> kerbals = new List<Kerbal>();
 
         public RemoveKerbalBehaviour() {}
 

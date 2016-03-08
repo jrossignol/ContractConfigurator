@@ -26,7 +26,7 @@ namespace ContractConfigurator
         private float nextAttempt = 0.0f;
 
         private const float failureDelay = 45;
-        private const int draftLimit = 10;
+        private const int draftLimit = 20;
 
         void Awake()
         {
@@ -103,7 +103,7 @@ namespace ContractConfigurator
         {
             LoggingUtil.LogVerbose(typeof(DraftTwitchViewers), "KerbalName()");
 
-            if (Instance != null && Instance.nameQueue.Any())
+            if (Instance != null && Instance.nameQueue.Any() && HighLogic.LoadedScene != GameScenes.MAINMENU)
             {
                 string name = Instance.nameQueue.Dequeue();
                 Instance.recentNames.Enqueue(name);

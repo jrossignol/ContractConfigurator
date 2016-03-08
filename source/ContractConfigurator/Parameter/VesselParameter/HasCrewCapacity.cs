@@ -25,8 +25,14 @@ namespace ContractConfigurator.Parameters
         public HasCrewCapacity(int minCapacity = 1, int maxCapacity = int.MaxValue, string title = null)
             : base(title)
         {
+            if (minCapacity > maxCapacity)
+            {
+                minCapacity = maxCapacity;
+            }
+
             // Vessels should fail if they don't meet the part conditions
             failWhenUnmet = true;
+            fakeFailures = true;
 
             this.minCapacity = minCapacity;
             this.maxCapacity = maxCapacity;

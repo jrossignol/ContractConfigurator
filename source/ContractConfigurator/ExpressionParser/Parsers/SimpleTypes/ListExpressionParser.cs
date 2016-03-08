@@ -38,7 +38,7 @@ namespace ContractConfigurator.ExpressionParser
             RegisterMethod(new Method<List<T>, int>("Count", l => l == null ? 0 : l.Count));
 
             RegisterMethod(new Method<List<T>, List<T>, List<T>>("Concat", Concat));
-            RegisterMethod(new Method<List<T>, T, List<T>>("Add", (l, v) => { if (l != null) { l.ToList().Add(v); }  return l; }));
+            RegisterMethod(new Method<List<T>, T, List<T>>("Add", (l, v) => { if (l == null) { l = new List<T>(); } l.ToList().Add(v); return l; }));
             RegisterMethod(new Method<List<T>, T, List<T>>("Exclude", (l, v) => { if (l != null) { l = l.ToList(); l.Remove(v); }  return l; }));
             RegisterMethod(new Method<List<T>, List<T>, List<T>>("ExcludeAll", (l, l2) => { if (l != null) { l = l.ToList(); if (l2 != null) { l.RemoveAll(x => l2.Contains(x)); } } return l; }));
         }
@@ -52,7 +52,9 @@ namespace ContractConfigurator.ExpressionParser
         {
             if (count >= input.Count())
             {
-                return input;
+                List<T> newList = input.ToList();
+                newList.Shuffle();
+                return newList;
             }
 
             List<T> output = new List<T>();
@@ -91,8 +93,9 @@ namespace ContractConfigurator.ExpressionParser
                 return l1.ToList();
             }
 
-            l1.ToList().AddRange(l2);
-            return l1;
+            List<T> newList = l1.ToList();
+            newList.AddRange(l2);
+            return newList;
         }
 
         public ListExpressionParser()
@@ -197,6 +200,25 @@ namespace ContractConfigurator.ExpressionParser
             {
                 expression = parser.expression;
             }
+        }
+
+        public override U ConvertType<U>(List<T> value)
+        {
+            ExpressionParser<T> parserT = GetParser<T>();
+
+            if (typeof(U) == typeof(string))
+            {
+                string result = "[ ";
+                foreach (T t in value)
+                {
+                    result += parserT.ConvertType<string>(t);
+                    result += ",";
+                }
+                result = result.TrimEnd(new char[] { ',' }) + " ]";
+                return (U)(object)result;
+            }
+
+            return base.ConvertType<U>(value);
         }
     }
 }

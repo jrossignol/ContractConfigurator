@@ -14,7 +14,7 @@ namespace ContractConfigurator.Parameters
     /// </summary>
     public class ReachState : VesselParameter
     {
-        protected CelestialBody targetBody { get; set; }
+        protected List<CelestialBody> targetBodies { get; set; }
         protected string biome { get; set; }
         protected List<Vessel.Situations> situation { get; set; }
         protected float minAltitude { get; set; }
@@ -23,6 +23,8 @@ namespace ContractConfigurator.Parameters
         protected float maxTerrainAltitude { get; set; }
         protected double minSpeed { get; set; }
         protected double maxSpeed { get; set; }
+        protected double minRateOfClimb { get; set; }
+        protected double maxRateOfClimb { get; set; }
         protected float minAcceleration { get; set; }
         protected float maxAcceleration { get; set; }
 
@@ -36,11 +38,12 @@ namespace ContractConfigurator.Parameters
         {
         }
 
-        public ReachState(CelestialBody targetBody, string biome, List<Vessel.Situations> situation, float minAltitude, float maxAltitude,
-            float minTerrainAltitude, float maxTerrainAltitude, double minSpeed, double maxSpeed, float minAcceleration, float maxAcceleration, string title)
+        public ReachState(List<CelestialBody> targetBodies, string biome, List<Vessel.Situations> situation, float minAltitude, float maxAltitude,
+            float minTerrainAltitude, float maxTerrainAltitude, double minSpeed, double maxSpeed, double minRateOfClimb, double maxRateOfClimb,
+            float minAcceleration, float maxAcceleration, string title)
             : base(title)
         {
-            this.targetBody = targetBody;
+            this.targetBodies = targetBodies;
             this.biome = biome;
             this.situation = situation;
             this.minAltitude = minAltitude;
@@ -49,6 +52,8 @@ namespace ContractConfigurator.Parameters
             this.maxTerrainAltitude = maxTerrainAltitude;
             this.minSpeed = minSpeed;
             this.maxSpeed = maxSpeed;
+            this.minRateOfClimb = minRateOfClimb;
+            this.maxRateOfClimb = maxRateOfClimb;
             this.minAcceleration = minAcceleration;
             this.maxAcceleration = maxAcceleration;
 
@@ -86,10 +91,10 @@ namespace ContractConfigurator.Parameters
         protected void CreateDelegates()
         {
             // Filter for celestial bodies
-            if (targetBody != null)
+            if (targetBodies != null && targetBodies.Count() != FlightGlobals.Bodies.Count)
             {
-                AddParameter(new ParameterDelegate<Vessel>("Destination: " + targetBody.name,
-                    v => v.mainBody == targetBody));
+                AddParameter(new ParameterDelegate<Vessel>("Destination: " + BodyList(),
+                    v => targetBodies.Contains(v.mainBody)));
             }
 
             // Filter for biome
@@ -106,10 +111,10 @@ namespace ContractConfigurator.Parameters
             }
 
             // Filter for altitude
-            if (minAltitude != 0.0f || maxAltitude != float.MaxValue)
+            if (minAltitude != float.MinValue || maxAltitude != float.MaxValue)
             {
                 string output = "Altitude: ";
-                if (minAltitude == 0.0f)
+                if (minAltitude == float.MinValue)
                 {
                     output += "Below " + maxAltitude.ToString("N0") + " m";
                 }
@@ -122,7 +127,7 @@ namespace ContractConfigurator.Parameters
                     output += "Between " + minAltitude.ToString("N0") + " m and " + maxAltitude.ToString("N0") + " m";
                 }
 
-                AddParameter(new ParameterDelegate<Vessel>(output, v => v.altitude >= minAltitude && v.altitude <= maxAltitude));
+                AddParameter(new ParameterDelegate<Vessel>(output, CheckVesselAltitude));
             }
 
             // Filter for terrain altitude
@@ -163,6 +168,26 @@ namespace ContractConfigurator.Parameters
                 }
 
                 AddParameter(new ParameterDelegate<Vessel>(output, CheckVesselSpeed));
+            }
+
+            // Filter for rate of climb
+            if (minRateOfClimb != double.MinValue|| maxRateOfClimb != double.MaxValue)
+            {
+                string output = "Rate of Climb: ";
+                if (minRateOfClimb == double.MinValue)
+                {
+                    output += "Less than " + maxRateOfClimb.ToString("N0") + " m/s";
+                }
+                else if (maxRateOfClimb == double.MaxValue)
+                {
+                    output += "Greater than " + minRateOfClimb.ToString("N0") + " m/s";
+                }
+                else
+                {
+                    output += "Between " + minRateOfClimb.ToString("N0") + " m/s and " + maxRateOfClimb.ToString("N0") + " m/s";
+                }
+
+                AddParameter(new ParameterDelegate<Vessel>(output, CheckVesselRateOfClimb));
             }
 
             // Filter for acceleration
@@ -223,12 +248,28 @@ namespace ContractConfigurator.Parameters
             return speed >= minSpeed && speed <= maxSpeed;
         }
 
+        private bool CheckVesselRateOfClimb(Vessel vessel)
+        {
+            Vector3d nrm = FlightGlobals.currentMainBody.GetSurfaceNVector(vessel.latitude, vessel.longitude);
+            double speed = Vector3d.Dot(vessel.srf_velocity, nrm);
+
+            return speed >= minRateOfClimb && speed <= maxRateOfClimb;
+        }
+
+        private bool CheckVesselAltitude(Vessel vessel)
+        {
+            return vessel.altitude >= minAltitude && vessel.altitude <= maxAltitude;
+        }
+
         protected override void OnParameterSave(ConfigNode node)
         {
             base.OnParameterSave(node);
-            if (targetBody != null)
+            if (targetBodies != null)
             {
-                node.AddValue("targetBody", targetBody.name);
+                foreach (CelestialBody targetBody in targetBodies)
+                {
+                    node.AddValue("targetBody", targetBody.name);
+                }
             }
             if (!string.IsNullOrEmpty(biome))
             {
@@ -241,7 +282,7 @@ namespace ContractConfigurator.Parameters
                 node.AddValue("situation", sit);
             }
 
-            if (minAltitude != 0.0f)
+            if (minAltitude != float.MinValue)
             {
                 node.AddValue("minAltitude", minAltitude);
             }
@@ -268,6 +309,15 @@ namespace ContractConfigurator.Parameters
                 node.AddValue("maxSpeed", maxSpeed);
             }
 
+            if (minRateOfClimb != double.MinValue)
+            {
+                node.AddValue("minRateOfClimb", minRateOfClimb);
+            }
+            if (maxRateOfClimb != double.MaxValue)
+            {
+                node.AddValue("maxRateOfClimb", maxRateOfClimb);
+            }
+
             if (minAcceleration != 0.0f)
             {
                 node.AddValue("minAcceleration", minAcceleration);
@@ -283,15 +333,17 @@ namespace ContractConfigurator.Parameters
             try
             {
                 base.OnParameterLoad(node);
-                targetBody = ConfigNodeUtil.ParseValue<CelestialBody>(node, "targetBody", (CelestialBody)null);
+                targetBodies = ConfigNodeUtil.ParseValue<List<CelestialBody>>(node, "targetBody", new List<CelestialBody>());
                 biome = ConfigNodeUtil.ParseValue<string>(node, "biome", "");
                 situation = ConfigNodeUtil.ParseValue<List<Vessel.Situations>>(node, "situation", new List<Vessel.Situations>());
-                minAltitude = ConfigNodeUtil.ParseValue<float>(node, "minAltitude", 0.0f);
+                minAltitude = ConfigNodeUtil.ParseValue<float>(node, "minAltitude", float.MinValue);
                 maxAltitude = ConfigNodeUtil.ParseValue<float>(node, "maxAltitude", float.MaxValue);
                 minTerrainAltitude = ConfigNodeUtil.ParseValue<float>(node, "minTerrainAltitude", 0.0f);
                 maxTerrainAltitude = ConfigNodeUtil.ParseValue<float>(node, "maxTerrainAltitude", float.MaxValue);
                 minSpeed = ConfigNodeUtil.ParseValue<double>(node, "minSpeed", 0.0);
                 maxSpeed = ConfigNodeUtil.ParseValue<double>(node, "maxSpeed", double.MaxValue);
+                minRateOfClimb = ConfigNodeUtil.ParseValue<double>(node, "minRateOfClimb", double.MinValue);
+                maxRateOfClimb = ConfigNodeUtil.ParseValue<double>(node, "maxRateOfClimb", double.MaxValue);
                 minAcceleration = ConfigNodeUtil.ParseValue<float>(node, "minAcceleration", 0.0f);
                 maxAcceleration = ConfigNodeUtil.ParseValue<float>(node, "maxAcceleration", float.MaxValue);
 
@@ -325,6 +377,22 @@ namespace ContractConfigurator.Parameters
             if (last != first)
             {
                 result += " or " + ReachSituation.GetTitleStringShort(last);
+            }
+            return result;
+        }
+
+        public string BodyList()
+        {
+            CelestialBody first = targetBodies.First();
+            CelestialBody last = targetBodies.Last();
+            string result = first.theName;
+            foreach (CelestialBody body in targetBodies.Where(b => b != first && b != last))
+            {
+                result += ", " + body.theName;
+            }
+            if (last != first)
+            {
+                result += " or " + last.theName;
             }
             return result;
         }
