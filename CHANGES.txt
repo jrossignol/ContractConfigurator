@@ -1,4 +1,5 @@
 Contract Configurator 1.9.7
+- KerbalDeaths now supports a vessel identifier to only check for Kerbal deaths on a specific vessel.
 - Added support for AlbertKermin's Surface Experiments Pack to science subsystem.
 - Allow multiple targetBody values in ReachState.
 - Fixed default values for RemoteTech CelestialBodyCoverage requirement (thanks severedsolo).

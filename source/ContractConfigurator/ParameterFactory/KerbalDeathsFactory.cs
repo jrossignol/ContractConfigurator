@@ -16,6 +16,7 @@ namespace ContractConfigurator
     {
         protected int countMax;
         protected List<Kerbal> kerbal;
+        protected VesselIdentifier vessel;
 
         public override bool Load(ConfigNode configNode)
         {
@@ -24,13 +25,14 @@ namespace ContractConfigurator
 
             valid &= ConfigNodeUtil.ParseValue<int>(configNode, "countMax", x => countMax = x, this, 1, x => Validation.GT(x, 0));
             valid &= ConfigNodeUtil.ParseValue<List<Kerbal>>(configNode, "kerbal", x => kerbal = x, this, new List<Kerbal>());
+            valid &= ConfigNodeUtil.ParseValue<VesselIdentifier>(configNode, "vessel", x => vessel = x, this, (VesselIdentifier)null);
 
             return valid;
         }
 
         public override ContractParameter Generate(Contract contract)
         {
-            return new KerbalDeathsCustom(countMax, kerbal, title);
+            return new KerbalDeathsCustom(countMax, kerbal, vessel, title);
         }
     }
 }

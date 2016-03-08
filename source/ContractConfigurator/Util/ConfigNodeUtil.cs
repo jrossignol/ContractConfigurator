@@ -327,6 +327,10 @@ namespace ContractConfigurator
             {
                 value = (T)(object)ParseVesselValue(stringValue);
             }
+            else if (typeof(T) == typeof(VesselIdentifier))
+            {
+                value = (T)(object)new VesselIdentifier(stringValue);
+            }
             else if (typeof(T) == typeof(Vector3))
             {
                 string[] vals = stringValue.Split(new char[] { ',' });
