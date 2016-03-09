@@ -9,6 +9,7 @@ using UnityEngine;
 using KSP;
 using KSP.UI.Screens;
 using Contracts;
+using FinePrint;
 using ContractConfigurator.Util;
 
 namespace ContractConfigurator
@@ -473,28 +474,22 @@ namespace ContractConfigurator
         /// <returns>Whether the changes took place</returns>
         static bool AdjustContractTypes()
         {
-            // TODO - use the contract weight system instead
-            return true;
-            /*
-            if (ContractSystem.Instance == null)
+            if (ContractSystem.ContractWeights == null)
             {
                 return false;
             }
 
             // Add the ConfiguredContract type
-            int countByType = (int)(Math.Pow(ContractType.AllValidContractTypes.Count(), 0.6) / 2.0);
-            int countByGroup = (int)(Math.Pow(ContractGroup.AllGroups.Count(g => g != null && g.parent == null), 0.7) * 1.5);
-            int count = Math.Max(countByGroup, countByType);
-            LoggingUtil.LogDebug(typeof(ContractConfigurator), "Setting ConfiguredContract count to " + count);
+            double weightByType = Math.Pow(ContractType.AllValidContractTypes.Count(), 0.7) / 1.5;
+            double weightByGroup = Math.Pow(ContractGroup.AllGroups.Count(g => g != null && g.parent == null), 0.9);
+            int weight = (int)Math.Round(Math.Max(weightByGroup, weightByType) * ContractDefs.WeightDefault);
+            LoggingUtil.LogDebug(typeof(ContractConfigurator), "Setting ConfiguredContract weight to " + weight);
 
-            for (int i = 1; i < count; i++)
-            {
-                ContractSystem.ContractTypes.Add(typeof(ConfiguredContract));
-            }
+            ContractSystem.ContractWeights[typeof(ConfiguredContract)] = weight;
 
             LoggingUtil.LogInfo(typeof(ContractConfigurator), "Finished Adjusting ContractTypes");
 
-            return true;*/
+            return true;
         }
 
         public static IEnumerable<Type> GetAllTypes<T>()

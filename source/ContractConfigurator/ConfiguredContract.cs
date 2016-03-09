@@ -86,6 +86,7 @@ namespace ContractConfigurator
         public ConfiguredContract()
         {
             this.dateExpire = Contract.GameTime + 5.0 * 3600.0 * 6.0;
+            this.IgnoresWeight = true;
         }
 
         public bool Initialize(ContractType contractType)

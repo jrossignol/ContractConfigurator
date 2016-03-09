@@ -68,10 +68,13 @@ namespace ContractConfigurator.Behaviour
                     return;
                 }
 
-                if (contract.ContractState == Contract.State.Active ||
-                    contract.ContractState == Contract.State.Offered && ContractDefs.DisplayOfferedOrbits && HighLogic.LoadedScene != GameScenes.TRACKSTATION)
+                if (HighLogic.LoadedScene == GameScenes.TRACKSTATION || HighLogic.LoadedScene == GameScenes.FLIGHT)
                 {
-                    orbitRenderer = ContractOrbitRenderer.Setup(contract, orbit);
+                    if (contract.ContractState == Contract.State.Active ||
+                        contract.ContractState == Contract.State.Offered && ContractDefs.DisplayOfferedOrbits && HighLogic.LoadedScene != GameScenes.TRACKSTATION)
+                    {
+                        orbitRenderer = ContractOrbitRenderer.Setup(contract, orbit);
+                    }
                 }
             }
 
