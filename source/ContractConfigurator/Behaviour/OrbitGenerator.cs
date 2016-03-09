@@ -19,33 +19,14 @@ namespace ContractConfigurator.Behaviour
     /// </summary>
     public class OrbitGenerator : ContractBehaviour
     {
-        [KSPAddon(KSPAddon.Startup.SpaceCentre, true)]
-        public class OrbitRenderer : MonoBehaviour
-        {
-            void Start()
-            {
-                DontDestroyOnLoad(this);
-            }
-
-            public void OnPreCull()
-            {
-                if (HighLogic.LoadedSceneIsFlight && MapView.MapIsEnabled || HighLogic.LoadedScene == GameScenes.TRACKSTATION)
-                {
-                    foreach (OrbitGenerator og in allOrbitGenerators)
-                    {
-                        og.Draw();
-                    }
-                }
-            }
-        }
-
         private class OrbitData
         {
             public Orbit orbit = new Orbit();
+            public ContractOrbitRenderer orbitRenderer = null;
+            public Contract contract;
             public string type = null;
             public string name = null;
             public OrbitType orbitType = OrbitType.RANDOM;
-            public int index = 0;
             public int count = 1;
             public CelestialBody targetBody;
             public double altitudeFactor;
@@ -67,23 +48,44 @@ namespace ContractConfigurator.Behaviour
                 type = orig.type;
                 name = orig.name;
                 orbitType = orig.orbitType;
-                index = orig.index;
                 count = orig.count;
                 targetBody = orig.targetBody;
                 altitudeFactor = orig.altitudeFactor;
                 inclinationFactor = orig.inclinationFactor;
                 eccentricity = orig.eccentricity;
                 deviationWindow = orig.deviationWindow;
+                this.contract = contract;
 
                 // Lazy copy of orbit - only really used to store the orbital parameters, so not
                 // a huge deal.
                 orbit = orig.orbit;
             }
+
+            public void SetupRenderer()
+            {
+                if (orbitRenderer != null)
+                {
+                    return;
+                }
+
+                if (contract.ContractState == Contract.State.Active ||
+                    contract.ContractState == Contract.State.Offered && ContractDefs.DisplayOfferedOrbits && HighLogic.LoadedScene != GameScenes.TRACKSTATION)
+                {
+                    orbitRenderer = ContractOrbitRenderer.Setup(contract, orbit);
+                }
+            }
+
+            public void CleanupRenderer()
+            {
+                if (orbitRenderer != null)
+                {
+                    orbitRenderer.Cleanup();
+                    orbitRenderer = null;
+                }
+            }
         }
         private List<OrbitData> orbits = new List<OrbitData>();
 
-        protected static List<OrbitGenerator> allOrbitGenerators = new List<OrbitGenerator>();
-        
         public OrbitGenerator() {}
 
         /*
@@ -120,13 +122,7 @@ namespace ContractConfigurator.Behaviour
                     obData.orbit.referenceBody = obData.targetBody;
                 }
 
-                // Create the wrapper to the SpecificOrbit parameter that will do the rendering work
-                SpecificOrbitWrapper s = new SpecificOrbitWrapper(obData.orbitType, obData.orbit.inclination,
-                    obData.orbit.eccentricity, obData.orbit.semiMajorAxis, obData.orbit.LAN, obData.orbit.argumentOfPeriapsis,
-                    obData.orbit.meanAnomalyAtEpoch, obData.orbit.epoch, obData.orbit.referenceBody, obData.deviationWindow);
-                s.DisableOnStateChange = false;
-                alwaysTrue.AddParameter(s);
-                obData.index = alwaysTrue.ParameterCount - 1;
+                obData.SetupRenderer();
             }
         }
 
@@ -183,31 +179,30 @@ namespace ContractConfigurator.Behaviour
                 }
             }
 
-            allOrbitGenerators.Add(obGenerator);
-
             return valid ? obGenerator : null;
         }
 
-        protected override void OnOffered()
+        protected override void OnAccepted()
         {
-            base.OnOffered();
+            foreach (OrbitData obData in orbits)
+            {
+                obData.SetupRenderer();
+            }
         }
 
         protected override void OnUnregister()
         {
             base.OnUnregister();
-            allOrbitGenerators.Remove(this);
+
+            foreach (OrbitData obData in orbits)
+            {
+                obData.CleanupRenderer();
+            }
         }
 
         protected override void OnLoad(ConfigNode configNode)
         {
             base.OnLoad(configNode);
-
-            // Register the orbit drawing class
-            if (MapView.MapCamera.gameObject.GetComponent<OrbitRenderer>() == null)
-            {
-                MapView.MapCamera.gameObject.AddComponent<OrbitRenderer>();
-            }
 
             foreach (ConfigNode child in configNode.GetNodes("ORBIT_DETAIL"))
             {
@@ -215,15 +210,14 @@ namespace ContractConfigurator.Behaviour
                 OrbitData obData = new OrbitData();
                 obData.type = child.GetValue("type");
                 obData.name = child.GetValue("name");
-                obData.index = Convert.ToInt32(child.GetValue("index"));
 
+                obData.contract = contract;
                 obData.orbit = new OrbitSnapshot(child.GetNode("ORBIT")).Load();
+                obData.SetupRenderer();
 
                 // Add to the global list
                 orbits.Add(obData);
             }
-
-            allOrbitGenerators.Add(this);
         }
 
         protected override void OnSave(ConfigNode configNode)
@@ -236,7 +230,6 @@ namespace ContractConfigurator.Behaviour
 
                 child.AddValue("type", obData.type);
                 child.AddValue("name", obData.name);
-                child.AddValue("index", obData.index);
 
                 ConfigNode orbitNode = new ConfigNode("ORBIT");
                 new OrbitSnapshot(obData.orbit).Save(orbitNode);
@@ -246,49 +239,15 @@ namespace ContractConfigurator.Behaviour
             }
         }
 
-        public void Draw()
+        public Orbit GetOrbit(int index)
         {
-            // TODO - fixme
-/*            // No contract
-            if (contract == null)
+            OrbitData obData = orbits.ElementAtOrDefault(index);
+            if (obData != null)
             {
-                return;
+                return obData.orbit;
             }
 
-            // Check contract state when displaying
-            if (contract.ContractState == Contract.State.Active ||
-                contract.ContractState == Contract.State.Offered && HighLogic.LoadedScene == GameScenes.TRACKSTATION)
-            {
-                // Update the map icons
-                foreach (OrbitData obData in orbits)
-                {
-                    SpecificOrbitParameter s = GetOrbitParameter(obData.index);
-                    s.setVisible(true);
-                    s.UpdateWaypoints(CelestialUtilities.MapFocusBody() == obData.orbit.referenceBody);
-                }
-            }
-            else if (contract.ContractState == Contract.State.Withdrawn)
-            {
-                // Hide waypoint icons
-                foreach (OrbitData obData in orbits)
-                {
-                    SpecificOrbitParameter s = GetOrbitParameter(obData.index);
-
-                    if (s != null && s.iconWaypoints != null)
-                    {
-                        foreach (Waypoint w in s.iconWaypoints)
-                        {
-                            w.visible = false;
-                        }
-                        s.setVisible(false);
-                    }
-                }
-            }*/
-        }
-
-        public SpecificOrbitWrapper GetOrbitParameter(int index)
-        {
-            return AlwaysTrue.FetchOrAdd(contract).GetParameter(orbits[index].index) as SpecificOrbitWrapper;
+            return null;
         }
     }
 }

@@ -43,7 +43,6 @@ namespace ContractConfigurator.RemoteTech
                     output += (currentCoverage * 100).ToString("F0") + "% / ";
                 }
                 output += (coverage * 100).ToString("F0") + "%";
-                titleTracker.Add(output);
             }
             else
             {

@@ -45,11 +45,6 @@ namespace ContractConfigurator.RemoteTech
                 output = title;
             }
 
-            // Add the string that we returned to the titleTracker.  This is used to update
-            // the contract title element in the GUI directly, as it does not support dynamic
-            // text.
-            titleTracker.Add(output);
-
             return output;
         }
 

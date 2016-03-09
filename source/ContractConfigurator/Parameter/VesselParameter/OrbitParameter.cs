@@ -6,6 +6,7 @@ using UnityEngine;
 using KSP;
 using Contracts;
 using Contracts.Parameters;
+using FinePrint.Utilities;
 
 namespace ContractConfigurator.Parameters
 {
@@ -28,6 +29,8 @@ namespace ContractConfigurator.Parameters
         protected double minPeriod { get; set; }
         protected double maxPeriod { get; set; }
         protected CelestialBody targetBody { get; set; }
+        protected Orbit orbit;
+        protected double deviationWindow;
 
         private float lastUpdate = 0.0f;
         private const float UPDATE_FREQUENCY = 0.25f;
@@ -56,6 +59,28 @@ namespace ContractConfigurator.Parameters
             this.maxInclination = maxInclination;
             this.minPeriod = minPeriod;
             this.maxPeriod = maxPeriod;
+            orbit = null;
+
+            CreateDelegates();
+        }
+
+        public OrbitParameter(Orbit orbit, double deviationWindow)
+        {
+            targetBody = orbit.referenceBody;
+            minAltitude = 0.0;
+            maxAltitude = double.MaxValue;
+            minApoapsis = 0.0;
+            maxApoapsis = double.MaxValue;
+            minPeriapsis = 0.0;
+            maxPeriapsis = double.MaxValue;
+            minEccentricity = 0.0;
+            maxEccentricity = double.MaxValue;
+            minInclination = 0.0;
+            maxInclination = 180;
+            minPeriod = 0.0;
+            maxPeriod = double.MaxValue;
+            this.orbit = orbit;
+            this.deviationWindow = deviationWindow;
 
             CreateDelegates();
         }
@@ -88,8 +113,11 @@ namespace ContractConfigurator.Parameters
             }
 
             // Filter for situation
+            if (orbit == null)
+            {
             AddParameter(new ParameterDelegate<Vessel>("Situation: " + ReachSituation.GetTitleStringShort(situation),
                 v => v.situation == situation, true));
+            }
 
             // Filter for altitude
             if (minAltitude != 0.0 || maxAltitude != double.MaxValue)
@@ -210,6 +238,13 @@ namespace ContractConfigurator.Parameters
 
                 AddParameter(new ParameterDelegate<Vessel>(output, v => v.orbit.period >= minPeriod && v.orbit.period <= maxPeriod));
             }
+
+            // Filter for specific orbit
+            if (orbit != null)
+            {
+                string output = "Reach the specified orbit";
+                AddParameter(new ParameterDelegate<Vessel>(output, v => VesselUtilities.VesselAtOrbit(orbit, deviationWindow, v)));
+            }
         }
 
         private bool CheckInclination(Vessel vessel)
@@ -263,6 +298,13 @@ namespace ContractConfigurator.Parameters
             {
                 node.AddValue("maxPeriod", maxPeriod);
             }
+            if (orbit != null)
+            {
+                ConfigNode orbitNode = new ConfigNode("ORBIT");
+                new OrbitSnapshot(orbit).Save(orbitNode);
+                node.AddNode(orbitNode);
+                node.AddValue("deviationWindow", deviationWindow);
+            }
         }
 
         protected override void OnParameterLoad(ConfigNode node)
@@ -284,6 +326,12 @@ namespace ContractConfigurator.Parameters
                 minPeriod = ConfigNodeUtil.ParseValue<double>(node, "minPeriod");
                 maxPeriod = ConfigNodeUtil.ParseValue<double>(node, "maxPeriod", double.MaxValue);
                 targetBody = ConfigNodeUtil.ParseValue<CelestialBody>(node, "targetBody", (CelestialBody)null);
+
+                if (node.HasNode("ORBIT"))
+                {
+                    orbit = new OrbitSnapshot(node.GetNode("ORBIT")).Load();
+                    deviationWindow = ConfigNodeUtil.ParseValue<double>(node, "deviationWindow");
+                }
 
                 CreateDelegates();
             }
