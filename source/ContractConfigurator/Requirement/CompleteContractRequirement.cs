@@ -75,7 +75,6 @@ namespace ContractConfigurator
                 finished = completedContract.Count();
                 if (finished > 0)
                 {
-                    // TODO - this isn't working out
                     lastFinished = completedContract.OrderByDescending<ConfiguredContract, double>(c => c.DateFinished).First().DateFinished;
                 }
             }
