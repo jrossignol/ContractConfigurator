@@ -169,11 +169,10 @@ namespace ContractConfigurator.Parameters
             LoggingUtil.LogVerbose(this, "OnParameterChange");
             if (c != Root)
             {
-                LoggingUtil.LogVerbose(this, "wrong contract");
                 return;
             }
 
-            if (Root.GetChildren().All(param => param.State == ParameterState.Complete || param == this || param.Optional))
+            if (Parent.GetChildren().All(param => param.State == ParameterState.Complete || param == this || param.Optional))
             {
                 SetState(ParameterState.Complete);
             }
