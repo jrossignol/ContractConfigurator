@@ -32,6 +32,9 @@ namespace ContractConfigurator
 
         public override bool Load(ConfigNode configNode)
         {
+            // Ignore the targetBody in the base class
+            configNode.AddValue("ignoreTargetBody", true);
+
             // Load base class
             bool valid = base.Load(configNode);
 
