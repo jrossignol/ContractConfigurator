@@ -24,7 +24,6 @@ namespace ContractConfigurator.Parameters
         public KerbalDeathsCustom()
             : base()
         {
-            disableOnStateChange = false;
         }
 
         public KerbalDeathsCustom(int countMax, IEnumerable<Kerbal> kerbals, VesselIdentifier vesselIdentifier, string title)
@@ -33,8 +32,6 @@ namespace ContractConfigurator.Parameters
             this.countMax = countMax;
             this.kerbals = kerbals.ToList();
             this.vesselIdentifier = vesselIdentifier;
-
-            disableOnStateChange = false;
 
             CreateDelegates();
         }
