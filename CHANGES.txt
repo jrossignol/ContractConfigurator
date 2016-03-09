@@ -1,3 +1,6 @@
+Contract Configurator 1.9.9
+- Fixed issue with SCANsat contract that keep recycling (thanks smjjames).
+
 Contract Configurator 1.9.8
 - Fixed problem with using multiple targetBody values via expression in ReachState (thanks NathanKell).
 - Fixed issue with KerbalDeaths not completing correctly (thanks vardicd).
