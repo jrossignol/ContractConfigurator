@@ -43,6 +43,23 @@ namespace ContractConfigurator
             return valid;
         }
 
+        public override void SaveToPersistence(ConfigNode configNode)
+        {
+            base.SaveToPersistence(configNode);
+
+            foreach (string tech in techs)
+            {
+                configNode.AddValue("tech", tech);
+            }
+        }
+
+        public override void LoadFromPersistence(ConfigNode configNode)
+        {
+            base.LoadFromPersistence(configNode);
+
+            techs = ConfigNodeUtil.ParseValue<List<string>>(configNode, "tech", new List<string>());
+        }
+
         public override bool RequirementMet(ConfiguredContract contract)
         {
             // Cache the tech tree

@@ -8,9 +8,9 @@ using KSPAchievements;
 
 namespace ContractConfigurator
 {
-    /*
-     * ContractRequirement to provide requirement for player having had a crew recovered.
-     */
+    /// <summary>
+    /// ContractRequirement to provide requirement for player having had a crew recovered.
+    /// </summary>
     public class FirstCrewToSurviveRequirement : ContractRequirement
     {
         public override bool RequirementMet(ConfiguredContract contract)

@@ -45,8 +45,7 @@ namespace ContractConfigurator
             {
                 try
                 {
-                    CelestialBody body = FlightGlobals.Bodies.Where(b => b == targetBody).First();
-                    pqsCity = body.GetComponentsInChildren<PQSCity>(true).Where(pqs => pqs.name == pqsName).First();
+                    pqsCity = targetBody.GetComponentsInChildren<PQSCity>(true).Where(pqs => pqs.name == pqsName).First();
                 }
                 catch (Exception e)
                 {
@@ -57,6 +56,33 @@ namespace ContractConfigurator
             }
 
             return valid;
+        }
+
+        public override void SaveToPersistence(ConfigNode configNode)
+        {
+            base.SaveToPersistence(configNode);
+
+            configNode.AddValue("latitude", latitude);
+            configNode.AddValue("longitude", longitude);
+            configNode.AddValue("scanType", scanType);
+            if (pqsCity != null)
+            {
+                configNode.AddValue("pqsCity", pqsCity.name);
+            }
+        }
+
+        public override void LoadFromPersistence(ConfigNode configNode)
+        {
+            base.LoadFromPersistence(configNode);
+
+            latitude = ConfigNodeUtil.ParseValue<double>(configNode, "latitude");
+            longitude = ConfigNodeUtil.ParseValue<double>(configNode, "longitude");
+            scanType = ConfigNodeUtil.ParseValue<string>(configNode, "scanType");
+            string pqsCityName = ConfigNodeUtil.ParseValue<string>(configNode, "pqsCity");
+            if (!string.IsNullOrEmpty(pqsCityName))
+            {
+                pqsCity = targetBody.GetComponentsInChildren<PQSCity>(true).Where(pqs => pqs.name == pqsCityName).First();
+            }
         }
 
         public override bool RequirementMet(ConfiguredContract contract)

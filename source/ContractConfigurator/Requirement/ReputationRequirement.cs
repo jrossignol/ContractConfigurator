@@ -8,9 +8,9 @@ using KSPAchievements;
 
 namespace ContractConfigurator
 {
-    /*
-     * ContractRequirement to provide requirement for player having a certain amount of reputation.
-     */
+    /// <summary>
+    /// ContractRequirement to provide requirement for player having a certain amount of reputation.
+    /// </summary>
     public class ReputationRequirement : ContractRequirement
     {
         protected float minReputation;
@@ -26,6 +26,22 @@ namespace ContractConfigurator
             valid &= ConfigNodeUtil.AtLeastOne(configNode, new string[] { "minReputation", "maxReputation" }, this);
 
             return valid;
+        }
+
+        public override void SaveToPersistence(ConfigNode configNode)
+        {
+            base.SaveToPersistence(configNode);
+
+            configNode.AddValue("minReputation", minReputation);
+            configNode.AddValue("maxReputation", maxReputation);
+        }
+
+        public override void LoadFromPersistence(ConfigNode configNode)
+        {
+            base.LoadFromPersistence(configNode);
+
+            minReputation = ConfigNodeUtil.ParseValue<float>(configNode, "minReputation");
+            maxReputation = ConfigNodeUtil.ParseValue<float>(configNode, "maxReputation");
         }
 
         public override bool RequirementMet(ConfiguredContract contract)

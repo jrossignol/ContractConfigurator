@@ -39,6 +39,24 @@ namespace ContractConfigurator
             return valid;
         }
 
+        public override void SaveToPersistence(ConfigNode configNode)
+        {
+            base.SaveToPersistence(configNode);
+
+            configNode.AddValue("minCoverage", minCoverage);
+            configNode.AddValue("maxCoverage", maxCoverage);
+            configNode.AddValue("scanType", scanType);
+        }
+
+        public override void LoadFromPersistence(ConfigNode configNode)
+        {
+            base.LoadFromPersistence(configNode);
+
+            minCoverage = ConfigNodeUtil.ParseValue<double>(configNode, "minCoverage");
+            maxCoverage = ConfigNodeUtil.ParseValue<double>(configNode, "maxCoverage");
+            scanType = ConfigNodeUtil.ParseValue<string>(configNode, "scanType");
+        }
+
         public override bool RequirementMet(ConfiguredContract contract)
         {
             // Perform another validation of the target body to catch late validation issues due to expressions

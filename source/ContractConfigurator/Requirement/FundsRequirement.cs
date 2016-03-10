@@ -8,9 +8,9 @@ using KSPAchievements;
 
 namespace ContractConfigurator
 {
-    /*
-     * ContractRequirement to provide requirement for player having a certain amount of funds.
-     */
+    /// <summary>
+    /// ContractRequirement to provide requirement for player having a certain amount of funds.
+    /// </summary>
     public class FundsRequirement : ContractRequirement
     {
         protected double minFunds;
@@ -26,6 +26,22 @@ namespace ContractConfigurator
             valid &= ConfigNodeUtil.AtLeastOne(configNode, new string[] { "minFunds", "maxFunds" }, this);
 
             return valid;
+        }
+
+        public override void SaveToPersistence(ConfigNode configNode)
+        {
+            base.SaveToPersistence(configNode);
+
+            configNode.AddValue("minFunds", minFunds);
+            configNode.AddValue("maxFunds", maxFunds);
+        }
+
+        public override void LoadFromPersistence(ConfigNode configNode)
+        {
+            base.LoadFromPersistence(configNode);
+
+            minFunds = ConfigNodeUtil.ParseValue<double>(configNode, "minFunds");
+            maxFunds = ConfigNodeUtil.ParseValue<double>(configNode, "maxFunds");
         }
 
         public override bool RequirementMet(ConfiguredContract contract)

@@ -18,6 +18,7 @@ namespace ContractConfigurator
             base.Load(configNode);
             return false;
         }
+
         public override bool RequirementMet(ConfiguredContract contract)
         {
             throw new InvalidOperationException("Cannot check invalid requirement.");

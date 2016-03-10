@@ -23,7 +23,8 @@ namespace ContractConfigurator
 
         public ContractType contractType { get; set; }
         public string subType { get; set; }
-        private List<ContractBehaviour> behaviours = new List<ContractBehaviour>();
+        public List<ContractRequirement> requirements = null;
+        public List<ContractBehaviour> behaviours = new List<ContractBehaviour>();
         public IEnumerable<ContractBehaviour> Behaviours { get { return behaviours.AsReadOnly(); } }
 
         public Dictionary<string, object> uniqueData = new Dictionary<string, object>();
@@ -387,6 +388,13 @@ namespace ContractConfigurator
                     behaviours.Add(behaviour);
                 }
 
+                requirements = new List<ContractRequirement>();
+                foreach (ConfigNode child in node.GetNodes("REQUIREMENT"))
+                {
+                    ContractRequirement requirement = ContractRequirement.LoadRequirement(child);
+                    requirements.Add(requirement);
+                }
+
                 // If the contract type is null, then it likely means that it was uninstalled
                 if (contractType == null)
                 {
@@ -461,6 +469,23 @@ namespace ContractConfigurator
                 {
                     ConfigNode child = new ConfigNode("BEHAVIOUR");
                     behaviour.Save(child);
+                    node.AddNode(child);
+                }
+
+                // Store requirements
+                if (requirements == null)
+                {
+                    requirements = new List<ContractRequirement>();
+                    foreach (ContractRequirement requirement in contractType.Requirements)
+                    {
+                        requirements.Add(requirement);
+                    }
+                }
+
+                foreach (ContractRequirement requirement in requirements)
+                {
+                    ConfigNode child = new ConfigNode("REQUIREMENT");
+                    requirement.SaveToPersistence(child);
                     node.AddNode(child);
                 }
             }

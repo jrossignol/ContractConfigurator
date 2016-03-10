@@ -551,7 +551,6 @@ namespace ContractConfigurator
                                 throw new ContractRequirementException("'" + name + "' was not initialized.");
                             }
 
-
                             object o = dataNode[name];
                             if (o == null)
                             {
@@ -648,7 +647,7 @@ namespace ContractConfigurator
                 }
 
                 // Check the captured requirements
-                if (!ContractRequirement.RequirementsMet(contract, this, requirements))
+                if (!ContractRequirement.RequirementsMet(contract, this, contract.requirements != null ? contract.requirements : requirements))
                 {
                     throw new ContractRequirementException("Failed on contract requirement check.");
                 }

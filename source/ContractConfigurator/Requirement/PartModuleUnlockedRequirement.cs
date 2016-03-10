@@ -28,6 +28,23 @@ namespace ContractConfigurator
             return valid;
         }
 
+        public override void SaveToPersistence(ConfigNode configNode)
+        {
+            base.SaveToPersistence(configNode);
+
+            foreach (string pm in partModules)
+            {
+                configNode.AddValue("partModule", pm);
+            }
+        }
+
+        public override void LoadFromPersistence(ConfigNode configNode)
+        {
+            base.LoadFromPersistence(configNode);
+
+            partModules = ConfigNodeUtil.ParseValue<List<string>>(configNode, "partModule", new List<string>());
+        }
+
         public override bool RequirementMet(ConfiguredContract contract)
         {
             foreach (string partModule in partModules)

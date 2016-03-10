@@ -8,9 +8,9 @@ using KSPAchievements;
 
 namespace ContractConfigurator
 {
-    /*
-     * ContractRequirement to provide requirement for player having a certain amount of science.
-     */
+    /// <summary>
+    /// ContractRequirement to provide requirement for player having a certain amount of science.
+    /// </summary>
     public class ScienceRequirement : ContractRequirement
     {
         protected float minScience;
@@ -26,6 +26,22 @@ namespace ContractConfigurator
             valid &= ConfigNodeUtil.AtLeastOne(configNode, new string[] { "minScience", "maxScience" }, this);
 
             return valid;
+        }
+
+        public override void SaveToPersistence(ConfigNode configNode)
+        {
+            base.SaveToPersistence(configNode);
+
+            configNode.AddValue("minScience", minScience);
+            configNode.AddValue("maxScience", maxScience);
+        }
+
+        public override void LoadFromPersistence(ConfigNode configNode)
+        {
+            base.LoadFromPersistence(configNode);
+
+            minScience = ConfigNodeUtil.ParseValue<float>(configNode, "minScience");
+            maxScience = ConfigNodeUtil.ParseValue<float>(configNode, "maxScience");
         }
 
         public override bool RequirementMet(ConfiguredContract contract)

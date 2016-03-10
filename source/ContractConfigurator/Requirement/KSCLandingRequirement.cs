@@ -8,9 +8,9 @@ using KSPAchievements;
 
 namespace ContractConfigurator
 {
-    /*
-     * ContractRequirement to provide requirement for player having made their first launch.
-     */
+    /// <summary>
+    /// ContractRequirement to provide requirement for player having made their first launch.
+    /// </summary>
     public class KSCLandingRequirement : ContractRequirement
     {
         public override bool RequirementMet(ConfiguredContract contract)

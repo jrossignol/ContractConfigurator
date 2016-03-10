@@ -31,6 +31,23 @@ namespace ContractConfigurator
             return valid;
         }
 
+        public override void SaveToPersistence(ConfigNode configNode)
+        {
+            base.SaveToPersistence(configNode);
+
+            if (checkType != null)
+            {
+                configNode.AddValue("checkType", checkType);
+            }
+        }
+
+        public override void LoadFromPersistence(ConfigNode configNode)
+        {
+            base.LoadFromPersistence(configNode);
+
+            checkType = ConfigNodeUtil.ParseValue<CheckType?>(configNode, "checkType", (CheckType?)null);
+        }
+
         protected CelestialBodySubtree GetCelestialBodySubtree()
         {
             // Get the progress tree for our celestial body

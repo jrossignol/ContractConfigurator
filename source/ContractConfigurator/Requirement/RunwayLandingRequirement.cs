@@ -8,9 +8,9 @@ using KSPAchievements;
 
 namespace ContractConfigurator
 {
-    /*
-     * ContractRequirement to provide requirement for player having landed on the runway.
-     */
+    /// <summary>
+    /// ContractRequirement to provide requirement for player having landed on the runway.
+    /// </summary>
     public class RunwayLandingRequirement : ContractRequirement
     {
         public override bool RequirementMet(ConfiguredContract contract)

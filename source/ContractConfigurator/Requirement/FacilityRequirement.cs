@@ -34,6 +34,24 @@ namespace ContractConfigurator
             return valid;
         }
 
+        public override void SaveToPersistence(ConfigNode configNode)
+        {
+            base.SaveToPersistence(configNode);
+
+            configNode.AddValue("facility", facility);
+            configNode.AddValue("minLevel", minLevel);
+            configNode.AddValue("maxLevel", maxLevel);
+        }
+
+        public override void LoadFromPersistence(ConfigNode configNode)
+        {
+            base.LoadFromPersistence(configNode);
+
+            facility = ConfigNodeUtil.ParseValue<SpaceCenterFacility>(configNode, "facility");
+            minLevel = ConfigNodeUtil.ParseValue<int>(configNode, "minLevel");
+            maxLevel = ConfigNodeUtil.ParseValue<int>(configNode, "maxLevel");
+        }
+
         public override bool RequirementMet(ConfiguredContract contract)
         {
             int level = (int)Math.Round(ScenarioUpgradeableFacilities.GetFacilityLevel(facility) *

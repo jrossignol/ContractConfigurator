@@ -74,6 +74,64 @@ namespace ContractConfigurator
             return valid;
         }
 
+        public virtual void SaveToPersistence(ConfigNode configNode)
+        {
+            configNode.AddValue("name", name);
+            configNode.AddValue("type", type);
+            if (_targetBody != null)
+            {
+                configNode.AddValue("targetBody", _targetBody.name);
+            }
+            configNode.AddValue("invertRequirement", invertRequirement);
+            configNode.AddValue("checkOnActiveContract", checkOnActiveContract);
+
+            foreach (ContractRequirement requirement in childNodes)
+            {
+                ConfigNode child = new ConfigNode("REQUIREMENT");
+                configNode.AddNode(child);
+                requirement.SaveToPersistence(child);
+            }
+        }
+
+        public virtual void LoadFromPersistence(ConfigNode configNode)
+        {
+            name = ConfigNodeUtil.ParseValue<string>(configNode, "name");
+            type = ConfigNodeUtil.ParseValue<string>(configNode, "type");
+            _targetBody = ConfigNodeUtil.ParseValue<CelestialBody>(configNode, "targetBody", (CelestialBody)null);
+            invertRequirement = ConfigNodeUtil.ParseValue<bool>(configNode, "invertRequirement");
+            checkOnActiveContract = ConfigNodeUtil.ParseValue<bool>(configNode, "checkOnActiveContract");
+        }
+
+        /// <summary>
+        /// Loads a requirement from a ConfigNode.
+        /// </summary>
+        /// <param name="configNode"></param>
+        /// <param name="contract"></param>
+        /// <returns></returns>
+        public static ContractRequirement LoadRequirement(ConfigNode configNode)
+        {
+            // Determine the type
+            string typeName = configNode.GetValue("type");
+            Type type = requirementTypes.ContainsKey(typeName) ? requirementTypes[typeName] : null;
+            if (type == null)
+            {
+                throw new Exception("No ContractRequirement with type = '" + typeName + "'.");
+            }
+
+            // Instantiate and load
+            ContractRequirement requirement = (ContractRequirement)Activator.CreateInstance(type);
+            requirement.LoadFromPersistence(configNode);
+
+            // Load children
+            foreach (ConfigNode child in configNode.GetNodes("REQUIREMENT"))
+            {
+                ContractRequirement childRequirement = LoadRequirement(child);
+                requirement.childNodes.Add(childRequirement);
+            }
+
+            return requirement;
+        }
+
         /// <summary>
         /// Method for checking whether a contract meets the requirement to be offered.  When called
         /// it should check whether the requirement is met.  The passed contract can be used as part

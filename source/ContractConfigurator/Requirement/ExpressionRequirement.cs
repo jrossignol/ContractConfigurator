@@ -28,10 +28,23 @@ namespace ContractConfigurator
             return valid;
         }
 
+        public override void SaveToPersistence(ConfigNode configNode)
+        {
+            base.SaveToPersistence(configNode);
+
+            configNode.AddValue("expression", expression);
+        }
+
+        public override void LoadFromPersistence(ConfigNode configNode)
+        {
+            base.LoadFromPersistence(configNode);
+
+            expression = ConfigNodeUtil.ParseValue<bool>(configNode, "expression");
+        }
+
         public override bool RequirementMet(ConfiguredContract contract)
         {
-            // Always met once offered (as the expression at that point may have been changed by another contract
-            return expression || contract.ContractState == Contract.State.Offered;
+            return expression;
         }
     }
 }

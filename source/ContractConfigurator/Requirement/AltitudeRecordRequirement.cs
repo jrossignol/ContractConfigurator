@@ -8,9 +8,9 @@ using KSPAchievements;
 
 namespace ContractConfigurator
 {
-    /*
-     * ContractRequirement to provide requirement for player having reached a minimum altitude.
-     */
+    /// <summary>
+    /// ContractRequirement to provide requirement for player having reached a minimum altitude.
+    /// </summary>
     public class AltitudeRecordRequirement : ContractRequirement
     {
         protected double minAltitude;
@@ -23,6 +23,20 @@ namespace ContractConfigurator
             valid &= ConfigNodeUtil.ParseValue<double>(configNode, "minAltitude", x => minAltitude = x, this, x => Validation.GT(x, 0.0));
 
             return valid;
+        }
+
+        public override void SaveToPersistence(ConfigNode configNode)
+        {
+            base.SaveToPersistence(configNode);
+
+            configNode.AddValue("minAltitude", minAltitude);
+        }
+
+        public override void LoadFromPersistence(ConfigNode configNode)
+        {
+            base.LoadFromPersistence(configNode);
+
+            minAltitude = ConfigNodeUtil.ParseValue<double>(configNode, "minAltitude");
         }
 
         public override bool RequirementMet(ConfiguredContract contract)
