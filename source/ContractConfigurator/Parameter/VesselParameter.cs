@@ -420,6 +420,11 @@ namespace ContractConfigurator.Parameters
                 v.completionTime = dockedInfo.Value.Value;
                 v.state = ParameterState.Complete;
                 vesselInfo[vessel.id] = v;
+                LoggingUtil.LogVerbose(this, "   set state to " + v.state + " and strength to " + v.strength);
+            }
+            else
+            {
+                LoggingUtil.LogVerbose(this, "   didn't find docked sub-vessel info");
             }
 
             CheckVessel(vessel);
@@ -427,6 +432,11 @@ namespace ContractConfigurator.Parameters
 
         protected virtual void OnVesselChange(Vessel vessel)
         {
+            if (vessel != null)
+            {
+                LoggingUtil.LogVerbose(this, "OnVesselChange(" + vessel.id + ")");
+            }
+
             CheckVessel(vessel);
         }
 
@@ -437,39 +447,23 @@ namespace ContractConfigurator.Parameters
                 return;
             }
 
+            LoggingUtil.LogVerbose(this, "OnPartJointBreak(" + p.Parent.vessel.id + ")");
+
             // Check if we need to make modifications based on undocking
             if (vesselInfo.ContainsKey(p.Parent.vessel.id) && vesselInfo[p.Parent.vessel.id].state == ParameterState.Complete)
             {
-                ParamStrength? strength = vesselInfo[p.Parent.vessel.id].strength;
+                ParamStrength strength = vesselInfo[p.Parent.vessel.id].strength;
 
                 // Medium strengths indicates that we may need to lower to weak if the "strong"
                 // part is lost
                 if (strength == ParamStrength.MEDIUM)
                 {
-                    strength = null;
                     foreach (uint hash in p.Parent.vessel.GetHashes())
                     {
-                        if (dockedVesselInfo.ContainsKey(hash))
-                        {
-                            if (strength == null || strength == dockedVesselInfo[hash].Key)
-                            {
-                                dockedVesselInfo[hash] = dockedVesselInfo[hash];
-                            }
-                            else
-                            {
-                                strength = ParamStrength.MEDIUM;
-                            }
-                        }
+                        strength = dockedVesselInfo[hash].Key > strength ? dockedVesselInfo[hash].Key : strength;
                     }
 
-                    // Shouldn't still be null...
-                    if (strength == null)
-                    {
-                        LoggingUtil.LogWarning(this.GetType(), "Unexpected value when undocking!  Raise a GitHub issue!");
-                        strength = ParamStrength.WEAK;
-                    }
-
-                    vesselInfo[p.Parent.vessel.id].strength = (ParamStrength)strength;
+                    vesselInfo[p.Parent.vessel.id].strength = strength == ParamStrength.STRONG ? ParamStrength.MEDIUM : ParamStrength.WEAK;
                 }
                 else if (strength == ParamStrength.STRONG)
                 {
