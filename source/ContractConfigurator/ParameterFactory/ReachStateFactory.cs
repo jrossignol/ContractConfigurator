@@ -53,10 +53,11 @@ namespace ContractConfigurator
             valid &= ConfigNodeUtil.ParseValue<float>(configNode, "maxAcceleration", x => maxAcceleration = x, this, float.MaxValue, x => Validation.GE(x, 0.0f));
 
             // Overload targetBody
+            if (!configNode.HasValue("targetBody"))
+            {
+                configNode.AddValue("targetBody", "[ @/targetBody ]");
+            }
             valid &= ConfigNodeUtil.ParseValue<List<CelestialBody>>(configNode, "targetBody", x => targetBodies = x, this);
-
-            // Validate target body
-            valid &= ValidateTargetBody(configNode);
 
             // Validation minimum set
             valid &= ConfigNodeUtil.AtLeastOne(configNode, new string[] { "targetBody", "biome", "situation", "minAltitude", "maxAltitude",
@@ -67,12 +68,6 @@ namespace ContractConfigurator
 
         public override ContractParameter Generate(Contract contract)
         {
-            // Perform another validation of the target body to catch late validation issues due to expressions
-            if (!ValidateTargetBody())
-            {
-                return null;
-            }
-
             ReachState param = new ReachState(targetBodies, biome == null ? "" : biome.biome, situation, minAltitude, maxAltitude,
                 minTerrainAltitude, maxTerrainAltitude, minSpeed, maxSpeed, minRateOfClimb, maxRateOfClimb, minAcceleration, maxAcceleration, title);
             param.FailWhenUnmet = failWhenUnmet;
