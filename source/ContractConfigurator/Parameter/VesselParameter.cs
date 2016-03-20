@@ -460,7 +460,7 @@ namespace ContractConfigurator.Parameters
                 {
                     foreach (uint hash in p.Parent.vessel.GetHashes())
                     {
-                        strength = dockedVesselInfo[hash].Key > strength ? dockedVesselInfo[hash].Key : strength;
+                        strength = !dockedVesselInfo.ContainsKey(hash) ? ParamStrength.WEAK : dockedVesselInfo[hash].Key > strength ? dockedVesselInfo[hash].Key : strength;
                     }
 
                     vesselInfo[p.Parent.vessel.id].strength = strength == ParamStrength.STRONG ? ParamStrength.MEDIUM : ParamStrength.WEAK;

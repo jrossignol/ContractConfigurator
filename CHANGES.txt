@@ -1,3 +1,6 @@
+Contract Configurator 1.9.10
+- Fixed exception on undock (thanks henrybauer).
+
 Contract Configurator 1.9.9
 - Fixed issue with SCANsat contract that keep recycling (thanks smjjames).
 - Fixed issue with ReachState not supporting the proper defaulting for targetBody (thanks Brigadier).
