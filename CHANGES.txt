@@ -1,5 +1,6 @@
 Contract Configurator 1.9.10
 - Fixed exception on undock (thanks henrybauer).
+- Fixed KerbalDeaths to be checked off (completed) by default (thanks Inigma).
 
 Contract Configurator 1.9.9
 - Fixed issue with SCANsat contract that keep recycling (thanks smjjames).

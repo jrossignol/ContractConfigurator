@@ -33,6 +33,9 @@ namespace ContractConfigurator.Parameters
             this.kerbals = kerbals.ToList();
             this.vesselIdentifier = vesselIdentifier;
 
+            disableOnStateChange = false;
+            state = ParameterState.Complete;
+
             CreateDelegates();
         }
 
@@ -167,11 +170,6 @@ namespace ContractConfigurator.Parameters
             if (c != Root)
             {
                 return;
-            }
-
-            if (Parent.GetChildren().All(param => param.State == ParameterState.Complete || param == this || param.Optional))
-            {
-                SetState(ParameterState.Complete);
             }
         }
 
