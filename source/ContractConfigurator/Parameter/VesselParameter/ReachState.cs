@@ -14,7 +14,7 @@ namespace ContractConfigurator.Parameters
     /// </summary>
     public class ReachState : VesselParameter
     {
-        protected CelestialBody targetBody { get; set; }
+        protected List<CelestialBody> targetBodies { get; set; }
         protected string biome { get; set; }
         protected List<Vessel.Situations> situation { get; set; }
         protected float minAltitude { get; set; }
@@ -38,12 +38,12 @@ namespace ContractConfigurator.Parameters
         {
         }
 
-        public ReachState(CelestialBody targetBody, string biome, List<Vessel.Situations> situation, float minAltitude, float maxAltitude,
+        public ReachState(List<CelestialBody> targetBodies, string biome, List<Vessel.Situations> situation, float minAltitude, float maxAltitude,
             float minTerrainAltitude, float maxTerrainAltitude, double minSpeed, double maxSpeed, double minRateOfClimb, double maxRateOfClimb,
             float minAcceleration, float maxAcceleration, string title)
             : base(title)
         {
-            this.targetBody = targetBody;
+            this.targetBodies = targetBodies;
             this.biome = biome;
             this.situation = situation;
             this.minAltitude = minAltitude;
@@ -91,10 +91,10 @@ namespace ContractConfigurator.Parameters
         protected void CreateDelegates()
         {
             // Filter for celestial bodies
-            if (targetBody != null)
+            if (targetBodies != null && targetBodies.Count() != FlightGlobals.Bodies.Count)
             {
-                AddParameter(new ParameterDelegate<Vessel>("Destination: " + targetBody.name,
-                    v => v.mainBody == targetBody));
+                AddParameter(new ParameterDelegate<Vessel>("Destination: " + BodyList(),
+                    v => targetBodies.Contains(v.mainBody)));
             }
 
             // Filter for biome
@@ -264,9 +264,12 @@ namespace ContractConfigurator.Parameters
         protected override void OnParameterSave(ConfigNode node)
         {
             base.OnParameterSave(node);
-            if (targetBody != null)
+            if (targetBodies != null)
             {
-                node.AddValue("targetBody", targetBody.name);
+                foreach (CelestialBody targetBody in targetBodies)
+                {
+                    node.AddValue("targetBody", targetBody.name);
+                }
             }
             if (!string.IsNullOrEmpty(biome))
             {
@@ -330,7 +333,7 @@ namespace ContractConfigurator.Parameters
             try
             {
                 base.OnParameterLoad(node);
-                targetBody = ConfigNodeUtil.ParseValue<CelestialBody>(node, "targetBody", (CelestialBody)null);
+                targetBodies = ConfigNodeUtil.ParseValue<List<CelestialBody>>(node, "targetBody", null);
                 biome = ConfigNodeUtil.ParseValue<string>(node, "biome", "");
                 situation = ConfigNodeUtil.ParseValue<List<Vessel.Situations>>(node, "situation", new List<Vessel.Situations>());
                 minAltitude = ConfigNodeUtil.ParseValue<float>(node, "minAltitude", float.MinValue);
@@ -374,6 +377,22 @@ namespace ContractConfigurator.Parameters
             if (last != first)
             {
                 result += " or " + ReachSituation.GetTitleStringShort(last);
+            }
+            return result;
+        }
+
+        public string BodyList()
+        {
+            CelestialBody first = targetBodies.First();
+            CelestialBody last = targetBodies.Last();
+            string result = first.theName;
+            foreach (CelestialBody body in targetBodies.Where(b => b != first && b != last))
+            {
+                result += ", " + body.theName;
+            }
+            if (last != first)
+            {
+                result += " or " + last.theName;
             }
             return result;
         }

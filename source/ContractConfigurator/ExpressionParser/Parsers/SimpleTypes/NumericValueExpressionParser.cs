@@ -144,7 +144,9 @@ namespace ContractConfigurator.ExpressionParser
                 RegisterGlobalFunction(new Function<float, float>("float", val => val));
 
                 RegisterGlobalFunction(new Function<float>("Reputation", () => Reputation.Instance != null ? Reputation.Instance.reputation : 0.0f, false));
+                RegisterGlobalFunction(new Function<float>("StartingReputation", () => HighLogic.CurrentGame != null ? HighLogic.CurrentGame.Parameters.Career.StartingReputation : 0.0f, false));
                 RegisterGlobalFunction(new Function<float>("Science", () => ResearchAndDevelopment.Instance != null ? ResearchAndDevelopment.Instance.Science : 0.0f, false));
+                RegisterGlobalFunction(new Function<float>("StartingScience", () => HighLogic.CurrentGame != null ? HighLogic.CurrentGame.Parameters.Career.StartingScience : 0.0f, false));
             }
             else if (typeof(T) == typeof(double))
             {
@@ -153,6 +155,7 @@ namespace ContractConfigurator.ExpressionParser
 
                 RegisterGlobalFunction(new Function<double>("UniversalTime", () => Planetarium.GetUniversalTime(), false));
                 RegisterGlobalFunction(new Function<double>("Funds", () => Funding.Instance != null ? Funding.Instance.Funds : 0.0, false));
+                RegisterGlobalFunction(new Function<double>("StartingFunds", () => HighLogic.CurrentGame != null ? HighLogic.CurrentGame.Parameters.Career.StartingFunds : 0.0, false));
             }
 
             RegisterLocalFunction(new Function<T>("Random", () => (T)Convert.ChangeType(random.NextDouble(), typeof(T)), false));

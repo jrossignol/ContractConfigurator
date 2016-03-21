@@ -25,6 +25,15 @@ namespace ContractConfigurator.ExpressionParser
         public static void RegisterMethods()
         {
             RegisterLocalFunction(new Function<List<double>, int, Orbit>("CreateOrbit", CreateOrbit));
+
+            RegisterMethod(new Method<Orbit, double>("Apoapsis", GetApA, false));
+            RegisterMethod(new Method<Orbit, double>("Periapsis", GetPeA, false));
+            RegisterMethod(new Method<Orbit, double>("Inclination", GetInclination, false));
+            RegisterMethod(new Method<Orbit, double>("Eccentricity", GetEccentricity, false));
+            RegisterMethod(new Method<Orbit, double>("LAN", GetLAN, false));
+            RegisterMethod(new Method<Orbit, double>("Period", GetPeriod, false));
+
+            RegisterGlobalFunction(new Function<Orbit, Orbit>("Orbit", o => o));
         }
 
         public OrbitParser()
@@ -45,6 +54,66 @@ namespace ContractConfigurator.ExpressionParser
             orbitNode.AddValue("REF", refVal);
 
             return new OrbitSnapshot(orbitNode).Load();
+        }
+
+        static double GetApA(Orbit orbit)
+        {
+            if (orbit == null)
+            {
+                return 0.0;
+            }
+
+            return orbit.ApA;
+        }
+
+        static double GetPeA(Orbit orbit)
+        {
+            if (orbit == null)
+            {
+                return 0.0;
+            }
+
+            return orbit.PeA;
+        }
+
+        static double GetInclination(Orbit orbit)
+        {
+            if (orbit == null)
+            {
+                return 0.0;
+            }
+
+            return orbit.inclination;
+        }
+
+        static double GetEccentricity(Orbit orbit)
+        {
+            if (orbit == null)
+            {
+                return 0.0;
+            }
+
+            return orbit.eccentricity;
+        }
+
+        static double GetLAN(Orbit orbit)
+        {
+            if (orbit == null)
+            {
+                return 0.0;
+            }
+
+            return orbit.LAN;
+        }
+
+        static double GetPeriod(Orbit orbit)
+        {
+            if (orbit == null)
+            {
+                return 0.0;
+            }
+
+            return orbit.period;
         }
     }
 }

@@ -194,6 +194,12 @@ namespace ContractConfigurator.ExpressionParser
             // Add a special case for barycenters (Sigma binary)
             if (cb.referenceBody == sun || cb.referenceBody.Radius < BARYCENTER_THRESHOLD)
             {
+                // For barycenters, the biggest one is a planet, the rest are moons.
+                if (cb.referenceBody.Radius < BARYCENTER_THRESHOLD)
+                {
+                    return cb == cb.orbitingBodies.MaxAt(child => child.Mass) ? CelestialBodyType.PLANET : CelestialBodyType.MOON;
+                }
+
                 return CelestialBodyType.PLANET;
             }
 

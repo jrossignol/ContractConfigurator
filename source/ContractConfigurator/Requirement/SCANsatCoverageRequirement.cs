@@ -41,6 +41,15 @@ namespace ContractConfigurator
 
         public override bool RequirementMet(ConfiguredContract contract)
         {
+            // Pull values from the data node in case another contract has changed them
+            if (dataNode.IsInitialized("targetBody"))
+            {
+                _targetBody = (CelestialBody)dataNode["targetBody"];
+            }
+            minCoverage = (double)dataNode["minCoverage"];
+            maxCoverage = (double)dataNode["maxCoverage"];
+            scanType = (string)dataNode["scanType"];
+
             // Perform another validation of the target body to catch late validation issues due to expressions
             if (!ValidateTargetBody())
             {

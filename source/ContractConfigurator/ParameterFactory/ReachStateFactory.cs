@@ -28,9 +28,13 @@ namespace ContractConfigurator
         protected double maxRateOfClimb;
         protected float minAcceleration;
         protected float maxAcceleration;
+        protected List<CelestialBody> targetBodies;
 
         public override bool Load(ConfigNode configNode)
         {
+            // Ignore the targetBody in the base class
+            configNode.AddValue("ignoreTargetBody", true);
+
             // Load base class
             bool valid = base.Load(configNode);
 
@@ -48,8 +52,12 @@ namespace ContractConfigurator
             valid &= ConfigNodeUtil.ParseValue<float>(configNode, "minAcceleration", x => minAcceleration = x, this, 0.0f, x => Validation.GE(x, 0.0f));
             valid &= ConfigNodeUtil.ParseValue<float>(configNode, "maxAcceleration", x => maxAcceleration = x, this, float.MaxValue, x => Validation.GE(x, 0.0f));
 
-            // Validate target body
-            valid &= ValidateTargetBody(configNode);
+            // Overload targetBody
+            if (!configNode.HasValue("targetBody"))
+            {
+                configNode.AddValue("targetBody", "[ @/targetBody ]");
+            }
+            valid &= ConfigNodeUtil.ParseValue<List<CelestialBody>>(configNode, "targetBody", x => targetBodies = x, this);
 
             // Validation minimum set
             valid &= ConfigNodeUtil.AtLeastOne(configNode, new string[] { "targetBody", "biome", "situation", "minAltitude", "maxAltitude",
@@ -60,13 +68,7 @@ namespace ContractConfigurator
 
         public override ContractParameter Generate(Contract contract)
         {
-            // Perform another validation of the target body to catch late validation issues due to expressions
-            if (!ValidateTargetBody())
-            {
-                return null;
-            }
-
-            ReachState param = new ReachState(targetBody, biome == null ? "" : biome.biome, situation, minAltitude, maxAltitude,
+            ReachState param = new ReachState(targetBodies, biome == null ? "" : biome.biome, situation, minAltitude, maxAltitude,
                 minTerrainAltitude, maxTerrainAltitude, minSpeed, maxSpeed, minRateOfClimb, maxRateOfClimb, minAcceleration, maxAcceleration, title);
             param.FailWhenUnmet = failWhenUnmet;
             return param;

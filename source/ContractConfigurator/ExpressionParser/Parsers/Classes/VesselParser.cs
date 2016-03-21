@@ -53,6 +53,7 @@ namespace ContractConfigurator.ExpressionParser
             RegisterMethod(new Method<Vessel, double>("LargestDimension", GetLargestDimension, false));
             RegisterMethod(new Method<Vessel, Location>("Location", v => v == null ? null : new Location(v.mainBody, v.latitude, v.longitude), false));
 
+            RegisterMethod(new Method<Vessel, Orbit>("Orbit", GetOrbit, false));
             RegisterMethod(new Method<Vessel, double>("OrbitApoapsis", GetApA, false));
             RegisterMethod(new Method<Vessel, double>("OrbitPeriapsis", GetPeA, false));
             RegisterMethod(new Method<Vessel, double>("OrbitInclination", GetInclination, false));
@@ -180,8 +181,19 @@ namespace ContractConfigurator.ExpressionParser
             return Math.Min(Math.Min(GetXDimension(v), GetYDimension(v)), GetZDimension(v));
         }
 
+        static Orbit GetOrbit(Vessel vessel)
+        {
+            if (vessel == null)
+            {
+                return null;
+            }
+
+            return vessel.loaded ? vessel.orbit : vessel.protoVessel.orbitSnapShot.Load();
+        }
+
         static double GetApA(Vessel vessel)
         {
+            LoggingUtil.LogWarning(typeof(VesselParser), "Vessel.OrbitApoapsis() is deprecated as of Contract Configurator 1.9.6.  Please use Vessel.Orbit().Apoapsis() instead.");
             if (vessel == null)
             {
                 return 0.0;
@@ -193,6 +205,7 @@ namespace ContractConfigurator.ExpressionParser
 
         static double GetPeA(Vessel vessel)
         {
+            LoggingUtil.LogWarning(typeof(VesselParser), "Vessel.OrbitPeriapsis() is deprecated as of Contract Configurator 1.9.6.  Please use Vessel.Orbit().Periapsis() instead.");
             if (vessel == null)
             {
                 return 0.0;
@@ -204,6 +217,7 @@ namespace ContractConfigurator.ExpressionParser
 
         static double GetInclination(Vessel vessel)
         {
+            LoggingUtil.LogWarning(typeof(VesselParser), "Vessel.OrbitInclination() is deprecated as of Contract Configurator 1.9.6.  Please use Vessel.Orbit().Inclination() instead.");
             if (vessel == null)
             {
                 return 0.0;
@@ -215,6 +229,7 @@ namespace ContractConfigurator.ExpressionParser
 
         static double GetEccentricity(Vessel vessel)
         {
+            LoggingUtil.LogWarning(typeof(VesselParser), "Vessel.OrbitEccentricity() is deprecated as of Contract Configurator 1.9.6.  Please use Vessel.Orbit().Eccentricity() instead.");
             if (vessel == null)
             {
                 return 0.0;

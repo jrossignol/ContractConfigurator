@@ -181,7 +181,7 @@ namespace ContractConfigurator
                 LoggingUtil.LogError(this, "Error initializing contract " + contractType);
                 LoggingUtil.LogException(e);
                 ExceptionLogWindow.DisplayFatalException(ExceptionLogWindow.ExceptionSituation.CONTRACT_GENERATION, e,
-                    contractType == null ? "unknown" : contractType.name);
+                    contractType == null ? "unknown" : contractType.FullName);
 
                 return false;
             }
@@ -216,7 +216,7 @@ namespace ContractConfigurator
                 LoggingUtil.LogError(this, "Error generating contract!");
                 LoggingUtil.LogException(e);
                 ExceptionLogWindow.DisplayFatalException(ExceptionLogWindow.ExceptionSituation.CONTRACT_GENERATION, e,
-                    contractType == null ? "unknown" : contractType.name);
+                    contractType == null ? "unknown" : contractType.FullName);
 
                 try
                 {
@@ -339,7 +339,7 @@ namespace ContractConfigurator
             try
             {
                 subType = node.GetValue("subtype");
-                contractType = string.IsNullOrEmpty(subType) ? null : ContractType.GetContractType(subType);
+                contractType = ContractType.GetContractType(subType);
                 title = ConfigNodeUtil.ParseValue<string>(node, "title", contractType != null ? contractType.title : subType);
                 description = ConfigNodeUtil.ParseValue<string>(node, "description", contractType != null ? contractType.description : "");
                 synopsis = ConfigNodeUtil.ParseValue<string>(node, "synopsis", contractType != null ? contractType.synopsis : "");
@@ -676,7 +676,7 @@ namespace ContractConfigurator
 
         public override string ToString()
         {
-            return contractType != null ? contractType.name : "unknown";
+            return contractType != null ? contractType.FullName : "unknown";
         }
 
         public IEnumerable<string> KerbalNames()

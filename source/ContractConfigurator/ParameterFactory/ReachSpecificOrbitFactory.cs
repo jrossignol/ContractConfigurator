@@ -18,6 +18,7 @@ namespace ContractConfigurator
     {
         protected int index;
         protected double deviationWindow;
+        protected bool displayNotes;
 
         public override bool Load(ConfigNode configNode)
         {
@@ -27,6 +28,7 @@ namespace ContractConfigurator
             // Get orbit details from the OrbitGenerator behaviour
             valid &= ConfigNodeUtil.ParseValue<int>(configNode, "index", x => index = x, this, 0, x => Validation.GE(x, 0));
             valid &= ConfigNodeUtil.ParseValue<double>(configNode, "deviationWindow", x => deviationWindow = x, this, 0.0, x => Validation.GE(x, 0.0));
+            valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "displayNotes", x => displayNotes = x, this, true);
 
             return valid;
         }
@@ -50,7 +52,7 @@ namespace ContractConfigurator
                 {
                     s.deviationWindow = deviationWindow;
                 }
-                return new VesselParameterDelegator(s);
+                return new VesselParameterDelegator(s, displayNotes);
             }
             catch (Exception e)
             {
