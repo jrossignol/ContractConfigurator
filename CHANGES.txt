@@ -1,3 +1,6 @@
+Contract Configurator 1.9.11
+- Fixed backwards compatibility on uniqueness checks (thanks eberkain).
+
 Contract Configurator 1.9.10
 - Fixed exception on undock (thanks henrybauer).
 - Fixed KerbalDeaths to be checked off (completed) by default (thanks Inigma).

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using UnityEngine;
+using ContractConfigurator.ExpressionParser;
 
 namespace ContractConfigurator
 {
@@ -159,7 +160,14 @@ namespace ContractConfigurator
             {
                 ccFactory = ConfigNodeUtil.currentDataNode.Factory;
             }
-            if (ccFactory != null)
+            else
+            {
+                DataNode dataNode = obj as DataNode;
+                if (dataNode != null)
+                {
+                    ccFactory = dataNode.Factory;
+                }
+            }            if (ccFactory != null)
             {
                 ccFactory.hasWarnings = true;
             }
