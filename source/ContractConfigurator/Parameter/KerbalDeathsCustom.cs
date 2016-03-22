@@ -22,7 +22,6 @@ namespace ContractConfigurator.Parameters
         public KerbalDeathsCustom()
             : base()
         {
-            disableOnStateChange = false;
         }
 
         public KerbalDeathsCustom(int countMax, IEnumerable<Kerbal> kerbals, VesselIdentifier vesselIdentifier, string title)
@@ -33,6 +32,7 @@ namespace ContractConfigurator.Parameters
             this.vesselIdentifier = vesselIdentifier;
 
             disableOnStateChange = false;
+            state = ParameterState.Complete;
 
             CreateDelegates();
         }
@@ -160,13 +160,7 @@ namespace ContractConfigurator.Parameters
             LoggingUtil.LogVerbose(this, "OnParameterChange");
             if (c != Root)
             {
-                LoggingUtil.LogVerbose(this, "wrong contract");
                 return;
-            }
-
-            if (Root.GetChildren().All(param => param.State == ParameterState.Complete || param == this || param.Optional))
-            {
-                SetState(ParameterState.Complete);
             }
         }
 

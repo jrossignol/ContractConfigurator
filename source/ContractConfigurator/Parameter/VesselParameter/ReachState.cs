@@ -333,7 +333,7 @@ namespace ContractConfigurator.Parameters
             try
             {
                 base.OnParameterLoad(node);
-                targetBodies = ConfigNodeUtil.ParseValue<List<CelestialBody>>(node, "targetBody", new List<CelestialBody>());
+                targetBodies = ConfigNodeUtil.ParseValue<List<CelestialBody>>(node, "targetBody", null);
                 biome = ConfigNodeUtil.ParseValue<string>(node, "biome", "");
                 situation = ConfigNodeUtil.ParseValue<List<Vessel.Situations>>(node, "situation", new List<Vessel.Situations>());
                 minAltitude = ConfigNodeUtil.ParseValue<float>(node, "minAltitude", float.MinValue);
