@@ -15,7 +15,7 @@ namespace ContractConfigurator
     /// </summary>
     public class ValidVesselRequirement : ContractRequirement
     {
-        protected string vessel;
+        protected VesselIdentifier vessel;
 
         public override bool Load(ConfigNode configNode)
         {
@@ -23,7 +23,7 @@ namespace ContractConfigurator
             bool valid = base.Load(configNode);
 
             // Get expression
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "vessel", x => vessel = x, this);
+            valid &= ConfigNodeUtil.ParseValue<VesselIdentifier>(configNode, "vessel", x => vessel = x, this);
 
             return valid;
         }
@@ -32,19 +32,19 @@ namespace ContractConfigurator
         {
             base.SaveToPersistence(configNode);
 
-            configNode.AddValue("vessel", vessel);
+            configNode.AddValue("vessel", vessel.identifier);
         }
 
         public override void LoadFromPersistence(ConfigNode configNode)
         {
             base.LoadFromPersistence(configNode);
 
-            vessel = ConfigNodeUtil.ParseValue<string>(configNode, "vessel");
+            vessel = ConfigNodeUtil.ParseValue<VesselIdentifier>(configNode, "vessel");
         }
 
         public override bool RequirementMet(ConfiguredContract contract)
         {
-            return ContractVesselTracker.Instance != null && ContractVesselTracker.Instance.GetAssociatedVessel(vessel) != null;
+            return ContractVesselTracker.Instance != null && ContractVesselTracker.Instance.GetAssociatedVessel(vessel.identifier) != null;
         }
     }
 }
