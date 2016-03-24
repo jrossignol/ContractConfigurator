@@ -331,7 +331,7 @@ namespace ContractConfigurator.ExpressionParser
 
                 UniquenessCheck uniquenessCheck = UniquenessCheck.NONE;
                 // Backwards compatibility for Contract Configurator 1.8.3
-                if (configNode.HasValue("uniqueValue") || configNode.HasValue("activeUniqueValue"))
+                if (data.HasValue("uniqueValue") || data.HasValue("activeUniqueValue"))
                 {
                     LoggingUtil.LogWarning(this, "The use of uniqueValue and activeUniqueValue is obsolete since Contract Configurator 1.9.0, use uniquenessCheck instead.");
                     
