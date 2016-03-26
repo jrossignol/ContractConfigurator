@@ -82,6 +82,7 @@
     <Compile Include="Behaviour\SpawnVessel.cs" />
     <Compile Include="Behaviour\UnlockPart.cs" />
     <Compile Include="Behaviour\UnlockTech.cs" />
+    <Compile Include="ExpressionParser\Parsers\Classes\PQSCityParser.cs" />
     <Compile Include="IKerbalNameStorage.cs" />
     <Compile Include="Parameter\Duration2.cs" />
     <Compile Include="Parameter\Duration.cs" />
