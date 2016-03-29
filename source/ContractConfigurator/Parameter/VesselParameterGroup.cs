@@ -596,8 +596,11 @@ namespace ContractConfigurator.Parameters
         {
             if (waiting && Planetarium.GetUniversalTime() > completionTime)
             {
-                waiting = false;
                 SetState(ParameterState.Complete);
+                if (state == ParameterState.Complete)
+                {
+                    waiting = false;
+                }
             }
             // Every time the clock ticks over, make an attempt to update the contract window
             // notes.  We do this because otherwise the window will only ever read the notes once,
