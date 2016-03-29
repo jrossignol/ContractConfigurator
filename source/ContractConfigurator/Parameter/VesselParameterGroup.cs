@@ -356,6 +356,9 @@ namespace ContractConfigurator.Parameters
                 {
                     node.AddValue("completionTime", completionTime);
                 }
+            }
+            if (trackedVessel != null)
+            {
                 node.AddValue("trackedVessel", trackedVesselGuid);
             }
             node.AddValue("dissassociateVesselsOnContractFailure", dissassociateVesselsOnContractFailure);
@@ -390,7 +393,11 @@ namespace ContractConfigurator.Parameters
                 if (node.HasValue("trackedVessel"))
                 {
                     trackedVesselGuid = new Guid(node.GetValue("trackedVessel"));
-                    trackedVessel = FlightGlobals.Vessels.Find(v => v != null && v.id == trackedVesselGuid);
+                    trackedVessel = FlightGlobals.Vessels.FirstOrDefault(v => v != null && v.id == trackedVesselGuid);
+                    if (trackedVessel == null)
+                    {
+                        trackedVesselGuid = Guid.Empty;
+                    }
                 }
 
                 // Register this early, otherwise we'll miss the event
@@ -557,8 +564,10 @@ namespace ContractConfigurator.Parameters
                 LoggingUtil.LogVerbose(this, "OnParameterStateChange");
                 if (AllChildParametersComplete())
                 {
+                    LoggingUtil.LogVerbose(this, "    AllChildParametersComplete (waiting = " + waiting + ")");
                     if (!waiting && trackedVessel != null)
                     {
+                        LoggingUtil.LogVerbose(this, "    set waiting");
                         waiting = true;
                         completionTime = Planetarium.GetUniversalTime() + duration;
 
@@ -572,6 +581,7 @@ namespace ContractConfigurator.Parameters
                 }
                 else
                 {
+                    LoggingUtil.LogVerbose(this, "    not all params complete");
                     waiting = false;
                     if (state == ParameterState.Complete)
                     {
