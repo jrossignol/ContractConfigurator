@@ -8,6 +8,7 @@ Contract Configurator 1.10.0
 - Added CelestialBody.PQSCities().
 - Fixed backwards compatibility on uniqueness checks (thanks eberkain).
 - Fixed edge case for VesselParameterGroup and completeInSequence (thanks NathanKell and stratochief).
+- Fixed problem with loading pqsCity and targetBody out of order in WaypointGenerator (thanks severedsolo).
 
 Contract Configurator 1.9.10
 - Fixed exception on undock (thanks henrybauer).
