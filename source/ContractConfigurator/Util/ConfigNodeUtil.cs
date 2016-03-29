@@ -599,6 +599,11 @@ namespace ContractConfigurator
                         }
                         catch (Exception e)
                         {
+                            if (e is DataNode.ValueNotInitialized)
+                            {
+                                throw;
+                            }
+
                             LoggingUtil.LogError(obj, obj.ErrorPrefix(configNode) + ": A validation error occured while loading the key '" + key + "' with value '" + value + "'.");
                             LoggingUtil.LogException(e);
                             valid = false;
