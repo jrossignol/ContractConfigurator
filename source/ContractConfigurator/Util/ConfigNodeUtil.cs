@@ -594,12 +594,12 @@ namespace ContractConfigurator
                             if (!valid)
                             {
                                 // In general, the validation function should throw an exception and give a much better message
-                                LoggingUtil.LogError(obj, obj.ErrorPrefix(configNode) + ": The value supplied for " + key + " (" + value + ") is invalid.");
+                                LoggingUtil.LogError(obj, obj.ErrorPrefix(configNode) + ": A validation error occured while loading the key '" + key + "' with value '" + value + "'.");
                             }
                         }
                         catch (Exception e)
                         {
-                            LoggingUtil.LogError(obj, obj.ErrorPrefix(configNode) + ": The value supplied for " + key + " (" + value + ") is invalid.");
+                            LoggingUtil.LogError(obj, obj.ErrorPrefix(configNode) + ": A validation error occured while loading the key '" + key + "' with value '" + value + "'.");
                             LoggingUtil.LogException(e);
                             valid = false;
                         }
