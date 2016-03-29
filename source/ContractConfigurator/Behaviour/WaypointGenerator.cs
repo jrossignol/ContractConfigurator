@@ -181,6 +181,7 @@ namespace ContractConfigurator.Behaviour
                     }
                     else if (wpData.type == "PQS_CITY")
                     {
+                        LoggingUtil.LogVerbose(this, "   pqs city: " + wpData.pqsCity);
                         LoggingUtil.LogVerbose(this, "   Generating a waypoint based on PQS city " + wpData.pqsCity.name + "...");
 
                         Vector3d position = wpData.pqsCity.transform.position;
@@ -348,22 +349,31 @@ namespace ContractConfigurator.Behaviour
                     else if (child.name == "PQS_CITY")
                     {
                         wpData.randomAltitude = false;
-                        string pqsCity = null;
-                        valid &= ConfigNodeUtil.ParseValue<string>(child, "pqsCity", x => pqsCity = x, factory);
-                        if (pqsCity != null && !string.IsNullOrEmpty(wpData.waypoint.celestialName))
+                        string dummy = null;
+                        valid &= ConfigNodeUtil.ParseValue<string>(child, "pqsCity", x => dummy = x, factory, x =>
                         {
-                            try
+                            bool v = true;
+                            if (!string.IsNullOrEmpty(wpData.waypoint.celestialName))
                             {
-                                CelestialBody body = FlightGlobals.Bodies.Where(b => b.name == wpData.waypoint.celestialName).First();
-                                wpData.pqsCity = body.GetComponentsInChildren<PQSCity>(true).Where(pqs => pqs.name == pqsCity).First();
+                                try
+                                {
+                                    CelestialBody body = FlightGlobals.Bodies.Where(b => b.name == wpData.waypoint.celestialName).First();
+                                    wpData.pqsCity = body.GetComponentsInChildren<PQSCity>(true).Where(pqs => pqs.name == x).First();
+                                }
+                                catch (Exception e)
+                                {
+                                    LoggingUtil.LogError(typeof(WaypointGenerator), "Couldn't load PQSCity with name '" + x + "'");
+                                    LoggingUtil.LogException(e);
+                                    v = false;
+                                }
                             }
-                            catch (Exception e)
+                            else
                             {
-                                LoggingUtil.LogError(typeof(WaypointGenerator), "Couldn't load PQSCity with name '" + pqsCity + "'");
-                                LoggingUtil.LogException(e);
-                                valid = false;
+                                // Force this to get re-run when the targetBody is loaded
+                                throw new DataNode.ValueNotInitialized("/targetBody");
                             }
-                        }
+                            return v;
+                        });
                         valid &= ConfigNodeUtil.ParseValue<Vector3d>(child, "pqsOffset", x => wpData.pqsOffset = x, factory, new Vector3d());
                     }
                     else

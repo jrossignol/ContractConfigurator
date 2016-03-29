@@ -599,6 +599,11 @@ namespace ContractConfigurator
                         }
                         catch (Exception e)
                         {
+                            if (e is DataNode.ValueNotInitialized)
+                            {
+                                throw;
+                            }
+
                             LoggingUtil.LogError(obj, obj.ErrorPrefix(configNode) + ": The value supplied for " + key + " (" + value + ") is invalid.");
                             LoggingUtil.LogException(e);
                             valid = false;
