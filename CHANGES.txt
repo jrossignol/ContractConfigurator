@@ -1,8 +1,6 @@
-Contract Configurator 1.X.0
+Contract Configurator 1.10.0
 - Support for KSP 1.1.
 - Contract requirements are now saved to persistence file (fixes issues with "flickering" contracts in mission control).
-
-Contract Configurator 1.10.0
 - Added VesselValidRequirement to check if a vessel identifier is valid throughout the life of a contract.
 - Added support for PQSCity in expressions.
 - Added CelestialBody.PQSCities().
