@@ -1,9 +1,10 @@
-Contract Configurator 1.10.0
+Contract Configurator 1.9.11
 - Added VesselValidRequirement to check if a vessel identifier is valid throughout the life of a contract.
 - Added support for PQSCity in expressions.
 - Added CelestialBody.PQSCities().
 - Fixed backwards compatibility on uniqueness checks (thanks eberkain).
 - Fixed edge case for VesselParameterGroup and completeInSequence (thanks NathanKell and stratochief).
+- Fixed problem with loading pqsCity and targetBody out of order in WaypointGenerator (thanks severedsolo).
 
 Contract Configurator 1.9.10
 - Fixed exception on undock (thanks henrybauer).
