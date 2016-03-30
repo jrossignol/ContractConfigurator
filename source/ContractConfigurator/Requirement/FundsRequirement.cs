@@ -33,7 +33,10 @@ namespace ContractConfigurator
             base.SaveToPersistence(configNode);
 
             configNode.AddValue("minFunds", minFunds);
-            configNode.AddValue("maxFunds", maxFunds);
+            if (maxFunds != double.MaxValue)
+            {
+                configNode.AddValue("maxFunds", maxFunds);
+            }
         }
 
         public override void LoadFromPersistence(ConfigNode configNode)
@@ -41,7 +44,7 @@ namespace ContractConfigurator
             base.LoadFromPersistence(configNode);
 
             minFunds = ConfigNodeUtil.ParseValue<double>(configNode, "minFunds");
-            maxFunds = ConfigNodeUtil.ParseValue<double>(configNode, "maxFunds");
+            maxFunds = ConfigNodeUtil.ParseValue<double>(configNode, "maxFunds", double.MaxValue);
         }
 
         public override bool RequirementMet(ConfiguredContract contract)
