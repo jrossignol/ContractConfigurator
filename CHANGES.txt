@@ -1,3 +1,6 @@
+Contract Configurator 1.10.2
+- Fixed exception on requirement load of SCANsatLocationCoverage (thanks wizisi2k).
+
 Contract Configurator 1.10.1
 - Fixed exception on requirement load of FundsRequirement (thanks EldrinFal).
 

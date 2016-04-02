@@ -78,7 +78,7 @@ namespace ContractConfigurator
             latitude = ConfigNodeUtil.ParseValue<double>(configNode, "latitude");
             longitude = ConfigNodeUtil.ParseValue<double>(configNode, "longitude");
             scanType = ConfigNodeUtil.ParseValue<string>(configNode, "scanType");
-            string pqsCityName = ConfigNodeUtil.ParseValue<string>(configNode, "pqsCity");
+            string pqsCityName = ConfigNodeUtil.ParseValue<string>(configNode, "pqsCity", "");
             if (!string.IsNullOrEmpty(pqsCityName))
             {
                 pqsCity = targetBody.GetComponentsInChildren<PQSCity>(true).Where(pqs => pqs.name == pqsCityName).First();
