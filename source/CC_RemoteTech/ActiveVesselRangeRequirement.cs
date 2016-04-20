@@ -34,6 +34,20 @@ namespace ContractConfigurator.RemoteTech
             return valid;
         }
 
+        public override void SaveToPersistence(ConfigNode configNode)
+        {
+            base.SaveToPersistence(configNode);
+
+            configNode.AddValue("range", range);
+        }
+
+        public override void LoadFromPersistence(ConfigNode configNode)
+        {
+            base.LoadFromPersistence(configNode);
+
+            range = ConfigNodeUtil.ParseValue<double>(configNode, "range");
+        }
+
         public override bool RequirementMet(ConfiguredContract contract)
         {
             LoggingUtil.LogVerbose(this, "Checking requirement");
