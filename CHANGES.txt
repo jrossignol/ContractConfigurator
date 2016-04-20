@@ -1,6 +1,7 @@
 Contract Configurator 1.10.2
 - Re-enabled RemoteTech support.
 - Fixed exception on requirement load of SCANsatLocationCoverage (thanks wizisi2k).
+- Properly fixed contract "flickering" in mission control.
 
 Contract Configurator 1.10.1
 - Fixed exception on requirement load of FundsRequirement (thanks EldrinFal).

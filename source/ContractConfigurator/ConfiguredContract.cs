@@ -275,9 +275,23 @@ namespace ContractConfigurator
                 origParameter.Save(node);
 
                 // Load into a new copy
-                ContractParameter parameter = (ContractParameter) Activator.CreateInstance(origParameter.GetType());
+                ContractParameter parameter = (ContractParameter)Activator.CreateInstance(origParameter.GetType());
                 AddParameter(parameter, null);
                 parameter.Load(node);
+            }
+
+            // Copy requirements
+            requirements = new List<ContractRequirement>();
+            foreach (ContractRequirement requirement in contract.contractType.Requirements)
+            {
+                // Save the old requirement
+                ConfigNode node = new ConfigNode("REQUIREMENT");
+                requirement.SaveToPersistence(node);
+
+                // Load into a new copy
+                ContractRequirement copy = (ContractRequirement)Activator.CreateInstance(requirement.GetType());
+                requirements.Add(copy);
+                copy.LoadFromPersistence(node);
             }
 
             // Run the OnOffered for behaviours
