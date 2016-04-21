@@ -49,6 +49,11 @@ namespace ContractConfigurator.RemoteTech
 
             minCoverage = ConfigNodeUtil.ParseValue<double>(configNode, "minCoverage");
             maxCoverage = ConfigNodeUtil.ParseValue<double>(configNode, "maxCoverage");
+
+            Debug.Log("loaded coverage:");
+            ConfigNode node = new ConfigNode("foo");
+            this.SaveToPersistence(node);
+            Debug.Log("    " + node);
         }
 
 

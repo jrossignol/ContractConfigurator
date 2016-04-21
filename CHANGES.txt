@@ -1,6 +1,7 @@
 Contract Configurator 1.10.3
 - Fixed contract "flickering" on RemoteTech contracts (thanks Razorfang).
 - Fixed problems with SCANsat contracts (thanks Torih).
+- Fixed issues with child requirements not getting properly propagated to offered contracts.
 
 Contract Configurator 1.10.2
 - Re-enabled RemoteTech support.
