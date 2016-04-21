@@ -289,7 +289,11 @@ namespace ContractConfigurator
                 requirement.SaveToPersistence(node);
 
                 // Load into a new copy
-                requirements.Add(ContractRequirement.LoadRequirement(node));
+                ContractRequirement childRequirement = ContractRequirement.LoadRequirement(node);
+                if (childRequirement != null)
+                {
+                    requirements.Add(childRequirement);
+                }
             }
 
             // Run the OnOffered for behaviours

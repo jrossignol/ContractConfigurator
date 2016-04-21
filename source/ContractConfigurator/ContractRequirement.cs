@@ -76,6 +76,12 @@ namespace ContractConfigurator
 
         public virtual void SaveToPersistence(ConfigNode configNode)
         {
+            // Special case - don't save disabled requirements
+            if (!enabled)
+            {
+                return;
+            }
+
             configNode.AddValue("name", name);
             configNode.AddValue("type", type);
             if (_targetBody != null)
@@ -112,6 +118,10 @@ namespace ContractConfigurator
         {
             // Determine the type
             string typeName = configNode.GetValue("type");
+            if (string.IsNullOrEmpty(typeName))
+            {
+                return null;
+            }
             Type type = requirementTypes.ContainsKey(typeName) ? requirementTypes[typeName] : null;
             if (type == null)
             {
@@ -126,7 +136,10 @@ namespace ContractConfigurator
             foreach (ConfigNode child in configNode.GetNodes("REQUIREMENT"))
             {
                 ContractRequirement childRequirement = LoadRequirement(child);
-                requirement.childNodes.Add(childRequirement);
+                if (childRequirement != null)
+                {
+                    requirement.childNodes.Add(childRequirement);
+                }
             }
 
             return requirement;
