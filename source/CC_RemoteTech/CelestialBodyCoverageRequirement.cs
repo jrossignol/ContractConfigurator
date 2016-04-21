@@ -35,6 +35,7 @@ namespace ContractConfigurator.RemoteTech
 
             return valid;
         }
+
         public override void SaveToPersistence(ConfigNode configNode)
         {
             base.SaveToPersistence(configNode);
@@ -47,13 +48,8 @@ namespace ContractConfigurator.RemoteTech
         {
             base.LoadFromPersistence(configNode);
 
-            minCoverage = ConfigNodeUtil.ParseValue<double>(configNode, "minCoverage");
-            maxCoverage = ConfigNodeUtil.ParseValue<double>(configNode, "maxCoverage");
-
-            Debug.Log("loaded coverage:");
-            ConfigNode node = new ConfigNode("foo");
-            this.SaveToPersistence(node);
-            Debug.Log("    " + node);
+            minCoverage = ConfigNodeUtil.ParseValue<double>(configNode, "minCoverage", 0.0);
+            maxCoverage = ConfigNodeUtil.ParseValue<double>(configNode, "maxCoverage", 1.0);
         }
 
 

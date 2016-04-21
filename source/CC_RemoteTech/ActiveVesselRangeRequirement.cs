@@ -45,7 +45,7 @@ namespace ContractConfigurator.RemoteTech
         {
             base.LoadFromPersistence(configNode);
 
-            range = ConfigNodeUtil.ParseValue<double>(configNode, "range");
+            range = ConfigNodeUtil.ParseValue<double>(configNode, "range", 0.0);
         }
 
         public override bool RequirementMet(ConfiguredContract contract)
