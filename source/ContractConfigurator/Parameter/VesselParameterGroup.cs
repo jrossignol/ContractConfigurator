@@ -173,7 +173,15 @@ namespace ContractConfigurator.Parameters
             {
                 if (vesselList.Count() == 1)
                 {
-                    vesselListParam = new ParameterDelegate<Vessel>("", VesselCanBeConsidered);
+                    vesselListParam = new ParameterDelegate<Vessel>(hideVesselName ? "" : "Vessel: " + ContractVesselTracker.GetDisplayName(vesselList.First()), v =>
+                    {
+                        bool check = VesselCanBeConsidered(v);
+                        if (!hideVesselName)
+                        {
+                            vesselListParam.SetTitle((FlightGlobals.ActiveVessel == v && trackedVessel != null ? "" : "Tracked ") + "Vessel: " + ContractVesselTracker.GetDisplayName(vesselList.First()));
+                        }
+                        return check;
+                    });
                     vesselListParam.Optional = true;
                     vesselListParam.fakeOptional = true;
 
@@ -221,6 +229,13 @@ namespace ContractConfigurator.Parameters
             if (!VesselCanBeConsidered(vessel))
             {
                 LoggingUtil.LogVerbose(this, "<- UpdateState (vessel cannot be considered)");
+
+                // Set the tracked vessel in delegate parameters, if there is one (updates text)
+                if (trackedVessel != null)
+                {
+                    ParameterDelegate<Vessel>.CheckChildConditions(this, trackedVessel);
+                }
+
                 return;
             }
 
@@ -311,7 +326,10 @@ namespace ContractConfigurator.Parameters
                     }
                 }
                 oldTrackedVessel = trackedVessel;
+            }
 
+            if (trackedVessel != null)
+            {
                 // Set the tracked vessel in delegate parameters
                 ParameterDelegate<Vessel>.CheckChildConditions(this, trackedVessel);
             }
