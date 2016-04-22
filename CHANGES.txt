@@ -1,3 +1,6 @@
+Contract Configurator 1.10.5
+- Fixed issue with vessel re-assignment on undock (thanks chrisl).
+
 Contract Configurator 1.10.4
 - Fixed RemoteTech exceptions (thanks HaArLiNsH, Dtgnoome and Sidelia).
 
