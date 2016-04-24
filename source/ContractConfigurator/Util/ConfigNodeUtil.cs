@@ -311,6 +311,10 @@ namespace ContractConfigurator
             {
                 value = (T)(object)ParseAgentValue(stringValue);
             }
+            else if (typeof(T) == typeof(Duration))
+            {
+                value = (T)(object)new Duration(DurationUtil.ParseDuration(stringValue));
+            }
             else if (typeof(T) == typeof(ProtoCrewMember))
             {
                 value = (T)(object)ParseProtoCrewMemberValue(stringValue);
