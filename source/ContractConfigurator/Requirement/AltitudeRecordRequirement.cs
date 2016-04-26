@@ -15,27 +15,24 @@ namespace ContractConfigurator
     {
         protected double minAltitude;
 
-        public override bool Load(ConfigNode configNode)
+        public override bool LoadFromConfig(ConfigNode configNode)
         {
             // Load base class
-            bool valid = base.Load(configNode);
+            bool valid = base.LoadFromConfig(configNode);
 
             valid &= ConfigNodeUtil.ParseValue<double>(configNode, "minAltitude", x => minAltitude = x, this, x => Validation.GT(x, 0.0));
 
             return valid;
         }
 
-        public override void SaveToPersistence(ConfigNode configNode)
+        public override void OnSave(ConfigNode configNode)
         {
-            base.SaveToPersistence(configNode);
 
             configNode.AddValue("minAltitude", minAltitude);
         }
 
-        public override void LoadFromPersistence(ConfigNode configNode)
+        public override void OnLoad(ConfigNode configNode)
         {
-            base.LoadFromPersistence(configNode);
-
             minAltitude = ConfigNodeUtil.ParseValue<double>(configNode, "minAltitude");
         }
 

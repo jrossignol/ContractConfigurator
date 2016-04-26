@@ -20,10 +20,10 @@ namespace ContractConfigurator
         }
         CheckType? checkType;
 
-        public override bool Load(ConfigNode configNode)
+        public override bool LoadFromConfig(ConfigNode configNode)
         {
             // Load base class
-            bool valid = base.Load(configNode);
+            bool valid = base.LoadFromConfig(configNode);
 
             valid &= ValidateTargetBody(configNode);
             valid &= ConfigNodeUtil.ParseValue<CheckType?>(configNode, "checkType", x => checkType = x, this, (CheckType?)null);
@@ -31,20 +31,16 @@ namespace ContractConfigurator
             return valid;
         }
 
-        public override void SaveToPersistence(ConfigNode configNode)
+        public override void OnSave(ConfigNode configNode)
         {
-            base.SaveToPersistence(configNode);
-
             if (checkType != null)
             {
                 configNode.AddValue("checkType", checkType);
             }
         }
 
-        public override void LoadFromPersistence(ConfigNode configNode)
+        public override void OnLoad(ConfigNode configNode)
         {
-            base.LoadFromPersistence(configNode);
-
             checkType = ConfigNodeUtil.ParseValue<CheckType?>(configNode, "checkType", (CheckType?)null);
         }
 

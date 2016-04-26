@@ -15,10 +15,10 @@ namespace ContractConfigurator
     {
         protected List<AvailablePart> parts;
 
-        public override bool Load(ConfigNode configNode)
+        public override bool LoadFromConfig(ConfigNode configNode)
         {
             // Load base class
-            bool valid = base.Load(configNode);
+            bool valid = base.LoadFromConfig(configNode);
 
             // Do not check on active contracts.
             checkOnActiveContract = configNode.HasValue("checkOnActiveContract") ? checkOnActiveContract : false;
@@ -28,20 +28,16 @@ namespace ContractConfigurator
             return valid;
         }
 
-        public override void SaveToPersistence(ConfigNode configNode)
+        public override void OnSave(ConfigNode configNode)
         {
-            base.SaveToPersistence(configNode);
-
             foreach (AvailablePart part in parts)
             {
                 configNode.AddValue("part", part.name);
             }
         }
 
-        public override void LoadFromPersistence(ConfigNode configNode)
+        public override void OnLoad(ConfigNode configNode)
         {
-            base.LoadFromPersistence(configNode);
-
             parts = ConfigNodeUtil.ParseValue<List<AvailablePart>>(configNode, "part", new List<AvailablePart>());
         }
 

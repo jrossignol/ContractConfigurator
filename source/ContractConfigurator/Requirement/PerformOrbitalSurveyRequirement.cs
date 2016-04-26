@@ -13,10 +13,10 @@ namespace ContractConfigurator
     /// </summary>
     public class PerformOrbitalSurveyRequirement : ContractRequirement
     {
-        public override bool Load(ConfigNode configNode)
+        public override bool LoadFromConfig(ConfigNode configNode)
         {
             // Load base class
-            bool valid = base.Load(configNode);
+            bool valid = base.LoadFromConfig(configNode);
 
             valid &= ValidateTargetBody(configNode);
 
@@ -38,5 +38,8 @@ namespace ContractConfigurator
 
             return ResourceScenario.Instance.gameSettings.GetPlanetScanInfo().Where(psd => psd.PlanetId == targetBody.flightGlobalsIndex).Any();
         }
+
+        public override void OnLoad(ConfigNode configNode) { }
+        public override void OnSave(ConfigNode configNode) { }
     }
 }

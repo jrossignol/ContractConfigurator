@@ -18,10 +18,10 @@ namespace ContractConfigurator
         protected int minLevel;
         protected int maxLevel;
 
-        public override bool Load(ConfigNode configNode)
+        public override bool LoadFromConfig(ConfigNode configNode)
         {
             // Load base class
-            bool valid = base.Load(configNode);
+            bool valid = base.LoadFromConfig(configNode);
 
             // Check on active contracts too
             checkOnActiveContract = configNode.HasValue("checkOnActiveContract") ? checkOnActiveContract : true;
@@ -34,19 +34,15 @@ namespace ContractConfigurator
             return valid;
         }
 
-        public override void SaveToPersistence(ConfigNode configNode)
+        public override void OnSave(ConfigNode configNode)
         {
-            base.SaveToPersistence(configNode);
-
             configNode.AddValue("facility", facility);
             configNode.AddValue("minLevel", minLevel);
             configNode.AddValue("maxLevel", maxLevel);
         }
 
-        public override void LoadFromPersistence(ConfigNode configNode)
+        public override void OnLoad(ConfigNode configNode)
         {
-            base.LoadFromPersistence(configNode);
-
             facility = ConfigNodeUtil.ParseValue<SpaceCenterFacility>(configNode, "facility");
             minLevel = ConfigNodeUtil.ParseValue<int>(configNode, "minLevel");
             maxLevel = ConfigNodeUtil.ParseValue<int>(configNode, "maxLevel");

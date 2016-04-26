@@ -17,5 +17,8 @@ namespace ContractConfigurator
         {
             return ProgressTracking.Instance.firstCrewToSurvive.IsComplete;
         }
+
+        public override void OnLoad(ConfigNode configNode) { }
+        public override void OnSave(ConfigNode configNode) { }
     }
 }

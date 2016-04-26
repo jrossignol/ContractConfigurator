@@ -15,10 +15,10 @@ namespace ContractConfigurator
     {
         protected List<string> techs;
 
-        public override bool Load(ConfigNode configNode)
+        public override bool LoadFromConfig(ConfigNode configNode)
         {
             // Load base class
-            bool valid = base.Load(configNode);
+            bool valid = base.LoadFromConfig(configNode);
 
             // Check on active contracts too
             checkOnActiveContract = configNode.HasValue("checkOnActiveContract") ? checkOnActiveContract : true;
@@ -41,20 +41,16 @@ namespace ContractConfigurator
             return valid;
         }
 
-        public override void SaveToPersistence(ConfigNode configNode)
+        public override void OnSave(ConfigNode configNode)
         {
-            base.SaveToPersistence(configNode);
-
             foreach (string tech in techs)
             {
                 configNode.AddValue("tech", tech);
             }
         }
 
-        public override void LoadFromPersistence(ConfigNode configNode)
+        public override void OnLoad(ConfigNode configNode)
         {
-            base.LoadFromPersistence(configNode);
-
             techs = ConfigNodeUtil.ParseValue<List<string>>(configNode, "tech", new List<string>());
         }
 

@@ -20,10 +20,10 @@ namespace ContractConfigurator
         protected int minCount;
         protected int maxCount;
 
-        public override bool Load(ConfigNode configNode)
+        public override bool LoadFromConfig(ConfigNode configNode)
         {
             // Load base class
-            bool valid = base.Load(configNode);
+            bool valid = base.LoadFromConfig(configNode);
 
             valid &= ConfigNodeUtil.ParseValue<string>(configNode, "trait", x => trait = x, this, (string)null);
             valid &= ConfigNodeUtil.ParseValue<int>(configNode, "minExperience", x => minExperience = x, this, 0, x => Validation.Between(x, 0, 5));
@@ -35,10 +35,8 @@ namespace ContractConfigurator
             return valid;
         }
 
-        public override void SaveToPersistence(ConfigNode configNode)
+        public override void OnSave(ConfigNode configNode)
         {
-            base.SaveToPersistence(configNode);
-
             if (!string.IsNullOrEmpty(trait))
             {
                 configNode.AddValue("trait", trait);
@@ -49,10 +47,8 @@ namespace ContractConfigurator
             configNode.AddValue("maxCount", maxCount);
         }
 
-        public override void LoadFromPersistence(ConfigNode configNode)
+        public override void OnLoad(ConfigNode configNode)
         {
-            base.LoadFromPersistence(configNode);
-
             trait = ConfigNodeUtil.ParseValue<string>(configNode, "trait", (string)null);
             minExperience = ConfigNodeUtil.ParseValue<int>(configNode, "minExperience");
             maxExperience = ConfigNodeUtil.ParseValue<int>(configNode, "maxExperience");

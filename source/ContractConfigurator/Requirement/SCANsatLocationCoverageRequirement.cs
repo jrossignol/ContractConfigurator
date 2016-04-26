@@ -17,7 +17,7 @@ namespace ContractConfigurator
         protected double longitude;
         protected PQSCity pqsCity;
 
-        public override bool Load(ConfigNode configNode)
+        public override bool LoadFromConfig(ConfigNode configNode)
         {
             // Before loading, verify the SCANsat version
             if (!SCANsatUtil.VerifySCANsatVersion())
@@ -26,7 +26,7 @@ namespace ContractConfigurator
             }
 
             // Load base class
-            bool valid = base.Load(configNode);
+            bool valid = base.LoadFromConfig(configNode);
 
             // Do not check the requirement on active contracts.  Otherwise when they scan the
             // contract is invalidated, which is usually not what's meant.
@@ -58,10 +58,8 @@ namespace ContractConfigurator
             return valid;
         }
 
-        public override void SaveToPersistence(ConfigNode configNode)
+        public override void OnSave(ConfigNode configNode)
         {
-            base.SaveToPersistence(configNode);
-
             configNode.AddValue("latitude", latitude);
             configNode.AddValue("longitude", longitude);
             configNode.AddValue("scanType", scanType);
@@ -71,10 +69,8 @@ namespace ContractConfigurator
             }
         }
 
-        public override void LoadFromPersistence(ConfigNode configNode)
+        public override void OnLoad(ConfigNode configNode)
         {
-            base.LoadFromPersistence(configNode);
-
             latitude = ConfigNodeUtil.ParseValue<double>(configNode, "latitude");
             longitude = ConfigNodeUtil.ParseValue<double>(configNode, "longitude");
             scanType = ConfigNodeUtil.ParseValue<string>(configNode, "scanType");

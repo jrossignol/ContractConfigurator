@@ -19,10 +19,10 @@ namespace ContractConfigurator
         protected uint minCount;
         protected uint maxCount;
 
-        public override bool Load(ConfigNode configNode)
+        public override bool LoadFromConfig(ConfigNode configNode)
         {
             // Load base class
-            bool valid = base.Load(configNode);
+            bool valid = base.LoadFromConfig(configNode);
 
             checkOnActiveContract = true;
 
@@ -66,10 +66,8 @@ namespace ContractConfigurator
             return valid;
         }
 
-        public override void SaveToPersistence(ConfigNode configNode)
+        public override void OnSave(ConfigNode configNode)
         {
-            base.SaveToPersistence(configNode);
-
             configNode.AddValue("minCount", minCount);
             configNode.AddValue("maxCount", maxCount);
             if (ccType != null)
@@ -82,10 +80,8 @@ namespace ContractConfigurator
             }
         }
 
-        public override void LoadFromPersistence(ConfigNode configNode)
+        public override void OnLoad(ConfigNode configNode)
         {
-            base.LoadFromPersistence(configNode);
-
             minCount = ConfigNodeUtil.ParseValue<uint>(configNode, "minCount");
             maxCount = ConfigNodeUtil.ParseValue<uint>(configNode, "maxCount");
 

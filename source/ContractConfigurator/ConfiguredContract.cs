@@ -286,7 +286,7 @@ namespace ContractConfigurator
             {
                 // Save the old requirement
                 ConfigNode node = new ConfigNode("REQUIREMENT");
-                requirement.SaveToPersistence(node);
+                requirement.Save(node);
 
                 // Load into a new copy
                 ContractRequirement childRequirement = ContractRequirement.LoadRequirement(node);
@@ -501,7 +501,7 @@ namespace ContractConfigurator
                 foreach (ContractRequirement requirement in requirements)
                 {
                     ConfigNode child = new ConfigNode("REQUIREMENT");
-                    requirement.SaveToPersistence(child);
+                    requirement.Save(child);
                     node.AddNode(child);
                 }
             }

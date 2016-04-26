@@ -17,10 +17,10 @@ namespace ContractConfigurator
     {
         protected bool expression;
 
-        public override bool Load(ConfigNode configNode)
+        public override bool LoadFromConfig(ConfigNode configNode)
         {
             // Load base class
-            bool valid = base.Load(configNode);
+            bool valid = base.LoadFromConfig(configNode);
 
             // Get expression
             valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "expression", x => expression = x, this);
@@ -28,17 +28,13 @@ namespace ContractConfigurator
             return valid;
         }
 
-        public override void SaveToPersistence(ConfigNode configNode)
+        public override void OnSave(ConfigNode configNode)
         {
-            base.SaveToPersistence(configNode);
-
             configNode.AddValue("expression", expression);
         }
 
-        public override void LoadFromPersistence(ConfigNode configNode)
+        public override void OnLoad(ConfigNode configNode)
         {
-            base.LoadFromPersistence(configNode);
-
             expression = ConfigNodeUtil.ParseValue<bool>(configNode, "expression");
         }
 

@@ -49,7 +49,7 @@ namespace ContractConfigurator
         /// </summary>
         /// <param name="configNode">Config node to load from</param>
         /// <returns>Whether the load was successful or not.</returns>
-        public virtual bool Load(ConfigNode configNode)
+        public virtual bool LoadFromConfig(ConfigNode configNode)
         {
             bool valid = true;
             ConfigNodeUtil.SetCurrentDataNode(dataNode);
@@ -74,7 +74,7 @@ namespace ContractConfigurator
             return valid;
         }
 
-        public virtual void SaveToPersistence(ConfigNode configNode)
+        public void Save(ConfigNode configNode)
         {
             // Special case - don't save disabled requirements
             if (!enabled)
@@ -95,18 +95,26 @@ namespace ContractConfigurator
             {
                 ConfigNode child = new ConfigNode("REQUIREMENT");
                 configNode.AddNode(child);
-                requirement.SaveToPersistence(child);
+                requirement.Save(child);
             }
+
+            OnSave(configNode);
         }
 
-        public virtual void LoadFromPersistence(ConfigNode configNode)
+        public abstract void OnSave(ConfigNode configNode);
+
+        public void Load(ConfigNode configNode)
         {
             name = ConfigNodeUtil.ParseValue<string>(configNode, "name");
             type = ConfigNodeUtil.ParseValue<string>(configNode, "type");
             _targetBody = ConfigNodeUtil.ParseValue<CelestialBody>(configNode, "targetBody", (CelestialBody)null);
             invertRequirement = ConfigNodeUtil.ParseValue<bool>(configNode, "invertRequirement");
             checkOnActiveContract = ConfigNodeUtil.ParseValue<bool>(configNode, "checkOnActiveContract");
+
+            OnLoad(configNode);
         }
+
+        public abstract void OnLoad(ConfigNode configNode);
 
         /// <summary>
         /// Loads a requirement from a ConfigNode.
@@ -130,7 +138,7 @@ namespace ContractConfigurator
 
             // Instantiate and load
             ContractRequirement requirement = (ContractRequirement)Activator.CreateInstance(type);
-            requirement.LoadFromPersistence(configNode);
+            requirement.Load(configNode);
 
             // Load children
             foreach (ConfigNode child in configNode.GetNodes("REQUIREMENT"))
@@ -291,7 +299,7 @@ namespace ContractConfigurator
             requirement.dataNode = new DataNode(name, parent != null ? parent.dataNode : contractType.dataNode, requirement);
 
             // Load config
-            valid &= requirement.Load(configNode);
+            valid &= requirement.LoadFromConfig(configNode);
 
             // Check for unexpected values - always do this last
             if (requirement.GetType() != typeof(InvalidContractRequirement))

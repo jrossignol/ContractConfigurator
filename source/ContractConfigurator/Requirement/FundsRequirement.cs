@@ -16,10 +16,10 @@ namespace ContractConfigurator
         protected double minFunds;
         protected double maxFunds;
 
-        public override bool Load(ConfigNode configNode)
+        public override bool LoadFromConfig(ConfigNode configNode)
         {
             // Load base class
-            bool valid = base.Load(configNode);
+            bool valid = base.LoadFromConfig(configNode);
 
             valid &= ConfigNodeUtil.ParseValue<double>(configNode, "minFunds", x => minFunds = x, this, 0.0, x => Validation.GE(x, 0.0));
             valid &= ConfigNodeUtil.ParseValue<double>(configNode, "maxFunds", x => maxFunds = x, this, double.MaxValue, x => Validation.GE(x, 0.0));
@@ -28,10 +28,8 @@ namespace ContractConfigurator
             return valid;
         }
 
-        public override void SaveToPersistence(ConfigNode configNode)
+        public override void OnSave(ConfigNode configNode)
         {
-            base.SaveToPersistence(configNode);
-
             configNode.AddValue("minFunds", minFunds);
             if (maxFunds != double.MaxValue)
             {
@@ -39,10 +37,8 @@ namespace ContractConfigurator
             }
         }
 
-        public override void LoadFromPersistence(ConfigNode configNode)
+        public override void OnLoad(ConfigNode configNode)
         {
-            base.LoadFromPersistence(configNode);
-
             minFunds = ConfigNodeUtil.ParseValue<double>(configNode, "minFunds");
             maxFunds = ConfigNodeUtil.ParseValue<double>(configNode, "maxFunds", double.MaxValue);
         }

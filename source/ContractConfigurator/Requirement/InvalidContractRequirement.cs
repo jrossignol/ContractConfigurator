@@ -13,9 +13,9 @@ namespace ContractConfigurator
     /// </summary>
     public class InvalidContractRequirement : ContractRequirement
     {
-        public override bool Load(ConfigNode configNode)
+        public override bool LoadFromConfig(ConfigNode configNode)
         {
-            base.Load(configNode);
+            base.LoadFromConfig(configNode);
             return false;
         }
 
@@ -23,5 +23,8 @@ namespace ContractConfigurator
         {
             throw new InvalidOperationException("Cannot check invalid requirement.");
         }
+
+        public override void OnLoad(ConfigNode configNode) { }
+        public override void OnSave(ConfigNode configNode) { }
     }
 }

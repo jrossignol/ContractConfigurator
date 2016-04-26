@@ -17,5 +17,8 @@ namespace ContractConfigurator
         {
             return ProgressTracking.Instance.reachSpace.IsComplete;
         }
+
+        public override void OnLoad(ConfigNode configNode) { }
+        public override void OnSave(ConfigNode configNode) { }
     }
 }
