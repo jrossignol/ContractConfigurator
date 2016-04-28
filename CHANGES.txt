@@ -1,4 +1,5 @@
 Contract Configurator 1.10.5
+- Added Vessel.MET().
 - Fixed issue with vessel re-assignment on undock (thanks chrisl).
 - Improved contract window text when tracking vessels in a VesselParameterGroup.
 - Improved API for requirement saving/loading.
