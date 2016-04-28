@@ -87,8 +87,6 @@ namespace ContractConfigurator
         private static BiomeTracker Instance;
         private Dictionary<CelestialBody, Dictionary<string, BiomeData>> bodyInfo = new Dictionary<CelestialBody, Dictionary<string, BiomeData>>();
 
-        private bool loaded = false;
-
         public static string BiomeDataFile
         {
             get
@@ -114,15 +112,6 @@ namespace ContractConfigurator
 
         void Destroy()
         {
-        }
-
-        void Update()
-        {
-            // Load all the contract configurator configuration
-            if (HighLogic.LoadedScene == GameScenes.MAINMENU && !loaded)
-            {
-                loaded = true;
-            }
         }
 
         IEnumerator<YieldInstruction> LoadAllBodyInfo()
