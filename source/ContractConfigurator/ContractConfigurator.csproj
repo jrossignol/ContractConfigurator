@@ -238,7 +238,6 @@
     <Compile Include="Behaviour\OrbitGenerator.cs" />
     <Compile Include="Behaviour\WaypointGenerator.cs" />
     <Compile Include="Parameter\VesselParameter\VisitWaypoint.cs" />
-    <Compile Include="Parameter\SpecificOrbitWrapper.cs" />
     <Compile Include="Parameter\AlwaysTrue.cs" />
     <Compile Include="Parameter\VesselParameter\VesselParameterDelegator.cs" />
     <Compile Include="Parameter\VesselParameter\VesselMass.cs" />

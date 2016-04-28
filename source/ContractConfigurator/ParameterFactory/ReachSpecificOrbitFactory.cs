@@ -27,6 +27,7 @@ namespace ContractConfigurator
 
             // Get orbit details from the OrbitGenerator behaviour
             valid &= ConfigNodeUtil.ParseValue<int>(configNode, "index", x => index = x, this, 0, x => Validation.GE(x, 0));
+            valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "displayNotes", x => displayNotes = x, this, true);
             valid &= ConfigNodeUtil.ParseValue<double>(configNode, "deviationWindow", x => deviationWindow = x, this, 10.0, x => Validation.GE(x, 0.0));
 
             return valid;
@@ -50,7 +51,7 @@ namespace ContractConfigurator
                 return null;
             }
 
-            return new OrbitParameter(orbit, deviationWindow);
+            return new OrbitParameter(orbit, deviationWindow, displayNotes);
         }
     }
 }

@@ -6,6 +6,7 @@ Contract Configurator 1.11.0
 - Improved contract window text when tracking vessels in a VesselParameterGroup.
 - Improved API for requirement saving/loading.
 - Add proper error handling to PartModuleTypeUnlocked.
+- Added ReachSpecificOrbit.displayNotes back in (thanks severedsolo).
 - Minor bug fixes.
 
 Contract Configurator 1.10.4

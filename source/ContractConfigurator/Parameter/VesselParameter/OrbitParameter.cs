@@ -6,6 +6,7 @@ using UnityEngine;
 using KSP;
 using Contracts;
 using Contracts.Parameters;
+using FinePrint.Contracts.Parameters;
 using FinePrint.Utilities;
 
 namespace ContractConfigurator.Parameters
@@ -31,9 +32,12 @@ namespace ContractConfigurator.Parameters
         protected CelestialBody targetBody { get; set; }
         protected Orbit orbit;
         protected double deviationWindow;
+        protected bool displayNotes;
 
         private float lastUpdate = 0.0f;
         private const float UPDATE_FREQUENCY = 0.25f;
+
+        private SpecificOrbitParameter sop;
 
         public OrbitParameter()
             : base(null)
@@ -59,12 +63,13 @@ namespace ContractConfigurator.Parameters
             this.maxInclination = maxInclination;
             this.minPeriod = minPeriod;
             this.maxPeriod = maxPeriod;
+            this.displayNotes = false;
             orbit = null;
 
             CreateDelegates();
         }
 
-        public OrbitParameter(Orbit orbit, double deviationWindow)
+        public OrbitParameter(Orbit orbit, double deviationWindow, bool displayNotes)
         {
             targetBody = orbit.referenceBody;
             minAltitude = 0.0;
@@ -81,6 +86,7 @@ namespace ContractConfigurator.Parameters
             maxPeriod = double.MaxValue;
             this.orbit = orbit;
             this.deviationWindow = deviationWindow;
+            this.displayNotes = displayNotes;
 
             CreateDelegates();
         }
@@ -101,6 +107,22 @@ namespace ContractConfigurator.Parameters
                 output = title;
             }
             return output;
+        }
+
+        protected override string GetNotes()
+        {
+            if (displayNotes)
+            {
+                if (sop == null)
+                {
+                    sop = new SpecificOrbitParameter(OrbitType.POLAR, orbit.inclination, orbit.eccentricity, orbit.semiMajorAxis, orbit.LAN, orbit.argumentOfPeriapsis, orbit.meanAnomalyAtEpoch, orbit.epoch, targetBody, deviationWindow);
+                }
+                return sop.Notes;
+            }
+            else
+            {
+                return notes;
+            }
         }
 
         protected void CreateDelegates()
@@ -298,6 +320,7 @@ namespace ContractConfigurator.Parameters
             {
                 node.AddValue("maxPeriod", maxPeriod);
             }
+            node.AddValue("displayNotes", displayNotes);
             if (orbit != null)
             {
                 ConfigNode orbitNode = new ConfigNode("ORBIT");
@@ -326,6 +349,7 @@ namespace ContractConfigurator.Parameters
                 minPeriod = ConfigNodeUtil.ParseValue<double>(node, "minPeriod");
                 maxPeriod = ConfigNodeUtil.ParseValue<double>(node, "maxPeriod", double.MaxValue);
                 targetBody = ConfigNodeUtil.ParseValue<CelestialBody>(node, "targetBody", (CelestialBody)null);
+                displayNotes = ConfigNodeUtil.ParseValue<bool?>(node, "displayNotes", (bool?)false).Value;
 
                 if (node.HasNode("ORBIT"))
                 {
