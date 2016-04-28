@@ -32,7 +32,7 @@ namespace ContractConfigurator
         public static ContractPreLoader Instance { get; private set; }
 
         private const int MAX_CONTRACTS = 5;
-        private const float MAX_TIME = 0.01f;
+        private const float MAX_TIME = 0.0075f;
         private const float FAILURE_WAIT_TIME = 30.0f;
 
         private static int nextContractGroup = 0;
