@@ -29,6 +29,7 @@ namespace ContractConfigurator.ExpressionParser
             RegisterLocalFunction(new Function<Duration, Duration, Duration>("Random", RandomMinMax, false));
             RegisterLocalFunction(new Function<Duration, Duration, Duration>("Round", Round));
             RegisterLocalFunction(new Function<Duration, double>("ToDouble", d => d.Value));
+            RegisterGlobalFunction(new Function<Duration, Duration>("Duration", d => d));
         }
 
         public DurationParser()
@@ -75,6 +76,46 @@ namespace ContractConfigurator.ExpressionParser
             expression = (expression.Length > identifier.Length ? expression.Substring(identifier.Length) : "");
 
             return new ValueToken<Duration>(new Duration(identifier));
+        }
+
+        public override Duration Add(Duration a, Duration b)
+        {
+            return new Duration(a.Value + b.Value);
+        }
+
+        public override Duration Sub(Duration a, Duration b)
+        {
+            return new Duration(a.Value - b.Value);
+        }
+
+        public override bool LT(Duration a, Duration b)
+        {
+            return a.Value < b.Value;
+        }
+
+        public override bool LE(Duration a, Duration b)
+        {
+            return a.Value <= b.Value;
+        }
+
+        public override bool EQ(Duration a, Duration b)
+        {
+            return Math.Abs(a.Value - b.Value) < 0.001;
+        }
+
+        public override bool NE(Duration a, Duration b)
+        {
+            return !EQ(a, b);
+        }
+
+        public override bool GE(Duration a, Duration b)
+        {
+            return a.Value >= b.Value;
+        }
+
+        public override bool GT(Duration a, Duration b)
+        {
+            return a.Value > b.Value;
         }
     }
 }
