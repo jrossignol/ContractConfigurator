@@ -1,4 +1,5 @@
 Contract Configurator 1.11.0
+- Performance fixes and improved caching of biome data.
 - Duration values can now be used in arithmetic and comparisons in expressions.
 - Added Duration.ToDouble() and Duration().
 - Added Vessel.MET().
