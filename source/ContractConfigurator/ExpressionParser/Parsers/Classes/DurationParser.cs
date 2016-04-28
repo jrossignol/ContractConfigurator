@@ -28,6 +28,7 @@ namespace ContractConfigurator.ExpressionParser
         {
             RegisterLocalFunction(new Function<Duration, Duration, Duration>("Random", RandomMinMax, false));
             RegisterLocalFunction(new Function<Duration, Duration, Duration>("Round", Round));
+            RegisterLocalFunction(new Function<Duration, double>("ToDouble", d => d.Value));
         }
 
         public DurationParser()
