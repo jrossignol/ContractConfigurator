@@ -167,8 +167,9 @@ namespace ContractConfigurator
         {
             // Loop through all the contract groups
             IEnumerable<ContractGroup> groups = ContractGroup.AllGroups;
-            foreach (ContractGroup group in groups.Skip(nextContractGroup).Concat(groups.Take(nextContractGroup)))
+            for (int i = 0; i < groups.Count(); i++)
             {
+                ContractGroup group = groups.ElementAt(nextContractGroup);
                 nextContractGroup = (nextContractGroup + 1) % groups.Count();
 
                 foreach (ConfiguredContract c in ContractGenerator(prestige, group))
