@@ -18,10 +18,10 @@ namespace ContractConfigurator.RemoteTech
         protected double minCoverage;
         protected double maxCoverage;
 
-        public override bool Load(ConfigNode configNode)
+        public override bool LoadFromConfig(ConfigNode configNode)
         {
             // Load base class
-            bool valid = base.Load(configNode);
+            bool valid = base.LoadFromConfig(configNode);
 
             // Before loading, verify the RemoteTech version
             valid &= Util.Version.VerifyRemoteTechVersion();
@@ -35,6 +35,19 @@ namespace ContractConfigurator.RemoteTech
 
             return valid;
         }
+
+        public override void OnSave(ConfigNode configNode)
+        {
+            configNode.AddValue("minCoverage", minCoverage);
+            configNode.AddValue("maxCoverage", maxCoverage);
+        }
+
+        public override void OnLoad(ConfigNode configNode)
+        {
+            minCoverage = ConfigNodeUtil.ParseValue<double>(configNode, "minCoverage", 0.0);
+            maxCoverage = ConfigNodeUtil.ParseValue<double>(configNode, "maxCoverage", 1.0);
+        }
+
 
         public override bool RequirementMet(ConfiguredContract contract)
         {

@@ -231,13 +231,13 @@ namespace ContractConfigurator.Behaviour
 
         protected override void OnRegister()
         {
-            GameEvents.onVesselRecovered.Add(new EventData<ProtoVessel>.OnEvent(OnVesselRecovered));
+            GameEvents.onVesselRecovered.Add(new EventData<ProtoVessel, bool>.OnEvent(OnVesselRecovered));
             GameEvents.onFlightReady.Add(new EventVoid.OnEvent(OnFlightReady));
         }
 
         protected override void OnUnregister()
         {
-            GameEvents.onVesselRecovered.Remove(new EventData<ProtoVessel>.OnEvent(OnVesselRecovered));
+            GameEvents.onVesselRecovered.Remove(new EventData<ProtoVessel, bool>.OnEvent(OnVesselRecovered));
             GameEvents.onFlightReady.Remove(new EventVoid.OnEvent(OnFlightReady));
         }
 
@@ -262,7 +262,7 @@ namespace ContractConfigurator.Behaviour
             }
         }
 
-        private void OnVesselRecovered(ProtoVessel v)
+        private void OnVesselRecovered(ProtoVessel v, bool quick)
         {
             LoggingUtil.LogVerbose(this, "OnVesselRecovered: " + v);
 

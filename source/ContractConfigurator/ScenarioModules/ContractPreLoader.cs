@@ -32,7 +32,7 @@ namespace ContractConfigurator
         public static ContractPreLoader Instance { get; private set; }
 
         private const int MAX_CONTRACTS = 5;
-        private const float MAX_TIME = 0.01f;
+        private const float MAX_TIME = 0.0075f;
         private const float FAILURE_WAIT_TIME = 30.0f;
 
         private static int nextContractGroup = 0;
@@ -167,8 +167,9 @@ namespace ContractConfigurator
         {
             // Loop through all the contract groups
             IEnumerable<ContractGroup> groups = ContractGroup.AllGroups;
-            foreach (ContractGroup group in groups.Skip(nextContractGroup).Concat(groups.Take(nextContractGroup)))
+            for (int i = 0; i < groups.Count(); i++)
             {
+                ContractGroup group = groups.ElementAt(nextContractGroup);
                 nextContractGroup = (nextContractGroup + 1) % groups.Count();
 
                 foreach (ConfiguredContract c in ContractGenerator(prestige, group))

@@ -11,11 +11,11 @@ using ContractConfigurator.ExpressionParser;
 namespace ContractConfigurator
 {
     /// <summary>
-    /// ContractRequirement that executes an expression.
+    /// ContractRequirement to check if a VesselIdentifier is assigned to a valid vessel.
     /// </summary>
-    public class ExpressionRequirement : ContractRequirement
+    public class ValidVesselRequirement : ContractRequirement
     {
-        protected bool expression;
+        protected VesselIdentifier vessel;
 
         public override bool LoadFromConfig(ConfigNode configNode)
         {
@@ -23,24 +23,24 @@ namespace ContractConfigurator
             bool valid = base.LoadFromConfig(configNode);
 
             // Get expression
-            valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "expression", x => expression = x, this);
+            valid &= ConfigNodeUtil.ParseValue<VesselIdentifier>(configNode, "vessel", x => vessel = x, this);
 
             return valid;
         }
 
         public override void OnSave(ConfigNode configNode)
         {
-            configNode.AddValue("expression", expression);
+            configNode.AddValue("vessel", vessel.identifier);
         }
 
         public override void OnLoad(ConfigNode configNode)
         {
-            expression = ConfigNodeUtil.ParseValue<bool>(configNode, "expression");
+            vessel = ConfigNodeUtil.ParseValue<VesselIdentifier>(configNode, "vessel");
         }
 
         public override bool RequirementMet(ConfiguredContract contract)
         {
-            return expression;
+            return ContractVesselTracker.Instance != null && ContractVesselTracker.Instance.GetAssociatedVessel(vessel.identifier) != null;
         }
     }
 }

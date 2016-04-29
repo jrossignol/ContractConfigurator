@@ -25,7 +25,6 @@ namespace ContractConfigurator
         private double currentCoverage = 0.0;
 
         private Dictionary<string, string> nameRemap = new Dictionary<string, string>();
-        private TitleTracker titleTracker = new TitleTracker();
 
         public SCANsatCoverage()
             : base(null)
@@ -57,7 +56,6 @@ namespace ContractConfigurator
                     output += currentCoverage.ToString("N0") + "% / ";
                 }
                 output += coverage.ToString("N0") + "%";
-                titleTracker.Add(output);
             }
             else
             {
@@ -117,8 +115,8 @@ namespace ContractConfigurator
                     SetState(ParameterState.Complete);
                 }
 
-                // Update contract window
-                titleTracker.UpdateContractWindow(this, GetTitle());
+                // Force a call to GetTitle to update the contracts app
+                GetTitle();
             }
         }
     }

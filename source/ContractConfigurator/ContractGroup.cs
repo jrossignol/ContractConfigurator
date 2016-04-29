@@ -114,8 +114,8 @@ namespace ContractConfigurator
                         string message = "The contract group '" + name + "' requires at least Contract Configurator " + minVersion +
                             " to work, and you are running version " + ainfoV.InformationalVersion +
                             ".  Please upgrade Contract Configurator to use the contracts in this group.";
-                        DialogOption dialogOption = new DialogOption("Okay", new Callback(DoNothing), true);
-                        PopupDialog.SpawnPopupDialog(new MultiOptionDialog(message, title, HighLogic.Skin, dialogOption), false, HighLogic.Skin);
+                        DialogGUIButton dialogOption = new DialogGUIButton("Okay", new Callback(DoNothing), true);
+                        PopupDialog.SpawnPopupDialog(new MultiOptionDialog(message, title, UISkinManager.GetSkin("default"), dialogOption), false, UISkinManager.GetSkin("default"));
                     }
                 }
 

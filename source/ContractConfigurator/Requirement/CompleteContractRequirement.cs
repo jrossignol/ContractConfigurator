@@ -12,53 +12,32 @@ namespace ContractConfigurator
     /// <summary>
     /// ContractRequirement to provide requirement for player having completed other contracts.
     /// </summary>
-    public class CompleteContractRequirement : ContractRequirement
+    public class CompleteContractRequirement : ContractCheckRequirement
     {
-        protected string ccType;
-        protected Type contractClass;
-        protected uint minCount;
-        protected uint maxCount;
         protected Duration cooldownDuration;
 
-        public override bool Load(ConfigNode configNode)
+        public override bool LoadFromConfig(ConfigNode configNode)
         {
             // Load base class
-            bool valid = base.Load(configNode);
+            bool valid = base.LoadFromConfig(configNode);
 
-            checkOnActiveContract = true;
-
-            // Get type
-            string contractType = null;
-            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "contractType", x => contractType = x, this);
-            if (valid)
-            {
-                if (ContractType.GetContractType(contractType) != null)
-                {
-                    ccType = contractType;
-                }
-                else
-                {
-                    ccType = null;
-
-                    IEnumerable<Type> classes = ContractConfigurator.GetAllTypes<Contract>().Where(t => t.Name == contractType);
-                    if (!classes.Any())
-                    {
-                        valid = false;
-                        LoggingUtil.LogError(this.GetType(), "contractType '" + contractType +
-                            "' must either be a Contract sub-class or ContractConfigurator contract type");
-                    }
-                    else
-                    {
-                        contractClass = classes.First();
-                    }
-                }
-            }
-
-            valid &= ConfigNodeUtil.ParseValue<uint>(configNode, "minCount", x => minCount = x, this, 1);
-            valid &= ConfigNodeUtil.ParseValue<uint>(configNode, "maxCount", x => maxCount = x, this, UInt32.MaxValue);
             valid &= ConfigNodeUtil.ParseValue<Duration>(configNode, "cooldownDuration", x => cooldownDuration = x, this, new Duration(0.0));
 
             return valid;
+        }
+
+        public override void OnSave(ConfigNode configNode)
+        {
+            base.OnSave(configNode);
+
+            configNode.AddValue("cooldownDuration", cooldownDuration.Value);
+        }
+
+        public override void OnLoad(ConfigNode configNode)
+        {
+            base.OnLoad(configNode);
+
+            cooldownDuration = new Duration(ConfigNodeUtil.ParseValue<double>(configNode, "cooldownDuration"));
         }
 
         public override bool RequirementMet(ConfiguredContract contract)
@@ -75,7 +54,6 @@ namespace ContractConfigurator
                 finished = completedContract.Count();
                 if (finished > 0)
                 {
-                    // TODO - this isn't working out
                     lastFinished = completedContract.OrderByDescending<ConfiguredContract, double>(c => c.DateFinished).First().DateFinished;
                 }
             }

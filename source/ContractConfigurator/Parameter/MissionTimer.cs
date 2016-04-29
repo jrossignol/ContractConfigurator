@@ -60,8 +60,6 @@ namespace ContractConfigurator.Parameters
 
         private ContractChecker checker;
 
-        private TitleTracker titleTracker = new TitleTracker();
-
         public MissionTimer()
             : base(null)
         {
@@ -84,21 +82,17 @@ namespace ContractConfigurator.Parameters
             double end = endTime == 0.0 ? Planetarium.GetUniversalTime() : endTime;
             string prefix = string.IsNullOrEmpty(title) ? "Mission Timer:" : title;
 
-            string retVal;
+            string output;
             if (startTime == 0.0)
             {
-                retVal = prefix + " 00:00:00";
+                output = prefix + " 00:00:00";
             }
             else
             {
-                retVal = prefix + " " + DurationUtil.StringValue(end - startTime, true, (endTime != 0.0));
+                output = prefix + " " + DurationUtil.StringValue(end - startTime, true, (endTime != 0.0));
             }
 
-            // Add the string that we returned to the titleTracker.  This is used to update
-            // the contract title element in the GUI directly, as it does not support dynamic
-            // text.
-            titleTracker.Add(retVal);
-            return retVal;
+            return output;
         }
 
         protected override void OnParameterSave(ConfigNode node)
@@ -220,7 +214,8 @@ namespace ContractConfigurator.Parameters
             // so this is the only way to get our fancy timer to work.
             if (Planetarium.GetUniversalTime() - lastUpdate > 1.0f)
             {
-                titleTracker.UpdateContractWindow(this, GetTitle());
+                // Force a call to GetTitle to update the contracts app
+                GetTitle();
             }
         }
     }

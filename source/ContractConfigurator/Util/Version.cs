@@ -95,20 +95,5 @@ namespace ContractConfigurator.Util
             }
             return RemoteTechAssembly != null;
         }
-
-        /// <summary>
-        /// Checks if running KSP on Win64.
-        /// </summary>
-        /// <returns></returns>
-        public static bool IsWin64()
-        {
-            if (isWin64 == null)
-            {
-                IntPtr intPtr = new IntPtr(long.MaxValue);
-                isWin64 = (intPtr.ToInt64() > uint.MaxValue) && (Environment.OSVersion.Platform == PlatformID.Win32NT);
-            }
-            return isWin64.Value;
-        }
-        private static bool? isWin64 = null;
     }
 }

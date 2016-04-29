@@ -8,14 +8,17 @@ using KSPAchievements;
 
 namespace ContractConfigurator
 {
-    /*
-     * ContractRequirement to provide requirement for player having reached space.
-     */
+    /// <summary>
+    /// ContractRequirement to provide requirement for player having reached space.
+    /// </summary>
     public class ReachSpaceRequirement : ContractRequirement
     {
         public override bool RequirementMet(ConfiguredContract contract)
         {
             return ProgressTracking.Instance.reachSpace.IsComplete;
         }
+
+        public override void OnLoad(ConfigNode configNode) { }
+        public override void OnSave(ConfigNode configNode) { }
     }
 }

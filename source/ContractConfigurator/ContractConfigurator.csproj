@@ -35,6 +35,13 @@
     <Reference Include="Assembly-CSharp">
       <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Kerbal Space Program\KSP_Data\Managed\Assembly-CSharp.dll</HintPath>
     </Reference>
+    <Reference Include="Assembly-CSharp-firstpass, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Kerbal Space Program\KSP_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
+    </Reference>
+    <Reference Include="KSPUtil">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Kerbal Space Program\KSP_Data\Managed\KSPUtil.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -43,6 +50,9 @@
     <Reference Include="System.Xml" />
     <Reference Include="UnityEngine">
       <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Kerbal Space Program\KSP_Data\Managed\UnityEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Kerbal Space Program\KSP_Data\Managed\UnityEngine.UI.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -82,6 +92,7 @@
     <Compile Include="Behaviour\SpawnVessel.cs" />
     <Compile Include="Behaviour\UnlockPart.cs" />
     <Compile Include="Behaviour\UnlockTech.cs" />
+    <Compile Include="ExpressionParser\Parsers\Classes\PQSCityParser.cs" />
     <Compile Include="IKerbalNameStorage.cs" />
     <Compile Include="Parameter\Duration2.cs" />
     <Compile Include="Parameter\Duration.cs" />
@@ -114,6 +125,7 @@
     <Compile Include="Parameter\VesselParameter\HasPassengers.cs" />
     <Compile Include="Parameter\VesselParameter\IsNotVessel.cs" />
     <Compile Include="Parameter\VesselParameter\ReachState.cs" />
+    <Compile Include="Requirement\ContractCheckRequirement.cs" />
     <Compile Include="Requirement\AcceptContractRequirement.cs" />
     <Compile Include="Requirement\InvalidContractRequirement.cs" />
     <Compile Include="Requirement\PartModuleTypeUnlockedRequirement.cs" />
@@ -146,6 +158,7 @@
     <Compile Include="ParameterFactory\NotFactory.cs" />
     <Compile Include="ParameterFactory\RecoverVesselFactory.cs" />
     <Compile Include="ParameterFactory\SCANsatCoverageFactory.cs" />
+    <Compile Include="Requirement\VesselValidRequirement.cs" />
     <Compile Include="ScenarioModules\ContractConfiguratorSettings.cs" />
     <Compile Include="ParameterFactory\MissionTimerFactory.cs" />
     <Compile Include="ScenarioModules\ContractPreLoader.cs" />
@@ -225,7 +238,6 @@
     <Compile Include="Behaviour\OrbitGenerator.cs" />
     <Compile Include="Behaviour\WaypointGenerator.cs" />
     <Compile Include="Parameter\VesselParameter\VisitWaypoint.cs" />
-    <Compile Include="Parameter\SpecificOrbitWrapper.cs" />
     <Compile Include="Parameter\AlwaysTrue.cs" />
     <Compile Include="Parameter\VesselParameter\VesselParameterDelegator.cs" />
     <Compile Include="Parameter\VesselParameter\VesselMass.cs" />
@@ -308,7 +320,11 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>copy /y "$(TargetPath)" "$(SolutionDir)..\GameData\ContractConfigurator\"
-copy /y "$(TargetPath)" "C:\Program Files (x86)\Kerbal Space Program\GameData\ContractConfigurator\"</PostBuildEvent>
+
+"C:\games\tools\pdb2mdb\pdb2mdb.exe" "$(TargetFileName)"
+copy /Y "$(TargetPath)" "C:\Program Files (x86)\Kerbal Space Program\GameData\ContractConfigurator\"
+copy /Y "$(TargetDir)$(TargetName).pdb" "C:\Program Files (x86)\Kerbal Space Program\GameData\ContractConfigurator\"
+copy /Y "$(TargetDir)$(TargetName).dll.mdb" "C:\Program Files (x86)\Kerbal Space Program\GameData\ContractConfigurator\"</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

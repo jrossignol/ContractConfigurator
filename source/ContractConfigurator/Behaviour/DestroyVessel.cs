@@ -47,12 +47,6 @@ namespace ContractConfigurator.Behaviour
                         }
                     }
 
-                    // This works around a KSP bug in KSCVesselMarker where the dead vessels appear at KSC and can be recovered.
-                    KSCVesselMarkers markers = UnityEngine.Object.FindObjectOfType<KSCVesselMarkers>();
-                    MethodInfo refresh = typeof(KSCVesselMarkers).GetMethods(BindingFlags.Instance | BindingFlags.NonPublic).
-                        Where(m => m.Name == "RefreshMarkers").First();
-                    refresh.Invoke(markers, new object[] {});
-
                     // All done
                     Destroy(this);
                 }

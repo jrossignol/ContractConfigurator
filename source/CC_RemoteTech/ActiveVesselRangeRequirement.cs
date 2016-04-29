@@ -17,10 +17,10 @@ namespace ContractConfigurator.RemoteTech
     {
         protected double range;
 
-        public override bool Load(ConfigNode configNode)
+        public override bool LoadFromConfig(ConfigNode configNode)
         {
             // Load base class
-            bool valid = base.Load(configNode);
+            bool valid = base.LoadFromConfig(configNode);
 
             // Before loading, verify the RemoteTech version
             valid &= Util.Version.VerifyRemoteTechVersion();
@@ -32,6 +32,16 @@ namespace ContractConfigurator.RemoteTech
             valid &= ValidateTargetBody(configNode);
 
             return valid;
+        }
+
+        public override void OnSave(ConfigNode configNode)
+        {
+            configNode.AddValue("range", range);
+        }
+
+        public override void OnLoad(ConfigNode configNode)
+        {
+            range = ConfigNodeUtil.ParseValue<double>(configNode, "range", 0.0);
         }
 
         public override bool RequirementMet(ConfiguredContract contract)

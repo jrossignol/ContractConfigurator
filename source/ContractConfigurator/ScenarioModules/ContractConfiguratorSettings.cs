@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Text;
 using UnityEngine;
 using KSP;
+using KSP.UI.Screens;
 using Contracts;
 
 namespace ContractConfigurator
@@ -180,6 +181,8 @@ namespace ContractConfigurator
                 var ainfoV = Attribute.GetCustomAttribute(typeof(ContractConfigurator).Assembly, typeof(AssemblyInformationalVersionAttribute)) as AssemblyInformationalVersionAttribute;
 
                 windowPos.xMin = Screen.width - 336 - 14;
+                windowPos.yMin = Screen.height - windowPos.height - 40f;
+                windowPos.yMax = Screen.height - 40f;
                 windowPos = GUILayout.Window(
                     typeof(ContractConfiguratorSettings).FullName.GetHashCode(),
                     windowPos,

@@ -8,16 +8,16 @@ using KSPAchievements;
 
 namespace ContractConfigurator
 {
-    /*
-     * ContractRequirement to provide requirement for player having performed returned from the
-     * surface of a specific CelestialBody.
-     */
+    /// <summary>
+    /// ContractRequirement to provide requirement for player having performed returned from the
+    /// surface of a specific CelestialBody.
+    /// </summary>
     public class ReturnFromSurfaceRequirement : ProgressCelestialBodyRequirement
     {
-        public override bool Load(ConfigNode configNode)
+        public override bool LoadFromConfig(ConfigNode configNode)
         {
             // Load base class
-            bool valid = base.Load(configNode);
+            bool valid = base.LoadFromConfig(configNode);
 
             // Validate targetBody
             if (targetBody.name.Equals("Kerbin"))
@@ -29,6 +29,9 @@ namespace ContractConfigurator
 
             return valid;
         }
+
+        public override void OnLoad(ConfigNode configNode) { }
+        public override void OnSave(ConfigNode configNode) { }
 
         public override bool RequirementMet(ConfiguredContract contract)
         {

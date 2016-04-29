@@ -28,8 +28,6 @@ namespace ContractConfigurator.Parameters
 
         private double lastUpdate = 0.0;
 
-        private TitleTracker titleTracker = new TitleTracker();
-
         public Timer()
             : base()
         {
@@ -54,14 +52,7 @@ namespace ContractConfigurator.Parameters
             }
             else if (endTime > 0.01)
             {
-                string title = "Time remaining: " + DurationUtil.StringValue(endTime - Planetarium.GetUniversalTime());
-
-                // Add the string that we returned to the titleTracker.  This is used to update
-                // the contract title element in the GUI directly, as it does not support dynamic
-                // text.
-                titleTracker.Add(title);
-
-                return title;
+                return "Time remaining: " + DurationUtil.StringValue(endTime - Planetarium.GetUniversalTime());
             }
             else
             {
@@ -160,7 +151,8 @@ namespace ContractConfigurator.Parameters
                 }
                 lastUpdate = Planetarium.GetUniversalTime();
 
-                titleTracker.UpdateContractWindow(this, GetTitle());
+                // Force a call to GetTitle to update the contracts app
+                GetTitle();
             }
         }
     }

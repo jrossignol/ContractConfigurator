@@ -30,5 +30,8 @@ namespace ContractConfigurator
             }
             return requirementMet;
         }
+
+        public override void OnLoad(ConfigNode configNode) { }
+        public override void OnSave(ConfigNode configNode) { }
     }
 }

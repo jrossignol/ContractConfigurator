@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 using KSP;
+using KSP.UI.Screens;
 using Contracts;
 using Contracts.Parameters;
 using ContractConfigurator.Behaviour;
@@ -125,7 +126,7 @@ namespace ContractConfigurator.Parameters
             base.OnRegister();
             GameEvents.onVesselCreate.Add(new EventData<Vessel>.OnEvent(OnVesselCreate));
             GameEvents.onCrewTransferred.Add(new EventData<GameEvents.HostedFromToAction<ProtoCrewMember, Part>>.OnEvent(OnCrewTransferred));
-            GameEvents.onVesselRecovered.Add(new EventData<ProtoVessel>.OnEvent(OnVesselRecovered));
+            GameEvents.onVesselRecovered.Add(new EventData<ProtoVessel, bool>.OnEvent(OnVesselRecovered));
             GameEvents.onCrewKilled.Add(new EventData<EventReport>.OnEvent(OnCrewKilled));
             GameEvents.Contract.onAccepted.Add(new EventData<Contract>.OnEvent(OnContractAccepted));
             ContractConfigurator.OnParameterChange.Add(new EventData<Contract, ContractParameter>.OnEvent(OnParameterChange));
@@ -136,7 +137,7 @@ namespace ContractConfigurator.Parameters
             base.OnUnregister();
             GameEvents.onVesselCreate.Remove(new EventData<Vessel>.OnEvent(OnVesselCreate));
             GameEvents.onCrewTransferred.Remove(new EventData<GameEvents.HostedFromToAction<ProtoCrewMember, Part>>.OnEvent(OnCrewTransferred));
-            GameEvents.onVesselRecovered.Remove(new EventData<ProtoVessel>.OnEvent(OnVesselRecovered));
+            GameEvents.onVesselRecovered.Remove(new EventData<ProtoVessel, bool>.OnEvent(OnVesselRecovered));
             GameEvents.onCrewKilled.Remove(new EventData<EventReport>.OnEvent(OnCrewKilled));
             GameEvents.Contract.onAccepted.Remove(new EventData<Contract>.OnEvent(OnContractAccepted));
             ContractConfigurator.OnParameterChange.Remove(new EventData<Contract, ContractParameter>.OnEvent(OnParameterChange));
@@ -165,7 +166,7 @@ namespace ContractConfigurator.Parameters
             TestConditions();
         }
 
-        private void OnVesselRecovered(ProtoVessel v)
+        private void OnVesselRecovered(ProtoVessel v, bool quick)
         {
             // Don't check if we're not ready to complete
             if (!ReadyToComplete())

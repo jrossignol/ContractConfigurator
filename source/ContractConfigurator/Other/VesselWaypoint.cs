@@ -94,7 +94,6 @@ namespace ContractConfigurator
                 waypoint.index = 0;
                 waypoint.landLocked = false;
                 waypoint.id = "vessel";
-                waypoint.size = new Vector2(32f, 32f);
                 waypoint.isNavigatable = false;
                 waypoint.enableTooltip = false;
                 waypoint.enableMarker = false;

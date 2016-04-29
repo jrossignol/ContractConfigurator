@@ -8,14 +8,17 @@ using KSPAchievements;
 
 namespace ContractConfigurator
 {
-    /*
-     * ContractRequirement to provide requirement for player having had a crew recovered.
-     */
+    /// <summary>
+    /// ContractRequirement to provide requirement for player having had a crew recovered.
+    /// </summary>
     public class FirstCrewToSurviveRequirement : ContractRequirement
     {
         public override bool RequirementMet(ConfiguredContract contract)
         {
             return ProgressTracking.Instance.firstCrewToSurvive.IsComplete;
         }
+
+        public override void OnLoad(ConfigNode configNode) { }
+        public override void OnSave(ConfigNode configNode) { }
     }
 }

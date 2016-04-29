@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using UnityEngine;
+using ContractConfigurator.ExpressionParser;
 
 namespace ContractConfigurator
 {
@@ -159,7 +160,14 @@ namespace ContractConfigurator
             {
                 ccFactory = ConfigNodeUtil.currentDataNode.Factory;
             }
-            if (ccFactory != null)
+            else
+            {
+                DataNode dataNode = obj as DataNode;
+                if (dataNode != null)
+                {
+                    ccFactory = dataNode.Factory;
+                }
+            }            if (ccFactory != null)
             {
                 ccFactory.hasWarnings = true;
             }
@@ -190,14 +198,7 @@ namespace ContractConfigurator
                 CaptureException(e);
             }
 
-            if (Util.Version.IsWin64())
-            {
-                Debug.LogException(new Exception("Win64 exception: ", e));
-            }
-            else
-            {
-                Debug.LogException(e);
-            }
+            Debug.LogException(e);
         }
 
         private static void CaptureException(Exception e)
@@ -207,7 +208,7 @@ namespace ContractConfigurator
                 CaptureException(e.InnerException);
                 capturedLog += "Rethrow as ";
             }
-            capturedLog += (Util.Version.IsWin64() ? "(Win64) " : "") + e.GetType() + ": " + e.Message + "\n" + e.StackTrace + "\n";
+            capturedLog += e.GetType() + ": " + e.Message + "\n" + e.StackTrace + "\n";
         }
 
 

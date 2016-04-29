@@ -23,7 +23,8 @@ namespace ContractConfigurator
 
         public ContractType contractType { get; set; }
         public string subType { get; set; }
-        private List<ContractBehaviour> behaviours = new List<ContractBehaviour>();
+        public List<ContractRequirement> requirements = null;
+        public List<ContractBehaviour> behaviours = new List<ContractBehaviour>();
         public IEnumerable<ContractBehaviour> Behaviours { get { return behaviours.AsReadOnly(); } }
 
         public Dictionary<string, object> uniqueData = new Dictionary<string, object>();
@@ -86,6 +87,7 @@ namespace ContractConfigurator
         public ConfiguredContract()
         {
             this.dateExpire = Contract.GameTime + 5.0 * 3600.0 * 6.0;
+            this.IgnoresWeight = true;
         }
 
         public bool Initialize(ContractType contractType)
@@ -273,9 +275,25 @@ namespace ContractConfigurator
                 origParameter.Save(node);
 
                 // Load into a new copy
-                ContractParameter parameter = (ContractParameter) Activator.CreateInstance(origParameter.GetType());
+                ContractParameter parameter = (ContractParameter)Activator.CreateInstance(origParameter.GetType());
                 AddParameter(parameter, null);
                 parameter.Load(node);
+            }
+
+            // Copy requirements
+            requirements = new List<ContractRequirement>();
+            foreach (ContractRequirement requirement in contract.contractType.Requirements)
+            {
+                // Save the old requirement
+                ConfigNode node = new ConfigNode("REQUIREMENT");
+                requirement.Save(node);
+
+                // Load into a new copy
+                ContractRequirement childRequirement = ContractRequirement.LoadRequirement(node);
+                if (childRequirement != null)
+                {
+                    requirements.Add(childRequirement);
+                }
             }
 
             // Run the OnOffered for behaviours
@@ -386,6 +404,13 @@ namespace ContractConfigurator
                     behaviours.Add(behaviour);
                 }
 
+                requirements = new List<ContractRequirement>();
+                foreach (ConfigNode child in node.GetNodes("REQUIREMENT"))
+                {
+                    ContractRequirement requirement = ContractRequirement.LoadRequirement(child);
+                    requirements.Add(requirement);
+                }
+
                 // If the contract type is null, then it likely means that it was uninstalled
                 if (contractType == null)
                 {
@@ -462,6 +487,23 @@ namespace ContractConfigurator
                     behaviour.Save(child);
                     node.AddNode(child);
                 }
+
+                // Store requirements
+                if (requirements == null)
+                {
+                    requirements = new List<ContractRequirement>();
+                    foreach (ContractRequirement requirement in contractType.Requirements)
+                    {
+                        requirements.Add(requirement);
+                    }
+                }
+
+                foreach (ContractRequirement requirement in requirements)
+                {
+                    ConfigNode child = new ConfigNode("REQUIREMENT");
+                    requirement.Save(child);
+                    node.AddNode(child);
+                }
             }
             catch (Exception e)
             {
@@ -499,9 +541,13 @@ namespace ContractConfigurator
         {
             // Remove the stuff that's supposed to be hidden from the mission control text
             string str = base.MissionControlTextRich();
+
+            // Remove carriage returns
             str = Regex.Replace(str, "\r", "");
-            str = Regex.Replace(str, @"<b><#......>*:.*?\n\n", "", RegexOptions.Singleline);
-            str = Regex.Replace(str, @"<b><#......>\s*:.*?\n", "", RegexOptions.Singleline);
+
+            // Remove empty parameters
+            str = Regex.Replace(str, @"<b><color=#......>*:.*?\n\n", "", RegexOptions.Singleline);
+            str = Regex.Replace(str, @"<b><color=#......>\s*:.*?\n", "", RegexOptions.Singleline);
             return str;
         }
 

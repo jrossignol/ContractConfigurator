@@ -18,7 +18,6 @@ namespace ContractConfigurator.RemoteTech
         protected bool hasConnectivity { get; set; }
         protected string vesselKey { get; set; }
 
-        private TitleTracker titleTracker = new TitleTracker();
         private double lastUpdate = 0.0;
 
         public VesselConnectivityParameter()
@@ -46,11 +45,6 @@ namespace ContractConfigurator.RemoteTech
                 output = title;
             }
 
-            // Add the string that we returned to the titleTracker.  This is used to update
-            // the contract title element in the GUI directly, as it does not support dynamic
-            // text.
-            titleTracker.Add(output);
-
             return output;
         }
 
@@ -73,7 +67,6 @@ namespace ContractConfigurator.RemoteTech
         protected override void OnRegister()
         {
             base.OnRegister();
-            GameEvents.onVesselRename.Add(new EventData<GameEvents.HostedFromToAction<Vessel, string>>.OnEvent(OnVesselRename));
             ContractVesselTracker.OnVesselAssociation.Add(new EventData<GameEvents.HostTargetAction<Vessel, string>>.OnEvent(OnVesselAssociation));
             ContractVesselTracker.OnVesselDisassociation.Add(new EventData<GameEvents.HostTargetAction<Vessel, string>>.OnEvent(OnVesselDisassociation));
         }
@@ -81,19 +74,8 @@ namespace ContractConfigurator.RemoteTech
         protected override void OnUnregister()
         {
             base.OnUnregister();
-            GameEvents.onVesselRename.Remove(new EventData<GameEvents.HostedFromToAction<Vessel, string>>.OnEvent(OnVesselRename));
             ContractVesselTracker.OnVesselAssociation.Remove(new EventData<GameEvents.HostTargetAction<Vessel, string>>.OnEvent(OnVesselAssociation));
             ContractVesselTracker.OnVesselDisassociation.Remove(new EventData<GameEvents.HostTargetAction<Vessel, string>>.OnEvent(OnVesselDisassociation));
-        }
-
-        protected void OnVesselRename(GameEvents.HostedFromToAction<Vessel, string> hft)
-        {
-            // Force a title update if it's the vessel we're looking at
-            Vessel v = ContractVesselTracker.Instance.GetAssociatedVessel(vesselKey);
-            if (v == hft.host)
-            {
-                GetTitle();
-            }
         }
 
         protected void OnVesselAssociation(GameEvents.HostTargetAction<Vessel, string> hta)
@@ -122,7 +104,7 @@ namespace ContractConfigurator.RemoteTech
             if (Time.fixedTime - lastUpdate > 1.0f)
             {
                 lastUpdate = Time.fixedTime;
-                titleTracker.UpdateContractWindow(this, GetTitle());
+                GetTitle();
             }
         }
 

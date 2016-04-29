@@ -154,6 +154,10 @@ namespace ContractConfigurator.Parameters
             {
                 return "Antenna";
             }
+            else if (output.Contains("Wheel"))
+            {
+                return "Wheel";
+            }
 
             return Regex.Replace(output, "(\\B[A-Z])", " $1");
         }

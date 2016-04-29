@@ -16,17 +16,30 @@ namespace ContractConfigurator
     {
         protected List<string> partModuleType;
 
-        public override bool Load(ConfigNode configNode)
+        public override bool LoadFromConfig(ConfigNode configNode)
         {
             // Load base class
-            bool valid = base.Load(configNode);
+            bool valid = base.LoadFromConfig(configNode);
 
             // Do not check on active contracts.
             checkOnActiveContract = configNode.HasValue("checkOnActiveContract") ? checkOnActiveContract : false;
 
-            valid &= ConfigNodeUtil.ParseValue<List<string>>(configNode, "partModuleType", x => partModuleType = x, this);
+            valid &= ConfigNodeUtil.ParseValue<List<string>>(configNode, "partModuleType", x => partModuleType = x, this, l => l.All(Validation.ValidatePartModuleType));
 
             return valid;
+        }
+
+        public override void OnSave(ConfigNode configNode)
+        {
+            foreach (string pmt in partModuleType)
+            {
+                configNode.AddValue("partModuleType", pmt);
+            }
+        }
+
+        public override void OnLoad(ConfigNode configNode)
+        {
+            partModuleType = ConfigNodeUtil.ParseValue<List<string>>(configNode, "partModuleType", new List<string>());
         }
 
         public override bool RequirementMet(ConfiguredContract contract)

@@ -16,7 +16,7 @@ namespace ContractConfigurator
         protected double minCoverage;
         protected double maxCoverage;
 
-        public override bool Load(ConfigNode configNode)
+        public override bool LoadFromConfig(ConfigNode configNode)
         {
             // Before loading, verify the SCANsat version
             if (!SCANsatUtil.VerifySCANsatVersion())
@@ -25,7 +25,7 @@ namespace ContractConfigurator
             }
 
             // Load base class
-            bool valid = base.Load(configNode);
+            bool valid = base.LoadFromConfig(configNode);
 
             // Do not check the requirement on active contracts.  Otherwise when they scan the
             // contract is invalidated, which is usually not what's meant.
@@ -39,17 +39,22 @@ namespace ContractConfigurator
             return valid;
         }
 
+        public override void OnSave(ConfigNode configNode)
+        {
+            configNode.AddValue("minCoverage", minCoverage);
+            configNode.AddValue("maxCoverage", maxCoverage);
+            configNode.AddValue("scanType", scanType);
+        }
+
+        public override void OnLoad(ConfigNode configNode)
+        {
+            minCoverage = ConfigNodeUtil.ParseValue<double>(configNode, "minCoverage");
+            maxCoverage = ConfigNodeUtil.ParseValue<double>(configNode, "maxCoverage");
+            scanType = ConfigNodeUtil.ParseValue<string>(configNode, "scanType");
+        }
+
         public override bool RequirementMet(ConfiguredContract contract)
         {
-            // Pull values from the data node in case another contract has changed them
-            if (dataNode.IsInitialized("targetBody"))
-            {
-                _targetBody = (CelestialBody)dataNode["targetBody"];
-            }
-            minCoverage = (double)dataNode["minCoverage"];
-            maxCoverage = (double)dataNode["maxCoverage"];
-            scanType = (string)dataNode["scanType"];
-
             // Perform another validation of the target body to catch late validation issues due to expressions
             if (!ValidateTargetBody())
             {

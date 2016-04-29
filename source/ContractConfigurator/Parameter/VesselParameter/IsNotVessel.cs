@@ -62,7 +62,6 @@ namespace ContractConfigurator.Parameters
             base.OnRegister();
             ContractVesselTracker.OnVesselAssociation.Add(new EventData<GameEvents.HostTargetAction<Vessel, string>>.OnEvent(OnVesselAssociation));
             ContractVesselTracker.OnVesselDisassociation.Add(new EventData<GameEvents.HostTargetAction<Vessel, string>>.OnEvent(OnVesselDisassociation));
-            GameEvents.onVesselRename.Add(new EventData<GameEvents.HostedFromToAction<Vessel, string>>.OnEvent(OnVesselRename));
         }
 
         protected override void OnUnregister()
@@ -70,7 +69,6 @@ namespace ContractConfigurator.Parameters
             base.OnUnregister();
             ContractVesselTracker.OnVesselAssociation.Remove(new EventData<GameEvents.HostTargetAction<Vessel, string>>.OnEvent(OnVesselAssociation));
             ContractVesselTracker.OnVesselDisassociation.Remove(new EventData<GameEvents.HostTargetAction<Vessel, string>>.OnEvent(OnVesselDisassociation));
-            GameEvents.onVesselRename.Remove(new EventData<GameEvents.HostedFromToAction<Vessel, string>>.OnEvent(OnVesselRename));
         }
 
         protected void OnVesselAssociation(GameEvents.HostTargetAction<Vessel, string> pair)
@@ -83,16 +81,6 @@ namespace ContractConfigurator.Parameters
         {
             LoggingUtil.LogVerbose(this, "OnVesselDisassociation");
             CheckVessel(pair.host);
-        }
-
-        protected void OnVesselRename(GameEvents.HostedFromToAction<Vessel, string> hft)
-        {
-            // Force a title update if it's the vessel we're looking at
-            Vessel v = ContractVesselTracker.Instance.GetAssociatedVessel(vesselKey);
-            if (v == hft.host)
-            {
-                GetTitle();
-            }
         }
 
         /// <summary>

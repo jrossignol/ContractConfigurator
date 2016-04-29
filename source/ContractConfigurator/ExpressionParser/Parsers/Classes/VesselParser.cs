@@ -59,6 +59,8 @@ namespace ContractConfigurator.ExpressionParser
             RegisterMethod(new Method<Vessel, double>("OrbitInclination", GetInclination, false));
             RegisterMethod(new Method<Vessel, double>("OrbitEccentricity", GetEccentricity, false));
 
+            RegisterMethod(new Method<Vessel, Duration>("MET", v => new Duration(v == null ? 0.0 : v.missionTime), false));
+
             RegisterGlobalFunction(new Function<List<Vessel>>("AllVessels", () => FlightGlobals.Vessels.ToList(), false));
             RegisterGlobalFunction(new Function<Vessel, Vessel>("Vessel", v => v));
         }

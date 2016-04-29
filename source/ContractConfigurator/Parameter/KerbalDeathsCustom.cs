@@ -19,8 +19,6 @@ namespace ContractConfigurator.Parameters
         protected List<Kerbal> kerbals = new List<Kerbal>();
         protected VesselIdentifier vesselIdentifier;
 
-        private TitleTracker titleTracker = new TitleTracker();
-
         public KerbalDeathsCustom()
             : base()
         {
@@ -86,11 +84,6 @@ namespace ContractConfigurator.Parameters
                 output = title;
             }
 
-            // Add the string that we returned to the titleTracker.  This is used to update
-            // the contract title element in the GUI directly, as it does not support dynamic
-            // text.
-            titleTracker.Add(output);
-
             return output;
         }
 
@@ -111,7 +104,6 @@ namespace ContractConfigurator.Parameters
             ContractVesselTracker.OnVesselAssociation.Add(new EventData<GameEvents.HostTargetAction<Vessel, string>>.OnEvent(OnVesselAssociation));
             ContractVesselTracker.OnVesselDisassociation.Add(new EventData<GameEvents.HostTargetAction<Vessel, string>>.OnEvent(OnVesselDisassociation));
             GameEvents.Contract.onParameterChange.Add(new EventData<Contract, ContractParameter>.OnEvent(OnParameterChange));
-            ContractConfigurator.OnParameterChange.Add(new EventData<Contract, ContractParameter>.OnEvent(OnParameterChange));
         }
 
         protected override void OnUnregister()
@@ -122,7 +114,6 @@ namespace ContractConfigurator.Parameters
             ContractVesselTracker.OnVesselAssociation.Remove(new EventData<GameEvents.HostTargetAction<Vessel, string>>.OnEvent(OnVesselAssociation));
             ContractVesselTracker.OnVesselDisassociation.Remove(new EventData<GameEvents.HostTargetAction<Vessel, string>>.OnEvent(OnVesselDisassociation));
             GameEvents.Contract.onParameterChange.Remove(new EventData<Contract, ContractParameter>.OnEvent(OnParameterChange));
-            ContractConfigurator.OnParameterChange.Remove(new EventData<Contract, ContractParameter>.OnEvent(OnParameterChange));
         }
 
         protected override void OnParameterSave(ConfigNode node)
@@ -197,7 +188,9 @@ namespace ContractConfigurator.Parameters
             if (vesselIdentifier != null && hta.target == vesselIdentifier.identifier)
             {
                 HandleVessel(hta.host);
-                titleTracker.UpdateContractWindow(this, GetTitle());
+
+                // Force a call to GetTitle to update the contracts app
+                GetTitle();
             }
         }
 
@@ -206,7 +199,8 @@ namespace ContractConfigurator.Parameters
             LoggingUtil.LogVerbose(this, "OnVesselDisassociation");
             if (vesselIdentifier != null && hta.target == vesselIdentifier.identifier)
             {
-                titleTracker.UpdateContractWindow(this, GetTitle());
+                // Force a call to GetTitle to update the contracts app
+                GetTitle();
             }
         }
 

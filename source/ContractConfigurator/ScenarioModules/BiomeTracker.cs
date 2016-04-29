@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -86,7 +87,20 @@ namespace ContractConfigurator
         private static BiomeTracker Instance;
         private Dictionary<CelestialBody, Dictionary<string, BiomeData>> bodyInfo = new Dictionary<CelestialBody, Dictionary<string, BiomeData>>();
 
-        private bool loaded = false;
+        public static string BiomeDataFile
+        {
+            get
+            {
+                return string.Join(Path.DirectorySeparatorChar.ToString(), new string[] { KSPUtil.ApplicationRootPath, "GameData", "ContractConfigurator", "BiomeData.cfg" });
+            }
+        }
+        public static string DefaultBiomeDataFile
+        {
+            get
+            {
+                return string.Join(Path.DirectorySeparatorChar.ToString(), new string[] { KSPUtil.ApplicationRootPath, "GameData", "ContractConfigurator", "BiomeDataDefault.cfg" });
+            }
+        }
 
         void Start()
         {
@@ -98,15 +112,6 @@ namespace ContractConfigurator
 
         void Destroy()
         {
-        }
-
-        void Update()
-        {
-            // Load all the contract configurator configuration
-            if (HighLogic.LoadedScene == GameScenes.MAINMENU && !loaded)
-            {
-                loaded = true;
-            }
         }
 
         IEnumerator<YieldInstruction> LoadAllBodyInfo()
@@ -128,8 +133,10 @@ namespace ContractConfigurator
 
             int biomeCount = body.BiomeMap.Attributes.Length;
             float startTime = Time.realtimeSinceStartup;
-            float timeStep = 0.01f;
+            float timeStep = 0.005f;
             int maxCount = 1000;
+            int maxIterations = 50000;
+            int targetMin = 3;
 
             int w = 4096;
             int h = 2048;
@@ -164,7 +171,7 @@ namespace ContractConfigurator
                         bd = biomeData[biome] = new BiomeData(biome);
                     }
 
-                    if (bd.landCount + bd.waterCount < maxCount || bd.landLocations.Count < 3 || bd.waterLocations.Count < 3)
+                    if (bd.landCount + bd.waterCount < maxCount || bd.landLocations.Count < targetMin || bd.waterLocations.Count < targetMin)
                     {
                         Vector3d radialVector = new Vector3d(cosLat * cosLon, sinLat, cosLat * sinLon);
                         double height = body.pqsController.GetSurfaceHeight(radialVector) - body.pqsController.radius;
@@ -172,7 +179,7 @@ namespace ContractConfigurator
                         if (height > 0.0)
                         {
                             bd.landCount++;
-                            if (bd.landLocations.Count < 3)
+                            if (bd.landLocations.Count < targetMin)
                             {
                                 double lon = lonRads * 180.0 / Math.PI;
                                 double lat = latRads * 180.0 / Math.PI;
@@ -185,7 +192,7 @@ namespace ContractConfigurator
                         else
                         {
                             bd.waterCount++;
-                            if (bd.waterLocations.Count < 3)
+                            if (bd.waterLocations.Count < targetMin)
                             {
                                 double lon = lonRads * 180.0 / Math.PI;
                                 double lat = latRads * 180.0 / Math.PI;
@@ -208,7 +215,7 @@ namespace ContractConfigurator
                 // Check for completion after every "row"
                 if (biomeData.Count == biomeCount &&
                     biomeData.All(pair => pair.Value.landCount + pair.Value.waterCount >= maxCount &&
-                        pair.Value.landLocations.Count >= 3 && pair.Value.waterLocations.Count >= 3))
+                        pair.Value.landLocations.Count >= targetMin && pair.Value.waterLocations.Count >= targetMin || count >= maxIterations))
                 {
                     break;
                 }
@@ -221,8 +228,9 @@ namespace ContractConfigurator
                 nameMap[body.BiomeMap.Attributes[i].mapColor.ToString()] = body.BiomeMap.Attributes[i].name;
 			}
 
-            // Save the biomData that was collected
+            // Save the biome data that was collected
             bodyInfo[body] = biomeData;
+            Save();
 
             LoggingUtil.LogInfo(this, "Completed background load of " + body.name + " biome data.");
         }
@@ -231,42 +239,11 @@ namespace ContractConfigurator
         {
             try
             {
-                foreach (ConfigNode bodyNode in node.GetNodes("CELESTIAL_BODY"))
-                {
-                    int version = ConfigNodeUtil.ParseValue<int>(bodyNode, "version", 1);
-
-                    if (version == 2)
-                    {
-                        CelestialBody body;
-                        try
-                        {
-                            body = ConfigNodeUtil.ParseValue<CelestialBody>(bodyNode, "body");
-                        }
-                        // Check for invalidated celestial bodies, and ignore those entries
-                        catch (ArgumentException e)
-                        {
-                            if (e.Message.Contains("not a valid CelestialBody"))
-                            {
-                                continue;
-                            }
-                            else
-                            {
-                                throw;
-                            }
-                        }
-                        Dictionary<string, BiomeData> biomeDetails = bodyInfo[body] = new Dictionary<string, BiomeData>();
-
-                        foreach (ConfigNode biomeNode in bodyNode.GetNodes("BIOME"))
-                        {
-                            BiomeData biomeData = BiomeData.Load(biomeNode);
-                            biomeDetails.Add(biomeData.name, biomeData);
-                        }
-                    }
-                }
+                Load();
             }
             catch (Exception e)
             {
-                LoggingUtil.LogError(this, "Error loading BiomeTracker from persistance file!");
+                LoggingUtil.LogError(this, "Error loading BiomeTracker data from custom file!");
                 LoggingUtil.LogException(e);
                 ExceptionLogWindow.DisplayFatalException(ExceptionLogWindow.ExceptionSituation.SCENARIO_MODULE_LOAD, e, "BiomeTracker");
             }
@@ -274,28 +251,69 @@ namespace ContractConfigurator
 
         public override void OnSave(ConfigNode node)
         {
-            try
-            {
-                foreach (KeyValuePair<CelestialBody, Dictionary<string, BiomeData>> pair in bodyInfo)
-                {
-                    ConfigNode bodyNode = new ConfigNode("CELESTIAL_BODY");
-                    node.AddNode(bodyNode);
-                    bodyNode.AddValue("body", pair.Key.name);
-                    bodyNode.AddValue("version", 2);
+        }
 
-                    foreach (BiomeData biomeData in pair.Value.Values)
-                    {
-                        ConfigNode biomeNode = new ConfigNode("BIOME");
-                        bodyNode.AddNode(biomeNode);
-                        biomeData.Save(biomeNode);
-                    }
+        protected void Save()
+        {
+            ConfigNode node = new ConfigNode("CONTRACT_CONFIGURATOR_BIOME_DATA");
+
+            foreach (KeyValuePair<CelestialBody, Dictionary<string, BiomeData>> pair in bodyInfo)
+            {
+                ConfigNode bodyNode = new ConfigNode("CELESTIAL_BODY");
+                node.AddNode(bodyNode);
+                bodyNode.AddValue("body", pair.Key.name);
+
+                foreach (BiomeData biomeData in pair.Value.Values)
+                {
+                    ConfigNode biomeNode = new ConfigNode("BIOME");
+                    bodyNode.AddNode(biomeNode);
+                    biomeData.Save(biomeNode);
                 }
             }
-            catch (Exception e)
+
+            node.Save(BiomeDataFile,
+                "Contract Configurator Biome Data File\r\n" +
+                "//\r\n" +
+                "// This file contains land/water biome data from applicable Celestial Bodies.");
+        }
+
+        protected void Load()
+        {
+            foreach (string file in new string[] { DefaultBiomeDataFile, BiomeDataFile })
             {
-                LoggingUtil.LogError(this, "Error saving BiomeTracker to persistance file!");
-                LoggingUtil.LogException(e);
-                ExceptionLogWindow.DisplayFatalException(ExceptionLogWindow.ExceptionSituation.SCENARIO_MODULE_SAVE, e, "BiomeTracker");
+                if (!File.Exists(file))
+                {
+                    continue;
+                }
+
+                ConfigNode node = ConfigNode.Load(file);
+                foreach (ConfigNode bodyNode in node.GetNodes("CELESTIAL_BODY"))
+                {
+                    CelestialBody body;
+                    try
+                    {
+                        body = ConfigNodeUtil.ParseValue<CelestialBody>(bodyNode, "body");
+                    }
+                    // Check for invalidated celestial bodies, and ignore those entries
+                    catch (ArgumentException e)
+                    {
+                        if (e.Message.Contains("not a valid CelestialBody"))
+                        {
+                            continue;
+                        }
+                        else
+                        {
+                            throw;
+                        }
+                    }
+                    Dictionary<string, BiomeData> biomeDetails = bodyInfo[body] = new Dictionary<string, BiomeData>();
+
+                    foreach (ConfigNode biomeNode in bodyNode.GetNodes("BIOME"))
+                    {
+                        BiomeData biomeData = BiomeData.Load(biomeNode);
+                        biomeDetails.Add(biomeData.name, biomeData);
+                    }
+                }
             }
         }
 

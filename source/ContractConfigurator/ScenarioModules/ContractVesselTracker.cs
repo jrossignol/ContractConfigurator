@@ -40,6 +40,7 @@ namespace ContractConfigurator
 
         private Dictionary<string, VesselInfo> vessels = new Dictionary<string, VesselInfo>();
         private Vessel lastBreak = null;
+        private int vesselModifiedCallCount = 0;
 
         public ContractVesselTracker()
         {
@@ -149,6 +150,7 @@ namespace ContractConfigurator
 
         protected virtual void OnPartJointBreak(PartJoint p)
         {
+            LoggingUtil.LogVerbose(this, "OnPartJointBreak: " + p.Parent.vessel.id);
             if (HighLogic.LoadedScene == GameScenes.EDITOR)
             {
                 return;
@@ -158,16 +160,18 @@ namespace ContractConfigurator
             {
                 lastBreak = p.Parent.vessel;
             }
+            vesselModifiedCallCount = 0;
         }
 
         protected virtual void OnVesselWasModified(Vessel vessel)
         {
-            LoggingUtil.LogVerbose(this, "OnVesselWasModified: " + vessel.id);
+            LoggingUtil.LogDebug(this, "OnVesselWasModified: " + vessel.id);
             vessel.GetHashes().Count();
 
             // Check for a vessel creation after a part joint break
             if (HighLogic.LoadedScene != GameScenes.FLIGHT || lastBreak == null || vessel == lastBreak)
             {
+                LoggingUtil.LogVerbose(this, "    returning, wrong scene or wrong vessel...");
                 return;
             }
 
@@ -176,8 +180,9 @@ namespace ContractConfigurator
 
             // OnVesselWasModified gets called twice, on the first call the vessels are still
             // connected.  Check for that case.
-            if (otherVesselHashes.Contains(vesselHashes.FirstOrDefault()))
+            if (vesselModifiedCallCount++ == 0)
             {
+                LoggingUtil.LogVerbose(this, "    first call check");
                 // The second call will be for the original vessel.  Swap over to check that one.
                 lastBreak = vessel;
                 return;
@@ -194,7 +199,7 @@ namespace ContractConfigurator
                 VesselInfo vi = vessels[key];
                 if (otherVesselHashes.Contains(vi.hash))
                 {
-                    LoggingUtil.LogVerbose(this, "Moving association for '" + key + "' from " + vi.id + " to " + lastBreak.id);
+                    LoggingUtil.LogDebug(this, "Moving association for '" + key + "' from " + vi.id + " to " + lastBreak.id);
                     vi.id = lastBreak.id;
                     OnVesselAssociation.Fire(new GameEvents.HostTargetAction<Vessel, string>(lastBreak, key));
                 }
@@ -205,7 +210,7 @@ namespace ContractConfigurator
                 VesselInfo vi = vessels[key];
                 if (vesselHashes.Contains(vi.hash))
                 {
-                    LoggingUtil.LogVerbose(this, "Moving association for '" + key + "' from " + vi.id + " to " + vessel.id);
+                    LoggingUtil.LogDebug(this, "Moving association for '" + key + "' from " + vi.id + " to " + vessel.id);
                     vi.id = vessel.id;
                     OnVesselAssociation.Fire(new GameEvents.HostTargetAction<Vessel, string>(vessel, key));
                 }
@@ -229,14 +234,7 @@ namespace ContractConfigurator
                         // If the vessel is loaded, refresh the protovessel.  We do this to support
                         // grappling - when a new vessel is grappled the protovessel information
                         // doesn't get properly updated.
-                        //
-                        // Win64 - This trips a bad bug in 64-bit Unity, so don't do the check under
-                        // that version at the cost of slightly incorrect functionality with the
-                        // claw.
-                        if (v.loaded && !Util.Version.IsWin64())
-                        {
-                            v.protoVessel = new ProtoVessel(v);
-                        }
+                        v.protoVessel = new ProtoVessel(v);
 
                         return v.GetHashes().Contains(vi.hash);
                     }

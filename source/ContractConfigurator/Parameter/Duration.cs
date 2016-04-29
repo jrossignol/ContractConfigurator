@@ -37,8 +37,6 @@ namespace ContractConfigurator.Parameters
         private bool resetClock = false;
         private double waitTime = double.MaxValue;
 
-        private TitleTracker titleTracker = new TitleTracker();
-
         public Duration()
             : base()
         {
@@ -80,11 +78,6 @@ namespace ContractConfigurator.Parameters
             {
                 title = (preWaitText ?? "Waiting time required:") + " " + DurationUtil.StringValue(duration);
             }
-
-            // Add the string that we returned to the titleTracker.  This is used to update
-            // the contract title element in the GUI directly, as it does not support dynamic
-            // text.
-            titleTracker.Add(title);
 
             return title;
         }
@@ -279,9 +272,10 @@ namespace ContractConfigurator.Parameters
                 if (time != 0.0 || resetClock)
                 {
                     lastUpdate = Planetarium.GetUniversalTime();
-
-                    titleTracker.UpdateContractWindow(this, GetTitle());
                     resetClock = false;
+
+                    // Force a call to GetTitle to update the contracts app
+                    GetTitle();
 
                     if (currentVessel != null)
                     {

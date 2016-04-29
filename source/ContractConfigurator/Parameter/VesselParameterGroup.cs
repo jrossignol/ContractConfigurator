@@ -37,8 +37,6 @@ namespace ContractConfigurator.Parameters
         private double lastUpdate = 0.0;
         private List<VesselWaypoint> vesselWaypoints = new List<VesselWaypoint>();
 
-        private TitleTracker titleTracker = new TitleTracker();
-
         public bool ChildChanged { get; set; }
 
         public VesselParameterGroup()
@@ -124,11 +122,6 @@ namespace ContractConfigurator.Parameters
                 }
             }
 
-            // Add the string that we returned to the titleTracker.  This is used to update
-            // the contract title element in the GUI directly, as it does not support dynamic
-            // text.
-            titleTracker.Add(output);
-
             return output;
         }
 
@@ -180,7 +173,15 @@ namespace ContractConfigurator.Parameters
             {
                 if (vesselList.Count() == 1)
                 {
-                    vesselListParam = new ParameterDelegate<Vessel>("", VesselCanBeConsidered);
+                    vesselListParam = new ParameterDelegate<Vessel>(hideVesselName ? "" : "Vessel: " + ContractVesselTracker.GetDisplayName(vesselList.First()), v =>
+                    {
+                        bool check = VesselCanBeConsidered(v);
+                        if (!hideVesselName)
+                        {
+                            vesselListParam.SetTitle((FlightGlobals.ActiveVessel == v && trackedVessel != null ? "" : "Tracked ") + "Vessel: " + ContractVesselTracker.GetDisplayName(vesselList.First()));
+                        }
+                        return check;
+                    });
                     vesselListParam.Optional = true;
                     vesselListParam.fakeOptional = true;
 
@@ -228,6 +229,13 @@ namespace ContractConfigurator.Parameters
             if (!VesselCanBeConsidered(vessel))
             {
                 LoggingUtil.LogVerbose(this, "<- UpdateState (vessel cannot be considered)");
+
+                // Set the tracked vessel in delegate parameters, if there is one (updates text)
+                if (trackedVessel != null)
+                {
+                    ParameterDelegate<Vessel>.CheckChildConditions(this, trackedVessel);
+                }
+
                 return;
             }
 
@@ -318,7 +326,10 @@ namespace ContractConfigurator.Parameters
                     }
                 }
                 oldTrackedVessel = trackedVessel;
+            }
 
+            if (trackedVessel != null)
+            {
                 // Set the tracked vessel in delegate parameters
                 ParameterDelegate<Vessel>.CheckChildConditions(this, trackedVessel);
             }
@@ -356,6 +367,9 @@ namespace ContractConfigurator.Parameters
                 {
                     node.AddValue("completionTime", completionTime);
                 }
+            }
+            if (trackedVessel != null)
+            {
                 node.AddValue("trackedVessel", trackedVesselGuid);
             }
             node.AddValue("dissassociateVesselsOnContractFailure", dissassociateVesselsOnContractFailure);
@@ -390,7 +404,11 @@ namespace ContractConfigurator.Parameters
                 if (node.HasValue("trackedVessel"))
                 {
                     trackedVesselGuid = new Guid(node.GetValue("trackedVessel"));
-                    trackedVessel = FlightGlobals.Vessels.Find(v => v != null && v.id == trackedVesselGuid);
+                    trackedVessel = FlightGlobals.Vessels.FirstOrDefault(v => v != null && v.id == trackedVesselGuid);
+                    if (trackedVessel == null)
+                    {
+                        trackedVesselGuid = Guid.Empty;
+                    }
                 }
 
                 // Register this early, otherwise we'll miss the event
@@ -408,7 +426,6 @@ namespace ContractConfigurator.Parameters
         protected override void OnRegister()
         {
             GameEvents.onVesselChange.Add(new EventData<Vessel>.OnEvent(OnVesselChange));
-            GameEvents.onVesselRename.Add(new EventData<GameEvents.HostedFromToAction<Vessel, string>>.OnEvent(OnVesselRename));
             ContractVesselTracker.OnVesselAssociation.Add(new EventData<GameEvents.HostTargetAction<Vessel, string>>.OnEvent(OnVesselAssociation));
             ContractVesselTracker.OnVesselDisassociation.Add(new EventData<GameEvents.HostTargetAction<Vessel, string>>.OnEvent(OnVesselDisassociation));
 
@@ -428,7 +445,6 @@ namespace ContractConfigurator.Parameters
         protected override void OnUnregister()
         {
             GameEvents.onVesselChange.Remove(new EventData<Vessel>.OnEvent(OnVesselChange));
-            GameEvents.onVesselRename.Remove(new EventData<GameEvents.HostedFromToAction<Vessel, string>>.OnEvent(OnVesselRename));
             ContractVesselTracker.OnVesselAssociation.Remove(new EventData<GameEvents.HostTargetAction<Vessel, string>>.OnEvent(OnVesselAssociation));
             ContractVesselTracker.OnVesselDisassociation.Remove(new EventData<GameEvents.HostTargetAction<Vessel, string>>.OnEvent(OnVesselDisassociation));
 
@@ -534,14 +550,6 @@ namespace ContractConfigurator.Parameters
             }
         }
 
-        protected void OnVesselRename(GameEvents.HostedFromToAction<Vessel, string> hft)
-        {
-            if (!string.IsNullOrEmpty(define) && trackedVessel == hft.host)
-            {
-                ContractConfigurator.OnParameterChange.Fire(this.Root, this);
-            }
-        }
-
         protected void OnVesselChange(Vessel vessel)
         {
             LoggingUtil.LogVerbose(this, "OnVesselChange(" + (vessel != null && vessel.id != null ? vessel.id.ToString() : "null") + "), Active = " +
@@ -557,8 +565,10 @@ namespace ContractConfigurator.Parameters
                 LoggingUtil.LogVerbose(this, "OnParameterStateChange");
                 if (AllChildParametersComplete())
                 {
+                    LoggingUtil.LogVerbose(this, "    AllChildParametersComplete (waiting = " + waiting + ")");
                     if (!waiting && trackedVessel != null)
                     {
+                        LoggingUtil.LogVerbose(this, "    set waiting");
                         waiting = true;
                         completionTime = Planetarium.GetUniversalTime() + duration;
 
@@ -572,6 +582,7 @@ namespace ContractConfigurator.Parameters
                 }
                 else
                 {
+                    LoggingUtil.LogVerbose(this, "    not all params complete");
                     waiting = false;
                     if (state == ParameterState.Complete)
                     {
@@ -603,8 +614,11 @@ namespace ContractConfigurator.Parameters
         {
             if (waiting && Planetarium.GetUniversalTime() > completionTime)
             {
-                waiting = false;
                 SetState(ParameterState.Complete);
+                if (state == ParameterState.Complete)
+                {
+                    waiting = false;
+                }
             }
             // Every time the clock ticks over, make an attempt to update the contract window
             // notes.  We do this because otherwise the window will only ever read the notes once,
@@ -615,7 +629,9 @@ namespace ContractConfigurator.Parameters
                 {
                     lastUpdate = Planetarium.GetUniversalTime();
 
-                    titleTracker.UpdateContractWindow(this, GetTitle());
+                    // Force a call to GetTitle to update the contracts app
+                    GetTitle();
+
                     if (durationParameter != null)
                     {
                         durationParameter.SetTitle("Time Remaining: " + DurationUtil.StringValue(completionTime - Planetarium.GetUniversalTime()));

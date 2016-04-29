@@ -27,8 +27,8 @@ namespace ContractConfigurator
 
             // Get orbit details from the OrbitGenerator behaviour
             valid &= ConfigNodeUtil.ParseValue<int>(configNode, "index", x => index = x, this, 0, x => Validation.GE(x, 0));
-            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "deviationWindow", x => deviationWindow = x, this, 0.0, x => Validation.GE(x, 0.0));
             valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "displayNotes", x => displayNotes = x, this, true);
+            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "deviationWindow", x => deviationWindow = x, this, 10.0, x => Validation.GE(x, 0.0));
 
             return valid;
         }
@@ -44,21 +44,14 @@ namespace ContractConfigurator
                 return null;
             }
 
-            // Get the parameter for that orbit
-            try
+            Orbit orbit = orbitGenerator.GetOrbit(index);
+            if (orbit == null)
             {
-                SpecificOrbitWrapper s = orbitGenerator.GetOrbitParameter(index);
-                if (deviationWindow != 0.0)
-                {
-                    s.deviationWindow = deviationWindow;
-                }
-                return new VesselParameterDelegator(s, displayNotes);
-            }
-            catch (Exception e)
-            {
-                LoggingUtil.LogError(this, "Couldn't find orbit in OrbitGenerator with index " + index + ": " + e.Message);
+                LoggingUtil.LogError(this, "Could not find orbit with index " + index + ".");
                 return null;
             }
+
+            return new OrbitParameter(orbit, deviationWindow, displayNotes);
         }
     }
 }
