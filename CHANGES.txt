@@ -1,3 +1,7 @@
+Contract Configurator 1.11.1
+- Update to KSP 1.1.1 (release to make CKAN happy).
+- Compile to latest *dev* RemoteTech.
+
 Contract Configurator 1.11.0
 - Performance fixes and improved caching of biome data.
 - Duration values can now be used in arithmetic and comparisons in expressions.
