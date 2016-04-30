@@ -17,7 +17,7 @@ Contract Configurator 1.11.0
 - Improved API for requirement saving/loading.
 - Add proper error handling to PartModuleTypeUnlocked.
 - Added ReachSpecificOrbit.displayNotes back in (thanks severedsolo).
-- Fixed so orbits for offered contract show up in the tracking station and NOT in flight.
+- Fixed orbits for offered contract show up in the tracking station and NOT in flight.
 - Minor bug fixes.
 
 Contract Configurator 1.10.4
