@@ -46,7 +46,7 @@ namespace ContractConfigurator
             foreach (string partModule in partModules)
             {
                 // Should never happen?
-                if (PartLoader.Instance == null)
+                if (PartLoader.Instance == null || PartLoader.Instance.parts == null)
                 {
                     return false;
                 }
@@ -59,7 +59,7 @@ namespace ContractConfigurator
                     {
                         foreach (PartModule pm in p.partPrefab.Modules)
                         {
-                            if (pm.moduleName == partModule)
+                            if (pm.moduleName != null && pm.moduleName == partModule)
                             {
                                 found = true;
                                 break;
