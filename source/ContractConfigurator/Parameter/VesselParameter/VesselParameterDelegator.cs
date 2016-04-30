@@ -99,9 +99,11 @@ namespace ContractConfigurator.Parameters
             }
         }
 
-        /*
-         * Gets the "path" to the given contract parameter from the root.
-         */
+        /// <summary>
+        /// Gets the "path" to the given contract parameter from the root.
+        /// </summary>
+        /// <param name="p"></param>
+        /// <returns></returns>
         protected static IEnumerable<int> GetPathFromParam(ContractParameter p)
         {
             IContractParameterHost h = p;
@@ -109,7 +111,16 @@ namespace ContractConfigurator.Parameters
             {
                 for (int i = 0; i < h.Parent.ParameterCount; i++)
                 {
-                    if (h.Parent.GetParameter(i) == h)
+                    ContractParameter tmp;
+                    try
+                    {
+                        tmp = h.Parent.GetParameter(i);
+                    }
+                    catch (ArgumentOutOfRangeException)
+                    {
+                        yield break;
+                    }
+                    if (tmp == h)
                     {
                         yield return i;
                         break;
@@ -120,9 +131,11 @@ namespace ContractConfigurator.Parameters
             yield break;
         }
 
-        /*
-         * Follows the given path to get the parameter.
-         */
+        /// <summary>
+        /// Follows the given path to get the parameter.
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
         protected ContractParameter GetParamFromPath(string path)
         {
             IContractParameterHost h = Root;
