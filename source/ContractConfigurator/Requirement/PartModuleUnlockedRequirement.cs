@@ -45,15 +45,21 @@ namespace ContractConfigurator
         {
             foreach (string partModule in partModules)
             {
+                // Should never happen?
+                if (PartLoader.Instance == null || PartLoader.Instance.parts == null)
+                {
+                    return false;
+                }
+
                 // Search for a part that has our module
                 bool found = false;
                 foreach (AvailablePart p in PartLoader.Instance.parts)
                 {
-                    if (p.partPrefab != null && p.partPrefab.Modules != null)
+                    if (p != null && p.partPrefab != null && p.partPrefab.Modules != null)
                     {
                         foreach (PartModule pm in p.partPrefab.Modules)
                         {
-                            if (pm.moduleName == partModule)
+                            if (pm.moduleName != null && pm.moduleName == partModule)
                             {
                                 found = true;
                                 break;

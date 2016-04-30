@@ -1,3 +1,12 @@
+Contract Configurator 1.11.3
+- Revert additional check added in 1.11.0 that broke PartModuleTypeUnlocked (thanks KnotaiG).
+- Work around upgrade issue with ReachSpecificOrbit (thansk Tossy64).
+
+Contract Configurator 1.11.2
+- Recompile against KSP 1.1.2.
+- Possible fix to PartModuleUnlockedRequirement (thanks AccidentalDisassembly).
+- Fixed exception when generating autoAccept contracts.
+
 Contract Configurator 1.11.1
 - Update to KSP 1.1.1 (release to make CKAN happy).
 - Compile to latest *dev* RemoteTech.
@@ -12,7 +21,7 @@ Contract Configurator 1.11.0
 - Improved API for requirement saving/loading.
 - Add proper error handling to PartModuleTypeUnlocked.
 - Added ReachSpecificOrbit.displayNotes back in (thanks severedsolo).
-- Fixed so orbits for offered contract show up in the tracking station and NOT in flight.
+- Fixed orbits for offered contract show up in the tracking station and NOT in flight.
 - Minor bug fixes.
 
 Contract Configurator 1.10.4
