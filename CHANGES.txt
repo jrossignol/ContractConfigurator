@@ -1,4 +1,5 @@
 Contract Configurator 1.11.2
+- Recompile against KSP 1.1.2.
 - Possible fix to PartModuleUnlockedRequirement (thanks AccidentalDisassembly).
 - Fixed exception when generating autoAccept contracts.
 
