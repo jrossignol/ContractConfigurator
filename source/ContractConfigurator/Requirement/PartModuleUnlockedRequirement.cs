@@ -49,7 +49,7 @@ namespace ContractConfigurator
                 bool found = false;
                 foreach (AvailablePart p in PartLoader.Instance.parts)
                 {
-                    if (p.partPrefab != null && p.partPrefab.Modules != null)
+                    if (p != null && p.partPrefab != null && p.partPrefab.Modules != null)
                     {
                         foreach (PartModule pm in p.partPrefab.Modules)
                         {

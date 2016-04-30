@@ -45,8 +45,6 @@ namespace ContractConfigurator
 
         private string lastKey = null;
 
-        private static MethodInfo generateContractMethod = typeof(ContractSystem).GetMethod("GenerateContracts", BindingFlags.Instance | BindingFlags.NonPublic);
-
         public ContractPreLoader()
         {
             Instance = this;
@@ -148,7 +146,8 @@ namespace ContractConfigurator
                     // We generated a high priority contract...  force the system to do a generation pass
                     if (contract.contractType.autoAccept)
                     {
-                        generateContractMethod.Invoke(ContractSystem.Instance, new object[] { rand.Next(int.MaxValue), contract.Prestige, 1 });
+                        int seed = rand.Next(int.MaxValue);
+                        ContractSystem.Instance.GenerateContracts(ref seed, contract.Prestige, 1);
                     }
 
                     currentEnumerator = null;
