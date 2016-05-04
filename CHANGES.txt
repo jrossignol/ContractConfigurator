@@ -1,5 +1,6 @@
 Contract Configurator 1.11.4
 - Clean up some "Input is null" errors/warnings.
+- Deprecated VesselParameterDelegator.
 
 Contract Configurator 1.11.3
 - Revert additional check added in 1.11.0 that broke PartModuleTypeUnlocked (thanks KnotaiG).
