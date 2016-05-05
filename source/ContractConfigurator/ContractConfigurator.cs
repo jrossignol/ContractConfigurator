@@ -184,7 +184,6 @@ namespace ContractConfigurator
                            select loadedAssemblies;
 
             // Reload module manager
-            bool moduleManagerDoesReload = false;
             if (allMM.Count() > 0)
             {
                 Assembly mmAssembly = allMM.First().assembly;
@@ -199,21 +198,6 @@ namespace ContractConfigurator
                 while (!mmPatchLoader.IsReady())
                 {
                     yield return new WaitForEndOfFrame();
-                }
-
-                // Module Manager 2.6.7 and better calls our reload function for us
-                if (Util.Version.VerifyAssemblyVersion(mmAssembly.GetName().Name, "2.6.7", true) != null)
-                {
-                    moduleManagerDoesReload = true;
-                }
-            }
-
-            if (!moduleManagerDoesReload)
-            {
-                IEnumerator<YieldInstruction> enumerator = ContractConfiguratorReload();
-                while (enumerator.MoveNext())
-                {
-                    yield return enumerator.Current;
                 }
             }
         }
