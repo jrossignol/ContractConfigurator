@@ -1,3 +1,6 @@
+Contract Configurator 1.11.5
+- Fixed exception when recovering vessel (thanks BluK).
+
 Contract Configurator 1.11.4
 - Clean up some "Input is null" errors/warnings.
 - Deprecated VesselParameterDelegator.

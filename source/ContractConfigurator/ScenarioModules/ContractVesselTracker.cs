@@ -229,7 +229,7 @@ namespace ContractConfigurator
                 // Check if we need to switch over to the newly created vessel
                 VesselInfo vi = vessels[key];
                 Vessel newVessel = FlightGlobals.Vessels.Find(v => {
-                    if (v != null && v != vessel)
+                    if (v != null && v != vessel && HighLogic.LoadedScene == GameScenes.FLIGHT)
                     {
                         // If the vessel is loaded, refresh the protovessel.  We do this to support
                         // grappling - when a new vessel is grappled the protovessel information
