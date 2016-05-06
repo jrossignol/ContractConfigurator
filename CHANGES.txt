@@ -1,5 +1,6 @@
 Contract Configurator 1.11.5
 - Fixed exception when recovering vessel (thanks BluK).
+- Recompile to RemoteTech 1.7.0.
 
 Contract Configurator 1.11.4
 - Clean up some "Input is null" errors/warnings.
