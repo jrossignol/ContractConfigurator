@@ -594,7 +594,10 @@ namespace ContractConfigurator.Behaviour
                     child.AddValue("id", vd.id);
                 }
                 child.AddValue("craftURL", vd.craftURL);
-                child.AddValue("flagURL", vd.flagURL);
+                if (vd.flagURL != null)
+                {
+                    child.AddValue("flagURL", vd.flagURL);
+                }
                 child.AddValue("vesselType", vd.vesselType);
                 child.AddValue("body", vd.body.name);
                 child.AddValue("lat", vd.latitude);
