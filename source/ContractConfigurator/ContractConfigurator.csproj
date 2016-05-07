@@ -239,7 +239,6 @@
     <Compile Include="Behaviour\WaypointGenerator.cs" />
     <Compile Include="Parameter\VesselParameter\VisitWaypoint.cs" />
     <Compile Include="Parameter\AlwaysTrue.cs" />
-    <Compile Include="Parameter\VesselParameter\VesselParameterDelegator.cs" />
     <Compile Include="Parameter\VesselParameter\VesselMass.cs" />
     <Compile Include="Requirement\ExpressionRequirement.cs" />
     <Compile Include="Requirement\FacilityRequirement.cs" />

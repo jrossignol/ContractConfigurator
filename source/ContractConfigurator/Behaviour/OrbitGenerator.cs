@@ -25,7 +25,6 @@ namespace ContractConfigurator.Behaviour
             public ContractOrbitRenderer orbitRenderer = null;
             public Contract contract;
             public string type = null;
-            public string name = null;
             public OrbitType orbitType = OrbitType.RANDOM;
             public int count = 1;
             public CelestialBody targetBody;
@@ -46,7 +45,6 @@ namespace ContractConfigurator.Behaviour
             public OrbitData(OrbitData orig, Contract contract)
             {
                 type = orig.type;
-                name = orig.name;
                 orbitType = orig.orbitType;
                 count = orig.count;
                 targetBody = orig.targetBody;
@@ -212,7 +210,6 @@ namespace ContractConfigurator.Behaviour
                 // Read all the orbit data
                 OrbitData obData = new OrbitData();
                 obData.type = child.GetValue("type");
-                obData.name = child.GetValue("name");
 
                 obData.contract = contract;
                 obData.orbit = new OrbitSnapshot(child.GetNode("ORBIT")).Load();
@@ -232,7 +229,6 @@ namespace ContractConfigurator.Behaviour
                 ConfigNode child = new ConfigNode("ORBIT_DETAIL");
 
                 child.AddValue("type", obData.type);
-                child.AddValue("name", obData.name);
 
                 ConfigNode orbitNode = new ConfigNode("ORBIT");
                 new OrbitSnapshot(obData.orbit).Save(orbitNode);

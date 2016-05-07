@@ -17,6 +17,7 @@ namespace ContractConfigurator
 
         public override bool LoadFromConfig(ConfigNode configNode)
         {
+            Debug.Log("PartModuleUnlockedRequirement.LoadFromConfig");
             // Load base class
             bool valid = base.LoadFromConfig(configNode);
 
@@ -45,11 +46,6 @@ namespace ContractConfigurator
         {
             foreach (string partModule in partModules)
             {
-                // Should never happen?
-                if (PartLoader.Instance == null || PartLoader.Instance.parts == null)
-                {
-                    return false;
-                }
 
                 // Search for a part that has our module
                 bool found = false;
@@ -59,7 +55,7 @@ namespace ContractConfigurator
                     {
                         foreach (PartModule pm in p.partPrefab.Modules)
                         {
-                            if (pm.moduleName != null && pm.moduleName == partModule)
+                            if (pm != null && pm.moduleName != null && pm.moduleName == partModule)
                             {
                                 found = true;
                                 break;

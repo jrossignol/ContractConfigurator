@@ -1,3 +1,12 @@
+Contract Configurator 1.11.5
+- Fixed exception when recovering vessel (thanks BluK).
+- Recompile to RemoteTech 1.7.0.
+
+Contract Configurator 1.11.4
+- Clean up some "Input is null" errors/warnings.
+- Deprecated VesselParameterDelegator.
+- Remove support for ancient versions of Module Manager.
+
 Contract Configurator 1.11.3
 - Revert additional check added in 1.11.0 that broke PartModuleTypeUnlocked (thanks KnotaiG).
 - Work around upgrade issue with ReachSpecificOrbit (thansk Tossy64).
