@@ -158,18 +158,12 @@ namespace ContractConfigurator.Behaviour
                                 {
                                     // Parse the expression to validate
                                     BaseParser parser = BaseParser.NewParser(expVal.type);
-                                    parser.ParseExpressionGeneric(pair.name, expVal.val, dataNode);
+                                    parser.ParseExpressionGeneric(pair.name, s, dataNode);
                                     return true;
                                 });
                             }
                             else
                             {
-                                // Horrible workaround for bugged saves caused by issue in 1.9.3 - remove in a future version
-                                if (expVal.val.Contains("@Tourism:touristCount"))
-                                {
-                                    expVal.val = expVal.val.Replace("@Tourism:touristCount", "3");
-                                }
-
                                 // Parse the expression to validate
                                 BaseParser parser = BaseParser.NewParser(expVal.type);
                                 parser.ParseExpressionGeneric(pair.name, expVal.val, dataNode);
