@@ -1,5 +1,6 @@
 Contract Configurator 1.11.6
 - Fixed exception in the Expression behaviour (thanks severedsolo).
+- Fixed deriving primary situation for biomes with a space in the name.
 
 Contract Configurator 1.11.5
 - Fixed exception when recovering vessel (thanks BluK).
