@@ -243,8 +243,7 @@ namespace ContractConfigurator.Util
             Match m = Regex.Match(subject.id, @"@([A-Z][\w]+?)([A-Z].*)");
             string celestialBody = m.Groups[1].Value;
 
-            return ConfigNodeUtil.ParseCelestialBodyValue(celestialBody);
-
+            return string.IsNullOrEmpty(celestialBody) ? null : ConfigNodeUtil.ParseCelestialBodyValue(celestialBody);
         }
 
         public static Biome GetBiome(ScienceSubject subject)
