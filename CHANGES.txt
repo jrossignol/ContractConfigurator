@@ -3,6 +3,7 @@ Contract Configurator 1.11.6
 - Fixed deriving primary situation for biomes with a space in the name.
 - Fixed exception in science util functions (thanks Chippy the Space Dog).
 - Fixed exception when docking (thanks Lennartos and others).
+- Fixed logic for setting contract weights that was broken by 1.1.x changes (thanks severedsolo).
 
 Contract Configurator 1.11.5
 - Fixed exception when recovering vessel (thanks BluK).

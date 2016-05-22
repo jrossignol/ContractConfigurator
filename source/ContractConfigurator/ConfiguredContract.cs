@@ -447,6 +447,8 @@ namespace ContractConfigurator
         {
             try
             {
+                node.SetValue("type", "ConfiguredContract");
+
                 node.AddValue("subtype", subType);
                 if (!string.IsNullOrEmpty(title))
                 {
@@ -747,4 +749,25 @@ namespace ContractConfigurator
             }
         }
     }
+
+    // Additional ConfiguredContract classes to trick the contract system into giving us the appropriate weight
+    public class ConfiguredContract1 : ConfiguredContract { }
+    public class ConfiguredContract2 : ConfiguredContract { }
+    public class ConfiguredContract3 : ConfiguredContract { }
+    public class ConfiguredContract4 : ConfiguredContract { }
+    public class ConfiguredContract5 : ConfiguredContract { }
+    public class ConfiguredContract6 : ConfiguredContract { }
+    public class ConfiguredContract7 : ConfiguredContract { }
+    public class ConfiguredContract8 : ConfiguredContract { }
+    public class ConfiguredContract9 : ConfiguredContract { }
+    public class ConfiguredContract10 : ConfiguredContract { }
+    public class ConfiguredContract11 : ConfiguredContract { }
+    public class ConfiguredContract12 : ConfiguredContract { }
+    public class ConfiguredContract13 : ConfiguredContract { }
+    public class ConfiguredContract14 : ConfiguredContract { }
+    public class ConfiguredContract15 : ConfiguredContract { }
+    public class ConfiguredContract16 : ConfiguredContract { }
+    public class ConfiguredContract17 : ConfiguredContract { }
+    public class ConfiguredContract18 : ConfiguredContract { }
+    public class ConfiguredContract19 : ConfiguredContract { }
 }
