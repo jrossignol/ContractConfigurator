@@ -344,7 +344,7 @@ namespace ContractConfigurator.Behaviour
 
                         // Get distances
                         valid &= ConfigNodeUtil.ParseValue<double>(child, "minDistance", x => wpData.minDistance = x, factory, 0.0, x => Validation.GE(x, 0.0));
-                        valid &= ConfigNodeUtil.ParseValue<double>(child, "maxDistance", x => wpData.maxDistance = x, factory, x => Validation.GT(x, wpData.minDistance));
+                        valid &= ConfigNodeUtil.ParseValue<double>(child, "maxDistance", x => wpData.maxDistance = x, factory, x => Validation.GT(x, 0.0));
                     }
                     else if (child.name == "PQS_CITY")
                     {

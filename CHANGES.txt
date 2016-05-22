@@ -4,6 +4,7 @@ Contract Configurator 1.11.6
 - Fixed exception in science util functions (thanks Chippy the Space Dog).
 - Fixed exception when docking (thanks Lennartos and others).
 - Fixed logic for setting contract weights that was broken by 1.1.x changes (thanks severedsolo).
+- Removed some broken validation (thanks linuxgurugamer).
 
 Contract Configurator 1.11.5
 - Fixed exception when recovering vessel (thanks BluK).
