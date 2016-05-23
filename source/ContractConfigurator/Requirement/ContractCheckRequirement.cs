@@ -74,7 +74,7 @@ namespace ContractConfigurator
             {
                 configNode.AddValue("contractType", ccType);
             }
-            else
+            else if (contractClass != null)
             {
                 configNode.AddValue("contractType", contractClass.Name);
             }
