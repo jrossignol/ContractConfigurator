@@ -7,6 +7,7 @@ Contract Configurator 1.11.6
 - Removed some broken validation (thanks linuxgurugamer).
 - Fixed exception when removing certain contract packs (thanks rasta013).
 - Fixed edge case where AwardExperience was late awarding the experience (thanks severedsolo).
+- Fixed exception with Contracts Window + (thanks sidfu).
 
 Contract Configurator 1.11.5
 - Fixed exception when recovering vessel (thanks BluK).
