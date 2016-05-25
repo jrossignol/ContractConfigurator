@@ -10,6 +10,7 @@ Contract Configurator 1.11.6
 - Fixed exception with Contracts Window + (thanks sidfu).
 - Improved accuracy of VesselNotDestroyed checks (thanks inigma).
 - Fixed bug in barycenter logic when using Sigma Binary (thanks sentania).
+- Improved backwards compatibility with contract packs using the old Wheel module name (thanks galenmacil).
 
 Contract Configurator 1.11.5
 - Fixed exception when recovering vessel (thanks BluK).
