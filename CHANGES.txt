@@ -11,6 +11,7 @@ Contract Configurator 1.11.6
 - Improved accuracy of VesselNotDestroyed checks (thanks inigma).
 - Fixed bug in barycenter logic when using Sigma Binary (thanks sentania).
 - Improved backwards compatibility with contract packs using the old Wheel module name (thanks galenmacil).
+- Re-generate PQS offset coordinates when flight begins (workaround for Kopernicus waypoint offset issue).
 
 Contract Configurator 1.11.5
 - Fixed exception when recovering vessel (thanks BluK).

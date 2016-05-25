@@ -496,7 +496,10 @@ namespace ContractConfigurator
                     requirements = new List<ContractRequirement>();
                     foreach (ContractRequirement requirement in contractType.Requirements)
                     {
-                        requirements.Add(requirement);
+                        if (requirement != null)
+                        {
+                            requirements.Add(requirement);
+                        }
                     }
                 }
 
