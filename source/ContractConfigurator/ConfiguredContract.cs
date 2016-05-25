@@ -491,23 +491,20 @@ namespace ContractConfigurator
                 }
 
                 // Store requirements
-                if (requirements == null && contractType != null)
+                if (requirements == null)
                 {
                     requirements = new List<ContractRequirement>();
                     foreach (ContractRequirement requirement in contractType.Requirements)
                     {
-                        if (requirement != null)
-                        {
-                            requirements.Add(requirement);
-                        }
+                        requirements.Add(requirement);
                     }
                 }
 
-                if (requirements != null)
+                foreach (ContractRequirement requirement in requirements)
                 {
-                    foreach (ContractRequirement requirement in requirements)
+                    ConfigNode child = new ConfigNode("REQUIREMENT");
+                    if (child.nodes.Count > 0)
                     {
-                        ConfigNode child = new ConfigNode("REQUIREMENT");
                         requirement.Save(child);
                         node.AddNode(child);
                     }

@@ -128,6 +128,11 @@ namespace ContractConfigurator.Parameters
                         if (param != null && !param.Enabled)
                         {
                             waypoint.visible = false;
+                            NavWaypoint navPoint = FinePrint.WaypointManager.navWaypoint;
+                            if (navPoint != null && FinePrint.WaypointManager.navIsActive() && navPoint.latitude == waypoint.latitude && navPoint.longitude == waypoint.longitude)
+                            {
+                                FinePrint.WaypointManager.clearNavPoint();
+                            }
                             break;
                         }
                     }
