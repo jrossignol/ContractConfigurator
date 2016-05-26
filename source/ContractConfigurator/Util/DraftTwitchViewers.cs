@@ -164,8 +164,7 @@ namespace ContractConfigurator
 
             // Check all active, offered and pending contracts for this name
             foreach (ConfiguredContract contract in ContractSystem.Instance.Contracts.OfType<ConfiguredContract>().
-                Where(c=> c != null).Where(c =>
-                c.ContractState == Contract.State.Active || c.ContractState == Contract.State.Offered).
+                Where(c=> c != null && (c.ContractState == Contract.State.Active || c.ContractState == Contract.State.Offered)).
                 Union(ContractPreLoader.Instance.PendingContracts()))
             {
                 foreach (string usedName in contract.KerbalNames())

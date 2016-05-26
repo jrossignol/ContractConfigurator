@@ -74,6 +74,28 @@ namespace ContractConfigurator
             return group.name;
         }
 
+        public static IEnumerable<ConfiguredContract> ActiveContracts
+        {
+            get
+            {
+                return ContractSystem.Instance.Contracts.Where(c => c.ContractState == Contract.State.Active).OfType<ConfiguredContract>();
+            }
+        }
+        public static IEnumerable<ConfiguredContract> CurrentContracts
+        {
+            get
+            {
+                return ContractSystem.Instance.Contracts.OfType<ConfiguredContract>();
+            }
+        }
+        public static IEnumerable<ConfiguredContract> CompletedContracts
+        {
+            get
+            {
+                return ContractSystem.Instance.ContractsFinished.Where(c => c.ContractState == Contract.State.Completed).OfType<ConfiguredContract>();
+            }
+        }
+
         protected string title;
         protected string description;
         protected string synopsis;
