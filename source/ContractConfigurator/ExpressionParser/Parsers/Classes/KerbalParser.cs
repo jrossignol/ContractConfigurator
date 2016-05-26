@@ -45,6 +45,8 @@ namespace ContractConfigurator.ExpressionParser
 
             RegisterGlobalFunction(new Function<int, List<Kerbal>>("NewKerbals", NewKerbals, false));
             RegisterGlobalFunction(new Function<int, string, List<Kerbal>>("NewKerbals", NewKerbals, false));
+
+            RegisterGlobalFunction(new Function<float>("NextKerbalHireCost", NextKerbalHireCost, false));
         }
 
         public KerbalParser()
@@ -87,6 +89,18 @@ namespace ContractConfigurator.ExpressionParser
             Kerbal k = new Kerbal();
             k.experienceTrait = trait;
             return k;
+        }
+
+        private static float NextKerbalHireCost()
+        {
+            if (GameVariables.Instance == null || HighLogic.CurrentGame == null)
+            {
+                return 1.0f;
+            }
+
+            CurrencyModifierQuery currencyModifierQuery = CurrencyModifierQuery.RunQuery(TransactionReasons.CrewRecruited, -GameVariables.Instance.GetRecruitHireCost(HighLogic.CurrentGame.CrewRoster.GetActiveCrewCount()) *
+                HighLogic.CurrentGame.Parameters.Career.FundsLossMultiplier, 0.0f, 0.0f);
+            return -(currencyModifierQuery.GetInput(Currency.Funds) + currencyModifierQuery.GetEffectDelta(Currency.Funds));
         }
 
         public override Kerbal ParseIdentifier(Token token)
