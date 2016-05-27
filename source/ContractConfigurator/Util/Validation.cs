@@ -124,7 +124,7 @@ namespace ContractConfigurator
             // Compatibility for contracts written for pre-KSP 1.1
             if (name == "Wheel")
             {
-                name = "WheelMotor";
+                return true;
             }
 
             if (ContractDefs.GetModules(name).Count == 0)
