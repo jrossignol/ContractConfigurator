@@ -14,13 +14,22 @@ namespace ContractConfigurator.Parameters
     /// </summary>
     public class VesselParameterGroup : ContractConfiguratorParameter, ParameterDelegateContainer
     {
+        public enum VesselDisassociationBehaviour
+        {
+            Ignore,
+            Fail,
+            Reset,
+        }
+
         private const string notePrefix = "<#acfcff>[-] Note: ";
-        protected string define { get; set; }
+        public string define { get; protected set; }
         protected string defineList { get; set; }
         protected List<string> vesselList { get; set; }
         protected bool dissassociateVesselsOnContractFailure;
         protected bool dissassociateVesselsOnContractCompletion;
         protected bool hideVesselName;
+
+        public VesselDisassociationBehaviour defineDissasociationBehaviour = VesselDisassociationBehaviour.Ignore;
 
         public IEnumerable<string> VesselList { get { return vesselList; } }
         protected double duration { get; set; }

@@ -11,6 +11,7 @@ using KSPAchievements;
 using Contracts;
 using Contracts.Agents;
 using Contracts.Parameters;
+using ContractConfigurator.Parameters;
 
 namespace ContractConfigurator
 {
@@ -717,6 +718,12 @@ namespace ContractConfigurator
             {
                 behaviour.Register();
             }
+
+            // Register the contract vessel tracking callback
+            if (this.AllParameters.Any(p => p is VesselParameterGroup))
+            {
+                ContractVesselTracker.OnVesselDisassociation.Add(new EventData<GameEvents.HostTargetAction<Vessel, string>>.OnEvent(OnVesselDisassociation));
+            }
         }
 
         protected override void OnUnregister()
@@ -727,6 +734,8 @@ namespace ContractConfigurator
             {
                 behaviour.Unregister();
             }
+
+            ContractVesselTracker.OnVesselDisassociation.Remove(new EventData<GameEvents.HostTargetAction<Vessel, string>>.OnEvent(OnVesselDisassociation));
         }
 
         protected override void OnUpdate()
@@ -770,6 +779,25 @@ namespace ContractConfigurator
                 foreach (string name in item.KerbalNames())
                 {
                     yield return name;
+                }
+            }
+        }
+
+        private void OnVesselDisassociation(GameEvents.HostTargetAction<Vessel, string> hta)
+        {
+            foreach (VesselParameterGroup vpg in this.AllParameters.OfType<VesselParameterGroup>())
+            {
+                if (vpg.define == hta.target)
+                {
+                    if (vpg.defineDissasociationBehaviour == VesselParameterGroup.VesselDisassociationBehaviour.Fail)
+                    {
+                        Fail();
+                    }
+                    else if (vpg.defineDissasociationBehaviour == VesselParameterGroup.VesselDisassociationBehaviour.Reset)
+                    {
+                        vpg.Enable();
+                        vpg.UpdateState(FlightGlobals.ActiveVessel);
+                    }
                 }
             }
         }
