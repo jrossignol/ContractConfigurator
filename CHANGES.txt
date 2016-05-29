@@ -1,3 +1,6 @@
+Contract Configurator 1.12.2
+- Removed ConfiguredContract entries from settings menu (thanks Deimos Rast).
+
 Contract Configurator 1.12.1
 - Fixed backwards compatibility for Wheel PartModuleType (thanks TheReadPanda).
 
