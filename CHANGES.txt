@@ -1,5 +1,6 @@
 Contract Configurator 1.12.2
 - Removed ConfiguredContract entries from settings menu (thanks Deimos Rast).
+- Fixed isuse with SpawnVessels spawning vessels with incorrect rotation (thanks severedsolo).
 
 Contract Configurator 1.12.1
 - Fixed backwards compatibility for Wheel PartModuleType (thanks TheReadPanda).

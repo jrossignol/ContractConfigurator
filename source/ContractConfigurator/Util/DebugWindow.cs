@@ -63,7 +63,7 @@ namespace ContractConfigurator
             // Initial window position
             if (windowPos.xMin == -1)
             {
-                windowPos.xMin = Screen.width - 1050 - 16;
+                windowPos.xMin = Screen.width - 1050 - 24;
             }
 
             if (showGUI && HighLogic.LoadedScene != GameScenes.CREDITS && HighLogic.LoadedScene != GameScenes.LOADING &&

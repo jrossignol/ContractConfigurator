@@ -555,7 +555,7 @@ namespace ContractConfigurator.Behaviour
                         hgt += vesselData.height;
                         protoVesselNode.SetValue("hgt", hgt.ToString());
                     }
-                    protoVesselNode.SetValue("rot", KSPUtil.WriteQuaternion(normal * rotation));
+                    protoVesselNode.SetValue("rot", KSPUtil.WriteQuaternion(rotation * normal));
 
                     // Set the normal vector relative to the surface
                     Vector3 nrm = (rotation * Vector3.forward);
