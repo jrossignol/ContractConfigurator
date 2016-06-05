@@ -224,6 +224,7 @@
     <Compile Include="Util\ContractsWindow.cs" />
     <Compile Include="Util\LocationUtil.cs" />
     <Compile Include="Util\LRUCache.cs" />
+    <Compile Include="MissionControlUI.cs" />
     <Compile Include="Util\PartUtil.cs" />
     <Compile Include="Util\SCANsatUtil.cs" />
     <Compile Include="Util\Science.cs" />
