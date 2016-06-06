@@ -197,21 +197,33 @@ namespace ContractConfigurator.Util
             textRect.sizeDelta = new Vector2(textRect.sizeDelta.x + 68 - 20, textRect.sizeDelta.y);
 
             // Set up the difficulty/prestige stars
+            mcListItem.difficulty.states[0].sprite = prestigeSprites[0];
+            mcListItem.difficulty.states[1].sprite = prestigeSprites[1];
+            mcListItem.difficulty.states[2].sprite = prestigeSprites[2];
+
+            // Difficulty for contracts
             if (cc.contract != null)
             {
-                mcListItem.difficulty.states[0].sprite = prestigeSprites[0];
-                mcListItem.difficulty.states[1].sprite = prestigeSprites[1];
-                mcListItem.difficulty.states[2].sprite = prestigeSprites[2];
                 mcListItem.difficulty.SetState((int)cc.contract.Prestige);
-                RectTransform diffRect = mcListItem.difficulty.GetComponent<RectTransform>();
-                diffRect.anchoredPosition = new Vector2(-20.5f, -12.5f);
-                diffRect.sizeDelta = new Vector2(35, 11);
             }
-            // TODO - difficulty for contract type
+            // Difficulty for contract types
             else
             {
-
+                Contract.ContractPrestige? prestige = GetPrestige(cc.contractType);
+                if (prestige != null)
+                {
+                    mcListItem.difficulty.SetState((int)prestige.Value);
+                }
+                else
+                {
+                    mcListItem.difficulty.gameObject.SetActive(false);
+                }
             }
+
+            // Finalize difficulty UI
+            RectTransform diffRect = mcListItem.difficulty.GetComponent<RectTransform>();
+            diffRect.anchoredPosition = new Vector2(-20.5f, -12.5f);
+            diffRect.sizeDelta = new Vector2(35, 11);
 
             // Set the callbacks
             mcListItem.radioButton.onFalseBtn.AddListener(new UnityAction<UIRadioButton, UIRadioButton.CallType, PointerEventData>(OnDeselectContract));
@@ -230,6 +242,18 @@ namespace ContractConfigurator.Util
             // TODO - need to get best agent, first from field in group, otherwise most used agent
             ContractType contractType = ContractType.AllValidContractTypes.Where(ct => ct != null && ct.group == group).FirstOrDefault();
             return contractType != null ? contractType.agent : null;
+        }
+
+        protected Contract.ContractPrestige? GetPrestige(ContractType contractType)
+        {
+            if (contractType.dataNode.IsDeterministic("prestige"))
+            {
+                if (contractType.prestige.Count == 1)
+                {
+                    return contractType.prestige.First();
+                }
+            }
+            return null;
         }
 
         protected IEnumerable<ContractContainer> GetContracts(ContractGroup group)
@@ -296,29 +320,34 @@ namespace ContractConfigurator.Util
 
             ContractContainer cc = (ContractContainer)button.GetComponent<KSP.UI.UIListItem>().Data;
 
-            // TODO - UI for contract type
-            if (cc.contract == null)
-            {
-                return;
-            }
-
             MissionControl.Instance.panelView.gameObject.SetActive(true);
-            selectedMissionField.SetValue(MissionControl.Instance, cc.missionSelection);
-            selectedMission = cc.missionSelection;
             selectedButton = button;
-            MissionControl.Instance.UpdateInfoPanelContract(cc.missionSelection.contract);
-
-            if (cc.missionSelection.contract.Prestige == Contracts.Contract.ContractPrestige.Exceptional)
+            Contract.ContractPrestige? prestige = null;
+            if (cc.contract != null)
             {
-                updateInstructorMethod.Invoke(MissionControl.Instance, new object[] { avatarController.animTrigger_selectHard, avatarController.animLoop_excited });
-            }
-            else if (cc.missionSelection.contract.Prestige == Contracts.Contract.ContractPrestige.Trivial)
-            {
-                updateInstructorMethod.Invoke(MissionControl.Instance, new object[] { avatarController.animTrigger_selectEasy, avatarController.animLoop_default });
+                selectedMissionField.SetValue(MissionControl.Instance, cc.missionSelection);
+                selectedMission = cc.missionSelection;
+                MissionControl.Instance.UpdateInfoPanelContract(cc.contract);
+                prestige = cc.contract.Prestige;
             }
             else
             {
+                // TODO - UI for contract type
+
+                prestige = GetPrestige(cc.contractType);
+            }
+
+            if (prestige == Contracts.Contract.ContractPrestige.Exceptional)
+            {
+                updateInstructorMethod.Invoke(MissionControl.Instance, new object[] { avatarController.animTrigger_selectHard, avatarController.animLoop_excited });
+            }
+            else if (prestige == Contracts.Contract.ContractPrestige.Significant)
+            {
                 updateInstructorMethod.Invoke(MissionControl.Instance, new object[] { avatarController.animTrigger_selectNormal, avatarController.animLoop_default });
+            }
+            else
+            {
+                updateInstructorMethod.Invoke(MissionControl.Instance, new object[] { avatarController.animTrigger_selectEasy, avatarController.animLoop_default });
             }
         }
 
