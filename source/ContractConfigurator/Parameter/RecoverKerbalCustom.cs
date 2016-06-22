@@ -90,7 +90,7 @@ namespace ContractConfigurator.Parameters
                 node.AddNode(kerbalNode);
 
                 kerbal.Save(kerbalNode);
-                kerbalNode.AddValue("recovered", recovered[kerbal.name]);
+                kerbalNode.AddValue("recovered", recovered.ContainsKey(kerbal.name) && recovered[kerbal.name]);
             }
         }
 

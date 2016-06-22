@@ -6,6 +6,7 @@ Contract Configurator 1.12.2
 - Fixed NRE on contract accept when using SpawnVessel's craftPart method of spawning.
 - Fixed PartModuleUnlocked and PartUnlocked requirements to check for part purchase and not just tech unlock (thanks inigma).
 - Always set the CollectScience targetBody to the one from the biome if a biome is used (thanks severedsolo & enceos).
+- Fixed exception in RecoverKerbal (thanks palleon).
 - Removed extra ConfiguredContract entries from settings menu (thanks Deimos Rast).
 
 Contract Configurator 1.12.1
