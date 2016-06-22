@@ -23,7 +23,13 @@ namespace ContractConfigurator
                 double latRads = Math.PI / 180.0 * waypoint.latitude;
                 double lonRads = Math.PI / 180.0 * waypoint.longitude;
                 Vector3d radialVector = new Vector3d(Math.Cos(latRads) * Math.Cos(lonRads), Math.Sin(latRads), Math.Cos(latRads) * Math.Sin(lonRads));
-                height = Math.Max(celestialBody.pqsController.GetSurfaceHeight(radialVector) - celestialBody.pqsController.radius, 0.0);
+                height = celestialBody.pqsController.GetSurfaceHeight(radialVector) - celestialBody.pqsController.radius;
+
+                // Clamp to zero for ocean worlds
+                if (celestialBody.ocean)
+                {
+                    height = Math.Max(height, 0.0);
+                }
             }
 
             // Use the haversine formula to calculate great circle distance.

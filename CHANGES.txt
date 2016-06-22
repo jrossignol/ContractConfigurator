@@ -7,6 +7,7 @@ Contract Configurator 1.12.2
 - Fixed PartModuleUnlocked and PartUnlocked requirements to check for part purchase and not just tech unlock (thanks inigma).
 - Always set the CollectScience targetBody to the one from the biome if a biome is used (thanks severedsolo & enceos).
 - Fixed exception in RecoverKerbal (thanks palleon).
+- Fixed incorrect handling of waypoints with negative altitude on non-ocean worlds in VisitWaypoint (thanks Galenmacil).
 - Removed extra ConfiguredContract entries from settings menu (thanks Deimos Rast).
 
 Contract Configurator 1.12.1
