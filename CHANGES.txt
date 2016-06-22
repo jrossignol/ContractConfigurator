@@ -1,5 +1,6 @@
 Contract Configurator 1.12.2
 - KSP 1.1.3 compatibility.
+- Integrated Wider Contracts App into Contract Configurator.
 - Fixed isuse with SpawnVessels spawning vessels with incorrect rotation (thanks severedsolo).
 - Prevent Rendenzvous parameter from triggering when a vessel performs a rendezvous with itself (thanks danielguo).
 - Fixed NRE on contract accept when using SpawnVessel's craftPart method of spawning.
