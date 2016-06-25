@@ -16,7 +16,10 @@ namespace ContractConfigurator.Parameters
     {
         protected List<string> vessels { get; set; }
 
+        private List<Vessel> brokenVessels = new List<Vessel>();
         private float lastVesselChange = 0.0f;
+        private float lastVesselAdd = 0.0f;
+        private bool addNextVessel = false;
 
         public VesselNotDestroyed()
             : base(null)
@@ -98,12 +101,14 @@ namespace ContractConfigurator.Parameters
         {
             base.OnRegister();
             GameEvents.onVesselWillDestroy.Add(new EventData<Vessel>.OnEvent(OnVesselWillDestroy));
+            GameEvents.onPartDie.Add(new EventData<Part>.OnEvent(OnPartDie));
         }
 
         protected override void OnUnregister()
         {
             base.OnUnregister();
             GameEvents.onVesselWillDestroy.Remove(new EventData<Vessel>.OnEvent(OnVesselWillDestroy));
+            GameEvents.onPartDie.Remove(new EventData<Part>.OnEvent(OnPartDie));
         }
 
         protected override void OnVesselChange(Vessel vessel)
@@ -113,6 +118,59 @@ namespace ContractConfigurator.Parameters
             lastVesselChange = Time.fixedTime;
         }
 
+        protected override void OnPartJointBreak(PartJoint p)
+        {
+            base.OnPartJointBreak(p);
+
+            Vessel v = p.Parent.vessel;
+            LoggingUtil.LogVerbose(this, "OnPartJointBreak: " + v.id);
+            if (v.vesselType == VesselType.Debris)
+            {
+                return;
+            }
+
+            // Check if this is one of our vessels
+            IEnumerable<string> vesselIterator;
+            if (vessels.Count != 0)
+            {
+                vesselIterator = vessels;
+            }
+            else if (Parent is VesselParameterGroup && ((VesselParameterGroup)Parent).VesselList.Any())
+            {
+                vesselIterator = ((VesselParameterGroup)Parent).VesselList;
+            }
+            else
+            {
+                return;
+            }
+
+            // Add the vessel when created
+            IEnumerable<string> keys = ContractVesselTracker.Instance.GetAssociatedKeys(v);
+            foreach (string vessel in vesselIterator)
+            {
+                if (keys.Contains(vessel))
+                {
+                    lastVesselAdd = Time.fixedTime;
+                    brokenVessels.AddUnique(v);
+                    addNextVessel = true;
+                    return;
+                }
+            }
+        }
+
+        protected override void OnVesselCreate(Vessel vessel)
+        {
+            base.OnVesselCreate(vessel);
+            LoggingUtil.LogVerbose(this, "OnVesselCreate: " + vessel.id);
+
+            if (addNextVessel)
+            {
+                lastVesselAdd = Time.fixedTime;
+                addNextVessel = false;
+                brokenVessels.AddUnique(vessel);
+            }
+        }
+
         protected virtual void OnVesselWillDestroy(Vessel v)
         {
             LoggingUtil.LogVerbose(this, "OnVesselWillDestroy: " + v.id);
@@ -120,6 +178,19 @@ namespace ContractConfigurator.Parameters
             // Give a quarter second grace for detecting a "destroyed" EVA that is actually just a boarding event
             if (v.vesselType == VesselType.EVA && Time.fixedTime - lastVesselChange < 0.25)
             {
+                return;
+            }
+
+            // Clear out broken vessels that are no longer being checked (one second grace)
+            if (lastVesselAdd + 1.0 < Time.fixedTime)
+            {
+                brokenVessels.Clear();
+            }
+            // Check if this was once part of our vessel
+            else if (brokenVessels.Contains(v))
+            {
+                LoggingUtil.LogVerbose(this, "Broken match, failing parameter.");
+                SetState(ParameterState.Failed);
                 return;
             }
 
@@ -139,7 +210,6 @@ namespace ContractConfigurator.Parameters
             else
             {
                 LoggingUtil.LogVerbose(this, "Any vessel match, failing parameter.");
-                // Fail on any vessel
                 SetState(ParameterState.Failed);
                 return;
             }
@@ -154,6 +224,22 @@ namespace ContractConfigurator.Parameters
                     SetState(ParameterState.Failed);
                     return;
                 }
+            }
+        }
+
+        protected void OnPartDie(Part p)
+        {
+            if (p == null || p.vessel == null)
+            {
+                return;
+            }
+
+            Vessel v = p.vessel;
+            LoggingUtil.LogVerbose(this, "OnPartDie: " + v.id);
+            if (!v.IsControllable)
+            {
+                LoggingUtil.LogVerbose(this, "Vessel not contrallable, treating part death as vessel death");
+                OnVesselWillDestroy(v);
             }
         }
 

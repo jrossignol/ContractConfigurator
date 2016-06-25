@@ -49,7 +49,7 @@ namespace ContractConfigurator
             // Finished contracts - Contract Configurator style
             if (ccType != null)
             {
-                IEnumerable<ConfiguredContract> completedContract = ContractSystem.Instance.GetCompletedContracts<ConfiguredContract>().
+                IEnumerable<ConfiguredContract> completedContract = ConfiguredContract.CompletedContracts.
                     Where(c => c.contractType != null && c.contractType.name.Equals(ccType));
                 finished = completedContract.Count();
                 if (finished > 0)
@@ -58,7 +58,7 @@ namespace ContractConfigurator
                 }
             }
             // Finished contracts - stock style
-            else
+            else if (contractClass != null)
             {
                 // Call the GetCompletedContracts with our type, and get the count
                 Contract[] completedContract = (Contract[])typeof(ContractSystem).GetMethod("GetCompletedContracts").MakeGenericMethod(contractClass).Invoke(ContractSystem.Instance, null);

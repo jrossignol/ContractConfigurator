@@ -1,3 +1,35 @@
+Contract Configurator 1.13.0
+- KSP 1.1.3 compatibility.
+- Integrated Wider Contracts App into Contract Configurator.
+- Fixed isuse with SpawnVessels spawning vessels with incorrect rotation (thanks severedsolo).
+- Prevent Rendenzvous parameter from triggering when a vessel performs a rendezvous with itself (thanks danielguo).
+- Fixed NRE on contract accept when using SpawnVessel's craftPart method of spawning.
+- Fixed PartModuleUnlocked and PartUnlocked requirements to check for part purchase and not just tech unlock (thanks inigma).
+- Always set the CollectScience targetBody to the one from the biome if a biome is used (thanks severedsolo & enceos).
+- Fixed exception in RecoverKerbal (thanks palleon).
+- Fixed incorrect handling of waypoints with negative altitude on non-ocean worlds in VisitWaypoint (thanks Galenmacil).
+- Removed extra ConfiguredContract entries from settings menu (thanks Deimos Rast).
+
+Contract Configurator 1.12.1
+- Fixed backwards compatibility for Wheel PartModuleType (thanks TheReadPanda).
+
+Contract Configurator 1.12.0
+- Added support for NextKerbalHireCost() expression function.
+- Added HasCrew.excludeKerbal.
+- Fixed exception in the Expression behaviour (thanks severedsolo).
+- Fixed deriving primary situation for biomes with a space in the name.
+- Fixed exception in science util functions (thanks Chippy the Space Dog).
+- Fixed exception when docking (thanks Lennartos and others).
+- Fixed logic for setting contract weights that was broken by 1.1.x changes (thanks severedsolo).
+- Removed some broken validation (thanks linuxgurugamer).
+- Fixed exception when removing certain contract packs (thanks rasta013).
+- Fixed edge case where AwardExperience was late awarding the experience (thanks severedsolo).
+- Fixed exception with Contracts Window + (thanks sidfu).
+- Improved accuracy of VesselNotDestroyed checks (thanks inigma).
+- Fixed bug in barycenter logic when using Sigma Binary (thanks sentania).
+- Improved backwards compatibility with contract packs using the old Wheel module name (thanks galenmacil).
+- Re-generate PQS offset coordinates when flight begins (workaround for Kopernicus waypoint offset issue).
+
 Contract Configurator 1.11.5
 - Fixed exception when recovering vessel (thanks BluK).
 - Recompile to RemoteTech 1.7.0.

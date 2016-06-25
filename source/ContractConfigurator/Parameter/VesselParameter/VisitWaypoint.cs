@@ -128,6 +128,12 @@ namespace ContractConfigurator.Parameters
                         if (param != null && !param.Enabled)
                         {
                             waypoint.visible = false;
+                            NavWaypoint navPoint = NavWaypoint.fetch;
+                            if (navPoint != null && NavWaypoint.fetch.IsActive && navPoint.Latitude == waypoint.latitude && navPoint.Longitude == waypoint.longitude)
+                            {
+                                NavWaypoint.fetch.Clear();
+                                NavWaypoint.fetch.Deactivate();
+                            }
                             break;
                         }
                     }
@@ -246,10 +252,10 @@ namespace ContractConfigurator.Parameters
                     ScreenMessages.PostScreenMessage(msg, 5.0f, ScreenMessageStyle.UPPER_CENTER);
                 }
 
-                NavWaypoint navWaypoint = WaypointManager.navWaypoint;
-                if (navWaypoint != null && navWaypoint.latitude == waypoint.latitude && navWaypoint.longitude == waypoint.longitude)
+                NavWaypoint navWaypoint = NavWaypoint.fetch;
+                if (navWaypoint != null && navWaypoint.Latitude == waypoint.latitude && navWaypoint.Longitude == waypoint.longitude)
                 {
-                    navWaypoint.blinking = nearWaypoint;
+                    navWaypoint.IsBlinking = nearWaypoint;
                 }
             }
 

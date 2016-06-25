@@ -181,60 +181,11 @@ namespace ContractConfigurator.Behaviour
                     }
                     else if (wpData.type == "PQS_CITY")
                     {
-                        LoggingUtil.LogVerbose(this, "   pqs city: " + wpData.pqsCity);
-                        LoggingUtil.LogVerbose(this, "   Generating a waypoint based on PQS city " + wpData.pqsCity.name + "...");
-
-                        Vector3d position = wpData.pqsCity.transform.position;
-                        LoggingUtil.LogVerbose(this, "    pqs city position = " + position);
-
-                        // Translate by the PQS offset (inverse transform of coordinate system)
-                        Vector3d v = wpData.pqsOffset;
-                        Vector3d i = wpData.pqsCity.transform.right;
-                        Vector3d j = wpData.pqsCity.transform.forward;
-                        Vector3d k = wpData.pqsCity.transform.up;
-                        LoggingUtil.LogVerbose(this, "    i, j, k = " + i + ", " + j + "," + k);
-                        LoggingUtil.LogVerbose(this, "    pqs transform = " + wpData.pqsCity.transform);
-                        LoggingUtil.LogVerbose(this, "    parent transform = " + wpData.pqsCity.transform.parent);
-                        Vector3d offsetPos = new Vector3d(
-                            (j.y * k.z - j.z * k.y) * v.x + (i.z * k.y - i.y * k.z) * v.y + (i.y * j.z - i.z * j.y) * v.z,
-                            (j.z * k.x - j.x * k.z) * v.x + (i.x * k.z - i.z * k.x) * v.y + (i.z * j.x - i.x * j.z) * v.z,
-                            (j.x * k.y - j.y * k.x) * v.x + (i.y * k.x - i.x * k.y) * v.y + (i.x * j.y - i.y * j.x) * v.z
-                        );
-                        offsetPos *= (i.x * j.y * k.z) + (i.y * j.z * k.x) + (i.z * j.x * k.y) - (i.z * j.y * k.x) - (i.y * j.x * k.z) - (i.x * j.z * k.y);
-                        wpData.waypoint.latitude = body.GetLatitude(position + offsetPos);
-                        wpData.waypoint.longitude = body.GetLongitude(position + offsetPos);
-                        LoggingUtil.LogVerbose(this, "    resulting lat, lon = (" + wpData.waypoint.latitude + ", " + wpData.waypoint.longitude + ")");
+                        GeneratePQSCityCoordinates(wpData, body);
                     }
 
                     // Set altitude
-                    if (wpData.randomAltitude)
-                    {
-                        if (wpData.underwater && body.ocean)
-                        {
-                            Vector3d radialVector = QuaternionD.AngleAxis(wpData.waypoint.longitude, Vector3d.down) *
-                              QuaternionD.AngleAxis(wpData.waypoint.latitude, Vector3d.forward) * Vector3d.right;
-                            double oceanFloor = body.pqsController.GetSurfaceHeight(radialVector) - body.pqsController.radius;
-
-                            wpData.waypoint.altitude = random.NextDouble() * (oceanFloor);
-                        }
-                        else if (body.atmosphere)
-                        {
-                            wpData.waypoint.altitude = random.NextDouble() * (body.atmosphereDepth);
-                        }
-                        else
-                        {
-                            wpData.waypoint.altitude = 0.0;
-                        }
-                    }
-                    // Clamp underwater waypoints to sea-floor
-                    else if (wpData.underwater)
-                    {
-                        Vector3d radialVector = QuaternionD.AngleAxis(wpData.waypoint.longitude, Vector3d.down) *
-                          QuaternionD.AngleAxis(wpData.waypoint.latitude, Vector3d.forward) * Vector3d.right;
-                        double oceanFloor = body.pqsController.GetSurfaceHeight(radialVector) - body.pqsController.radius;
-
-                        wpData.waypoint.altitude = Math.Max(oceanFloor, wpData.waypoint.altitude);
-                    }
+                    SetAltitude(wpData, body);
 
                     LoggingUtil.LogVerbose(this, "   Generated waypoint " + wpData.waypoint.name + " at " +
                         wpData.waypoint.latitude + ", " + wpData.waypoint.longitude + ".");
@@ -242,6 +193,65 @@ namespace ContractConfigurator.Behaviour
 
                 initialized = true;
                 LoggingUtil.LogVerbose(this, "Waypoint generator initialized.");
+            }
+        }
+
+        private void GeneratePQSCityCoordinates(WaypointData wpData, CelestialBody body)
+        {
+            LoggingUtil.LogVerbose(this, "   pqs city: " + wpData.pqsCity);
+            LoggingUtil.LogVerbose(this, "   Generating a waypoint based on PQS city " + wpData.pqsCity.name + "...");
+
+            Vector3d position = wpData.pqsCity.transform.position;
+            LoggingUtil.LogVerbose(this, "    pqs city position = " + position);
+
+            // Translate by the PQS offset (inverse transform of coordinate system)
+            Vector3d v = wpData.pqsOffset;
+            Vector3d i = wpData.pqsCity.transform.right;
+            Vector3d j = wpData.pqsCity.transform.forward;
+            Vector3d k = wpData.pqsCity.transform.up;
+            LoggingUtil.LogVerbose(this, "    i, j, k = " + i + ", " + j + "," + k);
+            LoggingUtil.LogVerbose(this, "    pqs transform = " + wpData.pqsCity.transform);
+            LoggingUtil.LogVerbose(this, "    parent transform = " + wpData.pqsCity.transform.parent);
+            Vector3d offsetPos = new Vector3d(
+                (j.y * k.z - j.z * k.y) * v.x + (i.z * k.y - i.y * k.z) * v.y + (i.y * j.z - i.z * j.y) * v.z,
+                (j.z * k.x - j.x * k.z) * v.x + (i.x * k.z - i.z * k.x) * v.y + (i.z * j.x - i.x * j.z) * v.z,
+                (j.x * k.y - j.y * k.x) * v.x + (i.y * k.x - i.x * k.y) * v.y + (i.x * j.y - i.y * j.x) * v.z
+            );
+            offsetPos *= (i.x * j.y * k.z) + (i.y * j.z * k.x) + (i.z * j.x * k.y) - (i.z * j.y * k.x) - (i.y * j.x * k.z) - (i.x * j.z * k.y);
+            wpData.waypoint.latitude = body.GetLatitude(position + offsetPos);
+            wpData.waypoint.longitude = body.GetLongitude(position + offsetPos);
+            LoggingUtil.LogVerbose(this, "    resulting lat, lon = (" + wpData.waypoint.latitude + ", " + wpData.waypoint.longitude + ")");
+        }
+
+        private void SetAltitude(WaypointData wpData, CelestialBody body)
+        {
+            if (wpData.randomAltitude)
+            {
+                if (wpData.underwater && body.ocean)
+                {
+                    Vector3d radialVector = QuaternionD.AngleAxis(wpData.waypoint.longitude, Vector3d.down) *
+                      QuaternionD.AngleAxis(wpData.waypoint.latitude, Vector3d.forward) * Vector3d.right;
+                    double oceanFloor = body.pqsController.GetSurfaceHeight(radialVector) - body.pqsController.radius;
+
+                    wpData.waypoint.altitude = random.NextDouble() * (oceanFloor);
+                }
+                else if (body.atmosphere)
+                {
+                    wpData.waypoint.altitude = random.NextDouble() * (body.atmosphereDepth);
+                }
+                else
+                {
+                    wpData.waypoint.altitude = 0.0;
+                }
+            }
+            // Clamp underwater waypoints to sea-floor
+            else if (wpData.underwater)
+            {
+                Vector3d radialVector = QuaternionD.AngleAxis(wpData.waypoint.longitude, Vector3d.down) *
+                  QuaternionD.AngleAxis(wpData.waypoint.latitude, Vector3d.forward) * Vector3d.right;
+                double oceanFloor = body.pqsController.GetSurfaceHeight(radialVector) - body.pqsController.radius;
+
+                wpData.waypoint.altitude = Math.Max(oceanFloor, wpData.waypoint.altitude);
             }
         }
 
@@ -344,7 +354,7 @@ namespace ContractConfigurator.Behaviour
 
                         // Get distances
                         valid &= ConfigNodeUtil.ParseValue<double>(child, "minDistance", x => wpData.minDistance = x, factory, 0.0, x => Validation.GE(x, 0.0));
-                        valid &= ConfigNodeUtil.ParseValue<double>(child, "maxDistance", x => wpData.maxDistance = x, factory, x => Validation.GT(x, wpData.minDistance));
+                        valid &= ConfigNodeUtil.ParseValue<double>(child, "maxDistance", x => wpData.maxDistance = x, factory, x => Validation.GT(x, 0.0));
                     }
                     else if (child.name == "PQS_CITY")
                     {
@@ -424,9 +434,18 @@ namespace ContractConfigurator.Behaviour
             return valid ? wpGenerator : null;
         }
 
+        protected override void OnRegister()
+        {
+            base.OnRegister();
+
+            GameEvents.onFlightReady.Add(new EventVoid.OnEvent(OnFlightReady));
+        }
+
         protected override void OnUnregister()
         {
             base.OnUnregister();
+
+            GameEvents.onFlightReady.Remove(new EventVoid.OnEvent(OnFlightReady));
 
             foreach (WaypointData wpData in waypoints)
             {
@@ -455,6 +474,25 @@ namespace ContractConfigurator.Behaviour
             }
         }
 
+        protected void OnFlightReady()
+        {
+            LoggingUtil.LogVerbose(this, "OnFlightReady");
+
+            // Handle late adjustments to PQS City based waypoint positions (workaround for Kopernicus bug)
+            foreach (WaypointData wpData in waypoints)
+            {
+                if (wpData.pqsCity != null)
+                {
+                    LoggingUtil.LogDebug(this, "Adjusting PQS City offset coordinates for waypoint " + wpData.waypoint.name);
+
+                    CelestialBody body = FlightGlobals.Bodies.Where(b => b.name == wpData.waypoint.celestialName).First();
+                    GeneratePQSCityCoordinates(wpData, body);
+                    SetAltitude(wpData, body);
+                    wpData.pqsCity = null;
+                }
+            }
+        }
+
         protected override void OnLoad(ConfigNode configNode)
         {
             base.OnLoad(configNode);
@@ -476,11 +514,16 @@ namespace ContractConfigurator.Behaviour
                 wpData.waypoint.visible = !(ConfigNodeUtil.ParseValue<bool?>(child, "hidden", (bool?)false).Value);
                 wpData.waypoint.isClustered = ConfigNodeUtil.ParseValue<bool?>(child, "clustered", (bool?)false).Value;
 
-                // Workaround for buggy stuff saved by older versions
-                if (wpData.parameter.Any() && wpData.parameter.First().StartsWith("System.Collections.Generic.List"))
+                string pqsCityName = ConfigNodeUtil.ParseValue<string>(child, "pqsCity", null);
+                if (pqsCityName != null)
                 {
-                    wpData.parameter.Clear();
+                    CelestialBody body = FlightGlobals.Bodies.Where(b => b.name == wpData.waypoint.celestialName).First();
+                    wpData.pqsCity = body.GetComponentsInChildren<PQSCity>(true).Where(pqs => pqs.name == pqsCityName).First();
+                    wpData.pqsOffset = ConfigNodeUtil.ParseValue<Vector3d>(child, "pqsOffset");
                 }
+
+                wpData.randomAltitude = ConfigNodeUtil.ParseValue<bool?>(child, "randomAltitude", (bool?)false).Value;
+                wpData.underwater = ConfigNodeUtil.ParseValue<bool?>(child, "underwater", (bool?)false).Value;
 
                 // Set contract data
                 wpData.SetContract(contract);
@@ -524,6 +567,13 @@ namespace ContractConfigurator.Behaviour
                 child.AddValue("index", wpData.waypoint.index);
                 child.AddValue("hidden", !wpData.waypoint.visible);
                 child.AddValue("clustered", wpData.waypoint.isClustered);
+                if (wpData.pqsCity != null)
+                {
+                    child.AddValue("pqsCity", wpData.pqsCity.name);
+                    child.AddValue("pqsOffset", wpData.pqsOffset.x + "," + wpData.pqsOffset.y + "," + wpData.pqsOffset.z);
+                }
+                child.AddValue("randomAltitude", wpData.randomAltitude);
+                child.AddValue("underwater", wpData.underwater);
 
                 configNode.AddNode(child);
             }

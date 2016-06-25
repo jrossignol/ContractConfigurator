@@ -22,7 +22,7 @@ namespace ContractConfigurator
             // Finished contracts - Contract Configurator style
             if (ccType != null)
             {
-                IEnumerable<ConfiguredContract> acceptedContract = ContractSystem.Instance.Contracts.Select(c => c as ConfiguredContract).
+                IEnumerable<ConfiguredContract> acceptedContract = ContractSystem.Instance.Contracts.OfType<ConfiguredContract>().
                     Where(c => c != null && c.contractType != null && c.contractType.name.Equals(ccType) && c.ContractState == Contract.State.Active);
                 accepted = acceptedContract.Count();
             }

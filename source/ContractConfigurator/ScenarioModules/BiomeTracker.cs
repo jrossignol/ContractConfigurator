@@ -360,6 +360,7 @@ namespace ContractConfigurator
 
         public static Vessel.Situations GetPrimarySituation(CelestialBody body, string biome)
         {
+            biome = biome.Replace(" ", "");
             if (body == null || Instance == null || !Instance.bodyInfo.ContainsKey(body) ||
                 !Instance.bodyInfo[body].ContainsKey(biome))
             {

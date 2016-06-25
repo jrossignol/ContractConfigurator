@@ -110,7 +110,11 @@ namespace ContractConfigurator.Behaviour
 
                 // Do the awarding
                 pcm.flightLog.AddEntry(type, homeworld.name);
-                if (awardImmediately)
+                if (pcm.rosterStatus != ProtoCrewMember.RosterStatus.Assigned)
+                {
+                    pcm.ArchiveFlightLog();
+                }
+                else if (awardImmediately)
                 {
                     pcm.experience += experience;
                     pcm.experienceLevel = KerbalRoster.CalculateExperienceLevel(pcm.experience);

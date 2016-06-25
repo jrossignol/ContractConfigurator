@@ -74,6 +74,28 @@ namespace ContractConfigurator
             return group.name;
         }
 
+        public static IEnumerable<ConfiguredContract> ActiveContracts
+        {
+            get
+            {
+                return ContractSystem.Instance.Contracts.Where(c => c.ContractState == Contract.State.Active).OfType<ConfiguredContract>();
+            }
+        }
+        public static IEnumerable<ConfiguredContract> CurrentContracts
+        {
+            get
+            {
+                return ContractSystem.Instance.Contracts.OfType<ConfiguredContract>();
+            }
+        }
+        public static IEnumerable<ConfiguredContract> CompletedContracts
+        {
+            get
+            {
+                return ContractSystem.Instance.ContractsFinished.Where(c => c.ContractState == Contract.State.Completed).OfType<ConfiguredContract>();
+            }
+        }
+
         protected string title;
         protected string description;
         protected string synopsis;
@@ -447,6 +469,8 @@ namespace ContractConfigurator
         {
             try
             {
+                node.SetValue("type", "ConfiguredContract");
+
                 node.AddValue("subtype", subType);
                 if (!string.IsNullOrEmpty(title))
                 {
@@ -501,8 +525,11 @@ namespace ContractConfigurator
                 foreach (ContractRequirement requirement in requirements)
                 {
                     ConfigNode child = new ConfigNode("REQUIREMENT");
-                    requirement.Save(child);
-                    node.AddNode(child);
+                    if (child.nodes.Count > 0)
+                    {
+                        requirement.Save(child);
+                        node.AddNode(child);
+                    }
                 }
             }
             catch (Exception e)
@@ -747,4 +774,25 @@ namespace ContractConfigurator
             }
         }
     }
+
+    // Additional ConfiguredContract classes to trick the contract system into giving us the appropriate weight
+    public class ConfiguredContract1 : ConfiguredContract { }
+    public class ConfiguredContract2 : ConfiguredContract { }
+    public class ConfiguredContract3 : ConfiguredContract { }
+    public class ConfiguredContract4 : ConfiguredContract { }
+    public class ConfiguredContract5 : ConfiguredContract { }
+    public class ConfiguredContract6 : ConfiguredContract { }
+    public class ConfiguredContract7 : ConfiguredContract { }
+    public class ConfiguredContract8 : ConfiguredContract { }
+    public class ConfiguredContract9 : ConfiguredContract { }
+    public class ConfiguredContract10 : ConfiguredContract { }
+    public class ConfiguredContract11 : ConfiguredContract { }
+    public class ConfiguredContract12 : ConfiguredContract { }
+    public class ConfiguredContract13 : ConfiguredContract { }
+    public class ConfiguredContract14 : ConfiguredContract { }
+    public class ConfiguredContract15 : ConfiguredContract { }
+    public class ConfiguredContract16 : ConfiguredContract { }
+    public class ConfiguredContract17 : ConfiguredContract { }
+    public class ConfiguredContract18 : ConfiguredContract { }
+    public class ConfiguredContract19 : ConfiguredContract { }
 }

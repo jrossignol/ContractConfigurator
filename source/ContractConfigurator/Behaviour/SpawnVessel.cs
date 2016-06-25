@@ -476,7 +476,7 @@ namespace ContractConfigurator.Behaviour
                 if (!vesselData.orbiting)
                 {
                     Vector3d norm = vesselData.body.GetRelSurfaceNVector(vesselData.latitude, vesselData.longitude);
-                    
+
                     double terrainHeight = 0.0;
                     if (vesselData.body.pqsController != null)
                     {
@@ -555,7 +555,7 @@ namespace ContractConfigurator.Behaviour
                         hgt += vesselData.height;
                         protoVesselNode.SetValue("hgt", hgt.ToString());
                     }
-                    protoVesselNode.SetValue("rot", KSPUtil.WriteQuaternion(normal * rotation));
+                    protoVesselNode.SetValue("rot", KSPUtil.WriteQuaternion(rotation * normal));
 
                     // Set the normal vector relative to the surface
                     Vector3 nrm = (rotation * Vector3.forward);
@@ -593,7 +593,14 @@ namespace ContractConfigurator.Behaviour
                 {
                     child.AddValue("id", vd.id);
                 }
-                child.AddValue("craftURL", vd.craftURL);
+                if (!string.IsNullOrEmpty(vd.craftURL))
+                {
+                    child.AddValue("craftURL", vd.craftURL);
+                }
+                if (vd.craftPart != null)
+                {
+                    child.AddValue("craftPart", vd.craftPart.name);
+                }
                 if (vd.flagURL != null)
                 {
                     child.AddValue("flagURL", vd.flagURL);
@@ -650,6 +657,7 @@ namespace ContractConfigurator.Behaviour
                 vd.name = child.GetValue("name");
                 vd.id = ConfigNodeUtil.ParseValue<Guid?>(child, "id", (Guid?)null);
                 vd.craftURL = child.GetValue("craftURL");
+                vd.craftPart = ConfigNodeUtil.ParseValue<AvailablePart>(child, "craftPart", null);
                 vd.flagURL = ConfigNodeUtil.ParseValue<string>(child, "flagURL", (string)null);
                 vd.vesselType = ConfigNodeUtil.ParseValue<VesselType>(child, "vesselType");
                 vd.body = ConfigNodeUtil.ParseValue<CelestialBody>(child, "body");
@@ -884,7 +892,7 @@ namespace ContractConfigurator.Behaviour
             throw new Exception("ContractConfigurator: index " + index +
                 " is out of range for number of Kerbals spawned (" + KerbalCount + ").");
         }
-        
+
         public IEnumerable<string> KerbalNames()
         {
             foreach (VesselData vd in vessels)

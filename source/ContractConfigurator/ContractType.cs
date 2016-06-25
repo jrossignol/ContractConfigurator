@@ -448,7 +448,7 @@ namespace ContractConfigurator
                 // Checks for maxSimultaneous/maxCompletions
                 if (maxSimultaneous != 0 || maxCompletions != 0)
                 {
-                    IEnumerable<ConfiguredContract> contractList = ContractSystem.Instance.GetCurrentContracts<ConfiguredContract>().
+                    IEnumerable<ConfiguredContract> contractList = ConfiguredContract.CurrentContracts.
                         Where(c => c.contractType != null && c.contractType.name == name);
 
                     // Special case for pre-loader contracts
@@ -476,7 +476,7 @@ namespace ContractConfigurator
                     // Check if we're breaching the completed limit
                     if (maxCompletions != 0)
                     {
-                        int finishedContracts = ContractSystem.Instance.GetCompletedContracts<ConfiguredContract>().
+                        int finishedContracts = ConfiguredContract.CompletedContracts.
                             Count(c => c.contractType != null && c.contractType.name == name);
                         if (finishedContracts + activeContracts >= maxCompletions)
                         {
@@ -596,7 +596,7 @@ namespace ContractConfigurator
                         if (uniquenessCheck == DataNode.UniquenessCheck.CONTRACT_ALL || uniquenessCheck == DataNode.UniquenessCheck.GROUP_ALL)
                         {
                             contractList = contractList.Union(ContractSystem.Instance.ContractsFinished.OfType<ConfiguredContract>().
-                            Where(c => c != null && c.contractType != null && c != contract));
+                                Where(c => c != null && c.contractType != null && c != contract));
                         }
 
                         // Special case for pre-loader contracts
@@ -694,7 +694,7 @@ namespace ContractConfigurator
                     throw new ContractRequirementException("Contract group " + group.name + " is not enabled.");
                 }
 
-                IEnumerable<ConfiguredContract> contractList = ContractSystem.Instance.GetCurrentContracts<ConfiguredContract>().
+                IEnumerable<ConfiguredContract> contractList = ConfiguredContract.CurrentContracts.
                     Where(c => c.contractType != null);
 
                 // Special case for pre-loader contracts
@@ -719,7 +719,7 @@ namespace ContractConfigurator
                 // Check the group completed limit
                 if (group.maxCompletions != 0)
                 {
-                    int finishedContracts = ContractSystem.Instance.GetCompletedContracts<ConfiguredContract>().Count(c => c.contractType != null && group.BelongsToGroup(c.contractType));
+                    int finishedContracts = ConfiguredContract.CompletedContracts.Count(c => c.contractType != null && group.BelongsToGroup(c.contractType));
                     if (finishedContracts + activeContracts >= maxCompletions)
                     {
                         throw new ContractRequirementException("Too many completed contracts in group (" + group.name + ").");

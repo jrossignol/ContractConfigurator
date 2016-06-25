@@ -70,7 +70,7 @@ namespace ContractConfigurator.Behaviour
                 selectedPassengers = totalPassengers = 0;
                 int capacity = FlightGlobals.ActiveVessel.GetCrewCapacity() - FlightGlobals.ActiveVessel.GetCrewCount();
 
-                foreach (ConfiguredContract contract in ContractSystem.Instance.GetCurrentActiveContracts<ConfiguredContract>())
+                foreach (ConfiguredContract contract in ConfiguredContract.ActiveContracts)
                 {
                     string contractTitle = contract.Title;
                     int passengerCount = 0;

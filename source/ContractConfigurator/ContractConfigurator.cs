@@ -52,12 +52,14 @@ namespace ContractConfigurator
 
             OnParameterChange.Add(new EventData<Contract, ContractParameter>.OnEvent(ParameterChange));
             GameEvents.OnTechnologyResearched.Add(new EventData<GameEvents.HostTargetAction<RDTech, RDTech.OperationResult>>.OnEvent(OnTechResearched));
+            GameEvents.onGameSceneSwitchRequested.Add(new EventData<GameEvents.FromToAction<GameScenes, GameScenes>>.OnEvent(OnGameSceneSwitchRequested));
         }
 
         void Destroy()
         {
             OnParameterChange.Remove(new EventData<Contract, ContractParameter>.OnEvent(ParameterChange));
             GameEvents.OnTechnologyResearched.Remove(new EventData<GameEvents.HostTargetAction<RDTech, RDTech.OperationResult>>.OnEvent(OnTechResearched));
+            GameEvents.onGameSceneSwitchRequested.Remove(new EventData<GameEvents.FromToAction<GameScenes, GameScenes>>.OnEvent(OnGameSceneSwitchRequested));
         }
 
         void Update()
@@ -155,6 +157,7 @@ namespace ContractConfigurator
         /// </summary>
         public static void StartReload()
         {
+            contractTypesAdjusted = false;
             Instance.StartCoroutine(Instance.ReloadContractTypes());
         }
 
@@ -456,22 +459,42 @@ namespace ContractConfigurator
         /// number on contract types.
         /// </summary>
         /// <returns>Whether the changes took place</returns>
-        static bool AdjustContractTypes()
+        public static bool AdjustContractTypes()
         {
             if (ContractSystem.ContractWeights == null)
             {
                 return false;
             }
 
-            // Add the ConfiguredContract type
+            // Get the current average weight
+            int totalWeight = 0;
+            int count = 0;
+            foreach (KeyValuePair<Type, int> pair in ContractSystem.ContractWeights.Where(p => !p.Key.Name.StartsWith("ConfiguredContract")))
+            {
+                count++;
+                totalWeight += pair.Value;
+            }
+            double avgWeight = (double)totalWeight / count;
+
+            // Figure out the weight and number of contracts we should use
             double weightByType = Math.Pow(ContractType.AllValidContractTypes.Count(), 0.7) / 1.5;
             double weightByGroup = Math.Pow(ContractGroup.AllGroups.Count(g => g != null && g.parent == null), 0.9);
-            int weight = (int)Math.Round(Math.Max(weightByGroup, weightByType) * ContractDefs.WeightDefault);
-            LoggingUtil.LogDebug(typeof(ContractConfigurator), "Setting ConfiguredContract weight to " + weight);
+            double desiredWeight = Math.Max(weightByGroup, weightByType) * avgWeight;
+            LoggingUtil.LogDebug(typeof(ContractConfigurator), "Desired ConfiguredContract weight is " + desiredWeight);
+            count = Math.Min((int)Math.Round(desiredWeight / ContractDefs.WeightDefault), 20);
+            int weight = (int)Math.Round(desiredWeight / count);
 
+            // Adjust the contract types list and the contract weights
             ContractSystem.ContractWeights[typeof(ConfiguredContract)] = weight;
+            ContractSystem.ContractTypes.RemoveAll(t => t.Name.StartsWith("ConfiguredContract") && t.Name != "ConfiguredContract");
+            for (int i = 1; i < count; i++)
+            {
+                Type contractType = Type.GetType("ContractConfigurator.ConfiguredContract" + i, true);
+                ContractSystem.ContractTypes.Add(contractType);
+                ContractSystem.ContractWeights[contractType] = weight;
+            }
 
-            LoggingUtil.LogInfo(typeof(ContractConfigurator), "Finished Adjusting ContractTypes");
+            LoggingUtil.LogInfo(typeof(ContractConfigurator), "Finished Adjusting ContractTypes, " + count + " entries with weight " + weight + " added.");
 
             return true;
         }
@@ -519,6 +542,12 @@ namespace ContractConfigurator
             {
                 ResearchAndDevelopment.RemoveExperimentalPart(p);
             }
+        }
+
+        private void OnGameSceneSwitchRequested(GameEvents.FromToAction<GameScenes, GameScenes> fta)
+        {
+            // Reset the contract types adjusted indicator
+            contractTypesAdjusted = false;
         }
     }
 }

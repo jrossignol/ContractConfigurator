@@ -129,7 +129,7 @@ namespace ContractConfigurator.Parameters
                     v2 = vessels.Count > 0 ? ContractVesselTracker.Instance.GetAssociatedVessel(vessels[0]) : null;
 
                     // No vessel association
-                    if (vessels.Count > 0 && v2 == null)
+                    if (vessels.Count > 0 && v2 == null || v1 == v2)
                     {
                         return;
                     }

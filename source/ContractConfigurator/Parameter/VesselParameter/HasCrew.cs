@@ -21,13 +21,14 @@ namespace ContractConfigurator.Parameters
         protected int minExperience { get; set; }
         protected int maxExperience { get; set; }
         protected List<Kerbal> kerbals = new List<Kerbal>();
+        protected List<Kerbal> excludeKerbals = new List<Kerbal>();
 
         public HasCrew()
             : base(null)
         {
         }
 
-        public HasCrew(string title, IEnumerable<Kerbal> kerbals, string trait, int minCrew = 1, int maxCrew = int.MaxValue, int minExperience = 0, int maxExperience = 5)
+        public HasCrew(string title, IEnumerable<Kerbal> kerbals, IEnumerable<Kerbal> excludeKerbals, string trait, int minCrew = 1, int maxCrew = int.MaxValue, int minExperience = 0, int maxExperience = 5)
             : base(title)
         {
             if (minCrew > maxCrew)
@@ -41,6 +42,7 @@ namespace ContractConfigurator.Parameters
             this.maxExperience = maxExperience;
             this.trait = trait;
             this.kerbals = kerbals.ToList();
+            this.excludeKerbals = excludeKerbals.ToList();
 
             CreateDelegates();
         }
@@ -187,6 +189,13 @@ namespace ContractConfigurator.Parameters
 
                 kerbal.Save(kerbalNode);
             }
+            foreach (Kerbal kerbal in excludeKerbals)
+            {
+                ConfigNode kerbalNode = new ConfigNode("KERBAL_EXCLUDE");
+                node.AddNode(kerbalNode);
+
+                kerbal.Save(kerbalNode);
+            }
         }
 
         protected override void OnParameterLoad(ConfigNode node)
@@ -200,19 +209,13 @@ namespace ContractConfigurator.Parameters
                 minCrew = Convert.ToInt32(node.GetValue("minCrew"));
                 maxCrew = Convert.ToInt32(node.GetValue("maxCrew"));
 
-                // Legacy support from Contract Configurator 1.8.3
-                if (node.HasValue("kerbal"))
+                foreach (ConfigNode kerbalNode in node.GetNodes("KERBAL"))
                 {
-                    kerbals = ConfigNodeUtil.ParseValue<List<string>>(node, "kerbal", new List<string>()).Select(
-                        name => new Kerbal(name)
-                    ).ToList();
+                    kerbals.Add(Kerbal.Load(kerbalNode));
                 }
-                else
+                foreach (ConfigNode kerbalNode in node.GetNodes("KERBAL_EXCLUDE"))
                 {
-                    foreach (ConfigNode kerbalNode in node.GetNodes("KERBAL"))
-                    {
-                        kerbals.Add(Kerbal.Load(kerbalNode));
-                    }
+                    excludeKerbals.Add(Kerbal.Load(kerbalNode));
                 }
 
                 CreateDelegates();
@@ -246,7 +249,7 @@ namespace ContractConfigurator.Parameters
                 return;
             }
 
-            foreach (Kerbal kerbal in kerbals)
+            foreach (Kerbal kerbal in kerbals.Union(excludeKerbals))
             {
                 // Instantiate the kerbals if necessary
                 if (kerbal.pcm == null)
@@ -322,7 +325,7 @@ namespace ContractConfigurator.Parameters
         /// </summary>
         /// <param name="v"></param>
         /// <returns></returns>
-        protected static IEnumerable<ProtoCrewMember> GetVesselCrew(Vessel v)
+        protected IEnumerable<ProtoCrewMember> GetVesselCrew(Vessel v)
         {
             if (v == null)
             {
@@ -341,7 +344,10 @@ namespace ContractConfigurator.Parameters
                 {
                     foreach (ProtoCrewMember pcm in p.protoModuleCrew)
                     {
-                        yield return pcm;
+                        if (!excludeKerbals.Any(k => k.pcm == pcm))
+                        {
+                            yield return pcm;
+                        }
                     }
                 }
             }
@@ -350,7 +356,10 @@ namespace ContractConfigurator.Parameters
                 // Vessel with crew
                 foreach (ProtoCrewMember pcm in v.GetVesselCrew())
                 {
-                    yield return pcm;
+                    if (!excludeKerbals.Any(k => k.pcm == pcm))
+                    {
+                        yield return pcm;
+                    }
                 }
             }
         }

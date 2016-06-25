@@ -45,7 +45,7 @@ namespace ContractConfigurator
         {
             foreach (AvailablePart part in parts)
             {
-                if (!ResearchAndDevelopment.PartTechAvailable(part))
+                if (!ResearchAndDevelopment.PartModelPurchased(part))
                 {
                     return false;
                 }

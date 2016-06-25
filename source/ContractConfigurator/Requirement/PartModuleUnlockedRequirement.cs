@@ -65,7 +65,7 @@ namespace ContractConfigurator
 
                     if (found)
                     {
-                        if (ResearchAndDevelopment.PartTechAvailable(p))
+                        if (ResearchAndDevelopment.PartModelPurchased(p))
                         {
                             break;
                         }

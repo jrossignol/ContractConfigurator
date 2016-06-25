@@ -22,6 +22,7 @@ namespace ContractConfigurator
         protected int maxCrew;
 
         protected List<Kerbal> kerbal;
+        protected List<Kerbal> excludeKerbal;
 
         public override bool Load(ConfigNode configNode)
         {
@@ -35,6 +36,7 @@ namespace ContractConfigurator
             valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxCrew", x => maxCrew = x, this, int.MaxValue, x => Validation.GE(x, minCrew));
 
             valid &= ConfigNodeUtil.ParseValue<List<Kerbal>>(configNode, "kerbal", x => kerbal = x, this, new List<Kerbal>());
+            valid &= ConfigNodeUtil.ParseValue<List<Kerbal>>(configNode, "excludeKerbal", x => excludeKerbal = x, this, new List<Kerbal>());
 
             valid &= ConfigNodeUtil.AtLeastOne(configNode, new string[] { "trait", "minExperience", "maxExperience", "minCrew", "maxCrew", "kerbal" }, this);
             valid &= ConfigNodeUtil.MutuallyExclusive(configNode, new string[] { "trait", "minExperience", "maxExperience", "minCrew", "maxCrew" },
@@ -51,7 +53,7 @@ namespace ContractConfigurator
                 minCrew = 0;
             }
 
-            return new HasCrew(title, kerbal, trait, minCrew, maxCrew, minExperience, maxExperience);
+            return new HasCrew(title, kerbal, excludeKerbal, trait, minCrew, maxCrew, minExperience, maxExperience);
         }
     }
 }

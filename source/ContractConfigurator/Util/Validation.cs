@@ -121,6 +121,12 @@ namespace ContractConfigurator
         /// <returns>True if valid, exception otherwise</returns>
         public static bool ValidatePartModuleType(string name)
         {
+            // Compatibility for contracts written for pre-KSP 1.1
+            if (name == "Wheel")
+            {
+                return true;
+            }
+
             if (ContractDefs.GetModules(name).Count == 0)
             {
                 throw new ArgumentException("No PartModules found for type '" + name + "'.");

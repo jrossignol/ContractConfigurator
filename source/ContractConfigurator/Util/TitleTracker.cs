@@ -123,7 +123,7 @@ namespace ContractConfigurator
         public void UpdateContractWindow(string newTitle)
         {
             // Get the cascading list for our contract
-            if (text == null)
+            if (text == null && ContractsApp.Instance != null)
             {
                 UICascadingList.CascadingListItem list = TitleTrackerHelper.uiListMap.ContainsKey(parameter.Root.ContractGuid) ? TitleTrackerHelper.uiListMap[parameter.Root.ContractGuid] : null;
 

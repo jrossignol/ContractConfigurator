@@ -89,9 +89,6 @@ namespace ContractConfigurator.Behaviour
 
         public OrbitGenerator() {}
 
-        /*
-         * Copy constructor.
-         */
         public OrbitGenerator(OrbitGenerator orig, Contract contract)
             : base()
         {
@@ -115,7 +112,7 @@ namespace ContractConfigurator.Behaviour
                 // Do type specific handling
                 if (obData.type == "RANDOM_ORBIT")
                 {
-                    obData.orbit = CelestialUtilities.GenerateOrbit(obData.orbitType, contract.MissionSeed + index++, obData.targetBody,
+                    obData.orbit = OrbitUtilities.GenerateOrbit(contract.MissionSeed + index++, obData.targetBody, obData.orbitType,
                         obData.altitudeFactor, obData.inclinationFactor, obData.eccentricity);
                 }
                 else

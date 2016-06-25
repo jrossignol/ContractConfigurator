@@ -465,7 +465,7 @@ namespace ContractConfigurator
         private void SeedStockContractDetails()
         {
             // Enable everything
-            foreach (Type subclass in ContractConfigurator.GetAllTypes<Contract>().Where(t => t != typeof(ConfiguredContract)))
+            foreach (Type subclass in ContractConfigurator.GetAllTypes<Contract>().Where(t => t != null && !t.Name.StartsWith("ConfiguredContract")))
             {
                 ContractDisabler.SetContractState(subclass, true);
             }
@@ -474,7 +474,7 @@ namespace ContractConfigurator
             ContractDisabler.contractsDisabled = false;
             ContractDisabler.DisableContracts();
 
-            foreach (Type subclass in ContractConfigurator.GetAllTypes<Contract>().Where(t => t != typeof(ConfiguredContract)))
+            foreach (Type subclass in ContractConfigurator.GetAllTypes<Contract>().Where(t => t != null && !t.Name.StartsWith("ConfiguredContract")))
             {
                 if (!stockContractDetails.ContainsKey(subclass))
                 {

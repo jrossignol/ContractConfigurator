@@ -223,18 +223,31 @@ namespace ContractConfigurator
         {
             LoggingUtil.LogVerbose(this, "OnVesselDestroy " + vessel.id);
 
-            // Try to change any associations over if this is due to a docking event
-            foreach (string key in GetAssociatedKeys(vessel).ToList())
+            if (HighLogic.LoadedScene != GameScenes.FLIGHT)
             {
+                LoggingUtil.LogVerbose(this, "   returning, not in flight scene");
+                return;
+            }
+
+            // Try to change any associations over if this is due to a docking event
+                foreach (string key in GetAssociatedKeys(vessel).ToList())
+            {
+                LoggingUtil.LogVerbose(this, "    checking key " + key);
+
                 // Check if we need to switch over to the newly created vessel
                 VesselInfo vi = vessels[key];
                 Vessel newVessel = FlightGlobals.Vessels.Find(v => {
-                    if (v != null && v != vessel && HighLogic.LoadedScene == GameScenes.FLIGHT)
+                    if (v != null && v != vessel)
                     {
+                        LoggingUtil.LogVerbose(this, "    loading protovessel for " + v.vesselName);
+
                         // If the vessel is loaded, refresh the protovessel.  We do this to support
                         // grappling - when a new vessel is grappled the protovessel information
                         // doesn't get properly updated.
-                        v.protoVessel = new ProtoVessel(v);
+                        if (v.loaded)
+                        {
+                            v.protoVessel = new ProtoVessel(v);
+                        }
 
                         return v.GetHashes().Contains(vi.hash);
                     }
