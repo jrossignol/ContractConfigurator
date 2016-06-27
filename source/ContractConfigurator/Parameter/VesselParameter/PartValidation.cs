@@ -7,6 +7,7 @@ using UnityEngine;
 using KSP;
 using Contracts;
 using Contracts.Parameters;
+using FinePrint;
 
 namespace ContractConfigurator.Parameters
 {
@@ -20,6 +21,7 @@ namespace ContractConfigurator.Parameters
             public ParameterDelegateMatchType type = ParameterDelegateMatchType.FILTER;
             public List<AvailablePart> parts = new List<AvailablePart>();
             public List<string> partModules = new List<string>();
+            public List<string> partModuleTypes = new List<string>();
             public List<ConfigNode.ValueList> partModuleExtended = new List<ConfigNode.ValueList>();
             public PartCategories? category = null;
             public string manufacturer = null;
@@ -85,6 +87,13 @@ namespace ContractConfigurator.Parameters
                         AddParameter(new CountParameterDelegate<Part>(filter.minCount, filter.maxCount, p => PartHasModule(p, partModule),
                             "with module: " + ModuleName(partModule)));
                     }
+
+                    // Filter by part module types
+                    foreach (string partModuleType in filter.partModuleTypes)
+                    {
+                        AddParameter(new CountParameterDelegate<Part>(filter.minCount, filter.maxCount, p => PartHasModuleType(p, partModuleType),
+                            "with module type: " + partModuleType));
+                    }
                 }
                 else
                 {
@@ -100,6 +109,12 @@ namespace ContractConfigurator.Parameters
                     foreach (string partModule in filter.partModules)
                     {
                         AddParameter(new ParameterDelegate<Part>(filter.type.Prefix() + "module: " + ModuleName(partModule), p => PartHasModule(p, partModule), filter.type));
+                    }
+
+                    // Filter by part modules
+                    foreach (string partModuleType in filter.partModuleTypes)
+                    {
+                        AddParameter(new ParameterDelegate<Part>(filter.type.Prefix() + "module type: " + partModuleType, p => PartHasModuleType(p, partModuleType), filter.type));
                     }
 
                     // Filter by part modules - extended mode
@@ -174,6 +189,20 @@ namespace ContractConfigurator.Parameters
             return false;
         }
 
+        private bool PartHasModuleType(Part p, string partModuleType)
+        {
+            List<string> modules = ContractDefs.GetModules(partModuleType);
+
+            foreach (PartModule pm in p.Modules)
+            {
+                if (modules.Contains(pm.moduleName))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         private bool PartModuleCheck(Part p, ConfigNode.Value v)
         {
             foreach (PartModule pm in p.Modules)
@@ -238,6 +267,10 @@ namespace ContractConfigurator.Parameters
                 {
                     child.AddValue("partModule", partModule);
                 }
+                foreach (string partModuleType in filter.partModuleTypes)
+                {
+                    child.AddValue("partModuleType", partModuleType);
+                }
                 foreach (ConfigNode.ValueList list in filter.partModuleExtended)
                 {
                     ConfigNode moduleNode = new ConfigNode("MODULE");
@@ -283,6 +316,7 @@ namespace ContractConfigurator.Parameters
 
                     filter.parts = ConfigNodeUtil.ParseValue<List<AvailablePart>>(child, "part", new List<AvailablePart>());
                     filter.partModules = child.GetValues("partModule").ToList();
+                    filter.partModuleTypes = child.GetValues("partModuleType").ToList();
                     filter.category = ConfigNodeUtil.ParseValue<PartCategories?>(child, "category", (PartCategories?)null);
                     filter.manufacturer = ConfigNodeUtil.ParseValue<string>(child, "manufacturer", (string)null);
                     filter.minCount = ConfigNodeUtil.ParseValue<int>(child, "minCount", 1);

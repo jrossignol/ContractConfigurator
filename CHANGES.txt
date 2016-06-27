@@ -1,4 +1,5 @@
-Contract Configurator 1.13.1
+Contract Configurator 1.14.0
+- Added suppport for partModuleType in PartValidation.
 - Fixed issue where partModuleType = Wheel wasn't picking up the LY-01 fixed landing gear (or any wheel part without a motor).
 
 Contract Configurator 1.13.0
