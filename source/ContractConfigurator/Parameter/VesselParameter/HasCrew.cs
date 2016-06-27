@@ -356,7 +356,7 @@ namespace ContractConfigurator.Parameters
                 // Vessel with crew
                 foreach (ProtoCrewMember pcm in v.GetVesselCrew())
                 {
-                    if (!excludeKerbals.Any(k => k.pcm == pcm))
+                    if (!excludeKerbals.Any(k => k.pcm == pcm) && pcm.type == ProtoCrewMember.KerbalType.Crew)
                     {
                         yield return pcm;
                     }
