@@ -24,7 +24,7 @@ namespace ContractConfigurator
             // Do not check on active contracts.
             checkOnActiveContract = configNode.HasValue("checkOnActiveContract") ? checkOnActiveContract : false;
 
-            valid &= ConfigNodeUtil.ParseValue<List<string>>(configNode, "partModuleType", x => partModuleType = x, this);
+            valid &= ConfigNodeUtil.ParseValue<List<string>>(configNode, "partModuleType", x => partModuleType = x, this, x => x.All(Validation.ValidatePartModuleType));
 
             return valid;
         }
@@ -44,10 +44,6 @@ namespace ContractConfigurator
 
         public override bool RequirementMet(ConfiguredContract contract)
         {
-            // Late validation
-            partModuleType.All(Validation.ValidatePartModuleType);
-
-            // Actual check
             return partModuleType.All(s => ProgressUtilities.HaveModuleTypeTech(s));
         }
     }
