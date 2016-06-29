@@ -55,7 +55,7 @@ namespace ContractConfigurator
                 if (!classes.Any())
                 {
                     valid = false;
-                    LoggingUtil.LogError(this.GetType(), "contractType '" + contractType +
+                    LoggingUtil.LogError(this, "contractType '" + contractType +
                         "' must either be a Contract sub-class or ContractConfigurator contract type");
                 }
                 else

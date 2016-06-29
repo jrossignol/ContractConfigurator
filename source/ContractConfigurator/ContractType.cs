@@ -297,7 +297,7 @@ namespace ContractConfigurator
                 // Check we have at least one valid parameter
                 if (paramFactories.Count() == 0)
                 {
-                    LoggingUtil.LogError(this.GetType(), ErrorPrefix() + ": Need at least one parameter for a contract!");
+                    LoggingUtil.LogError(this, ErrorPrefix() + ": Need at least one parameter for a contract!");
                     valid = false;
                 }
 
