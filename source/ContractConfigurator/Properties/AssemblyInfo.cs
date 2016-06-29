@@ -1,4 +1,9 @@
-﻿using System.Reflection;
+﻿#if DEBUG
+#define ENABLE_PROFILER
+#define DEVELOPMENT
+#endif
+
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 

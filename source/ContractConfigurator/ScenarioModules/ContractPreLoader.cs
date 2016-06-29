@@ -102,6 +102,8 @@ namespace ContractConfigurator
             // Check if we need to make a new enumerator
             if (currentEnumerator == null)
             {
+                Profiler.BeginSample("ContractConfigurator.ContractPreLoader: CreateEnumerator");
+
                 // Prepare a list of possible selections
                 IEnumerable<ContractDetails> selections = contractDetails.Values.Where(cd =>
                     UnityEngine.Time.realtimeSinceStartup - cd.lastGenerationFailure > FAILURE_WAIT_TIME &&
@@ -120,7 +122,8 @@ namespace ContractConfigurator
 
                 LoggingUtil.LogVerbose(this, "Got an enumerator, last failure time was " +
                     (UnityEngine.Time.realtimeSinceStartup - currentDetails.lastGenerationFailure) + " seconds ago");
-                
+
+                Profiler.EndSample();
             }
 
             // Loop through the enumerator until we run out of time, hit the end or generate a contract
@@ -184,6 +187,7 @@ namespace ContractConfigurator
                 Contract.Generate(typeof(ConfiguredContract), prestige, rand.Next(), Contract.State.Withdrawn) as ConfiguredContract;
 
             // Build a weighted list of ContractTypes to choose from
+            Profiler.BeginSample("ContractConfigurator.ContractPreLoader: Select Type");
             Dictionary<ContractType, double> validContractTypes = new Dictionary<ContractType, double>();
             double totalWeight = 0.0;
             foreach (ContractType ct in ContractType.AllValidContractTypes.Where(ct => ct.group == group))
@@ -201,6 +205,7 @@ namespace ContractConfigurator
                     totalWeight += ct.weight;
                 }
             }
+            Profiler.EndSample();
 
             // Loop until we either run out of contracts in our list or make a selection
             while (validContractTypes.Count > 0)
@@ -242,6 +247,8 @@ namespace ContractConfigurator
                 bool failure = false;
                 try
                 {
+                    Profiler.BeginSample("ContractConfigurator.ContractPreLoader: Refresh Non-Deterministic Expressions");
+
                     // Set up for loop
                     LoggingUtil.logLevel = newLogLevel;
                     ConfiguredContract.currentContract = templateContract;
@@ -287,6 +294,7 @@ namespace ContractConfigurator
                 {
                     LoggingUtil.logLevel = origLogLevel;
                     ConfiguredContract.currentContract = null;
+                    Profiler.EndSample();
                 }
 
                 if (failure)
@@ -302,14 +310,17 @@ namespace ContractConfigurator
                 }
 
                 // Check the requirements for our selection
+                Profiler.BeginSample("ContractConfigurator.ContractPreLoader: Extended Requirement Check");
                 if (selectedContractType.MeetExtendedRequirements(templateContract, selectedContractType) && templateContract.Initialize(selectedContractType))
                 {
+                    Profiler.EndSample();
                     yield return templateContract;
                     yield break;
                 }
                 // Remove the selection, and try again
                 else
                 {
+                    Profiler.EndSample();
                     LoggingUtil.LogVerbose(this, selectedContractType.name + " was not generated: requirement not met.");
                     validContractTypes.Remove(selectedContractType);
                     totalWeight -= selectedContractType.weight;

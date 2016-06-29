@@ -183,6 +183,18 @@ namespace ContractConfigurator.ExpressionParser
             get { return children.AsEnumerable(); }
         }
 
+        public DataNode GetChild(string name)
+        {
+            foreach (DataNode child in children)
+            {
+                if (child.name == name)
+                {
+                    return child;
+                }
+            }
+            return null;
+        }
+
         public DataNode(string name, IContractConfiguratorFactory factory)
             : this(name, null, factory)
         {

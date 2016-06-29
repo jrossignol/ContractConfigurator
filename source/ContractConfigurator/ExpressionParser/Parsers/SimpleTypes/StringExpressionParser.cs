@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using UnityEngine;
@@ -12,6 +13,13 @@ namespace ContractConfigurator.ExpressionParser
     /// </summary>
     public class StringExpressionParser : ClassExpressionParser<string>, IExpressionParserRegistrer
     {
+        public override MethodInfo methodParseStatement { get { return _methodParseStatement; } }
+        static MethodInfo _methodParseStatement = typeof(StringExpressionParser).GetMethods(BindingFlags.Public | BindingFlags.Instance).
+            Where(m => m.Name == "ParseStatement" && m.GetParameters().Count() == 0).Single();
+        public override MethodInfo methodParseMethod { get { return _methodParseMethod; } }
+        static MethodInfo _methodParseMethod = typeof(StringExpressionParser).GetMethods(BindingFlags.Public | BindingFlags.Instance).
+            Where(m => m.Name == "ParseMethod" && m.GetParameters().Count() == 3).Single();
+
         static System.Random random = new System.Random();
 
         static StringExpressionParser()
