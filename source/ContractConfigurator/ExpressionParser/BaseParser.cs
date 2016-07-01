@@ -178,7 +178,7 @@ namespace ContractConfigurator.ExpressionParser
             parserTypes[objectType] = parserType;
 
             // Also add the list type
-            Type listType = typeof(List<>).MakeGenericType(new Type[] {objectType});
+            Type listType = typeof(List<>).MakeGenericType(new Type[] { objectType });
             Type listParserType = typeof(ListExpressionParser<>).MakeGenericType(new Type[] { objectType });
             parserTypes[listType] = listParserType;
         }
@@ -205,13 +205,10 @@ namespace ContractConfigurator.ExpressionParser
 
         public static BaseParser NewParser(Type type)
         {
-            MethodInfo getParserMethod = typeof(BaseParser).GetMethods(BindingFlags.Static | BindingFlags.Public).
-                Where(m => m.Name == "GetParser" && m.GetParameters().Count() == 0).Single();
-            getParserMethod = getParserMethod.MakeGenericMethod(new Type[] { type });
-
-            return (BaseParser)getParserMethod.Invoke(null, new object[] {});
+            MethodInfo getParserMethod = methodGetParserPublic.MakeGenericMethod(new Type[] { type });
+            return (BaseParser)getParserMethod.Invoke(null, new object[] { });
         }
-        
+
         protected static ExpressionParser<T> GetParser<T>(BaseParser orig)
         {
             ExpressionParser<T> newParser = GetParser<T>();
@@ -233,13 +230,10 @@ namespace ContractConfigurator.ExpressionParser
 
         protected BaseParser GetParser(Type type)
         {
-            MethodInfo getParserMethod = GetType().GetMethods(BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy).
-                Where(m => m.Name == "GetParser").Single();
-            getParserMethod = getParserMethod.MakeGenericMethod(new Type[] { type });
-
+            MethodInfo getParserMethod = methodGetParserProtected.MakeGenericMethod(new Type[] { type });
             return (BaseParser)getParserMethod.Invoke(null, new object[] { this });
         }
-        
+
         protected static Dictionary<string, List<Function>> globalFunctions = new Dictionary<string, List<Function>>();
         public string expression;
         protected bool parseMode = true;
@@ -329,5 +323,23 @@ namespace ContractConfigurator.ExpressionParser
 
         public abstract void ExecuteAndStoreExpression(string key, string expression, DataNode dataNode);
         public abstract object ParseExpressionGeneric(string key, string expression, DataNode dataNode);
+
+        protected enum ReflectionMethod
+        {
+            ParseStatementInner,
+        }
+
+        public abstract MethodInfo methodParseStatementInner { get; }
+        public abstract MethodInfo methodGetRval { get; }
+        public abstract MethodInfo methodApplyBooleanOperator { get; }
+        public abstract MethodInfo methodParseStatement { get; }
+        public abstract MethodInfo methodParseMethod { get; }
+        public abstract MethodInfo methodCompleteIdentifierParsing { get; }
+        public abstract MethodInfo method_ConvertType { get; }
+
+        static MethodInfo methodGetParserPublic = typeof(BaseParser).GetMethods(BindingFlags.Static | BindingFlags.Public).
+            Where(m => m.Name == "GetParser" && m.GetParameters().Count() == 0).Single();
+        static MethodInfo methodGetParserProtected = typeof(BaseParser).GetMethods(BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy).
+            Where(m => m.Name == "GetParser").Single();
     }
 }

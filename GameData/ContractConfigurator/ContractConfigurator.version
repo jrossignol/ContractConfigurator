@@ -2,7 +2,7 @@
      "NAME":"Contract Configurator",
 	 "URL":"https://raw.githubusercontent.com/jrossignol/ContractConfigurator/master/GameData/ContractConfigurator/ContractConfigurator.version",
 	 "DOWNLOAD":"https://github.com/jrossignol/ContractConfigurator/releases",
-     "CHANGE_LOG_URL":"https://raw.githubusercontent.com/jrossignol/ContractConfigurator/1.12.0/CHANGES.txt",
+     "CHANGE_LOG_URL":"https://raw.githubusercontent.com/jrossignol/ContractConfigurator/1.14.0/CHANGES.txt",
      "GITHUB":{
          "USERNAME":"jrossignol",
          "REPOSITORY":"ContractConfigurator",
@@ -10,23 +10,23 @@
      },
      "VERSION":{
          "MAJOR":1,
-         "MINOR":12,
+         "MINOR":14,
          "PATCH":0,
          "BUILD":0
      },
      "KSP_VERSION":{
          "MAJOR":1,
          "MINOR":1,
-         "PATCH":2
+         "PATCH":3
      },
      "KSP_VERSION_MIN":{
          "MAJOR":1,
          "MINOR":1,
-         "PATCH":2
+         "PATCH":3
      },
      "KSP_VERSION_MAX":{
          "MAJOR":1,
          "MINOR":1,
-         "PATCH":2
+         "PATCH":3
      }
  } 

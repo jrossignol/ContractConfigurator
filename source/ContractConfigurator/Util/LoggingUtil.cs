@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Diagnostics;
 using System.Reflection;
 using System.Text;
 using UnityEngine;
@@ -36,9 +36,10 @@ namespace ContractConfigurator
         /// <summary>
         /// Loads debugging configurations.
         /// </summary>
+        /// 
         public static void LoadDebuggingConfig()
         {
-            Debug.Log("[INFO] ContractConfigurator.LoggingUtil: Loading DebuggingConfig node.");
+            UnityEngine.Debug.Log("[INFO] ContractConfigurator.LoggingUtil: Loading DebuggingConfig node.");
             // Don't know why .GetConfigNode("CC_DEBUGGING") returns null, using .GetConfigNodes("CC_DEBUGGING") works fine.
             ConfigNode[] debuggingConfigs = GameDatabase.Instance.GetConfigNodes("CC_DEBUGGING");
 
@@ -80,7 +81,7 @@ namespace ContractConfigurator
                                 }
                                 catch (Exception e)
                                 {
-                                    Debug.LogWarning("[WARNING] Error loading types from assembly " + a.FullName + ": " + e.Message);
+                                    UnityEngine.Debug.LogWarning("[WARNING] Error loading types from assembly " + a.FullName + ": " + e.Message);
                                 }
                             }
 
@@ -91,12 +92,12 @@ namespace ContractConfigurator
                             }
                             else
                             {
-                                Debug.LogWarning("[WARNING] ContractConfigurator.LoggingUtil: Couldn't find Type with name: '" + typeName + "'");
+                                UnityEngine.Debug.LogWarning("[WARNING] ContractConfigurator.LoggingUtil: Couldn't find Type with name: '" + typeName + "'");
                             }
                         }
                         else
                         {
-                            Debug.LogWarning("[WARNING] ContractConfigurator.LoggingUtil: Couldn't load specific LogLevel node, type or logLevel not given!");
+                            UnityEngine.Debug.LogWarning("[WARNING] ContractConfigurator.LoggingUtil: Couldn't load specific LogLevel node, type or logLevel not given!");
                         }
                     }
 
@@ -122,12 +123,13 @@ namespace ContractConfigurator
             return specificLogLevels.ContainsKey(t.Name) ? specificLogLevels[t.Name] : logLevel;
         }
 
-
+        [Conditional("DEBUG")]
         public static void LogVerbose(System.Object obj, string message)
         {
             LoggingUtil.Log(LogLevel.VERBOSE, obj.GetType(), message);
         }
 
+        [Conditional("DEBUG")]
         public static void LogVerbose(Type type, string message)
         {
             LoggingUtil.Log(LogLevel.VERBOSE, type, message);
@@ -167,7 +169,8 @@ namespace ContractConfigurator
                 {
                     ccFactory = dataNode.Factory;
                 }
-            }            if (ccFactory != null)
+            }
+            if (ccFactory != null)
             {
                 ccFactory.hasWarnings = true;
             }
@@ -198,7 +201,7 @@ namespace ContractConfigurator
                 CaptureException(e);
             }
 
-            Debug.LogException(e);
+            UnityEngine.Debug.LogException(e);
         }
 
         private static void CaptureException(Exception e)
@@ -215,7 +218,7 @@ namespace ContractConfigurator
         public static void Log(LogLevel logLevel, Type type, string message)
         {
             LogLevel logLevelCheckAgainst = LoggingUtil.logLevel;
-            if (specificLogLevels.ContainsKey(type.Name))
+            if (logLevel >= LogLevel.DEBUG && specificLogLevels.ContainsKey(type.Name))
             {
                 logLevelCheckAgainst = (LogLevel)Math.Min((int)logLevelCheckAgainst, (int)specificLogLevels[type.Name]);
             }
@@ -230,13 +233,13 @@ namespace ContractConfigurator
                 }
 
                 if (logLevel <= LogLevel.INFO) {
-                    Debug.Log("[" + logLevel + "] " + message);
+                    UnityEngine.Debug.Log("[" + logLevel + "] " + message);
                 }
                 else if (logLevel == LogLevel.WARNING) {
-                    Debug.LogWarning(message);
+                    UnityEngine.Debug.LogWarning(message);
                 }
                 else if (logLevel == LogLevel.ERROR) {
-                    Debug.LogError(message);
+                    UnityEngine.Debug.LogError(message);
                 }
             }
         }

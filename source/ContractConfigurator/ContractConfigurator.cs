@@ -248,7 +248,7 @@ namespace ContractConfigurator
         /// </summary>
         void RegisterParameterFactories()
         {
-            LoggingUtil.LogDebug(this.GetType(), "Start Registering ParameterFactories");
+            LoggingUtil.LogDebug(this, "Start Registering ParameterFactories");
 
             // Register each type with the parameter factory
             foreach (Type subclass in GetAllTypes<ParameterFactory>().Where(t => !t.IsAbstract))
@@ -270,7 +270,7 @@ namespace ContractConfigurator
                 }
             }
 
-            LoggingUtil.LogInfo(this.GetType(), "Finished Registering ParameterFactories");
+            LoggingUtil.LogInfo(this, "Finished Registering ParameterFactories");
         }
 
         /// <summary>
@@ -278,7 +278,7 @@ namespace ContractConfigurator
         /// </summary>
         void RegisterBehaviourFactories()
         {
-            LoggingUtil.LogDebug(this.GetType(), "Start Registering BehaviourFactories");
+            LoggingUtil.LogDebug(this, "Start Registering BehaviourFactories");
 
             // Register each type with the behaviour factory
             foreach (Type subclass in GetAllTypes<BehaviourFactory>().Where(t => !t.IsAbstract))
@@ -300,7 +300,7 @@ namespace ContractConfigurator
                 }
             }
 
-            LoggingUtil.LogInfo(this.GetType(), "Finished Registering BehaviourFactories");
+            LoggingUtil.LogInfo(this, "Finished Registering BehaviourFactories");
         }
 
         /// <summary>
@@ -308,7 +308,7 @@ namespace ContractConfigurator
         /// </summary>
         void RegisterContractRequirements()
         {
-            LoggingUtil.LogDebug(this.GetType(), "Start Registering ContractRequirements");
+            LoggingUtil.LogDebug(this, "Start Registering ContractRequirements");
 
             // Register each type
             foreach (Type subclass in GetAllTypes<ContractRequirement>().Where(t => !t.IsAbstract))
@@ -330,7 +330,7 @@ namespace ContractConfigurator
                 }
             }
 
-            LoggingUtil.LogInfo(this.GetType(), "Finished Registering ContractRequirements");
+            LoggingUtil.LogInfo(this, "Finished Registering ContractRequirements");
         }
 
         /// <summary>
@@ -349,14 +349,14 @@ namespace ContractConfigurator
         private IEnumerator<YieldInstruction> LoadContractConfig()
         {
             // Load all the contract groups
-            LoggingUtil.LogDebug(this.GetType(), "Loading CONTRACT_GROUP nodes.");
+            LoggingUtil.LogDebug(this, "Loading CONTRACT_GROUP nodes.");
             ConfigNode[] contractGroups = GameDatabase.Instance.GetConfigNodes("CONTRACT_GROUP");
 
             foreach (ConfigNode groupConfig in contractGroups)
             {
                 // Create the group
                 string name = groupConfig.GetValue("name");
-                LoggingUtil.LogInfo(this.GetType(), "Loading CONTRACT_GROUP: '" + name + "'");
+                LoggingUtil.LogInfo(this, "Loading CONTRACT_GROUP: '" + name + "'");
                 ContractGroup contractGroup = null;
                 try
                 {
@@ -364,7 +364,7 @@ namespace ContractConfigurator
                 }
                 catch (ArgumentException)
                 {
-                    LoggingUtil.LogError(this.GetType(), "Couldn't load CONTRACT_GROUP '" + name + "' due to a duplicate name.");
+                    LoggingUtil.LogError(this, "Couldn't load CONTRACT_GROUP '" + name + "' due to a duplicate name.");
                 }
 
                 // Peform the actual load
@@ -391,7 +391,7 @@ namespace ContractConfigurator
                 }
             }
 
-            LoggingUtil.LogDebug(this.GetType(), "Loading CONTRACT_TYPE nodes.");
+            LoggingUtil.LogDebug(this, "Loading CONTRACT_TYPE nodes.");
             ConfigNode[] contractConfigs = GameDatabase.Instance.GetConfigNodes("CONTRACT_TYPE");
             totalContracts = contractConfigs.Count();
 
@@ -399,14 +399,14 @@ namespace ContractConfigurator
             foreach (ConfigNode contractConfig in contractConfigs)
             {
                 // Create the initial contract type
-                LoggingUtil.LogVerbose(this.GetType(), "Pre-load for node: '" + contractConfig.GetValue("name") + "'");
+                LoggingUtil.LogVerbose(this, "Pre-load for node: '" + contractConfig.GetValue("name") + "'");
                 try
                 {
                     ContractType contractType = new ContractType(contractConfig.GetValue("name"));
                 }
                 catch (ArgumentException)
                 {
-                    LoggingUtil.LogError(this.GetType(), "Couldn't load CONTRACT_TYPE '" + contractConfig.GetValue("name") + "' due to a duplicate name.");
+                    LoggingUtil.LogError(this, "Couldn't load CONTRACT_TYPE '" + contractConfig.GetValue("name") + "' due to a duplicate name.");
                 }
             }
 
@@ -438,7 +438,7 @@ namespace ContractConfigurator
                 }
             }
 
-            LoggingUtil.LogInfo(this.GetType(), "Loaded " + successContracts + " out of " + totalContracts + " CONTRACT_TYPE nodes.");
+            LoggingUtil.LogInfo(this, "Loaded " + successContracts + " out of " + totalContracts + " CONTRACT_TYPE nodes.");
 
             // Check for empty groups and warn
             foreach (ContractGroup group in ContractGroup.contractGroups.Values.Where(g => g != null))

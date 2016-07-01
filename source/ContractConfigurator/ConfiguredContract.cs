@@ -123,7 +123,7 @@ namespace ContractConfigurator
                     LoggingUtil.logLevel = LoggingUtil.LogLevel.VERBOSE;
                 }
 
-                LoggingUtil.LogDebug(this.GetType(), "Initializing contract: " + contractType);
+                LoggingUtil.LogDebug(this, "Initializing contract: " + contractType);
 
                 // Set stuff from contract type
                 subType = contractType.name;
@@ -197,7 +197,7 @@ namespace ContractConfigurator
                     return false;
                 }
 
-                LoggingUtil.LogVerbose(this.GetType(), "Initialized contract: " + contractType);
+                LoggingUtil.LogVerbose(this, "Initialized contract: " + contractType);
                 return true;
             }
             catch (Exception e)

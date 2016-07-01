@@ -298,7 +298,7 @@ namespace ContractConfigurator.Behaviour
                 // Additional seetings for a landed Kerbal
                 if (kd.landed)
                 {
-                    bool splashed = kd.altitude.Value < 0.001;
+                    bool splashed = kd.altitude.Value < 0.001 && kd.body.ocean;
 
                     // Add a bit of height for landed kerbals
                     if (!splashed)

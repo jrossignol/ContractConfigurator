@@ -107,6 +107,16 @@ namespace ContractConfigurator.Behaviour
                 {
                     WaypointData wpData = new WaypointData(old, contract);
                     waypoints.Add(wpData);
+
+                    // Set the name
+                    if (old.names.Any())
+                    {
+                        wpData.waypoint.name = (old.names.Count() == 1 ? old.names.First() : old.names.ElementAtOrDefault(i));
+                    }
+                    if (string.IsNullOrEmpty(wpData.waypoint.name) || wpData.waypoint.name.ToLower() == "site")
+                    {
+                        wpData.waypoint.name = StringUtilities.GenerateSiteName(random.Next(), wpData.waypoint.celestialBody, !wpData.waterAllowed);
+                    }
                 }
             }
             initialized = orig.initialized;

@@ -59,15 +59,9 @@ namespace ContractConfigurator.Util
         static UnityEngine.Sprite itemDisabled;
         static UnityEngine.Sprite[] prestigeSprites = new UnityEngine.Sprite[3];
 
-        static FieldInfo selectedMissionField = typeof(MissionControl).GetFields(BindingFlags.Instance | BindingFlags.NonPublic).Where(fi => fi.FieldType == typeof(MissionControl.MissionSelection)).First();
-        static FieldInfo avatarControllerField = typeof(MissionControl).GetFields(BindingFlags.Instance | BindingFlags.NonPublic).Where(fi => fi.FieldType == typeof(MCAvatarController)).First();
-        static MethodInfo updateInstructorMethod = typeof(MissionControl).GetMethods(BindingFlags.Instance | BindingFlags.NonPublic).Where(mi => mi.Name == "UpdateInstructor").First();
-
         public static MissionControlUI Instance;
         public int ticks = 0;
 
-        private MCAvatarController avatarController;
-        private MissionControl.MissionSelection selectedMission;
         private UIRadioButton selectedButton;
 
         public void Awake()
@@ -97,9 +91,6 @@ namespace ContractConfigurator.Util
 
             if (ticks++ == 0)
             {
-                // Reflect on things
-                avatarController = (MCAvatarController)avatarControllerField.GetValue(MissionControl.Instance);
-
                 // Replace the handlers with our own
                 MissionControl.Instance.toggleDisplayModeAvailable.onValueChanged.RemoveAllListeners();
                 MissionControl.Instance.toggleDisplayModeAvailable.onValueChanged.AddListener(new UnityAction<bool>(OnClickAvailable));
@@ -325,8 +316,7 @@ namespace ContractConfigurator.Util
             Contract.ContractPrestige? prestige = null;
             if (cc.contract != null)
             {
-                selectedMissionField.SetValue(MissionControl.Instance, cc.missionSelection);
-                selectedMission = cc.missionSelection;
+                MissionControl.Instance.selectedMission = cc.missionSelection;
                 MissionControl.Instance.UpdateInfoPanelContract(cc.contract);
                 prestige = cc.contract.Prestige;
             }
@@ -339,15 +329,15 @@ namespace ContractConfigurator.Util
 
             if (prestige == Contracts.Contract.ContractPrestige.Exceptional)
             {
-                updateInstructorMethod.Invoke(MissionControl.Instance, new object[] { avatarController.animTrigger_selectHard, avatarController.animLoop_excited });
+                MissionControl.Instance.UpdateInstructor(MissionControl.Instance.avatarController.animTrigger_selectHard, MissionControl.Instance.avatarController.animLoop_excited);
             }
             else if (prestige == Contracts.Contract.ContractPrestige.Significant)
             {
-                updateInstructorMethod.Invoke(MissionControl.Instance, new object[] { avatarController.animTrigger_selectNormal, avatarController.animLoop_default });
+                MissionControl.Instance.UpdateInstructor(MissionControl.Instance.avatarController.animTrigger_selectNormal, MissionControl.Instance.avatarController.animLoop_default);
             }
             else
             {
-                updateInstructorMethod.Invoke(MissionControl.Instance, new object[] { avatarController.animTrigger_selectEasy, avatarController.animLoop_default });
+                MissionControl.Instance.UpdateInstructor(MissionControl.Instance.avatarController.animTrigger_selectEasy, MissionControl.Instance.avatarController.animLoop_default);
             }
         }
 
@@ -360,8 +350,7 @@ namespace ContractConfigurator.Util
 
             MissionControl.Instance.panelView.gameObject.SetActive(false);
             MissionControl.Instance.ClearInfoPanel();
-            selectedMissionField.SetValue(MissionControl.Instance, null);
-            selectedMission = null;
+            MissionControl.Instance.selectedMission = null;
             selectedButton = null;
         }
 
@@ -386,18 +375,18 @@ namespace ContractConfigurator.Util
             Debug.Log("MissionControlUI.OnClickAccept");
 
             // Accept the contract
-            selectedMission.contract.Accept();
-            updateInstructorMethod.Invoke(MissionControl.Instance, new object[] { avatarController.animTrigger_accept, avatarController.animLoop_default });
+            MissionControl.Instance.selectedMission.contract.Accept();
+            MissionControl.Instance.UpdateInstructor(MissionControl.Instance.avatarController.animTrigger_accept, MissionControl.Instance.avatarController.animLoop_default);
 
             // Update the contract
-            SetContractTitle(selectedButton.GetComponent<MCListItem>(), new ContractContainer(selectedMission.contract));
+            SetContractTitle(selectedButton.GetComponent<MCListItem>(), new ContractContainer(MissionControl.Instance.selectedMission.contract));
             OnSelectContract(selectedButton, UIRadioButton.CallType.USER, null);
         }
 
         private void OnClickDecline()
         {
             Debug.Log("MissionControlUI.OnClickDecline");
-            selectedMission = null;
+            MissionControl.Instance.selectedMission = null;
             selectedButton = null;
             OnClickAvailable(true);
         }
@@ -405,7 +394,7 @@ namespace ContractConfigurator.Util
         private void OnClickCancel()
         {
             Debug.Log("MissionControlUI.OnClickCancel");
-            selectedMission = null;
+            MissionControl.Instance.selectedMission = null;
             selectedButton = null;
             OnClickAvailable(true);
         }

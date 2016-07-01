@@ -70,7 +70,7 @@ namespace ContractConfigurator
             CelestialBodySubtree cbProgress = GetCelestialBodySubtree();
             if (cbProgress == null)
             {
-                LoggingUtil.LogError(this.GetType(), ": ProgressNode for targetBody " + targetBody.bodyName + " not found.");
+                LoggingUtil.LogError(this, ": ProgressNode for targetBody " + targetBody.bodyName + " not found.");
                 return false;
             }
 

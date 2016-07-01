@@ -1,8 +1,22 @@
-Contract Configurator 1.12.2
-- Removed ConfiguredContract entries from settings menu (thanks Deimos Rast).
+Contract Configurator 1.14.0
+- Added suppport for partModuleType in PartValidation.
+- Added AtMost and AtLeast set requirements.
+- Fixed issue where HasCrew was counting tourists.
+- Fixed issue where partModuleType = Wheel wasn't picking up the LY-01 fixed landing gear (or any wheel part without a motor).
+- Fixed issue with VisitWaypoing and WaypointGenerator not correctly update waypoint names when expressions are used.
+- Reduced LINQ and reflection calls in expression parser for performance/garbage collection improvements.
+
+Contract Configurator 1.13.0
+- KSP 1.1.3 compatibility.
+- Integrated Wider Contracts App into Contract Configurator.
 - Fixed isuse with SpawnVessels spawning vessels with incorrect rotation (thanks severedsolo).
 - Prevent Rendenzvous parameter from triggering when a vessel performs a rendezvous with itself (thanks danielguo).
 - Fixed NRE on contract accept when using SpawnVessel's craftPart method of spawning.
+- Fixed PartModuleUnlocked and PartUnlocked requirements to check for part purchase and not just tech unlock (thanks inigma).
+- Always set the CollectScience targetBody to the one from the biome if a biome is used (thanks severedsolo & enceos).
+- Fixed exception in RecoverKerbal (thanks palleon).
+- Fixed incorrect handling of waypoints with negative altitude on non-ocean worlds in VisitWaypoint (thanks Galenmacil).
+- Removed extra ConfiguredContract entries from settings menu (thanks Deimos Rast).
 
 Contract Configurator 1.12.1
 - Fixed backwards compatibility for Wheel PartModuleType (thanks TheReadPanda).

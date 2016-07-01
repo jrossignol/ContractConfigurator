@@ -121,10 +121,10 @@ namespace ContractConfigurator
         /// <returns>True if valid, exception otherwise</returns>
         public static bool ValidatePartModuleType(string name)
         {
-            // Compatibility for contracts written for pre-KSP 1.1
-            if (name == "Wheel")
+            // Check if we need to force-initalize the contract definitions
+            if (ContractDefs.config == null)
             {
-                return true;
+                new ContractDefs();
             }
 
             if (ContractDefs.GetModules(name).Count == 0)
