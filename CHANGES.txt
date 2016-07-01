@@ -3,6 +3,7 @@ Contract Configurator 1.14.0
 - Added AtMost and AtLeast set requirements.
 - Fixed issue where HasCrew was counting tourists.
 - Fixed issue where partModuleType = Wheel wasn't picking up the LY-01 fixed landing gear (or any wheel part without a motor).
+- Fixed issue with VisitWaypoing and WaypointGenerator not correctly update waypoint names when expressions are used.
 - Reduced LINQ and reflection calls in expression parser for performance/garbage collection improvements.
 
 Contract Configurator 1.13.0
