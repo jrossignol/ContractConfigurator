@@ -228,12 +228,15 @@ namespace ContractConfigurator.Parameters
         protected static IEnumerable<T> CheckChildConditions(ContractParameter param, IEnumerable<T> values, ref bool conditionMet, bool checkOnly = false)
         {
             int count = values.Count();
-            foreach (ContractParameter child in param.GetChildren())
+
+            int paramCount = param.ParameterCount;
+            for (int i = 0; i < paramCount; i++)
             {
-                if (child is ParameterDelegate<T>)
+                ParameterDelegate<T> paramDelegate = param[i] as ParameterDelegate<T>;
+                if (paramDelegate != null)
                 {
-                    ParameterDelegate<T> paramDelegate = (ParameterDelegate<T>)child;
                     LoggingUtil.LogVerbose(paramDelegate, "Checking condition for '" + paramDelegate.title + "', input.Any() = " + values.Any());
+
                     IEnumerable<T> newValues = paramDelegate.SetState(values, ref conditionMet, checkOnly);
                     if (paramDelegate.matchType == ParameterDelegateMatchType.FILTER)
                     {
@@ -270,9 +273,10 @@ namespace ContractConfigurator.Parameters
         public static bool CheckChildConditions(ContractParameter param, T value, bool checkOnly = false)
         {
             bool conditionMet = true;
-            foreach (ContractParameter child in param.AllParameters)
+            int count = param.ParameterCount;
+            for (int i = 0; i < param.ParameterCount; i++)
             {
-                ParameterDelegate<T> delegateParam = child as ParameterDelegate<T>;
+                ParameterDelegate<T> delegateParam = param[i] as ParameterDelegate<T>;
                 if (delegateParam != null)
                 {
                     conditionMet &= delegateParam.SetState(value);
