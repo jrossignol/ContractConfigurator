@@ -45,5 +45,12 @@ namespace ContractConfigurator
             float science = ResearchAndDevelopment.Instance.Science;
             return science >= minScience && science <= maxScience;
         }
+
+        protected override string RequirementText()
+        {
+            string output = "Must " + (invertRequirement ? "not " : "") + "have between " + minScience.ToString("N0") + " and " + maxScience.ToString("N0") + " science";
+
+            return output;
+        }
     }
 }

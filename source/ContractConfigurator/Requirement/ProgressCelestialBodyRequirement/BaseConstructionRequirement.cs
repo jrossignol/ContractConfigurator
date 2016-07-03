@@ -8,16 +8,22 @@ using KSPAchievements;
 
 namespace ContractConfigurator
 {
-    /*
-     * ContractRequirement to provide requirement for player having built a base on a
-     * specific CelestialBody.
-     */
+    /// <summary>
+    /// ContractRequirement to provide requirement for player having built a base on a specific CelestialBody.
+    /// </summary>
     public class BaseConstructionRequirement : ProgressCelestialBodyRequirement
     {
         public override bool RequirementMet(ConfiguredContract contract)
         {
             return base.RequirementMet(contract) &&
                 GetCelestialBodySubtree().baseConstruction.IsComplete;
+        }
+
+        protected override string RequirementText()
+        {
+            string output = "Must " + (invertRequirement ? "not " : "") + "have built a " + CheckTypeString() + "base on " + targetBody.theName;
+
+            return output;
         }
     }
 }

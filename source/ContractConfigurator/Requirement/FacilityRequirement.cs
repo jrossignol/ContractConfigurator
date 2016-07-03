@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using System.Text.RegularExpressions;
 using UnityEngine;
 using KSP;
-using KSPAchievements;
 using Upgradeables;
+using ContractConfigurator.ExpressionParser;
 
 namespace ContractConfigurator
 {
@@ -54,6 +54,27 @@ namespace ContractConfigurator
                 ScenarioUpgradeableFacilities.GetFacilityLevelCount(facility)) + 1;
             return level == 0 && contract != null && contract.ContractState == Contracts.Contract.State.Active ||
                 level >= minLevel && level <= maxLevel;
+        }
+
+        protected override string RequirementText()
+        {
+            string facilityName = Regex.Replace(facility.ToString(), @"([A-Z]+?(?=[A-Z][^A-Z])|\B[A-Z]+?(?=[^A-Z]))", " $1");
+
+            string output = "The " + facilityName + " must " + (invertRequirement ? "not " : "") + "be ";
+            if (minLevel == maxLevel)
+            {
+                output += "at level " + NumericValueExpressionParser<int>.PrintNumber(minLevel);
+            }
+            else if (minLevel >= 1)
+            {
+                output += "at least at level " + NumericValueExpressionParser<int>.PrintNumber(minLevel);
+            }
+            else
+            {
+                output += "at most at level " + NumericValueExpressionParser<int>.PrintNumber(maxLevel);
+            }
+
+            return output;
         }
     }
 }

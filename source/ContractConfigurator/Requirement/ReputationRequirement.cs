@@ -45,5 +45,12 @@ namespace ContractConfigurator
             float reputation = Reputation.Instance.reputation;
             return reputation >= minReputation && reputation <= maxReputation;
         }
+
+        protected override string RequirementText()
+        {
+            string output = "Must " + (invertRequirement ? "not " : "") + "have between " + minReputation.ToString("N0") + " and " + maxReputation.ToString("N0") + " reputation";
+
+            return output;
+        }
     }
 }

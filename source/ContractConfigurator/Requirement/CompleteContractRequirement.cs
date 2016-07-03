@@ -4,8 +4,8 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 using KSP;
-using KSPAchievements;
 using Contracts;
+using ContractConfigurator.Util;
 
 namespace ContractConfigurator
 {
@@ -78,6 +78,17 @@ namespace ContractConfigurator
 
             // Return based on the min/max counts configured
             return (finished >= minCount) && (finished <= maxCount);
+        }
+
+        protected override string RequirementText()
+        {
+            string output = "Must " + (invertRequirement ? "not " : "") + "have completed contract <color=#" + MissionControlUI.RequirementHighlightColor + ">'" + ContractTitle() + "'</color>";
+            if (cooldownDuration.Value > 0.0)
+            {
+                output += " within the last " + cooldownDuration.ToString();
+            }
+
+            return output;
         }
     }
 }

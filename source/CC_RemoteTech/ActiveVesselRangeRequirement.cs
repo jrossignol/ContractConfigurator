@@ -56,5 +56,11 @@ namespace ContractConfigurator.RemoteTech
 
             return RemoteTechProgressTracker.Instance.ActiveRange(targetBody) > range;
         }
+
+        protected override string RequirementText()
+        {
+            string output = "Must " + (invertRequirement ? "not " : "") + "have a RemoteTech constellation orbiting " + targetBody.theName + " with an active vessel dish (or omni antenna) with a range of at least " + (range / 1000.0).ToString("N0") + " km";
+            return output;
+        }
     }
 }

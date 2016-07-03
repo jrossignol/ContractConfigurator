@@ -19,25 +19,21 @@ namespace ContractConfigurator
             // Load base class
             bool valid = base.LoadFromConfig(configNode);
 
-            // Validate targetBody
-            if (targetBody.name.Equals("Kerbin"))
-            {
-                valid = false;
-                LoggingUtil.LogError(this, ErrorPrefix(configNode) +
-                    ": targetBody cannot be Kerbin for ReturnFromSurface.");
-            }
-
             return valid;
         }
-
-        public override void OnLoad(ConfigNode configNode) { }
-        public override void OnSave(ConfigNode configNode) { }
 
         public override bool RequirementMet(ConfiguredContract contract)
         {
             // This appears bugged - returnFromSurface is null
             return base.RequirementMet(contract) &&
                 GetCelestialBodySubtree().returnFromSurface.IsComplete;
+        }
+
+        protected override string RequirementText()
+        {
+            string output = "Must " + (invertRequirement ? "not " : "") + "have returned from " + ACheckTypeString() + "landing on " + targetBody.theName;
+
+            return output;
         }
     }
 }

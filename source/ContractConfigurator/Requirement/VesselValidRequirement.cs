@@ -42,5 +42,10 @@ namespace ContractConfigurator
         {
             return ContractVesselTracker.Instance != null && ContractVesselTracker.Instance.GetAssociatedVessel(vessel.identifier) != null;
         }
+
+        protected override string RequirementText()
+        {
+            return "The vessel " + vessel.identifier + " must be a valid vessel";
+        }
     }
 }

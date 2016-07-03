@@ -20,6 +20,8 @@ namespace ContractConfigurator.Util
     [KSPAddon(KSPAddon.Startup.SpaceCentre, false)]
     public class MissionControlUI : MonoBehaviour
     {
+        public static string RequirementHighlightColor = "F9F9F6";
+
         public class ContractContainer
         {
             public Contract contract;
@@ -31,7 +33,7 @@ namespace ContractConfigurator.Util
                 get
                 {
                     // TODO - order key
-                    return contract == null ? contractType.title : contract.Title;
+                    return contract == null ? contractType.genericTitle : contract.Title;
                 }
             }
 
@@ -312,6 +314,7 @@ namespace ContractConfigurator.Util
             ContractContainer cc = (ContractContainer)button.GetComponent<KSP.UI.UIListItem>().Data;
 
             MissionControl.Instance.panelView.gameObject.SetActive(true);
+            MissionControl.Instance.logoRenderer.gameObject.SetActive(true);
             selectedButton = button;
             Contract.ContractPrestige? prestige = null;
             if (cc.contract != null)
@@ -319,11 +322,12 @@ namespace ContractConfigurator.Util
                 MissionControl.Instance.selectedMission = cc.missionSelection;
                 MissionControl.Instance.UpdateInfoPanelContract(cc.contract);
                 prestige = cc.contract.Prestige;
+
+                Debug.Log("contract title = '" + MissionControl.Instance.textContractInfo.text + "'");
             }
             else
             {
-                // TODO - UI for contract type
-
+                UpdateInfoPanelContractType(cc.contractType);
                 prestige = GetPrestige(cc.contractType);
             }
 
@@ -358,16 +362,86 @@ namespace ContractConfigurator.Util
         {
             // Set up the list item with the contract details
             string color = cc.contract == null ? "A9A9A9" : cc.contract.ContractState == Contract.State.Active ? "96df41" : "fefa87";
-            string title = cc.contract == null ? cc.contractType.title : cc.contract.Title; // TODO - proper title for contract type
+            string title = cc.contract == null ? cc.contractType.genericTitle : cc.contract.Title; // TODO - proper title for contract type
             mcListItem.title.text = "<color=#" + color + ">" + title + "</color>";
             if (cc.contract != null)
             {
                 mcListItem.difficulty.SetState((int)cc.contract.Prestige);
+
+                // TODO - remove debug
+                Debug.Log("Mission Control Text: " + cc.contract.MissionControlTextRich());
             }
             else
             {
                 // TODO - contract type prestige
             }
+        }
+
+        /// <summary>
+        /// Updates the information panel to show the given contract type
+        /// </summary>
+        /// <param name="contractType"></param>
+        protected void UpdateInfoPanelContractType(ContractType contractType)
+        {
+            MissionControl.Instance.UpdateInfoPanelContract(null);
+
+            // Set up buttons
+            MissionControl.Instance.btnAccept.gameObject.SetActive(false);
+            MissionControl.Instance.btnDecline.gameObject.SetActive(false);
+            MissionControl.Instance.btnCancel.gameObject.SetActive(false);
+            MissionControl.Instance.btnAgentBack.gameObject.SetActive(false);
+
+            // Set up agent
+            string agentText = "";
+            if (contractType.agent != null)
+            {
+                MissionControl.Instance.logoRenderer.texture = contractType.agent.Logo;
+                agentText = "\n\n<b><color=#DB8310>Agent:</color></b>\n" + contractType.agent.Name;
+            }
+            else
+            {
+                MissionControl.Instance.logoRenderer.gameObject.SetActive(false);
+            }
+
+            // Set up text
+            // TODO - proper name
+            MissionControl.Instance.textContractInfo.text = "<b><color=#DB8310>Contract:</color></b>\n" + contractType.name + agentText;
+            MissionControl.Instance.contractTextRect.verticalNormalizedPosition = 1f;
+            MissionControl.Instance.textDateInfo.text = "";
+
+            // Set up main text area
+            MissionControlText(contractType);
+        }
+
+        protected void MissionControlText(ContractType contractType)
+        {
+            string text = "<b><color=#DB8310>Briefing:</color></b>\n\n";
+            text += "<color=#CCCCCC>" + contractType.genericDescription + "</color>\n\n";
+
+            text += "<b><color=#DB8310>Pre-Requisites:</color></b>\n\n";
+            text += ContractRequirementText(contractType.Requirements);
+
+            MissionControl.Instance.contractText.text = text;
+        }
+
+        protected string ContractRequirementText(IEnumerable<ContractRequirement> requirements, string indent ="")
+        {
+            string text = "";
+            foreach (ContractRequirement requirement in requirements)
+            {
+                if (requirement.enabled)
+                {
+                    bool met = requirement.lastResult != null && requirement.lastResult.Value;
+                    string color = met ? "#8BED8B" : "#FFEA04";
+                    text += indent + "<b><color=#BEC2AE>" + requirement.Title + ": </color></b><color=" + color + ">" + (met ? "Met" : "Unmet") + "</color>\n";
+
+                    if (!requirement.hideChildren)
+                    {
+                        text += ContractRequirementText(requirement.ChildRequirements, indent + "    ");
+                    }
+                }
+            }
+            return text;
         }
 
         private void OnClickAccept()

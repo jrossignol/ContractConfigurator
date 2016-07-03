@@ -33,5 +33,10 @@ namespace ContractConfigurator
 
         public override void OnLoad(ConfigNode configNode) { }
         public override void OnSave(ConfigNode configNode) { }
+
+        protected override string RequirementText()
+        {
+            return "Must meet <i>all</i> of the following";
+        }
     }
 }

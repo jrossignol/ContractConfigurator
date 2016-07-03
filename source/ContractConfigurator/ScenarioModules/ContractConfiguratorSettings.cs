@@ -301,8 +301,6 @@ namespace ContractConfigurator
                         Type subclass = pair.Key;
                         StockContractDetails details = pair.Value;
 
-                        LoggingUtil.LogDebug(this, "zzz Contract type = " + subclass.Name + ", enabled = " + details.enabled + ", in list = " + ContractSystem.ContractTypes.Contains(subclass));
-
                         string hintText;
                         IEnumerable<ContractGroup> disablingGroups = ContractDisabler.DisablingGroups(subclass);
                         if (disablingGroups.Any())

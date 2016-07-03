@@ -48,5 +48,12 @@ namespace ContractConfigurator
             double funds = Funding.Instance.Funds;
             return funds >= minFunds && funds <= maxFunds;
         }
+
+        protected override string RequirementText()
+        {
+            string output = "Must " + (invertRequirement ? "not " : "") + "have between " + minFunds.ToString("N0") + " and " + maxFunds.ToString("N0") + " funds";
+
+            return output;
+        }
     }
 }

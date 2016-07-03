@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -8,8 +9,7 @@ using KSP;
 using Contracts;
 using Contracts.Agents;
 using ContractConfigurator.ExpressionParser;
-using System.IO;
-using System.Text.RegularExpressions;
+using ContractConfigurator.Util;
 
 namespace ContractConfigurator
 {
@@ -32,14 +32,26 @@ namespace ContractConfigurator
         {
             get
             {
-                return contractTypes.Values.Where(ct => ct.enabled);
+                foreach (KeyValuePair<string, ContractType> pair in contractTypes)
+                {
+                    if (pair.Value.enabled)
+                    {
+                        yield return pair.Value;
+                    }
+                }
             }
         }
         public static IEnumerable<string> AllValidContractTypeNames
         {
             get
             {
-                return AllValidContractTypes.Select<ContractType, string>(ct => ct.name);
+                foreach (KeyValuePair<string, ContractType> pair in contractTypes)
+                {
+                    if (pair.Value.enabled)
+                    {
+                        yield return pair.Key;
+                    }
+                }
             }
         }
         
@@ -65,6 +77,21 @@ namespace ContractConfigurator
             }
         }
 
+        public System.Version minVersion
+        {
+            get
+            {
+                for (ContractGroup currentGroup = group; currentGroup != null; currentGroup = currentGroup.parent)
+                {
+                    if (!string.IsNullOrEmpty(currentGroup.minVersion))
+                    {
+                        return Util.Version.ParseVersion(currentGroup.minVersion);
+                    }
+                }
+                return new System.Version(1, 0, 0, 0);
+            }
+        }
+
         protected List<ParameterFactory> paramFactories = new List<ParameterFactory>();
         protected List<BehaviourFactory> behaviourFactories = new List<BehaviourFactory>();
         protected List<ContractRequirement> requirements = new List<ContractRequirement>();
@@ -87,9 +114,11 @@ namespace ContractConfigurator
         public string name;
         public ContractGroup group;
         public string title = "";
+        public string genericTitle = "";
         public string tag;
         public string notes;
         public string description;
+        public string genericDescription = "";
         public string topic;
         public string subject;
         public string motivation;
@@ -303,6 +332,48 @@ namespace ContractConfigurator
 
                 // Do the deferred loads
                 valid &= ConfigNodeUtil.ExecuteDeferredLoads();
+
+                //
+                // Do generic fields that need to happen after deferred loads
+                //
+                
+                // Generic title
+                valid &= ConfigNodeUtil.ParseValue<string>(configNode, "genericTitle", x => genericTitle = x, this, title);
+                if (!configNode.HasValue("genericTitle") && !dataNode.IsDeterministic("title"))
+                {
+                    LoggingUtil.Log(minVersion >= ContractConfigurator.ENHANCED_UI_VERSION ? LoggingUtil.LogLevel.ERROR : LoggingUtil.LogLevel.WARNING, this,
+                        ErrorPrefix() + ": The field 'genericTitle' is required when the title is not determistic (ie. when expressions are used).");
+
+                    // Error on newer versions of contract packs
+                    if (minVersion >= ContractConfigurator.ENHANCED_UI_VERSION)
+                    {
+                        valid = false;
+                    }
+                }
+                else if (!dataNode.IsDeterministic("genericTitle"))
+                {
+                    valid = false;
+                    LoggingUtil.LogError(this, ErrorPrefix() + ": The field 'genericTitle' must be deterministic.");
+                }
+
+                // Generic description
+                valid &= ConfigNodeUtil.ParseValue<string>(configNode, "genericDescription", x => genericDescription = x, this, description);
+                if (!configNode.HasValue("genericDescription") && !dataNode.IsDeterministic("description"))
+                {
+                    LoggingUtil.Log(minVersion >= ContractConfigurator.ENHANCED_UI_VERSION ? LoggingUtil.LogLevel.ERROR : LoggingUtil.LogLevel.WARNING, this,
+                        ErrorPrefix() + ": The field 'genericDescription' is required when the description is not determistic (ie. when expressions are used).");
+
+                    // Error on newer versions of contract packs
+                    if (minVersion >= ContractConfigurator.ENHANCED_UI_VERSION)
+                    {
+                        valid = false;
+                    }
+                }
+                else if (!dataNode.IsDeterministic("genericDescription"))
+                {
+                    valid = false;
+                    LoggingUtil.LogError(this, ErrorPrefix() + ": The field 'genericDescription' must be deterministic.");
+                }
 
                 if (valid)
                 {

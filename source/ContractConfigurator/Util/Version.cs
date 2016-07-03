@@ -70,7 +70,7 @@ namespace ContractConfigurator.Util
             }
         }
 
-        private static System.Version ParseVersion(string version)
+        public static System.Version ParseVersion(string version)
         {
             Match m = Regex.Match(version, @"^[vV]?(\d+)(.(\d+)(.(\d+)(.(\d+))?)?)?");
             int major = m.Groups[1].Value.Equals("") ? 0 : Convert.ToInt32(m.Groups[1].Value);

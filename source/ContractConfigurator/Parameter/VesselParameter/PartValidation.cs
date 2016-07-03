@@ -156,7 +156,7 @@ namespace ContractConfigurator.Parameters
             }
         }
 
-        private string ModuleName(string partModule)
+        public static string ModuleName(string partModule)
         {
             string output = partModule.Replace("Module", "").Replace("FX", "");
 

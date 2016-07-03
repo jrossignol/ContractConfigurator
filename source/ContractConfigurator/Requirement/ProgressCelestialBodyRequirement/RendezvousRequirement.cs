@@ -8,16 +8,22 @@ using KSPAchievements;
 
 namespace ContractConfigurator
 {
-    /*
-     * ContractRequirement to provide requirement for player having rendezvoued with a
-     * specific CelestialBody.
-     */
+    /// <summary>
+    /// ContractRequirement to provide requirement for player having rendezvoued with a specific CelestialBody.
+    /// </summary>
     public class RendezvousRequirement : ProgressCelestialBodyRequirement
     {
         public override bool RequirementMet(ConfiguredContract contract)
         {
             return base.RequirementMet(contract) &&
                 GetCelestialBodySubtree().rendezvous.IsComplete;
+        }
+
+        protected override string RequirementText()
+        {
+            string output = "Must " + (invertRequirement ? "not " : "") + "have performed " + ACheckTypeString() + "rendezvous near " + targetBody.theName;
+
+            return output;
         }
     }
 }

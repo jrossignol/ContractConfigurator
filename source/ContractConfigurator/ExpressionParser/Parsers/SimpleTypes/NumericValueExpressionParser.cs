@@ -169,34 +169,36 @@ namespace ContractConfigurator.ExpressionParser
             RegisterLocalFunction(new Function<T, T>("Round", Round));
             RegisterLocalFunction(new Function<T, T, T>("Round", Round));
 
-            RegisterMethod(new Method<T, string>("Print", (tval) =>
+            RegisterMethod(new Method<T, string>("Print", PrintNumber));
+        }
+
+        public static string PrintNumber(T tval)
+        {
+            if (typeof(T) == typeof(int) || typeof(T) == typeof(short))
             {
-                if (typeof(T) == typeof(int) || typeof(T) == typeof(short))
+                int ival = (int)(object)tval;
+                if (ival == 0) return "zero";
+                if (ival == 1) return "one";
+                if (ival == 2) return "two";
+                if (ival == 3) return "three";
+                if (ival == 4) return "four";
+                if (ival == 5) return "five";
+                if (ival == 6) return "six";
+                if (ival == 7) return "seven";
+                if (ival == 8) return "eight";
+                if (ival == 9) return "nine";
+                return ival.ToString("N0");
+            }
+            else if (typeof(T) == typeof(float) || typeof(T) == typeof(double))
+            {
+                double dval = (double)(object)tval;
+                if (dval < 1.0)
                 {
-                    int ival = (int)(object)tval;
-                    if (ival == 0) return "zero";
-                    if (ival == 1) return "one";
-                    if (ival == 2) return "two";
-                    if (ival == 3) return "three";
-                    if (ival == 4) return "four";
-                    if (ival == 5) return "five";
-                    if (ival == 6) return "six";
-                    if (ival == 7) return "seven";
-                    if (ival == 8) return "eight";
-                    if (ival == 9) return "nine";
-                    return ival.ToString("N0");
+                    return dval.ToString("N5");
                 }
-                else if (typeof(T) == typeof(float) || typeof(T) == typeof(double))
-                {
-                    double dval = (double)(object)tval;
-                    if (dval < 1.0)
-                    {
-                        return dval.ToString("N5");
-                    }
-                    return dval.ToString("N2");
-                }
-                return tval.ToString();
-            }));
+                return dval.ToString("N2");
+            }
+            return tval.ToString();
         }
 
         public static T RandomMinMax(T min, T max)

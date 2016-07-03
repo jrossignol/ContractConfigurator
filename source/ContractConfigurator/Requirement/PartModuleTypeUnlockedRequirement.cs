@@ -46,5 +46,24 @@ namespace ContractConfigurator
         {
             return partModuleType.All(s => ProgressUtilities.HaveModuleTypeTech(s));
         }
+
+        protected override string RequirementText()
+        {
+            string partStr = "";
+            for (int i = 0; i < partModuleType.Count; i++)
+            {
+                if (i == 0)
+                {
+                    partStr += ", ";
+                }
+                if (i == partModuleType.Count - 1)
+                {
+                    partStr += "or ";
+                }
+                partStr += partModuleType[i];
+            }
+
+            return "Must " + (invertRequirement ? "not " : "") + "have a part unlocked of type " + partStr;
+        }
     }
 }

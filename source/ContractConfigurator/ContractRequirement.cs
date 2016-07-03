@@ -32,6 +32,10 @@ namespace ContractConfigurator
         public bool invertRequirement;
         protected bool checkOnActiveContract;
 
+        protected string title;
+        protected bool needsTitle = false;
+        public bool hideChildren;
+
         public bool enabled = true;
         public bool hasWarnings { get; set; }
         public Type iteratorType { get; set; }
@@ -57,6 +61,23 @@ namespace ContractConfigurator
             // Get name and type
             valid &= ConfigNodeUtil.ParseValue<string>(configNode, "type", x => type = x, this);
             valid &= ConfigNodeUtil.ParseValue<string>(configNode, "name", x => name = x, this, type);
+
+            // Allow reading of a custom title
+            if (needsTitle && contractType.minVersion >= ContractConfigurator.ENHANCED_UI_VERSION)
+            {
+                valid &= ConfigNodeUtil.ParseValue<string>(configNode, "title", x => title = x, this);
+            }
+            else
+            {
+                valid &= ConfigNodeUtil.ParseValue<string>(configNode, "title", x => title = x, this, (string)null);
+                if (needsTitle && !configNode.HasValue("title"))
+                {
+                    LoggingUtil.LogWarning(this, ErrorPrefix(configNode) + ": missing required attribute 'title'.");
+                }
+            }
+
+            // Whether to hide child requirements in the mission control display
+            valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "hideChildren", x => hideChildren = x, this, false);
 
             if (!configNode.HasValue("targetBody"))
             {
@@ -164,6 +185,22 @@ namespace ContractConfigurator
         /// <param name="contract">Contract to check</param>
         /// <returns>Whether the requirement is met for the given contract.</returns>
         public virtual bool RequirementMet(ConfiguredContract contract) { return true; }
+
+        protected abstract string RequirementText();
+        public string Title
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(title))
+                {
+                    return RequirementText();
+                }
+                else
+                {
+                    return title;
+                }
+            }
+        }
 
         /// <summary>
         /// Checks the requirement for the given contract.

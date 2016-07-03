@@ -88,5 +88,30 @@ namespace ContractConfigurator
             string contractType = ConfigNodeUtil.ParseValue<string>(configNode, "contractType");
             SetValues(contractType);
         }
+
+        protected string ContractTitle()
+        {
+            string contractTitle;
+            if (ccType != null)
+            {
+                ContractType contractType = ContractType.AllValidContractTypes.Where(ct => ct.name == ccType).FirstOrDefault();
+                if (contractType != null)
+                {
+                    // TODO - proper title
+                    contractTitle = contractType.title;
+                }
+                else
+                {
+                    contractTitle = ccType;
+                }
+            }
+            else
+            {
+                // TODO - normalize name
+                contractTitle = contractClass.Name;
+            }
+
+            return contractTitle;
+        }
     }
 }

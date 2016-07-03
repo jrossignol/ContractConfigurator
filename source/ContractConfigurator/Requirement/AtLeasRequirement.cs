@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 using KSP;
-using KSPAchievements;
+using ContractConfigurator.ExpressionParser;
 
 namespace ContractConfigurator
 {
@@ -50,6 +50,12 @@ namespace ContractConfigurator
         public override void OnSave(ConfigNode configNode)
         {
             configNode.AddValue("count", count);
+        }
+
+        protected override string RequirementText()
+        {
+            string output = "Must meet at least " + NumericValueExpressionParser<int>.PrintNumber(count) + " of the following:";
+            return output;
         }
     }
 }

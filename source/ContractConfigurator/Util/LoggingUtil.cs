@@ -214,6 +214,19 @@ namespace ContractConfigurator
             capturedLog += e.GetType() + ": " + e.Message + "\n" + e.StackTrace + "\n";
         }
 
+        public static void Log(LogLevel logLevel, System.Object obj, string message)
+        {
+            // Need to handle special warnings for loaded types
+            if (logLevel == LogLevel.WARNING)
+            {
+                LogWarning(obj, message);
+            }
+            else
+            {
+                Log(logLevel, obj != null ? obj.GetType() : null, message);
+            }
+        }
+
 
         public static void Log(LogLevel logLevel, Type type, string message)
         {

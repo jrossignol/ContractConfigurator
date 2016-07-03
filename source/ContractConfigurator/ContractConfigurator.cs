@@ -17,6 +17,9 @@ namespace ContractConfigurator
     [KSPAddon(KSPAddon.Startup.MainMenu, true)]
     public class ContractConfigurator : MonoBehaviour
     {
+        public static System.Version ENHANCED_UI_VERSION = new System.Version(1, 15, 0);
+
+
         private enum ReloadStep
         {
             GAME_DATABASE,
