@@ -21,7 +21,7 @@ namespace ContractConfigurator
 
         protected override string RequirementText()
         {
-            string output = "Must " + (invertRequirement ? "not " : "") + "have performed a surface EVA on " + targetBody.theName;
+            string output = "Must " + (invertRequirement ? "not " : "") + "have performed a surface EVA on " + (targetBody == null ? "the target body" : targetBody.theName);
             return output;
         }
     }

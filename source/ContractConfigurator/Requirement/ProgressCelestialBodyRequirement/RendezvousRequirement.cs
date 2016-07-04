@@ -21,7 +21,7 @@ namespace ContractConfigurator
 
         protected override string RequirementText()
         {
-            string output = "Must " + (invertRequirement ? "not " : "") + "have performed " + ACheckTypeString() + "rendezvous near " + targetBody.theName;
+            string output = "Must " + (invertRequirement ? "not " : "") + "have performed " + ACheckTypeString() + "rendezvous near " + (targetBody == null ? "the target body" : targetBody.theName);
 
             return output;
         }

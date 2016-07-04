@@ -117,7 +117,7 @@ namespace ContractConfigurator
             }
 
             string output = "Must " + (invertRequirement ? "not " : "") + "have scanned location <color=#" + MissionControlUI.RequirementHighlightColor + ">" + latitude.ToString("N1") + ", " + longitude.ToString("N1") +
-                "</color> on " + targetBody.theName + " using the " + scanName + " scanner";
+                "</color> on " + (targetBody == null ? "the target body" : targetBody.theName) + " using the " + scanName + " scanner";
             return output;
         }
     }

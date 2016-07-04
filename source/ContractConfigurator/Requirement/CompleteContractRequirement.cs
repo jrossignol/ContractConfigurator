@@ -82,7 +82,9 @@ namespace ContractConfigurator
 
         protected override string RequirementText()
         {
-            string output = "Must " + (invertRequirement ? "not " : "") + "have completed contract <color=#" + MissionControlUI.RequirementHighlightColor + ">'" + ContractTitle() + "'</color>";
+            bool inverted = invertRequirement ^ cooldownDuration.Value > 0.0;
+
+            string output = "Must " + (inverted ? "not " : "") + "have completed contract <color=#" + MissionControlUI.RequirementHighlightColor + ">'" + ContractTitle() + "'</color>";
             if (cooldownDuration.Value > 0.0)
             {
                 output += " within the last " + cooldownDuration.ToString();

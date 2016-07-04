@@ -81,7 +81,7 @@ namespace ContractConfigurator
                 scanName = scanType.ToLower();
             }
 
-            return "Must " + (invertRequirement ? "not " : "") + "have between " + minCoverage.ToString("N0") + "% and " + maxCoverage.ToString("N0") + "% " + scanName + " coverage of " + targetBody.theName;
+            return "Must " + (invertRequirement ? "not " : "") + "have between " + minCoverage.ToString("N0") + "% and " + maxCoverage.ToString("N0") + "% " + scanName + " coverage of " + (targetBody == null ? "the target body" : targetBody.theName);
         }
     }
 }

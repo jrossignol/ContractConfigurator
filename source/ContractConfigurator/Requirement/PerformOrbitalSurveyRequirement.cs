@@ -44,7 +44,7 @@ namespace ContractConfigurator
 
         protected override string RequirementText()
         {
-            string output = "Must " + (invertRequirement ? "not " : "") + "have performed an orbital survey of " + targetBody.theName;
+            string output = "Must " + (invertRequirement ? "not " : "") + "have performed an orbital survey of " + (targetBody == null ? "the target body" : targetBody.theName);
             return output;
         }
     }
