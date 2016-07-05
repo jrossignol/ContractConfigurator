@@ -52,14 +52,16 @@ namespace ContractConfigurator
             string partStr = "";
             for (int i = 0; i < partModuleType.Count; i++)
             {
-                if (i == 0)
+                if (i != 0)
                 {
                     partStr += ", ";
+
+                    if (i == partModuleType.Count - 1)
+                    {
+                        partStr += "or ";
+                    }
                 }
-                if (i == partModuleType.Count - 1)
-                {
-                    partStr += "or ";
-                }
+
                 partStr += partModuleType[i];
             }
 

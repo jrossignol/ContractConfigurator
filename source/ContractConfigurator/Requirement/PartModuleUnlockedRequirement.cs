@@ -89,14 +89,16 @@ namespace ContractConfigurator
             string partStr = "";
             for (int i = 0; i < partModules.Count; i++)
             {
-                if (i == 0)
+                if (i != 0)
                 {
                     partStr += ", ";
+
+                    if (i == partModules.Count - 1)
+                    {
+                        partStr += "or ";
+                    }
                 }
-                if (i == partModules.Count - 1)
-                {
-                    partStr += "or ";
-                }
+
                 partStr += PartValidation.ModuleName(partModules[i]);
             }
 

@@ -149,6 +149,10 @@ namespace ContractConfigurator
         public double weight;
         public bool trace = false;
         public bool loaded = false;
+        // TODO - expose
+        public int maxConsecutiveGenerationFailures = 1;
+        public int failedGenerationAttempts;
+        public double lastGenerationFailure;
 
         private Dictionary<string, bool> dataValues = new Dictionary<string, bool>();
         public Dictionary<string, DataNode.UniquenessCheck> uniquenessChecks = new Dictionary<string, DataNode.UniquenessCheck>();
@@ -237,7 +241,7 @@ namespace ContractConfigurator
                 valid &= ConfigNodeUtil.ParseValue<CelestialBody>(configNode, "targetBody", x => targetBody = x, this, (CelestialBody)null);
 
                 valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxCompletions", x => maxCompletions = x, this, 0, x => Validation.GE(x, 0));
-                valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxSimultaneous", x => maxSimultaneous = x, this, 0, x => Validation.GE(x, 0));
+                valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxSimultaneous", x => maxSimultaneous = x, this, (maxCompletions == 0 ? 4 : 0), x => Validation.GE(x, 0));
 
                 // Load rewards
                 valid &= ConfigNodeUtil.ParseValue<float>(configNode, "rewardFunds", x => rewardFunds = x, this, 0.0f);
@@ -511,10 +515,11 @@ namespace ContractConfigurator
                 }
 
                 // Check prestige
-                if (prestige.Count > 0 && !prestige.Contains(contract.Prestige))
-                {
-                    throw new ContractRequirementException("Wrong prestige level.");
-                }
+                // TODO - proper prestige check in extended requirements
+                //if (prestige.Count > 0 && !prestige.Contains(contract.Prestige))
+                //{
+                //    throw new ContractRequirementException("Wrong prestige level.");
+                //}
 
                 // Checks for maxSimultaneous/maxCompletions
                 if (maxSimultaneous != 0 || maxCompletions != 0)

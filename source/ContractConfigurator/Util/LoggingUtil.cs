@@ -89,6 +89,7 @@ namespace ContractConfigurator
                             {
                                 LoggingUtil.LogLevel logLevel = (LoggingUtil.LogLevel)Enum.Parse(typeof(LoggingUtil.LogLevel), levelExceptionNode.GetValue("logLevel"));
                                 LoggingUtil.AddSpecificLogLevel(type, logLevel);
+                                LoggingUtil.LogDebug(typeof(LoggingUtil), "Added log level override (" + type.Name + " => " + logLevel + ")");
                             }
                             else
                             {
@@ -101,7 +102,7 @@ namespace ContractConfigurator
                         }
                     }
 
-                    LoggingUtil.LogInfo(typeof(LoggingUtil), "DebugingConfig loaded!");
+                    LoggingUtil.LogInfo(typeof(LoggingUtil), "Debugging config loaded!");
                 }
                 catch (Exception e)
                 {
@@ -231,7 +232,7 @@ namespace ContractConfigurator
         public static void Log(LogLevel logLevel, Type type, string message)
         {
             LogLevel logLevelCheckAgainst = LoggingUtil.logLevel;
-            if (logLevel >= LogLevel.DEBUG && specificLogLevels.ContainsKey(type.Name))
+            if (logLevel <= LogLevel.DEBUG && specificLogLevels.ContainsKey(type.Name))
             {
                 logLevelCheckAgainst = (LogLevel)Math.Min((int)logLevelCheckAgainst, (int)specificLogLevels[type.Name]);
             }

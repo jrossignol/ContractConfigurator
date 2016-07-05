@@ -15,7 +15,7 @@ using KSP.UI.Screens;
 namespace ContractConfigurator.Util
 {
     /// <summary>
-    /// Special MonoBehaviour to fix up the departments.
+    /// Special MonoBehaviour to replace portions of the stock mission control UI.
     /// </summary>
     [KSPAddon(KSPAddon.Startup.SpaceCentre, false)]
     public class MissionControlUI : MonoBehaviour
@@ -27,6 +27,8 @@ namespace ContractConfigurator.Util
             public Contract contract;
             public ContractType contractType;
             public MissionControl.MissionSelection missionSelection;
+            public MCListItem mcListItem;
+            public int indent;
 
             public string OrderKey
             {
@@ -98,17 +100,88 @@ namespace ContractConfigurator.Util
                 MissionControl.Instance.toggleDisplayModeAvailable.onValueChanged.AddListener(new UnityAction<bool>(OnClickAvailable));
                 MissionControl.Instance.btnAccept.onClick.RemoveAllListeners();
                 MissionControl.Instance.btnAccept.onClick.AddListener(new UnityAction(OnClickAccept));
+                MissionControl.Instance.btnDecline.onClick.RemoveAllListeners();
                 MissionControl.Instance.btnDecline.onClick.AddListener(new UnityAction(OnClickDecline));
+                MissionControl.Instance.btnCancel.onClick.RemoveAllListeners();
                 MissionControl.Instance.btnCancel.onClick.AddListener(new UnityAction(OnClickCancel));
+
+                // Very harsh way to disable the onContractsListChanged in the stock mission control
+                GameEvents.Contract.onContractsListChanged = new EventVoid("onContractsListChanged");
+                GameEvents.Contract.onContractsListChanged.Add(OnContractsListChanged);
+
+                // Contract state change handlers
+                GameEvents.Contract.onOffered.Add(new EventData<Contract>.OnEvent(OnContractOffered));
 
                 // Set to the available view
                 OnClickAvailable(true);
             }
         }
 
+        protected void OnContractsListChanged()
+        {
+        }
+
+        protected void OnContractOffered(Contract c)
+        {
+            LoggingUtil.LogVerbose(this, "OnContractOffered");
+
+            ConfiguredContract cc = c as ConfiguredContract;
+            if (cc != null)
+            {
+                ContractContainer foundMatch = null;
+
+                List<UIListData<KSP.UI.UIListItem>>.Enumerator enumerator = MissionControl.Instance.scrollListContracts.GetEnumerator();
+                while (enumerator.MoveNext())
+                {
+                    KSP.UI.UIListItem item = enumerator.Current.listItem;
+                    ContractContainer container = item.Data as ContractContainer;
+                    if (container != null && container.contractType == cc.contractType)
+                    {
+                        // Upgrade the contract type line item to a contract
+                        if (container.contract == null)
+                        {
+                            container.contract = cc;
+                            SetupContractItem(container);
+                            break;
+                        }
+                        // Keep track of the list item - we'll add immediately after it
+                        else
+                        {
+                            foundMatch = container;
+                        }
+                    }
+                }
+
+                // Got a match, do an addition
+                if (foundMatch != null)
+                {
+                    ContractContainer container = new ContractContainer(cc);
+                    CreateContractItem(container, foundMatch.indent, foundMatch.mcListItem.container);
+                }
+            }
+            else
+            {
+                // TODO - handling of non-contract configurator types
+            }
+        }
+
+        protected void OnContractDeclined(Contract c)
+        {
+            ConfiguredContract cc = c as ConfiguredContract;
+            if (cc != null)
+            {
+
+            }
+            else
+            {
+                // TODO - handling of non-contract configurator types
+            }
+        }
+
         public void OnClickAvailable(bool selected)
         {
-            Debug.Log("MissionControlUI.OnClickAvailable");
+            LoggingUtil.LogVerbose(this, "OnClickAvailable");
+
             if (!selected)
             {
                 return;
@@ -164,18 +237,14 @@ namespace ContractConfigurator.Util
             }
         }
 
-        protected void CreateContractItem(ContractContainer cc, int indent = 0)
+        protected void CreateContractItem(ContractContainer cc, int indent = 0, KSP.UI.UIListItem previous = null)
         {
             // Set up list item
             MCListItem mcListItem = UnityEngine.Object.Instantiate<MCListItem>(MissionControl.Instance.PrfbMissionListItem);
             mcListItem.logoSprite.gameObject.SetActive(false);
-
-            // Set up the list item with the contract details
-            SetContractTitle(mcListItem, cc);
-
-            // Add callback data
-            cc.missionSelection = new MissionControl.MissionSelection(true, cc.contract, mcListItem.container);
             mcListItem.container.Data = cc;
+            cc.mcListItem = mcListItem;
+            cc.indent = indent;
 
             // Set up the radio button to the custom sprites for contracts
             UIRadioButton radioButton = mcListItem.GetComponent<UIRadioButton>();
@@ -194,25 +263,6 @@ namespace ContractConfigurator.Util
             mcListItem.difficulty.states[1].sprite = prestigeSprites[1];
             mcListItem.difficulty.states[2].sprite = prestigeSprites[2];
 
-            // Difficulty for contracts
-            if (cc.contract != null)
-            {
-                mcListItem.difficulty.SetState((int)cc.contract.Prestige);
-            }
-            // Difficulty for contract types
-            else
-            {
-                Contract.ContractPrestige? prestige = GetPrestige(cc.contractType);
-                if (prestige != null)
-                {
-                    mcListItem.difficulty.SetState((int)prestige.Value);
-                }
-                else
-                {
-                    mcListItem.difficulty.gameObject.SetActive(false);
-                }
-            }
-
             // Finalize difficulty UI
             RectTransform diffRect = mcListItem.difficulty.GetComponent<RectTransform>();
             diffRect.anchoredPosition = new Vector2(-20.5f, -12.5f);
@@ -222,12 +272,52 @@ namespace ContractConfigurator.Util
             mcListItem.radioButton.onFalseBtn.AddListener(new UnityAction<UIRadioButton, UIRadioButton.CallType, PointerEventData>(OnDeselectContract));
             mcListItem.radioButton.onTrueBtn.AddListener(new UnityAction<UIRadioButton, UIRadioButton.CallType, PointerEventData>(OnSelectContract));
 
+            // Do other setup
+            SetupContractItem(cc);
+
             // Add the list item to the UI, and add indent
-            MissionControl.Instance.scrollListContracts.AddItem(mcListItem.container, true);
+            if (previous == null)
+            {
+                MissionControl.Instance.scrollListContracts.AddItem(mcListItem.container, true);
+            }
+            else
+            {
+                int index = MissionControl.Instance.scrollListContracts.GetIndex(previous);
+                MissionControl.Instance.scrollListContracts.InsertItem(mcListItem.container, index);
+            }
             SetIndent(mcListItem, indent);
 
             LayoutElement layoutElement = mcListItem.GetComponent<LayoutElement>();
             layoutElement.preferredHeight /= 2;
+        }
+
+        protected void SetupContractItem(ContractContainer cc)
+        {
+            // Set up the list item with the contract details
+            SetContractTitle(cc.mcListItem, cc);
+
+            // Add callback data
+            cc.missionSelection = new MissionControl.MissionSelection(true, cc.contract, cc.mcListItem.container);
+
+            // Difficulty for contracts
+            if (cc.contract != null)
+            {
+                cc.mcListItem.difficulty.gameObject.SetActive(true);
+                cc.mcListItem.difficulty.SetState((int)cc.contract.Prestige);
+            }
+            // Difficulty for contract types
+            else
+            {
+                Contract.ContractPrestige? prestige = GetPrestige(cc.contractType);
+                if (prestige != null)
+                {
+                    cc.mcListItem.difficulty.SetState((int)prestige.Value);
+                }
+                else
+                {
+                    cc.mcListItem.difficulty.gameObject.SetActive(false);
+                }
+            }
         }
 
         protected Agent GetAgentFromGroup(ContractGroup group)
@@ -255,10 +345,13 @@ namespace ContractConfigurator.Util
             {
                 // Return any configured contracts for the group
                 bool any = false;
-                foreach (ConfiguredContract contract in ConfiguredContract.CurrentContracts.Where(c => c.contractType == contractType))
+                foreach (ConfiguredContract contract in ConfiguredContract.CurrentContracts)
                 {
-                    any = true;
-                    yield return new ContractContainer(contract);
+                    if (contract.contractType == contractType)
+                    {
+                        any = true;
+                        yield return new ContractContainer(contract);
+                    }
                 }
                 // If there are none, then return the contract type
                 if (!any)
@@ -305,7 +398,8 @@ namespace ContractConfigurator.Util
 
         protected void OnSelectContract(UIRadioButton button, UIRadioButton.CallType callType, PointerEventData data)
         {
-            Debug.Log("OnSelectContract");
+            LoggingUtil.LogVerbose(this, "OnSelectContract");
+
             if (callType != UIRadioButton.CallType.USER)
             {
                 return;
@@ -322,8 +416,6 @@ namespace ContractConfigurator.Util
                 MissionControl.Instance.selectedMission = cc.missionSelection;
                 MissionControl.Instance.UpdateInfoPanelContract(cc.contract);
                 prestige = cc.contract.Prestige;
-
-                Debug.Log("contract title = '" + MissionControl.Instance.textContractInfo.text + "'");
             }
             else
             {
@@ -367,9 +459,6 @@ namespace ContractConfigurator.Util
             if (cc.contract != null)
             {
                 mcListItem.difficulty.SetState((int)cc.contract.Prestige);
-
-                // TODO - remove debug
-                Debug.Log("Mission Control Text: " + cc.contract.MissionControlTextRich());
             }
             else
             {
@@ -446,7 +535,7 @@ namespace ContractConfigurator.Util
 
         private void OnClickAccept()
         {
-            Debug.Log("MissionControlUI.OnClickAccept");
+            LoggingUtil.LogVerbose(this, "OnClickAccept");
 
             // Accept the contract
             MissionControl.Instance.selectedMission.contract.Accept();
@@ -459,17 +548,35 @@ namespace ContractConfigurator.Util
 
         private void OnClickDecline()
         {
-            Debug.Log("MissionControlUI.OnClickDecline");
+            LoggingUtil.LogVerbose(this, "OnClickDecline");
+
+            // Decline the contract
+            MissionControl.Instance.selectedMission.contract.Decline();
             MissionControl.Instance.selectedMission = null;
+            MissionControl.Instance.panelView.gameObject.SetActive(false);
+            MissionControl.Instance.ClearInfoPanel();
+            MissionControl.Instance.UpdateInstructor(MissionControl.Instance.avatarController.animTrigger_decline, MissionControl.Instance.avatarController.animLoop_default);
+
+            // Redraw
             selectedButton = null;
+            // TODO - better performance by using OnDeclined callback to target specific item
             OnClickAvailable(true);
         }
 
         private void OnClickCancel()
         {
-            Debug.Log("MissionControlUI.OnClickCancel");
+            LoggingUtil.LogVerbose(this, "OnClickCancel");
+
+            // Cancel the contract
+            MissionControl.Instance.selectedMission.contract.Cancel();
             MissionControl.Instance.selectedMission = null;
+            MissionControl.Instance.panelView.gameObject.SetActive(false);
+            MissionControl.Instance.ClearInfoPanel();
+            MissionControl.Instance.UpdateInstructor(MissionControl.Instance.avatarController.animTrigger_cancel, MissionControl.Instance.avatarController.animLoop_default);
+
+            // Redraw
             selectedButton = null;
+            // TODO - better performance by using OnDeclined callback to target specific item
             OnClickAvailable(true);
         }
     }

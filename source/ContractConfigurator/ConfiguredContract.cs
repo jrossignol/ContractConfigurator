@@ -33,6 +33,32 @@ namespace ContractConfigurator
 
         private List<IKerbalNameStorage> nameStorageItems = null;
 
+        public bool preLoaded = false;
+
+        public new ContractPrestige Prestige
+        {
+            get
+            {
+                return prestige;
+            }
+            set
+            {
+                prestige = value;
+            }
+        }
+
+        public new Contract.State ContractState
+        {
+            get
+            {
+                return base.ContractState;
+            }
+            set
+            {
+                SetState(value);
+            }
+        }
+
         /// <summary>
         /// Static method (used by other mods via reflection) to get the contract type name.
         /// </summary>
@@ -85,7 +111,7 @@ namespace ContractConfigurator
         {
             get
             {
-                return ContractSystem.Instance.Contracts.OfType<ConfiguredContract>();
+                return ContractSystem.Instance.Contracts.OfType<ConfiguredContract>().Union(ContractPreLoader.Instance.PendingContracts());
             }
         }
         public static IEnumerable<ConfiguredContract> CompletedContracts
@@ -534,7 +560,7 @@ namespace ContractConfigurator
             }
             catch (Exception e)
             {
-                LoggingUtil.LogError(this, "Error saving contract to persistance file!");
+                LoggingUtil.LogError(this, "Error saving contract '" + subType + "' to persistance file!");
                 LoggingUtil.LogException(e);
                 ExceptionLogWindow.DisplayFatalException(ExceptionLogWindow.ExceptionSituation.CONTRACT_SAVE, e, this);
 
@@ -559,9 +585,11 @@ namespace ContractConfigurator
                 // Special case for pre-loader
                 return true;
             }
+            return false;
+
             // No ContractType chosen
-            LoggingUtil.LogVerbose(this, "MeetRequirements()");
-            return ContractPreLoader.Instance.GenerateContract(this);
+            //LoggingUtil.LogVerbose(this, "MeetRequirements()");
+            //return ContractPreLoader.Instance.GenerateContract(this);
         }
 
         public override string MissionControlTextRich()
