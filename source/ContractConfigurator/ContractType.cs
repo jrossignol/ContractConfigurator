@@ -552,9 +552,7 @@ namespace ContractConfigurator
                     // Check if we're breaching the completed limit
                     if (maxCompletions != 0)
                     {
-                        int finishedContracts = ConfiguredContract.CompletedContracts.
-                            Count(c => c.contractType != null && c.contractType.name == name);
-                        if (finishedContracts + activeContracts >= maxCompletions)
+                        if (ActualCompletions() + activeContracts >= maxCompletions)
                         {
                             throw new ContractRequirementException("Too many completed/active/offered contracts.");
                         }
@@ -806,6 +804,19 @@ namespace ContractConfigurator
             }
 
             return true;
+        }
+        
+        public int ActualCompletions()
+        {
+            int count = 0;
+            foreach (ConfiguredContract c in ConfiguredContract.CompletedContracts)
+            {
+                if (c.contractType != null && c.contractType.name == name)
+                {
+                    count++;
+                }
+            }
+            return count;
         }
 
         /// <summary>

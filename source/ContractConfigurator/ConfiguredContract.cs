@@ -585,11 +585,10 @@ namespace ContractConfigurator
                 // Special case for pre-loader
                 return true;
             }
-            return false;
 
             // No ContractType chosen
-            //LoggingUtil.LogVerbose(this, "MeetRequirements()");
-            //return ContractPreLoader.Instance.GenerateContract(this);
+            LoggingUtil.LogVerbose(this, "MeetRequirements()");
+            return ContractPreLoader.Instance.GenerateContract(this);
         }
 
         public override string MissionControlTextRich()

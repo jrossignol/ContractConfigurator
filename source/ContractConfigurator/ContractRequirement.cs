@@ -62,6 +62,12 @@ namespace ContractConfigurator
             valid &= ConfigNodeUtil.ParseValue<string>(configNode, "type", x => type = x, this);
             valid &= ConfigNodeUtil.ParseValue<string>(configNode, "name", x => name = x, this, type);
 
+            // Override needsTitle if a child of a parameter
+            if (needsTitle && dataNode.Parent.Factory is ParameterFactory)
+            {
+                needsTitle = false;
+            }
+
             // Allow reading of a custom title
             if (needsTitle && contractType.minVersion >= ContractConfigurator.ENHANCED_UI_VERSION)
             {

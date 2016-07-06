@@ -29,6 +29,7 @@ namespace ContractConfigurator.Util
             public MissionControl.MissionSelection missionSelection;
             public MCListItem mcListItem;
             public int indent;
+            public UIStateImage statusImage;
 
             public string OrderKey
             {
@@ -62,6 +63,7 @@ namespace ContractConfigurator.Util
         static UnityEngine.Sprite itemEnabled;
         static UnityEngine.Sprite itemDisabled;
         static UnityEngine.Sprite[] prestigeSprites = new UnityEngine.Sprite[3];
+        static UIStateImage.ImageState[] itemStatusStates = new UIStateImage.ImageState[4];
 
         public static MissionControlUI Instance;
         public int ticks = 0;
@@ -81,6 +83,20 @@ namespace ContractConfigurator.Util
                 prestigeSprites[0] = UnityEngine.Sprite.Create(uiAtlas, new Rect(58, 31, 35, 11), new Vector2(17.5f, 5.5f));
                 prestigeSprites[1] = UnityEngine.Sprite.Create(uiAtlas, new Rect(58, 42, 35, 11), new Vector2(17.5f, 5.5f));
                 prestigeSprites[2] = UnityEngine.Sprite.Create(uiAtlas, new Rect(58, 53, 35, 11), new Vector2(17.5f, 5.5f));
+
+                // Set up item status image state array
+                itemStatusStates[0] = new UIStateImage.ImageState();
+                itemStatusStates[1] = new UIStateImage.ImageState();
+                itemStatusStates[2] = new UIStateImage.ImageState();
+                itemStatusStates[3] = new UIStateImage.ImageState();
+                itemStatusStates[0].name = "Offered";
+                itemStatusStates[1].name = "Active";
+                itemStatusStates[2].name = "Completed";
+                itemStatusStates[3].name = "Unavailable";
+                itemStatusStates[0].sprite = UnityEngine.Sprite.Create(uiAtlas, new Rect(0, 0, 1, 1), new Vector2(0.5f, 0.5f));
+                itemStatusStates[1].sprite = UnityEngine.Sprite.Create(uiAtlas, new Rect(0, 0, 10, 10), new Vector2(5f, 5f));
+                itemStatusStates[2].sprite = UnityEngine.Sprite.Create(uiAtlas, new Rect(10, 0, 10, 10), new Vector2(5f, 5f));
+                itemStatusStates[3].sprite = UnityEngine.Sprite.Create(uiAtlas, new Rect(20, 0, 10, 10), new Vector2(5f, 5f));
             }
         }
 
@@ -255,13 +271,26 @@ namespace ContractConfigurator.Util
             // Fix up the position/sizing of the text element
             GameObject textObject = mcListItem.gameObject.GetChild("Text");
             RectTransform textRect = textObject.GetComponent<RectTransform>();
-            textRect.anchoredPosition = new Vector2(textRect.anchoredPosition.x - 68, textRect.anchoredPosition.y);
-            textRect.sizeDelta = new Vector2(textRect.sizeDelta.x + 68 - 20, textRect.sizeDelta.y);
+            textRect.anchoredPosition = new Vector2(textRect.anchoredPosition.x - 60, textRect.anchoredPosition.y);
+            textRect.sizeDelta = new Vector2(textRect.sizeDelta.x + 60 - 20, textRect.sizeDelta.y);
 
             // Set up the difficulty/prestige stars
             mcListItem.difficulty.states[0].sprite = prestigeSprites[0];
             mcListItem.difficulty.states[1].sprite = prestigeSprites[1];
             mcListItem.difficulty.states[2].sprite = prestigeSprites[2];
+
+            // Create an icon to show the status
+            GameObject statusImage = new GameObject("StatusImage");
+            RectTransform statusRect = statusImage.AddComponent<RectTransform>();
+            statusRect.anchoredPosition = new Vector2(16.0f, 0f);
+            statusRect.anchorMin = new Vector2(0, 0.5f);
+            statusRect.anchorMax = new Vector2(0, 0.5f);
+            statusRect.sizeDelta = new Vector2(10f, 10f);
+            statusImage.AddComponent<CanvasRenderer>();
+            cc.statusImage = statusImage.AddComponent<UIStateImage>();
+            cc.statusImage.states = itemStatusStates;
+            cc.statusImage.image = statusImage.AddComponent<Image>();
+            statusImage.transform.SetParent(mcListItem.transform);
 
             // Finalize difficulty UI
             RectTransform diffRect = mcListItem.difficulty.GetComponent<RectTransform>();
@@ -299,13 +328,17 @@ namespace ContractConfigurator.Util
             // Add callback data
             cc.missionSelection = new MissionControl.MissionSelection(true, cc.contract, cc.mcListItem.container);
 
-            // Difficulty for contracts
+            // Setup with contract
             if (cc.contract != null)
             {
+                // Set difficulty
                 cc.mcListItem.difficulty.gameObject.SetActive(true);
                 cc.mcListItem.difficulty.SetState((int)cc.contract.Prestige);
+
+                // Set status
+                cc.statusImage.SetState(cc.contract.ContractState == Contract.State.Active ? "Active" : cc.contract.ContractState == Contract.State.Completed ? "Completed" : "Offered");
             }
-            // Difficulty for contract types
+            // Setup without contract
             else
             {
                 Contract.ContractPrestige? prestige = GetPrestige(cc.contractType);
@@ -317,6 +350,9 @@ namespace ContractConfigurator.Util
                 {
                     cc.mcListItem.difficulty.gameObject.SetActive(false);
                 }
+
+                // TODO - choose
+                cc.statusImage.SetState(cc.contractType.maxCompletions != 0 && cc.contractType.ActualCompletions() >= cc.contractType.maxCompletions ? "Completed" : "Unavailable");
             }
         }
 
@@ -508,12 +544,25 @@ namespace ContractConfigurator.Util
             text += "<color=#CCCCCC>" + contractType.genericDescription + "</color>\n\n";
 
             text += "<b><color=#DB8310>Pre-Requisites:</color></b>\n\n";
+
+            // Do text for max completions
+            if (contractType.maxCompletions != 0)
+            {
+                int completionCount = contractType.ActualCompletions();
+                bool met = completionCount < contractType.maxCompletions;
+                text += RequirementLine("May only be completed " + (contractType.maxCompletions == 1 ? "once" : contractType.maxCompletions + " times"), met,
+                    "has been completed " + (completionCount == 1 ? "once" : completionCount + " times"));
+            }
+
+            // Force check requirements for this contract
+            CheckRequirements(contractType.Requirements);
+
             text += ContractRequirementText(contractType.Requirements);
 
             MissionControl.Instance.contractText.text = text;
         }
 
-        protected string ContractRequirementText(IEnumerable<ContractRequirement> requirements, string indent ="")
+        protected string ContractRequirementText(IEnumerable<ContractRequirement> requirements, string indent = "")
         {
             string text = "";
             foreach (ContractRequirement requirement in requirements)
@@ -521,8 +570,7 @@ namespace ContractConfigurator.Util
                 if (requirement.enabled)
                 {
                     bool met = requirement.lastResult != null && requirement.lastResult.Value;
-                    string color = met ? "#8BED8B" : "#FFEA04";
-                    text += indent + "<b><color=#BEC2AE>" + requirement.Title + ": </color></b><color=" + color + ">" + (met ? "Met" : "Unmet") + "</color>\n";
+                    text += RequirementLine(indent + requirement.Title, met);
 
                     if (!requirement.hideChildren)
                     {
@@ -531,6 +579,39 @@ namespace ContractConfigurator.Util
                 }
             }
             return text;
+        }
+
+        protected string RequirementLine(string text, bool met, string unmetReason = "")
+        {
+            string color = met ? "#8BED8B" : "#FFEA04";
+            string output = "<b><color=#BEC2AE>" + text + ": </color></b><color=" + color + ">" + (met ? "Met" : "Unmet") + "</color>";
+            if (!string.IsNullOrEmpty(unmetReason) && !met)
+            {
+                output += " <color=#CCCCCC>(" + unmetReason + ")</color>\n";
+            }
+            else
+            {
+                output += "\n";
+            }
+            return output;
+        }
+
+
+        protected void CheckRequirements(IEnumerable<ContractRequirement> requirements)
+        {
+            foreach (ContractRequirement requirement in requirements)
+            {
+                try
+                {
+                    requirement.lastResult = requirement.invertRequirement ^ requirement.RequirementMet(null);
+                }
+                catch (Exception e)
+                {
+                    Debug.LogException(e);
+                }
+
+                CheckRequirements(requirement.ChildRequirements);
+            }
         }
 
         private void OnClickAccept()

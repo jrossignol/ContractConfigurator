@@ -360,7 +360,6 @@ namespace ContractConfigurator
 
         public bool GenerateContract(ConfiguredContract contract)
         {
-            LoggingUtil.LogVerbose(this, "Request to generate contract of prestige level " + contract.Prestige);
             ConfiguredContract templateContract = GetNextContract(contract.Prestige, HighLogic.LoadedScene == GameScenes.FLIGHT);
 
             if (templateContract == null)
