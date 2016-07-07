@@ -218,7 +218,7 @@ namespace ContractConfigurator.Parameters
         /// performance issues with the stock contracts app.
         /// </summary>
         /// <param name="state">New parameter state</param>
-        protected virtual void SetState(ParameterState state)
+        public virtual void SetState(ParameterState state)
         {
             // State already set, or parameter disabled
             if (this.state == state || !enabled)

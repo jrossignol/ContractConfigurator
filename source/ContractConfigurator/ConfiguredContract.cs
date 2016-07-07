@@ -10,7 +10,7 @@ using KSP;
 using KSPAchievements;
 using Contracts;
 using Contracts.Agents;
-using Contracts.Parameters;
+using ContractConfigurator.Parameters;
 
 namespace ContractConfigurator
 {
@@ -709,6 +709,7 @@ namespace ContractConfigurator
             }
         }
 
+
         protected override void OnRegister()
         {
             base.OnRegister();
@@ -717,6 +718,8 @@ namespace ContractConfigurator
             {
                 behaviour.Register();
             }
+
+            GameEvents.onVesselChange.Add(new EventData<Vessel>.OnEvent(OnVesselChange));
         }
 
         protected override void OnUnregister()
@@ -727,6 +730,8 @@ namespace ContractConfigurator
             {
                 behaviour.Unregister();
             }
+
+            GameEvents.onVesselChange.Remove(new EventData<Vessel>.OnEvent(OnVesselChange));
         }
 
         protected override void OnUpdate()
@@ -735,6 +740,30 @@ namespace ContractConfigurator
             foreach (ContractBehaviour behaviour in behaviours)
             {
                 behaviour.Update();
+            }
+        }
+
+        protected void OnVesselChange(Vessel v)
+        {
+            CheckVesselParameters(this);
+        }
+
+        protected void CheckVesselParameters(IContractParameterHost host)
+        {
+            // Check if any VesselParameter parameters that are not part of a VPG are reset
+            for (int i = host.ParameterCount - 1; i >= 0; i--)
+            {
+                ContractParameter param = host[i];
+                if (!(param is VesselParameterGroup))
+                {
+                    VesselParameter vp = param as VesselParameter;
+                    if (vp != null && vp.Enabled && vp.State == ParameterState.Complete)
+                    {
+                        vp.SetState(ParameterState.Incomplete);
+                    }
+
+                    CheckVesselParameters(param);
+                }
             }
         }
 
