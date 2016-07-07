@@ -71,7 +71,7 @@ namespace ContractConfigurator
                 partStr += parts[i].title;
             }
 
-            return "Must " + (invertRequirement ? "not " : "") + "have unlocked " + partStr;
+            return "Must " + (invertRequirement ? "not " : "") + "have unlocked the " + partStr;
         }
     }
 }

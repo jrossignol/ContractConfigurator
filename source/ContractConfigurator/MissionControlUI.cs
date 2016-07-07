@@ -22,6 +22,52 @@ namespace ContractConfigurator.Util
     {
         public static string RequirementHighlightColor = "F9F9F6";
 
+        public class GroupContainer
+        {
+            public ContractGroup group;
+            public Agent agent;
+            public bool expanded = false;
+            public List<GroupContainer> childGroups = new List<GroupContainer>();
+            public List<ContractContainer> childContracts = new List<ContractContainer>();
+            public MCListItem mcListItem;
+
+            public GroupContainer(ContractGroup group)
+            {
+                this.group = group;
+
+                // TODO - need to get best agent, first from field in group, otherwise most used agent
+                ContractType contractType = ContractType.AllValidContractTypes.Where(ct => ct != null && ct.group == group).FirstOrDefault();
+                agent = contractType != null ? contractType.agent : null;
+            }
+
+            public void Toggle()
+            {
+                expanded = !expanded;
+                SetState(expanded);
+
+                // Reset background images
+                UIRadioButton radioButton = mcListItem.GetComponent<UIRadioButton>();
+                radioButton.stateTrue.normal = radioButton.stateTrue.highlight = radioButton.stateTrue.pressed = radioButton.stateTrue.disabled = (expanded ? groupExpandedActive : groupUnexpandedActive);
+                radioButton.stateFalse.normal = radioButton.stateFalse.highlight = radioButton.stateFalse.pressed = radioButton.stateFalse.disabled = (expanded ? groupExpandedInactive : groupUnexpandedInactive);
+                mcListItem.GetComponent<Image>().sprite = expanded ? (radioButton.CurrentState == UIRadioButton.State.True ? groupExpandedActive : groupExpandedInactive) :
+                    (radioButton.CurrentState == UIRadioButton.State.True ? groupUnexpandedActive : groupUnexpandedInactive);
+            }
+
+            private void SetState(bool expanded)
+            {
+                foreach (GroupContainer childGroup in childGroups)
+                {
+                    childGroup.mcListItem.gameObject.SetActive(expanded);
+                    childGroup.SetState(expanded && childGroup.expanded);
+                }
+
+                foreach (ContractContainer childContract in childContracts)
+                {
+                    childContract.mcListItem.gameObject.SetActive(expanded);
+                }
+            }
+        }
+
         public class ContractContainer
         {
             public Contract contract;
@@ -64,6 +110,10 @@ namespace ContractConfigurator.Util
         static UnityEngine.Sprite itemDisabled;
         static UnityEngine.Sprite[] prestigeSprites = new UnityEngine.Sprite[3];
         static UIStateImage.ImageState[] itemStatusStates = new UIStateImage.ImageState[4];
+        static UnityEngine.Sprite groupUnexpandedInactive;
+        static UnityEngine.Sprite groupUnexpandedActive;
+        static UnityEngine.Sprite groupExpandedInactive;
+        static UnityEngine.Sprite groupExpandedActive;
 
         public static MissionControlUI Instance;
         public int ticks = 0;
@@ -78,11 +128,11 @@ namespace ContractConfigurator.Util
             if (uiAtlas == null)
             {
                 uiAtlas = GameDatabase.Instance.GetTexture("ContractConfigurator/ui/MissionControl", false);
-                itemEnabled = UnityEngine.Sprite.Create(uiAtlas, new Rect(1, 13, 26, 50), new Vector2(13, 25), 100.0f, 0, SpriteMeshType.Tight, new Vector4(16, 6, 6, 6));
-                itemDisabled = UnityEngine.Sprite.Create(uiAtlas, new Rect(29, 13, 26, 50), new Vector2(13, 25), 100.0f, 0, SpriteMeshType.Tight, new Vector4(16, 6, 6, 6));
-                prestigeSprites[0] = UnityEngine.Sprite.Create(uiAtlas, new Rect(58, 31, 35, 11), new Vector2(17.5f, 5.5f));
-                prestigeSprites[1] = UnityEngine.Sprite.Create(uiAtlas, new Rect(58, 42, 35, 11), new Vector2(17.5f, 5.5f));
-                prestigeSprites[2] = UnityEngine.Sprite.Create(uiAtlas, new Rect(58, 53, 35, 11), new Vector2(17.5f, 5.5f));
+                itemEnabled = UnityEngine.Sprite.Create(uiAtlas, new Rect(101, 205, 26, 50), new Vector2(13, 25), 100.0f, 0, SpriteMeshType.Tight, new Vector4(16, 6, 6, 6));
+                itemDisabled = UnityEngine.Sprite.Create(uiAtlas, new Rect(101, 153, 26, 50), new Vector2(13, 25), 100.0f, 0, SpriteMeshType.Tight, new Vector4(16, 6, 6, 6));
+                prestigeSprites[0] = UnityEngine.Sprite.Create(uiAtlas, new Rect(58, 223, 35, 11), new Vector2(17.5f, 5.5f));
+                prestigeSprites[1] = UnityEngine.Sprite.Create(uiAtlas, new Rect(58, 234, 35, 11), new Vector2(17.5f, 5.5f));
+                prestigeSprites[2] = UnityEngine.Sprite.Create(uiAtlas, new Rect(58, 245, 35, 11), new Vector2(17.5f, 5.5f));
 
                 // Set up item status image state array
                 itemStatusStates[0] = new UIStateImage.ImageState();
@@ -93,10 +143,16 @@ namespace ContractConfigurator.Util
                 itemStatusStates[1].name = "Active";
                 itemStatusStates[2].name = "Completed";
                 itemStatusStates[3].name = "Unavailable";
-                itemStatusStates[0].sprite = UnityEngine.Sprite.Create(uiAtlas, new Rect(0, 0, 1, 1), new Vector2(0.5f, 0.5f));
-                itemStatusStates[1].sprite = UnityEngine.Sprite.Create(uiAtlas, new Rect(0, 0, 10, 10), new Vector2(5f, 5f));
-                itemStatusStates[2].sprite = UnityEngine.Sprite.Create(uiAtlas, new Rect(10, 0, 10, 10), new Vector2(5f, 5f));
-                itemStatusStates[3].sprite = UnityEngine.Sprite.Create(uiAtlas, new Rect(20, 0, 10, 10), new Vector2(5f, 5f));
+                itemStatusStates[0].sprite = UnityEngine.Sprite.Create(uiAtlas, new Rect(118, 20, 1, 1), new Vector2(0.5f, 0.5f));
+                itemStatusStates[1].sprite = UnityEngine.Sprite.Create(uiAtlas, new Rect(118, 20, 10, 10), new Vector2(5f, 5f));
+                itemStatusStates[2].sprite = UnityEngine.Sprite.Create(uiAtlas, new Rect(118, 10, 10, 10), new Vector2(5f, 5f));
+                itemStatusStates[3].sprite = UnityEngine.Sprite.Create(uiAtlas, new Rect(118, 0, 10, 10), new Vector2(5f, 5f));
+
+                // Set up group status image state array
+                groupExpandedActive = UnityEngine.Sprite.Create(uiAtlas, new Rect(0, 156, 97, 52), new Vector2(78f, 25f), 100.0f, 0, SpriteMeshType.Tight, new Vector4(81, 6, 6, 6));
+                groupExpandedInactive = UnityEngine.Sprite.Create(uiAtlas, new Rect(0, 104, 97, 52), new Vector2(78f, 25f), 100.0f, 0, SpriteMeshType.Tight, new Vector4(81, 6, 6, 6));
+                groupUnexpandedActive = UnityEngine.Sprite.Create(uiAtlas, new Rect(0, 52, 97, 52), new Vector2(78f, 25f), 100.0f, 0, SpriteMeshType.Tight, new Vector4(81, 6, 6, 6));
+                groupUnexpandedInactive = UnityEngine.Sprite.Create(uiAtlas, new Rect(0, 0, 97, 52), new Vector2(78f, 25f), 100.0f, 0, SpriteMeshType.Tight, new Vector4(81, 6, 6, 6));
             }
         }
 
@@ -145,26 +201,37 @@ namespace ContractConfigurator.Util
             if (cc != null)
             {
                 ContractContainer foundMatch = null;
+                GroupContainer currentGroup = null;
 
                 List<UIListData<KSP.UI.UIListItem>>.Enumerator enumerator = MissionControl.Instance.scrollListContracts.GetEnumerator();
                 while (enumerator.MoveNext())
                 {
                     KSP.UI.UIListItem item = enumerator.Current.listItem;
                     ContractContainer container = item.Data as ContractContainer;
-                    if (container != null && container.contractType == cc.contractType)
+                    if (container != null)
                     {
-                        // Upgrade the contract type line item to a contract
-                        if (container.contract == null)
+                        if (container.contractType == cc.contractType)
                         {
-                            container.contract = cc;
-                            SetupContractItem(container);
-                            break;
+                            // Upgrade the contract type line item to a contract
+                            if (container.contract == null)
+                            {
+                                container.contract = cc;
+                                SetupContractItem(container);
+                                break;
+                            }
+                            // Keep track of the list item - we'll add immediately after it
+                            else
+                            {
+                                foundMatch = container;
+                            }
                         }
-                        // Keep track of the list item - we'll add immediately after it
-                        else
-                        {
-                            foundMatch = container;
-                        }
+                        continue;
+                    }
+
+                    GroupContainer groupContainer = item.Data as GroupContainer;
+                    if (groupContainer != null)
+                    {
+                        currentGroup = groupContainer;
                     }
                 }
 
@@ -173,6 +240,10 @@ namespace ContractConfigurator.Util
                 {
                     ContractContainer container = new ContractContainer(cc);
                     CreateContractItem(container, foundMatch.indent, foundMatch.mcListItem.container);
+                    if (currentGroup != null)
+                    {
+                        currentGroup.childContracts.Add(container);
+                    }
                 }
             }
             else
@@ -219,22 +290,37 @@ namespace ContractConfigurator.Util
             // TODO - groupings for non-CC types
         }
 
-        protected void CreateGroupItem(ContractGroup group, int indent = 0)
+        protected GroupContainer CreateGroupItem(ContractGroup group, int indent = 0)
         {
             MCListItem mcListItem = UnityEngine.Object.Instantiate<MCListItem>(MissionControl.Instance.PrfbMissionListItem);
-            Agent agent = GetAgentFromGroup(group);
+            GroupContainer groupContainer = new GroupContainer(group);
+            mcListItem.container.Data = groupContainer;
+            groupContainer.mcListItem = mcListItem;
 
             // Set up the list item with the group details
             mcListItem.title.text = "<color=#fefa87>" + (group == null ? "Contract Configurator" : group.displayName) + "</color>";
-            if (agent != null)
+            if (groupContainer.agent != null)
             {
-                mcListItem.logoSprite.texture = agent.LogoScaled;
+                mcListItem.logoSprite.texture = groupContainer.agent.LogoScaled;
             }
             mcListItem.difficulty.gameObject.SetActive(false);
+
+            // Force to the default state
+            mcListItem.GetComponent<Image>().sprite = groupUnexpandedInactive;
 
             // Add the list item to the UI, and add indent
             MissionControl.Instance.scrollListContracts.AddItem(mcListItem.container, true);
             SetIndent(mcListItem, indent);
+
+            // Create as unexpanded
+            if (indent != 0)
+            {
+                mcListItem.gameObject.SetActive(false);
+            }
+
+            // Set the callbacks
+            mcListItem.radioButton.onFalseBtn.AddListener(new UnityAction<UIRadioButton, UIRadioButton.CallType, PointerEventData>(OnDeselectGroup));
+            mcListItem.radioButton.onTrueBtn.AddListener(new UnityAction<UIRadioButton, UIRadioButton.CallType, PointerEventData>(OnSelectGroup));
 
             // Add any child groups
             if (group != null)
@@ -242,15 +328,18 @@ namespace ContractConfigurator.Util
                 foreach (ContractGroup child in ContractGroup.AllGroups.Where(g => g != null && g.parent == group && ContractType.AllValidContractTypes.Any(ct => g.BelongsToGroup(ct))).
                     OrderBy(g => g.displayName))
                 {
-                    CreateGroupItem(child, indent + 1);
+                    groupContainer.childGroups.Add(CreateGroupItem(child, indent + 1));
                 }
             }
 
             // Add contracts
-            foreach (ContractContainer contract in GetContracts(group).OrderBy(c => c.OrderKey))
+            foreach (ContractContainer contractContainer in GetContracts(group).OrderBy(c => c.OrderKey))
             {
-                CreateContractItem(contract, indent + 1);
+                CreateContractItem(contractContainer, indent + 1);
+                groupContainer.childContracts.Add(contractContainer);
             }
+
+            return groupContainer;
         }
 
         protected void CreateContractItem(ContractContainer cc, int indent = 0, KSP.UI.UIListItem previous = null)
@@ -304,6 +393,12 @@ namespace ContractConfigurator.Util
             // Do other setup
             SetupContractItem(cc);
 
+            // Create as unexpanded
+            if (indent != 0)
+            {
+                mcListItem.gameObject.SetActive(false);
+            }
+
             // Add the list item to the UI, and add indent
             if (previous == null)
             {
@@ -354,13 +449,6 @@ namespace ContractConfigurator.Util
                 // TODO - choose
                 cc.statusImage.SetState(cc.contractType.maxCompletions != 0 && cc.contractType.ActualCompletions() >= cc.contractType.maxCompletions ? "Completed" : "Unavailable");
             }
-        }
-
-        protected Agent GetAgentFromGroup(ContractGroup group)
-        {
-            // TODO - need to get best agent, first from field in group, otherwise most used agent
-            ContractType contractType = ContractType.AllValidContractTypes.Where(ct => ct != null && ct.group == group).FirstOrDefault();
-            return contractType != null ? contractType.agent : null;
         }
 
         protected Contract.ContractPrestige? GetPrestige(ContractType contractType)
@@ -486,6 +574,52 @@ namespace ContractConfigurator.Util
             selectedButton = null;
         }
 
+
+        protected void OnSelectGroup(UIRadioButton button, UIRadioButton.CallType callType, PointerEventData data)
+        {
+            LoggingUtil.LogVerbose(this, "OnSelectGroup");
+
+            if (callType != UIRadioButton.CallType.USER)
+            {
+                return;
+            }
+
+            GroupContainer groupContainer = (GroupContainer)button.GetComponent<KSP.UI.UIListItem>().Data;
+
+            if (groupContainer.agent != null)
+            {
+                MissionControl.Instance.panelView.gameObject.SetActive(true);
+                MissionControl.Instance.logoRenderer.gameObject.SetActive(true);
+
+                MissionControl.Instance.UpdateInfoPanelAgent(groupContainer.agent);
+                MissionControl.Instance.btnAgentBack.gameObject.SetActive(false);
+            }
+            else
+            {
+                MissionControl.Instance.panelView.gameObject.SetActive(false);
+                MissionControl.Instance.logoRenderer.gameObject.SetActive(false);
+            }
+
+            groupContainer.Toggle();
+
+        }
+
+        protected void OnDeselectGroup(UIRadioButton button, UIRadioButton.CallType callType, PointerEventData data)
+        {
+            LoggingUtil.LogVerbose(this, "OnDeselectGroup");
+
+            if (callType != UIRadioButton.CallType.USER)
+            {
+                return;
+            }
+
+            MissionControl.Instance.panelView.gameObject.SetActive(false);
+            MissionControl.Instance.ClearInfoPanel();
+
+            GroupContainer groupContainer = (GroupContainer)button.GetComponent<KSP.UI.UIListItem>().Data;
+            groupContainer.Toggle();
+        }
+
         protected void SetContractTitle(MCListItem mcListItem, ContractContainer cc)
         {
             // Set up the list item with the contract details
@@ -529,8 +663,7 @@ namespace ContractConfigurator.Util
             }
 
             // Set up text
-            // TODO - proper name
-            MissionControl.Instance.textContractInfo.text = "<b><color=#DB8310>Contract:</color></b>\n" + contractType.name + agentText;
+            MissionControl.Instance.textContractInfo.text = "<b><color=#DB8310>Contract:</color></b>\n" + contractType.genericTitle + agentText;
             MissionControl.Instance.contractTextRect.verticalNormalizedPosition = 1f;
             MissionControl.Instance.textDateInfo.text = "";
 
