@@ -35,9 +35,18 @@ namespace ContractConfigurator.Util
             {
                 this.group = group;
 
-                // TODO - need to get best agent, first from field in group, otherwise most used agent
-                ContractType contractType = ContractType.AllValidContractTypes.Where(ct => ct != null && ct.group == group).FirstOrDefault();
-                agent = contractType != null ? contractType.agent : null;
+                // Set the agent from the group
+                if (group.agent != null)
+                {
+                    agent = group.agent;
+                }
+                // Fallback to trying to find the most appropriate agent
+                else
+                {
+                    ContractType contractType = ContractType.AllValidContractTypes.Where(ct => ct != null && ct.group == group).FirstOrDefault();
+                    agent = contractType != null ? contractType.agent : null;
+
+                }
             }
 
             public void Toggle()

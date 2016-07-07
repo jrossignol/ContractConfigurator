@@ -60,6 +60,7 @@ namespace ContractConfigurator
         public int maxCompletions;
         public int maxSimultaneous;
         public List<string> disabledContractType;
+        public Agent agent;
 
         public bool expandInDebug = false;
         public bool hasWarnings { get; set; }
@@ -102,6 +103,7 @@ namespace ContractConfigurator
                 valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxCompletions", x => maxCompletions = x, this, 0, x => Validation.GE(x, 0));
                 valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxSimultaneous", x => maxSimultaneous = x, this, 0, x => Validation.GE(x, 0));
                 valid &= ConfigNodeUtil.ParseValue<List<string>>(configNode, "disabledContractType", x => disabledContractType = x, this, new List<string>());
+                valid &= ConfigNodeUtil.ParseValue<Agent>(configNode, "agent", x => agent = x, this, (Agent)null);
 
                 if (!string.IsNullOrEmpty(minVersion))
                 {
@@ -124,6 +126,20 @@ namespace ContractConfigurator
 
                 // Do the deferred loads
                 valid &= ConfigNodeUtil.ExecuteDeferredLoads();
+
+                // Do post-deferred load warnings
+                if (agent == null)
+                {
+                    LoggingUtil.LogWarning(this, ErrorPrefix() + ": Providing the agent field for all CONTRACT_GROUP nodes is highly recommended, as the agent is used to group contracts in Mission Control.");
+                }
+                if (string.IsNullOrEmpty(minVersion) || Util.Version.ParseVersion(minVersion) < ContractConfigurator.ENHANCED_UI_VERSION)
+                {
+                    LoggingUtil.LogWarning(this, ErrorPrefix() + ": No minVersion or older minVersion provided.  It is recommended that the minVersion is set to at least 1.15.0 to turn important warnings for deprecated functionality into errors.");
+                }
+                if (!configNode.HasValue("displayName"))
+                {
+                    LoggingUtil.LogWarning(this, ErrorPrefix() + ": No display name provided.  A display name is recommended, as it is used in the Mission Control UI.");
+                }
 
                 config = configNode.ToString();
                 log += LoggingUtil.capturedLog;
