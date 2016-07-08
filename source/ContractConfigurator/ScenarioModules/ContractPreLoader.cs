@@ -110,6 +110,17 @@ namespace ContractConfigurator
             }
         }
 
+        /// <summary>
+        /// Static method to be used via reflection to force a contract generation pass.
+        /// </summary>
+        public static void ForceContractGenerationPass()
+        {
+            if (Instance != null)
+            {
+                Instance.ResetGenerationFailure();
+            }
+        }
+
         public void ResetGenerationFailure()
         {
             LoggingUtil.LogVerbose(this, "ResetGenerationFailure");
