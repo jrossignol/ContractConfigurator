@@ -80,6 +80,7 @@ namespace ContractConfigurator
         {
             LoggingUtil.LogVerbose(this, "OnContractDecline");
 
+            // Reset generation failures for just this contract type
             ConfiguredContract cc = c as ConfiguredContract;
             if (cc != null)
             {
@@ -100,14 +101,8 @@ namespace ContractConfigurator
         {
             LoggingUtil.LogVerbose(this, "OnContractFinish");
 
-            // Reset the generation failure for all contracts
-            ConfiguredContract cc = c as ConfiguredContract;
-            if (cc != null && cc.contractType != null)
-            {
-                lastGenerationFailure = 0.0;
-                cc.contractType.failedGenerationAttempts = 0;
-                cc.contractType.lastGenerationFailure = 0.0;
-            }
+            // Reset the generation failures for all contract types
+            ResetGenerationFailure();
         }
 
         /// <summary>
@@ -125,6 +120,7 @@ namespace ContractConfigurator
         {
             LoggingUtil.LogVerbose(this, "ResetGenerationFailure");
 
+            lastGenerationFailure = 0.0;
             foreach (ContractType ct in ContractType.AllValidContractTypes)
             {
                 ct.failedGenerationAttempts = 0;
