@@ -17,7 +17,8 @@ namespace ContractConfigurator
 
         public override bool LoadFromConfig(ConfigNode configNode)
         {
-            bool valid = true;
+            // Load base class
+            bool valid = base.LoadFromConfig(configNode);
 
             valid &= ConfigNodeUtil.ParseValue<int>(configNode, "count", x => count = x, this, x => Validation.GE<int>(x, 0));
 

@@ -427,7 +427,6 @@ namespace ContractConfigurator
                     // Perform the load
                     try
                     {
-                        ConfigNodeUtil.ClearCache(true);
                         contractType.Load(contractConfig);
                         if (contractType.enabled)
                         {

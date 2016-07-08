@@ -26,6 +26,9 @@ namespace ContractConfigurator
     /// </summary>
     public class ContractType : IContractConfiguratorFactory
     {
+        static MethodInfo methodParseExpand = typeof(ContractType).GetMethods(BindingFlags.Instance | BindingFlags.NonPublic).
+            Where(m => m.Name == "ParseDataExpandString").Single();
+
         private static Dictionary<string, ContractType> contractTypes = new Dictionary<string,ContractType>();
         public static IEnumerable<ContractType> AllContractTypes { get { return contractTypes.Values; } }
         public static IEnumerable<ContractType> AllValidContractTypes
@@ -198,6 +201,9 @@ namespace ContractConfigurator
                 ConfigNodeUtil.SetCurrentDataNode(null);
                 LoggingUtil.LogInfo(this, "Loading CONTRACT_TYPE: '" + name + "'");
 
+                // Clear the config node cache
+                ConfigNodeUtil.ClearCache(true);
+
                 // Load values that are immediately required
                 bool valid = true;
                 valid &= ConfigNodeUtil.ParseValue<ContractGroup>(configNode, "group", x => group = x, this, (ContractGroup)null);
@@ -276,9 +282,6 @@ namespace ContractConfigurator
                 // Load DATA nodes
                 valid &= dataNode.ParseDataNodes(configNode, this, dataValues, uniquenessChecks);
 
-                // Check for unexpected values - always do this last
-                valid &= ConfigNodeUtil.ValidateUnexpectedValues(configNode, this);
-
                 log = LoggingUtil.capturedLog;
                 LoggingUtil.CaptureLog = false;
 
@@ -337,13 +340,80 @@ namespace ContractConfigurator
                     valid = false;
                 }
 
+                //
+                // Process the DATA_EXPAND nodes - this could cause a restart to the load process
+                //
+                ConfigNode dataExpandNode = configNode.GetNodes("DATA_EXPAND").FirstOrDefault();
+                if (dataExpandNode != null)
+                {
+                    Type type = null;
+                    valid &= ConfigNodeUtil.ParseValue<Type>(dataExpandNode, "type", x => type = x, this);
+
+                    if (type != null)
+                    {
+                        foreach (ConfigNode.Value pair in dataExpandNode.values)
+                        {
+                            string key = pair.name;
+                            if (key != "type")
+                            {
+                                object value = null;
+
+                                // Create the setter function
+                                Type actionType = typeof(Action<>).MakeGenericType(type);
+                                Delegate del = Delegate.CreateDelegate(actionType, value, typeof(DataNode).GetMethod("NullAction"));
+
+                                // Set the ParseDataExpandString method generic value
+                                MethodInfo method = methodParseExpand.MakeGenericMethod(new Type[] { type });
+
+                                // Invoke the ParseDataExpandString method
+                                List<string> values = (List<string>)method.Invoke(this, new object[] { dataExpandNode, key });
+
+                                // Stop at this point if we're invalid
+                                if (values == null || !valid)
+                                {
+                                    valid = false;
+                                    break;
+                                }
+
+                                // Expand
+                                configNode.RemoveNode(dataExpandNode);
+                                foreach (string val in values)
+                                {
+                                    // Set up for expansion
+                                    ConfigNode copy = configNode.CreateCopy();
+                                    string newName = name + "." + val;
+                                    copy.SetValue("name", newName);
+
+                                    // Set up the data node in the copy
+                                    ConfigNode dataNode = new ConfigNode("DATA");
+                                    copy.AddNode(dataNode);
+                                    dataNode.AddValue("type", dataExpandNode.GetValue("type"));
+                                    dataNode.AddValue(key, val);
+
+                                    ContractType contractTypeCopy = new ContractType(newName);
+                                    contractTypeCopy.Load(copy);
+                                }
+
+                                // Remove the original
+                                contractTypes.Remove(name);
+
+                                // Don't do any more loading for this one
+                                LoggingUtil.LogInfo(this, "Successfully expanded CONTRACT_TYPE '" + name + "'");
+                                return valid;
+                            }
+                        }
+                    }
+                }
+
+                //
                 // Do the deferred loads
+                //
                 valid &= ConfigNodeUtil.ExecuteDeferredLoads();
 
                 //
                 // Do generic fields that need to happen after deferred loads
                 //
-                
+
                 // Generic title
                 valid &= ConfigNodeUtil.ParseValue<string>(configNode, "genericTitle", x => genericTitle = x, this, title);
                 if (!configNode.HasValue("genericTitle") && !dataNode.IsDeterministic("title"))
@@ -381,6 +451,9 @@ namespace ContractConfigurator
                     valid = false;
                     LoggingUtil.LogError(this, ErrorPrefix() + ": The field 'genericDescription' must be deterministic.");
                 }
+
+                // Check for unexpected values - always do this last
+                valid &= ConfigNodeUtil.ValidateUnexpectedValues(configNode, this);
 
                 if (valid)
                 {
@@ -452,6 +525,31 @@ namespace ContractConfigurator
                 LoggingUtil.logLevel = origLogLevel;
                 loaded = true;
             }
+        }
+
+        private List<string> ParseDataExpandString<T>(ConfigNode dataExpandNode, string key)
+        {
+            List<T> values = null;
+            bool valid = ConfigNodeUtil.ParseValue<List<T>>(dataExpandNode, key, x => values = x, this);
+            if (!valid || values == null)
+            {
+                return null;
+            }
+
+            // Check that we actually got a deterministic value
+            if (!dataNode.IsDeterministic(key))
+            {
+                LoggingUtil.LogError(this, ErrorPrefix() + ": Values captured in a DATA_EXPAND node must be deterministic (the value needs to be fixed when loaded on game startup.");
+                return null;
+            }
+
+            List<string> results = new List<string>();
+            foreach (T t in values)
+            {
+                Type type;
+                results.Add(PersistentDataStore.OutputValue(t, out type));
+            }
+            return results;
         }
 
         static string DataNodeDebug(DataNode node, int indent = 0)

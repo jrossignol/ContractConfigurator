@@ -117,6 +117,14 @@ namespace ContractConfigurator.ExpressionParser
             ContractType contractType = BaseParser.currentParser.currentDataNode.Root.Factory as ContractType;
             string key = BaseParser.currentParser.currentKey;
             DataNode.UniquenessCheck uniquenessCheck = contractType.uniquenessChecks.ContainsKey(key) ? contractType.uniquenessChecks[key] : DataNode.UniquenessCheck.NONE;
+            DataNode dataNode = BaseParser.currentParser.currentDataNode;
+
+            // Provide warning of a better method
+            if (dataNode != null && dataNode.IsDeterministic(key) && (uniquenessCheck == DataNode.UniquenessCheck.CONTRACT_ALL || uniquenessCheck == DataNode.UniquenessCheck.CONTRACT_ACTIVE))
+            {
+                IContractConfiguratorFactory factory = BaseParser.currentParser.currentDataNode.Factory;
+                LoggingUtil.LogWarning(factory, factory.ErrorPrefix() + ": Consider using a DATA_EXPAND node instead of the SelectUnique function when the values are deterministic - this will cause the player to see the full set of values in mission control before the contract is offered.");
+            }
 
             // Check for properly uniquness check
             if (uniquenessCheck == DataNode.UniquenessCheck.NONE)

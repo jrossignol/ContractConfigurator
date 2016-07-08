@@ -13,6 +13,9 @@ namespace ContractConfigurator.ExpressionParser
     /// </summary>
     public class DataNode
     {
+        static MethodInfo methodParseValue = typeof(ConfigNodeUtil).GetMethods(BindingFlags.Static | BindingFlags.Public).
+            Where(m => m.Name == "ParseValue" && m.GetParameters().Count() == 4).Single();
+
         public enum UniquenessCheck
         {
             NONE,
@@ -379,10 +382,8 @@ namespace ContractConfigurator.ExpressionParser
                             Type actionType = typeof(Action<>).MakeGenericType(type);
                             Delegate del = Delegate.CreateDelegate(actionType, value, typeof(DataNode).GetMethod("NullAction"));
 
-                            // Get the ParseValue method
-                            MethodInfo method = typeof(ConfigNodeUtil).GetMethods(BindingFlags.Static | BindingFlags.Public).
-                                Where(m => m.Name == "ParseValue" && m.GetParameters().Count() == 4).Single();
-                            method = method.MakeGenericMethod(new Type[] { type });
+                            // Set the ParseValue method generic
+                            MethodInfo method = methodParseValue.MakeGenericMethod(new Type[] { type });
 
                             // Invoke the ParseValue method
                             valid &= (bool)method.Invoke(null, new object[] { data, name, del, obj });

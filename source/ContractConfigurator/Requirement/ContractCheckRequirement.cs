@@ -43,7 +43,7 @@ namespace ContractConfigurator
         private bool SetValues(string contractType)
         {
             bool valid = true;
-            if (ContractType.GetContractType(contractType) != null)
+            if (ContractType.AllContractTypes.Any(ct => contractType.StartsWith(ct.name)))
             {
                 ccType = contractType;
             }
