@@ -146,13 +146,12 @@ namespace ContractConfigurator
         public float failureReputation;
         public float failureFunds;
         public float advanceFunds;
-        public double weight;
         public bool trace = false;
         public bool loaded = false;
         // TODO - expose
         public int maxConsecutiveGenerationFailures = 1;
         public int failedGenerationAttempts;
-        public double lastGenerationFailure;
+        public double lastGenerationFailure = -100;
 
         private Dictionary<string, bool> dataValues = new Dictionary<string, bool>();
         public Dictionary<string, DataNode.UniquenessCheck> uniquenessChecks = new Dictionary<string, DataNode.UniquenessCheck>();
@@ -180,7 +179,6 @@ namespace ContractConfigurator
             failureReputation = 0.0f;
             failureFunds = 0.0f;
             advanceFunds = 0.0f;
-            weight = 1.0;
             enabled = true;
         }
 			
@@ -252,7 +250,12 @@ namespace ContractConfigurator
                 valid &= ConfigNodeUtil.ParseValue<float>(configNode, "advanceFunds", x => advanceFunds = x, this, 0.0f);
 
                 // Load other values
-                valid &= ConfigNodeUtil.ParseValue<double>(configNode, "weight", x => weight = x, this, 1.0, x => Validation.GE(x, 0.0f));
+                if (configNode.HasValue("weight"))
+                {
+                    double weight;
+                    valid &= ConfigNodeUtil.ParseValue<double>(configNode, "weight", x => weight = x, this);
+                    LoggingUtil.LogWarning(this, ErrorPrefix() + ": The weight attribute is deprecated as of Contract Configurator 1.15.0.  Contracts are no longer generated using a weighted system.");
+                }
 
                 // Merge in data from the parent contract group
                 for (ContractGroup currentGroup = group; currentGroup != null; currentGroup = currentGroup.parent)
@@ -663,7 +666,7 @@ namespace ContractConfigurator
                         LoggingUtil.LogVerbose(this, "Doing unique value check for " + key);
 
                         // Get the active/offered contract lists
-                        IEnumerable<ConfiguredContract> contractList = ContractSystem.Instance.Contracts.OfType<ConfiguredContract>().
+                        IEnumerable<ConfiguredContract> contractList = ConfiguredContract.CurrentContracts.
                             Where(c => c != null && c.contractType != null && c != contract);
 
                         // Add in finished contracts
@@ -673,14 +676,7 @@ namespace ContractConfigurator
                                 Where(c => c != null && c.contractType != null && c != contract));
                         }
 
-                        // Special case for pre-loader contracts
-                        if (contract.ContractState == Contract.State.Withdrawn)
-                        {
-                            contractList = contractList.Union(ContractPreLoader.Instance.PendingContracts(this, contract.Prestige).
-                                Where(c => c != null && c != contract && c.contractType != null));
-                        }
-
-                        // Fileter anything that doesn't have our key
+                        // Filter anything that doesn't have our key
                         contractList = contractList.Where(c => c.uniqueData.ContainsKey(key));
 
                         // Check for contracts of the same type

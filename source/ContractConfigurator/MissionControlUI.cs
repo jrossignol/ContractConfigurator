@@ -20,23 +20,30 @@ namespace ContractConfigurator.Util
     [KSPAddon(KSPAddon.Startup.SpaceCentre, false)]
     public class MissionControlUI : MonoBehaviour
     {
+        static FieldInfo childUIListField = typeof(UIList).GetFields(BindingFlags.Instance | BindingFlags.NonPublic).Where(fi => fi.FieldType == typeof(UIList<KSP.UI.UIListItem>)).First();
+        static FieldInfo listDataField = typeof(UIList<KSP.UI.UIListItem>).GetFields(BindingFlags.Instance | BindingFlags.NonPublic).Where(fi => fi.FieldType == typeof(List<UIListData<KSP.UI.UIListItem>>)).First();
         public static string RequirementHighlightColor = "F9F9F6";
 
-        public class GroupContainer
+        public class Container
+        {
+            public Transform listItemTransform;
+            public MCListItem mcListItem;
+        }
+
+        public class GroupContainer : Container
         {
             public ContractGroup group;
             public Agent agent;
             public bool expanded = false;
             public List<GroupContainer> childGroups = new List<GroupContainer>();
             public List<ContractContainer> childContracts = new List<ContractContainer>();
-            public MCListItem mcListItem;
 
             public GroupContainer(ContractGroup group)
             {
                 this.group = group;
 
                 // Set the agent from the group
-                if (group.agent != null)
+                if (group != null && group.agent != null)
                 {
                     agent = group.agent;
                 }
@@ -62,7 +69,7 @@ namespace ContractConfigurator.Util
                     (radioButton.CurrentState == UIRadioButton.State.True ? groupUnexpandedActive : groupUnexpandedInactive);
             }
 
-            private void SetState(bool expanded)
+            public void SetState(bool expanded)
             {
                 foreach (GroupContainer childGroup in childGroups)
                 {
@@ -77,14 +84,14 @@ namespace ContractConfigurator.Util
             }
         }
 
-        public class ContractContainer
+        public class ContractContainer : Container
         {
             public Contract contract;
             public ContractType contractType;
             public MissionControl.MissionSelection missionSelection;
-            public MCListItem mcListItem;
             public int indent;
             public UIStateImage statusImage;
+            public GroupContainer groupContainer;
 
             public string OrderKey
             {
@@ -171,6 +178,11 @@ namespace ContractConfigurator.Util
             if (MissionControl.Instance == null)
             {
                 ticks = 0;
+
+                // Disable GameEvent handlers
+                GameEvents.Contract.onContractsListChanged.Remove(new EventVoid.OnEvent(OnContractsListChanged));
+                GameEvents.Contract.onOffered.Remove(new EventData<Contract>.OnEvent(OnContractOffered));
+
                 return;
             }
 
@@ -188,7 +200,7 @@ namespace ContractConfigurator.Util
 
                 // Very harsh way to disable the onContractsListChanged in the stock mission control
                 GameEvents.Contract.onContractsListChanged = new EventVoid("onContractsListChanged");
-                GameEvents.Contract.onContractsListChanged.Add(OnContractsListChanged);
+                GameEvents.Contract.onContractsListChanged.Add(new EventVoid.OnEvent(OnContractsListChanged));
 
                 // Contract state change handlers
                 GameEvents.Contract.onOffered.Add(new EventData<Contract>.OnEvent(OnContractOffered));
@@ -210,7 +222,6 @@ namespace ContractConfigurator.Util
             if (cc != null)
             {
                 ContractContainer foundMatch = null;
-                GroupContainer currentGroup = null;
 
                 List<UIListData<KSP.UI.UIListItem>>.Enumerator enumerator = MissionControl.Instance.scrollListContracts.GetEnumerator();
                 while (enumerator.MoveNext())
@@ -236,23 +247,18 @@ namespace ContractConfigurator.Util
                         }
                         continue;
                     }
-
-                    GroupContainer groupContainer = item.Data as GroupContainer;
-                    if (groupContainer != null)
-                    {
-                        currentGroup = groupContainer;
-                    }
                 }
 
                 // Got a match, do an addition
                 if (foundMatch != null)
                 {
                     ContractContainer container = new ContractContainer(cc);
+                    container.groupContainer = foundMatch.groupContainer;
+                    container.groupContainer.childContracts.Add(container);
                     CreateContractItem(container, foundMatch.indent, foundMatch.mcListItem.container);
-                    if (currentGroup != null)
-                    {
-                        currentGroup.childContracts.Add(container);
-                    }
+
+                    // Show/hide based on state of group line
+                    container.mcListItem.gameObject.SetActive(container.groupContainer.expanded && container.groupContainer.mcListItem.gameObject.activeSelf);
                 }
             }
             else
@@ -319,6 +325,7 @@ namespace ContractConfigurator.Util
 
             // Add the list item to the UI, and add indent
             MissionControl.Instance.scrollListContracts.AddItem(mcListItem.container, true);
+            groupContainer.listItemTransform = mcListItem.transform;
             SetIndent(mcListItem, indent);
 
             // Create as unexpanded
@@ -344,8 +351,10 @@ namespace ContractConfigurator.Util
             // Add contracts
             foreach (ContractContainer contractContainer in GetContracts(group).OrderBy(c => c.OrderKey))
             {
-                CreateContractItem(contractContainer, indent + 1);
+                contractContainer.groupContainer = groupContainer;
                 groupContainer.childContracts.Add(contractContainer);
+
+                CreateContractItem(contractContainer, indent + 1);
             }
 
             return groupContainer;
@@ -412,13 +421,28 @@ namespace ContractConfigurator.Util
             if (previous == null)
             {
                 MissionControl.Instance.scrollListContracts.AddItem(mcListItem.container, true);
+
+                cc.listItemTransform = mcListItem.transform;
+                SetIndent(mcListItem, indent);
             }
             else
             {
+                // Ugly bit of reflection to add to the internals of the list - otherwise the list refresh will mess up the indenting
                 int index = MissionControl.Instance.scrollListContracts.GetIndex(previous);
-                MissionControl.Instance.scrollListContracts.InsertItem(mcListItem.container, index);
+                UIList<KSP.UI.UIListItem> childUIList = (UIList<KSP.UI.UIListItem>)childUIListField.GetValue(MissionControl.Instance.scrollListContracts);
+                List<UIListData<KSP.UI.UIListItem>> listData = (List<UIListData<KSP.UI.UIListItem>>) listDataField.GetValue(childUIList);
+                listData.Insert(index, new UIListData<KSP.UI.UIListItem>((KSP.UI.UIListItem)null, mcListItem.container));
+                mcListItem.container.transform.SetParent(childUIList.listAnchor);
+                mcListItem.container.transform.localPosition = new Vector3(mcListItem.container.transform.localPosition.x, mcListItem.container.transform.localPosition.y, 0.0f);
+
+                cc.listItemTransform = mcListItem.transform;
+                SetIndent(mcListItem, indent);
+
+                for (int i = 0; i < listData.Count; i++)
+                {
+                    ((Container)listData[i].listItem.Data).listItemTransform.SetSiblingIndex(i);
+                }
             }
-            SetIndent(mcListItem, indent);
 
             LayoutElement layoutElement = mcListItem.GetComponent<LayoutElement>();
             layoutElement.preferredHeight /= 2;
@@ -508,6 +532,7 @@ namespace ContractConfigurator.Util
             go.AddComponent<RectTransform>();
             go.AddComponent<CanvasRenderer>();
             go.AddComponent<HorizontalLayoutGroup>();
+            ((Container)mcListItem.container.Data).listItemTransform = go.transform;
 
             // Create a spacer sized based on the indent
             GameObject spacer = new GameObject("Spacer");

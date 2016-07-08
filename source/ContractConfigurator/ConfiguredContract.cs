@@ -104,6 +104,10 @@ namespace ContractConfigurator
         {
             get
             {
+                if (ContractSystem.Instance == null)
+                {
+                    return Enumerable.Empty<ConfiguredContract>();
+                }
                 return ContractSystem.Instance.Contracts.Where(c => c.ContractState == Contract.State.Active).OfType<ConfiguredContract>();
             }
         }
@@ -111,6 +115,10 @@ namespace ContractConfigurator
         {
             get
             {
+                if (ContractSystem.Instance == null)
+                {
+                    return Enumerable.Empty<ConfiguredContract>();
+                }
                 return ContractSystem.Instance.Contracts.OfType<ConfiguredContract>().Union(ContractPreLoader.Instance.PendingContracts());
             }
         }
@@ -118,6 +126,10 @@ namespace ContractConfigurator
         {
             get
             {
+                if (ContractSystem.Instance == null)
+                {
+                    return Enumerable.Empty<ConfiguredContract>();
+                }
                 return ContractSystem.Instance.ContractsFinished.Where(c => c.ContractState == Contract.State.Completed).OfType<ConfiguredContract>();
             }
         }

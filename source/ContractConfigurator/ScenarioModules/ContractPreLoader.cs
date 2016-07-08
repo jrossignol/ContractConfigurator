@@ -123,6 +123,12 @@ namespace ContractConfigurator
 
         void Update()
         {
+            // Wait for startup of contract system
+            if (ContractSystem.Instance == null)
+            {
+                return;
+            }
+
             if (contractEnumerator == null)
             {
                 contractEnumerator = ContractEnumerator().GetEnumerator();
@@ -184,9 +190,9 @@ namespace ContractConfigurator
                     // Is the contract time part of this group, and is it allowed to attempt to generate
                     if (ct.group == group && ct.lastGenerationFailure + FAILURE_WAIT_TIME < Time.realtimeSinceStartup)
                     {
-                        if (ct.lastGenerationFailure != 0.0)
+                        if (ct.lastGenerationFailure != -100)
                         {
-                            ct.lastGenerationFailure = 0.0;
+                            ct.lastGenerationFailure = -100;
                             ct.failedGenerationAttempts = 0;
                         }
 

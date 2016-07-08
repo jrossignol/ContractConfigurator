@@ -368,6 +368,11 @@ namespace ContractConfigurator.ExpressionParser
                         string name = pair.name;
                         if (name != "type" && name != "requiredValue" && name != "uniqueValue" && name != "activeUniqueValue" && name != "uniquenessCheck")
                         {
+                            if (uniquenessCheck != UniquenessCheck.NONE)
+                            {
+                                uniquenessChecks[name] = uniquenessCheck;
+                            }
+
                             object value = null;
 
                             // Create the setter function
@@ -383,10 +388,6 @@ namespace ContractConfigurator.ExpressionParser
                             valid &= (bool)method.Invoke(null, new object[] { data, name, del, obj });
 
                             dataValues[name] = requiredValue;
-                            if (uniquenessCheck != UniquenessCheck.NONE)
-                            {
-                                uniquenessChecks[name] = uniquenessCheck;
-                            }
                         }
                     }
                 }
