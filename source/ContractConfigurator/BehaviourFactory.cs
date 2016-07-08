@@ -34,6 +34,13 @@ namespace ContractConfigurator
         public string config { get; private set; }
         public string log { get; private set; }
         public DataNode dataNode { get; private set; }
+        public Version minVersion
+        {
+            get
+            {
+                return contractType.minVersion;
+            }
+        }
 
         /// <summary>
         /// Loads the BehaviourFactory from the given ConfigNode.

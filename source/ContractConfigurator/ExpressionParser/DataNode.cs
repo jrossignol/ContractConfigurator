@@ -331,7 +331,7 @@ namespace ContractConfigurator.ExpressionParser
         /// <param name="uniquenessChecks"></param>
         /// <returns></returns>
         public bool ParseDataNodes(ConfigNode configNode, IContractConfiguratorFactory obj,
-            Dictionary<string, bool> dataValues, Dictionary<string, UniquenessCheck> uniquenessChecks)
+            Dictionary<string, ContractType.DataValueInfo> dataValues, Dictionary<string, UniquenessCheck> uniquenessChecks)
         {
             bool valid = true;
 
@@ -339,10 +339,16 @@ namespace ContractConfigurator.ExpressionParser
             {
                 Type type = null;
                 bool requiredValue = true;
+                bool hidden = true;
+                string title = "";
 
                 ConfigNodeUtil.SetCurrentDataNode(null);
                 valid &= ConfigNodeUtil.ParseValue<Type>(data, "type", x => type = x, obj);
                 valid &= ConfigNodeUtil.ParseValue<bool>(data, "requiredValue", x => requiredValue = x, obj, true);
+                valid &= ConfigNodeUtil.ParseValue<string>(data, "title", x => title = x, obj, "");
+                valid &= ConfigNodeUtil.ParseValue<bool>(data, "hidden", x => hidden = x, obj, false);
+
+                bool doneTitleWarning = false;
 
                 UniquenessCheck uniquenessCheck = UniquenessCheck.NONE;
                 // Backwards compatibility for Contract Configurator 1.8.3
@@ -369,7 +375,7 @@ namespace ContractConfigurator.ExpressionParser
                     foreach (ConfigNode.Value pair in data.values)
                     {
                         string name = pair.name;
-                        if (name != "type" && name != "requiredValue" && name != "uniqueValue" && name != "activeUniqueValue" && name != "uniquenessCheck")
+                        if (name != "type" && name != "title" && name != "hidden" && name != "requiredValue" && name != "uniqueValue" && name != "activeUniqueValue" && name != "uniquenessCheck")
                         {
                             if (uniquenessCheck != UniquenessCheck.NONE)
                             {
@@ -388,7 +394,23 @@ namespace ContractConfigurator.ExpressionParser
                             // Invoke the ParseValue method
                             valid &= (bool)method.Invoke(null, new object[] { data, name, del, obj });
 
-                            dataValues[name] = requiredValue;
+                            dataValues[name] = new ContractType.DataValueInfo(title, requiredValue, hidden, type);
+
+                            // Recommend a title
+                            if (!data.HasValue("title") && requiredValue && IsDeterministic(name) && !hidden && !doneTitleWarning && !dataValues[name].IsIgnoredType())
+                            {
+                                doneTitleWarning = true;
+
+                                LoggingUtil.Log(obj.minVersion >= ContractConfigurator.ENHANCED_UI_VERSION ? LoggingUtil.LogLevel.ERROR : LoggingUtil.LogLevel.WARNING, this,
+                                    obj.ErrorPrefix() + ": The field 'title' is required in for data node values where 'requiredValue' is true.  Alternatively, the attribute 'hidden' can be set to true (but be careful - this can cause player confusion if all lines for the contract type show as 'Met' and the contract isn't generating).");
+
+                                // Error on newer versions of contract packs
+                                if (obj.minVersion >= ContractConfigurator.ENHANCED_UI_VERSION)
+                                {
+                                    valid = false;
+                                }
+                            }
+
                         }
                     }
                 }

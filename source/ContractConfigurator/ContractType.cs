@@ -29,6 +29,27 @@ namespace ContractConfigurator
         static MethodInfo methodParseExpand = typeof(ContractType).GetMethods(BindingFlags.Instance | BindingFlags.NonPublic).
             Where(m => m.Name == "ParseDataExpandString").Single();
 
+        public class DataValueInfo
+        {
+            public bool required;
+            public bool hidden;
+            public string title;
+            public Type type;
+
+            public DataValueInfo(string title, bool required, bool hidden, Type type)
+            {
+                this.title = title;
+                this.required = required;
+                this.hidden = hidden;
+                this.type = type;
+            }
+
+            public bool IsIgnoredType()
+            {
+                return type.IsValueType;
+            }
+        }
+
         private static Dictionary<string, ContractType> contractTypes = new Dictionary<string,ContractType>();
         public static IEnumerable<ContractType> AllContractTypes { get { return contractTypes.Values; } }
         public static IEnumerable<ContractType> AllValidContractTypes
@@ -86,9 +107,9 @@ namespace ContractConfigurator
             {
                 for (ContractGroup currentGroup = group; currentGroup != null; currentGroup = currentGroup.parent)
                 {
-                    if (!string.IsNullOrEmpty(currentGroup.minVersion))
+                    if (!string.IsNullOrEmpty(currentGroup.minVersionStr))
                     {
-                        return Util.Version.ParseVersion(currentGroup.minVersion);
+                        return Util.Version.ParseVersion(currentGroup.minVersionStr);
                     }
                 }
                 return new System.Version(1, 0, 0, 0);
@@ -156,7 +177,7 @@ namespace ContractConfigurator
         public int failedGenerationAttempts;
         public double lastGenerationFailure = -100;
 
-        private Dictionary<string, bool> dataValues = new Dictionary<string, bool>();
+        public Dictionary<string, DataValueInfo> dataValues = new Dictionary<string, DataValueInfo>();
         public Dictionary<string, DataNode.UniquenessCheck> uniquenessChecks = new Dictionary<string, DataNode.UniquenessCheck>();
 
         public ContractType(string name)
@@ -267,7 +288,7 @@ namespace ContractConfigurator
                 for (ContractGroup currentGroup = group; currentGroup != null; currentGroup = currentGroup.parent)
                 {
                     // Merge dataValues - this is a flag saying what values need to be unique at the contract level
-                    foreach (KeyValuePair<string, bool> pair in currentGroup.dataValues)
+                    foreach (KeyValuePair<string, DataValueInfo> pair in currentGroup.dataValues)
                     {
                         dataValues[group.name + ":" + pair.Key] = pair.Value;
                     }
@@ -714,41 +735,12 @@ namespace ContractConfigurator
                 // Check special values are not null
                 if (contract.contractType == null)
                 {
-                    foreach (KeyValuePair<string, bool> pair in dataValues)
+                    foreach (KeyValuePair<string, DataValueInfo> pair in dataValues)
                     {
                         // Only check if it is a required value
-                        if (pair.Value)
+                        if (pair.Value.required)
                         {
-                            string name = pair.Key;
-
-                            if (!dataNode.IsInitialized(name))
-                            {
-                                throw new ContractRequirementException("'" + name + "' was not initialized.");
-                            }
-
-                            object o = dataNode[name];
-                            if (o == null)
-                            {
-                                throw new ContractRequirementException("'" + name + "' was null.");
-                            }
-                            else if (o.GetType().GetGenericArguments().Any() && o.GetType().GetGenericTypeDefinition() == typeof(List<>))
-                            {
-                                PropertyInfo prop = o.GetType().GetProperty("Count");
-                                int count = (int)prop.GetValue(o, null);
-                                if (count == 0)
-                                {
-                                    throw new ContractRequirementException("'" + name + "' had zero count.");
-                                }
-                            }
-                            else if (o.GetType() == typeof(Vessel))
-                            {
-                                Vessel v = (Vessel)o;
-
-                                if (v.state == Vessel.State.DEAD)
-                                {
-                                    throw new ContractRequirementException("Vessel '" + v.vesselName + "' is dead.");
-                                }
-                            }
+                            CheckRequiredValue(pair.Key);
                         }
                     }
                 }
@@ -899,7 +891,39 @@ namespace ContractConfigurator
 
             return true;
         }
-        
+
+        public void CheckRequiredValue(string name)
+        {
+            if (!dataNode.IsInitialized(name))
+            {
+                throw new ContractRequirementException("'" + name + "' was not initialized.");
+            }
+
+            object o = dataNode[name];
+            if (o == null)
+            {
+                throw new ContractRequirementException("'" + name + "' was null.");
+            }
+            else if (o.GetType().GetGenericArguments().Any() && o.GetType().GetGenericTypeDefinition() == typeof(List<>))
+            {
+                PropertyInfo prop = o.GetType().GetProperty("Count");
+                int count = (int)prop.GetValue(o, null);
+                if (count == 0)
+                {
+                    throw new ContractRequirementException("'" + name + "' had zero count.");
+                }
+            }
+            else if (o.GetType() == typeof(Vessel))
+            {
+                Vessel v = (Vessel)o;
+
+                if (v.state == Vessel.State.DEAD)
+                {
+                    throw new ContractRequirementException("Vessel '" + v.vesselName + "' is dead.");
+                }
+            }
+        }
+
         public int ActualCompletions()
         {
             int count = 0;

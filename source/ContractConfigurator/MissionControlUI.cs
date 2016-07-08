@@ -721,6 +721,26 @@ namespace ContractConfigurator.Util
                     "has been completed " + (completionCount == 1 ? "once" : completionCount + " times"));
             }
 
+            // Do check of required values
+            foreach (KeyValuePair<string, ContractType.DataValueInfo> pair in contractType.dataValues)
+            {
+                string name = pair.Key;
+                if (pair.Value.required && !contractType.dataNode.IsDeterministic(name) && !pair.Value.hidden && !pair.Value.IsIgnoredType())
+                {
+                    bool met = true;
+                    try
+                    {
+                        contractType.CheckRequiredValue(name);
+                    }
+                    catch
+                    {
+                        met = false;
+                    }
+
+                    text += RequirementLine(string.IsNullOrEmpty(pair.Value.title) ? "Key " + name + " must have a value" : pair.Value.title, met);
+                }
+            }
+
             // Force check requirements for this contract
             CheckRequirements(contractType.Requirements);
 
