@@ -11,6 +11,8 @@ using Contracts;
 using Contracts.Agents;
 using KSP.UI;
 using KSP.UI.Screens;
+using Contracts.Templates;
+using FinePrint.Contracts;
 
 namespace ContractConfigurator.Util
 {
@@ -33,10 +35,43 @@ namespace ContractConfigurator.Util
         public class GroupContainer : Container
         {
             public ContractGroup group;
+            public Type stockContractType;
             public Agent agent;
             public bool expanded = false;
             public List<GroupContainer> childGroups = new List<GroupContainer>();
             public List<ContractContainer> childContracts = new List<ContractContainer>();
+
+            static Dictionary<string, string> contractNames = new Dictionary<string, string>();
+
+            static GroupContainer()
+            {
+                //
+                // Set up the mapping of known contract type names
+                //
+
+                // Stock stuff
+                contractNames[typeof(CollectScience).Name] = "Collect Science";
+                contractNames[typeof(ExploreBody).Name] = "Exploration";
+                contractNames[typeof(GrandTour).Name] = "Grand Tour";
+                contractNames[typeof(PartTest).Name] = "Part Test";
+                contractNames[typeof(PlantFlag).Name] = "Flag Planting";
+                contractNames[typeof(RecoverAsset).Name] = "Rescue and Recovery";
+                contractNames[typeof(ARMContract).Name] = "Asteroid Recovery";
+                contractNames[typeof(BaseContract).Name] = "Base Construction";
+                contractNames[typeof(ISRUContract).Name] = "ISRU";
+                contractNames[typeof(SatelliteContract).Name] = "Satellites";
+                contractNames[typeof(StationContract).Name] = "Stations";
+                contractNames[typeof(SurveyContract).Name] = "Surveys";
+                contractNames[typeof(TourismContract).Name] = "Tourism";
+                contractNames[typeof(WorldFirstContract).Name] = "World-Firsts Achievements";
+
+                // DMagic Orbital Science (by name instead of type)
+                contractNames["DMAnomalyContract"] = "Anomalies";
+                contractNames["DMAsteroidSurveyContract"] = "Asteroid Survey";
+                contractNames["DMMagneticSurveyContract"] = "Magnetic Survey";
+                contractNames["DMReconContract"] = "Reconnaisance Survey";
+                contractNames["DMSurveyContract "] = "Orbital Survey";
+            }
 
             public GroupContainer(ContractGroup group)
             {
@@ -52,8 +87,38 @@ namespace ContractConfigurator.Util
                 {
                     ContractType contractType = ContractType.AllValidContractTypes.Where(ct => ct != null && ct.group == group).FirstOrDefault();
                     agent = contractType != null ? contractType.agent : null;
-
                 }
+            }
+
+            public GroupContainer(Type stockContractType)
+            {
+                this.stockContractType = stockContractType;
+
+                // Find the right agent
+                if (stockContractType.Assembly.FullName.Contains("DMagic"))
+                {
+                    agent = GetAgent("DMagic");
+                }
+                else if (stockContractType == typeof(CollectScience))
+                {
+                    agent = GetAgent("Research & Development Department");
+                }
+                else if (stockContractType == typeof(WorldFirstContract))
+                {
+                    agent = GetAgent("Kerbin World-Firsts Record-Keeping Society");
+                }
+            }
+
+            private Agent GetAgent(string name)
+            {
+                foreach (Agent agent in AgentList.Instance.Agencies)
+                {
+                    if (agent.Name == name)
+                    {
+                        return agent;
+                    }
+                }
+                return null;
             }
 
             public void Toggle()
@@ -80,6 +145,22 @@ namespace ContractConfigurator.Util
                 foreach (ContractContainer childContract in childContracts)
                 {
                     childContract.mcListItem.gameObject.SetActive(expanded);
+                }
+            }
+
+            public string DisplayName()
+            {
+                if (stockContractType != null)
+                {
+                    return contractNames.ContainsKey(stockContractType.Name) ? contractNames[stockContractType.Name] : stockContractType.Name;
+                }
+                else if (group != null)
+                {
+                    return group.displayName;
+                }
+                else
+                {
+                    return "Contract Configurator";
                 }
             }
         }
@@ -272,11 +353,29 @@ namespace ContractConfigurator.Util
             ConfiguredContract cc = c as ConfiguredContract;
             if (cc != null)
             {
-
+                // TODO - proper decline handling
             }
             else
             {
                 // TODO - handling of non-contract configurator types
+            }
+        }
+
+        public IEnumerable<GroupContainer> GetGroups()
+        {
+            // Grouping for CC types
+            foreach (ContractGroup group in ContractGroup.AllGroups.Where(g => g != null && g.parent == null && ContractType.AllValidContractTypes.Any(ct => g.BelongsToGroup(ct))))
+            {
+                yield return new GroupContainer(group);
+            }
+
+            // Groupings for non-CC types
+            foreach (Type subclass in ContractConfigurator.GetAllTypes<Contract>().Where(t => t != null && !t.Name.StartsWith("ConfiguredContract")).OrderBy(t => t.Name))
+            {
+                if (ContractDisabler.IsEnabled(subclass))
+                {
+                    yield return new GroupContainer(subclass);
+                }
             }
         }
 
@@ -295,25 +394,21 @@ namespace ContractConfigurator.Util
             MissionControl.Instance.scrollListContracts.Clear(true);
 
             // Create the top level contract groups
-            CreateGroupItem(null);
-            foreach (ContractGroup group in ContractGroup.AllGroups.Where(g => g != null && g.parent == null && ContractType.AllValidContractTypes.Any(ct => g.BelongsToGroup(ct))).
-                OrderBy(g => g.displayName))
+            CreateGroupItem(new GroupContainer((ContractGroup)null));
+            foreach (GroupContainer groupContainer in GetGroups().OrderBy(cg => cg.DisplayName()))
             {
-                CreateGroupItem(group);
+                CreateGroupItem(groupContainer);
             }
-
-            // TODO - groupings for non-CC types
         }
 
-        protected GroupContainer CreateGroupItem(ContractGroup group, int indent = 0)
+        protected GroupContainer CreateGroupItem(GroupContainer groupContainer, int indent = 0)
         {
             MCListItem mcListItem = UnityEngine.Object.Instantiate<MCListItem>(MissionControl.Instance.PrfbMissionListItem);
-            GroupContainer groupContainer = new GroupContainer(group);
             mcListItem.container.Data = groupContainer;
             groupContainer.mcListItem = mcListItem;
 
             // Set up the list item with the group details
-            mcListItem.title.text = "<color=#fefa87>" + (group == null ? "Contract Configurator" : group.displayName) + "</color>";
+            mcListItem.title.text = "<color=#fefa87>" + groupContainer.DisplayName() + "</color>";
             if (groupContainer.agent != null)
             {
                 mcListItem.logoSprite.texture = groupContainer.agent.LogoScaled;
@@ -338,23 +433,33 @@ namespace ContractConfigurator.Util
             mcListItem.radioButton.onFalseBtn.AddListener(new UnityAction<UIRadioButton, UIRadioButton.CallType, PointerEventData>(OnDeselectGroup));
             mcListItem.radioButton.onTrueBtn.AddListener(new UnityAction<UIRadioButton, UIRadioButton.CallType, PointerEventData>(OnSelectGroup));
 
+            bool hasChildren = false;
+
             // Add any child groups
-            if (group != null)
+            if (groupContainer.group != null)
             {
-                foreach (ContractGroup child in ContractGroup.AllGroups.Where(g => g != null && g.parent == group && ContractType.AllValidContractTypes.Any(ct => g.BelongsToGroup(ct))).
+                foreach (ContractGroup child in ContractGroup.AllGroups.Where(g => g != null && g.parent == groupContainer.group && ContractType.AllValidContractTypes.Any(ct => g.BelongsToGroup(ct))).
                     OrderBy(g => g.displayName))
                 {
-                    groupContainer.childGroups.Add(CreateGroupItem(child, indent + 1));
+                    hasChildren = true;
+                    groupContainer.childGroups.Add(CreateGroupItem(new GroupContainer(child), indent + 1));
                 }
             }
 
             // Add contracts
-            foreach (ContractContainer contractContainer in GetContracts(group).OrderBy(c => c.OrderKey))
+            foreach (ContractContainer contractContainer in GetContracts(groupContainer).OrderBy(c => c.OrderKey))
             {
                 contractContainer.groupContainer = groupContainer;
                 groupContainer.childContracts.Add(contractContainer);
 
+                hasChildren = true;
                 CreateContractItem(contractContainer, indent + 1);
+            }
+
+            // Remove groups with nothing underneath them
+            if (!hasChildren)
+            {
+                MissionControl.Instance.scrollListContracts.RemoveItem(mcListItem.container, true);
             }
 
             return groupContainer;
@@ -469,6 +574,7 @@ namespace ContractConfigurator.Util
             // Setup without contract
             else
             {
+                // Set difficulty
                 Contract.ContractPrestige? prestige = GetPrestige(cc.contractType);
                 if (prestige != null)
                 {
@@ -479,7 +585,7 @@ namespace ContractConfigurator.Util
                     cc.mcListItem.difficulty.gameObject.SetActive(false);
                 }
 
-                // TODO - choose
+                // Set status
                 cc.statusImage.SetState(cc.contractType.maxCompletions != 0 && cc.contractType.ActualCompletions() >= cc.contractType.maxCompletions ? "Completed" : "Unavailable");
             }
         }
@@ -496,24 +602,34 @@ namespace ContractConfigurator.Util
             return null;
         }
 
-        protected IEnumerable<ContractContainer> GetContracts(ContractGroup group)
+        protected IEnumerable<ContractContainer> GetContracts(GroupContainer groupContainer)
         {
-            foreach (ContractType contractType in ContractType.AllValidContractTypes.Where(ct => ct.group == group))
+            if (groupContainer.stockContractType != null)
             {
-                // Return any configured contracts for the group
-                bool any = false;
-                foreach (ConfiguredContract contract in ConfiguredContract.CurrentContracts)
+                foreach (Contract contract in ContractSystem.Instance.Contracts.Where(c => c.GetType() == groupContainer.stockContractType))
                 {
-                    if (contract.contractType == contractType)
-                    {
-                        any = true;
-                        yield return new ContractContainer(contract);
-                    }
+                    yield return new ContractContainer(contract);
                 }
-                // If there are none, then return the contract type
-                if (!any)
+            }
+            else
+            {
+                foreach (ContractType contractType in ContractType.AllValidContractTypes.Where(ct => ct.group == groupContainer.group))
                 {
-                    yield return new ContractContainer(contractType);
+                    // Return any configured contracts for the group
+                    bool any = false;
+                    foreach (ConfiguredContract contract in ConfiguredContract.CurrentContracts)
+                    {
+                        if (contract.contractType == contractType)
+                        {
+                            any = true;
+                            yield return new ContractContainer(contract);
+                        }
+                    }
+                    // If there are none, then return the contract type
+                    if (!any)
+                    {
+                        yield return new ContractContainer(contractType);
+                    }
                 }
             }
         }
@@ -666,7 +782,16 @@ namespace ContractConfigurator.Util
             }
             else
             {
-                // TODO - contract type prestige
+                // Set difficulty
+                Contract.ContractPrestige? prestige = GetPrestige(cc.contractType);
+                if (prestige != null)
+                {
+                    cc.mcListItem.difficulty.SetState((int)prestige.Value);
+                }
+                else
+                {
+                    cc.mcListItem.difficulty.gameObject.SetActive(false);
+                }
             }
         }
 
