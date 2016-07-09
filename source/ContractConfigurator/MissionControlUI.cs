@@ -906,6 +906,8 @@ namespace ContractConfigurator.Util
             }
 
             // Do check of required values
+            List<string> titles = new List<string>();
+            Dictionary<string, bool> titlesMet = new Dictionary<string, bool>();
             foreach (KeyValuePair<string, ContractType.DataValueInfo> pair in contractType.dataValues)
             {
                 string name = pair.Key;
@@ -921,8 +923,23 @@ namespace ContractConfigurator.Util
                         met = false;
                     }
 
-                    text += RequirementLine(string.IsNullOrEmpty(pair.Value.title) ? "Key " + name + " must have a value" : pair.Value.title, met);
+                    string title = string.IsNullOrEmpty(pair.Value.title) ? "Key " + name + " must have a value" : pair.Value.title;
+                    if (titlesMet.ContainsKey(title))
+                    {
+                        titlesMet[title] &= met;
+                    }
+                    else
+                    {
+                        titlesMet[title] = met;
+                        titles.Add(title);
+                    }
                 }
+            }
+
+            // Do the actual add
+            foreach (string title in titles)
+            {
+                text += RequirementLine(title, titlesMet[title]);
             }
 
             // Force check requirements for this contract
