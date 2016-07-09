@@ -264,6 +264,8 @@ namespace ContractConfigurator.Util
                 // Disable GameEvent handlers
                 GameEvents.Contract.onContractsListChanged.Remove(new EventVoid.OnEvent(OnContractsListChanged));
                 GameEvents.Contract.onOffered.Remove(new EventData<Contract>.OnEvent(OnContractOffered));
+                GameEvents.Contract.onDeclined.Remove(new EventData<Contract>.OnEvent(OnContractDeclined));
+                GameEvents.Contract.onCancelled.Remove(new EventData<Contract>.OnEvent(OnContractCancelled));
 
                 return;
             }
@@ -286,6 +288,8 @@ namespace ContractConfigurator.Util
 
                 // Contract state change handlers
                 GameEvents.Contract.onOffered.Add(new EventData<Contract>.OnEvent(OnContractOffered));
+                GameEvents.Contract.onDeclined.Add(new EventData<Contract>.OnEvent(OnContractDeclined));
+                GameEvents.Contract.onCancelled.Add(new EventData<Contract>.OnEvent(OnContractCancelled));
 
                 // Set to the available view
                 OnClickAvailable(true);
@@ -362,6 +366,25 @@ namespace ContractConfigurator.Util
             {
                 // TODO - handling of non-contract configurator types
             }
+
+            // TODO - better performance by using OnDeclined callback to target specific item
+            OnClickAvailable(true);
+        }
+
+        protected void OnContractCancelled(Contract c)
+        {
+            ConfiguredContract cc = c as ConfiguredContract;
+            if (cc != null)
+            {
+                // TODO - proper decline handling
+            }
+            else
+            {
+                // TODO - handling of non-contract configurator types
+            }
+
+            // TODO - better performance by using OnDeclined callback to target specific item
+            OnClickAvailable(true);
         }
 
         public IEnumerable<GroupContainer> GetGroups()
@@ -988,8 +1011,6 @@ namespace ContractConfigurator.Util
 
             // Redraw
             selectedButton = null;
-            // TODO - better performance by using OnDeclined callback to target specific item
-            OnClickAvailable(true);
         }
 
         private void OnClickCancel()
@@ -1005,8 +1026,6 @@ namespace ContractConfigurator.Util
 
             // Redraw
             selectedButton = null;
-            // TODO - better performance by using OnDeclined callback to target specific item
-            OnClickAvailable(true);
         }
     }
 
