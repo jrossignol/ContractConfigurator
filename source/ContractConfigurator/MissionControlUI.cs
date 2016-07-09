@@ -347,6 +347,8 @@ namespace ContractConfigurator.Util
             {
                 // TODO - handling of non-contract configurator types
             }
+
+            // TODO - update the text for the number of offered contracts
         }
 
         protected void OnContractDeclined(Contract c)
