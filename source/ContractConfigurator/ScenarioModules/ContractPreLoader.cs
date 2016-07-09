@@ -306,7 +306,15 @@ namespace ContractConfigurator
                 // Store unique data
                 foreach (string key in selectedContractType.uniquenessChecks.Keys)
                 {
-                    templateContract.uniqueData[key] = selectedContractType.dataNode[key];
+                    if (selectedContractType.dataNode.GetType(key) == typeof(Vessel))
+                    {
+                        Vessel v = selectedContractType.dataNode[key] as Vessel;
+                        templateContract.uniqueData[key] = v != null ? (object)v.id : null;
+                    }
+                    else
+                    {
+                        templateContract.uniqueData[key] = selectedContractType.dataNode[key];
+                    }
                 }
 
                 // Check the requirements for our selection
