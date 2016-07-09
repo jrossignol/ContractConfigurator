@@ -167,6 +167,16 @@ namespace ContractConfigurator.ExpressionParser
             // Special case for vessels
             if (typeof(T) == typeof(Vessel))
             {
+                foreach (T t in input)
+                {
+                    LoggingUtil.LogDebug(typeof(ListExpressionParser<Vessel>), "The check is for " + ((Vessel)(object)t).id);
+                }
+                foreach (ConfiguredContract c in contractList)
+                {
+                    LoggingUtil.LogDebug(typeof(ListExpressionParser<Vessel>), "The check is against " + c.uniqueData[key]);
+                }
+
+
                 values = input.Where(t => !contractList.Any(c => c.uniqueData[key].Equals(((Vessel)(object)t).id)));
             }
             else
@@ -175,7 +185,7 @@ namespace ContractConfigurator.ExpressionParser
             }
 
             // Make a random selection from what's left
-            return values.Skip(r.Next(values.Count())).First();
+            return values.Skip(r.Next(values.Count())).FirstOrDefault();
         }
 
 
