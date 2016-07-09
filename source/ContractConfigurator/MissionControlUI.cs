@@ -40,6 +40,7 @@ namespace ContractConfigurator.Util
             public bool expanded = false;
             public List<GroupContainer> childGroups = new List<GroupContainer>();
             public List<ContractContainer> childContracts = new List<ContractContainer>();
+            public int availableContracts;
 
             static Dictionary<string, string> contractNames = new Dictionary<string, string>();
 
@@ -462,6 +463,39 @@ namespace ContractConfigurator.Util
                 MissionControl.Instance.scrollListContracts.RemoveItem(mcListItem.container, true);
             }
 
+            // Count the available contracts
+            int available = 0;
+            foreach (ContractContainer contractContainer in groupContainer.childContracts)
+            {
+                if (contractContainer.contract != null && contractContainer.contract.ContractState == Contract.State.Offered)
+                {
+                    available++;
+                }
+            }
+            foreach (GroupContainer childContainer in groupContainer.childGroups)
+            {
+                available += childContainer.availableContracts;
+            }
+            groupContainer.availableContracts = available;
+
+            // Get the main text object
+            GameObject textObject = mcListItem.title.gameObject;
+            RectTransform textRect = textObject.GetComponent<RectTransform>();
+
+            // Create a text object to display the number of contracts
+            GameObject availableTextObject = UnityEngine.Object.Instantiate<GameObject>(mcListItem.title.gameObject);
+            availableTextObject.transform.SetParent(mcListItem.title.transform.parent);
+            RectTransform availableTextRect = availableTextObject.GetComponent<RectTransform>();
+            availableTextRect.anchoredPosition3D = textRect.anchoredPosition3D;
+            availableTextRect.sizeDelta = new Vector2(availableTextRect.sizeDelta.x + 4, availableTextRect.sizeDelta.y - 4);
+            Text availableText = availableTextObject.GetComponent<Text>();
+            availableText.alignment = TextAnchor.LowerRight;
+            availableText.text = "<color=#" + (groupContainer.availableContracts == 0 ? "CCCCCC" : "8BED8B") + ">Offered: " + groupContainer.availableContracts + "</color>";
+            availableText.fontSize = mcListItem.title.fontSize - 3;
+
+            // Adjust the main text up a little
+            textRect.anchoredPosition = new Vector2(textRect.anchoredPosition.x, textRect.anchoredPosition.y + 6);
+
             return groupContainer;
         }
 
@@ -662,7 +696,7 @@ namespace ContractConfigurator.Util
             spacer.transform.SetParent(go.transform);
             mcListItem.transform.SetParent(go.transform);
 
-            // Perform some surgury on the list item to set its preferred width to the correct value
+            // Perform some surgery on the list item to set its preferred width to the correct value
             LayoutElement le = mcListItem.GetComponent<LayoutElement>();
             le.preferredWidth = 316 - indent * 12;
             le.flexibleWidth = 1;
