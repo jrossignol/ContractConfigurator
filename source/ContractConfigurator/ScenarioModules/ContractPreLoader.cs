@@ -295,7 +295,15 @@ namespace ContractConfigurator
             // Store unique data
             foreach (string key in contractType.uniquenessChecks.Keys)
             {
-                templateContract.uniqueData[key] = contractType.dataNode[key];
+                if (contractType.dataNode.GetType(key) == typeof(Vessel))
+                {
+                    Vessel v = contractType.dataNode[key] as Vessel;
+                    templateContract.uniqueData[key] = v != null ? (object)v.id : null;
+                }
+                else
+                {
+                    templateContract.uniqueData[key] = contractType.dataNode[key];
+                }
             }
 
             // Set the desired prestige
