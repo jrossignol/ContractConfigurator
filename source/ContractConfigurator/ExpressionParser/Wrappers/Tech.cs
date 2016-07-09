@@ -27,6 +27,11 @@ namespace ContractConfigurator
 
         public static Tech GetTech(string techID)
         {
+            if (!SetupTech())
+            {
+                return null;
+            }
+
             return allTech.ContainsKey(techID) ? allTech[techID] : null;
         }
 
