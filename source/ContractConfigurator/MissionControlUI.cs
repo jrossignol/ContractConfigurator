@@ -42,6 +42,7 @@ namespace ContractConfigurator.Util
             public List<GroupContainer> childGroups = new List<GroupContainer>();
             public List<ContractContainer> childContracts = new List<ContractContainer>();
             public int availableContracts;
+            public bool unread = false;
 
             static Dictionary<string, string> contractNames = new Dictionary<string, string>();
 
@@ -283,7 +284,7 @@ namespace ContractConfigurator.Util
                 GameEvents.Contract.onContractsListChanged.Remove(new EventVoid.OnEvent(OnContractsListChanged));
                 GameEvents.Contract.onOffered.Remove(new EventData<Contract>.OnEvent(OnContractOffered));
                 GameEvents.Contract.onDeclined.Remove(new EventData<Contract>.OnEvent(OnContractDeclined));
-                GameEvents.Contract.onCancelled.Remove(new EventData<Contract>.OnEvent(OnContractCancelled));
+                GameEvents.Contract.onFinished.Remove(new EventData<Contract>.OnEvent(OnContractFinished));
 
                 return;
             }
@@ -307,7 +308,7 @@ namespace ContractConfigurator.Util
                 // Contract state change handlers
                 GameEvents.Contract.onOffered.Add(new EventData<Contract>.OnEvent(OnContractOffered));
                 GameEvents.Contract.onDeclined.Add(new EventData<Contract>.OnEvent(OnContractDeclined));
-                GameEvents.Contract.onCancelled.Add(new EventData<Contract>.OnEvent(OnContractCancelled));
+                GameEvents.Contract.onFinished.Add(new EventData<Contract>.OnEvent(OnContractFinished));
 
                 // Set to the available view
                 OnClickAvailable(true);
@@ -321,6 +322,9 @@ namespace ContractConfigurator.Util
         protected void OnContractOffered(Contract c)
         {
             LoggingUtil.LogVerbose(this, "OnContractOffered");
+
+            // Add to the unread list.  This gets done elsewhere, but the events fire in the wrong order for us to take advantage of it
+            ContractPreLoader.Instance.unreadContracts.Add(c.ContractGuid);
 
             ConfiguredContract cc = c as ConfiguredContract;
             ContractContainer container = null;
@@ -424,10 +428,7 @@ namespace ContractConfigurator.Util
             // Update group details
             if (container != null)
             {
-                for (GroupContainer groupContainer = container.parent; groupContainer != null; groupContainer = groupContainer.parent)
-                {
-                    SetupGroupItem(groupContainer);
-                }
+                SetupParentGroups(container);
             }
         }
 
@@ -447,7 +448,7 @@ namespace ContractConfigurator.Util
             OnClickAvailable(true);
         }
 
-        protected void OnContractCancelled(Contract c)
+        protected void OnContractFinished(Contract c)
         {
             ConfiguredContract cc = c as ConfiguredContract;
             if (cc != null)
@@ -510,7 +511,6 @@ namespace ContractConfigurator.Util
             groupContainer.mcListItem = mcListItem;
 
             // Set up the list item with the group details
-            mcListItem.title.text = "<color=#fefa87>" + groupContainer.DisplayName() + "</color>";
             if (groupContainer.agent != null)
             {
                 mcListItem.logoSprite.texture = groupContainer.agent.LogoScaled;
@@ -590,20 +590,42 @@ namespace ContractConfigurator.Util
             return groupContainer;
         }
 
+        protected void SetupParentGroups(ContractContainer contractContainer)
+        {
+            for (GroupContainer groupContainer = contractContainer.parent; groupContainer != null; groupContainer = groupContainer.parent)
+            {
+                SetupGroupItem(groupContainer);
+            }
+        }
+
         protected void SetupGroupItem(GroupContainer groupContainer)
         {
+            // Assume read
+            groupContainer.unread = false;
+
             // Count the available contracts
             int available = 0;
             foreach (ContractContainer contractContainer in groupContainer.childContracts)
             {
-                if (contractContainer.contract != null && contractContainer.contract.ContractState == Contract.State.Offered)
+                if (contractContainer.contract != null)
                 {
-                    available++;
+                    if (contractContainer.contract.ContractState == Contract.State.Offered)
+                    {
+                        available++;
+                    }
+                    if (ContractPreLoader.Instance.unreadContracts.Contains(contractContainer.contract.ContractGuid))
+                    {
+                        groupContainer.unread = true;
+                    }
                 }
             }
             foreach (GroupContainer childContainer in groupContainer.childGroups)
             {
                 available += childContainer.availableContracts;
+                if (childContainer.unread)
+                {
+                    groupContainer.unread = true;
+                }
             }
             groupContainer.availableContracts = available;
 
@@ -628,11 +650,18 @@ namespace ContractConfigurator.Util
                 availableTextRect.sizeDelta = new Vector2(availableTextRect.sizeDelta.x + 4, availableTextRect.sizeDelta.y - 4);
             }
 
-            // Setup the text
+            // Setup the available text
             Text availableText = availableTextObject.GetComponent<Text>();
             availableText.alignment = TextAnchor.LowerRight;
             availableText.text = "<color=#" + (groupContainer.availableContracts == 0 ? "CCCCCC" : "8BED8B") + ">Offered: " + groupContainer.availableContracts + "</color>";
             availableText.fontSize = groupContainer.mcListItem.title.fontSize - 3;
+
+            // Setup the group text
+            groupContainer.mcListItem.title.text = "<color=#fefa87>" + groupContainer.DisplayName() + "</color>";
+            if (groupContainer.unread)
+            {
+                groupContainer.mcListItem.title.text = "<b>" + groupContainer.mcListItem.title.text + "</b>";
+            }
         }
 
         protected void CreateContractItem(ContractContainer cc, int indent = 0, KSP.UI.UIListItem previous = null)
@@ -856,6 +885,14 @@ namespace ContractConfigurator.Util
 
             ContractContainer cc = (ContractContainer)button.GetComponent<KSP.UI.UIListItem>().Data;
 
+            // Mark as read
+            if (cc.contract != null && ContractPreLoader.Instance.unreadContracts.Contains(cc.contract.ContractGuid))
+            {
+                ContractPreLoader.Instance.unreadContracts.Remove(cc.contract.ContractGuid);
+                SetContractTitle(cc.mcListItem, cc);
+                SetupParentGroups(cc);
+            }
+
             MissionControl.Instance.panelView.gameObject.SetActive(true);
             MissionControl.Instance.logoRenderer.gameObject.SetActive(true);
             selectedButton = button;
@@ -951,6 +988,12 @@ namespace ContractConfigurator.Util
             string color = cc.contract == null ? "A9A9A9" : cc.contract.ContractState == Contract.State.Active ? "96df41" : "fefa87";
             string title = cc.contract == null ? cc.contractType.genericTitle : cc.contract.Title; // TODO - proper title for contract type
             mcListItem.title.text = "<color=#" + color + ">" + title + "</color>";
+            if (cc.contract != null && ContractPreLoader.Instance.unreadContracts.Contains(cc.contract.ContractGuid))
+            {
+                mcListItem.title.text = "<b>" + mcListItem.title.text + "</b>";
+            }
+
+            // Setup prestige
             if (cc.contract != null)
             {
                 mcListItem.difficulty.SetState((int)cc.contract.Prestige);

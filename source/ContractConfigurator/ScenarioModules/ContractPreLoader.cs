@@ -35,6 +35,8 @@ namespace ContractConfigurator
         private double lastGenerationFailure;
         private IEnumerator<ConfiguredContract> contractEnumerator;
 
+        public HashSet<Guid> unreadContracts = new HashSet<Guid>();
+
         public ContractPreLoader()
         {
             Instance = this;
@@ -42,16 +44,16 @@ namespace ContractConfigurator
 
         void Start()
         {
+            GameEvents.Contract.onOffered.Add(new EventData<Contract>.OnEvent(OnContractOffered));
             GameEvents.Contract.onAccepted.Add(new EventData<Contract>.OnEvent(OnContractAccept));
             GameEvents.Contract.onFinished.Add(new EventData<Contract>.OnEvent(OnContractFinish));
             GameEvents.Contract.onDeclined.Add(new EventData<Contract>.OnEvent(OnContractDecline));
             GameEvents.OnProgressReached.Add(new EventData<ProgressNode>.OnEvent(OnProgressReached));
-
-            // TODO - on accept and withdraw, clear out the lists
         }
 
         void OnDestroy()
         {
+            GameEvents.Contract.onOffered.Remove(new EventData<Contract>.OnEvent(OnContractOffered));
             GameEvents.Contract.onAccepted.Remove(new EventData<Contract>.OnEvent(OnContractAccept));
             GameEvents.Contract.onFinished.Remove(new EventData<Contract>.OnEvent(OnContractFinish));
             GameEvents.Contract.onDeclined.Remove(new EventData<Contract>.OnEvent(OnContractDecline));
@@ -62,6 +64,13 @@ namespace ContractConfigurator
         {
             // Reset the generation failures
             ResetGenerationFailure();
+        }
+
+        void OnContractOffered(Contract c)
+        {
+            LoggingUtil.LogVerbose(this, "OnContractOffered");
+
+            unreadContracts.Add(c.ContractGuid);
         }
 
         void OnContractAccept(Contract c)
@@ -403,6 +412,17 @@ namespace ContractConfigurator
                     node.AddNode(child);
                     contract.Save(child);
                 }
+
+                ConfigNode unreadNode = new ConfigNode("UNREAD_CONTRACTS");
+                node.AddNode(unreadNode);
+                foreach (Contract c in ContractSystem.Instance.Contracts.Where(c => unreadContracts.Contains(c.ContractGuid)))
+                {
+                    unreadNode.AddValue("contract", c.ContractGuid);
+                }
+                foreach (ConfiguredContract c in contracts.Where(c => unreadContracts.Contains(c.ContractGuid)))
+                {
+                    unreadNode.AddValue("contract", c.ContractGuid);
+                }
             }
             catch (Exception e)
             {
@@ -435,6 +455,12 @@ namespace ContractConfigurator
                         contract.preLoaded = true;
                         contracts.Add(contract);
                     }
+                }
+
+                ConfigNode unreadNode = node.GetNode("UNREAD_CONTRACTS");
+                if (unreadNode != null)
+                {
+                    unreadContracts = new HashSet<Guid>(ConfigNodeUtil.ParseValue<List<Guid>>(unreadNode, "contract"));
                 }
             }
             catch (Exception e)
