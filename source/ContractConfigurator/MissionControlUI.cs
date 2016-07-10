@@ -291,6 +291,54 @@ namespace ContractConfigurator.Util
 
             if (ticks++ == 0)
             {
+                int[] widths = new int[] { 57, 92, 77, 89};
+
+                // Get the available/active/complete groups
+                GameObject sortGroup = MissionControl.Instance.gameObject.GetChild("Sorting Group");
+                GameObject toggleAvailable = sortGroup.GetChild("Toggle Available");
+                GameObject toggleAllObj = UnityEngine.Object.Instantiate<GameObject>(toggleAvailable);
+                toggleAllObj.name = "Toggle All";
+                toggleAllObj.transform.SetParent(sortGroup.transform);
+                toggleAllObj.transform.SetAsFirstSibling();
+
+                // Setup the toggle
+                Text toggleAllText = toggleAllObj.GetChild("Text").GetComponent<Text>();
+                toggleAllText.text = "All";
+                Toggle toggleAll = toggleAllObj.GetComponent<Toggle>();
+                toggleAll.onValueChanged.AddListener(new UnityAction<bool>(OnClickAll));
+                sortGroup.GetComponent<ToggleGroup>().RegisterToggle(toggleAll);
+
+                // Set positioning info
+                RectTransform toggleAllRect = toggleAllObj.GetComponent<RectTransform>();
+                RectTransform toggleAvailableRect = toggleAvailable.GetComponent<RectTransform>();
+                RectTransform toggleActiveRect = MissionControl.Instance.toggleDisplayModeActive.GetComponent<RectTransform>();
+                RectTransform toggleArchiveRect = MissionControl.Instance.toggleDisplayModeArchive.GetComponent<RectTransform>();
+                float x = toggleAvailableRect.anchoredPosition.x;
+                float y = toggleAvailableRect.anchoredPosition.y;
+                float h = toggleAvailableRect.sizeDelta.y;
+                toggleAllRect.anchoredPosition3D = toggleAvailable.GetComponent<RectTransform>().anchoredPosition3D;
+                toggleAllRect.anchoredPosition = new Vector2(x, y);
+                toggleAllRect.sizeDelta = new Vector2(widths[0], h);
+                x += widths[0];
+                toggleAvailableRect.anchoredPosition = new Vector2(x, y);
+                toggleAvailableRect.sizeDelta = new Vector2(widths[1], h);
+                x += widths[1];
+                toggleActiveRect.anchoredPosition = new Vector2(x, y);
+                toggleActiveRect.sizeDelta = new Vector2(widths[2], h);
+                x += widths[2];
+                toggleArchiveRect.anchoredPosition = new Vector2(x, y);
+                toggleArchiveRect.sizeDelta = new Vector2(widths[3], h);
+
+                // Set Positioning of child elements
+                foreach (RectTransform rect in new RectTransform[] { toggleAllRect, toggleAvailableRect, toggleActiveRect, toggleArchiveRect })
+                {
+                    RectTransform bgRect = rect.gameObject.GetChild("Background").GetComponent<RectTransform>();
+                    bgRect.sizeDelta = rect.sizeDelta;
+                    RectTransform checkRect = bgRect.gameObject.GetChild("Checkmark").GetComponent<RectTransform>();
+                    checkRect.anchoredPosition = new Vector2(checkRect.anchoredPosition.x + (105 - rect.sizeDelta.x) / 2.0f, checkRect.anchoredPosition.y);
+                }
+
+
                 // Replace the handlers with our own
                 MissionControl.Instance.toggleDisplayModeAvailable.onValueChanged.RemoveAllListeners();
                 MissionControl.Instance.toggleDisplayModeAvailable.onValueChanged.AddListener(new UnityAction<bool>(OnClickAvailable));
@@ -310,8 +358,10 @@ namespace ContractConfigurator.Util
                 GameEvents.Contract.onDeclined.Add(new EventData<Contract>.OnEvent(OnContractDeclined));
                 GameEvents.Contract.onFinished.Add(new EventData<Contract>.OnEvent(OnContractFinished));
 
-                // Set to the available view
-                OnClickAvailable(true);
+                // Set to the all view
+                toggleAll.isOn = true;
+                toggleAvailable.GetComponent<Toggle>().isOn = false;
+                OnClickAll(true);
             }
         }
 
@@ -445,7 +495,7 @@ namespace ContractConfigurator.Util
             }
 
             // TODO - better performance by using OnDeclined callback to target specific item
-            OnClickAvailable(true);
+            OnClickAll(true);
         }
 
         protected void OnContractFinished(Contract c)
@@ -461,7 +511,7 @@ namespace ContractConfigurator.Util
             }
 
             // TODO - better performance by using OnDeclined callback to target specific item
-            OnClickAvailable(true);
+            OnClickAll(true);
         }
 
         public IEnumerable<GroupContainer> GetGroups()
@@ -485,6 +535,28 @@ namespace ContractConfigurator.Util
         public void OnClickAvailable(bool selected)
         {
             LoggingUtil.LogVerbose(this, "OnClickAvailable");
+
+            if (!selected)
+            {
+                return;
+            }
+
+            // Set the state on the MissionControl object
+            MissionControl.Instance.displayMode = MissionControl.DisplayMode.Available;
+            MissionControl.Instance.toggleArchiveGroup.gameObject.SetActive(false);
+            MissionControl.Instance.scrollListContracts.Clear(true);
+
+            foreach (Contract contract in ContractSystem.Instance.Contracts.Union(ContractPreLoader.Instance.PendingContracts().OfType<Contract>()).
+                Where(c => c.ContractState == Contract.State.Offered).
+                OrderBy(c => c.Prestige).ThenBy(c => c.Title))
+            {
+                MissionControl.Instance.AddItem(contract, true, string.Empty);
+            }
+        }
+
+        public void OnClickAll(bool selected)
+        {
+            LoggingUtil.LogVerbose(this, "OnClickAll");
 
             if (!selected)
             {
