@@ -598,6 +598,14 @@ namespace ContractConfigurator.Util
             }
         }
 
+        protected void SetupParentGroups(GroupContainer mainGroup)
+        {
+            for (GroupContainer groupContainer = mainGroup.parent; groupContainer != null; groupContainer = groupContainer.parent)
+            {
+                SetupGroupItem(groupContainer);
+            }
+        }
+
         protected void SetupGroupItem(GroupContainer groupContainer)
         {
             // Assume read
@@ -886,9 +894,12 @@ namespace ContractConfigurator.Util
             ContractContainer cc = (ContractContainer)button.GetComponent<KSP.UI.UIListItem>().Data;
 
             // Mark as read
-            if (cc.contract != null && ContractPreLoader.Instance.unreadContracts.Contains(cc.contract.ContractGuid))
+            if (cc.contract != null)
             {
-                ContractPreLoader.Instance.unreadContracts.Remove(cc.contract.ContractGuid);
+                if (ContractPreLoader.Instance.unreadContracts.Contains(cc.contract.ContractGuid))
+                {
+                    ContractPreLoader.Instance.unreadContracts.Remove(cc.contract.ContractGuid);
+                }
                 SetContractTitle(cc.mcListItem, cc);
                 SetupParentGroups(cc);
             }
@@ -964,6 +975,16 @@ namespace ContractConfigurator.Util
 
             groupContainer.Toggle();
 
+            // Mark the contracts as unread without changing their display state
+            foreach (ContractContainer contractContainer in groupContainer.childContracts)
+            {
+                if (contractContainer.contract != null && ContractPreLoader.Instance.unreadContracts.Contains(contractContainer.contract.ContractGuid))
+                {
+                    ContractPreLoader.Instance.unreadContracts.Remove(contractContainer.contract.ContractGuid);
+                }
+            }
+            SetupGroupItem(groupContainer);
+            SetupParentGroups(groupContainer);
         }
 
         protected void OnDeselectGroup(UIRadioButton button, UIRadioButton.CallType callType, PointerEventData data)
