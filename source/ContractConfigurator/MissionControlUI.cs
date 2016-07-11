@@ -1104,7 +1104,7 @@ namespace ContractConfigurator.Util
         {
             // Set up the list item with the contract details
             string color = cc.contract == null ? "A9A9A9" : cc.contract.ContractState == Contract.State.Active ? "96df41" : "fefa87";
-            string title = cc.contract == null ? cc.contractType.genericTitle : cc.contract.Title; // TODO - proper title for contract type
+            string title = cc.contract == null ? cc.contractType.genericTitle : cc.contract.Title;
             mcListItem.title.text = "<color=#" + color + ">" + title + "</color>";
             if (cc.contract != null && ContractPreLoader.Instance.unreadContracts.Contains(cc.contract.ContractGuid))
             {
