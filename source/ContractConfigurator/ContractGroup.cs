@@ -61,6 +61,7 @@ namespace ContractConfigurator
         public int maxSimultaneous;
         public List<string> disabledContractType;
         public Agent agent;
+        public string sortKey;
 
         public bool expandInDebug = false;
         public bool hasWarnings { get; set; }
@@ -111,6 +112,13 @@ namespace ContractConfigurator
                 valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxSimultaneous", x => maxSimultaneous = x, this, 0, x => Validation.GE(x, 0));
                 valid &= ConfigNodeUtil.ParseValue<List<string>>(configNode, "disabledContractType", x => disabledContractType = x, this, new List<string>());
                 valid &= ConfigNodeUtil.ParseValue<Agent>(configNode, "agent", x => agent = x, this, (Agent)null);
+                valid &= ConfigNodeUtil.ParseValue<string>(configNode, "sortKey", x => sortKey = x, this, displayName);
+
+                if (configNode.HasValue("sortKey") && parent == null)
+                {
+                    sortKey = displayName;
+                    LoggingUtil.LogWarning(this, ErrorPrefix() + ": Using the sortKey field is only applicable on child CONTRACT_GROUP elements");
+                }
 
                 if (!string.IsNullOrEmpty(minVersionStr))
                 {

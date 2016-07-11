@@ -171,6 +171,32 @@ namespace ContractConfigurator.Util
             {
                 return contractNames.ContainsKey(type.Name) ? contractNames[type.Name] : type.Name;
             }
+
+            public string OrderKey()
+            {
+                return stockContractType != null ? DisplayName(stockContractType) : group == null ? "aaa" : group.sortKey;
+            }
+
+            public static string OrderKey(Contract c)
+            {
+                ConfiguredContract cc = c as ConfiguredContract;
+                if (cc != null)
+                {
+                    string key = cc.contractType.group == null ? "aaa" : cc.contractType.group.sortKey;
+                    for (ContractGroup group = cc.contractType.group; group != null; group = group.parent)
+                    {
+                        if (group.parent != null)
+                        {
+                            key = group.parent.sortKey + "." + key;
+                        }
+                    }
+                    return key;
+                }
+                else
+                {
+                    return DisplayName(c.GetType());
+                }
+            }
         }
 
         public class ContractContainer : Container
@@ -198,8 +224,7 @@ namespace ContractConfigurator.Util
             {
                 get
                 {
-                    // TODO - order key
-                    return contract == null ? contractType.genericTitle : contract.Title;
+                    return contractType != null ? contractType.sortKey : contract.Title;
                 }
             }
 
@@ -523,7 +548,7 @@ namespace ContractConfigurator.Util
             }
 
             // Groupings for non-CC types
-            foreach (Type subclass in ContractConfigurator.GetAllTypes<Contract>().Where(t => t != null && !t.Name.StartsWith("ConfiguredContract")).OrderBy(t => t.Name))
+            foreach (Type subclass in ContractConfigurator.GetAllTypes<Contract>().Where(t => t != null && !t.Name.StartsWith("ConfiguredContract")))
             {
                 if (ContractDisabler.IsEnabled(subclass))
                 {
@@ -548,7 +573,7 @@ namespace ContractConfigurator.Util
 
             foreach (Contract contract in ContractSystem.Instance.Contracts.Union(ContractPreLoader.Instance.PendingContracts().OfType<Contract>()).
                 Where(c => c.ContractState == Contract.State.Offered).
-                OrderBy(c => c.Prestige).ThenBy(c => c.Title))
+                OrderBy(c => GroupContainer.OrderKey(c)))
             {
                 MissionControl.Instance.AddItem(contract, true, string.Empty);
             }
@@ -570,7 +595,7 @@ namespace ContractConfigurator.Util
 
             // Create the top level contract groups
             CreateGroupItem(new GroupContainer((ContractGroup)null));
-            foreach (GroupContainer groupContainer in GetGroups().OrderBy(cg => cg.DisplayName()))
+            foreach (GroupContainer groupContainer in GetGroups().OrderBy(cg => cg.OrderKey()))
             {
                 CreateGroupItem(groupContainer);
             }

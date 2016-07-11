@@ -172,10 +172,10 @@ namespace ContractConfigurator
         public float advanceFunds;
         public bool trace = false;
         public bool loaded = false;
-        // TODO - expose
         public int maxConsecutiveGenerationFailures = 1;
         public int failedGenerationAttempts;
         public double lastGenerationFailure = -100;
+        public string sortKey;
 
         public Dictionary<string, DataValueInfo> dataValues = new Dictionary<string, DataValueInfo>();
         public Dictionary<string, DataNode.UniquenessCheck> uniquenessChecks = new Dictionary<string, DataNode.UniquenessCheck>();
@@ -472,6 +472,9 @@ namespace ContractConfigurator
                     valid = false;
                     LoggingUtil.LogError(this, ErrorPrefix() + ": The field 'genericDescription' must be deterministic.");
                 }
+
+                // Sorting key
+                valid &= ConfigNodeUtil.ParseValue<string>(configNode, "sortKey", x => sortKey = x, this, genericTitle);
 
                 // Check for unexpected values - always do this last
                 valid &= ConfigNodeUtil.ValidateUnexpectedValues(configNode, this);
