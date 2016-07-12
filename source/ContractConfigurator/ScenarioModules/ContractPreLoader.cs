@@ -460,7 +460,7 @@ namespace ContractConfigurator
                 ConfigNode unreadNode = node.GetNode("UNREAD_CONTRACTS");
                 if (unreadNode != null)
                 {
-                    unreadContracts = new HashSet<Guid>(ConfigNodeUtil.ParseValue<List<Guid>>(unreadNode, "contract"));
+                    unreadContracts = new HashSet<Guid>(ConfigNodeUtil.ParseValue<List<Guid>>(unreadNode, "contract", new List<Guid>()));
                 }
             }
             catch (Exception e)
