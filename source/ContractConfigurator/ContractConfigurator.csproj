@@ -95,6 +95,7 @@
     <Compile Include="Behaviour\UnlockTech.cs" />
     <Compile Include="ExpressionParser\Parsers\Classes\PQSCityParser.cs" />
     <Compile Include="IKerbalNameStorage.cs" />
+    <Compile Include="ParameterFactory\ResourceConsumptionFactory.cs" />
     <Compile Include="Parameter\Duration2.cs" />
     <Compile Include="Parameter\Duration.cs" />
     <Compile Include="Parameter\HasAstronaut.cs" />
@@ -113,6 +114,7 @@
     <Compile Include="Parameter\MissionTimer.cs" />
     <Compile Include="Parameter\VesselParameter\HasCrewCapacity.cs" />
     <Compile Include="Parameter\VesselParameter\CollectScienceCustom.cs" />
+    <Compile Include="Parameter\VesselParameter\ResourceConsuption.cs" />
     <Compile Include="Parameter\VesselParameter\Rendezvous.cs" />
     <Compile Include="Parameter\VesselParameter\PlantFlagCustom.cs" />
     <Compile Include="Parameter\VesselParameter\NewVessel.cs" />
@@ -325,10 +327,10 @@
   <PropertyGroup>
     <PostBuildEvent>copy /y "$(TargetPath)" "$(SolutionDir)..\GameData\ContractConfigurator\"
 
-"C:\games\tools\pdb2mdb\pdb2mdb.exe" "$(TargetFileName)"
+where /q pdb2mdb.exe || pdb2mdb.exe "$(TargetFileName)"
 copy /Y "$(TargetPath)" "C:\Program Files (x86)\Kerbal Space Program\GameData\ContractConfigurator\"
 copy /Y "$(TargetDir)$(TargetName).pdb" "C:\Program Files (x86)\Kerbal Space Program\GameData\ContractConfigurator\"
-copy /Y "$(TargetDir)$(TargetName).dll.mdb" "C:\Program Files (x86)\Kerbal Space Program\GameData\ContractConfigurator\"</PostBuildEvent>
+if exist "$(TargetDir)$(TargetName).dll.mdb" (copy /Y "$(TargetDir)$(TargetName).dll.mdb" "C:\Program Files (x86)\Kerbal Space Program\GameData\ContractConfigurator\")</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
