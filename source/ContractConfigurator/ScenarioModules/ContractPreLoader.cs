@@ -58,6 +58,12 @@ namespace ContractConfigurator
             GameEvents.Contract.onFinished.Remove(new EventData<Contract>.OnEvent(OnContractFinish));
             GameEvents.Contract.onDeclined.Remove(new EventData<Contract>.OnEvent(OnContractDecline));
             GameEvents.OnProgressReached.Remove(new EventData<ProgressNode>.OnEvent(OnProgressReached));
+
+            // Unregister anything from offered contracts
+            foreach (ConfiguredContract contract in contracts)
+            {
+                contract.Unregister();
+            }
         }
 
         void OnProgressReached(ProgressNode p)
