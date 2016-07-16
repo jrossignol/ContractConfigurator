@@ -509,34 +509,84 @@ namespace ContractConfigurator.Util
 
         protected void OnContractDeclined(Contract c)
         {
-            ConfiguredContract cc = c as ConfiguredContract;
-            if (cc != null)
-            {
-                // TODO - proper decline handling
-            }
-            else
-            {
-                // TODO - handling of non-contract configurator types
-            }
-
-            // TODO - better performance by using OnDeclined callback to target specific item
-            OnClickAll(true);
+            HandleRemovedContract(c);
         }
 
         protected void OnContractFinished(Contract c)
         {
+            HandleRemovedContract(c);
+        }
+
+        protected void HandleRemovedContract(Contract c)
+        {
+            LoggingUtil.LogVerbose(this, "HandleRemovedContract");
+
+            // Find the matching contract in our list
+            ContractContainer foundMatch = null;
+            List<UIListData<KSP.UI.UIListItem>>.Enumerator enumerator = MissionControl.Instance.scrollListContracts.GetEnumerator();
+            while (enumerator.MoveNext())
+            {
+                KSP.UI.UIListItem item = enumerator.Current.listItem;
+                foundMatch = item.Data as ContractContainer;
+                if (foundMatch != null && foundMatch.contract == c)
+                {
+                    break;
+                }
+            }
+
+            // Something went wrong
+            if (foundMatch == null)
+            {
+                return;
+            }
+
+            // Clean up the list item
             ConfiguredContract cc = c as ConfiguredContract;
             if (cc != null)
             {
-                // TODO - proper decline handling
+                if (ConfiguredContract.CurrentContracts.Any(checkContract => checkContract != null && checkContract != cc && checkContract.contractType == cc.contractType))
+                {
+                    // Just remove from the list, there are other matches
+                    MissionControl.Instance.scrollListContracts.RemoveItem(foundMatch.mcListItem.container);
+                }
+                else
+                {
+                    // Need to downgrade to a contract type line
+                    foundMatch.contract = null;
+                    SetupContractItem(foundMatch);
+                }
             }
             else
             {
-                // TODO - handling of non-contract configurator types
+                // Simply remove from the list
+                MissionControl.Instance.scrollListContracts.RemoveItem(foundMatch.mcListItem.container);
             }
 
-            // TODO - better performance by using OnDeclined callback to target specific item
-            OnClickAll(true);
+            // Clean up any empty parents
+            Container previous = foundMatch;
+            for (GroupContainer parent = foundMatch.parent; parent != null; parent = parent.parent)
+            {
+                ContractContainer cC = previous as ContractContainer;
+                GroupContainer gc = previous as GroupContainer;
+                if (cC != null)
+                {
+                    foundMatch.parent.childContracts.Remove(cC);
+                }
+                else if (gc != null)
+                {
+                    foundMatch.parent.childGroups.Remove(gc);
+                }
+
+                if (parent.childContracts.Any())
+                {
+                    break;
+                }
+                else
+                {
+                    // Remove from the list
+                    MissionControl.Instance.scrollListContracts.RemoveItem(parent.mcListItem.container);
+                }
+            }
         }
 
         public IEnumerable<GroupContainer> GetGroups()
@@ -886,7 +936,7 @@ namespace ContractConfigurator.Util
             int index = MissionControl.Instance.scrollListContracts.GetIndex(previous);
             UIList<KSP.UI.UIListItem> childUIList = (UIList<KSP.UI.UIListItem>)childUIListField.GetValue(MissionControl.Instance.scrollListContracts);
             List<UIListData<KSP.UI.UIListItem>> listData = (List<UIListData<KSP.UI.UIListItem>>)listDataField.GetValue(childUIList);
-            listData.Insert(index+1, new UIListData<KSP.UI.UIListItem>((KSP.UI.UIListItem)null, container.mcListItem.container));
+            listData.Insert(index + 1, new UIListData<KSP.UI.UIListItem>((KSP.UI.UIListItem)null, container.mcListItem.container));
             container.mcListItem.container.transform.SetParent(childUIList.listAnchor);
             container.mcListItem.container.transform.localPosition = new Vector3(container.mcListItem.container.transform.localPosition.x, container.mcListItem.container.transform.localPosition.y, 0.0f);
 
