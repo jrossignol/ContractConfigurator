@@ -358,6 +358,10 @@ namespace ContractConfigurator.ExpressionParser
             {
                 // Get a token
                 Token token = ParseToken();
+                if (token == null)
+                {
+                    throw new ArgumentException("Expected a token, got end of statement.");
+                }
 
                 ExpressionParser<TResult> parser = GetParser<TResult>(this);
                 bool resetExpression = true;
