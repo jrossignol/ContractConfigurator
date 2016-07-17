@@ -211,6 +211,7 @@ namespace ContractConfigurator.Parameters
                         string exp = param.ID.Remove(param.ID.IndexOf("Subject"));
 
                         param.SetTitle(matchingSubjects[exp].title);
+                        param.SetState(ParameterState.Complete);
                     }
                 }
                 else

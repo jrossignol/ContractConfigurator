@@ -10,6 +10,7 @@ Contract Configurator 1.15.2
 - New ResourceConsumption parameter.
 - Fixed issue where the state of some parameters wasn't immediately reset when switching vessels, allowing erroneous contract completion (thanks NathanKell & leudaimon).
 - Fixed bug in uniqueness checks when vessels are involved which caused the uniquness check not to work (thanks severedsolo).
+- Fixed issue where CollectScience parameters weren't always showing the checkmarks when partially completed (thanks jlcarneiro & severedsolo).
 
 Contract Configurator 1.14.0
 - Added suppport for partModuleType in PartValidation.
