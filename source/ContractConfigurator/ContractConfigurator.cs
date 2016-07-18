@@ -26,7 +26,6 @@ namespace ContractConfigurator
             MODULE_MANAGER,
             CLEAR_CONFIG,
             LOAD_CONFIG,
-            ADJUST_TYPES,
         }
 
         private static ContractConfigurator Instance;
@@ -35,7 +34,6 @@ namespace ContractConfigurator
         static ReloadStep reloadStep = ReloadStep.GAME_DATABASE;
 
         static bool loading = false;
-        static bool contractTypesAdjusted = false;
 
         static ScreenMessage lastMessage = null;
 
@@ -55,14 +53,12 @@ namespace ContractConfigurator
 
             OnParameterChange.Add(new EventData<Contract, ContractParameter>.OnEvent(ParameterChange));
             GameEvents.OnTechnologyResearched.Add(new EventData<GameEvents.HostTargetAction<RDTech, RDTech.OperationResult>>.OnEvent(OnTechResearched));
-            GameEvents.onGameSceneSwitchRequested.Add(new EventData<GameEvents.FromToAction<GameScenes, GameScenes>>.OnEvent(OnGameSceneSwitchRequested));
         }
 
         void Destroy()
         {
             OnParameterChange.Remove(new EventData<Contract, ContractParameter>.OnEvent(ParameterChange));
             GameEvents.OnTechnologyResearched.Remove(new EventData<GameEvents.HostTargetAction<RDTech, RDTech.OperationResult>>.OnEvent(OnTechResearched));
-            GameEvents.onGameSceneSwitchRequested.Remove(new EventData<GameEvents.FromToAction<GameScenes, GameScenes>>.OnEvent(OnGameSceneSwitchRequested));
         }
 
         void Update()
@@ -86,16 +82,6 @@ namespace ContractConfigurator
                 DebugWindow.LoadTextures();
 
                 LoggingUtil.LogInfo(this, "Contract Configurator " + ainfoV.InformationalVersion + " finished loading.");
-            }
-            // Make contract type adjustments
-            else if (HighLogic.LoadedScene == GameScenes.SPACECENTER && !contractTypesAdjusted)
-            {
-                ContractDisabler.DisableContracts();
-
-                if (AdjustContractTypes())
-                {
-                    contractTypesAdjusted = true;
-                }
             }
 
             // Alt-F9 shows the contract configurator window
@@ -131,10 +117,6 @@ namespace ContractConfigurator
                         lastMessage = ScreenMessages.PostScreenMessage("Loading contract configuration (" + attemptedContracts + "/" + totalContracts + ")...", Time.deltaTime,
                             ScreenMessageStyle.UPPER_CENTER);
                         break;
-                    case ReloadStep.ADJUST_TYPES:
-                        lastMessage = ScreenMessages.PostScreenMessage("Adjusting contract types...", Time.deltaTime,
-                            ScreenMessageStyle.UPPER_CENTER);
-                        break;
                 }
             }
         }
@@ -160,7 +142,6 @@ namespace ContractConfigurator
         /// </summary>
         public static void StartReload()
         {
-            contractTypesAdjusted = false;
             Instance.StartCoroutine(Instance.ReloadContractTypes());
         }
 
@@ -228,11 +209,6 @@ namespace ContractConfigurator
             {
                 yield return iterator.Current;
             }
-
-            // Adjust contract types
-            reloadStep = ReloadStep.ADJUST_TYPES;
-            yield return new WaitForEndOfFrame();
-            AdjustContractTypes();
 
             // We're done!
             reloading = false;
@@ -455,52 +431,6 @@ namespace ContractConfigurator
             }
         }
 
-        /// <summary>
-        /// Performs adjustments to the contract type list.  Specifically, disables contract types
-        /// as per configuration files and adds addtional ConfiguredContract instances based on the
-        /// number on contract types.
-        /// </summary>
-        /// <returns>Whether the changes took place</returns>
-        public static bool AdjustContractTypes()
-        {
-            if (ContractSystem.ContractWeights == null)
-            {
-                return false;
-            }
-
-            // Get the current average weight
-            int totalWeight = 0;
-            int count = 0;
-            foreach (KeyValuePair<Type, int> pair in ContractSystem.ContractWeights.Where(p => !p.Key.Name.StartsWith("ConfiguredContract")))
-            {
-                count++;
-                totalWeight += pair.Value;
-            }
-            double avgWeight = (double)totalWeight / count;
-
-            // Figure out the weight and number of contracts we should use
-            double weightByType = Math.Pow(ContractType.AllValidContractTypes.Count(), 0.7) / 1.5;
-            double weightByGroup = Math.Pow(ContractGroup.AllGroups.Count(g => g != null && g.parent == null), 0.9);
-            double desiredWeight = Math.Max(weightByGroup, weightByType) * avgWeight;
-            LoggingUtil.LogDebug(typeof(ContractConfigurator), "Desired ConfiguredContract weight is " + desiredWeight);
-            count = Math.Min((int)Math.Round(desiredWeight / ContractDefs.WeightDefault), 20);
-            int weight = (int)Math.Round(desiredWeight / count);
-
-            // Adjust the contract types list and the contract weights
-            ContractSystem.ContractWeights[typeof(ConfiguredContract)] = weight;
-            ContractSystem.ContractTypes.RemoveAll(t => t.Name.StartsWith("ConfiguredContract") && t.Name != "ConfiguredContract");
-            for (int i = 1; i < count; i++)
-            {
-                Type contractType = Type.GetType("ContractConfigurator.ConfiguredContract" + i, true);
-                ContractSystem.ContractTypes.Add(contractType);
-                ContractSystem.ContractWeights[contractType] = weight;
-            }
-
-            LoggingUtil.LogInfo(typeof(ContractConfigurator), "Finished Adjusting ContractTypes, " + count + " entries with weight " + weight + " added.");
-
-            return true;
-        }
-
         public static IEnumerable<Type> GetAllTypes<T>()
         {
             // Get everything that extends the given type
@@ -544,12 +474,6 @@ namespace ContractConfigurator
             {
                 ResearchAndDevelopment.RemoveExperimentalPart(p);
             }
-        }
-
-        private void OnGameSceneSwitchRequested(GameEvents.FromToAction<GameScenes, GameScenes> fta)
-        {
-            // Reset the contract types adjusted indicator
-            contractTypesAdjusted = false;
         }
     }
 }

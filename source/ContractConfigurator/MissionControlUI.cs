@@ -261,6 +261,7 @@ namespace ContractConfigurator.Util
         public int ticks = 0;
 
         private UIRadioButton selectedButton;
+        private bool displayModeAll = true;
 
         public void Awake()
         {
@@ -363,7 +364,6 @@ namespace ContractConfigurator.Util
                     checkRect.anchoredPosition = new Vector2(checkRect.anchoredPosition.x + (105 - rect.sizeDelta.x) / 2.0f, checkRect.anchoredPosition.y);
                 }
 
-
                 // Replace the handlers with our own
                 MissionControl.Instance.toggleDisplayModeAvailable.onValueChanged.RemoveAllListeners();
                 MissionControl.Instance.toggleDisplayModeAvailable.onValueChanged.AddListener(new UnityAction<bool>(OnClickAvailable));
@@ -396,7 +396,14 @@ namespace ContractConfigurator.Util
 
         protected void OnContractOffered(Contract c)
         {
-            LoggingUtil.LogVerbose(this, "OnContractOffered");
+            LoggingUtil.LogVerbose(this, "OnContractOffered: " + c.Title);
+
+            // Check we're in the right mode
+            if (!displayModeAll || MissionControl.Instance.displayMode != MissionControl.DisplayMode.Available)
+            {
+                OnClickAvailable(true);
+                return;
+            }
 
             // Add to the unread list.  This gets done elsewhere, but the events fire in the wrong order for us to take advantage of it
             ContractPreLoader.Instance.unreadContracts.Add(c.ContractGuid);
@@ -421,6 +428,17 @@ namespace ContractConfigurator.Util
                             {
                                 container.contract = cc;
                                 SetupContractItem(container);
+
+                                // Check if the selection was this contract type
+                                if (selectedButton != null)
+                                {
+                                    ContractContainer contractContainer = selectedButton.GetComponent<KSP.UI.UIListItem>().Data as ContractContainer;
+                                    if (contractContainer != null && contractContainer == container)
+                                    {
+                                        OnSelectContract(selectedButton, UIRadioButton.CallType.USER, null);
+                                    }
+                                }
+
                                 break;
                             }
                             // Keep track of the list item - we'll add immediately after it
@@ -521,6 +539,15 @@ namespace ContractConfigurator.Util
         {
             LoggingUtil.LogVerbose(this, "HandleRemovedContract");
 
+            // Check we're in the right mode
+            if (!displayModeAll || MissionControl.Instance.displayMode != MissionControl.DisplayMode.Available)
+            {
+                MissionControl.Instance.selectedMission = null;
+                selectedButton = null;
+                OnClickAvailable(true);
+                return;
+            }
+
             // Find the matching contract in our list
             ContractContainer foundMatch = null;
             List<UIListData<KSP.UI.UIListItem>>.Enumerator enumerator = MissionControl.Instance.scrollListContracts.GetEnumerator();
@@ -537,10 +564,12 @@ namespace ContractConfigurator.Util
             // Something went wrong
             if (foundMatch == null)
             {
+                LoggingUtil.LogDebug(this, "Something odd, didn't find a match for contract removal...");
                 return;
             }
 
             // Clean up the list item
+            bool downgrade = false;
             ConfiguredContract cc = c as ConfiguredContract;
             if (cc != null)
             {
@@ -552,6 +581,7 @@ namespace ContractConfigurator.Util
                 else
                 {
                     // Need to downgrade to a contract type line
+                    downgrade = true;
                     foundMatch.contract = null;
                     SetupContractItem(foundMatch);
                 }
@@ -563,28 +593,49 @@ namespace ContractConfigurator.Util
             }
 
             // Clean up any empty parents
-            Container previous = foundMatch;
-            for (GroupContainer parent = foundMatch.parent; parent != null; parent = parent.parent)
+            if (!downgrade)
             {
-                ContractContainer cC = previous as ContractContainer;
-                GroupContainer gc = previous as GroupContainer;
-                if (cC != null)
+                Container previous = foundMatch;
+                for (GroupContainer parent = foundMatch.parent; parent != null; parent = parent.parent)
                 {
-                    foundMatch.parent.childContracts.Remove(cC);
-                }
-                else if (gc != null)
-                {
-                    foundMatch.parent.childGroups.Remove(gc);
-                }
+                    ContractContainer cC = previous as ContractContainer;
+                    GroupContainer gc = previous as GroupContainer;
+                    if (cC != null)
+                    {
+                        foundMatch.parent.childContracts.Remove(cC);
+                    }
+                    else if (gc != null)
+                    {
+                        foundMatch.parent.childGroups.Remove(gc);
+                    }
 
-                if (parent.childContracts.Any())
-                {
-                    break;
+                    if (parent.childContracts.Any())
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        // Remove from the list
+                        MissionControl.Instance.scrollListContracts.RemoveItem(parent.mcListItem.container);
+                    }
                 }
-                else
+            }
+
+            // If the selected contract was cancelled
+            if (MissionControl.Instance.selectedMission != null && MissionControl.Instance.selectedMission.contract == c)
+            {
+                MissionControl.Instance.selectedMission = null;
+                if (selectedButton != null)
                 {
-                    // Remove from the list
-                    MissionControl.Instance.scrollListContracts.RemoveItem(parent.mcListItem.container);
+                    if (downgrade)
+                    {
+                        OnSelectContract(selectedButton, UIRadioButton.CallType.USER, null);
+                    }
+                    else
+                    {
+                        selectedButton.SetState(UIRadioButton.State.False, UIRadioButton.CallType.APPLICATION, null);
+                        selectedButton = null;
+                    }
                 }
             }
         }
@@ -627,6 +678,8 @@ namespace ContractConfigurator.Util
             {
                 MissionControl.Instance.AddItem(contract, true, string.Empty);
             }
+
+            displayModeAll = false;
         }
 
         public void OnClickAll(bool selected)
@@ -649,6 +702,8 @@ namespace ContractConfigurator.Util
             {
                 CreateGroupItem(groupContainer);
             }
+
+            displayModeAll = true;
         }
 
         protected GroupContainer CreateGroupItem(GroupContainer groupContainer, int indent = 0, KSP.UI.UIListItem previous = null)
@@ -1094,7 +1149,6 @@ namespace ContractConfigurator.Util
             selectedButton = null;
         }
 
-
         protected void OnSelectGroup(UIRadioButton button, UIRadioButton.CallType callType, PointerEventData data)
         {
             LoggingUtil.LogVerbose(this, "OnSelectGroup");
@@ -1337,9 +1391,16 @@ namespace ContractConfigurator.Util
             MissionControl.Instance.selectedMission.contract.Accept();
             MissionControl.Instance.UpdateInstructor(MissionControl.Instance.avatarController.animTrigger_accept, MissionControl.Instance.avatarController.animLoop_default);
 
-            // Update the contract
-            SetContractTitle(selectedButton.GetComponent<MCListItem>(), new ContractContainer(MissionControl.Instance.selectedMission.contract));
-            OnSelectContract(selectedButton, UIRadioButton.CallType.USER, null);
+            // Update the contract list
+            if (!displayModeAll || MissionControl.Instance.displayMode != MissionControl.DisplayMode.Available)
+            {
+                OnClickAvailable(true);
+            }
+            else
+            {
+                SetContractTitle(selectedButton.GetComponent<MCListItem>(), new ContractContainer(MissionControl.Instance.selectedMission.contract));
+                OnSelectContract(selectedButton, UIRadioButton.CallType.USER, null);
+            }
         }
 
         private void OnClickDecline()
@@ -1347,14 +1408,10 @@ namespace ContractConfigurator.Util
             LoggingUtil.LogVerbose(this, "OnClickDecline");
 
             // Decline the contract
-            MissionControl.Instance.selectedMission.contract.Decline();
-            MissionControl.Instance.selectedMission = null;
             MissionControl.Instance.panelView.gameObject.SetActive(false);
             MissionControl.Instance.ClearInfoPanel();
             MissionControl.Instance.UpdateInstructor(MissionControl.Instance.avatarController.animTrigger_decline, MissionControl.Instance.avatarController.animLoop_default);
-
-            // Redraw
-            selectedButton = null;
+            MissionControl.Instance.selectedMission.contract.Decline();
         }
 
         private void OnClickCancel()
@@ -1362,14 +1419,10 @@ namespace ContractConfigurator.Util
             LoggingUtil.LogVerbose(this, "OnClickCancel");
 
             // Cancel the contract
-            MissionControl.Instance.selectedMission.contract.Cancel();
-            MissionControl.Instance.selectedMission = null;
             MissionControl.Instance.panelView.gameObject.SetActive(false);
             MissionControl.Instance.ClearInfoPanel();
             MissionControl.Instance.UpdateInstructor(MissionControl.Instance.avatarController.animTrigger_cancel, MissionControl.Instance.avatarController.animLoop_default);
-
-            // Redraw
-            selectedButton = null;
+            MissionControl.Instance.selectedMission.contract.Cancel();
         }
     }
 

@@ -105,9 +105,9 @@ namespace ContractConfigurator
                 }
                 if (cc.contractType != null)
                 {
-                    lastGenerationFailure = 0.0;
+                    lastGenerationFailure = -100.0;
                     cc.contractType.failedGenerationAttempts = 0;
-                    cc.contractType.lastGenerationFailure = 0.0;
+                    cc.contractType.lastGenerationFailure = -100.0;
                 }
             }
         }
@@ -135,11 +135,11 @@ namespace ContractConfigurator
         {
             LoggingUtil.LogVerbose(this, "ResetGenerationFailure");
 
-            lastGenerationFailure = 0.0;
+            lastGenerationFailure = -100.0;
             foreach (ContractType ct in ContractType.AllValidContractTypes)
             {
                 ct.failedGenerationAttempts = 0;
-                ct.lastGenerationFailure = 0.0;
+                ct.lastGenerationFailure = -100.0;
             }
         }
 
