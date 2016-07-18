@@ -90,6 +90,12 @@ namespace ContractConfigurator.Util
                 {
                     ContractType contractType = ContractType.AllValidContractTypes.Where(ct => ct != null && ct.group == group).FirstOrDefault();
                     agent = contractType != null ? contractType.agent : null;
+
+                    // Final fallback is the Contract Configurator agency
+                    if (agent == null)
+                    {
+                        agent = GetAgent("Contract Configurator");
+                    }
                 }
             }
 
@@ -1167,6 +1173,7 @@ namespace ContractConfigurator.Util
 
                 MissionControl.Instance.UpdateInfoPanelAgent(groupContainer.agent);
                 MissionControl.Instance.btnAgentBack.gameObject.SetActive(false);
+                MissionControl.Instance.textDateInfo.text = "";
             }
             else
             {
