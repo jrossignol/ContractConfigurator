@@ -268,6 +268,7 @@ namespace ContractConfigurator.Util
 
         private UIRadioButton selectedButton;
         private bool displayModeAll = true;
+        private int maxActive;
 
         public void Awake()
         {
@@ -323,6 +324,8 @@ namespace ContractConfigurator.Util
 
             if (ticks++ == 0)
             {
+                maxActive = GameVariables.Instance.GetActiveContractsLimit(ScenarioUpgradeableFacilities.GetFacilityLevel(SpaceCenterFacility.MissionControl));
+
                 int[] widths = new int[] { 57, 92, 77, 89};
 
                 // Get the available/active/complete groups
@@ -360,6 +363,10 @@ namespace ContractConfigurator.Util
                 x += widths[2];
                 toggleArchiveRect.anchoredPosition = new Vector2(x, y);
                 toggleArchiveRect.sizeDelta = new Vector2(widths[3], h);
+
+                RectTransform contractCountRect = MissionControl.Instance.textMCStats.gameObject.GetComponent<RectTransform>();
+                contractCountRect.anchoredPosition = new Vector2(contractCountRect.anchoredPosition.x, contractCountRect.anchoredPosition.y + contractCountRect.sizeDelta.y * 3);
+                contractCountRect.sizeDelta = new Vector2(contractCountRect.sizeDelta.x, contractCountRect.sizeDelta.y * 4);
 
                 // Set Positioning of child elements
                 foreach (RectTransform rect in new RectTransform[] { toggleAllRect, toggleAvailableRect, toggleActiveRect, toggleArchiveRect })
@@ -539,6 +546,8 @@ namespace ContractConfigurator.Util
         protected void OnContractFinished(Contract c)
         {
             HandleRemovedContract(c);
+
+            UpdateContractCounts();
         }
 
         protected void HandleRemovedContract(Contract c)
@@ -710,6 +719,9 @@ namespace ContractConfigurator.Util
             }
 
             displayModeAll = true;
+
+            // Update the contract counts
+            UpdateContractCounts();
         }
 
         protected GroupContainer CreateGroupItem(GroupContainer groupContainer, int indent = 0, KSP.UI.UIListItem previous = null)
@@ -1121,6 +1133,9 @@ namespace ContractConfigurator.Util
                 MissionControl.Instance.selectedMission = cc.missionSelection;
                 MissionControl.Instance.UpdateInfoPanelContract(cc.contract);
                 prestige = cc.contract.Prestige;
+
+                ConfiguredContract confCont = cc.contract as ConfiguredContract;
+                MissionControl.Instance.btnAccept.interactable = (confCont == null || confCont.CanAccept()) && ContractSystem.Instance.GetActiveContractCount() < maxActive;
             }
             else
             {
@@ -1140,6 +1155,44 @@ namespace ContractConfigurator.Util
             {
                 MissionControl.Instance.UpdateInstructor(MissionControl.Instance.avatarController.animTrigger_selectEasy, MissionControl.Instance.avatarController.animLoop_default);
             }
+        }
+
+        protected void UpdateContractCounts()
+        {
+            Debug.Log("MissionControl.Instance.textMCStats.text = " + MissionControl.Instance.textMCStats.text);
+
+            int activeCount = ContractSystem.Instance.GetActiveContractCount();
+            int trivialCount = 0;
+            int significantCount = 0;
+            int exceptionalCount = 0;
+            foreach (Contract c in ContractSystem.Instance.Contracts)
+            {
+                if (c != null && c.ContractState == Contract.State.Active && !c.AutoAccept)
+                {
+                    switch (c.Prestige)
+                    {
+                        case Contract.ContractPrestige.Trivial:
+                            trivialCount++;
+                            break;
+                        case Contract.ContractPrestige.Significant:
+                            significantCount++;
+                            break;
+                        case Contract.ContractPrestige.Exceptional:
+                            exceptionalCount++;
+                            break;
+                    }
+                }
+            }
+            int trivialMax = Math.Min(ContractConfigurator.ContractLimit(Contract.ContractPrestige.Trivial, Reputation.Instance.reputation), maxActive);
+            int significantMax = Math.Min(ContractConfigurator.ContractLimit(Contract.ContractPrestige.Significant, Reputation.Instance.reputation), maxActive);
+            int exceptionalMax = Math.Min(ContractConfigurator.ContractLimit(Contract.ContractPrestige.Exceptional, Reputation.Instance.reputation), maxActive);
+
+            string output = "";
+            output += string.Format("<b><color=#f4ee21>        ★\t </color><color=#DB8310>Trivial Contracts:\t\t\t\t</color></b>" + (trivialCount == trivialMax ? "<color=#f97306>{0}  [Max: {1}]</color>\n" : "{0}  [Max: {1}]\n"), trivialCount, trivialMax);
+            output += string.Format("<b><color=#f4ee21>    ★★\t </color><color=#DB8310>Significant Contracts:\t\t</color></b>" + (significantCount == significantMax ? "<color=#f97306>{0}  [Max: {1}]</color>\n" : "{0}  [Max: {1}]\n"), significantCount, significantMax);
+            output += string.Format("<b><color=#f4ee21>★★★\t </color><color=#DB8310>Exceptional Contracts:\t</color></b>" + (exceptionalCount == exceptionalMax ? "<color=#f97306>{0}  [Max: {1}]</color>\n" : "{0}  [Max: {1}]\n"), exceptionalCount, exceptionalMax);
+            output += string.Format("<b>\t\t\t <color=#DB8310>All Active Contracts:\t\t</color></b>" + (maxActive == int.MaxValue ? "{0}" : activeCount == maxActive ? "<color=#f97306>{0}  [Max: {1}]</color>" : "{0}  [Max: {1}]"), activeCount, maxActive);
+            MissionControl.Instance.textMCStats.text = output;
         }
 
         protected void OnDeselectContract(UIRadioButton button, UIRadioButton.CallType callType, PointerEventData data)
@@ -1408,6 +1461,8 @@ namespace ContractConfigurator.Util
                 SetContractTitle(selectedButton.GetComponent<MCListItem>(), new ContractContainer(MissionControl.Instance.selectedMission.contract));
                 OnSelectContract(selectedButton, UIRadioButton.CallType.USER, null);
             }
+
+            UpdateContractCounts();
         }
 
         private void OnClickDecline()
