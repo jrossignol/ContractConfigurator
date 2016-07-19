@@ -1134,8 +1134,7 @@ namespace ContractConfigurator.Util
                 MissionControl.Instance.UpdateInfoPanelContract(cc.contract);
                 prestige = cc.contract.Prestige;
 
-                ConfiguredContract confCont = cc.contract as ConfiguredContract;
-                MissionControl.Instance.btnAccept.interactable = (confCont == null || confCont.CanAccept()) && ContractSystem.Instance.GetActiveContractCount() < maxActive;
+                MissionControl.Instance.btnAccept.interactable = ContractConfigurator.CanAccept(cc.contract) && ContractSystem.Instance.GetActiveContractCount() < maxActive;
             }
             else
             {
