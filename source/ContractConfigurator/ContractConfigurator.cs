@@ -476,16 +476,16 @@ namespace ContractConfigurator
             }
         }
 
-        public static int ContractLimit(Contract.ContractPrestige prestige, float reputation)
+        public static int ContractLimit(Contract.ContractPrestige prestige)
         {
             switch (prestige)
             {
                 case Contract.ContractPrestige.Trivial:
-                    return Math.Max(2, (int)Math.Round(reputation / 200 + 5));
+                    return Math.Max(2, (int)Math.Round(Reputation.Instance.reputation / 200 + 5));
                 case Contract.ContractPrestige.Significant:
-                    return Math.Max(1, (int)Math.Round(reputation / 250 + 3));
+                    return Math.Max(1, (int)Math.Round(Reputation.Instance.reputation / 250 + 3));
                 case Contract.ContractPrestige.Exceptional:
-                    return Math.Max(0, (int)Math.Round(reputation / (1000/3.0) + 1));
+                    return Math.Max(0, (int)Math.Round(Reputation.Instance.reputation / (1000/3.0) + 1));
             }
             return 0;
         }

@@ -1183,9 +1183,9 @@ namespace ContractConfigurator.Util
                     }
                 }
             }
-            int trivialMax = Math.Min(ContractConfigurator.ContractLimit(Contract.ContractPrestige.Trivial, Reputation.Instance.reputation), maxActive);
-            int significantMax = Math.Min(ContractConfigurator.ContractLimit(Contract.ContractPrestige.Significant, Reputation.Instance.reputation), maxActive);
-            int exceptionalMax = Math.Min(ContractConfigurator.ContractLimit(Contract.ContractPrestige.Exceptional, Reputation.Instance.reputation), maxActive);
+            int trivialMax = Math.Min(ContractConfigurator.ContractLimit(Contract.ContractPrestige.Trivial), maxActive);
+            int significantMax = Math.Min(ContractConfigurator.ContractLimit(Contract.ContractPrestige.Significant), maxActive);
+            int exceptionalMax = Math.Min(ContractConfigurator.ContractLimit(Contract.ContractPrestige.Exceptional), maxActive);
 
             string output = "";
             output += string.Format("<b><color=#f4ee21>        ★\t </color><color=#DB8310>Trivial Contracts:\t\t\t\t</color></b>" + (trivialCount == trivialMax ? "<color=#f97306>{0}  [Max: {1}]</color>\n" : "{0}  [Max: {1}]\n"), trivialCount, trivialMax);
