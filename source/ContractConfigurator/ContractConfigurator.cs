@@ -489,5 +489,11 @@ namespace ContractConfigurator
             }
             return 0;
         }
+
+        public static bool CanAccept(Contract contract)
+        {
+            int activeCount = ContractSystem.Instance.Contracts.Count(c => c != null && c.Prestige == contract.Prestige && c.ContractState == Contract.State.Active);
+            return (activeCount < ContractConfigurator.ContractLimit(contract.Prestige));
+        }
     }
 }
