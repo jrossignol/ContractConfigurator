@@ -397,12 +397,12 @@ namespace ContractConfigurator.ExpressionParser
                             dataValues[name] = new ContractType.DataValueInfo(title, requiredValue, hidden, type);
 
                             // Recommend a title
-                            if (!data.HasValue("title") && requiredValue && IsDeterministic(name) && !hidden && !doneTitleWarning && !dataValues[name].IsIgnoredType())
+                            if (!data.HasValue("title") && requiredValue && !IsDeterministic(name) && !hidden && !doneTitleWarning && !dataValues[name].IsIgnoredType())
                             {
                                 doneTitleWarning = true;
 
                                 LoggingUtil.Log(obj.minVersion >= ContractConfigurator.ENHANCED_UI_VERSION ? LoggingUtil.LogLevel.ERROR : LoggingUtil.LogLevel.WARNING, this,
-                                    obj.ErrorPrefix() + ": The field 'title' is required in for data node values where 'requiredValue' is true.  Alternatively, the attribute 'hidden' can be set to true (but be careful - this can cause player confusion if all lines for the contract type show as 'Met' and the contract isn't generating).");
+                                    obj.ErrorPrefix() + ": " + name + ": The field 'title' is required in for data node values where 'requiredValue' is true.  Alternatively, the attribute 'hidden' can be set to true (but be careful - this can cause player confusion if all lines for the contract type show as 'Met' and the contract isn't generating).");
 
                                 // Error on newer versions of contract packs
                                 if (obj.minVersion >= ContractConfigurator.ENHANCED_UI_VERSION)
