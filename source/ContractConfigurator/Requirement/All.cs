@@ -5,6 +5,7 @@ using System.Text;
 using UnityEngine;
 using KSP;
 using KSPAchievements;
+using ContractConfigurator.Util;
 
 namespace ContractConfigurator
 {
@@ -36,7 +37,7 @@ namespace ContractConfigurator
 
         protected override string RequirementText()
         {
-            return "Must meet <i>all</i> of the following";
+            return "Must meet <color=#" + MissionControlUI.RequirementHighlightColor + ">all</color> of the following";
         }
     }
 }

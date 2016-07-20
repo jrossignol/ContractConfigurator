@@ -5,6 +5,7 @@ using System.Text;
 using UnityEngine;
 using KSP;
 using ContractConfigurator.ExpressionParser;
+using ContractConfigurator.Util;
 
 namespace ContractConfigurator
 {
@@ -55,7 +56,7 @@ namespace ContractConfigurator
 
         protected override string RequirementText()
         {
-            string output = "Must meet at least " + NumericValueExpressionParser<int>.PrintNumber(count) + " of the following:";
+            string output = "Must meet at least <color=#" + MissionControlUI.RequirementHighlightColor + ">" + NumericValueExpressionParser<int>.PrintNumber(count) + "</color> of the following:";
             return output;
         }
     }

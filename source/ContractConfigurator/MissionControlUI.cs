@@ -1267,7 +1267,29 @@ namespace ContractConfigurator.Util
         {
             // Set up the list item with the contract details
             string color = cc.contract == null ? "A9A9A9" : cc.contract.ContractState == Contract.State.Active ? "96df41" : "fefa87";
-            string title = cc.contract == null ? cc.contractType.genericTitle : cc.contract.Title;
+            string title = "";
+            if (cc.contract != null)
+            {
+                title = cc.contract.Title;
+            }
+            else
+            {
+                title = cc.contractType.genericTitle;
+
+                // Special case for one-off contracts
+                if (cc.contractType.maxCompletions == 1)
+                {
+                    foreach (ConfiguredContract c in ConfiguredContract.CompletedContracts)
+                    {
+                        if (c.contractType != null && c.contractType.name == cc.contractType.name)
+                        {
+                            title = c.Title;
+                            break;
+                        }
+                    }
+                }
+            }
+
             mcListItem.title.text = "<color=#" + color + ">" + title + "</color>";
             if (cc.contract != null && ContractPreLoader.Instance.unreadContracts.Contains(cc.contract.ContractGuid))
             {
@@ -1332,7 +1354,22 @@ namespace ContractConfigurator.Util
         protected void MissionControlText(ContractType contractType)
         {
             string text = "<b><color=#DB8310>Briefing:</color></b>\n\n";
-            text += "<color=#CCCCCC>" + contractType.genericDescription + "</color>\n\n";
+
+            // Special case for one-off contracts
+            string description = contractType.genericDescription;
+            if (contractType.maxCompletions == 1)
+            {
+                foreach (ConfiguredContract c in ConfiguredContract.CompletedContracts)
+                {
+                    if (c.contractType != null && c.contractType.name == contractType.name)
+                    {
+                        description = c.Description;
+                        break;
+                    }
+                }
+            }
+            text += "<color=#CCCCCC>" + description + "</color>\n\n";
+
 
             text += "<b><color=#DB8310>Pre-Requisites:</color></b>\n\n";
 
@@ -1341,8 +1378,15 @@ namespace ContractConfigurator.Util
             {
                 int completionCount = contractType.ActualCompletions();
                 bool met = completionCount < contractType.maxCompletions;
-                text += RequirementLine("May only be completed " + (contractType.maxCompletions == 1 ? "once" : contractType.maxCompletions + " times"), met,
-                    "has been completed " + (completionCount == 1 ? "once" : completionCount + " times"));
+                if (contractType.maxCompletions == 1)
+                {
+                    text += RequirementLine("Must not have been completed before", met);
+                }
+                else
+                {
+                    text += RequirementLine("May only be completed " + contractType.maxCompletions + " times", met,
+                        "has been completed " + completionCount + " times");
+                }
             }
 
             // Do check of required values

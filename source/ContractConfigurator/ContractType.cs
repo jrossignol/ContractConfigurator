@@ -434,6 +434,7 @@ namespace ContractConfigurator
                 //
                 // Do generic fields that need to happen after deferred loads
                 //
+                ConfigNodeUtil.SetCurrentDataNode(dataNode);
 
                 // Generic title
                 valid &= ConfigNodeUtil.ParseValue<string>(configNode, "genericTitle", x => genericTitle = x, this, title);
