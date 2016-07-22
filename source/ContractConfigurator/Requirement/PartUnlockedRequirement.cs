@@ -60,11 +60,13 @@ namespace ContractConfigurator
             {
                 if (i != 0)
                 {
-                    partStr += ", ";
-
                     if (i == parts.Count - 1)
                     {
                         partStr += "and ";
+                    }
+                    else
+                    {
+                        partStr += ", ";
                     }
                 }
 

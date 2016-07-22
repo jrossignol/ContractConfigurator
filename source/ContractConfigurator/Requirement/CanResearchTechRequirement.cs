@@ -112,11 +112,13 @@ namespace ContractConfigurator
             {
                 if (i != 0)
                 {
-                    techStr += ", ";
-
                     if (i == techs.Count - 1)
                     {
                         techStr += "and ";
+                    }
+                    else
+                    {
+                        techStr += ", ";
                     }
                 }
 

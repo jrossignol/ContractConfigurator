@@ -7,6 +7,7 @@ Contract Configurator 1.15.2
 - Added sortKey for CONTRACT_TYPE and CONTRACT_GROUP nodes.
 - New List.SelectUnique() method for selecting unique values (replaces selecting a random value and hoping that it hasn't been used before).
 - New DATA_EXPAND node allows a CONTRACT_TYPE to be duplicated across a list of values (eg. duplicated for each Celestial Body).
+- New CelestialBody.Index() method to get the global index of a body (for sorting).
 - More warnings to steer contract authors towards more performant and more player-friendly ways of writing contracts.
 - New ResourceConsumption parameter.
 - Fixed issue where the state of some parameters wasn't immediately reset when switching vessels, allowing erroneous contract completion (thanks NathanKell & leudaimon).

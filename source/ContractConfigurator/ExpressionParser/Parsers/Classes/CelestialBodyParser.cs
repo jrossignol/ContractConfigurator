@@ -72,6 +72,7 @@ namespace ContractConfigurator.ExpressionParser
             RegisterMethod(new Method<CelestialBody, CelestialBody>("Parent", cb => cb != null ? cb.referenceBody : null));
             RegisterMethod(new Method<CelestialBody, List<CelestialBody>>("Children", cb => cb != null ? cb.orbitingBodies.ToList() : new List<CelestialBody>()));
             RegisterMethod(new Method<CelestialBody, List<PQSCity>>("PQSCities", cb => cb != null ? cb.GetComponentsInChildren<PQSCity>(true).ToList() : new List<PQSCity>()));
+            RegisterMethod(new Method<CelestialBody, int>("Index", cb => FlightGlobals.Bodies.IndexOf(cb)));
 
             RegisterMethod(new Method<CelestialBody, List<Biome>>("Biomes", cb => cb != null && cb.BiomeMap != null ?
                 cb.BiomeMap.Attributes.Select(att => new Biome(cb, att.name)).ToList() : new List<Biome>()));

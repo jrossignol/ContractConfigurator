@@ -54,11 +54,13 @@ namespace ContractConfigurator
             {
                 if (i != 0)
                 {
-                    partStr += ", ";
-
                     if (i == partModuleType.Count - 1)
                     {
                         partStr += "or ";
+                    }
+                    else
+                    {
+                        partStr += ", ";
                     }
                 }
 
