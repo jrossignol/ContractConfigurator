@@ -97,8 +97,7 @@ namespace ContractConfigurator
                 ContractType contractType = ContractType.AllValidContractTypes.Where(ct => ct.name == ccType).FirstOrDefault();
                 if (contractType != null)
                 {
-                    // TODO - proper title
-                    contractTitle = contractType.title;
+                    contractTitle = contractType.genericTitle;
                 }
                 else
                 {

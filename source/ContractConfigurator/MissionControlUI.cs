@@ -55,8 +55,8 @@ namespace ContractConfigurator.Util
                 // Stock stuff
                 contractNames[typeof(CollectScience).Name] = "Collect Science";
                 contractNames[typeof(ExploreBody).Name] = "Exploration";
-                contractNames[typeof(GrandTour).Name] = "Grand Tour";
-                contractNames[typeof(PartTest).Name] = "Part Test";
+                contractNames[typeof(GrandTour).Name] = "Grand Tours";
+                contractNames[typeof(PartTest).Name] = "Part Testing";
                 contractNames[typeof(PlantFlag).Name] = "Flag Planting";
                 contractNames[typeof(RecoverAsset).Name] = "Rescue and Recovery";
                 contractNames[typeof(ARMContract).Name] = "Asteroid Recovery";
@@ -103,18 +103,23 @@ namespace ContractConfigurator.Util
             {
                 this.stockContractType = stockContractType;
 
-                // Find the right agent
-                if (stockContractType.Assembly.FullName.Contains("DMagic"))
+                // Determine the agent
+                if (contractNames.ContainsKey(stockContractType.Name))
                 {
-                    agent = GetAgent("DMagic");
+                    agent = GetAgent(contractNames[stockContractType.Name]);
                 }
-                else if (stockContractType == typeof(CollectScience))
+
+                // Hardcoded agents
+                if (agent == null)
                 {
-                    agent = GetAgent("Research & Development Department");
-                }
-                else if (stockContractType == typeof(WorldFirstContract))
-                {
-                    agent = GetAgent("Kerbin World-Firsts Record-Keeping Society");
+                    if (stockContractType.Assembly.FullName.Contains("DMagic"))
+                    {
+                        agent = GetAgent("DMagic");
+                    }
+                    else if (stockContractType == typeof(WorldFirstContract))
+                    {
+                        agent = GetAgent("Kerbin World-Firsts Record-Keeping Society");
+                    }
                 }
             }
 
