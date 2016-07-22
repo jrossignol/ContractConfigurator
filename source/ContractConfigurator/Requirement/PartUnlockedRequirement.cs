@@ -62,7 +62,7 @@ namespace ContractConfigurator
                 {
                     if (i == parts.Count - 1)
                     {
-                        partStr += "and ";
+                        partStr += " and ";
                     }
                     else
                     {

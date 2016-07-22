@@ -361,9 +361,12 @@ namespace ContractConfigurator
                     valid = false;
                 }
 
+                ConfigNodeUtil.SetCurrentDataNode(dataNode);
+
                 //
                 // Process the DATA_EXPAND nodes - this could cause a restart to the load process
                 //
+                Debug.Log("XXX about to process DATA_EXPAND");
                 ConfigNode dataExpandNode = configNode.GetNodes("DATA_EXPAND").FirstOrDefault();
                 if (dataExpandNode != null)
                 {
@@ -392,6 +395,10 @@ namespace ContractConfigurator
                                 // Stop at this point if we're invalid
                                 if (values == null || !valid)
                                 {
+                                    if (values == null)
+                                    {
+                                        LoggingUtil.LogWarning(this, ErrorPrefix() + ": Received an empty list of values when trying to do a DATA_EXPAND");
+                                    }
                                     valid = false;
                                     break;
                                 }
@@ -429,6 +436,7 @@ namespace ContractConfigurator
                 //
                 // Do the deferred loads
                 //
+                Debug.Log("XXX about to do deffered loads");
                 valid &= ConfigNodeUtil.ExecuteDeferredLoads();
 
                 //

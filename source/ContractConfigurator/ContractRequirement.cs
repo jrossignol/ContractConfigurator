@@ -76,18 +76,7 @@ namespace ContractConfigurator
             }
 
             // Allow reading of a custom title
-            if (needsTitle && contractType.minVersion >= ContractConfigurator.ENHANCED_UI_VERSION)
-            {
-                valid &= ConfigNodeUtil.ParseValue<string>(configNode, "title", x => title = x, this);
-            }
-            else
-            {
-                valid &= ConfigNodeUtil.ParseValue<string>(configNode, "title", x => title = x, this, (string)null);
-                if (needsTitle && !configNode.HasValue("title"))
-                {
-                    LoggingUtil.LogWarning(this, ErrorPrefix(configNode) + ": missing required attribute 'title'.");
-                }
-            }
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "title", x => title = x, this, (string)null);
 
             // Whether to hide child requirements in the mission control display
             valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "hideChildren", x => hideChildren = x, this, false);
@@ -351,6 +340,17 @@ namespace ContractConfigurator
             // Load config
             valid &= requirement.LoadFromConfig(configNode);
 
+            // Override the needsTitle if we have a parent node with hideChildren
+            ContractRequirement parentRequirement = parent as ContractRequirement;
+            if (parentRequirement != null)
+            {
+                if (parentRequirement.hideChildren)
+                {
+                    requirement.hideChildren = true;
+                    requirement.needsTitle = false;
+                }
+            }
+
             // Check for unexpected values - always do this last
             if (requirement.GetType() != typeof(InvalidContractRequirement))
             {
@@ -370,6 +370,14 @@ namespace ContractConfigurator
                         requirement.hasWarnings = true;
                     }
                 }
+            }
+
+            // Error for missing title
+            if (requirement.needsTitle && string.IsNullOrEmpty(requirement.title))
+            {
+                valid = contractType.minVersion < ContractConfigurator.ENHANCED_UI_VERSION;
+                LoggingUtil.Log(contractType.minVersion >= ContractConfigurator.ENHANCED_UI_VERSION ? LoggingUtil.LogLevel.ERROR : LoggingUtil.LogLevel.WARNING,
+                    requirement, requirement.ErrorPrefix(configNode) + ": missing required attribute 'title'.");
             }
 
             requirement.enabled = valid;

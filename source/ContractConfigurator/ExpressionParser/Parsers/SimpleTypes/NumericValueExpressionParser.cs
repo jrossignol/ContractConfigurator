@@ -170,6 +170,7 @@ namespace ContractConfigurator.ExpressionParser
             RegisterLocalFunction(new Function<T, T, T>("Round", Round));
 
             RegisterMethod(new Method<T, string>("Print", PrintNumber));
+            RegisterMethod(new Method<T, string, string>("ToString", ToString));
         }
 
         public static string PrintNumber(T tval)
@@ -197,6 +198,21 @@ namespace ContractConfigurator.ExpressionParser
                     return dval.ToString("N5");
                 }
                 return dval.ToString("N2");
+            }
+            return tval.ToString();
+        }
+
+        public static string ToString(T tval, string format)
+        {
+            if (typeof(T) == typeof(int) || typeof(T) == typeof(short))
+            {
+                int ival = (int)(object)tval;
+                return ival.ToString(format);
+            }
+            else if (typeof(T) == typeof(float) || typeof(T) == typeof(double))
+            {
+                double dval = (double)(object)tval;
+                return dval.ToString(format);
             }
             return tval.ToString();
         }
