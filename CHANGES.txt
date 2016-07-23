@@ -1,4 +1,5 @@
 Contract Configurator 1.15.4
+- Fixed issue where contract limits could be exceeded in the Available tab of Mission Control (thanks severedsolo).
 - Removed MiniAVC.
 
 Contract Configurator 1.15.3

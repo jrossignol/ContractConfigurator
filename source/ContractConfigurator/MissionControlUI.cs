@@ -419,7 +419,16 @@ namespace ContractConfigurator.Util
             // Check we're in the right mode
             if (!displayModeAll || MissionControl.Instance.displayMode != MissionControl.DisplayMode.Available)
             {
-                OnClickAvailable(true);
+                MissionControl.Instance.ClearInfoPanel();
+                MissionControl.Instance.panelView.gameObject.SetActive(false);
+                if (MissionControl.Instance.displayMode != MissionControl.DisplayMode.Available)
+                {
+                    MissionControl.Instance.RebuildContractList();
+                }
+                else
+                {
+                    OnClickAvailable(true);
+                }
                 return;
             }
 
@@ -562,10 +571,16 @@ namespace ContractConfigurator.Util
             // Check we're in the right mode
             if (!displayModeAll || MissionControl.Instance.displayMode != MissionControl.DisplayMode.Available)
             {
-                MissionControl.Instance.selectedMission = null;
-                selectedButton = null;
-                OnClickAvailable(true);
-                return;
+                MissionControl.Instance.ClearInfoPanel();
+                MissionControl.Instance.panelView.gameObject.SetActive(false);
+                if (MissionControl.Instance.displayMode != MissionControl.DisplayMode.Available)
+                {
+                    MissionControl.Instance.RebuildContractList();
+                }
+                else
+                {
+                    OnClickAvailable(true);
+                }
             }
 
             // Find the matching contract in our list
@@ -696,7 +711,16 @@ namespace ContractConfigurator.Util
                 Where(c => c.ContractState == Contract.State.Offered).
                 OrderBy(c => GroupContainer.OrderKey(c)))
             {
-                MissionControl.Instance.AddItem(contract, true, string.Empty);
+                // Setup list item and contract container
+                MCListItem mcListItem = UnityEngine.Object.Instantiate<MCListItem>(MissionControl.Instance.PrfbMissionListItem);
+                ContractContainer cc = new ContractContainer(contract);
+                mcListItem.container.Data = cc;
+                cc.mcListItem = mcListItem;
+                cc.missionSelection = new MissionControl.MissionSelection(true, cc.contract, cc.mcListItem.container);
+                mcListItem.radioButton.onFalseBtn.AddListener(new UnityAction<UIRadioButton, UIRadioButton.CallType, PointerEventData>(OnDeselectContract));
+                mcListItem.radioButton.onTrueBtn.AddListener(new UnityAction<UIRadioButton, UIRadioButton.CallType, PointerEventData>(OnSelectContract));
+                mcListItem.Setup(contract, "<color=#fefa87>" + contract.Title + "</color>");
+                MissionControl.Instance.scrollListContracts.AddItem(mcListItem.container, true);
             }
 
             displayModeAll = false;
@@ -1163,8 +1187,6 @@ namespace ContractConfigurator.Util
 
         protected void UpdateContractCounts()
         {
-            Debug.Log("MissionControl.Instance.textMCStats.text = " + MissionControl.Instance.textMCStats.text);
-
             int activeCount = ContractSystem.Instance.GetActiveContractCount();
             int trivialCount = 0;
             int significantCount = 0;
@@ -1502,7 +1524,16 @@ namespace ContractConfigurator.Util
             // Update the contract list
             if (!displayModeAll || MissionControl.Instance.displayMode != MissionControl.DisplayMode.Available)
             {
-                OnClickAvailable(true);
+                MissionControl.Instance.ClearInfoPanel();
+                MissionControl.Instance.panelView.gameObject.SetActive(false);
+                if (MissionControl.Instance.displayMode != MissionControl.DisplayMode.Available)
+                {
+                    MissionControl.Instance.RebuildContractList();
+                }
+                else
+                {
+                    OnClickAvailable(true);
+                }
             }
             else
             {
