@@ -116,6 +116,13 @@ namespace ContractConfigurator
         {
             LoggingUtil.LogVerbose(this, "OnContractFinish");
 
+            // Remove if it exists
+            ConfiguredContract cc = c as ConfiguredContract;
+            if (cc != null)
+            {
+                contracts.Remove(cc);
+            }
+
             // Reset the generation failures for all contract types
             ResetGenerationFailure();
         }
@@ -412,7 +419,7 @@ namespace ContractConfigurator
         {
             try
             {
-                foreach (ConfiguredContract contract in contracts)
+                foreach (ConfiguredContract contract in contracts.Where(c => c.ContractState == Contract.State.Offered))
                 {
                     ConfigNode child = new ConfigNode("CONTRACT");
                     node.AddNode(child);
@@ -479,7 +486,7 @@ namespace ContractConfigurator
 
         public IEnumerable<ConfiguredContract> PendingContracts()
         {
-            return contracts;
+            return contracts.Where(c => c.ContractState == Contract.State.Offered);
         }
 
         public IEnumerable<ConfiguredContract> PendingContracts(Contract.ContractPrestige? prestige = null)

@@ -663,7 +663,7 @@ namespace ContractConfigurator.Util
         public IEnumerable<GroupContainer> GetGroups()
         {
             // Grouping for CC types
-            foreach (ContractGroup group in ContractGroup.AllGroups.Where(g => g != null && g.parent == null && ContractType.AllValidContractTypes.Any(ct => g.BelongsToGroup(ct))))
+            foreach (ContractGroup group in ContractGroup.AllGroups.Where(g => g != null && g.parent == null && ContractConfiguratorSettings.IsEnabled(g) && ContractType.AllValidContractTypes.Any(ct => g.BelongsToGroup(ct))))
             {
                 yield return new GroupContainer(group);
             }

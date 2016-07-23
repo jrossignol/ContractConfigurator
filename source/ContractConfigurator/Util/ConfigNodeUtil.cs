@@ -363,6 +363,10 @@ namespace ContractConfigurator
             {
                 value = (T)(object)(ResearchAndDevelopment.Instance != null ? ResearchAndDevelopment.GetSubjectByID(stringValue) : null);
             }
+            else if (typeof(T) == typeof(ScienceExperiment))
+            {
+                value = (T)(object)(ResearchAndDevelopment.Instance != null ? ResearchAndDevelopment.GetExperiment(stringValue) : null);
+            }
             else if (typeof(T) == typeof(Color))
             {
                 if ((stringValue.Length != 7 && stringValue.Length != 9) || stringValue[0] != '#')
