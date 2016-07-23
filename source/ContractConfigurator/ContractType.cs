@@ -366,7 +366,6 @@ namespace ContractConfigurator
                 //
                 // Process the DATA_EXPAND nodes - this could cause a restart to the load process
                 //
-                Debug.Log("XXX about to process DATA_EXPAND");
                 ConfigNode dataExpandNode = configNode.GetNodes("DATA_EXPAND").FirstOrDefault();
                 if (dataExpandNode != null)
                 {
@@ -436,7 +435,6 @@ namespace ContractConfigurator
                 //
                 // Do the deferred loads
                 //
-                Debug.Log("XXX about to do deffered loads");
                 valid &= ConfigNodeUtil.ExecuteDeferredLoads();
 
                 //

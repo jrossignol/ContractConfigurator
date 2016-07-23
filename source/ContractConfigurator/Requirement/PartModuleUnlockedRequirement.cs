@@ -17,7 +17,6 @@ namespace ContractConfigurator
 
         public override bool LoadFromConfig(ConfigNode configNode)
         {
-            Debug.Log("PartModuleUnlockedRequirement.LoadFromConfig");
             // Load base class
             bool valid = base.LoadFromConfig(configNode);
 
