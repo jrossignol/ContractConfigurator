@@ -1,3 +1,6 @@
+Contract Configurator 1.15.4
+- Removed MiniAVC.
+
 Contract Configurator 1.15.3
 - New Mission Control layout. Now all contracts that are eligible are available all the time (players are no longer at the mercy of the RNG to get the contracts they want).  Also, can view the details of what contracts are *not yet* available, and what it takes to make them available.
 - New contract art (special thanks to Enceos)!
