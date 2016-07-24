@@ -319,7 +319,6 @@ namespace ContractConfigurator.Util
                 ticks = 0;
 
                 // Disable GameEvent handlers
-                GameEvents.Contract.onContractsListChanged.Remove(new EventVoid.OnEvent(OnContractsListChanged));
                 GameEvents.Contract.onOffered.Remove(new EventData<Contract>.OnEvent(OnContractOffered));
                 GameEvents.Contract.onDeclined.Remove(new EventData<Contract>.OnEvent(OnContractDeclined));
                 GameEvents.Contract.onFinished.Remove(new EventData<Contract>.OnEvent(OnContractFinished));
@@ -394,7 +393,6 @@ namespace ContractConfigurator.Util
 
                 // Very harsh way to disable the onContractsListChanged in the stock mission control
                 GameEvents.Contract.onContractsListChanged = new EventVoid("onContractsListChanged");
-                GameEvents.Contract.onContractsListChanged.Add(new EventVoid.OnEvent(OnContractsListChanged));
 
                 // Contract state change handlers
                 GameEvents.Contract.onOffered.Add(new EventData<Contract>.OnEvent(OnContractOffered));
@@ -408,13 +406,13 @@ namespace ContractConfigurator.Util
             }
         }
 
-        protected void OnContractsListChanged()
-        {
-        }
-
         protected void OnContractOffered(Contract c)
         {
             LoggingUtil.LogVerbose(this, "OnContractOffered: " + c.Title);
+            if (MissionControl.Instance == null)
+            {
+                return;
+            }
 
             // Check we're in the right mode
             if (!displayModeAll || MissionControl.Instance.displayMode != MissionControl.DisplayMode.Available)
@@ -554,11 +552,21 @@ namespace ContractConfigurator.Util
 
         protected void OnContractDeclined(Contract c)
         {
+            if (MissionControl.Instance == null)
+            {
+                return;
+            }
+
             HandleRemovedContract(c);
         }
 
         protected void OnContractFinished(Contract c)
         {
+            if (MissionControl.Instance == null)
+            {
+                return;
+            }
+
             HandleRemovedContract(c);
 
             UpdateContractCounts();
