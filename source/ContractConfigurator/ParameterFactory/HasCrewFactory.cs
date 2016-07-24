@@ -48,7 +48,7 @@ namespace ContractConfigurator
         public override ContractParameter Generate(Contract contract)
         {
             // Do this late because of potential for deferred loads
-            if (kerbal.Count > 0)
+            if (kerbal != null && kerbal.Count > 0)
             {
                 minCrew = 0;
             }

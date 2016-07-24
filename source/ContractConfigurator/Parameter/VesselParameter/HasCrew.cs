@@ -41,8 +41,8 @@ namespace ContractConfigurator.Parameters
             this.minExperience = minExperience;
             this.maxExperience = maxExperience;
             this.trait = trait;
-            this.kerbals = kerbals.ToList();
-            this.excludeKerbals = excludeKerbals.ToList();
+            this.kerbals = kerbals == null ? new List<Kerbal>() : kerbals.ToList();
+            this.excludeKerbals = excludeKerbals == null ? new List<Kerbal>() : excludeKerbals.ToList();
 
             CreateDelegates();
         }
