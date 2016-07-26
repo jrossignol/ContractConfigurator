@@ -201,11 +201,13 @@ namespace ContractConfigurator.Util
                             key = group.parent.sortKey + "." + key;
                         }
                     }
+                    key += "." + cc.contractType.sortKey;
+
                     return key;
                 }
                 else
                 {
-                    return DisplayName(c.GetType());
+                    return DisplayName(c.GetType()) + "." + c.Title;
                 }
             }
         }
@@ -589,6 +591,7 @@ namespace ContractConfigurator.Util
                 {
                     OnClickAvailable(true);
                 }
+                return;
             }
 
             // Find the matching contract in our list
