@@ -48,7 +48,21 @@ namespace ContractConfigurator
 
         protected override string RequirementText()
         {
-            string output = "Must " + (invertRequirement ? "not " : "") + "have between " + minReputation.ToString("N0") + " and " + maxReputation.ToString("N0") + " reputation";
+            string output = "Must " + (invertRequirement ? "not " : "") + "have ";
+
+            if (minReputation > -1000 && maxReputation < 1000)
+            {
+                output += "between " + minReputation.ToString("N0") + " and " + maxReputation.ToString("N0");
+            }
+            else if (minReputation > -1000)
+            {
+                output += "at least " + minReputation.ToString("N0");
+            }
+            else if (maxReputation < 1000)
+            {
+                output += "at most " + maxReputation.ToString("N0");
+            }
+            output += " reputation";
 
             return output;
         }

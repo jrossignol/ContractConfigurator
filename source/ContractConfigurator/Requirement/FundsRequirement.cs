@@ -51,7 +51,21 @@ namespace ContractConfigurator
 
         protected override string RequirementText()
         {
-            string output = "Must " + (invertRequirement ? "not " : "") + "have between " + minFunds.ToString("N0") + " and " + maxFunds.ToString("N0") + " funds";
+            string output = "Must " + (invertRequirement ? "not " : "") + "have ";
+
+            if (minFunds >= 0 && maxFunds < double.MaxValue)
+            {
+                output += "between " + minFunds.ToString("N0") + " and " + maxFunds.ToString("N0");
+            }
+            else if (minFunds >= 0)
+            {
+                output += "at least " + minFunds.ToString("N0");
+            }
+            else if (maxFunds < double.MaxValue)
+            {
+                output += "at most " + maxFunds.ToString("N0");
+            }
+            output += " funds";
 
             return output;
         }

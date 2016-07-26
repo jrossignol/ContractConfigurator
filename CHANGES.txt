@@ -1,6 +1,7 @@
 Contract Configurator 1.15.5
 - Updated agent icons from Enceos.
 - Fixed issue introduced in 1.15.x with Prestige() function that incorrectly treated all contracts as Trivial.
+- Fixed issue with text for Funds/Science/Reputation requirements.
 
 Contract Configurator 1.15.4
 - Increased base contract limits.
