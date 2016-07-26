@@ -1,4 +1,7 @@
 Contract Configurator 1.15.4
+- Increased base contract limits.
+- Increased contract limits based on building level.
+- Increased contract limits even more based on building level.
 - Fixed issue where contract limits could be exceeded in the Available tab of Mission Control (thanks severedsolo).
 - Fixed possible exception in HasCrew (thanks cpottinger).
 - Fixed issue with "ghost" contracts showing up as offered (thanks vardicd & severedsolo).

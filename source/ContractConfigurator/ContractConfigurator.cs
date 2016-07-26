@@ -478,14 +478,17 @@ namespace ContractConfigurator
 
         public static int ContractLimit(Contract.ContractPrestige prestige)
         {
+            int level = (int)Math.Round(ScenarioUpgradeableFacilities.GetFacilityLevel(SpaceCenterFacility.MissionControl) *
+                ScenarioUpgradeableFacilities.GetFacilityLevelCount(SpaceCenterFacility.MissionControl));
+            float rep = Reputation.Instance.reputation;
             switch (prestige)
             {
                 case Contract.ContractPrestige.Trivial:
-                    return Math.Max(2, (int)Math.Round(Reputation.Instance.reputation / 200 + 5));
+                    return Math.Max(2, (int)Math.Round((rep + rep * level / 3) / 200 + 6 + level));
                 case Contract.ContractPrestige.Significant:
-                    return Math.Max(1, (int)Math.Round(Reputation.Instance.reputation / 250 + 3));
+                    return Math.Max(1, (int)Math.Round((rep + rep * level / 3) / 250 + 4 + level));
                 case Contract.ContractPrestige.Exceptional:
-                    return Math.Max(0, (int)Math.Round(Reputation.Instance.reputation / (1000/3.0) + 1));
+                    return Math.Max(0, (int)Math.Round((rep + rep * level / 3) / (1000/3.0) + 2 + level));
             }
             return 0;
         }
