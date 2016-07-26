@@ -242,8 +242,29 @@ namespace ContractConfigurator
         {
             // TODO - fix up expiry date handling
 
+            // Set the desired prestige
+            int t1, t2, t3;
+            ContractSystem.GetContractCounts(Reputation.CurrentRep, 1000, out t1, out t2, out t3);
+            if (contractType.prestige.Any())
+            {
+                if (!contractType.prestige.Contains(Contract.ContractPrestige.Trivial))
+                {
+                    t1 = 0;
+                }
+                if (!contractType.prestige.Contains(Contract.ContractPrestige.Significant))
+                {
+                    t2 = 0;
+                }
+                if (!contractType.prestige.Contains(Contract.ContractPrestige.Exceptional))
+                {
+                    t3 = 0;
+                }
+            }
+            int selection = rand.Next(0, t1 + t2 + t3);
+            Contract.ContractPrestige prestige = selection < t1 ? Contract.ContractPrestige.Trivial : selection < t2 ? Contract.ContractPrestige.Significant : Contract.ContractPrestige.Exceptional;
 
-            ConfiguredContract templateContract = Contract.Generate(typeof(ConfiguredContract), Contract.ContractPrestige.Trivial, rand.Next(), Contract.State.Withdrawn) as ConfiguredContract;
+            // Generate the template
+            ConfiguredContract templateContract = Contract.Generate(typeof(ConfiguredContract), prestige, rand.Next(), Contract.State.Withdrawn) as ConfiguredContract;
 
             // First, check the basic requirements
             if (!contractType.MeetBasicRequirements(templateContract))
@@ -327,27 +348,6 @@ namespace ContractConfigurator
                     templateContract.uniqueData[key] = contractType.dataNode[key];
                 }
             }
-
-            // Set the desired prestige
-            int t1, t2, t3;
-            ContractSystem.GetContractCounts(Reputation.CurrentRep, 1000, out t1, out t2, out t3);
-            if (contractType.prestige.Any())
-            {
-                if (!contractType.prestige.Contains(Contract.ContractPrestige.Trivial))
-                {
-                    t1 = 0;
-                }
-                if (!contractType.prestige.Contains(Contract.ContractPrestige.Significant))
-                {
-                    t2 = 0;
-                }
-                if (!contractType.prestige.Contains(Contract.ContractPrestige.Exceptional))
-                {
-                    t3 = 0;
-                }
-            }
-            int selection = rand.Next(0, t1 + t2 + t3);
-            templateContract.Prestige = selection < t1 ? Contract.ContractPrestige.Trivial : selection < t2 ? Contract.ContractPrestige.Significant : Contract.ContractPrestige.Exceptional;
 
             // Check the requirements for our selection
             if (contractType.MeetExtendedRequirements(templateContract, contractType) && templateContract.Initialize(contractType))

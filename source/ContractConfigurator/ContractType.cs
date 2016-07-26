@@ -646,13 +646,6 @@ namespace ContractConfigurator
                     throw new ContractRequirementException("Expired contract.");
                 }
 
-                // Check prestige
-                // TODO - proper prestige check in extended requirements
-                //if (prestige.Count > 0 && !prestige.Contains(contract.Prestige))
-                //{
-                //    throw new ContractRequirementException("Wrong prestige level.");
-                //}
-
                 // Checks for maxSimultaneous/maxCompletions
                 if (maxSimultaneous != 0 || maxCompletions != 0)
                 {
@@ -740,6 +733,12 @@ namespace ContractConfigurator
                 if (contract.ContractState == Contract.State.Offered && contract.hash != hash)
                 {
                     throw new ContractRequirementException("Contract definition changed.");
+                }
+
+                // Check prestige
+                if (prestige.Count > 0 && !prestige.Contains(contract.Prestige))
+                {
+                    throw new ContractRequirementException("Wrong prestige level.");
                 }
 
                 // Check special values are not null
