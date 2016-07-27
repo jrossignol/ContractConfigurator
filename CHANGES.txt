@@ -1,3 +1,6 @@
+Contract Configurator 1.16.0
+- Integrated support for Kerbal Konstructs directly into Contract Configurator.
+
 Contract Configurator 1.15.5
 - Updated agent icons from Enceos.
 - Fixed issue introduced in 1.15.x with Prestige() function that incorrectly treated all contracts as Trivial.
