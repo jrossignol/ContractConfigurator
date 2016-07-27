@@ -19,7 +19,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("24e6943a-32fe-4cf5-8735-a1396a1b4865")]
+[assembly: Guid("1a7e7d93-0fe2-4099-afa7-cefa133a985b")]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -36,4 +36,4 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyInformationalVersion("1.15.5")]
 [assembly: KSPAssembly("KerKonConConExt", 1, 0)]
 [assembly: KSPAssemblyDependency("ContractConfigurator", 1, 0)]
-//[assembly: KSPAssemblyDependency("KerbalKonstructs", 1, 9)]
+[assembly: KSPAssemblyDependency("KerbalKonstructs", 0, 9)]
