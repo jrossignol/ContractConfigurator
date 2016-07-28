@@ -640,8 +640,8 @@ namespace ContractConfigurator
                 }
 
                 // Check expiry
-                if (contract.ContractState == Contract.State.Offered && Planetarium.fetch != null &&
-                    contract.DateExpire < Planetarium.fetch.time)
+                if ((contract.ContractState == Contract.State.Offered || contract.ContractState == Contract.State.Withdrawn) &&
+                    Planetarium.fetch != null && contract.DateExpire < Planetarium.fetch.time)
                 {
                     throw new ContractRequirementException("Expired contract.");
                 }
