@@ -212,6 +212,13 @@ namespace ContractConfigurator
                 LoggingUtil.LogDebug(this, "Contract attribute took too long (" + (UnityEngine.Time.realtimeSinceStartup - start) +
                     " seconds) to generate: " + lastKey);
             }
+
+            // Call update on offered contracts to check expiry, etc - do this infrequently
+            if (UnityEngine.Time.frameCount % 20 == 0 && contracts.Count > 0)
+            {
+                int index = (UnityEngine.Time.frameCount / 20) % contracts.Count;
+                contracts[index].Update();
+            }
         }
 
         private IEnumerable<ConfiguredContract> ContractEnumerator()
