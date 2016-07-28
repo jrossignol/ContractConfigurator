@@ -34,6 +34,7 @@ namespace ContractConfigurator
         private string lastKey = null;
         private double lastGenerationFailure;
         private IEnumerator<ConfiguredContract> contractEnumerator;
+        private bool contractsLoaded = false;
 
         public HashSet<Guid> unreadContracts = new HashSet<Guid>();
 
@@ -48,6 +49,7 @@ namespace ContractConfigurator
             GameEvents.Contract.onAccepted.Add(new EventData<Contract>.OnEvent(OnContractAccept));
             GameEvents.Contract.onFinished.Add(new EventData<Contract>.OnEvent(OnContractFinish));
             GameEvents.Contract.onDeclined.Add(new EventData<Contract>.OnEvent(OnContractDecline));
+            GameEvents.Contract.onContractsLoaded.Add(new EventVoid.OnEvent(OnContractsLoaded));
             GameEvents.OnProgressReached.Add(new EventData<ProgressNode>.OnEvent(OnProgressReached));
         }
 
@@ -57,6 +59,7 @@ namespace ContractConfigurator
             GameEvents.Contract.onAccepted.Remove(new EventData<Contract>.OnEvent(OnContractAccept));
             GameEvents.Contract.onFinished.Remove(new EventData<Contract>.OnEvent(OnContractFinish));
             GameEvents.Contract.onDeclined.Remove(new EventData<Contract>.OnEvent(OnContractDecline));
+            GameEvents.Contract.onContractsLoaded.Remove(new EventVoid.OnEvent(OnContractsLoaded));
             GameEvents.OnProgressReached.Remove(new EventData<ProgressNode>.OnEvent(OnProgressReached));
 
             // Unregister anything from offered contracts
@@ -112,6 +115,12 @@ namespace ContractConfigurator
             }
         }
 
+        void OnContractsLoaded()
+        {
+            LoggingUtil.LogVerbose(this, "OnContractsLoaded");
+            contractsLoaded = true;
+        }
+
         void OnContractFinish(Contract c)
         {
             LoggingUtil.LogVerbose(this, "OnContractFinish");
@@ -153,7 +162,7 @@ namespace ContractConfigurator
         void Update()
         {
             // Wait for startup of contract system
-            if (ContractSystem.Instance == null)
+            if (ContractSystem.Instance == null || !contractsLoaded)
             {
                 return;
             }
