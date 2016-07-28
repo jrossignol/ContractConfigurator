@@ -652,13 +652,6 @@ namespace ContractConfigurator
                     IEnumerable<ConfiguredContract> contractList = ConfiguredContract.CurrentContracts.
                         Where(c => c.contractType != null && c.contractType.name == name);
 
-                    // Special case for pre-loader contracts
-                    if (contract.ContractState == Contract.State.Withdrawn)
-                    {
-                        contractList = contractList.Union(ContractPreLoader.Instance.PendingContracts(this, contract.Prestige));
-                        contractList = contractList.Where(c => c != contract);
-                    }
-
                     // Get the count of active contracts - excluding ours
                     int activeContracts = contractList.Count();
                     if (contract.ContractState == Contract.State.Offered ||
@@ -696,7 +689,7 @@ namespace ContractConfigurator
             {
                 LoggingUtil.LogLevel level = contract.ContractState == Contract.State.Active ? LoggingUtil.LogLevel.INFO : contract.contractType != null ? LoggingUtil.LogLevel.DEBUG : LoggingUtil.LogLevel.VERBOSE;
                 string prefix = contract.contractType != null ? "Cancelling contract of type " + name + " (" + contract.Title + "): " :
-                    "Didn't generate contract type " + name + ": ";
+                    "Didn't generate contract of type " + name + ": ";
                 LoggingUtil.Log(level, this.GetType(), prefix + e.Message);
                 return false;
             }
@@ -827,7 +820,7 @@ namespace ContractConfigurator
             {
                 LoggingUtil.LogLevel level = contract.ContractState == Contract.State.Active ? LoggingUtil.LogLevel.INFO : contract.contractType != null ? LoggingUtil.LogLevel.DEBUG : LoggingUtil.LogLevel.VERBOSE;
                 string prefix = contract.contractType != null ? "Cancelling contract of type " + name + " (" + contract.Title + "): " :
-                    "Didn't generate contract type " + name + ": ";
+                    "Didn't generate contract of type " + name + ": ";
                 LoggingUtil.Log(level, this.GetType(), prefix + e.Message);
                 return false;
             }
@@ -865,13 +858,6 @@ namespace ContractConfigurator
 
                 IEnumerable<ConfiguredContract> contractList = ConfiguredContract.CurrentContracts.
                     Where(c => c.contractType != null);
-
-                // Special case for pre-loader contracts
-                if (contract.ContractState == Contract.State.Withdrawn)
-                {
-                    contractList = contractList.Union(ContractPreLoader.Instance.PendingContracts(contract.Prestige));
-                    contractList = contractList.Where(c => c != contract);
-                }
 
                 // Check the group active limit
                 int activeContracts = contractList.Count(c => c.contractType != null && group.BelongsToGroup(c.contractType));

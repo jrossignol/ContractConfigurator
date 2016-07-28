@@ -119,7 +119,7 @@ namespace ContractConfigurator
                 {
                     return Enumerable.Empty<ConfiguredContract>();
                 }
-                return ContractSystem.Instance.Contracts.OfType<ConfiguredContract>().Union(ContractPreLoader.Instance.PendingContracts());
+                return ActiveContracts.Union(ContractPreLoader.Instance.PendingContracts());
             }
         }
         public static IEnumerable<ConfiguredContract> CompletedContracts

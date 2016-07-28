@@ -488,20 +488,5 @@ namespace ContractConfigurator
         {
             return contracts.Where(c => c.ContractState == Contract.State.Offered);
         }
-
-        public IEnumerable<ConfiguredContract> PendingContracts(Contract.ContractPrestige? prestige = null)
-        {
-            return contracts.Where(c => prestige == c.Prestige);
-        }
-
-        public IEnumerable<ConfiguredContract> PendingContracts(ContractType type, Contract.ContractPrestige? prestige = null)
-        {
-            if (type == null)
-            {
-                return Enumerable.Empty<ConfiguredContract>();
-            }
-
-            return contracts.Where(c => c.contractType == type && (prestige == null || prestige == c.Prestige));
-        }
     }
 }
