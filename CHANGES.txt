@@ -1,3 +1,6 @@
+Contract Configurator 1.16.0
+- Support for ResearchBodies - contracts won't be offered until the appropriate body has been researched (thanks JPLRepo).
+
 Contract Configurator 1.15.6
 - Properly factor in autoAccept contracts when deciding whether to enable the accept button in Mission Control (thanks ETM, Nightside & Aelfhe1m).
 - Possible fix to already accepted contracts being withdrawn unexpectedly.

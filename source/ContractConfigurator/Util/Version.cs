@@ -14,8 +14,11 @@ namespace ContractConfigurator.Util
     /// </summary>
     public static class Version
     {
+        public static bool RemoteTechCheckDone = false;
+        public static bool ResearchBodiesCheckDone = false;
         public static Assembly RemoteTechAssembly;
         public static Assembly CC_RemoteTechAssembly;
+        public static Assembly ResearchBodiesAssembly;
 
         /// <summary>
         /// Verify the loaded assembly meets a minimum version number.
@@ -88,12 +91,44 @@ namespace ContractConfigurator.Util
         public static bool VerifyRemoteTechVersion()
         {
             string minVersion = "1.6.4";
-            if (RemoteTechAssembly == null)
+            if (RemoteTechAssembly == null || !RemoteTechCheckDone)
             {
                 RemoteTechAssembly = Version.VerifyAssemblyVersion("RemoteTech", minVersion);
                 CC_RemoteTechAssembly = AssemblyLoader.loadedAssemblies.SingleOrDefault(a => a.assembly.GetName().Name == "CC_RemoteTech").assembly;
+                RemoteTechCheckDone = true;
             }
             return RemoteTechAssembly != null;
+        }
+
+        /// <summary>
+        /// Verifies that the ReesearchBodies version the player has is compatible.
+        /// </summary>
+        /// <returns>Whether the check passed.</returns>
+        public static bool VerifyResearchBodiesVersion()
+        {
+            string minVersion = "1.8";
+            if (ResearchBodiesAssembly == null || !ResearchBodiesCheckDone)
+            {
+                ResearchBodiesAssembly = Version.VerifyAssemblyVersion("ResearchBodies", minVersion, false);
+                ResearchBodiesCheckDone = true;
+            }
+
+            // Check the wrapper is initalized, while we're here
+            if (ResearchBodiesAssembly != null && !RBWrapper.APIRBReady)
+            {
+                // Initialize the Research Bodies wrapper
+                bool rbInit = RBWrapper.InitRBWrapper();
+                if (rbInit)
+                {
+                    LoggingUtil.LogInfo(typeof(ContractConfigurator), "Successfully initialized Research Bodies wrapper.");
+                }
+                else
+                {
+                    LoggingUtil.LogDebug(typeof(ContractConfigurator), "Couldn't initialize Research Bodies wrapper.");
+                }
+            }
+
+            return ResearchBodiesAssembly != null;
         }
     }
 }
