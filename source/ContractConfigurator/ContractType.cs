@@ -650,20 +650,13 @@ namespace ContractConfigurator
                 if (maxSimultaneous != 0 || maxCompletions != 0)
                 {
                     IEnumerable<ConfiguredContract> contractList = ConfiguredContract.CurrentContracts.
-                        Where(c => c.contractType != null && c.contractType.name == name);
-
-                    // Get the count of active contracts - excluding ours
-                    int activeContracts = contractList.Count();
-                    if (contract.ContractState == Contract.State.Offered ||
-                        contract.ContractState == Contract.State.Active ||
-                        contractList.Contains(contract))
-                    {
-                        activeContracts--;
-                    }
+                        Where(c => c.contractType != null && c.contractType.name == name && c != contract);
 
                     // Check if we're breaching the active limit
+                    int activeContracts = contractList.Count();
                     if (maxSimultaneous != 0 && activeContracts >= maxSimultaneous)
                     {
+                        Debug.Log("active contract count = " + activeContracts);
                         throw new ContractRequirementException("Too many active contracts.");
                     }
 
@@ -857,15 +850,10 @@ namespace ContractConfigurator
                 }
 
                 IEnumerable<ConfiguredContract> contractList = ConfiguredContract.CurrentContracts.
-                    Where(c => c.contractType != null);
+                    Where(c => c.contractType != null && c != contract);
 
                 // Check the group active limit
                 int activeContracts = contractList.Count(c => c.contractType != null && group.BelongsToGroup(c.contractType));
-                if (contract.ContractState == Contract.State.Offered || contract.ContractState == Contract.State.Active)
-                {
-                    activeContracts--;
-                }
-
                 if (group.maxSimultaneous != 0 && activeContracts >= group.maxSimultaneous)
                 {
                     throw new ContractRequirementException("Too many active contracts in group (" + group.name + ").");
