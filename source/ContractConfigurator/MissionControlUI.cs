@@ -45,35 +45,40 @@ namespace ContractConfigurator.Util
             public bool unread = false;
 
             static Dictionary<string, string> contractNames = new Dictionary<string, string>();
+            static Dictionary<string, Agent> contractAgents = new Dictionary<string, Agent>();
 
-            static GroupContainer()
+            public static void LoadConfig()
             {
-                //
-                // Set up the mapping of known contract type names
-                //
+                // Clear out the existing mappings
+                contractNames.Clear();
+                contractAgents.Clear();
 
-                // Stock stuff
-                contractNames[typeof(CollectScience).Name] = "Collect Science";
-                contractNames[typeof(ExploreBody).Name] = "Exploration";
-                contractNames[typeof(GrandTour).Name] = "Grand Tours";
-                contractNames[typeof(PartTest).Name] = "Part Testing";
-                contractNames[typeof(PlantFlag).Name] = "Flag Planting";
-                contractNames[typeof(RecoverAsset).Name] = "Rescue and Recovery";
-                contractNames[typeof(ARMContract).Name] = "Asteroid Recovery";
-                contractNames[typeof(BaseContract).Name] = "Base Construction";
-                contractNames[typeof(ISRUContract).Name] = "ISRU";
-                contractNames[typeof(SatelliteContract).Name] = "Satellites";
-                contractNames[typeof(StationContract).Name] = "Stations";
-                contractNames[typeof(SurveyContract).Name] = "Surveys";
-                contractNames[typeof(TourismContract).Name] = "Tourism";
-                contractNames[typeof(WorldFirstContract).Name] = "World-Firsts Achievements";
+                // Load contract definitions
+                ConfigNode[] contractConfigs = GameDatabase.Instance.GetConfigNodes("CONTRACT_DEFINITION");
+                foreach (ConfigNode contractConfig in contractConfigs)
+                {
+                    // Get name
+                    if (!contractConfig.HasValue("name"))
+                    {
+                        LoggingUtil.LogError(typeof(ContractConfigurator), "Error loading 'CONTRACT_DEFINITION' node- no 'name' attribute specified");
+                        continue;
+                    }
+                    string name = contractConfig.GetValue("name");
 
-                // DMagic Orbital Science (by name instead of type)
-                contractNames["DMAnomalyContract"] = "Anomalies";
-                contractNames["DMAsteroidSurveyContract"] = "Asteroid Survey";
-                contractNames["DMMagneticSurveyContract"] = "Magnetic Survey";
-                contractNames["DMReconContract"] = "Reconnaisance Survey";
-                contractNames["DMSurveyContract "] = "Orbital Survey";
+                    // Load everything else
+                    try
+                    {
+                        string displayName = contractConfig.GetValue("displayName");
+                        string agentName = contractConfig.GetValue("agent");
+                        contractNames[name] = displayName;
+                        contractAgents[name] = GetAgent(agentName);
+                    }
+                    catch (Exception e)
+                    {
+                        LoggingUtil.LogError(typeof(ContractConfigurator), "Error loading 'CONTRACT_DEFINITION' node with name '" + name + "':");
+                        LoggingUtil.LogException(e);
+                    }
+                }
             }
 
             public GroupContainer(ContractGroup group)
@@ -104,26 +109,13 @@ namespace ContractConfigurator.Util
                 this.stockContractType = stockContractType;
 
                 // Determine the agent
-                if (contractNames.ContainsKey(stockContractType.Name))
+                if (contractAgents.ContainsKey(stockContractType.Name))
                 {
-                    agent = GetAgent(contractNames[stockContractType.Name]);
-                }
-
-                // Hardcoded agents
-                if (agent == null)
-                {
-                    if (stockContractType.Assembly.FullName.Contains("DMagic"))
-                    {
-                        agent = GetAgent("DMagic");
-                    }
-                    else if (stockContractType == typeof(WorldFirstContract))
-                    {
-                        agent = GetAgent("Kerbin World-Firsts Record-Keeping Society");
-                    }
+                    agent = contractAgents[stockContractType.Name];
                 }
             }
 
-            private Agent GetAgent(string name)
+            private static Agent GetAgent(string name)
             {
                 foreach (Agent agent in AgentList.Instance.Agencies)
                 {

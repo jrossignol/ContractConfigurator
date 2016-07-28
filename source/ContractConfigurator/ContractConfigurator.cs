@@ -424,6 +424,9 @@ namespace ContractConfigurator
                 group.CheckEmpty();
             }
 
+            // Load other things
+            MissionControlUI.GroupContainer.LoadConfig();
+
             if (!reloading && LoggingUtil.logLevel == LoggingUtil.LogLevel.DEBUG || LoggingUtil.logLevel == LoggingUtil.LogLevel.VERBOSE)
             {
                 ScreenMessages.PostScreenMessage("Contract Configurator: Loaded " + successContracts + " out of " + totalContracts
