@@ -1,5 +1,6 @@
 Contract Configurator 1.16.0
 - Support for ResearchBodies - contracts won't be offered until the appropriate body has been researched (thanks JPLRepo).
+- Integrated support for Kerbal Konstructs directly into Contract Configurator.
 - New NoStaging parameter.
 - Agent data for stock contracts is now defined in a cfg file, instead of hardcoded (see CONTRACT_DEFINITION in documentation).
 - Properly factor in autoAccept contracts when deciding whether to enable the accept button in Mission Control (thanks ETM, Nightside & Aelfhe1m).
