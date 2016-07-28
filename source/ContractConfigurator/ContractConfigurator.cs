@@ -84,7 +84,7 @@ namespace ContractConfigurator
                 LoggingUtil.LogInfo(this, "Contract Configurator " + ainfoV.InformationalVersion + " finished loading.");
             }
 
-            // Alt-F9 shows the contract configurator window
+            // Alt-F10 shows the contract configurator window
             if (GameSettings.MODIFIER_KEY.GetKey() && Input.GetKeyDown(KeyCode.F10))
             {
                 DebugWindow.showGUI = !DebugWindow.showGUI;

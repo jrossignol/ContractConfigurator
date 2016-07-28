@@ -157,7 +157,6 @@ namespace ContractConfigurator
         public bool autoAccept;
         public List<Contract.ContractPrestige> prestige;
         public CelestialBody targetBody;
-        protected List<CelestialBody> targetBodies;
         protected Vessel targetVessel;
         protected List<Vessel> targetVessels;
         protected Kerbal targetKerbal;
@@ -656,7 +655,6 @@ namespace ContractConfigurator
                     int activeContracts = contractList.Count();
                     if (maxSimultaneous != 0 && activeContracts >= maxSimultaneous)
                     {
-                        Debug.Log("active contract count = " + activeContracts);
                         throw new ContractRequirementException("Too many active contracts.");
                     }
 
@@ -725,6 +723,20 @@ namespace ContractConfigurator
                 if (prestige.Count > 0 && !prestige.Contains(contract.Prestige))
                 {
                     throw new ContractRequirementException("Wrong prestige level.");
+                }
+
+                // Do a Research Bodies check, if applicable
+                if (Util.Version.VerifyResearchBodiesVersion() && targetBody != null)
+                {
+                    Dictionary<CelestialBody, RBWrapper.CelestialBodyInfo> bodyInfoDict = RBWrapper.RBactualAPI.CelestialBodies;
+                    if (bodyInfoDict.ContainsKey(targetBody))
+                    {
+                        RBWrapper.CelestialBodyInfo bodyInfo = bodyInfoDict[targetBody];
+                        if (!bodyInfo.isResearched)
+                        {
+                            throw new ContractRequirementException("Research Bodies: " + targetBody.name + " has not yet been researched.");
+                        }
+                    }
                 }
 
                 // Check special values are not null

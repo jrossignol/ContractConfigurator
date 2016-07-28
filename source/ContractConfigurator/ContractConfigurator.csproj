@@ -215,6 +215,7 @@
     <Compile Include="ParameterFactory\PerformOrbitalSurveyFactory.cs" />
     <Compile Include="ParameterFactory\VesselDestroyedFactory.cs" />
     <Compile Include="ScenarioModules\BiomeTracker.cs" />
+    <Compile Include="Util\ResearchBodiesWrapper.cs" />
     <Compile Include="Util\DebugWindow.cs" />
     <Compile Include="Util\DraftTwitchViewers.cs" />
     <Compile Include="Util\ExceptionLogWindow.cs" />
