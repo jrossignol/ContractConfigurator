@@ -495,7 +495,7 @@ namespace ContractConfigurator
 
         public static bool CanAccept(Contract contract)
         {
-            int activeCount = ContractSystem.Instance.Contracts.Count(c => c != null && c.Prestige == contract.Prestige && c.ContractState == Contract.State.Active);
+            int activeCount = ContractSystem.Instance.Contracts.Count(c => c != null && c.Prestige == contract.Prestige && c.ContractState == Contract.State.Active && !c.AutoAccept);
             return (activeCount < ContractConfigurator.ContractLimit(contract.Prestige));
         }
     }
