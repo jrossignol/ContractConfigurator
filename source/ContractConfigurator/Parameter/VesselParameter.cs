@@ -189,7 +189,7 @@ namespace ContractConfigurator.Parameters
             // Force to failure if failWhenUnmet is set
             if (failWhenUnmet && state == ParameterState.Incomplete)
             {
-                state = ParameterState.Failed;
+                SetState(ParameterState.Failed);
             }
 
             // Set the state

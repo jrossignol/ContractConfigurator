@@ -95,6 +95,7 @@
     <Compile Include="Behaviour\UnlockTech.cs" />
     <Compile Include="ExpressionParser\Parsers\Classes\PQSCityParser.cs" />
     <Compile Include="IKerbalNameStorage.cs" />
+    <Compile Include="ParameterFactory\NoStagingFactory.cs" />
     <Compile Include="ParameterFactory\ResourceConsumptionFactory.cs" />
     <Compile Include="Parameter\Duration2.cs" />
     <Compile Include="Parameter\Duration.cs" />
@@ -114,6 +115,7 @@
     <Compile Include="Parameter\MissionTimer.cs" />
     <Compile Include="Parameter\VesselParameter\HasCrewCapacity.cs" />
     <Compile Include="Parameter\VesselParameter\CollectScienceCustom.cs" />
+    <Compile Include="Parameter\VesselParameter\NoStaging.cs" />
     <Compile Include="Parameter\VesselParameter\ResourceConsuption.cs" />
     <Compile Include="Parameter\VesselParameter\Rendezvous.cs" />
     <Compile Include="Parameter\VesselParameter\PlantFlagCustom.cs" />
