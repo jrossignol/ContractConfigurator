@@ -1,3 +1,6 @@
+Contract Configurator 1.16.1
+- Silence Research Bodies error (thanks Liondrome).
+
 Contract Configurator 1.16.0
 - Support for ResearchBodies - contracts won't be offered until the appropriate body has been researched (thanks JPLRepo).
 - Integrated support for Kerbal Konstructs directly into Contract Configurator.

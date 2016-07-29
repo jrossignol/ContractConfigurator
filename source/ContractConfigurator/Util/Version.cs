@@ -109,7 +109,7 @@ namespace ContractConfigurator.Util
             string minVersion = "1.8";
             if (ResearchBodiesAssembly == null || !ResearchBodiesCheckDone)
             {
-                ResearchBodiesAssembly = Version.VerifyAssemblyVersion("ResearchBodies", minVersion, false);
+                ResearchBodiesAssembly = Version.VerifyAssemblyVersion("ResearchBodies", minVersion, true);
                 ResearchBodiesCheckDone = true;
             }
 
