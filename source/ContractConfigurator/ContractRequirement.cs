@@ -235,14 +235,14 @@ namespace ContractConfigurator
                 {
                     if (requirement.enabled)
                     {
-                        if (requirement.checkOnActiveContract || contract.ContractState != Contract.State.Active)
+                        if (requirement.checkOnActiveContract || contract == null  || contract.ContractState != Contract.State.Active)
                         {
                             allReqMet = allReqMet && requirement.CheckRequirement(contract);
 
                             if (!allReqMet)
                             {
-                                LoggingUtil.Log(contract.ContractState == Contract.State.Active ? LoggingUtil.LogLevel.INFO :
-                                    contract.ContractState == Contract.State.Offered ? LoggingUtil.LogLevel.DEBUG : LoggingUtil.LogLevel.VERBOSE,
+                                LoggingUtil.Log(contract != null && contract.ContractState == Contract.State.Active ? LoggingUtil.LogLevel.INFO :
+                                    contract != null && contract.ContractState == Contract.State.Offered ? LoggingUtil.LogLevel.DEBUG : LoggingUtil.LogLevel.VERBOSE,
                                     requirement.GetType(), "Contract " + contractType.name + ": requirement " + requirement.name + " was not met.");
                                 break;
                             }
@@ -251,7 +251,7 @@ namespace ContractConfigurator
                 }
 
                 // Force fail the contract if a requirement becomes unmet
-                if (contract.ContractState == Contract.State.Active && !allReqMet)
+                if (contract != null && contract.ContractState == Contract.State.Active && !allReqMet)
                 {
                     // Fail the contract - unfortunately, the player won't know why. :(
                     contract.Fail();

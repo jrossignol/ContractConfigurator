@@ -1,5 +1,6 @@
 Contract Configurator 1.16.1
 - Silence Research Bodies error (thanks Liondrome).
+- Fixed problems with ResearchBodies support (it was offering some contracts that it shouldn't have).
 
 Contract Configurator 1.16.0
 - Support for ResearchBodies - contracts won't be offered until the appropriate body has been researched (thanks JPLRepo).

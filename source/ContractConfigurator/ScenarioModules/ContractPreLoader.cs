@@ -364,6 +364,7 @@ namespace ContractConfigurator
                     templateContract.uniqueData[key] = contractType.dataNode[key];
                 }
             }
+            templateContract.targetBody = contractType.targetBody;
 
             // Check the requirements for our selection
             if (contractType.MeetExtendedRequirements(templateContract, contractType) && templateContract.Initialize(contractType))
@@ -415,20 +416,6 @@ namespace ContractConfigurator
 
             // No contracts
             return null;
-        }
-
-        public bool GenerateContract(ConfiguredContract contract)
-        {
-            ConfiguredContract templateContract = GetNextContract(contract.Prestige, HighLogic.LoadedScene == GameScenes.FLIGHT);
-
-            if (templateContract == null)
-            {
-                return false;
-            }
-
-            // Copy the contract details
-            contract.CopyFrom(templateContract);
-            return true;
         }
 
         public override void OnSave(ConfigNode node)

@@ -179,6 +179,8 @@ namespace ContractConfigurator
         public Dictionary<string, DataValueInfo> dataValues = new Dictionary<string, DataValueInfo>();
         public Dictionary<string, DataNode.UniquenessCheck> uniquenessChecks = new Dictionary<string, DataNode.UniquenessCheck>();
 
+        public HashSet<CelestialBody> contractBodies = new HashSet<CelestialBody>();
+
         public ContractType(string name)
         {
             this.name = name;
@@ -726,18 +728,7 @@ namespace ContractConfigurator
                 }
 
                 // Do a Research Bodies check, if applicable
-                if (Util.Version.VerifyResearchBodiesVersion() && targetBody != null)
-                {
-                    Dictionary<CelestialBody, RBWrapper.CelestialBodyInfo> bodyInfoDict = RBWrapper.RBactualAPI.CelestialBodies;
-                    if (bodyInfoDict.ContainsKey(targetBody))
-                    {
-                        RBWrapper.CelestialBodyInfo bodyInfo = bodyInfoDict[targetBody];
-                        if (!bodyInfo.isResearched)
-                        {
-                            throw new ContractRequirementException("Research Bodies: " + targetBody.name + " has not yet been researched.");
-                        }
-                    }
-                }
+                ResearchBodiesCheck(contract);
 
                 // Check special values are not null
                 if (contract.contractType == null)
@@ -838,6 +829,28 @@ namespace ContractConfigurator
             {
                 LoggingUtil.logLevel = origLogLevel;
                 loaded = true;
+            }
+        }
+
+        public void ResearchBodiesCheck(ConfiguredContract contract)
+        {
+            if (Util.Version.VerifyResearchBodiesVersion())
+            {
+                LoggingUtil.LogVerbose(this, "ResearchBodies check for contract type " + name);
+
+                // Check each body that the contract references
+                Dictionary<CelestialBody, RBWrapper.CelestialBodyInfo> bodyInfoDict = RBWrapper.RBactualAPI.CelestialBodies;
+                foreach (CelestialBody body in contract.ContractBodies)
+                {
+                    if (bodyInfoDict.ContainsKey(body) && !body.isHomeWorld)
+                    {
+                        RBWrapper.CelestialBodyInfo bodyInfo = bodyInfoDict[body];
+                        if (!bodyInfo.isResearched)
+                        {
+                            throw new ContractRequirementException("Research Bodies: " + body.name + " has not yet been researched.");
+                        }
+                    }
+                }
             }
         }
 

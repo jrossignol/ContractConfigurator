@@ -16,7 +16,6 @@ namespace ContractConfigurator.RemoteTech
     public class CelestialBodyCoverageParameter : ContractConfiguratorParameter
     {
         protected double coverage { get; set; }
-        protected CelestialBody targetBody { get; set; }
         private double currentCoverage = -1.0;
 
         public CelestialBodyCoverageParameter()

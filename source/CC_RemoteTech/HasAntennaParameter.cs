@@ -25,7 +25,6 @@ namespace ContractConfigurator.RemoteTech
 
         protected int minCount { get; set; }
         protected int maxCount { get; set; }
-        protected CelestialBody targetBody { get; set; }
         protected bool activeVessel { get; set; }
         protected AntennaType? antennaType { get; set; }
         protected double minRange { get; set; }

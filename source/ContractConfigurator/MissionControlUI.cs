@@ -1462,18 +1462,28 @@ namespace ContractConfigurator.Util
             // Do a Research Bodies check, if applicable
             if (Util.Version.VerifyResearchBodiesVersion() && contractType.targetBody != null)
             {
-                Dictionary<CelestialBody, RBWrapper.CelestialBodyInfo> bodyInfoDict = RBWrapper.RBactualAPI.CelestialBodies;
-                if (bodyInfoDict.ContainsKey(contractType.targetBody))
-                {
-                    RBWrapper.CelestialBodyInfo bodyInfo = bodyInfoDict[contractType.targetBody];
-                    text += RequirementLine("Must have researched " + contractType.targetBody.theName + " (Research Bodies)", bodyInfo.isResearched);
-                }
+                text += ResearchBodyText(contractType);
             }
-
 
             text += ContractRequirementText(contractType.Requirements);
 
             MissionControl.Instance.contractText.text = text;
+        }
+
+        protected string ResearchBodyText(ContractType contractType)
+        {
+            string output = "";
+            Dictionary<CelestialBody, RBWrapper.CelestialBodyInfo> bodyInfoDict = RBWrapper.RBactualAPI.CelestialBodies;
+            foreach (CelestialBody body in contractType.contractBodies)
+            {
+                if (bodyInfoDict.ContainsKey(body) && !body.isHomeWorld)
+                {
+                    RBWrapper.CelestialBodyInfo bodyInfo = bodyInfoDict[body];
+                    output += RequirementLine("Must have researched " + body.theName, bodyInfo.isResearched);
+                }
+            }
+
+            return output;
         }
 
         protected string ContractRequirementText(IEnumerable<ContractRequirement> requirements, string indent = "")

@@ -29,7 +29,6 @@ namespace ContractConfigurator.Parameters
         protected double maxInclination { get; set; }
         protected double minPeriod { get; set; }
         protected double maxPeriod { get; set; }
-        protected CelestialBody targetBody { get; set; }
         protected Orbit orbit;
         protected double deviationWindow;
         protected bool displayNotes;

@@ -35,6 +35,51 @@ namespace ContractConfigurator
 
         public bool preLoaded = false;
 
+        public CelestialBody targetBody;
+        private HashSet<CelestialBody> contractBodies = new HashSet<CelestialBody>();
+        private bool bodiesLoaded = false;
+        public HashSet<CelestialBody> ContractBodies
+        {
+            get
+            {
+                if (!bodiesLoaded)
+                {
+                    bodiesLoaded = true;
+                    if (targetBody != null)
+                    {
+                        contractBodies.Add(targetBody);
+                    }
+                    foreach (ContractParameter param in this.GetAllDescendents())
+                    {
+                        ContractConfiguratorParameter ccParam = param as ContractConfiguratorParameter;
+                        if (ccParam == null)
+                        {
+                            continue;
+                        }
+
+                        if (ccParam.targetBody != null)
+                        {
+                            contractBodies.Add(ccParam.targetBody);
+                        }
+
+                        // Special case for ReachState - yuck!
+                        ReachState reachState = param as ReachState;
+                        if (reachState != null)
+                        {
+                            foreach (CelestialBody body in reachState.targetBodies)
+                            {
+                                if (body != null)
+                                {
+                                    contractBodies.Add(body);
+                                }
+                            }
+                        }
+                    }
+                }
+                return contractBodies;
+            }
+        }
+
         public new ContractPrestige Prestige
         {
             get
@@ -230,12 +275,25 @@ namespace ContractConfigurator
                 }
 
                 // Generate parameters
-                if (!contractType.GenerateParameters(this))
+                bool paramsGenerated = contractType.GenerateParameters(this);
+                bodiesLoaded = false;
+                contractType.contractBodies = ContractBodies;
+                if (!paramsGenerated)
                 {
                     return false;
                 }
 
-                LoggingUtil.LogVerbose(this, "Initialized contract: " + contractType);
+                // Do a very late research bodies check
+                try
+                {
+                    contractType.ResearchBodiesCheck(this);
+                }
+                catch (ContractRequirementException)
+                {
+                    return false;
+                }
+
+                LoggingUtil.LogDebug(this, "Initialized contract: " + contractType);
                 return true;
             }
             catch (Exception e)
@@ -287,78 +345,6 @@ namespace ContractConfigurator
 
                 return false;
             }
-        }
-
-        /// <summary>
-        /// Performs a shallow copy of the contract details from the given contract
-        /// </summary>
-        /// <param name="contract">The contract to copy from.</param>
-        public void CopyFrom(ConfiguredContract contract)
-        {
-            // Copy details from the original
-            contractType = contract.contractType;
-            subType = contract.subType;
-            hash = contract.hash;
-            AutoAccept = contract.AutoAccept;
-            dateExpire = contract.dateExpire;
-            TimeExpiry = contract.TimeExpiry;
-            expiryType = contract.expiryType;
-            dateDeadline = contract.dateDeadline;
-            TimeDeadline = contract.TimeDeadline;
-            deadlineType = contract.deadlineType;
-            FundsAdvance = contract.FundsAdvance;
-            FundsCompletion = contract.FundsCompletion;
-            FundsFailure = contract.FundsFailure;
-            ReputationCompletion = contract.ReputationCompletion;
-            ReputationFailure = contract.ReputationFailure;
-            ScienceCompletion = contract.ScienceCompletion;
-            title = contract.title;
-            synopsis = contract.synopsis;
-            completedMessage = contract.completedMessage;
-            notes = contract.notes;
-            agent = contract.agent;
-            description = contract.description;
-            prestige = contract.prestige;
-            uniqueData = new Dictionary<string, object>(contract.uniqueData);
-
-            // Copy behaviours
-            behaviours = contract.behaviours;
-            contract.behaviours = new List<ContractBehaviour>();
-
-            // Copy parameters
-            for (int i = 0; i < contract.ParameterCount; i++)
-            {
-                // Save the old parameter
-                ConfigNode node = new ConfigNode("PARAMETER");
-                ContractParameter origParameter = contract.GetParameter(i);
-                origParameter.Save(node);
-
-                // Load into a new copy
-                ContractParameter parameter = (ContractParameter)Activator.CreateInstance(origParameter.GetType());
-                AddParameter(parameter, null);
-                parameter.Load(node);
-            }
-
-            // Copy requirements
-            requirements = new List<ContractRequirement>();
-            foreach (ContractRequirement requirement in contract.contractType.Requirements)
-            {
-                // Save the old requirement
-                ConfigNode node = new ConfigNode("REQUIREMENT");
-                requirement.Save(node);
-
-                // Load into a new copy
-                ContractRequirement childRequirement = ContractRequirement.LoadRequirement(node);
-                if (childRequirement != null)
-                {
-                    requirements.Add(childRequirement);
-                }
-            }
-
-            // Run the OnOffered for behaviours
-            OnOffered();
-
-            LoggingUtil.LogInfo(this, "Generated contract: " + contractType);
         }
 
         /// <summary>
@@ -423,6 +409,7 @@ namespace ContractConfigurator
                 completedMessage = ConfigNodeUtil.ParseValue<string>(node, "completedMessage", contractType != null ? contractType.completedMessage : "");
                 notes = ConfigNodeUtil.ParseValue<string>(node, "notes", contractType != null ? contractType.notes : "");
                 hash = ConfigNodeUtil.ParseValue<int>(node, "hash", contractType != null ? contractType.hash : 0);
+                targetBody = ConfigNodeUtil.ParseValue<CelestialBody>(node, "targetBody", null);
 
                 // Load the unique data
                 ConfigNode dataNode = node.GetNode("UNIQUE_DATA");
@@ -530,6 +517,11 @@ namespace ContractConfigurator
                     node.AddValue("notes", notes.Replace("\n", "\\n"));
                 }
                 node.AddValue("hash", hash);
+
+                if (targetBody != null)
+                {
+                    node.AddValue("targetBody", targetBody.name);
+                }
 
                 // Store the unique data
                 if (uniqueData.Any())

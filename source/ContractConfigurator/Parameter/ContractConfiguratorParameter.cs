@@ -23,6 +23,7 @@ namespace ContractConfigurator.Parameters
         public bool fakeOptional = false;
         private TitleTracker titleTracker;
         protected string lastTitle = null;
+        public CelestialBody targetBody;
 
         public ContractConfiguratorParameter()
             : this(null)

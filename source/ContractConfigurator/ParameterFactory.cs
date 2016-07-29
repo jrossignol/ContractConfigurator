@@ -19,11 +19,11 @@ namespace ContractConfigurator
     {
         private static Dictionary<string, Type> factories = new Dictionary<string, Type>();
 
-        protected string name;
+        public string name;
         protected string type;
         protected virtual ContractType contractType { get; set; }
         protected CelestialBody _targetBody = null;
-        protected CelestialBody targetBody
+        public CelestialBody targetBody
         {
             get { return _targetBody ?? contractType.targetBody; }
         }
