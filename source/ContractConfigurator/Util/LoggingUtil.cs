@@ -212,7 +212,7 @@ namespace ContractConfigurator
                 CaptureException(e.InnerException);
                 capturedLog += "Rethrow as ";
             }
-            capturedLog += e.GetType() + ": " + e.Message + "\n" + e.StackTrace + "\n";
+            capturedLog += string.Format("{0}: {1}\n{2}\n", e.GetType() + e.Message, e.StackTrace);
         }
 
         public static void Log(LogLevel logLevel, System.Object obj, string message)
@@ -239,20 +239,22 @@ namespace ContractConfigurator
 
             if (logLevel >= logLevelCheckAgainst)
             {
-                message = type + ": " + message;
-
                 if (captureLog)
                 {
-                    capturedLog += "[" + logLevel + "] " + message + "\n";
+                    capturedLog += string.Format("[{0}] {1}: {2}\n", logLevel, type, message);
                 }
+                message = string.Format(logLevel <= LogLevel.INFO ? "[{0}] {1}: {2}" : "{1}: {2}", logLevel, type, message);
 
-                if (logLevel <= LogLevel.INFO) {
-                    UnityEngine.Debug.Log("[" + logLevel + "] " + message);
+                if (logLevel <= LogLevel.INFO)
+                {
+                    UnityEngine.Debug.Log(message);
                 }
-                else if (logLevel == LogLevel.WARNING) {
+                else if (logLevel == LogLevel.WARNING)
+                {
                     UnityEngine.Debug.LogWarning(message);
                 }
-                else if (logLevel == LogLevel.ERROR) {
+                else if (logLevel == LogLevel.ERROR)
+                {
                     UnityEngine.Debug.LogError(message);
                 }
             }
