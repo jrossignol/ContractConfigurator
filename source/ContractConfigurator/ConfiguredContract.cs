@@ -64,7 +64,7 @@ namespace ContractConfigurator
 
                         // Special case for ReachState - yuck!
                         ReachState reachState = param as ReachState;
-                        if (reachState != null)
+                        if (reachState != null && reachState.targetBodies != null)
                         {
                             foreach (CelestialBody body in reachState.targetBodies)
                             {
