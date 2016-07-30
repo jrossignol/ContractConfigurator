@@ -213,7 +213,7 @@ namespace ContractConfigurator
                 CaptureException(e.InnerException);
                 capturedLog += "Rethrow as ";
             }
-            capturedLog += string.Format("{0}: {1}\n{2}\n", e.GetType() + e.Message, e.StackTrace);
+            capturedLog += string.Format("{0}: {1}\n{2}\n", e.GetType(), e.Message, e.StackTrace);
         }
 
         public static void Log(LogLevel logLevel, System.Object obj, string message)

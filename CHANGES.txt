@@ -1,3 +1,6 @@
+Contract Configurator 1.16.2
+- Fix exception error messaging.
+
 Contract Configurator 1.16.1
 - Silence Research Bodies error (thanks Liondrome).
 - Fixed problems with ResearchBodies support (it was offering some contracts that it shouldn't have).
