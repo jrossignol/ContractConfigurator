@@ -151,7 +151,8 @@ namespace ContractConfigurator
             LoggingUtil.Log(LogLevel.INFO, obj.GetType(), message);
         }
 
-        public static void LogInfo(Type type, string message) {
+        public static void LogInfo(Type type, string message)
+        {
             LoggingUtil.Log(LogLevel.INFO, type, message);
         }
 
