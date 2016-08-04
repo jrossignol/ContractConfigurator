@@ -116,7 +116,18 @@ namespace ContractConfigurator
         /// <returns>A list of hashes for this vessel</returns>
         public static IEnumerable<uint> GetHashes(this Vessel vessel)
         {
-            if (vessel.state == Vessel.State.DEAD || vessel.protoVessel == null || vessel.protoVessel.protoPartSnapshots == null)
+            if (vessel.state == Vessel.State.DEAD)
+            {
+                yield break;
+            }
+
+            // Create the protovessel if it isn't there
+            if (vessel.protoVessel == null)
+            {
+                vessel.protoVessel = new ProtoVessel(vessel);
+            }
+
+            if (vessel.protoVessel.protoPartSnapshots == null)
             {
                 yield break;
             }

@@ -1,5 +1,6 @@
-Contract Configurator 1.16.2
+Contract Configurator 1.16.3
 - Fix for contracts not being offered on a brand new save until at least one stock contract is offered (thanks to all the RP-0 users who reported this).
+- Fixed issue where parameter completion data wasn't correctly copied to newly created vessel on undock/decouple (thanks linuxgurugamer).
 
 Contract Configurator 1.16.2
 - Fix exception error messaging.
