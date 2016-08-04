@@ -366,7 +366,7 @@ namespace ContractConfigurator
             /// <returns>
             /// Dictionary <CelestialBody, CelestialBodyInfo> of ResearchBodies CelestialBody Information
             /// </returns>
-            internal Dictionary<CelestialBody, CelestialBodyInfo> CelestialBodies
+            public Dictionary<CelestialBody, CelestialBodyInfo> CelestialBodies
             {
                 get
                 {
