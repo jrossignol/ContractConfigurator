@@ -6,7 +6,7 @@ using System.Text;
 using UnityEngine;
 using KSP;
 using Contracts;
-using Contracts.Parameters;
+using KSP.UI.Screens;
 
 namespace ContractConfigurator
 {
@@ -35,6 +35,7 @@ namespace ContractConfigurator
         private double lastGenerationFailure;
         private IEnumerator<ConfiguredContract> contractEnumerator;
         private bool contractsLoaded = false;
+        private double contractsLoadCheckTime = -1.0;
 
         public HashSet<Guid> unreadContracts = new HashSet<Guid>();
 
@@ -161,8 +162,15 @@ namespace ContractConfigurator
 
         void Update()
         {
+            // Give the contract system a maximum of 5 seconds to start up.  Need to do this because the OnContractsLoaded event isn't fired
+            // on a brand new save
+            if (contractsLoadCheckTime < 0)
+            {
+                contractsLoadCheckTime = Time.realtimeSinceStartup;
+            }
+
             // Wait for startup of contract system
-            if (ContractSystem.Instance == null || !contractsLoaded)
+            if (ContractSystem.Instance == null || (!contractsLoaded && contractsLoadCheckTime < Time.realtimeSinceStartup + 5.0 && MissionControl.Instance == null))
             {
                 return;
             }

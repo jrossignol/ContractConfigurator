@@ -1,4 +1,7 @@
 Contract Configurator 1.16.2
+- Fix for contracts not being offered on a brand new save until at least one stock contract is offered (thanks to all the RP-0 users who reported this).
+
+Contract Configurator 1.16.2
 - Fix exception error messaging.
 
 Contract Configurator 1.16.1
