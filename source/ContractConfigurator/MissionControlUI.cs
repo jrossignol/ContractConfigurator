@@ -320,19 +320,24 @@ namespace ContractConfigurator.Util
                 return;
             }
 
-            if (ticks++ == 0)
+            ticks++;
+            if (ticks == 1)
             {
                 maxActive = GameVariables.Instance.GetActiveContractsLimit(ScenarioUpgradeableFacilities.GetFacilityLevel(SpaceCenterFacility.MissionControl));
 
-                int[] widths = new int[] { 57, 92, 77, 89};
+                int[] widths = new int[] { 57, 92, 77, 89 };
 
                 // Get the available/active/complete groups
                 GameObject sortGroup = MissionControl.Instance.gameObject.GetChild("Sorting Group");
                 GameObject toggleAvailable = sortGroup.GetChild("Toggle Available");
-                GameObject toggleAllObj = UnityEngine.Object.Instantiate<GameObject>(toggleAvailable);
-                toggleAllObj.name = "Toggle All";
-                toggleAllObj.transform.SetParent(sortGroup.transform);
-                toggleAllObj.transform.SetAsFirstSibling();
+                GameObject toggleAllObj = sortGroup.GetChild("Toggle All");
+                if (toggleAllObj == null)
+                {
+                    toggleAllObj = UnityEngine.Object.Instantiate<GameObject>(toggleAvailable);
+                    toggleAllObj.name = "Toggle All";
+                    toggleAllObj.transform.SetParent(sortGroup.transform);
+                    toggleAllObj.transform.SetAsFirstSibling();
+                }
 
                 // Setup the toggle
                 Text toggleAllText = toggleAllObj.GetChild("Text").GetComponent<Text>();
@@ -394,12 +399,18 @@ namespace ContractConfigurator.Util
                 GameEvents.Contract.onOffered.Add(new EventData<Contract>.OnEvent(OnContractOffered));
                 GameEvents.Contract.onDeclined.Add(new EventData<Contract>.OnEvent(OnContractDeclined));
                 GameEvents.Contract.onFinished.Add(new EventData<Contract>.OnEvent(OnContractFinished));
+            }
 
+            if (ticks == 1 || ticks == 2)
+            {
                 // Set to the last view
-                MissionControl.Instance.toggleDisplayModeAvailable.isOn = true;
+                MissionControl.Instance.toggleDisplayModeAvailable.isOn = false;
                 switch (ContractConfiguratorSettings.Instance.lastMCButton)
                 {
                     case ContractConfiguratorSettings.MissionControlButton.All:
+                        GameObject sortGroup = MissionControl.Instance.gameObject.GetChild("Sorting Group");
+                        GameObject toggleAllObj = sortGroup.GetChild("Toggle All");
+                        Toggle toggleAll = toggleAllObj.GetComponent<Toggle>();
                         toggleAll.isOn = true;
                         OnClickAll(true);
                         break;
