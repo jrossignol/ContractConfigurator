@@ -68,7 +68,7 @@ namespace ContractConfigurator.Util
             catch (Exception e)
             {
                 LoggingUtil.LogError(typeof(TextureUtil), "Couldn't create texture for '" + url + "'!");
-                Debug.LogException(e);
+                LoggingUtil.LogException(e);
                 texture = null;
             }
 
