@@ -55,7 +55,10 @@ namespace ContractConfigurator
         {
             for (int i = 0; i < roster.Count; i++)
             {
-                yield return roster[i];
+                if (roster[i] != null)
+                {
+                    yield return roster[i];
+                }
             }
         }
 

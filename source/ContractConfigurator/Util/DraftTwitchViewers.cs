@@ -34,17 +34,19 @@ namespace ContractConfigurator
             Instance = this;
 
             // Do a version check
-            Assembly dtvAssembly = Util.Version.VerifyAssemblyVersion("DraftTwitchViewers", "2.0.1", true);
+            Assembly dtvAssembly = Util.Version.VerifyAssemblyVersion("DraftTwitchViewers", "2.3.1", true);
             if (dtvAssembly == null)
             {
+                LoggingUtil.LogDebug(this, "Unable to find DraftTwitchViewers assembly.");
                 Destroy(this);
                 return;
             }
+            LoggingUtil.LogDebug(this, "Found DraftTwitchViewers assembly.");
 
-            Type draftManager = dtvAssembly.GetTypes().Where(t => t.Name.Contains("DraftManager")).FirstOrDefault();
+            Type draftManager = dtvAssembly.GetTypes().Where(t => t.Name.Contains("ScenarioDraftManager")).FirstOrDefault();
             if (draftManager == null)
             {
-                LoggingUtil.LogError(this, "Couldn't get DraftManager from DraftTwitchViewers!");
+                LoggingUtil.LogError(this, "Couldn't get ScenarioDraftManager from DraftTwitchViewers!");
                 Destroy(this);
                 return;
             }
@@ -90,9 +92,9 @@ namespace ContractConfigurator
                 nextAttempt < Time.time)
             {
                 // Start the coroutine
-                object success = (Action<string>)(OnSuccess);
+                object success = (Action<Dictionary<string, string>>)(OnSuccess);
                 object failure = (Action<string>)(OnFailure);
-                IEnumerator enumerator = (IEnumerator)Instance.draftMethod.Invoke(null, new object[] { success, failure, false, true, "Any" });
+                IEnumerator enumerator = (IEnumerator)draftMethod.Invoke(null, new object[] { success, failure, false, true, Kerbal.RandomExperienceTrait() });
                 Instance.StartCoroutine(enumerator);
 
                 routinesRunning++;
@@ -118,12 +120,18 @@ namespace ContractConfigurator
 
         }
 
-        public static void OnSuccess(string name)
+        public static void OnSuccess(Dictionary<string, string> dict)
         {
+            Instance.routinesRunning--;
+            if (!dict.ContainsKey("name"))
+            {
+                return;
+            }
+
+            string name = dict["name"];
             LoggingUtil.LogVerbose(typeof(DraftTwitchViewers), "DraftTwitchViewers Success: " + name);
 
             // Queue the name if it is new
-            Instance.routinesRunning--;
             if (Instance.IsUnique(name))
             {
                 Instance.nameQueue.Enqueue(name);
