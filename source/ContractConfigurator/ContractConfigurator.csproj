@@ -237,6 +237,7 @@
     <Compile Include="Util\SCANsatUtil.cs" />
     <Compile Include="Util\Science.cs" />
     <Compile Include="Util\TextureUtil.cs" />
+    <Compile Include="Util\TipLoader.cs" />
     <Compile Include="Util\TitleTracker.cs" />
     <Compile Include="ParameterFactory\PartValidationFactory.cs" />
     <Compile Include="ParameterFactory\IsNotVesselFactory.cs" />
