@@ -104,6 +104,7 @@ namespace ContractConfigurator
                 LoggingUtil.CaptureLog = true;
                 ConfigNodeUtil.SetCurrentDataNode(dataNode);
                 bool valid = true;
+                string unused;
 
                 valid &= ConfigNodeUtil.ParseValue<string>(configNode, "name", x => name = x, this);
                 valid &= ConfigNodeUtil.ParseValue<string>(configNode, "displayName", x => displayName = x, this, name);
@@ -113,6 +114,7 @@ namespace ContractConfigurator
                 valid &= ConfigNodeUtil.ParseValue<List<string>>(configNode, "disabledContractType", x => disabledContractType = x, this, new List<string>());
                 valid &= ConfigNodeUtil.ParseValue<Agent>(configNode, "agent", x => agent = x, this, (Agent)null);
                 valid &= ConfigNodeUtil.ParseValue<string>(configNode, "sortKey", x => sortKey = x, this, displayName);
+                valid &= ConfigNodeUtil.ParseValue<string>(configNode, "tip", x => unused = x, this, "");
 
                 if (configNode.HasValue("sortKey") && parent == null)
                 {
