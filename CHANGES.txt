@@ -1,4 +1,5 @@
 Contract Configurator 1.16.3
+- Mission Control remembers the last visited tab when you open it, and takes you there.
 - Fix for contracts not being offered on a brand new save until at least one stock contract is offered (thanks to all the RP-0 users who reported this).
 - Fixed issue where parameter completion data wasn't correctly copied to newly created vessel on undock/decouple (thanks linuxgurugamer).
 

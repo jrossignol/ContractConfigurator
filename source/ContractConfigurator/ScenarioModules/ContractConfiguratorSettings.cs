@@ -54,10 +54,19 @@ namespace ContractConfigurator
         Dictionary<Type, StockContractDetails> stockContractDetails = new Dictionary<Type, StockContractDetails>();
         #endregion
 
+        public enum MissionControlButton
+        {
+            All,
+            Available,
+            Active,
+            Archive
+        }
+
         public static ContractConfiguratorSettings Instance { get; private set; }
 
         private ApplicationLauncherButton launcherButton = null;
-        
+        public MissionControlButton lastMCButton = MissionControlButton.All;
+
         public ContractConfiguratorSettings()
         {
             Instance = this;
@@ -368,6 +377,8 @@ namespace ContractConfigurator
         {
             try
             {
+                node.AddValue("lastMCButton", lastMCButton);
+
                 foreach (ContractGroupDetails details in contractGroupDetails.Values.Where(d => d.group != null))
                 {
                     ConfigNode groupNode = new ConfigNode("CONTRACT_GROUP");
@@ -398,6 +409,8 @@ namespace ContractConfigurator
         {
             try
             {
+                lastMCButton = ConfigNodeUtil.ParseValue<MissionControlButton>(node, "lastMCButton", MissionControlButton.All);
+
                 foreach (ConfigNode groupNode in node.GetNodes("CONTRACT_GROUP"))
                 {
                     string groupName = groupNode.GetValue("group");

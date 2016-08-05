@@ -378,6 +378,8 @@ namespace ContractConfigurator.Util
                 // Replace the handlers with our own
                 MissionControl.Instance.toggleDisplayModeAvailable.onValueChanged.RemoveAllListeners();
                 MissionControl.Instance.toggleDisplayModeAvailable.onValueChanged.AddListener(new UnityAction<bool>(OnClickAvailable));
+                MissionControl.Instance.toggleDisplayModeActive.onValueChanged.AddListener(new UnityAction<bool>(OnClickActive));
+                MissionControl.Instance.toggleDisplayModeArchive.onValueChanged.AddListener(new UnityAction<bool>(OnClickArchive));
                 MissionControl.Instance.btnAccept.onClick.RemoveAllListeners();
                 MissionControl.Instance.btnAccept.onClick.AddListener(new UnityAction(OnClickAccept));
                 MissionControl.Instance.btnDecline.onClick.RemoveAllListeners();
@@ -393,10 +395,30 @@ namespace ContractConfigurator.Util
                 GameEvents.Contract.onDeclined.Add(new EventData<Contract>.OnEvent(OnContractDeclined));
                 GameEvents.Contract.onFinished.Add(new EventData<Contract>.OnEvent(OnContractFinished));
 
-                // Set to the all view
-                toggleAll.isOn = true;
-                toggleAvailable.GetComponent<Toggle>().isOn = false;
-                OnClickAll(true);
+                // Set to the last view
+                MissionControl.Instance.toggleDisplayModeAvailable.isOn = true;
+                switch (ContractConfiguratorSettings.Instance.lastMCButton)
+                {
+                    case ContractConfiguratorSettings.MissionControlButton.All:
+                        toggleAll.isOn = true;
+                        OnClickAll(true);
+                        break;
+                    case ContractConfiguratorSettings.MissionControlButton.Available:
+                        MissionControl.Instance.toggleDisplayModeAvailable.isOn = true;
+                        MissionControl.Instance.OnClickAvailable(true);
+                        OnClickAvailable(true);
+                        break;
+                    case ContractConfiguratorSettings.MissionControlButton.Active:
+                        MissionControl.Instance.toggleDisplayModeActive.isOn = true;
+                        MissionControl.Instance.OnClickActive(true);
+                        OnClickActive(true);
+                        break;
+                    case ContractConfiguratorSettings.MissionControlButton.Archive:
+                        MissionControl.Instance.toggleDisplayModeArchive.isOn = true;
+                        MissionControl.Instance.OnClickArchive(true);
+                        OnClickArchive(true);
+                        break;
+                }
             }
         }
 
@@ -726,6 +748,7 @@ namespace ContractConfigurator.Util
                 MissionControl.Instance.scrollListContracts.AddItem(mcListItem.container, true);
             }
 
+            ContractConfiguratorSettings.Instance.lastMCButton = ContractConfiguratorSettings.MissionControlButton.Available;
             displayModeAll = false;
         }
 
@@ -750,10 +773,37 @@ namespace ContractConfigurator.Util
                 CreateGroupItem(groupContainer);
             }
 
+            ContractConfiguratorSettings.Instance.lastMCButton = ContractConfiguratorSettings.MissionControlButton.All;
             displayModeAll = true;
 
             // Update the contract counts
             UpdateContractCounts();
+        }
+
+        public void OnClickActive(bool selected)
+        {
+            LoggingUtil.LogVerbose(this, "OnClickActive");
+
+            if (!selected)
+            {
+                return;
+            }
+
+            ContractConfiguratorSettings.Instance.lastMCButton = ContractConfiguratorSettings.MissionControlButton.Active;
+            displayModeAll = false;
+        }
+
+        public void OnClickArchive(bool selected)
+        {
+            LoggingUtil.LogVerbose(this, "OnClickArchive");
+
+            if (!selected)
+            {
+                return;
+            }
+
+            ContractConfiguratorSettings.Instance.lastMCButton = ContractConfiguratorSettings.MissionControlButton.Archive;
+            displayModeAll = false;
         }
 
         protected GroupContainer CreateGroupItem(GroupContainer groupContainer, int indent = 0, KSP.UI.UIListItem previous = null)
