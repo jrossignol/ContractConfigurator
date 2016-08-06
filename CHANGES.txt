@@ -5,6 +5,7 @@ Contract Configurator 1.16.3
 - Fixed issue where parameter completion data wasn't correctly copied to newly created vessel on undock/decouple (thanks linuxgurugamer).
 - Fixed DraftTwitchViewers support.
 - Fixed issue with using Enter button to go to Mission Control (thanks Deimos Rast).
+- Fixed agent for stock satellite contracts.
 
 Contract Configurator 1.16.2
 - Fix exception error messaging.
