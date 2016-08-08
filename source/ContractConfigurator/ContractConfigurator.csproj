@@ -95,6 +95,7 @@
     <Compile Include="Behaviour\UnlockTech.cs" />
     <Compile Include="ExpressionParser\Parsers\Classes\PQSCityParser.cs" />
     <Compile Include="IKerbalNameStorage.cs" />
+    <Compile Include="TrackingStationUI.cs" />
     <Compile Include="ParameterFactory\NoStagingFactory.cs" />
     <Compile Include="ParameterFactory\ResourceConsumptionFactory.cs" />
     <Compile Include="Parameter\Duration2.cs" />
@@ -243,6 +244,7 @@
     <Compile Include="ParameterFactory\IsNotVesselFactory.cs" />
     <Compile Include="ParameterFactory\HasPassengersFactory.cs" />
     <Compile Include="ParameterFactory\DurationFactory.cs" />
+    <Compile Include="Util\DebuggingUtils.cs" />
     <Compile Include="Util\Validation.cs" />
     <Compile Include="Behaviour\Expression.cs" />
     <Compile Include="Behaviour\OrbitGenerator.cs" />

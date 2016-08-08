@@ -92,7 +92,10 @@ namespace ContractConfigurator.Behaviour
         private bool initialized = false;
         private static System.Random random = new System.Random();
 
-        public WaypointGenerator() { }
+        public WaypointGenerator()
+        {
+            GameEvents.OnMapViewFiltersModified.Add(new EventData<MapViewFiltering.VesselTypeFilter>.OnEvent(OnMapViewFiltersModified));
+        }
 
         /// <summary>
         /// Copy constructor.
@@ -463,6 +466,20 @@ namespace ContractConfigurator.Behaviour
             }
         }
 
+        protected void OnMapViewFiltersModified(MapViewFiltering.VesselTypeFilter filter)
+        {
+            if (filter == MapViewFiltering.VesselTypeFilter.None)
+            {
+                // Reset state of renderers
+                foreach (WaypointData wpData in waypoints)
+                {
+                    WaypointManager.RemoveWaypoint(wpData.waypoint);
+                    wpData.isAdded = false;
+                    AddWayPoint(wpData);
+                }
+            }
+        }
+
         protected override void OnParameterStateChange(ContractParameter param)
         {
             LoggingUtil.LogVerbose(this, "OnParameterStateChange");
@@ -609,12 +626,14 @@ namespace ContractConfigurator.Behaviour
             waypoint.isNavigatable = true;
 
             // Show only active waypoints in flight, but show offered as well in the tracking station
-            if (HighLogic.LoadedScene == GameScenes.FLIGHT && contract.ContractState == Contract.State.Active ||
-                HighLogic.LoadedScene == GameScenes.TRACKSTATION &&
-                (contract.ContractState == Contract.State.Offered || contract.ContractState == Contract.State.Active))
+            if (HighLogic.LoadedScene == GameScenes.TRACKSTATION || HighLogic.LoadedScene == GameScenes.FLIGHT)
             {
-                WaypointManager.AddWaypoint(waypoint);
-                wpData.isAdded = true;
+                if (contract.ContractState == Contract.State.Active && (ContractConfiguratorSettings.Instance.DisplayActiveWaypoints || HighLogic.LoadedScene != GameScenes.TRACKSTATION) ||
+                    contract.ContractState == Contract.State.Offered && ContractConfiguratorSettings.Instance.DisplayOfferedWaypoints && HighLogic.LoadedScene == GameScenes.TRACKSTATION)
+                {
+                    WaypointManager.AddWaypoint(waypoint);
+                    wpData.isAdded = true;
+                }
             }
         }
 

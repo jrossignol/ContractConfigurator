@@ -255,7 +255,7 @@ namespace ContractConfigurator.Util
         static Texture2D uiAtlas;
         static UnityEngine.Sprite itemEnabled;
         static UnityEngine.Sprite itemDisabled;
-        static UnityEngine.Sprite[] prestigeSprites = new UnityEngine.Sprite[3];
+        public static UnityEngine.Sprite[] prestigeSprites = new UnityEngine.Sprite[3];
         static UIStateImage.ImageState[] itemStatusStates = new UIStateImage.ImageState[4];
         static UnityEngine.Sprite groupUnexpandedInactive;
         static UnityEngine.Sprite groupUnexpandedActive;
@@ -1650,40 +1650,6 @@ namespace ContractConfigurator.Util
             MissionControl.Instance.ClearInfoPanel();
             MissionControl.Instance.UpdateInstructor(MissionControl.Instance.avatarController.animTrigger_cancel, MissionControl.Instance.avatarController.animLoop_default);
             MissionControl.Instance.selectedMission.contract.Cancel();
-        }
-    }
-
-    public static class TransformExtns
-    {
-        public static Transform FindDeepChild(this Transform parent, string name)
-        {
-            var result = parent.Find(name);
-            if (result != null)
-                return result;
-            foreach (Transform child in parent)
-            {
-                result = child.FindDeepChild(name);
-                if (result != null)
-                    return result;
-            }
-            return null;
-        }
-
-        public static void Dump(this GameObject go, string indent = "")
-        {
-            foreach (Component c in go.GetComponents<Component>())
-            {
-                Debug.Log(indent + c);
-                if (c is KerbalInstructor)
-                {
-                    return;
-                }
-            }
-
-            foreach (Transform c in go.transform)
-            {
-                c.gameObject.Dump(indent + "    ");
-            }
         }
     }
 }

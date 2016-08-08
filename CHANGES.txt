@@ -1,5 +1,6 @@
 Contract Configurator 1.16.3
 - Mission Control remembers the last visited tab when you open it, and takes you there.
+- Added Tracking Station buttons for filtering orbits/waypoints from contracts.
 - Added support for adding loading tool tips.
 - Better support for Kolniya/Tundra orbits - will error if the orbit would exit the SOI.  Also added CelestialBody methods to determine if the body is allowed to have Kolniya/Tundra orbits.
 - Fix for contracts not being offered on a brand new save until at least one stock contract is offered (thanks to all the RP-0 users who reported this).

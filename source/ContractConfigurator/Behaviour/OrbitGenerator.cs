@@ -68,8 +68,8 @@ namespace ContractConfigurator.Behaviour
 
                 if (HighLogic.LoadedScene == GameScenes.TRACKSTATION || HighLogic.LoadedScene == GameScenes.FLIGHT)
                 {
-                    if (contract.ContractState == Contract.State.Active ||
-                        contract.ContractState == Contract.State.Offered && ContractDefs.DisplayOfferedOrbits && HighLogic.LoadedScene == GameScenes.TRACKSTATION)
+                    if (contract.ContractState == Contract.State.Active && (ContractConfiguratorSettings.Instance.DisplayActiveOrbits || HighLogic.LoadedScene != GameScenes.TRACKSTATION) ||
+                        contract.ContractState == Contract.State.Offered && ContractConfiguratorSettings.Instance.DisplayOfferedOrbits && HighLogic.LoadedScene == GameScenes.TRACKSTATION)
                     {
                         orbitRenderer = ContractOrbitRenderer.Setup(contract, orbit);
                     }
@@ -87,7 +87,10 @@ namespace ContractConfigurator.Behaviour
         }
         private List<OrbitData> orbits = new List<OrbitData>();
 
-        public OrbitGenerator() {}
+        public OrbitGenerator()
+        {
+            GameEvents.OnMapViewFiltersModified.Add(new EventData<MapViewFiltering.VesselTypeFilter>.OnEvent(OnMapViewFiltersModified));
+        }
 
         public OrbitGenerator(OrbitGenerator orig, Contract contract)
             : base()
@@ -229,6 +232,12 @@ namespace ContractConfigurator.Behaviour
             }
         }
 
+        protected override void OnRegister()
+        {
+            base.OnRegister();
+
+        }
+
         protected override void OnUnregister()
         {
             base.OnUnregister();
@@ -236,6 +245,19 @@ namespace ContractConfigurator.Behaviour
             foreach (OrbitData obData in orbits)
             {
                 obData.CleanupRenderer();
+            }
+        }
+
+        protected void OnMapViewFiltersModified(MapViewFiltering.VesselTypeFilter filter)
+        {
+            if (filter == MapViewFiltering.VesselTypeFilter.None)
+            {
+                // Reset state of renderers
+                foreach (OrbitData obData in orbits)
+                {
+                    obData.CleanupRenderer();
+                    obData.SetupRenderer();
+                }
             }
         }
 
