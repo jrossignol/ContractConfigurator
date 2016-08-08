@@ -129,12 +129,6 @@ namespace ContractConfigurator
 
         public void SetCrew(ProtoCrewMember pcm)
         {
-            LoggingUtil.LogDebug(this, "pcm = " + pcm);
-            LoggingUtil.LogDebug(this, "pcm.gender = " + pcm.gender);
-            LoggingUtil.LogDebug(this, "pcm.name = " + pcm.name);
-            LoggingUtil.LogDebug(this, "pcm.experienceTrait = " + pcm.experienceTrait);
-            LoggingUtil.LogDebug(this, "pcm.experienceTrait.TypeName = " + pcm.experienceTrait.TypeName);
-            LoggingUtil.LogDebug(this, "pcm.type = " + pcm.type);
             this._pcm = pcm;
             gender = pcm.gender;
             name = pcm.name;
