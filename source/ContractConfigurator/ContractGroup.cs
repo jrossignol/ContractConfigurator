@@ -178,8 +178,8 @@ namespace ContractConfigurator
                         continue;
                     }
 
-                    valid &= child.Load(childNode);
                     child.parent = this;
+                    valid &= child.Load(childNode);
                     child.dataNode.Parent = dataNode;
                     if (child.hasWarnings)
                     {
