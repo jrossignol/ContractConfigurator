@@ -255,8 +255,15 @@ namespace ContractConfigurator.Behaviour
                 // Reset state of renderers
                 foreach (OrbitData obData in orbits)
                 {
-                    obData.CleanupRenderer();
-                    obData.SetupRenderer();
+                    if (contract.ContractState == Contract.State.Active && ContractConfiguratorSettings.Instance.DisplayActiveOrbits ||
+                        contract.ContractState == Contract.State.Offered && ContractConfiguratorSettings.Instance.DisplayOfferedOrbits)
+                    {
+                        obData.SetupRenderer();
+                    }
+                    else
+                    {
+                        obData.CleanupRenderer();
+                    }
                 }
             }
         }

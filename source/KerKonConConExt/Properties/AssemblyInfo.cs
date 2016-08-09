@@ -32,8 +32,8 @@ using System.Runtime.InteropServices;
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("1.0")]
-[assembly: AssemblyFileVersion("1.16.2")]
-[assembly: AssemblyInformationalVersion("1.16.2")]
+[assembly: AssemblyFileVersion("1.17.0")]
+[assembly: AssemblyInformationalVersion("1.17.0")]
 [assembly: KSPAssembly("KerKonConConExt", 1, 0)]
 [assembly: KSPAssemblyDependency("ContractConfigurator", 1, 0)]
 [assembly: KSPAssemblyDependency("KerbalKonstructs", 0, 9)]
