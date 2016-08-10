@@ -293,6 +293,13 @@ namespace ContractConfigurator
                     return false;
                 }
 
+                // Copy in the requirement nodes
+                requirements = new List<ContractRequirement>();
+                foreach (ContractRequirement requirement in contractType.Requirements)
+                {
+                    requirements.Add(requirement);
+                }
+
                 LoggingUtil.LogDebug(this, "Initialized contract: " + contractType);
                 return true;
             }
@@ -448,13 +455,6 @@ namespace ContractConfigurator
                 {
                     ContractBehaviour behaviour = ContractBehaviour.LoadBehaviour(child, this);
                     behaviours.Add(behaviour);
-                }
-
-                requirements = new List<ContractRequirement>();
-                foreach (ConfigNode child in node.GetNodes("REQUIREMENT"))
-                {
-                    ContractRequirement requirement = ContractRequirement.LoadRequirement(child);
-                    requirements.Add(requirement);
                 }
 
                 // If the contract type is null, then it likely means that it was uninstalled

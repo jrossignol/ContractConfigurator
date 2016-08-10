@@ -264,8 +264,6 @@ namespace ContractConfigurator
 
         private IEnumerable<ConfiguredContract> GenerateContract(ContractType contractType)
         {
-            // TODO - fix up expiry date handling
-
             // Set the desired prestige
             int t1, t2, t3;
             ContractSystem.GetContractCounts(Reputation.CurrentRep, 1000, out t1, out t2, out t3);

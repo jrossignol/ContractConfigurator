@@ -1,5 +1,6 @@
 Contract Configurator 1.17.1
 - New Base and ISRU agent icons from Enceos.
+- Fixed problem with requirement data for offered data not getting fixed until contract save (thanks severedsolo).
 
 Contract Configurator 1.17.0
 - Mission Control remembers the last visited tab when you open it, and takes you there.
