@@ -394,38 +394,6 @@ namespace ContractConfigurator
             }
         }
 
-        private ConfiguredContract GetNextContract(Contract.ContractPrestige prestige, bool timeLimited)
-        {
-            // No contracts, no point
-            if (!contracts.Any())
-            {
-                return null;
-            }
-
-            // Try to get a contract that matches the request
-            float start = UnityEngine.Time.realtimeSinceStartup;
-            int startVal = rand.Next(0, contracts.Count);
-            for (int i = contracts.Count - 1; i >= 0; i--)
-            {
-                int index = (startVal + i) % contracts.Count;
-                ConfiguredContract contract = contracts[index];
-                contracts.RemoveAt(index);
-
-                if (contract.contractType != null && contract.contractType.MeetRequirements(contract, contract.contractType))
-                {
-                    return contract;
-                }
-            
-                if (timeLimited && UnityEngine.Time.realtimeSinceStartup - start > MAX_TIME)
-                {
-                    return null;
-                }
-            }
-
-            // No contracts
-            return null;
-        }
-
         public override void OnSave(ConfigNode node)
         {
             try
