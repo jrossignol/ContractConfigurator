@@ -1,3 +1,6 @@
+Contract Configurator 1.17.1
+- New Base and ISRU agent icons from Enceos.
+
 Contract Configurator 1.17.0
 - Mission Control remembers the last visited tab when you open it, and takes you there.
 - Added Tracking Station buttons for filtering orbits/waypoints from contracts.
