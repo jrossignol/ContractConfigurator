@@ -177,7 +177,12 @@ namespace ContractConfigurator.Util
 
             public string OrderKey()
             {
-                return stockContractType != null ? DisplayName(stockContractType) : group == null ? "aaa" : group.sortKey;
+                return stockContractType != null ? DisplayName(stockContractType) : OrderKey(group);
+            }
+
+            public static string OrderKey(ContractGroup group)
+            {
+                return group == null ? "aaa" : group.sortKey;
             }
 
             public static string OrderKey(Contract c)
@@ -863,7 +868,7 @@ namespace ContractConfigurator.Util
             if (groupContainer.group != null)
             {
                 foreach (ContractGroup child in ContractGroup.AllGroups.Where(g => g != null && g.parent == groupContainer.group && ContractType.AllValidContractTypes.Any(ct => g.BelongsToGroup(ct))).
-                    OrderBy(g => g.displayName))
+                    OrderBy(g => GroupContainer.OrderKey(g)))
                 {
                     hasChildren = true;
                     GroupContainer childContainer = new GroupContainer(child);
