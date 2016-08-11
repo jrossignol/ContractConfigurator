@@ -31,6 +31,28 @@ namespace ContractConfigurator.ExpressionParser
         {
         }
 
+        public override bool ConvertableFrom(Type type)
+        {
+            return type == typeof(string);
+        }
+
+        public override Resource ConvertFrom<U>(U value)
+        {
+            if (typeof(U) == typeof(string))
+            {
+                string sVal = (string)(object)value;
+
+                // Get the actual resourece
+                PartResourceDefinition resource = PartResourceLibrary.Instance.resourceDefinitions.Where(prd => prd.name == sVal).FirstOrDefault();
+                if (resource != null)
+                {
+                    return new Resource(resource);
+                }
+                throw new ArgumentException("'" + sVal + "' is not a valid resource.");
+            }
+            throw new DataStoreCastException(typeof(U), typeof(Resource));
+        }
+
         public override U ConvertType<U>(Resource value)
         {
             if (typeof(U) == typeof(string))
@@ -42,8 +64,8 @@ namespace ContractConfigurator.ExpressionParser
 
         public override Resource ParseIdentifier(Token token)
         {
-            // Try to parse more, as resource names can have spaces
-            Match m = Regex.Match(expression, @"^((?>\s*[\w\d]+)+).*");
+            // Try to parse more, as resource names can have spaces and other charactes
+            Match m = Regex.Match(expression, @"^((?>\s*[\w\d-_]+)+).*");
             string identifier = m.Groups[1].Value;
             expression = (expression.Length > identifier.Length ? expression.Substring(identifier.Length) : "");
             identifier = token.sval + identifier;
@@ -59,7 +81,7 @@ namespace ContractConfigurator.ExpressionParser
             {
                 return new Resource(resource);
             }
-            return null;
+            throw new ArgumentException("'" + identifier + "' is not a valid resource.");
         }
     }
 }
