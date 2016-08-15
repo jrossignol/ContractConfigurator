@@ -24,6 +24,8 @@ namespace ContractConfigurator.ExpressionParser
 
         public static void RegisterMethods()
         {
+            RegisterMethod(new Method<Resource, double>("Density", r => r != null ? r.res.density : 1.0));
+
             RegisterGlobalFunction(new Function<Resource, Resource>("Resource", r => r));
         }
 
