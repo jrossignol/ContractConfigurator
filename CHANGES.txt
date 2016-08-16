@@ -5,6 +5,7 @@ Contract Configurator 1.17.1
 - Fixed problem with requirement data for offered data not getting fixed until contract save (thanks severedsolo).
 - Fixed sorting of contract groups (thanks pap1723).
 - Fixed Resource parsing limitations (thanks hargn).
+- Fixed issue with DATA nodes and child contract groups (thanks hargn).
 - Disallow DMOS Seismic Impact Hammer at KSC in science subsystem (thanks BeafSalad).
 
 Contract Configurator 1.17.0

@@ -291,13 +291,13 @@ namespace ContractConfigurator
                     // Merge dataValues - this is a flag saying what values need to be unique at the contract level
                     foreach (KeyValuePair<string, DataValueInfo> pair in currentGroup.dataValues)
                     {
-                        dataValues[group.name + ":" + pair.Key] = pair.Value;
+                        dataValues[currentGroup.name + ":" + pair.Key] = pair.Value;
                     }
 
                     // Merge uniquenessChecks
                     foreach (KeyValuePair<string, DataNode.UniquenessCheck> pair in currentGroup.uniquenessChecks)
                     {
-                        uniquenessChecks[group.name + ":" + pair.Key] = pair.Value;
+                        uniquenessChecks[currentGroup.name + ":" + pair.Key] = pair.Value;
                     }
                 }
 
