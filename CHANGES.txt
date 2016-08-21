@@ -1,4 +1,4 @@
-Contract Configurator 1.17.1
+Contract Configurator 1.18.0
 - New Base and ISRU agent icons from Enceos.
 - Added Resource.Density() method.
 - Added partModule and partModuleType to TechResearchedRequirement.
@@ -7,6 +7,7 @@ Contract Configurator 1.17.1
 - Fixed Resource parsing limitations (thanks hargn).
 - Fixed issue with DATA nodes and child contract groups (thanks hargn).
 - Disallow DMOS Seismic Impact Hammer at KSC in science subsystem (thanks BeafSalad).
+- Remove short-circuit in Any/All requirement texts for players aren't given incorrect information (thanks inigma).
 
 Contract Configurator 1.17.0
 - Mission Control remembers the last visited tab when you open it, and takes you there.

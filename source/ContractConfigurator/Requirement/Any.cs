@@ -22,11 +22,6 @@ namespace ContractConfigurator
                 if (requirement.enabled)
                 {
                     requirementMet |= requirement.CheckRequirement(contract);
-
-                    if (requirementMet)
-                    {
-                        return true;
-                    }
                 }
             }
             return requirementMet;
