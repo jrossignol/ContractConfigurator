@@ -925,7 +925,7 @@ namespace ContractConfigurator
 
         private static PartResourceDefinition ParseResourceValue(string name)
         {
-            PartResourceDefinition resource = PartResourceLibrary.Instance.resourceDefinitions.Where(prd => prd.name == name).First();
+            PartResourceDefinition resource = PartResourceLibrary.Instance.resourceDefinitions.Where(prd => prd.name == name).FirstOrDefault();
             if (resource == null)
             {
                 throw new ArgumentException("'" + name + "' is not a valid resource.");
