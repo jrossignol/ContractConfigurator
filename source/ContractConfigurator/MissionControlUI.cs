@@ -1485,6 +1485,17 @@ namespace ContractConfigurator.Util
                 }
             }
 
+            // Do check for group maxSimultaneous
+            for (ContractGroup currentGroup = contractType.group; currentGroup != null; currentGroup = currentGroup.parent)
+            {
+                if (currentGroup.maxSimultaneous != 0)
+                {
+                    int count = currentGroup.CurrentContracts();
+                    text += RequirementLine(string.Format("May only have {0} offered/active {1} contracts at a time",
+                        currentGroup.maxSimultaneous, currentGroup.displayName, count), count < currentGroup.maxSimultaneous);
+                }
+            }
+
             // Do check of required values
             List<string> titles = new List<string>();
             Dictionary<string, bool> titlesMet = new Dictionary<string, bool>();

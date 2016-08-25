@@ -269,6 +269,11 @@ namespace ContractConfigurator
 
         private void DoNothing() { }
 
+        public int CurrentContracts()
+        {
+            return ConfiguredContract.CurrentContracts.Where(c => c.contractType != null && BelongsToGroup(c.contractType)).Count();
+        }
+
         /// <summary>
         /// Returns the name of the contract group.
         /// </summary>

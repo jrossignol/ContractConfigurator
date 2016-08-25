@@ -238,7 +238,9 @@ namespace ContractConfigurator
                 nextContractGroup = (nextContractGroup + 1) % groups.Count();
                 ContractGroup group = groups.ElementAt(nextContractGroup);
 
-                foreach (ContractType ct in ContractType.AllValidContractTypes)
+                List<ContractType> contractTypes = ContractType.AllValidContractTypes.ToList();
+                contractTypes.Shuffle();
+                foreach (ContractType ct in contractTypes)
                 {
                     // Is the contract time part of this group, and is it allowed to attempt to generate
                     if (ct.group == group && ct.lastGenerationFailure + FAILURE_WAIT_TIME < Time.realtimeSinceStartup)
