@@ -216,12 +216,15 @@ namespace ContractConfigurator
                 // Set the contract expiry
                 if (contractType.maxExpiry == 0.0f)
                 {
+                    LoggingUtil.LogDebug(this, contractType.name + ": Setting expirty to none");
                     SetExpiry();
                     expiryType = DeadlineType.None;
                 }
                 else
                 {
                     SetExpiry(contractType.minExpiry, contractType.maxExpiry);
+                    // Force set the expiry, in stock this is normally done on Contract.Offer()
+                    dateExpire = GameTime + TimeExpiry;
                 }
 
                 // Set the contract deadline
