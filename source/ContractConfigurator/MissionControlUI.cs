@@ -449,15 +449,16 @@ namespace ContractConfigurator.Util
             // Check we're in the right mode
             if (!displayModeAll || MissionControl.Instance.displayMode != MissionControl.DisplayMode.Available)
             {
-                MissionControl.Instance.ClearInfoPanel();
-                MissionControl.Instance.panelView.gameObject.SetActive(false);
                 if (MissionControl.Instance.displayMode != MissionControl.DisplayMode.Available)
                 {
+                    MissionControl.Instance.ClearInfoPanel();
+                    MissionControl.Instance.panelView.gameObject.SetActive(false);
                     MissionControl.Instance.RebuildContractList();
                 }
                 else
                 {
                     OnClickAvailable(true);
+                    OnSelectContract(selectedButton, UIRadioButton.CallType.USER, null);
                 }
                 return;
             }
@@ -611,15 +612,28 @@ namespace ContractConfigurator.Util
             // Check we're in the right mode
             if (!displayModeAll || MissionControl.Instance.displayMode != MissionControl.DisplayMode.Available)
             {
-                MissionControl.Instance.ClearInfoPanel();
-                MissionControl.Instance.panelView.gameObject.SetActive(false);
                 if (MissionControl.Instance.displayMode != MissionControl.DisplayMode.Available)
                 {
+                    MissionControl.Instance.ClearInfoPanel();
+                    MissionControl.Instance.panelView.gameObject.SetActive(false);
                     MissionControl.Instance.RebuildContractList();
                 }
                 else
                 {
                     OnClickAvailable(true);
+
+                    // Our contract was removed
+                    if (MissionControl.Instance.selectedMission != null && MissionControl.Instance.selectedMission.contract == c)
+                    {
+                        MissionControl.Instance.ClearInfoPanel();
+                        MissionControl.Instance.panelView.gameObject.SetActive(false);
+                        selectedButton.SetState(UIRadioButton.State.False, UIRadioButton.CallType.APPLICATION, null);
+                        selectedButton = null;
+                    }
+                    else
+                    {
+                        OnSelectContract(selectedButton, UIRadioButton.CallType.USER, null);
+                    }
                 }
                 return;
             }
@@ -762,6 +776,11 @@ namespace ContractConfigurator.Util
                 mcListItem.radioButton.onTrueBtn.AddListener(new UnityAction<UIRadioButton, UIRadioButton.CallType, PointerEventData>(OnSelectContract));
                 mcListItem.Setup(contract, "<color=#fefa87>" + contract.Title + "</color>");
                 MissionControl.Instance.scrollListContracts.AddItem(mcListItem.container, true);
+
+                if (MissionControl.Instance.selectedMission != null && MissionControl.Instance.selectedMission.contract == contract)
+                {
+                    mcListItem.radioButton.SetState(UIRadioButton.State.True, UIRadioButton.CallType.APPLICATION, null, false);
+                }
             }
 
             ContractConfiguratorSettings.Instance.lastMCButton = ContractConfiguratorSettings.MissionControlButton.Available;
@@ -1628,6 +1647,7 @@ namespace ContractConfigurator.Util
             {
                 MissionControl.Instance.ClearInfoPanel();
                 MissionControl.Instance.panelView.gameObject.SetActive(false);
+
                 if (MissionControl.Instance.displayMode != MissionControl.DisplayMode.Available)
                 {
                     MissionControl.Instance.RebuildContractList();
