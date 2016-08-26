@@ -11,6 +11,7 @@ Contract Configurator 1.18.0
 - Fixed an issue that prevented expressions from working in resource loading (thanks hargn).
 - Cycle through new contracts to generate in a random order to prevent certain contracts from getting preference.
 - Fixed issue where contract expiries were never getting set (thanks DarkonZ).
+- Fixed issue with some parameters combined with the All parameter causing incorrect contract failure (thanks tomf).
 
 Contract Configurator 1.17.0
 - Mission Control remembers the last visited tab when you open it, and takes you there.

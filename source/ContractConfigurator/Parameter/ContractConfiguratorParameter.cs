@@ -290,5 +290,20 @@ namespace ContractConfigurator.Parameters
         {
             base.SetIncomplete();
         }
+
+        public new bool AnyChildParametersFailed()
+        {
+            for (int i = ParameterCount; i-- > 0;)
+            {
+                ContractParameter param = GetParameter(i);
+                ContractConfiguratorParameter ccParam = param as ContractConfiguratorParameter;
+                if (param.State == ParameterState.Failed && (ccParam == null || !ccParam.fakeFailures))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
     }
 }
