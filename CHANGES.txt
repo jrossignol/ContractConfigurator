@@ -1,3 +1,6 @@
+Contract Configurator 1.18.1
+- Fixed NRE on contract save (thanks CecilFF4).
+
 Contract Configurator 1.18.0
 - New Base and ISRU agent icons from Enceos.
 - Added Resource.Density() method.
