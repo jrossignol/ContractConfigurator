@@ -50,7 +50,7 @@ namespace ContractConfigurator.ExpressionParser
         {
             if (typeof(U) == typeof(string))
             {
-                return (U)(object)(value == null ? "" : value.name);
+                return (U)(object)(value == null ? "" : value.title);
             }
             return base.ConvertType<U>(value);
         }
@@ -161,8 +161,6 @@ namespace ContractConfigurator.ExpressionParser
             {
                 throw new ArgumentException("'" + identifier + "' is not a valid Part.");
             }
-
-            currentDataNode.SetDeterministic(currentKey, false);
 
             return part;
         }

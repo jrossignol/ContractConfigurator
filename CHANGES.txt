@@ -1,3 +1,6 @@
+Contract Configurator 1.18.2
+- Fixed issues with part parser (thanks 5thHorseman).
+
 Contract Configurator 1.18.1
 - Fixed NRE on contract save (thanks CecilFF4).
 
