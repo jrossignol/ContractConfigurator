@@ -1,5 +1,6 @@
 Contract Configurator 1.18.2
 - Fixed issues with part parser (thanks 5thHorseman).
+- Fixed exception in Mission Control (thanks Conventia & AccidentalDisassembly).
 
 Contract Configurator 1.18.1
 - Fixed NRE on contract save (thanks CecilFF4).
