@@ -632,10 +632,7 @@ namespace ContractConfigurator.Util
                     }
                     else
                     {
-                        if (selectedButton != null)
-                        {
-                            OnSelectContract(selectedButton, UIRadioButton.CallType.USER, null);
-                        }
+                        OnSelectContract(selectedButton, UIRadioButton.CallType.USER, null);
                     }
                 }
                 return;
@@ -1226,7 +1223,7 @@ namespace ContractConfigurator.Util
         {
             LoggingUtil.LogVerbose(this, "OnSelectContract");
 
-            if (callType != UIRadioButton.CallType.USER)
+            if (callType != UIRadioButton.CallType.USER || button == null)
             {
                 return;
             }
