@@ -1,4 +1,7 @@
-Contract Configurator 1.18.2
+Contract Configurator 1.19.0
+- Added Part.UnlockCost().
+- Added Part.Resources().
+- Added Part.ResourceCapacity().
 - Fixed issues with part parser (thanks 5thHorseman).
 - Fixed exception in Mission Control (thanks Conventia & AccidentalDisassembly).
 
