@@ -59,7 +59,16 @@ namespace ContractConfigurator.Parameters
                 output = "Parts";
                 if (state == ParameterState.Complete)
                 {
-                    output += ": " + ParameterDelegate<Part>.GetDelegateText(this);
+                    output += ": ";
+                    if (maxCount == int.MaxValue && minCount != 1)
+                    {
+                        output += "At least " + minCount + " ";
+                    }
+                    else if (maxCount != int.MaxValue && minCount == 1)
+                    {
+                        output += "At most " + maxCount + " ";
+                    }
+                    output += ParameterDelegate<Part>.GetDelegateText(this);
                 }
             }
             else
@@ -222,7 +231,7 @@ namespace ContractConfigurator.Parameters
 
                 foreach (BaseField field in pm.Fields)
                 {
-                    if (field.name == v.name && field.originalValue.ToString() == v.value)
+                    if (field != null && field.name == v.name && field.originalValue != null && field.originalValue.ToString() == v.value)
                     {
                         return true;
                     }

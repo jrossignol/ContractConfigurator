@@ -4,6 +4,7 @@ Contract Configurator 1.19.0
 - Added Part.ResourceCapacity().
 - Fixed issues with part parser (thanks 5thHorseman).
 - Fixed exception in Mission Control (thanks Conventia & AccidentalDisassembly).
+- Fixed a NullReferenceException in PartValidation.
 
 Contract Configurator 1.18.1
 - Fixed NRE on contract save (thanks CecilFF4).
