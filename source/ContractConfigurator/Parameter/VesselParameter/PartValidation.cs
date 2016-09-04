@@ -87,21 +87,21 @@ namespace ContractConfigurator.Parameters
                     foreach (AvailablePart part in filter.parts)
                     {
                         AddParameter(new CountParameterDelegate<Part>(filter.minCount, filter.maxCount, p => p.partInfo.name == part.name,
-                            part.title));
+                            part.title, false));
                     }
 
                     // Filter by part modules
                     foreach (string partModule in filter.partModules)
                     {
                         AddParameter(new CountParameterDelegate<Part>(filter.minCount, filter.maxCount, p => PartHasModule(p, partModule),
-                            "with module: " + ModuleName(partModule)));
+                            "with module: " + ModuleName(partModule), false));
                     }
 
                     // Filter by part module types
                     foreach (string partModuleType in filter.partModuleTypes)
                     {
                         AddParameter(new CountParameterDelegate<Part>(filter.minCount, filter.maxCount, p => PartHasModuleType(p, partModuleType),
-                            "with module type: " + partModuleType));
+                            "with module type: " + partModuleType, false));
                     }
                 }
                 else

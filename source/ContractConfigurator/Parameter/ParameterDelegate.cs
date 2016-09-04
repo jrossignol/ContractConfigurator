@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -56,6 +57,8 @@ namespace ContractConfigurator.Parameters
         protected Func<T, bool> filterFunc;
         protected ParameterDelegateMatchType matchType;
         protected bool trivial;
+        protected BitArray src = new BitArray(32);
+        protected BitArray dest = new BitArray(32);
 
         public ParameterDelegate()
             : this(null, null, false)
@@ -91,7 +94,6 @@ namespace ContractConfigurator.Parameters
         {
             if (state != newState)
             {
-                LoggingUtil.LogVerbose(this, "Setting state for '" + title + "', state = " + newState);
                 state = newState;
 
                 IContractParameterHost current = this;
@@ -133,27 +135,30 @@ namespace ContractConfigurator.Parameters
         /// <param name="values">Enumerator to filter</param>
         /// <param name="conditionMet">Current state of the condition.</param>
         /// <returns>Enumerator after filtering</returns>
-        protected virtual IEnumerable<T> SetState(IEnumerable<T> values, ref bool conditionMet, bool checkOnly = false)
+        protected virtual void SetState(IEnumerable<T> values, ref bool conditionMet, bool checkOnly = false)
         {
             // Only checking, no state change allowed
             if (checkOnly)
             {
-                return values.Where(filterFunc);
+                ApplyFilterToDest(values);
+                return;
             }
 
-            // Uncertain - return incomplete
-            if (!values.Any())
-            {
-                SetState(matchType != ParameterDelegateMatchType.NONE ? ParameterState.Incomplete : ParameterState.Complete);
-                return values;
-            }
+            // Get the source count
+            int count = GetCount(values, src);
 
             // Apply the filter
-            int count = values.Count();
-            values = values.Where(filterFunc);
+            ApplyFilterToDest(values);
+
+            // Uncertain - return incomplete
+            if (count == 0)
+            {
+                SetState(matchType != ParameterDelegateMatchType.NONE ? ParameterState.Incomplete : ParameterState.Complete);
+                return;
+            }
 
             // Some values - success
-            if (matchType == ParameterDelegateMatchType.VALIDATE_ALL ? values.Count() == count : values.Any())
+            if (matchType == ParameterDelegateMatchType.VALIDATE_ALL ? GetCount(values, dest) == count : count > 0)
             {
                 SetState(matchType != ParameterDelegateMatchType.NONE ? ParameterState.Complete : ParameterState.Failed);
             }
@@ -162,8 +167,6 @@ namespace ContractConfigurator.Parameters
             {
                 SetState(matchType != ParameterDelegateMatchType.NONE ? ParameterState.Failed : ParameterState.Complete);
             }
-
-            return values;
         }
 
         /// <summary>
@@ -174,8 +177,6 @@ namespace ContractConfigurator.Parameters
         /// <returns>Whether value met the criteria.</returns>
         protected virtual bool SetState(T value, bool checkOnly = false)
         {
-            LoggingUtil.LogVerbose(this, "Checking condition for '" + title + "', value = " + value);
-
             bool result = filterFunc.Invoke(value);
 
             // Is state change allowed?
@@ -185,6 +186,67 @@ namespace ContractConfigurator.Parameters
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Initializes the bit arrays based on the given list
+        /// </summary>
+        protected void InitializeBitArrays(IEnumerable<T> values, BitArray current)
+        {
+            // Grow to accomodate
+            int length = src.Length;
+            while (length < values.Count())
+            {
+                length *= 2;
+            }
+            if (length != src.Length)
+            {
+                src.Length = length;
+                dest.Length = length;
+            }
+
+            dest.SetAll(true);
+            src.SetAll(true);
+            if (current != null)
+            {
+                src.And(current);
+            }
+        }
+
+        /// <summary>
+        /// Applies the filter conditions to the destination array
+        /// </summary>
+        protected void ApplyFilterToDest(IEnumerable<T> values)
+        {
+            int i = 0;
+            foreach (T value in values)
+            {
+                if (src.Get(i))
+                {
+                    bool result = filterFunc.Invoke(value);
+                    dest.Set(i++, result);
+                }
+                else
+                {
+                    dest.Set(i++, false);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets the count based on the values and given BitArray.
+        /// </summary>
+        protected static int GetCount(IEnumerable<T> values, BitArray current)
+        {
+            int count = 0;
+            for (int i = values.Count(); i-- > 0;)
+            {
+                if (current.Get(i))
+                {
+                    count++;
+                }
+            }
+            return count;
         }
 
         /// <summary>
@@ -225,9 +287,10 @@ namespace ContractConfigurator.Parameters
         /// <param name="values">The values to enumerator over.</param>
         /// <param name="checkOnly">Only perform a check, don't change values.</param>
         /// <returns></returns>
-        protected static IEnumerable<T> CheckChildConditions(ContractParameter param, IEnumerable<T> values, ref bool conditionMet, bool checkOnly = false)
+        protected static BitArray CheckChildConditions(ContractParameter param, IEnumerable<T> values, ref bool conditionMet, bool checkOnly = false)
         {
             int count = values.Count();
+            BitArray current = null;
 
             int paramCount = param.ParameterCount;
             for (int i = 0; i < paramCount; i++)
@@ -235,32 +298,34 @@ namespace ContractConfigurator.Parameters
                 ParameterDelegate<T> paramDelegate = param[i] as ParameterDelegate<T>;
                 if (paramDelegate != null)
                 {
-                    LoggingUtil.LogVerbose(paramDelegate, "Checking condition for '" + paramDelegate.title + "', input.Any() = " + values.Any());
+                    LoggingUtil.LogVerbose(paramDelegate, "Checking condition for '" + paramDelegate.title + "', conditionMet = " + conditionMet);
 
-                    IEnumerable<T> newValues = paramDelegate.SetState(values, ref conditionMet, checkOnly);
+                    paramDelegate.InitializeBitArrays(values, current);
+                    paramDelegate.SetState(values, ref conditionMet, checkOnly);
                     if (paramDelegate.matchType == ParameterDelegateMatchType.FILTER)
                     {
-                        values = newValues;
+                        current = paramDelegate.dest;
                     }
+                    int newCount = GetCount(values, paramDelegate.dest);
                     switch (paramDelegate.matchType)
                     {
                         case ParameterDelegateMatchType.FILTER:
-                            count = values.Count();
+                            count = newCount;
                             break;
                         case ParameterDelegateMatchType.VALIDATE:
-                            conditionMet &= newValues.Any();
+                            conditionMet &= newCount > 0;
                             break;
                         case ParameterDelegateMatchType.VALIDATE_ALL:
-                            conditionMet &= count == newValues.Count();
+                            conditionMet &= count == newCount;
                             break;
                         case ParameterDelegateMatchType.NONE:
-                            conditionMet &= !newValues.Any();
+                            conditionMet &= newCount == 0;
                             break;
                     }
                 }
             }
 
-            return values;
+            return current;
         }
 
         /// <summary>
@@ -344,11 +409,14 @@ namespace ContractConfigurator.Parameters
             return title;
         }
 
-        protected override IEnumerable<T> SetState(IEnumerable<T> values, ref bool conditionMet, bool checkOnly = false)
+        protected override void SetState(IEnumerable<T> values, ref bool conditionMet, bool checkOnly = false)
         {
-            IEnumerable<T> newValues = ParameterDelegate<T>.CheckChildConditions(this, values, ref conditionMet, checkOnly);
-            base.SetState(newValues, ref conditionMet, checkOnly);
-            return newValues;
+            BitArray current = ParameterDelegate<T>.CheckChildConditions(this, values, ref conditionMet, checkOnly);
+            if (current != null)
+            {
+                src.And(current);
+            }
+            base.SetState(values, ref conditionMet, checkOnly);
         }
     }
 
@@ -361,6 +429,7 @@ namespace ContractConfigurator.Parameters
     {
         private int minCount;
         private int maxCount;
+        public bool ignorePreviousFailures = true;
 
         public CountParameterDelegate()
             : base()
@@ -368,16 +437,17 @@ namespace ContractConfigurator.Parameters
 
         }
 
-        public CountParameterDelegate(int minCount, int maxCount, string extraTitle = "")
-            : this(minCount, maxCount, DefaultFilter, extraTitle)
+        public CountParameterDelegate(int minCount, int maxCount, string extraTitle = "", bool ignorePreviousFailures=true)
+            : this(minCount, maxCount, DefaultFilter, extraTitle, ignorePreviousFailures)
         {
         }
 
-        public CountParameterDelegate(int minCount, int maxCount, Func<T, bool> filterFunc, string extraTitle = "")
+        public CountParameterDelegate(int minCount, int maxCount, Func<T, bool> filterFunc, string extraTitle = "", bool ignorePreviousFailures = true)
             : base("", filterFunc, (minCount == 1 && maxCount == int.MaxValue))
         {
             this.minCount = minCount;
             this.maxCount = maxCount;
+            this.ignorePreviousFailures = ignorePreviousFailures;
 
             title = filterFunc == DefaultFilter ? "Count: " : "";
             if (maxCount == 0)
@@ -408,11 +478,11 @@ namespace ContractConfigurator.Parameters
             return true;
         }
 
-        protected override IEnumerable<T> SetState(IEnumerable<T> values, ref bool conditionMet, bool checkOnly = false)
+        protected override void SetState(IEnumerable<T> values, ref bool conditionMet, bool checkOnly = false)
         {
             // Set our state
-            IEnumerable<T> newValues = values.Where(filterFunc);
-            int count = newValues.Count();
+            ApplyFilterToDest(values);
+            int count = GetCount(values, dest);
             bool countConditionMet = (count >= minCount && count <= maxCount);
             if (!checkOnly)
             {
@@ -421,7 +491,7 @@ namespace ContractConfigurator.Parameters
                     SetState(ParameterState.Complete);
                 }
                 // Something before us failed, so we're uncertain
-                else if (!conditionMet)
+                else if (!conditionMet && ignorePreviousFailures)
                 {
                     SetState(ParameterState.Incomplete);
                 }
@@ -431,8 +501,6 @@ namespace ContractConfigurator.Parameters
                     conditionMet = false;
                 }
             }
-
-            return values;
         }
     }
 }
