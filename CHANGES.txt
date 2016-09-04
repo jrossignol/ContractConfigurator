@@ -5,6 +5,7 @@ Contract Configurator 1.19.0
 - Fixed issues with part parser (thanks 5thHorseman).
 - Fixed exception in Mission Control (thanks Conventia & AccidentalDisassembly).
 - Fixed a NullReferenceException in PartValidation.
+- Fixed an incorrect condition on the ReseachBodies check which caused heaps of garbage to be created (thanks xEvilReeperx).
 
 Contract Configurator 1.18.1
 - Fixed NRE on contract save (thanks CecilFF4).

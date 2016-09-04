@@ -107,7 +107,7 @@ namespace ContractConfigurator.Util
         public static bool VerifyResearchBodiesVersion()
         {
             string minVersion = "1.8";
-            if (ResearchBodiesAssembly == null || !ResearchBodiesCheckDone)
+            if (ResearchBodiesAssembly == null && !ResearchBodiesCheckDone)
             {
                 ResearchBodiesAssembly = Version.VerifyAssemblyVersion("ResearchBodies", minVersion, true);
                 ResearchBodiesCheckDone = true;
