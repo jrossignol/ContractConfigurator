@@ -1230,6 +1230,12 @@ namespace ContractConfigurator.Util
 
             ContractContainer cc = (ContractContainer)button.GetComponent<KSP.UI.UIListItem>().Data;
 
+            // Check requirements before displaying the contract
+            if (cc.contract != null)
+            {
+                cc.contract.MeetRequirements();
+            }
+
             // Mark as read
             if (cc.contract != null)
             {

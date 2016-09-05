@@ -3,6 +3,7 @@ Contract Configurator 1.19.0
 - Added Part.Resources().
 - Added Part.ResourceCapacity().
 - Reworked ParameterDelegate - worst source of in-flight LINQ (ie. garbage).
+- Check contract requirements before displaying them in mission control in case something has changed.
 - Fixed issues with part parser (thanks 5thHorseman).
 - Fixed exception in Mission Control (thanks Conventia & AccidentalDisassembly).
 - Fixed a NullReferenceException in PartValidation.
