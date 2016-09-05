@@ -1494,6 +1494,16 @@ namespace ContractConfigurator.Util
 
             text += "<b><color=#DB8310>Pre-Requisites:</color></b>\n\n";
 
+            // Do text for funds
+            if (contractType.advanceFunds < 0)
+            {
+                CurrencyModifierQuery q = new CurrencyModifierQuery(TransactionReasons.ContractAdvance, contractType.advanceFunds, 0.0f, 0.0f);
+                GameEvents.Modifiers.OnCurrencyModifierQuery.Fire(q);
+                float fundsRequired = contractType.advanceFunds + q.GetEffectDelta(Currency.Funds);
+
+                text += RequirementLine("Must have {0} funds for advance", Funding.CanAfford(fundsRequired));
+            }
+
             // Do text for max completions
             if (contractType.maxCompletions != 0)
             {
