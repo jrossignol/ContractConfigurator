@@ -41,8 +41,8 @@ namespace ContractConfigurator.Parameters
             this.minExperience = minExperience;
             this.maxExperience = maxExperience;
             this.trait = trait;
-            this.kerbals = kerbals.ToList();
-            this.excludeKerbals = excludeKerbals.ToList();
+            this.kerbals = kerbals == null ? new List<Kerbal>() : kerbals.ToList();
+            this.excludeKerbals = excludeKerbals == null ? new List<Kerbal>() : excludeKerbals.ToList();
 
             CreateDelegates();
         }
@@ -310,7 +310,7 @@ namespace ContractConfigurator.Parameters
                 checkOnly = ((VesselParameterGroup)Parent).TrackedVessel != vessel;
             }
 
-            return ParameterDelegate<ProtoCrewMember>.CheckChildConditions(this, GetVesselCrew(vessel), checkOnly);
+            return ParameterDelegate<ProtoCrewMember>.CheckChildConditions(this, GetVesselCrew(vessel, maxCrew == int.MaxValue), checkOnly);
         }
 
         protected string TraitTitle(string traitName)
@@ -325,7 +325,7 @@ namespace ContractConfigurator.Parameters
         /// </summary>
         /// <param name="v"></param>
         /// <returns></returns>
-        protected IEnumerable<ProtoCrewMember> GetVesselCrew(Vessel v)
+        protected IEnumerable<ProtoCrewMember> GetVesselCrew(Vessel v, bool includeTourists)
         {
             if (v == null)
             {
@@ -356,7 +356,7 @@ namespace ContractConfigurator.Parameters
                 // Vessel with crew
                 foreach (ProtoCrewMember pcm in v.GetVesselCrew())
                 {
-                    if (!excludeKerbals.Any(k => k.pcm == pcm))
+                    if (!excludeKerbals.Any(k => k.pcm == pcm) && (includeTourists || pcm.type == ProtoCrewMember.KerbalType.Crew))
                     {
                         yield return pcm;
                     }

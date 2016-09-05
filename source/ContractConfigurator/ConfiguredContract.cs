@@ -10,7 +10,7 @@ using KSP;
 using KSPAchievements;
 using Contracts;
 using Contracts.Agents;
-using Contracts.Parameters;
+using ContractConfigurator.Parameters;
 
 namespace ContractConfigurator
 {
@@ -32,6 +32,77 @@ namespace ContractConfigurator
         public static System.Random random = new System.Random();
 
         private List<IKerbalNameStorage> nameStorageItems = null;
+
+        public bool preLoaded = false;
+
+        public CelestialBody targetBody;
+        private HashSet<CelestialBody> contractBodies = new HashSet<CelestialBody>();
+        private bool bodiesLoaded = false;
+        public HashSet<CelestialBody> ContractBodies
+        {
+            get
+            {
+                if (!bodiesLoaded)
+                {
+                    bodiesLoaded = true;
+                    if (targetBody != null)
+                    {
+                        contractBodies.Add(targetBody);
+                    }
+                    foreach (ContractParameter param in this.GetAllDescendents())
+                    {
+                        ContractConfiguratorParameter ccParam = param as ContractConfiguratorParameter;
+                        if (ccParam == null)
+                        {
+                            continue;
+                        }
+
+                        if (ccParam.targetBody != null)
+                        {
+                            contractBodies.Add(ccParam.targetBody);
+                        }
+
+                        // Special case for ReachState - yuck!
+                        ReachState reachState = param as ReachState;
+                        if (reachState != null && reachState.targetBodies != null)
+                        {
+                            foreach (CelestialBody body in reachState.targetBodies)
+                            {
+                                if (body != null)
+                                {
+                                    contractBodies.Add(body);
+                                }
+                            }
+                        }
+                    }
+                }
+                return contractBodies;
+            }
+        }
+
+        public new ContractPrestige Prestige
+        {
+            get
+            {
+                return prestige;
+            }
+            set
+            {
+                prestige = value;
+            }
+        }
+
+        public new Contract.State ContractState
+        {
+            get
+            {
+                return base.ContractState;
+            }
+            set
+            {
+                SetState(value);
+            }
+        }
 
         /// <summary>
         /// Static method (used by other mods via reflection) to get the contract type name.
@@ -78,6 +149,10 @@ namespace ContractConfigurator
         {
             get
             {
+                if (ContractSystem.Instance == null)
+                {
+                    return Enumerable.Empty<ConfiguredContract>();
+                }
                 return ContractSystem.Instance.Contracts.Where(c => c.ContractState == Contract.State.Active).OfType<ConfiguredContract>();
             }
         }
@@ -85,13 +160,21 @@ namespace ContractConfigurator
         {
             get
             {
-                return ContractSystem.Instance.Contracts.OfType<ConfiguredContract>();
+                if (ContractSystem.Instance == null)
+                {
+                    return Enumerable.Empty<ConfiguredContract>();
+                }
+                return ActiveContracts.Union(ContractPreLoader.Instance.PendingContracts());
             }
         }
         public static IEnumerable<ConfiguredContract> CompletedContracts
         {
             get
             {
+                if (ContractSystem.Instance == null)
+                {
+                    return Enumerable.Empty<ConfiguredContract>();
+                }
                 return ContractSystem.Instance.ContractsFinished.Where(c => c.ContractState == Contract.State.Completed).OfType<ConfiguredContract>();
             }
         }
@@ -123,7 +206,7 @@ namespace ContractConfigurator
                     LoggingUtil.logLevel = LoggingUtil.LogLevel.VERBOSE;
                 }
 
-                LoggingUtil.LogDebug(this.GetType(), "Initializing contract: " + contractType);
+                LoggingUtil.LogDebug(this, "Initializing contract: " + contractType);
 
                 // Set stuff from contract type
                 subType = contractType.name;
@@ -133,12 +216,15 @@ namespace ContractConfigurator
                 // Set the contract expiry
                 if (contractType.maxExpiry == 0.0f)
                 {
+                    LoggingUtil.LogDebug(this, contractType.name + ": Setting expirty to none");
                     SetExpiry();
                     expiryType = DeadlineType.None;
                 }
                 else
                 {
                     SetExpiry(contractType.minExpiry, contractType.maxExpiry);
+                    // Force set the expiry, in stock this is normally done on Contract.Offer()
+                    dateExpire = GameTime + TimeExpiry;
                 }
 
                 // Set the contract deadline
@@ -192,12 +278,32 @@ namespace ContractConfigurator
                 }
 
                 // Generate parameters
-                if (!contractType.GenerateParameters(this))
+                bool paramsGenerated = contractType.GenerateParameters(this);
+                bodiesLoaded = false;
+                contractType.contractBodies = ContractBodies;
+                if (!paramsGenerated)
                 {
                     return false;
                 }
 
-                LoggingUtil.LogVerbose(this.GetType(), "Initialized contract: " + contractType);
+                // Do a very late research bodies check
+                try
+                {
+                    contractType.ResearchBodiesCheck(this);
+                }
+                catch (ContractRequirementException)
+                {
+                    return false;
+                }
+
+                // Copy in the requirement nodes
+                requirements = new List<ContractRequirement>();
+                foreach (ContractRequirement requirement in contractType.Requirements)
+                {
+                    requirements.Add(requirement);
+                }
+
+                LoggingUtil.LogDebug(this, "Initialized contract: " + contractType);
                 return true;
             }
             catch (Exception e)
@@ -231,8 +337,7 @@ namespace ContractConfigurator
                 }
                 else
                 {
-                    LoggingUtil.LogVerbose(this, "Generate()");
-                    return ContractPreLoader.Instance.GenerateContract(this);
+                    return false;
                 }
             }
             catch (Exception e)
@@ -250,78 +355,6 @@ namespace ContractConfigurator
 
                 return false;
             }
-        }
-
-        /// <summary>
-        /// Performs a shallow copy of the contract details from the given contract
-        /// </summary>
-        /// <param name="contract">The contract to copy from.</param>
-        public void CopyFrom(ConfiguredContract contract)
-        {
-            // Copy details from the original
-            contractType = contract.contractType;
-            subType = contract.subType;
-            hash = contract.hash;
-            AutoAccept = contract.AutoAccept;
-            dateExpire = contract.dateExpire;
-            TimeExpiry = contract.TimeExpiry;
-            expiryType = contract.expiryType;
-            dateDeadline = contract.dateDeadline;
-            TimeDeadline = contract.TimeDeadline;
-            deadlineType = contract.deadlineType;
-            FundsAdvance = contract.FundsAdvance;
-            FundsCompletion = contract.FundsCompletion;
-            FundsFailure = contract.FundsFailure;
-            ReputationCompletion = contract.ReputationCompletion;
-            ReputationFailure = contract.ReputationFailure;
-            ScienceCompletion = contract.ScienceCompletion;
-            title = contract.title;
-            synopsis = contract.synopsis;
-            completedMessage = contract.completedMessage;
-            notes = contract.notes;
-            agent = contract.agent;
-            description = contract.description;
-            prestige = contract.prestige;
-            uniqueData = new Dictionary<string, object>(contract.uniqueData);
-
-            // Copy behaviours
-            behaviours = contract.behaviours;
-            contract.behaviours = new List<ContractBehaviour>();
-
-            // Copy parameters
-            for (int i = 0; i < contract.ParameterCount; i++)
-            {
-                // Save the old parameter
-                ConfigNode node = new ConfigNode("PARAMETER");
-                ContractParameter origParameter = contract.GetParameter(i);
-                origParameter.Save(node);
-
-                // Load into a new copy
-                ContractParameter parameter = (ContractParameter)Activator.CreateInstance(origParameter.GetType());
-                AddParameter(parameter, null);
-                parameter.Load(node);
-            }
-
-            // Copy requirements
-            requirements = new List<ContractRequirement>();
-            foreach (ContractRequirement requirement in contract.contractType.Requirements)
-            {
-                // Save the old requirement
-                ConfigNode node = new ConfigNode("REQUIREMENT");
-                requirement.Save(node);
-
-                // Load into a new copy
-                ContractRequirement childRequirement = ContractRequirement.LoadRequirement(node);
-                if (childRequirement != null)
-                {
-                    requirements.Add(childRequirement);
-                }
-            }
-
-            // Run the OnOffered for behaviours
-            OnOffered();
-
-            LoggingUtil.LogInfo(this, "Generated contract: " + contractType);
         }
 
         /// <summary>
@@ -386,6 +419,7 @@ namespace ContractConfigurator
                 completedMessage = ConfigNodeUtil.ParseValue<string>(node, "completedMessage", contractType != null ? contractType.completedMessage : "");
                 notes = ConfigNodeUtil.ParseValue<string>(node, "notes", contractType != null ? contractType.notes : "");
                 hash = ConfigNodeUtil.ParseValue<int>(node, "hash", contractType != null ? contractType.hash : 0);
+                targetBody = ConfigNodeUtil.ParseValue<CelestialBody>(node, "targetBody", null);
 
                 // Load the unique data
                 ConfigNode dataNode = node.GetNode("UNIQUE_DATA");
@@ -424,13 +458,6 @@ namespace ContractConfigurator
                 {
                     ContractBehaviour behaviour = ContractBehaviour.LoadBehaviour(child, this);
                     behaviours.Add(behaviour);
-                }
-
-                requirements = new List<ContractRequirement>();
-                foreach (ConfigNode child in node.GetNodes("REQUIREMENT"))
-                {
-                    ContractRequirement requirement = ContractRequirement.LoadRequirement(child);
-                    requirements.Add(requirement);
                 }
 
                 // If the contract type is null, then it likely means that it was uninstalled
@@ -494,6 +521,11 @@ namespace ContractConfigurator
                 }
                 node.AddValue("hash", hash);
 
+                if (targetBody != null)
+                {
+                    node.AddValue("targetBody", targetBody.name);
+                }
+
                 // Store the unique data
                 if (uniqueData.Any())
                 {
@@ -516,9 +548,12 @@ namespace ContractConfigurator
                 if (requirements == null)
                 {
                     requirements = new List<ContractRequirement>();
-                    foreach (ContractRequirement requirement in contractType.Requirements)
+                    if (contractType != null)
                     {
-                        requirements.Add(requirement);
+                        foreach (ContractRequirement requirement in contractType.Requirements)
+                        {
+                            requirements.Add(requirement);
+                        }
                     }
                 }
 
@@ -534,7 +569,7 @@ namespace ContractConfigurator
             }
             catch (Exception e)
             {
-                LoggingUtil.LogError(this, "Error saving contract to persistance file!");
+                LoggingUtil.LogError(this, "Error saving contract '" + subType + "' to persistance file!");
                 LoggingUtil.LogException(e);
                 ExceptionLogWindow.DisplayFatalException(ExceptionLogWindow.ExceptionSituation.CONTRACT_SAVE, e, this);
 
@@ -559,9 +594,9 @@ namespace ContractConfigurator
                 // Special case for pre-loader
                 return true;
             }
+
             // No ContractType chosen
-            LoggingUtil.LogVerbose(this, "MeetRequirements()");
-            return ContractPreLoader.Instance.GenerateContract(this);
+            return false;
         }
 
         public override string MissionControlTextRich()
@@ -709,6 +744,7 @@ namespace ContractConfigurator
             }
         }
 
+
         protected override void OnRegister()
         {
             base.OnRegister();
@@ -717,6 +753,8 @@ namespace ContractConfigurator
             {
                 behaviour.Register();
             }
+
+            GameEvents.onVesselChange.Add(new EventData<Vessel>.OnEvent(OnVesselChange));
         }
 
         protected override void OnUnregister()
@@ -727,6 +765,8 @@ namespace ContractConfigurator
             {
                 behaviour.Unregister();
             }
+
+            GameEvents.onVesselChange.Remove(new EventData<Vessel>.OnEvent(OnVesselChange));
         }
 
         protected override void OnUpdate()
@@ -735,6 +775,30 @@ namespace ContractConfigurator
             foreach (ContractBehaviour behaviour in behaviours)
             {
                 behaviour.Update();
+            }
+        }
+
+        protected void OnVesselChange(Vessel v)
+        {
+            CheckVesselParameters(this);
+        }
+
+        protected void CheckVesselParameters(IContractParameterHost host)
+        {
+            // Check if any VesselParameter parameters that are not part of a VPG are reset
+            for (int i = host.ParameterCount - 1; i >= 0; i--)
+            {
+                ContractParameter param = host[i];
+                if (!(param is VesselParameterGroup))
+                {
+                    VesselParameter vp = param as VesselParameter;
+                    if (vp != null && vp.Enabled && vp.State == ParameterState.Complete)
+                    {
+                        vp.SetState(ParameterState.Incomplete);
+                    }
+
+                    CheckVesselParameters(param);
+                }
             }
         }
 
@@ -774,25 +838,4 @@ namespace ContractConfigurator
             }
         }
     }
-
-    // Additional ConfiguredContract classes to trick the contract system into giving us the appropriate weight
-    public class ConfiguredContract1 : ConfiguredContract { }
-    public class ConfiguredContract2 : ConfiguredContract { }
-    public class ConfiguredContract3 : ConfiguredContract { }
-    public class ConfiguredContract4 : ConfiguredContract { }
-    public class ConfiguredContract5 : ConfiguredContract { }
-    public class ConfiguredContract6 : ConfiguredContract { }
-    public class ConfiguredContract7 : ConfiguredContract { }
-    public class ConfiguredContract8 : ConfiguredContract { }
-    public class ConfiguredContract9 : ConfiguredContract { }
-    public class ConfiguredContract10 : ConfiguredContract { }
-    public class ConfiguredContract11 : ConfiguredContract { }
-    public class ConfiguredContract12 : ConfiguredContract { }
-    public class ConfiguredContract13 : ConfiguredContract { }
-    public class ConfiguredContract14 : ConfiguredContract { }
-    public class ConfiguredContract15 : ConfiguredContract { }
-    public class ConfiguredContract16 : ConfiguredContract { }
-    public class ConfiguredContract17 : ConfiguredContract { }
-    public class ConfiguredContract18 : ConfiguredContract { }
-    public class ConfiguredContract19 : ConfiguredContract { }
 }

@@ -14,7 +14,7 @@ namespace ContractConfigurator.Parameters
     /// </summary>
     public class ReachState : VesselParameter
     {
-        protected List<CelestialBody> targetBodies { get; set; }
+        public List<CelestialBody> targetBodies { get; set; }
         protected string biome { get; set; }
         protected List<Vessel.Situations> situation { get; set; }
         protected float minAltitude { get; set; }

@@ -19,11 +19,11 @@ namespace ContractConfigurator
     {
         private static Dictionary<string, Type> factories = new Dictionary<string, Type>();
 
-        protected string name;
+        public string name;
         protected string type;
         protected virtual ContractType contractType { get; set; }
         protected CelestialBody _targetBody = null;
-        protected CelestialBody targetBody
+        public CelestialBody targetBody
         {
             get { return _targetBody ?? contractType.targetBody; }
         }
@@ -53,6 +53,13 @@ namespace ContractConfigurator
         public string config { get; private set; }
         public string log { get; private set; }
         public DataNode dataNode { get; private set; }
+        public Version minVersion
+        {
+            get
+            {
+                return contractType.minVersion;
+            }
+        }
 
         /// <summary>
         /// Loads the ParameterFactory from the given ConfigNode.  The base version performs the following:

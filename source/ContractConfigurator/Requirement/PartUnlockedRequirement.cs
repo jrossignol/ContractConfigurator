@@ -52,5 +52,28 @@ namespace ContractConfigurator
             }
             return true;
         }
+
+        protected override string RequirementText()
+        {
+            string partStr = "";
+            for (int i = 0; i < parts.Count; i++)
+            {
+                if (i != 0)
+                {
+                    if (i == parts.Count - 1)
+                    {
+                        partStr += " and ";
+                    }
+                    else
+                    {
+                        partStr += ", ";
+                    }
+                }
+
+                partStr += parts[i].title;
+            }
+
+            return "Must " + (invertRequirement ? "not " : "") + "have unlocked the " + partStr;
+        }
     }
 }

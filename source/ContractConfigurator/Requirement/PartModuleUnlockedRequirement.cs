@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 using KSP;
-using KSPAchievements;
+using ContractConfigurator.Parameters;
 
 namespace ContractConfigurator
 {
@@ -17,7 +17,6 @@ namespace ContractConfigurator
 
         public override bool LoadFromConfig(ConfigNode configNode)
         {
-            Debug.Log("PartModuleUnlockedRequirement.LoadFromConfig");
             // Load base class
             bool valid = base.LoadFromConfig(configNode);
 
@@ -82,6 +81,29 @@ namespace ContractConfigurator
                 }
             }
             return true;
+        }
+
+        protected override string RequirementText()
+        {
+            string partStr = "";
+            for (int i = 0; i < partModules.Count; i++)
+            {
+                if (i != 0)
+                {
+                    if (i == partModules.Count - 1)
+                    {
+                        partStr += " or ";
+                    }
+                    else
+                    {
+                        partStr += ", ";
+                    }
+                }
+
+                partStr += PartValidation.ModuleName(partModules[i]);
+            }
+
+            return "Must " + (invertRequirement ? "not " : "") + "have a part unlocked with " + partStr;
         }
     }
 }

@@ -78,18 +78,19 @@ namespace ContractConfigurator.Parameters
                 waypoint = FetchWaypoint(Root, true);
             }
 
+            string output = title;
             if (string.IsNullOrEmpty(title) && waypoint != null)
             {
                 if (waypoint.isOnSurface)
                 {
-                    title = "Location: " + waypoint.name;
+                    output = "Location: " + waypoint.name;
                 }
                 else
                 {
-                    title = "Location: " + waypoint.altitude.ToString("N0") + "meters above " + waypoint.name;
+                    output = "Location: " + waypoint.altitude.ToString("N0") + "meters above " + waypoint.name;
                 }
             }
-            return title;
+            return output;
         }
 
         protected override void OnParameterSave(ConfigNode node)

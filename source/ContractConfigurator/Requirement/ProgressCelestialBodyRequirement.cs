@@ -70,7 +70,7 @@ namespace ContractConfigurator
             CelestialBodySubtree cbProgress = GetCelestialBodySubtree();
             if (cbProgress == null)
             {
-                LoggingUtil.LogError(this.GetType(), ": ProgressNode for targetBody " + targetBody.bodyName + " not found.");
+                LoggingUtil.LogError(this, ": ProgressNode for targetBody " + targetBody.bodyName + " not found.");
                 return false;
             }
 
@@ -84,6 +84,21 @@ namespace ContractConfigurator
             }
 
             return true;
+        }
+
+        protected string CheckTypeString()
+        {
+            return checkType == null ? "" : checkType == CheckType.MANNED ? "crewed " : "uncrewed ";
+        }
+
+        protected string ACheckTypeString()
+        {
+            return checkType == null ? "a " : checkType == CheckType.MANNED ? "a crewed " : "an uncrewed ";
+        }
+
+        protected string AnCheckTypeString()
+        {
+            return checkType == null ? "an " : checkType == CheckType.MANNED ? "a crewed " : "an uncrewed ";
         }
     }
 }

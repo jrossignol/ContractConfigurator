@@ -149,7 +149,7 @@ namespace ContractConfigurator.Behaviour
                     Type type = ConfigNodeUtil.ParseValue<Type>(child, "type", typeof(double));
                     foreach (ConfigNode.Value pair in child.values)
                     {
-                        if (pair.name != "parameter" && pair.name != "type")
+                        if (pair.name != "parameter" && pair.name != "type" && !string.IsNullOrEmpty(pair.value))
                         {
                             ExpVal expVal = new ExpVal(type, pair.name, pair.value);
                             if (factory != null)

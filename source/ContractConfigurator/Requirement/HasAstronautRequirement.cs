@@ -73,5 +73,53 @@ namespace ContractConfigurator
             int count = crew.Count();
             return count >= minCount && count <= maxCount;
         }
+
+        protected override string RequirementText()
+        {
+            string output = "Must " + (invertRequirement ? "not " : "") + "have ";
+
+            if (minCount == maxCount)
+            {
+                if (minCount == 1)
+                {
+                    output += "an astronaut";
+                }
+                else
+                {
+                    output += "exactly " + minCount + " astronauts";
+                }
+            }
+            else if (minCount > 0 && maxCount < int.MaxValue)
+            {
+                output += "between " + minCount + " and " + maxCount + " astronauts";
+            }
+            else if (minCount == 1)
+            {
+                output += "at least one astronaut";
+            }
+            else if (minCount > 0)
+            {
+                output += "at least " + minCount + " astronauts";
+            }
+            else if (maxCount < int.MaxValue)
+            {
+                output += "no more than " + maxCount + " astronauts";
+            }
+
+            if (minExperience > 0 && maxExperience < 5)
+            {
+                output += " with between " + minExperience + " and " + maxExperience + " experience levels";
+            }
+            else if (minExperience > 0)
+            {
+                output += " with at least " + minExperience + " experience levels";
+            }
+            else if (maxExperience < 5)
+            {
+                output += " with no more than  " + maxExperience + " experience levels";
+            }
+
+            return output;
+        }
     }
 }

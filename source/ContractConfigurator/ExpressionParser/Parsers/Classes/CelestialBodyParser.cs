@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using UnityEngine;
+using FinePrint.Utilities;
 using KSPAchievements;
 
 namespace ContractConfigurator.ExpressionParser
@@ -59,7 +60,10 @@ namespace ContractConfigurator.ExpressionParser
             RegisterMethod(new Method<CelestialBody, bool>("HaveLandedOn", cb => IsReached(cb, ProgressItem.LANDED), false));
             RegisterMethod(new Method<CelestialBody, bool>("HaveEscaped", cb => IsReached(cb, ProgressItem.ESCAPED), false));
             RegisterMethod(new Method<CelestialBody, bool>("HaveReturnedFrom", cb => IsReached(cb, ProgressItem.RETURNED_FROM), false));
-            
+
+            RegisterMethod(new Method<CelestialBody, bool>("CanHaveKolniyaOrbit", cb => cb != null && CelestialUtilities.CanBodyBeKolniya(cb)));
+            RegisterMethod(new Method<CelestialBody, bool>("CanHaveTundraOrbit", cb => cb != null && CelestialUtilities.CanBodyBeTundra(cb)));
+
             RegisterMethod(new Method<CelestialBody, double>("Radius", cb => cb != null ? cb.Radius : 0.0));
             RegisterMethod(new Method<CelestialBody, double>("Mass", cb => cb != null ? cb.Mass : 0.0));
             RegisterMethod(new Method<CelestialBody, double>("RotationalPeriod", cb => cb != null ? cb.rotationPeriod : 0.0));
@@ -72,6 +76,7 @@ namespace ContractConfigurator.ExpressionParser
             RegisterMethod(new Method<CelestialBody, CelestialBody>("Parent", cb => cb != null ? cb.referenceBody : null));
             RegisterMethod(new Method<CelestialBody, List<CelestialBody>>("Children", cb => cb != null ? cb.orbitingBodies.ToList() : new List<CelestialBody>()));
             RegisterMethod(new Method<CelestialBody, List<PQSCity>>("PQSCities", cb => cb != null ? cb.GetComponentsInChildren<PQSCity>(true).ToList() : new List<PQSCity>()));
+            RegisterMethod(new Method<CelestialBody, int>("Index", cb => FlightGlobals.Bodies.IndexOf(cb)));
 
             RegisterMethod(new Method<CelestialBody, List<Biome>>("Biomes", cb => cb != null && cb.BiomeMap != null ?
                 cb.BiomeMap.Attributes.Select(att => new Biome(cb, att.name)).ToList() : new List<Biome>()));

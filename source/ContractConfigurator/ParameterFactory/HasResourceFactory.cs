@@ -34,7 +34,7 @@ namespace ContractConfigurator
 
                 valid &= ConfigNodeUtil.ParseValue<double>(childNode, "minQuantity", x => filter.minQuantity = x, this, 0.01, x => Validation.GE(x, 0.0));
                 valid &= ConfigNodeUtil.ParseValue<double>(childNode, "maxQuantity", x => filter.maxQuantity = x, this, double.MaxValue, x => Validation.GE(x, 0.0));
-                valid &= ConfigNodeUtil.ParseValue<PartResourceDefinition>(childNode, "resource", x => filter.resource = x, this);
+                valid &= ConfigNodeUtil.ParseValue<Resource>(childNode, "resource", x => filter.resource = x.res, this);
 
                 filters.Add(filter);
             }

@@ -156,9 +156,9 @@ namespace ContractConfigurator
             }
             if (HighLogic.LoadedScene != GameScenes.MAINMENU)
             {
-                if (GUILayout.Button("Force Check Requirements"))
+                if (GUILayout.Button("Force Contract Generation"))
                 {
-                    CheckRequirements();
+                    GenerateContracts();
                 }
             }
             GUILayout.EndHorizontal();
@@ -557,22 +557,11 @@ namespace ContractConfigurator
         }
 
         /// <summary>
-        /// Does a forced check of all contract requirements
+        /// Does a forced contract generation pass.
         /// </summary>
-        static void CheckRequirements()
+        static void GenerateContracts()
         {
-            foreach (ContractType contractType in ContractType.AllValidContractTypes)
-            {
-                foreach (ParameterFactory paramFactory in contractType.ParamFactories)
-                {
-                    CheckRequirement(paramFactory);
-                }
-
-                foreach (ContractRequirement requirement in contractType.Requirements)
-                {
-                    CheckRequirement(requirement);
-                }
-            }
+            ContractPreLoader.ForceContractGenerationPass();
         }
 
         /// <summary>

@@ -8,16 +8,22 @@ using KSPAchievements;
 
 namespace ContractConfigurator
 {
-    /*
-     * ContractRequirement to provide requirement for player having orbited a
-     * specific CelestialBody.
-     */
+    /// <summary>
+    /// ContractRequirement to provide requirement for player having orbited a specific CelestialBody.
+    /// </summary>
     public class OrbitRequirement : ProgressCelestialBodyRequirement
     {
         public override bool RequirementMet(ConfiguredContract contract)
         {
             return base.RequirementMet(contract) &&
                 GetCelestialBodySubtree().orbit.IsComplete;
+        }
+
+        protected override string RequirementText()
+        {
+            string output = "Must " + (invertRequirement ? "not " : "") + "have performed " + AnCheckTypeString() + "orbit of " + (targetBody == null ? "the target body" : targetBody.theName);
+
+            return output;
         }
     }
 }

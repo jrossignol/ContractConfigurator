@@ -6,7 +6,7 @@ using System.Text;
 using UnityEngine;
 using KSP;
 using Contracts;
-using Contracts.Parameters;
+using KSP.UI.Screens;
 
 namespace ContractConfigurator
 {
@@ -14,18 +14,6 @@ namespace ContractConfigurator
         GameScenes.FLIGHT, GameScenes.TRACKSTATION, GameScenes.SPACECENTER)]
     public class ContractPreLoader : ScenarioModule
     {
-        private class ContractDetails
-        {
-            public float lastGenerationFailure;
-            public Queue<ConfiguredContract> contracts = new Queue<ConfiguredContract>();
-            public Contract.ContractPrestige prestige;
-
-            public ContractDetails(Contract.ContractPrestige prestige)
-            {
-                this.prestige = prestige;
-            }
-        }
-
         public static EventVoid OnInitializeValues = new EventVoid("OnPreLoaderInitializeValues");
         public static EventVoid OnInitializeFail = new EventVoid("OnPreLoaderInitializeFail");
 
@@ -33,39 +21,53 @@ namespace ContractConfigurator
 
         private const int MAX_CONTRACTS = 5;
         private const float MAX_TIME = 0.0075f;
-        private const float FAILURE_WAIT_TIME = 30.0f;
+        private const float GLOBAL_FAILURE_WAIT_TIME = 30.0f;
+        private const float FAILURE_WAIT_TIME = 60.0f;
+        private const float RANDOM_MIN = -15.0f;
+        private const float RANDOM_MAX = 30.0f;
 
-        private static int nextContractGroup = 0;
-        System.Random rand = new System.Random();
+        private static System.Random rand = new System.Random();
+        private static int nextContractGroup = rand.Next();
 
-        private Dictionary<Contract.ContractPrestige, ContractDetails> contractDetails = new Dictionary<Contract.ContractPrestige, ContractDetails>();
-        private Queue<ConfiguredContract> priorityContracts = new Queue<ConfiguredContract>();
-        private IEnumerator<ConfiguredContract> currentEnumerator = null;
-        private ContractDetails currentDetails = null;
+        private List<ConfiguredContract> contracts = new List<ConfiguredContract>();
 
         private string lastKey = null;
+        private double lastGenerationFailure;
+        private IEnumerator<ConfiguredContract> contractEnumerator;
+        private bool contractsLoaded = false;
+        private double contractsLoadCheckTime = -1.0;
+
+        public HashSet<Guid> unreadContracts = new HashSet<Guid>();
 
         public ContractPreLoader()
         {
             Instance = this;
-
-            contractDetails[Contract.ContractPrestige.Trivial] = new ContractDetails(Contract.ContractPrestige.Trivial);
-            contractDetails[Contract.ContractPrestige.Significant] = new ContractDetails(Contract.ContractPrestige.Significant);
-            contractDetails[Contract.ContractPrestige.Exceptional] = new ContractDetails(Contract.ContractPrestige.Exceptional);
         }
 
         void Start()
         {
+            GameEvents.Contract.onOffered.Add(new EventData<Contract>.OnEvent(OnContractOffered));
+            GameEvents.Contract.onAccepted.Add(new EventData<Contract>.OnEvent(OnContractAccept));
             GameEvents.Contract.onFinished.Add(new EventData<Contract>.OnEvent(OnContractFinish));
-            GameEvents.Contract.onDeclined.Add(new EventData<Contract>.OnEvent(OnContractFinish));
+            GameEvents.Contract.onDeclined.Add(new EventData<Contract>.OnEvent(OnContractDecline));
+            GameEvents.Contract.onContractsLoaded.Add(new EventVoid.OnEvent(OnContractsLoaded));
             GameEvents.OnProgressReached.Add(new EventData<ProgressNode>.OnEvent(OnProgressReached));
         }
 
         void OnDestroy()
         {
+            GameEvents.Contract.onOffered.Remove(new EventData<Contract>.OnEvent(OnContractOffered));
+            GameEvents.Contract.onAccepted.Remove(new EventData<Contract>.OnEvent(OnContractAccept));
             GameEvents.Contract.onFinished.Remove(new EventData<Contract>.OnEvent(OnContractFinish));
-            GameEvents.Contract.onDeclined.Remove(new EventData<Contract>.OnEvent(OnContractFinish));
+            GameEvents.Contract.onDeclined.Remove(new EventData<Contract>.OnEvent(OnContractDecline));
+            GameEvents.Contract.onContractsLoaded.Remove(new EventVoid.OnEvent(OnContractsLoaded));
             GameEvents.OnProgressReached.Remove(new EventData<ProgressNode>.OnEvent(OnProgressReached));
+
+            // Unregister anything from offered contracts
+            foreach (ConfiguredContract contract in contracts)
+            {
+                contract.Unregister();
+            }
         }
 
         void OnProgressReached(ProgressNode p)
@@ -74,83 +76,141 @@ namespace ContractConfigurator
             ResetGenerationFailure();
         }
 
+        void OnContractOffered(Contract c)
+        {
+            LoggingUtil.LogVerbose(this, "OnContractOffered");
+
+            unreadContracts.Add(c.ContractGuid);
+        }
+
+        void OnContractAccept(Contract c)
+        {
+            LoggingUtil.LogVerbose(this, "OnContractAccept");
+
+            ConfiguredContract cc = c as ConfiguredContract;
+            if (cc != null && cc.preLoaded)
+            {
+                contracts.Remove(cc);
+                ContractSystem.Instance.Contracts.Add(cc);
+            }
+        }
+
+        void OnContractDecline(Contract c)
+        {
+            LoggingUtil.LogVerbose(this, "OnContractDecline");
+
+            // Reset generation failures for just this contract type
+            ConfiguredContract cc = c as ConfiguredContract;
+            if (cc != null)
+            {
+                if (cc.preLoaded)
+                {
+                    contracts.Remove(cc);
+                }
+                if (cc.contractType != null)
+                {
+                    lastGenerationFailure = -100.0;
+                    cc.contractType.failedGenerationAttempts = 0;
+                    cc.contractType.lastGenerationFailure = -100.0;
+                }
+            }
+        }
+
+        void OnContractsLoaded()
+        {
+            LoggingUtil.LogVerbose(this, "OnContractsLoaded");
+            contractsLoaded = true;
+        }
+
         void OnContractFinish(Contract c)
         {
-            // Reset the generation failure
-            if (c != null)
+            LoggingUtil.LogVerbose(this, "OnContractFinish");
+
+            // Remove if it exists
+            ConfiguredContract cc = c as ConfiguredContract;
+            if (cc != null)
             {
-                ResetGenerationFailure(c.Prestige);
+                contracts.Remove(cc);
+            }
+
+            // Reset the generation failures for all contract types
+            ResetGenerationFailure();
+        }
+
+        /// <summary>
+        /// Static method to be used via reflection to force a contract generation pass.
+        /// </summary>
+        public static void ForceContractGenerationPass()
+        {
+            if (Instance != null)
+            {
+                Instance.ResetGenerationFailure();
             }
         }
 
         public void ResetGenerationFailure()
         {
-            foreach (Contract.ContractPrestige prestige in contractDetails.Keys)
-            {
-                ResetGenerationFailure(prestige);
-            }
-        }
+            LoggingUtil.LogVerbose(this, "ResetGenerationFailure");
 
-        void ResetGenerationFailure(Contract.ContractPrestige prestige)
-        {
-            LoggingUtil.LogVerbose(this, "Resetting generation failure marker for " + prestige);
-            contractDetails[prestige].lastGenerationFailure = 0.0f;
+            lastGenerationFailure = -100.0;
+            foreach (ContractType ct in ContractType.AllValidContractTypes)
+            {
+                ct.failedGenerationAttempts = 0;
+                ct.lastGenerationFailure = -100.0;
+            }
         }
 
         void Update()
         {
-            // Check if we need to make a new enumerator
-            if (currentEnumerator == null)
+            // Give the contract system a maximum of 5 seconds to start up.  Need to do this because the OnContractsLoaded event isn't fired
+            // on a brand new save
+            if (contractsLoadCheckTime < 0)
             {
-                // Prepare a list of possible selections
-                IEnumerable<ContractDetails> selections = contractDetails.Values.Where(cd =>
-                    UnityEngine.Time.realtimeSinceStartup - cd.lastGenerationFailure > FAILURE_WAIT_TIME &&
-                    (cd.contracts.Count() < MAX_CONTRACTS || ContractType.AllValidContractTypes.Any(ct => ct.autoAccept && ct.prestige.Contains(cd.prestige))));
+                contractsLoadCheckTime = Time.realtimeSinceStartup;
+            }
 
-                // Nothing is ready
-                if (!selections.Any())
-                {
-                    return;
-                }
+            // Wait for startup of contract system
+            if (ContractSystem.Instance == null || (!contractsLoaded && contractsLoadCheckTime < Time.realtimeSinceStartup + 5.0 && MissionControl.Instance == null))
+            {
+                return;
+            }
 
-                // Get a selection
-                int r = rand.Next(selections.Count());
-                currentDetails = selections.ElementAt(r);
-                currentEnumerator = ContractGenerator(currentDetails.prestige).GetEnumerator();
-
-                LoggingUtil.LogVerbose(this, "Got an enumerator, last failure time was " +
-                    (UnityEngine.Time.realtimeSinceStartup - currentDetails.lastGenerationFailure) + " seconds ago");
-                
+            if (contractEnumerator == null)
+            {
+                contractEnumerator = ContractEnumerator().GetEnumerator();
             }
 
             // Loop through the enumerator until we run out of time, hit the end or generate a contract
             float start = UnityEngine.Time.realtimeSinceStartup;
             int count = 0;
-            while (UnityEngine.Time.realtimeSinceStartup - start < MAX_TIME)
+            while (UnityEngine.Time.realtimeSinceStartup - start < MAX_TIME && lastGenerationFailure + GLOBAL_FAILURE_WAIT_TIME < Time.realtimeSinceStartup)
             {
                 count++;
-                if (!currentEnumerator.MoveNext())
+                if (!contractEnumerator.MoveNext())
                 {
                     // We ran through the entire enumerator, mark the failure
                     LoggingUtil.LogVerbose(this, "Contract generation failure");
-                    currentDetails.lastGenerationFailure = UnityEngine.Time.realtimeSinceStartup;
-                    currentEnumerator = null;
+                    lastGenerationFailure = UnityEngine.Time.realtimeSinceStartup + (float)(rand.NextDouble() * (RANDOM_MAX - RANDOM_MIN) + RANDOM_MIN);
+                    contractEnumerator = null;
                     break;
                 }
 
-                ConfiguredContract contract = currentEnumerator.Current;
+                ConfiguredContract contract = contractEnumerator.Current;
                 if (contract != null)
                 {
-                    (contract.contractType.autoAccept ? priorityContracts : currentDetails.contracts).Enqueue(contract);
-
-                    // We generated a high priority contract...  force the system to do a generation pass
+                    // If the contract is auto-accept, add it immediately
                     if (contract.contractType.autoAccept)
                     {
-                        int seed = rand.Next(int.MaxValue);
-                        ContractSystem.Instance.GenerateContracts(ref seed, contract.Prestige, 1);
+                        ContractSystem.Instance.Contracts.Add(contract);
+                        contract.Accept();
+                    }
+                    else
+                    {
+                        contract.preLoaded = true;
+                        contracts.Add(contract);
                     }
 
-                    currentEnumerator = null;
+                    contractEnumerator = null;
                     break;
                 }
             }
@@ -160,248 +220,200 @@ namespace ContractConfigurator
                 LoggingUtil.LogDebug(this, "Contract attribute took too long (" + (UnityEngine.Time.realtimeSinceStartup - start) +
                     " seconds) to generate: " + lastKey);
             }
+
+            // Call update on offered contracts to check expiry, etc - do this infrequently
+            if (UnityEngine.Time.frameCount % 20 == 0 && contracts.Count > 0)
+            {
+                int index = (UnityEngine.Time.frameCount / 20) % contracts.Count;
+                contracts[index].Update();
+            }
         }
 
-        private IEnumerable<ConfiguredContract> ContractGenerator(Contract.ContractPrestige prestige)
+        private IEnumerable<ConfiguredContract> ContractEnumerator()
         {
             // Loop through all the contract groups
             IEnumerable<ContractGroup> groups = ContractGroup.AllGroups;
             for (int i = 0; i < groups.Count(); i++)
             {
-                ContractGroup group = groups.ElementAt(nextContractGroup);
                 nextContractGroup = (nextContractGroup + 1) % groups.Count();
+                ContractGroup group = groups.ElementAt(nextContractGroup);
 
-                foreach (ConfiguredContract c in ContractGenerator(prestige, group))
+                List<ContractType> contractTypes = ContractType.AllValidContractTypes.ToList();
+                contractTypes.Shuffle();
+                foreach (ContractType ct in contractTypes)
                 {
-                    yield return c;
+                    // Is the contract time part of this group, and is it allowed to attempt to generate
+                    if (ct.group == group && ct.lastGenerationFailure + FAILURE_WAIT_TIME < Time.realtimeSinceStartup)
+                    {
+                        if (ct.lastGenerationFailure != -100)
+                        {
+                            ct.lastGenerationFailure = -100;
+                            ct.failedGenerationAttempts = 0;
+                        }
+
+                        // Are we in the right scene, or is is a special contract that can generate in any scene
+                        if (HighLogic.LoadedScene == GameScenes.SPACECENTER || ct.autoAccept)
+                        {
+                            foreach (ConfiguredContract contract in GenerateContract(ct))
+                            {
+                                yield return contract;
+                            }
+                        }
+                    }
                 }
             }
         }
 
-        private IEnumerable<ConfiguredContract> ContractGenerator(Contract.ContractPrestige prestige, ContractGroup group)
+        private IEnumerable<ConfiguredContract> GenerateContract(ContractType contractType)
         {
-            ConfiguredContract templateContract =
-                Contract.Generate(typeof(ConfiguredContract), prestige, rand.Next(), Contract.State.Withdrawn) as ConfiguredContract;
-
-            // Build a weighted list of ContractTypes to choose from
-            Dictionary<ContractType, double> validContractTypes = new Dictionary<ContractType, double>();
-            double totalWeight = 0.0;
-            foreach (ContractType ct in ContractType.AllValidContractTypes.Where(ct => ct.group == group))
+            // Set the desired prestige
+            int t1, t2, t3;
+            ContractSystem.GetContractCounts(Reputation.CurrentRep, 1000, out t1, out t2, out t3);
+            if (contractType.prestige.Any())
             {
-                // Check if we're only looking at auto-accept contracts
-                if (currentDetails != null && currentDetails.contracts.Count() >= MAX_CONTRACTS && !ct.autoAccept)
+                if (!contractType.prestige.Contains(Contract.ContractPrestige.Trivial))
                 {
-                    continue;
+                    t1 = 0;
                 }
-
-                // Only select contracts with the correct prestige level
-                if (ct.prestige.Count == 0 || ct.prestige.Contains(prestige))
+                if (!contractType.prestige.Contains(Contract.ContractPrestige.Significant))
                 {
-                    validContractTypes.Add(ct, ct.weight);
-                    totalWeight += ct.weight;
+                    t2 = 0;
+                }
+                if (!contractType.prestige.Contains(Contract.ContractPrestige.Exceptional))
+                {
+                    t3 = 0;
                 }
             }
+            int selection = rand.Next(0, t1 + t2 + t3);
+            Contract.ContractPrestige prestige = selection < t1 ? Contract.ContractPrestige.Trivial : selection < t2 ? Contract.ContractPrestige.Significant : Contract.ContractPrestige.Exceptional;
 
-            // Loop until we either run out of contracts in our list or make a selection
-            while (validContractTypes.Count > 0)
+            // Generate the template
+            ConfiguredContract templateContract = Contract.Generate(typeof(ConfiguredContract), prestige, rand.Next(), Contract.State.Withdrawn) as ConfiguredContract;
+
+            // First, check the basic requirements
+            if (!contractType.MeetBasicRequirements(templateContract))
             {
-                ContractType selectedContractType = null;
-                // Pick one of the contract types based on their weight
-                double value = rand.NextDouble() * totalWeight;
-                foreach (KeyValuePair<ContractType, double> pair in validContractTypes)
+                LoggingUtil.LogVerbose(this, contractType.name + " was not generated: basic requirements not met.");
+                if (++contractType.failedGenerationAttempts >= contractType.maxConsecutiveGenerationFailures)
                 {
-                    value -= pair.Value;
-                    if (value <= 0.0)
-                    {
-                        selectedContractType = pair.Key;
-                        break;
-                    }
+                    contractType.lastGenerationFailure = Time.realtimeSinceStartup;
                 }
 
-                // Shouldn't happen, but floating point rounding could put us here
-                if (selectedContractType == null)
+                yield return null;
+                yield break;
+            }
+
+            // Try to refresh non-deterministic values before we check extended requirements
+            OnInitializeValues.Fire();
+            LoggingUtil.LogLevel origLogLevel = LoggingUtil.logLevel;
+            LoggingUtil.LogLevel newLogLevel = contractType.trace ? LoggingUtil.LogLevel.VERBOSE : LoggingUtil.logLevel;
+            try
+            {
+                // Set up for loop
+                LoggingUtil.logLevel = newLogLevel;
+                ConfiguredContract.currentContract = templateContract;
+
+                // Set up the iterator to refresh non-deterministic values
+                IEnumerable<string> iter = ConfigNodeUtil.UpdateNonDeterministicValuesIterator(contractType.dataNode);
+                for (ContractGroup g = contractType.group; g != null; g = g.parent)
                 {
-                    selectedContractType = validContractTypes.First().Key;
+                    iter = ConfigNodeUtil.UpdateNonDeterministicValuesIterator(g.dataNode).Concat(iter);
                 }
 
-                // First, check the basic requirements
-                if (!selectedContractType.MeetBasicRequirements(templateContract))
+                // Update the actual values
+                LoggingUtil.LogVerbose(this, "Refresh non-deterministic values for CONTRACT_TYPE = " + contractType.name);
+                foreach (string val in iter)
                 {
-                    LoggingUtil.LogVerbose(this, selectedContractType.name + " was not generated: basic requirements not met.");
-                    validContractTypes.Remove(selectedContractType);
-                    totalWeight -= selectedContractType.weight;
+                    lastKey = contractType.name + "[" + val + "]";
 
-                    yield return null;
-                    continue;
-                }
-
-                // Try to refresh non-deterministic values before we check extended requirements
-                OnInitializeValues.Fire();
-                LoggingUtil.LogLevel origLogLevel = LoggingUtil.logLevel;
-                LoggingUtil.LogLevel newLogLevel = selectedContractType.trace ? LoggingUtil.LogLevel.VERBOSE : LoggingUtil.logLevel;
-                bool failure = false;
-                try
-                {
-                    // Set up for loop
-                    LoggingUtil.logLevel = newLogLevel;
-                    ConfiguredContract.currentContract = templateContract;
-
-                    // Set up the iterator to refresh non-deterministic values
-                    IEnumerable<string> iter = ConfigNodeUtil.UpdateNonDeterministicValuesIterator(selectedContractType.dataNode);
-                    for (ContractGroup g = selectedContractType.group; g != null; g = g.parent)
-                    {
-                        iter = ConfigNodeUtil.UpdateNonDeterministicValuesIterator(g.dataNode).Concat(iter);
-                    }
-
-                    // Update the actual values
-                    LoggingUtil.LogVerbose(this, "Refresh non-deterministic values for CONTRACT_TYPE = " + selectedContractType.name);
-                    foreach (string val in iter)
-                    {
-                        lastKey = selectedContractType.name + "[" + val + "]";
-
-                        // Clear temp stuff
-                        LoggingUtil.logLevel = origLogLevel;
-                        ConfiguredContract.currentContract = null;
-
-                        if (val == null)
-                        {
-                            LoggingUtil.LogVerbose(this, selectedContractType.name + " was not generated: non-deterministic expression failure.");
-                            validContractTypes.Remove(selectedContractType);
-                            totalWeight -= selectedContractType.weight;
-
-                            yield return null;
-                            failure = true;
-                            break;
-                        }
-                        else
-                        {
-                            yield return null;
-                        }
-
-                        // Re set up
-                        LoggingUtil.logLevel = newLogLevel;
-                        ConfiguredContract.currentContract = templateContract;
-                    }
-                }
-                finally
-                {
+                    // Clear temp stuff
                     LoggingUtil.logLevel = origLogLevel;
                     ConfiguredContract.currentContract = null;
-                }
 
-                if (failure)
-                {
-                    OnInitializeFail.Fire();
-                    continue;
-                }
+                    if (val == null)
+                    {
+                        LoggingUtil.LogVerbose(this, contractType.name + " was not generated: non-deterministic expression failure.");
+                        if (++contractType.failedGenerationAttempts >= contractType.maxConsecutiveGenerationFailures)
+                        {
+                            contractType.lastGenerationFailure = Time.realtimeSinceStartup;
+                        }
 
-                // Store unique data
-                foreach (string key in selectedContractType.uniquenessChecks.Keys)
-                {
-                    templateContract.uniqueData[key] = selectedContractType.dataNode[key];
-                }
+                        OnInitializeFail.Fire();
+                        yield return null;
+                        yield break;
+                    }
+                    else
+                    {
+                        // Quick pause
+                        yield return null;
+                    }
 
-                // Check the requirements for our selection
-                if (selectedContractType.MeetExtendedRequirements(templateContract, selectedContractType) && templateContract.Initialize(selectedContractType))
-                {
-                    yield return templateContract;
-                    yield break;
+                    // Re set up
+                    LoggingUtil.logLevel = newLogLevel;
+                    ConfiguredContract.currentContract = templateContract;
                 }
-                // Remove the selection, and try again
+            }
+            finally
+            {
+                LoggingUtil.logLevel = origLogLevel;
+                ConfiguredContract.currentContract = null;
+            }
+
+            // Store unique data
+            foreach (string key in contractType.uniquenessChecks.Keys)
+            {
+                if (contractType.dataNode.GetType(key) == typeof(Vessel))
+                {
+                    Vessel v = contractType.dataNode[key] as Vessel;
+                    templateContract.uniqueData[key] = v != null ? (object)v.id : null;
+                }
                 else
                 {
-                    LoggingUtil.LogVerbose(this, selectedContractType.name + " was not generated: requirement not met.");
-                    validContractTypes.Remove(selectedContractType);
-                    totalWeight -= selectedContractType.weight;
-                    templateContract.uniqueData.Clear();
-                    templateContract.contractType = null;
+                    templateContract.uniqueData[key] = contractType.dataNode[key];
+                }
+            }
+            templateContract.targetBody = contractType.targetBody;
+
+            // Check the requirements for our selection
+            if (contractType.MeetExtendedRequirements(templateContract, contractType) && templateContract.Initialize(contractType))
+            {
+                templateContract.ContractState = Contract.State.Offered;
+                yield return templateContract;
+            }
+            // Failure, add a pause in before finishing
+            else
+            {
+                LoggingUtil.LogVerbose(this, contractType.name + " was not generated: requirement not met.");
+                if (++contractType.failedGenerationAttempts >= contractType.maxConsecutiveGenerationFailures)
+                {
+                    contractType.lastGenerationFailure = Time.realtimeSinceStartup;
                 }
 
-                // Take a pause
                 OnInitializeFail.Fire();
                 yield return null;
             }
-        }
-
-        private ConfiguredContract GetNextContract(Contract.ContractPrestige prestige, bool timeLimited)
-        {
-            // First try to get one off the queue
-            float start = UnityEngine.Time.realtimeSinceStartup;
-            while (priorityContracts.Any() || contractDetails[prestige].contracts.Count > 0)
-            {
-                ConfiguredContract contract = (priorityContracts.Any() ? priorityContracts : contractDetails[prestige].contracts).Dequeue();
-
-                if (contract != null && contract.contractType != null && contract.contractType.MeetRequirements(contract, contract.contractType))
-                {
-                    return contract;
-                }
-
-                if (timeLimited && UnityEngine.Time.realtimeSinceStartup - start > MAX_TIME)
-                {
-                    return null;
-                }
-            }
-
-            // Check if there's any point in attempting to generate
-            LoggingUtil.LogVerbose(this, "   Nothing waiting for GetNextContract, last generation failure was: " +
-                (UnityEngine.Time.realtimeSinceStartup - contractDetails[prestige].lastGenerationFailure) + " seconds ago.");
-            if (UnityEngine.Time.realtimeSinceStartup - contractDetails[prestige].lastGenerationFailure <= FAILURE_WAIT_TIME)
-            {
-                LoggingUtil.LogVerbose(this, "   Not going to generate a contract...");
-                return null;
-            }
-
-            // Try to generate a new contract
-            LoggingUtil.LogVerbose(this, "   Attempting to generate new contract");
-            foreach (ConfiguredContract contract in ContractGenerator(prestige))
-            {
-                if (contract != null)
-                {
-                    return contract;
-                }
-
-                if (timeLimited && UnityEngine.Time.realtimeSinceStartup - start > MAX_TIME)
-                {
-                    LoggingUtil.LogVerbose(this, "   Timeout generating contract...");
-                    if (UnityEngine.Time.realtimeSinceStartup - start > 0.1)
-                    {
-                        LoggingUtil.LogDebug(this, "Contract attribute took too long (" + (UnityEngine.Time.realtimeSinceStartup - start) +
-                            " seconds) to generate: " + lastKey);
-                    }
-                    return null;
-                }
-            }
-
-            // Failed to generate a contract
-            LoggingUtil.LogVerbose(this, "   Couldn't generate a new contract!");
-            contractDetails[prestige].lastGenerationFailure = UnityEngine.Time.realtimeSinceStartup;
-            return null;
-        }
-
-        public bool GenerateContract(ConfiguredContract contract)
-        {
-            LoggingUtil.LogVerbose(this, "Request to generate contract of prestige level " + contract.Prestige);
-            ConfiguredContract templateContract = GetNextContract(contract.Prestige, HighLogic.LoadedScene == GameScenes.FLIGHT);
-
-            if (templateContract == null)
-            {
-                return false;
-            }
-
-            // Copy the contract details
-            contract.CopyFrom(templateContract);
-            return true;
         }
 
         public override void OnSave(ConfigNode node)
         {
             try
             {
-                foreach (ConfiguredContract contract in contractDetails.Values.SelectMany(cd => cd.contracts).Union(priorityContracts))
+                foreach (ConfiguredContract contract in contracts.Where(c => c.ContractState == Contract.State.Offered))
                 {
                     ConfigNode child = new ConfigNode("CONTRACT");
                     node.AddNode(child);
                     contract.Save(child);
+                }
+
+                ConfigNode unreadNode = new ConfigNode("UNREAD_CONTRACTS");
+                node.AddNode(unreadNode);
+                foreach (Contract c in ContractSystem.Instance.Contracts.Where(c => unreadContracts.Contains(c.ContractGuid)))
+                {
+                    unreadNode.AddValue("contract", c.ContractGuid);
+                }
+                foreach (ConfiguredContract c in contracts.Where(c => unreadContracts.Contains(c.ContractGuid)))
+                {
+                    unreadNode.AddValue("contract", c.ContractGuid);
                 }
             }
             catch (Exception e)
@@ -432,15 +444,15 @@ namespace ContractConfigurator
 
                     if (contract != null && contract.contractType != null)
                     {
-                        if (contract.contractType.autoAccept)
-                        {
-                            priorityContracts.Enqueue(contract);
-                        }
-                        else
-                        {
-                            contractDetails[contract.Prestige].contracts.Enqueue(contract);
-                        }
+                        contract.preLoaded = true;
+                        contracts.Add(contract);
                     }
+                }
+
+                ConfigNode unreadNode = node.GetNode("UNREAD_CONTRACTS");
+                if (unreadNode != null)
+                {
+                    unreadContracts = new HashSet<Guid>(ConfigNodeUtil.ParseValue<List<Guid>>(unreadNode, "contract", new List<Guid>()));
                 }
             }
             catch (Exception e)
@@ -451,21 +463,9 @@ namespace ContractConfigurator
             }
         }
 
-        public IEnumerable<ConfiguredContract> PendingContracts(Contract.ContractPrestige? prestige = null)
+        public IEnumerable<ConfiguredContract> PendingContracts()
         {
-            return contractDetails.SelectMany(p => p.Value.contracts).Union(priorityContracts).
-                Where(c => prestige == null || prestige == c.Prestige);
-        }
-
-        public IEnumerable<ConfiguredContract> PendingContracts(ContractType type, Contract.ContractPrestige? prestige = null)
-        {
-            if (type == null)
-            {
-                return Enumerable.Empty<ConfiguredContract>();
-            }
-
-            return contractDetails.SelectMany(p => p.Value.contracts).Union(priorityContracts).
-                Where(c => c.contractType == type && (prestige == null || prestige == c.Prestige));
+            return contracts.Where(c => c.ContractState == Contract.State.Offered);
         }
     }
 }

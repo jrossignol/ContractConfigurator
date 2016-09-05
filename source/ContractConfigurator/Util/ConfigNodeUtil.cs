@@ -16,6 +16,11 @@ namespace ContractConfigurator
     /// </summary>
     public static class ConfigNodeUtil
     {
+        static MethodInfo methodParseSingleValue = typeof(ConfigNodeUtil).GetMethods().Where(m => m.Name == "ParseSingleValue").Single();
+        static MethodInfo methodExecuteLoad = typeof(DeferredLoadUtil).GetMethods().Where(m => m.Name == "ExecuteLoad").First();
+        static MethodInfo methodGetDependencies = typeof(DeferredLoadUtil).GetMethods().Where(m => m.Name == "GetDependencies").First();
+        static MethodInfo methodLogCircularDependencyError = typeof(DeferredLoadUtil).GetMethods().Where(m => m.Name == "LogCircularDependencyError").First();
+
         public class DeferredLoadBase
         {
             public string key;
@@ -55,7 +60,7 @@ namespace ContractConfigurator
                 return loadObj.dependencies;
             }
 
-            public static void LogCicularDependencyError<T>(DeferredLoadObject<T> loadObj)
+            public static void LogCircularDependencyError<T>(DeferredLoadObject<T> loadObj)
             {
                 LoggingUtil.LogError(loadObj.obj, loadObj.obj.ErrorPrefix(loadObj.configNode) + ": Error parsing " + loadObj.key + ": " +
                     "Circular dependency detected while parsing an expression (possible culprit(s): " +
@@ -197,8 +202,7 @@ namespace ContractConfigurator
                 T list = (T)Activator.CreateInstance(typeof(T));
 
                 // Create the generic methods
-                MethodInfo parseValueMethod = typeof(ConfigNodeUtil).GetMethods().Where(m => m.Name == "ParseSingleValue").Single();
-                parseValueMethod = parseValueMethod.MakeGenericMethod(typeof(T).GetGenericArguments());
+                MethodInfo parseValueMethod = methodParseSingleValue.MakeGenericMethod(typeof(T).GetGenericArguments());
                 MethodInfo addMethod = typeof(T).GetMethod("Add");
 
                 // Populate the list
@@ -359,6 +363,10 @@ namespace ContractConfigurator
             {
                 value = (T)(object)(ResearchAndDevelopment.Instance != null ? ResearchAndDevelopment.GetSubjectByID(stringValue) : null);
             }
+            else if (typeof(T) == typeof(ScienceExperiment))
+            {
+                value = (T)(object)(ResearchAndDevelopment.Instance != null ? ResearchAndDevelopment.GetExperiment(stringValue) : null);
+            }
             else if (typeof(T) == typeof(Color))
             {
                 if ((stringValue.Length != 7 && stringValue.Length != 9) || stringValue[0] != '#')
@@ -419,7 +427,7 @@ namespace ContractConfigurator
                 DataNode oldNode = currentDataNode;
                 try
                 {
-                    currentDataNode = oldNode.Children.Where(node => node.Name == key).FirstOrDefault();
+                    currentDataNode = oldNode.GetChild(key);
                     if (currentDataNode == null)
                     {
                         currentDataNode = new DataNode(key, oldNode, oldNode.Factory);
@@ -862,13 +870,12 @@ namespace ContractConfigurator
             try
             {
                 // Execute each deferred load
-                MethodInfo executeMethod = typeof(DeferredLoadUtil).GetMethods().Where(m => m.Name == "ExecuteLoad").First();
                 foreach (DeferredLoadBase loadObj in node.DeferredLoads.Where(dl => startWith == null || dl.dataNode.IsChildOf(startWith)))
                 {
                     initialLoad = false;
                     LoggingUtil.LogVerbose(typeof(ConfigNodeUtil), "Doing non-deterministic load for key '" + loadObj.key + "'");
 
-                    MethodInfo method = executeMethod.MakeGenericMethod(loadObj.GetType().GetGenericArguments());
+                    MethodInfo method = methodExecuteLoad.MakeGenericMethod(loadObj.GetType().GetGenericArguments());
                     bool valid = (bool)method.Invoke(null, new object[] { loadObj });
 
                     initialLoad = true;
@@ -918,7 +925,7 @@ namespace ContractConfigurator
 
         private static PartResourceDefinition ParseResourceValue(string name)
         {
-            PartResourceDefinition resource = PartResourceLibrary.Instance.resourceDefinitions.Where(prd => prd.name == name).First();
+            PartResourceDefinition resource = PartResourceLibrary.Instance.resourceDefinitions.Where(prd => prd.name == name).FirstOrDefault();
             if (resource == null)
             {
                 throw new ArgumentException("'" + name + "' is not a valid resource.");
@@ -991,7 +998,15 @@ namespace ContractConfigurator
 
         private static ProtoCrewMember ParseProtoCrewMemberValue(string name)
         {
-            return HighLogic.CurrentGame.CrewRoster.AllKerbals().Where(pcm => pcm.name == name).FirstOrDefault();
+            foreach (ProtoCrewMember pcm in HighLogic.CurrentGame.CrewRoster.AllKerbals())
+            {
+                if (pcm.name == name)
+                {
+                    return pcm;
+                }
+            }
+
+            return null;
         }
 
         private static void AddFoundKey(ConfigNode configNode, string key)
@@ -1037,11 +1052,6 @@ namespace ContractConfigurator
         {
             bool valid = true;
 
-            // Generic methods
-            MethodInfo dependenciesMethod = typeof(DeferredLoadUtil).GetMethods().Where(m => m.Name == "GetDependencies").First();
-            MethodInfo circularDependendencyMethod = typeof(DeferredLoadUtil).GetMethods().Where(m => m.Name == "LogCicularDependencyError").First();
-            MethodInfo executeMethod = typeof(DeferredLoadUtil).GetMethods().Where(m => m.Name == "ExecuteLoad").First();
-
             Dictionary<string, List<string>> dependencies = new Dictionary<string, List<string>>();
 
             while (deferredLoads.Any())
@@ -1054,7 +1064,7 @@ namespace ContractConfigurator
                 dependencies.Clear();
                 foreach (KeyValuePair<string, DeferredLoadBase> pair in deferredLoads)
                 {
-                    MethodInfo method = dependenciesMethod.MakeGenericMethod(pair.Value.GetType().GetGenericArguments());
+                    MethodInfo method = methodGetDependencies.MakeGenericMethod(pair.Value.GetType().GetGenericArguments());
                     IEnumerable<string> localDependencies = (IEnumerable<string>)method.Invoke(null, new object[] { pair.Value });
                     dependencies[pair.Key] = new List<string>();
 
@@ -1082,7 +1092,7 @@ namespace ContractConfigurator
                     valid = false;
                     foreach (KeyValuePair<string, DeferredLoadBase> pair in deferredLoads)
                     {
-                        MethodInfo method = circularDependendencyMethod.MakeGenericMethod(pair.Value.GetType().GetGenericArguments());
+                        MethodInfo method = methodLogCircularDependencyError.MakeGenericMethod(pair.Value.GetType().GetGenericArguments());
                         method.Invoke(null, new object[] { pair.Value });
                     }
                     deferredLoads.Clear();
@@ -1091,11 +1101,11 @@ namespace ContractConfigurator
                 else
                 {
                     // Try parsing it
-                    MethodInfo method = executeMethod.MakeGenericMethod(loadObj.GetType().GetGenericArguments());
+                    MethodInfo method = methodExecuteLoad.MakeGenericMethod(loadObj.GetType().GetGenericArguments());
                     valid &= (bool)method.Invoke(null, new object[] { loadObj });
 
                     // If a dependency was not added, then remove from the list
-                    method = dependenciesMethod.MakeGenericMethod(loadObj.GetType().GetGenericArguments());
+                    method = methodGetDependencies.MakeGenericMethod(loadObj.GetType().GetGenericArguments());
                     if (count == ((IEnumerable<string>)method.Invoke(null, new object[] { loadObj })).Count())
                     {
                         deferredLoads.Remove(key);

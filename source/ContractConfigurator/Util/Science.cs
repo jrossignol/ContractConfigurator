@@ -24,6 +24,7 @@ namespace ContractConfigurator.Util
             public bool requireNoSurface;
             public bool disallowHomeSurface;
             public bool disallowHomeFlying;
+            public bool disallowKSC;
             public bool partless;
             public List<CelestialBody> validBodies;
             public string partModule;
@@ -84,6 +85,7 @@ namespace ContractConfigurator.Util
                     exp.requireNoSurface = ConfigNodeUtil.ParseValue<bool?>(config, "requireNoSurface", (bool?)false).Value;
                     exp.disallowHomeSurface = ConfigNodeUtil.ParseValue<bool?>(config, "disallowHomeSurface", (bool?)false).Value;
                     exp.disallowHomeFlying = ConfigNodeUtil.ParseValue<bool?>(config, "disallowHomeFlying", (bool?)false).Value;
+                    exp.disallowKSC = ConfigNodeUtil.ParseValue<bool?>(config, "disallowKSC", (bool?)false).Value;
                     exp.partless = ConfigNodeUtil.ParseValue<bool?>(config, "partless", (bool?)false).Value;
                     exp.part = ConfigNodeUtil.ParseValue<List<string>>(config, "part", null);
                     exp.partModule = ConfigNodeUtil.ParseValue<string>(config, "partModule", null);
@@ -148,9 +150,11 @@ namespace ContractConfigurator.Util
                 {
                     if (experiment.BiomeIsRelevantWhile(sit))
                     {
+                        ExperimentRules rules = GetExperimentRules(experiment.id);
+
                         return biomes.Where(biome => !(BiomeTracker.IsDifficult(body, biome, sit) || experiment.id == "asteroidSample") ^ difficult)
                             .Select(biome => ScienceSubject(experiment, sit, body, biome))
-                            .Union(body.isHomeWorld && sit == ExperimentSituations.SrfLanded // static KSC items can only be landed
+                            .Union(body.isHomeWorld && !rules.disallowKSC && sit == ExperimentSituations.SrfLanded // static KSC items can only be landed
                                 ? Biome.KSCBiomes.Where(biomeFilter).Where(b => experiment.id == "asteroidSample" ^ !difficult).Select(
                                     staticName =>
                                         ScienceSubject(experiment, ExperimentSituations.SrfLanded, body, staticName))

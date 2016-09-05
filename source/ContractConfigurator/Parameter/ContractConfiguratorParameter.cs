@@ -23,6 +23,7 @@ namespace ContractConfigurator.Parameters
         public bool fakeOptional = false;
         private TitleTracker titleTracker;
         protected string lastTitle = null;
+        public CelestialBody targetBody;
 
         public ContractConfiguratorParameter()
             : this(null)
@@ -218,7 +219,7 @@ namespace ContractConfigurator.Parameters
         /// performance issues with the stock contracts app.
         /// </summary>
         /// <param name="state">New parameter state</param>
-        protected virtual void SetState(ParameterState state)
+        public virtual void SetState(ParameterState state)
         {
             // State already set, or parameter disabled
             if (this.state == state || !enabled)
@@ -288,6 +289,21 @@ namespace ContractConfigurator.Parameters
         new protected void SetIncomplete()
         {
             base.SetIncomplete();
+        }
+
+        public new bool AnyChildParametersFailed()
+        {
+            for (int i = ParameterCount; i-- > 0;)
+            {
+                ContractParameter param = GetParameter(i);
+                ContractConfiguratorParameter ccParam = param as ContractConfiguratorParameter;
+                if (param.State == ParameterState.Failed && (ccParam == null || !ccParam.fakeFailures))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }

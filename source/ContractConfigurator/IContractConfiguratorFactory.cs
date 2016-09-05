@@ -17,5 +17,6 @@ namespace ContractConfigurator
         string log { get; }
         DataNode dataNode { get; }
         bool hasWarnings { get; set; }
+        Version minVersion { get; }
     }
 }

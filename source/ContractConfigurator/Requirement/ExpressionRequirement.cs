@@ -17,6 +17,11 @@ namespace ContractConfigurator
     {
         protected bool expression;
 
+        public ExpressionRequirement()
+        {
+            needsTitle = true;
+        }
+
         public override bool LoadFromConfig(ConfigNode configNode)
         {
             // Load base class
@@ -41,6 +46,11 @@ namespace ContractConfigurator
         public override bool RequirementMet(ConfiguredContract contract)
         {
             return expression;
+        }
+
+        protected override string RequirementText()
+        {
+            return "unknown";
         }
     }
 }

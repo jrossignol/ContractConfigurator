@@ -48,7 +48,6 @@ namespace ContractConfigurator.RemoteTech
             maxCoverage = ConfigNodeUtil.ParseValue<double>(configNode, "maxCoverage", 1.0);
         }
 
-
         public override bool RequirementMet(ConfiguredContract contract)
         {
             LoggingUtil.LogVerbose(this, "Checking requirement");
@@ -67,6 +66,13 @@ namespace ContractConfigurator.RemoteTech
 
             double coverage = RemoteTechProgressTracker.GetCoverage(targetBody);
             return coverage >= minCoverage && coverage <= maxCoverage;
+        }
+
+        protected override string RequirementText()
+        {
+            string output = "Must " + (invertRequirement ? "not " : "") + "have between " + (minCoverage*100).ToString("N0") + "% and " + (maxCoverage*100).ToString("N0") + "% RemoteTech coverage of " + (targetBody == null ? "the target body" : targetBody.theName);
+
+            return output;
         }
     }
 }

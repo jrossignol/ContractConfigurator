@@ -7,6 +7,7 @@ using UnityEngine;
 using KSP;
 using KSP.UI.Screens;
 using Contracts;
+using FinePrint;
 
 namespace ContractConfigurator
 {
@@ -54,10 +55,24 @@ namespace ContractConfigurator
         Dictionary<Type, StockContractDetails> stockContractDetails = new Dictionary<Type, StockContractDetails>();
         #endregion
 
+        public enum MissionControlButton
+        {
+            All,
+            Available,
+            Active,
+            Archive
+        }
+
         public static ContractConfiguratorSettings Instance { get; private set; }
 
         private ApplicationLauncherButton launcherButton = null;
-        
+        public MissionControlButton lastMCButton = MissionControlButton.All;
+
+        public bool DisplayActiveOrbits = true;
+        public bool DisplayOfferedOrbits = true;
+        public bool DisplayActiveWaypoints = true;
+        public bool DisplayOfferedWaypoints = true;
+
         public ContractConfiguratorSettings()
         {
             Instance = this;
@@ -68,9 +83,12 @@ namespace ContractConfigurator
             }
 
             SeedStockContractDetails();
+
+            DisplayOfferedOrbits = ContractDefs.DisplayOfferedOrbits;
+            DisplayOfferedWaypoints = ContractDefs.DisplayOfferedWaypoints;
         }
 
-        void Start()
+    void Start()
         {
             SetupToolbar();
         }
@@ -301,8 +319,6 @@ namespace ContractConfigurator
                         Type subclass = pair.Key;
                         StockContractDetails details = pair.Value;
 
-                        LoggingUtil.LogDebug(this, "zzz Contract type = " + subclass.Name + ", enabled = " + details.enabled + ", in list = " + ContractSystem.ContractTypes.Contains(subclass));
-
                         string hintText;
                         IEnumerable<ContractGroup> disablingGroups = ContractDisabler.DisablingGroups(subclass);
                         if (disablingGroups.Any())
@@ -370,6 +386,13 @@ namespace ContractConfigurator
         {
             try
             {
+                node.AddValue("lastMCButton", lastMCButton);
+
+                node.AddValue("DisplayOfferedOrbits", DisplayOfferedOrbits);
+                node.AddValue("DisplayOfferedWaypoints", DisplayOfferedWaypoints);
+                node.AddValue("DisplayActiveOrbits", DisplayActiveOrbits);
+                node.AddValue("DisplayActiveWaypoints", DisplayActiveWaypoints);
+
                 foreach (ContractGroupDetails details in contractGroupDetails.Values.Where(d => d.group != null))
                 {
                     ConfigNode groupNode = new ConfigNode("CONTRACT_GROUP");
@@ -400,6 +423,12 @@ namespace ContractConfigurator
         {
             try
             {
+                lastMCButton = ConfigNodeUtil.ParseValue<MissionControlButton>(node, "lastMCButton", MissionControlButton.All);
+                DisplayOfferedOrbits = ConfigNodeUtil.ParseValue<bool?>(node, "DisplayOfferedOrbits", (bool?)ContractDefs.DisplayOfferedOrbits).Value;
+                DisplayOfferedWaypoints = ConfigNodeUtil.ParseValue<bool?>(node, "DisplayOfferedWaypoints", (bool?)ContractDefs.DisplayOfferedWaypoints).Value;
+                DisplayActiveOrbits = ConfigNodeUtil.ParseValue<bool?>(node, "DisplayActiveOrbits", (bool?)true).Value;
+                DisplayActiveWaypoints = ConfigNodeUtil.ParseValue<bool?>(node, "DisplayActiveWaypoints", (bool?)true).Value;
+
                 foreach (ConfigNode groupNode in node.GetNodes("CONTRACT_GROUP"))
                 {
                     string groupName = groupNode.GetValue("group");

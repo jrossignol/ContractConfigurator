@@ -24,7 +24,7 @@ namespace ContractConfigurator
             // Do not check on active contracts.
             checkOnActiveContract = configNode.HasValue("checkOnActiveContract") ? checkOnActiveContract : false;
 
-            valid &= ConfigNodeUtil.ParseValue<List<string>>(configNode, "partModuleType", x => partModuleType = x, this);
+            valid &= ConfigNodeUtil.ParseValue<List<string>>(configNode, "partModuleType", x => partModuleType = x, this, x => x.All(Validation.ValidatePartModuleType));
 
             return valid;
         }
@@ -44,11 +44,30 @@ namespace ContractConfigurator
 
         public override bool RequirementMet(ConfiguredContract contract)
         {
-            // Late validation
-            partModuleType.All(Validation.ValidatePartModuleType);
-
-            // Actual check
             return partModuleType.All(s => ProgressUtilities.HaveModuleTypeTech(s));
+        }
+
+        protected override string RequirementText()
+        {
+            string partStr = "";
+            for (int i = 0; i < partModuleType.Count; i++)
+            {
+                if (i != 0)
+                {
+                    if (i == partModuleType.Count - 1)
+                    {
+                        partStr += " or ";
+                    }
+                    else
+                    {
+                        partStr += ", ";
+                    }
+                }
+
+                partStr += partModuleType[i];
+            }
+
+            return "Must " + (invertRequirement ? "not " : "") + "have a part unlocked of type " + partStr;
         }
     }
 }

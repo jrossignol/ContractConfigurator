@@ -32,6 +32,10 @@ namespace ContractConfigurator
         public bool invertRequirement;
         protected bool checkOnActiveContract;
 
+        protected string title;
+        protected bool needsTitle = false;
+        public bool hideChildren;
+
         public bool enabled = true;
         public bool hasWarnings { get; set; }
         public Type iteratorType { get; set; }
@@ -41,6 +45,13 @@ namespace ContractConfigurator
         public string config { get; private set; }
         public string log { get; private set; }
         public DataNode dataNode { get; private set; }
+        public Version minVersion
+        {
+            get
+            {
+                return contractType.minVersion;
+            }
+        }
 
         /// <summary>
         /// Loads the ContractRequirement from the given ConfigNode.  The base version loads the following:
@@ -57,6 +68,18 @@ namespace ContractConfigurator
             // Get name and type
             valid &= ConfigNodeUtil.ParseValue<string>(configNode, "type", x => type = x, this);
             valid &= ConfigNodeUtil.ParseValue<string>(configNode, "name", x => name = x, this, type);
+
+            // Override needsTitle if a child of a parameter
+            if (needsTitle && dataNode.Parent.Factory is ParameterFactory)
+            {
+                needsTitle = false;
+            }
+
+            // Allow reading of a custom title
+            valid &= ConfigNodeUtil.ParseValue<string>(configNode, "title", x => title = x, this, (string)null);
+
+            // Whether to hide child requirements in the mission control display
+            valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "hideChildren", x => hideChildren = x, this, false);
 
             if (!configNode.HasValue("targetBody"))
             {
@@ -165,6 +188,22 @@ namespace ContractConfigurator
         /// <returns>Whether the requirement is met for the given contract.</returns>
         public virtual bool RequirementMet(ConfiguredContract contract) { return true; }
 
+        protected abstract string RequirementText();
+        public string Title
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(title))
+                {
+                    return RequirementText();
+                }
+                else
+                {
+                    return title;
+                }
+            }
+        }
+
         /// <summary>
         /// Checks the requirement for the given contract.
         /// </summary>
@@ -196,14 +235,14 @@ namespace ContractConfigurator
                 {
                     if (requirement.enabled)
                     {
-                        if (requirement.checkOnActiveContract || contract.ContractState != Contract.State.Active)
+                        if (requirement.checkOnActiveContract || contract == null  || contract.ContractState != Contract.State.Active)
                         {
                             allReqMet = allReqMet && requirement.CheckRequirement(contract);
 
                             if (!allReqMet)
                             {
-                                LoggingUtil.Log(contract.ContractState == Contract.State.Active ? LoggingUtil.LogLevel.INFO :
-                                    contract.ContractState == Contract.State.Offered ? LoggingUtil.LogLevel.DEBUG : LoggingUtil.LogLevel.VERBOSE,
+                                LoggingUtil.Log(contract != null && contract.ContractState == Contract.State.Active ? LoggingUtil.LogLevel.INFO :
+                                    contract != null && contract.ContractState == Contract.State.Offered ? LoggingUtil.LogLevel.DEBUG : LoggingUtil.LogLevel.VERBOSE,
                                     requirement.GetType(), "Contract " + contractType.name + ": requirement " + requirement.name + " was not met.");
                                 break;
                             }
@@ -212,7 +251,7 @@ namespace ContractConfigurator
                 }
 
                 // Force fail the contract if a requirement becomes unmet
-                if (contract.ContractState == Contract.State.Active && !allReqMet)
+                if (contract != null && contract.ContractState == Contract.State.Active && !allReqMet)
                 {
                     // Fail the contract - unfortunately, the player won't know why. :(
                     contract.Fail();
@@ -301,6 +340,17 @@ namespace ContractConfigurator
             // Load config
             valid &= requirement.LoadFromConfig(configNode);
 
+            // Override the needsTitle if we have a parent node with hideChildren
+            ContractRequirement parentRequirement = parent as ContractRequirement;
+            if (parentRequirement != null)
+            {
+                if (parentRequirement.hideChildren)
+                {
+                    requirement.hideChildren = true;
+                    requirement.needsTitle = false;
+                }
+            }
+
             // Check for unexpected values - always do this last
             if (requirement.GetType() != typeof(InvalidContractRequirement))
             {
@@ -320,6 +370,14 @@ namespace ContractConfigurator
                         requirement.hasWarnings = true;
                     }
                 }
+            }
+
+            // Error for missing title
+            if (requirement.needsTitle && string.IsNullOrEmpty(requirement.title))
+            {
+                valid = contractType.minVersion < ContractConfigurator.ENHANCED_UI_VERSION;
+                LoggingUtil.Log(contractType.minVersion >= ContractConfigurator.ENHANCED_UI_VERSION ? LoggingUtil.LogLevel.ERROR : LoggingUtil.LogLevel.WARNING,
+                    requirement, requirement.ErrorPrefix(configNode) + ": missing required attribute 'title'.");
             }
 
             requirement.enabled = valid;

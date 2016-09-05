@@ -14,8 +14,6 @@ namespace ContractConfigurator.Parameters
     /// </summary>
     public class PlantFlagCustom : VesselParameter
     {
-        CelestialBody targetBody;
-
         public PlantFlagCustom()
             : base(null)
         {

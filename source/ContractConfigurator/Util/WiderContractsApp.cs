@@ -132,7 +132,7 @@ namespace ContractConfigurator
 
             if (contractsFrame)
             {
-                Debug.Log("WiderContractsApp: Making adjustments to contract frame!");
+                LoggingUtil.LogInfo(this, "Making adjustments to contract frame...");
 
                 // Set the new width and height (old value * factor)
                 int width = (int)(166 * resizeFactor);

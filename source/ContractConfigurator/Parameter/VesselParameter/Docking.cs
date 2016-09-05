@@ -79,7 +79,10 @@ namespace ContractConfigurator.Parameters
             {
                 node.AddValue("vessel", vessel);
             }
-            node.AddValue("defineDockedVessel", defineDockedVessel);
+            if (!string.IsNullOrEmpty(defineDockedVessel))
+            {
+                node.AddValue("defineDockedVessel", defineDockedVessel);
+            }
         }
 
         protected override void OnParameterLoad(ConfigNode node)

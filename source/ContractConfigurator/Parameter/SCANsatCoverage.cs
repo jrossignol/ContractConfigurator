@@ -12,7 +12,6 @@ namespace ContractConfigurator
     public class SCANsatCoverage : ContractConfiguratorParameter
     {
         public double coverage { get; set; }
-        public CelestialBody targetBody { get; set;}
         public string scanName { get; set; }
         public int scanType { get; set; }
 

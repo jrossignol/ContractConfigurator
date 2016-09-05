@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 using KSP;
+using ContractConfigurator.Util;
 
 namespace ContractConfigurator
 {
@@ -97,6 +98,27 @@ namespace ContractConfigurator
             }
 
             return SCANsatUtil.IsCovered(latitude, longitude, SCANsatUtil.GetSCANtype(scanType), targetBody);
+        }
+
+        protected override string RequirementText()
+        {
+            string scanName;
+            if (scanType == "AltimetryLoRes")
+            {
+                scanName = "low resolution altimetry";
+            }
+            else if (scanType == "AltimetryHiRes")
+            {
+                scanName = "high resolution altimetry";
+            }
+            else
+            {
+                scanName = scanType.ToLower();
+            }
+
+            string output = "Must " + (invertRequirement ? "not " : "") + "have scanned location <color=#" + MissionControlUI.RequirementHighlightColor + ">" + latitude.ToString("N1") + ", " + longitude.ToString("N1") +
+                "</color> on " + (targetBody == null ? "the target body" : targetBody.theName) + " using the " + scanName + " scanner";
+            return output;
         }
     }
 }

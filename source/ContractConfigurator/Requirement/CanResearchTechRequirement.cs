@@ -104,5 +104,28 @@ namespace ContractConfigurator
 
             return true;
         }
+
+        protected override string RequirementText()
+        {
+            string techStr = "";
+            for (int i = 0; i < techs.Count; i++)
+            {
+                if (i != 0)
+                {
+                    if (i == techs.Count - 1)
+                    {
+                        techStr += " and ";
+                    }
+                    else
+                    {
+                        techStr += ", ";
+                    }
+                }
+
+                techStr += Tech.GetTech(techs[i]).title;
+            }
+
+            return "Must " + (invertRequirement ? "not " : "") + " be able to research (or have already researched) " + techStr;
+        }
     }
 }

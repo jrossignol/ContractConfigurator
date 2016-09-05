@@ -45,7 +45,6 @@ namespace ContractConfigurator.Parameters
     {
         private static Dictionary<string, ScienceRecoveryMethod> idealRecoverMethodCache = new Dictionary<string, ScienceRecoveryMethod>();
 
-        protected CelestialBody targetBody { get; set; }
         protected string biome { get; set; }
         protected ExperimentSituations? situation { get; set; }
         protected BodyLocation? location { get; set; }
@@ -211,6 +210,7 @@ namespace ContractConfigurator.Parameters
                         string exp = param.ID.Remove(param.ID.IndexOf("Subject"));
 
                         param.SetTitle(matchingSubjects[exp].title);
+                        param.SetState(ParameterState.Complete);
                     }
                 }
                 else

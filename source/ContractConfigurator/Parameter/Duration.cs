@@ -167,7 +167,6 @@ namespace ContractConfigurator.Parameters
 
         protected void OnLaunch(EventReport er)
         {
-            Debug.Log("OnLaunch");
             if (startCriteria == StartCriteria.NEXT_LAUNCH)
             {
                 triggered = true;

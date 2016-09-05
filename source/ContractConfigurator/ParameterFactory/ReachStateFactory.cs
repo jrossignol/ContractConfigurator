@@ -28,7 +28,7 @@ namespace ContractConfigurator
         protected double maxRateOfClimb;
         protected float minAcceleration;
         protected float maxAcceleration;
-        protected List<CelestialBody> targetBodies;
+        public List<CelestialBody> targetBodies;
 
         public override bool Load(ConfigNode configNode)
         {

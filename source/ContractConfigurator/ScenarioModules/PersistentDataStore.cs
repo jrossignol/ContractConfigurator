@@ -232,6 +232,14 @@ namespace ContractConfigurator
             {
                 strValue = ((ScienceSubject)value).id;
             }
+            else if (type == typeof(ScienceExperiment))
+            {
+                strValue = ((ScienceExperiment)(value)).id;
+            }
+            else if (type == typeof(AvailablePart))
+            {
+                strValue = ((AvailablePart)(value)).name;
+            }
             else if (type == typeof(Biome))
             {
                 Biome b = (Biome)value;

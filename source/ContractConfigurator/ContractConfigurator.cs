@@ -17,13 +17,15 @@ namespace ContractConfigurator
     [KSPAddon(KSPAddon.Startup.MainMenu, true)]
     public class ContractConfigurator : MonoBehaviour
     {
+        public static System.Version ENHANCED_UI_VERSION = new System.Version(1, 15, 0);
+
+
         private enum ReloadStep
         {
             GAME_DATABASE,
             MODULE_MANAGER,
             CLEAR_CONFIG,
             LOAD_CONFIG,
-            ADJUST_TYPES,
         }
 
         private static ContractConfigurator Instance;
@@ -32,7 +34,6 @@ namespace ContractConfigurator
         static ReloadStep reloadStep = ReloadStep.GAME_DATABASE;
 
         static bool loading = false;
-        static bool contractTypesAdjusted = false;
 
         static ScreenMessage lastMessage = null;
 
@@ -52,14 +53,12 @@ namespace ContractConfigurator
 
             OnParameterChange.Add(new EventData<Contract, ContractParameter>.OnEvent(ParameterChange));
             GameEvents.OnTechnologyResearched.Add(new EventData<GameEvents.HostTargetAction<RDTech, RDTech.OperationResult>>.OnEvent(OnTechResearched));
-            GameEvents.onGameSceneSwitchRequested.Add(new EventData<GameEvents.FromToAction<GameScenes, GameScenes>>.OnEvent(OnGameSceneSwitchRequested));
         }
 
         void Destroy()
         {
             OnParameterChange.Remove(new EventData<Contract, ContractParameter>.OnEvent(ParameterChange));
             GameEvents.OnTechnologyResearched.Remove(new EventData<GameEvents.HostTargetAction<RDTech, RDTech.OperationResult>>.OnEvent(OnTechResearched));
-            GameEvents.onGameSceneSwitchRequested.Remove(new EventData<GameEvents.FromToAction<GameScenes, GameScenes>>.OnEvent(OnGameSceneSwitchRequested));
         }
 
         void Update()
@@ -84,18 +83,8 @@ namespace ContractConfigurator
 
                 LoggingUtil.LogInfo(this, "Contract Configurator " + ainfoV.InformationalVersion + " finished loading.");
             }
-            // Make contract type adjustments
-            else if (HighLogic.LoadedScene == GameScenes.SPACECENTER && !contractTypesAdjusted)
-            {
-                ContractDisabler.DisableContracts();
 
-                if (AdjustContractTypes())
-                {
-                    contractTypesAdjusted = true;
-                }
-            }
-
-            // Alt-F9 shows the contract configurator window
+            // Alt-F10 shows the contract configurator window
             if (GameSettings.MODIFIER_KEY.GetKey() && Input.GetKeyDown(KeyCode.F10))
             {
                 DebugWindow.showGUI = !DebugWindow.showGUI;
@@ -128,10 +117,6 @@ namespace ContractConfigurator
                         lastMessage = ScreenMessages.PostScreenMessage("Loading contract configuration (" + attemptedContracts + "/" + totalContracts + ")...", Time.deltaTime,
                             ScreenMessageStyle.UPPER_CENTER);
                         break;
-                    case ReloadStep.ADJUST_TYPES:
-                        lastMessage = ScreenMessages.PostScreenMessage("Adjusting contract types...", Time.deltaTime,
-                            ScreenMessageStyle.UPPER_CENTER);
-                        break;
                 }
             }
         }
@@ -157,7 +142,6 @@ namespace ContractConfigurator
         /// </summary>
         public static void StartReload()
         {
-            contractTypesAdjusted = false;
             Instance.StartCoroutine(Instance.ReloadContractTypes());
         }
 
@@ -226,11 +210,6 @@ namespace ContractConfigurator
                 yield return iterator.Current;
             }
 
-            // Adjust contract types
-            reloadStep = ReloadStep.ADJUST_TYPES;
-            yield return new WaitForEndOfFrame();
-            AdjustContractTypes();
-
             // We're done!
             reloading = false;
             ScreenMessages.PostScreenMessage("Loaded " + successContracts + " out of " + totalContracts
@@ -248,7 +227,7 @@ namespace ContractConfigurator
         /// </summary>
         void RegisterParameterFactories()
         {
-            LoggingUtil.LogDebug(this.GetType(), "Start Registering ParameterFactories");
+            LoggingUtil.LogDebug(this, "Start Registering ParameterFactories");
 
             // Register each type with the parameter factory
             foreach (Type subclass in GetAllTypes<ParameterFactory>().Where(t => !t.IsAbstract))
@@ -270,7 +249,7 @@ namespace ContractConfigurator
                 }
             }
 
-            LoggingUtil.LogInfo(this.GetType(), "Finished Registering ParameterFactories");
+            LoggingUtil.LogInfo(this, "Finished Registering ParameterFactories");
         }
 
         /// <summary>
@@ -278,7 +257,7 @@ namespace ContractConfigurator
         /// </summary>
         void RegisterBehaviourFactories()
         {
-            LoggingUtil.LogDebug(this.GetType(), "Start Registering BehaviourFactories");
+            LoggingUtil.LogDebug(this, "Start Registering BehaviourFactories");
 
             // Register each type with the behaviour factory
             foreach (Type subclass in GetAllTypes<BehaviourFactory>().Where(t => !t.IsAbstract))
@@ -300,7 +279,7 @@ namespace ContractConfigurator
                 }
             }
 
-            LoggingUtil.LogInfo(this.GetType(), "Finished Registering BehaviourFactories");
+            LoggingUtil.LogInfo(this, "Finished Registering BehaviourFactories");
         }
 
         /// <summary>
@@ -308,7 +287,7 @@ namespace ContractConfigurator
         /// </summary>
         void RegisterContractRequirements()
         {
-            LoggingUtil.LogDebug(this.GetType(), "Start Registering ContractRequirements");
+            LoggingUtil.LogDebug(this, "Start Registering ContractRequirements");
 
             // Register each type
             foreach (Type subclass in GetAllTypes<ContractRequirement>().Where(t => !t.IsAbstract))
@@ -330,7 +309,7 @@ namespace ContractConfigurator
                 }
             }
 
-            LoggingUtil.LogInfo(this.GetType(), "Finished Registering ContractRequirements");
+            LoggingUtil.LogInfo(this, "Finished Registering ContractRequirements");
         }
 
         /// <summary>
@@ -349,14 +328,14 @@ namespace ContractConfigurator
         private IEnumerator<YieldInstruction> LoadContractConfig()
         {
             // Load all the contract groups
-            LoggingUtil.LogDebug(this.GetType(), "Loading CONTRACT_GROUP nodes.");
+            LoggingUtil.LogDebug(this, "Loading CONTRACT_GROUP nodes.");
             ConfigNode[] contractGroups = GameDatabase.Instance.GetConfigNodes("CONTRACT_GROUP");
 
             foreach (ConfigNode groupConfig in contractGroups)
             {
                 // Create the group
                 string name = groupConfig.GetValue("name");
-                LoggingUtil.LogInfo(this.GetType(), "Loading CONTRACT_GROUP: '" + name + "'");
+                LoggingUtil.LogInfo(this, "Loading CONTRACT_GROUP: '" + name + "'");
                 ContractGroup contractGroup = null;
                 try
                 {
@@ -364,7 +343,7 @@ namespace ContractConfigurator
                 }
                 catch (ArgumentException)
                 {
-                    LoggingUtil.LogError(this.GetType(), "Couldn't load CONTRACT_GROUP '" + name + "' due to a duplicate name.");
+                    LoggingUtil.LogError(this, "Couldn't load CONTRACT_GROUP '" + name + "' due to a duplicate name.");
                 }
 
                 // Peform the actual load
@@ -391,7 +370,7 @@ namespace ContractConfigurator
                 }
             }
 
-            LoggingUtil.LogDebug(this.GetType(), "Loading CONTRACT_TYPE nodes.");
+            LoggingUtil.LogDebug(this, "Loading CONTRACT_TYPE nodes.");
             ConfigNode[] contractConfigs = GameDatabase.Instance.GetConfigNodes("CONTRACT_TYPE");
             totalContracts = contractConfigs.Count();
 
@@ -399,14 +378,14 @@ namespace ContractConfigurator
             foreach (ConfigNode contractConfig in contractConfigs)
             {
                 // Create the initial contract type
-                LoggingUtil.LogVerbose(this.GetType(), "Pre-load for node: '" + contractConfig.GetValue("name") + "'");
+                LoggingUtil.LogVerbose(this, "Pre-load for node: '" + contractConfig.GetValue("name") + "'");
                 try
                 {
                     ContractType contractType = new ContractType(contractConfig.GetValue("name"));
                 }
                 catch (ArgumentException)
                 {
-                    LoggingUtil.LogError(this.GetType(), "Couldn't load CONTRACT_TYPE '" + contractConfig.GetValue("name") + "' due to a duplicate name.");
+                    LoggingUtil.LogError(this, "Couldn't load CONTRACT_TYPE '" + contractConfig.GetValue("name") + "' due to a duplicate name.");
                 }
             }
 
@@ -424,7 +403,6 @@ namespace ContractConfigurator
                     // Perform the load
                     try
                     {
-                        ConfigNodeUtil.ClearCache(true);
                         contractType.Load(contractConfig);
                         if (contractType.enabled)
                         {
@@ -438,7 +416,7 @@ namespace ContractConfigurator
                 }
             }
 
-            LoggingUtil.LogInfo(this.GetType(), "Loaded " + successContracts + " out of " + totalContracts + " CONTRACT_TYPE nodes.");
+            LoggingUtil.LogInfo(this, "Loaded " + successContracts + " out of " + totalContracts + " CONTRACT_TYPE nodes.");
 
             // Check for empty groups and warn
             foreach (ContractGroup group in ContractGroup.contractGroups.Values.Where(g => g != null))
@@ -446,57 +424,14 @@ namespace ContractConfigurator
                 group.CheckEmpty();
             }
 
+            // Load other things
+            MissionControlUI.GroupContainer.LoadConfig();
+
             if (!reloading && LoggingUtil.logLevel == LoggingUtil.LogLevel.DEBUG || LoggingUtil.logLevel == LoggingUtil.LogLevel.VERBOSE)
             {
                 ScreenMessages.PostScreenMessage("Contract Configurator: Loaded " + successContracts + " out of " + totalContracts
                     + " contracts successfully.", 5, ScreenMessageStyle.UPPER_CENTER);
             }
-        }
-
-        /// <summary>
-        /// Performs adjustments to the contract type list.  Specifically, disables contract types
-        /// as per configuration files and adds addtional ConfiguredContract instances based on the
-        /// number on contract types.
-        /// </summary>
-        /// <returns>Whether the changes took place</returns>
-        public static bool AdjustContractTypes()
-        {
-            if (ContractSystem.ContractWeights == null)
-            {
-                return false;
-            }
-
-            // Get the current average weight
-            int totalWeight = 0;
-            int count = 0;
-            foreach (KeyValuePair<Type, int> pair in ContractSystem.ContractWeights.Where(p => !p.Key.Name.StartsWith("ConfiguredContract")))
-            {
-                count++;
-                totalWeight += pair.Value;
-            }
-            double avgWeight = (double)totalWeight / count;
-
-            // Figure out the weight and number of contracts we should use
-            double weightByType = Math.Pow(ContractType.AllValidContractTypes.Count(), 0.7) / 1.5;
-            double weightByGroup = Math.Pow(ContractGroup.AllGroups.Count(g => g != null && g.parent == null), 0.9);
-            double desiredWeight = Math.Max(weightByGroup, weightByType) * avgWeight;
-            LoggingUtil.LogDebug(typeof(ContractConfigurator), "Desired ConfiguredContract weight is " + desiredWeight);
-            count = Math.Min((int)Math.Round(desiredWeight / ContractDefs.WeightDefault), 20);
-            int weight = (int)Math.Round(desiredWeight / count);
-
-            // Adjust the contract types list and the contract weights
-            ContractSystem.ContractWeights[typeof(ConfiguredContract)] = weight;
-            ContractSystem.ContractTypes.RemoveAll(t => t.Name.StartsWith("ConfiguredContract") && t.Name != "ConfiguredContract");
-            for (int i = 1; i < count; i++)
-            {
-                Type contractType = Type.GetType("ContractConfigurator.ConfiguredContract" + i, true);
-                ContractSystem.ContractTypes.Add(contractType);
-                ContractSystem.ContractWeights[contractType] = weight;
-            }
-
-            LoggingUtil.LogInfo(typeof(ContractConfigurator), "Finished Adjusting ContractTypes, " + count + " entries with weight " + weight + " added.");
-
-            return true;
         }
 
         public static IEnumerable<Type> GetAllTypes<T>()
@@ -544,10 +479,27 @@ namespace ContractConfigurator
             }
         }
 
-        private void OnGameSceneSwitchRequested(GameEvents.FromToAction<GameScenes, GameScenes> fta)
+        public static int ContractLimit(Contract.ContractPrestige prestige)
         {
-            // Reset the contract types adjusted indicator
-            contractTypesAdjusted = false;
+            int level = (int)Math.Round(ScenarioUpgradeableFacilities.GetFacilityLevel(SpaceCenterFacility.MissionControl) *
+                ScenarioUpgradeableFacilities.GetFacilityLevelCount(SpaceCenterFacility.MissionControl));
+            float rep = Reputation.Instance.reputation;
+            switch (prestige)
+            {
+                case Contract.ContractPrestige.Trivial:
+                    return Math.Max(2, (int)Math.Round((rep + rep * level / 3) / 200 + 6 + level));
+                case Contract.ContractPrestige.Significant:
+                    return Math.Max(1, (int)Math.Round((rep + rep * level / 3) / 250 + 4 + level));
+                case Contract.ContractPrestige.Exceptional:
+                    return Math.Max(0, (int)Math.Round((rep + rep * level / 3) / (1000/3.0) + 2 + level));
+            }
+            return 0;
+        }
+
+        public static bool CanAccept(Contract contract)
+        {
+            int activeCount = ContractSystem.Instance.Contracts.Count(c => c != null && c.Prestige == contract.Prestige && c.ContractState == Contract.State.Active && !c.AutoAccept);
+            return (activeCount < ContractConfigurator.ContractLimit(contract.Prestige));
         }
     }
 }

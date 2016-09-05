@@ -36,7 +36,7 @@ namespace ContractConfigurator.ExpressionParser
             RegisterGlobalFunction(new Function<List<Tech>>("UnlockedTech", () => Tech.AllTech().Where(t => t.IsUnlocked()).ToList(), false));
             RegisterGlobalFunction(new Function<Tech, Tech>("Tech", t => t));
 
-            RegisterGlobalFunction(new Function<int>("MaxTechLevelUnlocked", MaxTechLevelUnlocked));
+            RegisterGlobalFunction(new Function<int>("MaxTechLevelUnlocked", MaxTechLevelUnlocked, false));
         }
 
         public TechParser()
@@ -45,7 +45,12 @@ namespace ContractConfigurator.ExpressionParser
 
         private static int MaxTechLevelUnlocked()
         {
-            return Tech.AllTech().Where(t => t.IsUnlocked()).Select(t => t.level).Max();
+            IEnumerable<Tech> tech = Tech.AllTech().Where(t => t.IsUnlocked());
+            if (!tech.Any())
+            {
+                return 0;
+            }
+            return tech.Select(t => t.level).Max();
         }
 
         public override U ConvertType<U>(Tech value)

@@ -8,16 +8,22 @@ using KSPAchievements;
 
 namespace ContractConfigurator
 {
-    /*
-     * ContractRequirement to provide requirement for player having performed returned from a fly
-     * by of a specific CelestialBody.
-     */
+    /// <summary>
+    /// ContractRequirement to provide requirement for player having performed returned from a flyby of a specific CelestialBody.
+    /// </summary>
     public class ReturnFromFlyByRequirement : ProgressCelestialBodyRequirement
     {
         public override bool RequirementMet(ConfiguredContract contract)
         {
             return base.RequirementMet(contract) &&
                 GetCelestialBodySubtree().returnFromFlyby.IsComplete;
+        }
+
+        protected override string RequirementText()
+        {
+            string output = "Must " + (invertRequirement ? "not " : "") + "have returned from  " + ACheckTypeString() + "flyby of " + (targetBody == null ? "the target body" : targetBody.theName);
+
+            return output;
         }
     }
 }

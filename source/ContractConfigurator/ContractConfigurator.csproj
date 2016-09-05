@@ -21,6 +21,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -94,6 +95,9 @@
     <Compile Include="Behaviour\UnlockTech.cs" />
     <Compile Include="ExpressionParser\Parsers\Classes\PQSCityParser.cs" />
     <Compile Include="IKerbalNameStorage.cs" />
+    <Compile Include="TrackingStationUI.cs" />
+    <Compile Include="ParameterFactory\NoStagingFactory.cs" />
+    <Compile Include="ParameterFactory\ResourceConsumptionFactory.cs" />
     <Compile Include="Parameter\Duration2.cs" />
     <Compile Include="Parameter\Duration.cs" />
     <Compile Include="Parameter\HasAstronaut.cs" />
@@ -112,6 +116,8 @@
     <Compile Include="Parameter\MissionTimer.cs" />
     <Compile Include="Parameter\VesselParameter\HasCrewCapacity.cs" />
     <Compile Include="Parameter\VesselParameter\CollectScienceCustom.cs" />
+    <Compile Include="Parameter\VesselParameter\NoStaging.cs" />
+    <Compile Include="Parameter\VesselParameter\ResourceConsuption.cs" />
     <Compile Include="Parameter\VesselParameter\Rendezvous.cs" />
     <Compile Include="Parameter\VesselParameter\PlantFlagCustom.cs" />
     <Compile Include="Parameter\VesselParameter\NewVessel.cs" />
@@ -125,6 +131,8 @@
     <Compile Include="Parameter\VesselParameter\HasPassengers.cs" />
     <Compile Include="Parameter\VesselParameter\IsNotVessel.cs" />
     <Compile Include="Parameter\VesselParameter\ReachState.cs" />
+    <Compile Include="Requirement\AtMostRequirement.cs" />
+    <Compile Include="Requirement\AtLeasRequirement.cs" />
     <Compile Include="Requirement\ContractCheckRequirement.cs" />
     <Compile Include="Requirement\AcceptContractRequirement.cs" />
     <Compile Include="Requirement\InvalidContractRequirement.cs" />
@@ -208,6 +216,7 @@
     <Compile Include="ParameterFactory\PerformOrbitalSurveyFactory.cs" />
     <Compile Include="ParameterFactory\VesselDestroyedFactory.cs" />
     <Compile Include="ScenarioModules\BiomeTracker.cs" />
+    <Compile Include="Util\ResearchBodiesWrapper.cs" />
     <Compile Include="Util\DebugWindow.cs" />
     <Compile Include="Util\DraftTwitchViewers.cs" />
     <Compile Include="Util\ExceptionLogWindow.cs" />
@@ -224,15 +233,18 @@
     <Compile Include="Util\ContractsWindow.cs" />
     <Compile Include="Util\LocationUtil.cs" />
     <Compile Include="Util\LRUCache.cs" />
+    <Compile Include="MissionControlUI.cs" />
     <Compile Include="Util\PartUtil.cs" />
     <Compile Include="Util\SCANsatUtil.cs" />
     <Compile Include="Util\Science.cs" />
     <Compile Include="Util\TextureUtil.cs" />
+    <Compile Include="Util\TipLoader.cs" />
     <Compile Include="Util\TitleTracker.cs" />
     <Compile Include="ParameterFactory\PartValidationFactory.cs" />
     <Compile Include="ParameterFactory\IsNotVesselFactory.cs" />
     <Compile Include="ParameterFactory\HasPassengersFactory.cs" />
     <Compile Include="ParameterFactory\DurationFactory.cs" />
+    <Compile Include="Util\DebuggingUtils.cs" />
     <Compile Include="Util\Validation.cs" />
     <Compile Include="Behaviour\Expression.cs" />
     <Compile Include="Behaviour\OrbitGenerator.cs" />
@@ -321,10 +333,10 @@
   <PropertyGroup>
     <PostBuildEvent>copy /y "$(TargetPath)" "$(SolutionDir)..\GameData\ContractConfigurator\"
 
-"C:\games\tools\pdb2mdb\pdb2mdb.exe" "$(TargetFileName)"
+where /q pdb2mdb.exe || pdb2mdb.exe "$(TargetFileName)"
 copy /Y "$(TargetPath)" "C:\Program Files (x86)\Kerbal Space Program\GameData\ContractConfigurator\"
 copy /Y "$(TargetDir)$(TargetName).pdb" "C:\Program Files (x86)\Kerbal Space Program\GameData\ContractConfigurator\"
-copy /Y "$(TargetDir)$(TargetName).dll.mdb" "C:\Program Files (x86)\Kerbal Space Program\GameData\ContractConfigurator\"</PostBuildEvent>
+if exist "$(TargetDir)$(TargetName).dll.mdb" (copy /Y "$(TargetDir)$(TargetName).dll.mdb" "C:\Program Files (x86)\Kerbal Space Program\GameData\ContractConfigurator\")</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -14,8 +14,6 @@ namespace ContractConfigurator.Parameters
     /// </summary>
     public class PerformOrbitalSurvey : ContractConfiguratorParameter
     {
-        protected CelestialBody targetBody;
-
         private double lastUpdate = 0.0;
 
         public PerformOrbitalSurvey()

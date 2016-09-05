@@ -5,6 +5,7 @@ using System.Text;
 using UnityEngine;
 using KSP;
 using KSPAchievements;
+using ContractConfigurator.Util;
 
 namespace ContractConfigurator
 {
@@ -21,11 +22,6 @@ namespace ContractConfigurator
                 if (requirement.enabled)
                 {
                     requirementMet |= requirement.CheckRequirement(contract);
-
-                    if (requirementMet)
-                    {
-                        return true;
-                    }
                 }
             }
             return requirementMet;
@@ -33,5 +29,10 @@ namespace ContractConfigurator
 
         public override void OnLoad(ConfigNode configNode) { }
         public override void OnSave(ConfigNode configNode) { }
+
+        protected override string RequirementText()
+        {
+            return "Must meet <color=#" + MissionControlUI.RequirementHighlightColor + ">any</color> of the following";
+        }
     }
 }

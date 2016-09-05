@@ -30,8 +30,12 @@ namespace ContractConfigurator.ExpressionParser
             RegisterMethod(new Method<AvailablePart, string>("Manufacturer", p => p == null ? "" : p.manufacturer));
             RegisterMethod(new Method<AvailablePart, float>("Size", p => p == null ? 0.0f : p.partSize));
             RegisterMethod(new Method<AvailablePart, Tech>("TechRequired", p => p == null ? null : Tech.GetTech(p.TechRequired)));
+            RegisterMethod(new Method<AvailablePart, int>("UnlockCost", p => p == null ? 0 : p.entryCost));
             RegisterMethod(new Method<AvailablePart, bool>("IsUnlocked", p => p == null ? false : ResearchAndDevelopment.PartModelPurchased(p), false));
             RegisterMethod(new Method<AvailablePart, int>("CrewCapacity", p => p == null ? 0 : p.partPrefab.CrewCapacity));
+
+            RegisterMethod(new Method<AvailablePart, List<Resource>>("Resources", ResourceList));
+            RegisterMethod(new Method<AvailablePart, Resource, double>("ResourceCapacity", ResourceCapacity));
 
             RegisterMethod(new Method<AvailablePart, float>("EngineAtmosphereThrust", GetEngineAtmoThrust));
             RegisterMethod(new Method<AvailablePart, float>("EngineVacuumThrust", GetEngineVacThrust));
@@ -50,7 +54,7 @@ namespace ContractConfigurator.ExpressionParser
         {
             if (typeof(U) == typeof(string))
             {
-                return (U)(object)(value == null ? "" : value.name);
+                return (U)(object)(value == null ? "" : value.title);
             }
             return base.ConvertType<U>(value);
         }
@@ -61,6 +65,42 @@ namespace ContractConfigurator.ExpressionParser
             Token t = new Token(TokenType.IDENTIFIER);
             t.sval = "";
             return t;
+        }
+
+        private static List<Resource> ResourceList(AvailablePart p)
+        {
+            if (p == null)
+            {
+                return null;
+            }
+
+            List<Resource> resources = new List<Resource>();
+            foreach (PartResource r in p.partPrefab.Resources)
+            {
+                PartResourceDefinition resource = PartResourceLibrary.Instance.resourceDefinitions.Where(prd => prd.name == r.resourceName).FirstOrDefault();
+                if (resource != null)
+                {
+                    resources.Add(new Resource(resource));
+                }
+            }
+            return resources;
+        }
+
+        private static double ResourceCapacity(AvailablePart p, Resource r)
+        {
+            if (p == null || r == null)
+            {
+                return 0.0f;
+            }
+
+            foreach (PartResource pr in p.partPrefab.Resources)
+            {
+                if (pr.resourceName == r.res.name)
+                {
+                    return pr.maxAmount;
+                }
+            }
+            return 0.0f;
         }
 
         private static float GetEngineVacThrust(AvailablePart p)
@@ -161,8 +201,6 @@ namespace ContractConfigurator.ExpressionParser
             {
                 throw new ArgumentException("'" + identifier + "' is not a valid Part.");
             }
-
-            currentDataNode.SetDeterministic(currentKey, false);
 
             return part;
         }

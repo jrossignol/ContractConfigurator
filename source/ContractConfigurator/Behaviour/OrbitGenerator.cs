@@ -68,8 +68,8 @@ namespace ContractConfigurator.Behaviour
 
                 if (HighLogic.LoadedScene == GameScenes.TRACKSTATION || HighLogic.LoadedScene == GameScenes.FLIGHT)
                 {
-                    if (contract.ContractState == Contract.State.Active ||
-                        contract.ContractState == Contract.State.Offered && ContractDefs.DisplayOfferedOrbits && HighLogic.LoadedScene == GameScenes.TRACKSTATION)
+                    if (contract.ContractState == Contract.State.Active && (ContractConfiguratorSettings.Instance.DisplayActiveOrbits || HighLogic.LoadedScene != GameScenes.TRACKSTATION) ||
+                        contract.ContractState == Contract.State.Offered && ContractConfiguratorSettings.Instance.DisplayOfferedOrbits && HighLogic.LoadedScene == GameScenes.TRACKSTATION)
                     {
                         orbitRenderer = ContractOrbitRenderer.Setup(contract, orbit);
                     }
@@ -87,7 +87,10 @@ namespace ContractConfigurator.Behaviour
         }
         private List<OrbitData> orbits = new List<OrbitData>();
 
-        public OrbitGenerator() {}
+        public OrbitGenerator()
+        {
+            GameEvents.OnMapViewFiltersModified.Add(new EventData<MapViewFiltering.VesselTypeFilter>.OnEvent(OnMapViewFiltersModified));
+        }
 
         public OrbitGenerator(OrbitGenerator orig, Contract contract)
             : base()
@@ -112,6 +115,11 @@ namespace ContractConfigurator.Behaviour
                 // Do type specific handling
                 if (obData.type == "RANDOM_ORBIT")
                 {
+                    if (!ValidateOrbitType(obData, null))
+                    {
+
+                    }
+
                     obData.orbit = OrbitUtilities.GenerateOrbit(contract.MissionSeed + index++, obData.targetBody, obData.orbitType,
                         obData.altitudeFactor, obData.inclinationFactor, obData.eccentricity);
                 }
@@ -170,6 +178,11 @@ namespace ContractConfigurator.Behaviour
 
                     // Add to the list
                     obGenerator.orbits.Add(obData);
+
+                    if (dataNode.IsInitialized("targetBody") && dataNode.IsInitialized("type"))
+                    {
+                        valid &= obGenerator.ValidateOrbitType(obData, factory);
+                    }
                 }
                 finally
                 {
@@ -180,12 +193,49 @@ namespace ContractConfigurator.Behaviour
             return valid ? obGenerator : null;
         }
 
+        private bool ValidateOrbitType(OrbitData obData, OrbitGeneratorFactory factory)
+        {
+            if (obData.orbitType == OrbitType.KOLNIYA && !CelestialUtilities.CanBodyBeKolniya(obData.targetBody))
+            {
+                string error = string.Format("Cannot use a Kolniya orbit with {0}.", obData.targetBody.theName);
+                if (factory != null)
+                {
+                    LoggingUtil.LogError(factory, factory.ErrorPrefix() + ": " + error);
+                    return false;
+                }
+                else
+                {
+                    throw new ArgumentException(error);
+                }
+            }
+            else if (obData.orbitType == OrbitType.TUNDRA && !CelestialUtilities.CanBodyBeTundra(obData.targetBody))
+            {
+                string error = string.Format("Cannot use a tundra orbit with {0}.", obData.targetBody.theName);
+                if (factory != null)
+                {
+                    LoggingUtil.LogError(factory, factory.ErrorPrefix() + ": " + error);
+                    return false;
+                }
+                else
+                {
+                    throw new ArgumentException(error);
+                }
+            }
+            return true;
+        }
+
         protected override void OnAccepted()
         {
             foreach (OrbitData obData in orbits)
             {
                 obData.SetupRenderer();
             }
+        }
+
+        protected override void OnRegister()
+        {
+            base.OnRegister();
+
         }
 
         protected override void OnUnregister()
@@ -195,6 +245,26 @@ namespace ContractConfigurator.Behaviour
             foreach (OrbitData obData in orbits)
             {
                 obData.CleanupRenderer();
+            }
+        }
+
+        protected void OnMapViewFiltersModified(MapViewFiltering.VesselTypeFilter filter)
+        {
+            if (filter == MapViewFiltering.VesselTypeFilter.None)
+            {
+                // Reset state of renderers
+                foreach (OrbitData obData in orbits)
+                {
+                    if (contract.ContractState == Contract.State.Active && ContractConfiguratorSettings.Instance.DisplayActiveOrbits ||
+                        contract.ContractState == Contract.State.Offered && ContractConfiguratorSettings.Instance.DisplayOfferedOrbits)
+                    {
+                        obData.SetupRenderer();
+                    }
+                    else
+                    {
+                        obData.CleanupRenderer();
+                    }
+                }
             }
         }
 

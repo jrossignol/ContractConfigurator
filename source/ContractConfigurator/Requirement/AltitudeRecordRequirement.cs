@@ -38,7 +38,19 @@ namespace ContractConfigurator
 
         public override bool RequirementMet(ConfiguredContract contract)
         {
-            return ProgressTracking.Instance.altitudeRecords.record > minAltitude;
+            return ProgressTracking.Instance.altitudeRecords.record >= minAltitude;
+        }
+
+        protected override string RequirementText()
+        {
+            string output = "Must " + (invertRequirement ? "not " : "") + "have reached an altitude of at least " + minAltitude.ToString("N0") + " m";
+
+            if (ProgressTracking.Instance.altitudeRecords.record < minAltitude)
+            {
+                output += " (current record: " + ProgressTracking.Instance.altitudeRecords.record.ToString("N0") + " m)";
+            }
+
+            return output;
         }
     }
 }

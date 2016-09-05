@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -8,8 +9,7 @@ using KSP;
 using Contracts;
 using Contracts.Agents;
 using ContractConfigurator.ExpressionParser;
-using System.IO;
-using System.Text.RegularExpressions;
+using ContractConfigurator.Util;
 
 namespace ContractConfigurator
 {
@@ -26,20 +26,56 @@ namespace ContractConfigurator
     /// </summary>
     public class ContractType : IContractConfiguratorFactory
     {
+        static MethodInfo methodParseExpand = typeof(ContractType).GetMethods(BindingFlags.Instance | BindingFlags.NonPublic).
+            Where(m => m.Name == "ParseDataExpandString").Single();
+
+        public class DataValueInfo
+        {
+            public bool required;
+            public bool hidden;
+            public string title;
+            public Type type;
+
+            public DataValueInfo(string title, bool required, bool hidden, Type type)
+            {
+                this.title = title;
+                this.required = required;
+                this.hidden = hidden;
+                this.type = type;
+            }
+
+            public bool IsIgnoredType()
+            {
+                return type.IsValueType;
+            }
+        }
+
         private static Dictionary<string, ContractType> contractTypes = new Dictionary<string,ContractType>();
         public static IEnumerable<ContractType> AllContractTypes { get { return contractTypes.Values; } }
         public static IEnumerable<ContractType> AllValidContractTypes
         {
             get
             {
-                return contractTypes.Values.Where(ct => ct.enabled);
+                foreach (KeyValuePair<string, ContractType> pair in contractTypes)
+                {
+                    if (pair.Value.enabled)
+                    {
+                        yield return pair.Value;
+                    }
+                }
             }
         }
         public static IEnumerable<string> AllValidContractTypeNames
         {
             get
             {
-                return AllValidContractTypes.Select<ContractType, string>(ct => ct.name);
+                foreach (KeyValuePair<string, ContractType> pair in contractTypes)
+                {
+                    if (pair.Value.enabled)
+                    {
+                        yield return pair.Key;
+                    }
+                }
             }
         }
         
@@ -65,6 +101,21 @@ namespace ContractConfigurator
             }
         }
 
+        public System.Version minVersion
+        {
+            get
+            {
+                for (ContractGroup currentGroup = group; currentGroup != null; currentGroup = currentGroup.parent)
+                {
+                    if (!string.IsNullOrEmpty(currentGroup.minVersionStr))
+                    {
+                        return Util.Version.ParseVersion(currentGroup.minVersionStr);
+                    }
+                }
+                return new System.Version(1, 0, 0, 0);
+            }
+        }
+
         protected List<ParameterFactory> paramFactories = new List<ParameterFactory>();
         protected List<BehaviourFactory> behaviourFactories = new List<BehaviourFactory>();
         protected List<ContractRequirement> requirements = new List<ContractRequirement>();
@@ -87,9 +138,11 @@ namespace ContractConfigurator
         public string name;
         public ContractGroup group;
         public string title = "";
+        public string genericTitle = "";
         public string tag;
         public string notes;
         public string description;
+        public string genericDescription = "";
         public string topic;
         public string subject;
         public string motivation;
@@ -104,7 +157,6 @@ namespace ContractConfigurator
         public bool autoAccept;
         public List<Contract.ContractPrestige> prestige;
         public CelestialBody targetBody;
-        protected List<CelestialBody> targetBodies;
         protected Vessel targetVessel;
         protected List<Vessel> targetVessels;
         protected Kerbal targetKerbal;
@@ -117,12 +169,17 @@ namespace ContractConfigurator
         public float failureReputation;
         public float failureFunds;
         public float advanceFunds;
-        public double weight;
         public bool trace = false;
         public bool loaded = false;
+        public int maxConsecutiveGenerationFailures = 1;
+        public int failedGenerationAttempts;
+        public double lastGenerationFailure = -100;
+        public string sortKey;
 
-        private Dictionary<string, bool> dataValues = new Dictionary<string, bool>();
+        public Dictionary<string, DataValueInfo> dataValues = new Dictionary<string, DataValueInfo>();
         public Dictionary<string, DataNode.UniquenessCheck> uniquenessChecks = new Dictionary<string, DataNode.UniquenessCheck>();
+
+        public HashSet<CelestialBody> contractBodies = new HashSet<CelestialBody>();
 
         public ContractType(string name)
         {
@@ -147,7 +204,6 @@ namespace ContractConfigurator
             failureReputation = 0.0f;
             failureFunds = 0.0f;
             advanceFunds = 0.0f;
-            weight = 1.0;
             enabled = true;
         }
 			
@@ -166,6 +222,9 @@ namespace ContractConfigurator
                 LoggingUtil.CaptureLog = true;
                 ConfigNodeUtil.SetCurrentDataNode(null);
                 LoggingUtil.LogInfo(this, "Loading CONTRACT_TYPE: '" + name + "'");
+
+                // Clear the config node cache
+                ConfigNodeUtil.ClearCache(true);
 
                 // Load values that are immediately required
                 bool valid = true;
@@ -197,9 +256,9 @@ namespace ContractConfigurator
                 valid &= ConfigNodeUtil.ParseValue<string>(configNode, "completedMessage", x => completedMessage = x, this);
 
                 // Load optional attributes
-                valid &= ConfigNodeUtil.ParseValue<Agent>(configNode, "agent", x => agent = x, this, (Agent)null);
-                valid &= ConfigNodeUtil.ParseValue<float>(configNode, "minExpiry", x => minExpiry = x, this, 1.0f, x => Validation.GE(x, 0.0f));
-                valid &= ConfigNodeUtil.ParseValue<float>(configNode, "maxExpiry", x => maxExpiry = x, this, 7.0f, x => Validation.GE(x, minExpiry));
+                valid &= ConfigNodeUtil.ParseValue<Agent>(configNode, "agent", x => agent = x, this, group != null ? group.agent : null);
+                valid &= ConfigNodeUtil.ParseValue<float>(configNode, "minExpiry", x => minExpiry = x, this, 5.0f, x => Validation.GE(x, 0.0f));
+                valid &= ConfigNodeUtil.ParseValue<float>(configNode, "maxExpiry", x => maxExpiry = x, this, 100.0f, x => Validation.GE(x, minExpiry));
                 valid &= ConfigNodeUtil.ParseValue<float>(configNode, "deadline", x => deadline = x, this, 0.0f, x => Validation.GE(x, 0.0f));
                 valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "cancellable", x => cancellable = x, this, true);
                 valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "declinable", x => declinable = x, this, true);
@@ -208,7 +267,7 @@ namespace ContractConfigurator
                 valid &= ConfigNodeUtil.ParseValue<CelestialBody>(configNode, "targetBody", x => targetBody = x, this, (CelestialBody)null);
 
                 valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxCompletions", x => maxCompletions = x, this, 0, x => Validation.GE(x, 0));
-                valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxSimultaneous", x => maxSimultaneous = x, this, 0, x => Validation.GE(x, 0));
+                valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxSimultaneous", x => maxSimultaneous = x, this, (maxCompletions == 0 ? 4 : 0), x => Validation.GE(x, 0));
 
                 // Load rewards
                 valid &= ConfigNodeUtil.ParseValue<float>(configNode, "rewardFunds", x => rewardFunds = x, this, 0.0f);
@@ -219,29 +278,31 @@ namespace ContractConfigurator
                 valid &= ConfigNodeUtil.ParseValue<float>(configNode, "advanceFunds", x => advanceFunds = x, this, 0.0f);
 
                 // Load other values
-                valid &= ConfigNodeUtil.ParseValue<double>(configNode, "weight", x => weight = x, this, 1.0, x => Validation.GE(x, 0.0f));
+                if (configNode.HasValue("weight"))
+                {
+                    double weight;
+                    valid &= ConfigNodeUtil.ParseValue<double>(configNode, "weight", x => weight = x, this);
+                    LoggingUtil.LogWarning(this, ErrorPrefix() + ": The weight attribute is deprecated as of Contract Configurator 1.15.0.  Contracts are no longer generated using a weighted system.");
+                }
 
                 // Merge in data from the parent contract group
                 for (ContractGroup currentGroup = group; currentGroup != null; currentGroup = currentGroup.parent)
                 {
                     // Merge dataValues - this is a flag saying what values need to be unique at the contract level
-                    foreach (KeyValuePair<string, bool> pair in currentGroup.dataValues)
+                    foreach (KeyValuePair<string, DataValueInfo> pair in currentGroup.dataValues)
                     {
-                        dataValues[group.name + ":" + pair.Key] = pair.Value;
+                        dataValues[currentGroup.name + ":" + pair.Key] = pair.Value;
                     }
 
                     // Merge uniquenessChecks
                     foreach (KeyValuePair<string, DataNode.UniquenessCheck> pair in currentGroup.uniquenessChecks)
                     {
-                        uniquenessChecks[group.name + ":" + pair.Key] = pair.Value;
+                        uniquenessChecks[currentGroup.name + ":" + pair.Key] = pair.Value;
                     }
                 }
 
                 // Load DATA nodes
                 valid &= dataNode.ParseDataNodes(configNode, this, dataValues, uniquenessChecks);
-
-                // Check for unexpected values - always do this last
-                valid &= ConfigNodeUtil.ValidateUnexpectedValues(configNode, this);
 
                 log = LoggingUtil.capturedLog;
                 LoggingUtil.CaptureLog = false;
@@ -297,12 +358,134 @@ namespace ContractConfigurator
                 // Check we have at least one valid parameter
                 if (paramFactories.Count() == 0)
                 {
-                    LoggingUtil.LogError(this.GetType(), ErrorPrefix() + ": Need at least one parameter for a contract!");
+                    LoggingUtil.LogError(this, ErrorPrefix() + ": Need at least one parameter for a contract!");
                     valid = false;
                 }
 
+                ConfigNodeUtil.SetCurrentDataNode(dataNode);
+
+                //
+                // Process the DATA_EXPAND nodes - this could cause a restart to the load process
+                //
+                ConfigNode dataExpandNode = configNode.GetNodes("DATA_EXPAND").FirstOrDefault();
+                if (dataExpandNode != null)
+                {
+                    Type type = null;
+                    valid &= ConfigNodeUtil.ParseValue<Type>(dataExpandNode, "type", x => type = x, this);
+
+                    if (type != null)
+                    {
+                        foreach (ConfigNode.Value pair in dataExpandNode.values)
+                        {
+                            string key = pair.name;
+                            if (key != "type")
+                            {
+                                object value = null;
+
+                                // Create the setter function
+                                Type actionType = typeof(Action<>).MakeGenericType(type);
+                                Delegate del = Delegate.CreateDelegate(actionType, value, typeof(DataNode).GetMethod("NullAction"));
+
+                                // Set the ParseDataExpandString method generic value
+                                MethodInfo method = methodParseExpand.MakeGenericMethod(new Type[] { type });
+
+                                // Invoke the ParseDataExpandString method
+                                List<string> values = (List<string>)method.Invoke(this, new object[] { dataExpandNode, key });
+
+                                // Stop at this point if we're invalid
+                                if (values == null || !valid)
+                                {
+                                    if (values == null)
+                                    {
+                                        LoggingUtil.LogWarning(this, ErrorPrefix() + ": Received an empty list of values when trying to do a DATA_EXPAND");
+                                    }
+                                    valid = false;
+                                    break;
+                                }
+
+                                // Expand
+                                configNode.RemoveNode(dataExpandNode);
+                                foreach (string val in values)
+                                {
+                                    // Set up for expansion
+                                    ConfigNode copy = configNode.CreateCopy();
+                                    string newName = name + "." + val;
+                                    copy.SetValue("name", newName);
+
+                                    // Set up the data node in the copy
+                                    ConfigNode dataNode = new ConfigNode("DATA");
+                                    copy.AddNode(dataNode);
+                                    dataNode.AddValue("type", dataExpandNode.GetValue("type"));
+                                    dataNode.AddValue(key, val);
+
+                                    ContractType contractTypeCopy = new ContractType(newName);
+                                    contractTypeCopy.Load(copy);
+                                }
+
+                                // Remove the original
+                                contractTypes.Remove(name);
+
+                                // Don't do any more loading for this one
+                                LoggingUtil.LogInfo(this, "Successfully expanded CONTRACT_TYPE '" + name + "'");
+                                return valid;
+                            }
+                        }
+                    }
+                }
+
+                //
                 // Do the deferred loads
+                //
                 valid &= ConfigNodeUtil.ExecuteDeferredLoads();
+
+                //
+                // Do generic fields that need to happen after deferred loads
+                //
+                ConfigNodeUtil.SetCurrentDataNode(dataNode);
+
+                // Generic title
+                valid &= ConfigNodeUtil.ParseValue<string>(configNode, "genericTitle", x => genericTitle = x, this, title);
+                if (!configNode.HasValue("genericTitle") && !dataNode.IsDeterministic("title"))
+                {
+                    LoggingUtil.Log(minVersion >= ContractConfigurator.ENHANCED_UI_VERSION ? LoggingUtil.LogLevel.ERROR : LoggingUtil.LogLevel.WARNING, this,
+                        ErrorPrefix() + ": The field 'genericTitle' is required when the title is not determistic (ie. when expressions are used).");
+
+                    // Error on newer versions of contract packs
+                    if (minVersion >= ContractConfigurator.ENHANCED_UI_VERSION)
+                    {
+                        valid = false;
+                    }
+                }
+                else if (!dataNode.IsDeterministic("genericTitle"))
+                {
+                    valid = false;
+                    LoggingUtil.LogError(this, ErrorPrefix() + ": The field 'genericTitle' must be deterministic.");
+                }
+
+                // Generic description
+                valid &= ConfigNodeUtil.ParseValue<string>(configNode, "genericDescription", x => genericDescription = x, this, description);
+                if (!configNode.HasValue("genericDescription") && !dataNode.IsDeterministic("description"))
+                {
+                    LoggingUtil.Log(minVersion >= ContractConfigurator.ENHANCED_UI_VERSION ? LoggingUtil.LogLevel.ERROR : LoggingUtil.LogLevel.WARNING, this,
+                        ErrorPrefix() + ": The field 'genericDescription' is required when the description is not determistic (ie. when expressions are used).");
+
+                    // Error on newer versions of contract packs
+                    if (minVersion >= ContractConfigurator.ENHANCED_UI_VERSION)
+                    {
+                        valid = false;
+                    }
+                }
+                else if (!dataNode.IsDeterministic("genericDescription"))
+                {
+                    valid = false;
+                    LoggingUtil.LogError(this, ErrorPrefix() + ": The field 'genericDescription' must be deterministic.");
+                }
+
+                // Sorting key
+                valid &= ConfigNodeUtil.ParseValue<string>(configNode, "sortKey", x => sortKey = x, this, genericTitle);
+
+                // Check for unexpected values - always do this last
+                valid &= ConfigNodeUtil.ValidateUnexpectedValues(configNode, this);
 
                 if (valid)
                 {
@@ -376,6 +559,31 @@ namespace ContractConfigurator
             }
         }
 
+        private List<string> ParseDataExpandString<T>(ConfigNode dataExpandNode, string key)
+        {
+            List<T> values = null;
+            bool valid = ConfigNodeUtil.ParseValue<List<T>>(dataExpandNode, key, x => values = x, this);
+            if (!valid || values == null)
+            {
+                return null;
+            }
+
+            // Check that we actually got a deterministic value
+            if (!dataNode.IsDeterministic(key))
+            {
+                LoggingUtil.LogError(this, ErrorPrefix() + ": Values captured in a DATA_EXPAND node must be deterministic (the value needs to be fixed when loaded on game startup.");
+                return null;
+            }
+
+            List<string> results = new List<string>();
+            foreach (T t in values)
+            {
+                Type type;
+                results.Add(PersistentDataStore.OutputValue(t, out type));
+            }
+            return results;
+        }
+
         static string DataNodeDebug(DataNode node, int indent = 0)
         {
             if (node == null)
@@ -433,41 +641,20 @@ namespace ContractConfigurator
                 }
 
                 // Check expiry
-                if (contract.ContractState == Contract.State.Withdrawn && Planetarium.fetch != null &&
-                    contract.DateExpire < Planetarium.fetch.time)
+                if ((contract.ContractState == Contract.State.Offered || contract.ContractState == Contract.State.Withdrawn) &&
+                    Planetarium.fetch != null && contract.DateExpire < Planetarium.fetch.time)
                 {
                     throw new ContractRequirementException("Expired contract.");
-                }
-
-                // Check prestige
-                if (prestige.Count > 0 && !prestige.Contains(contract.Prestige))
-                {
-                    throw new ContractRequirementException("Wrong prestige level.");
                 }
 
                 // Checks for maxSimultaneous/maxCompletions
                 if (maxSimultaneous != 0 || maxCompletions != 0)
                 {
                     IEnumerable<ConfiguredContract> contractList = ConfiguredContract.CurrentContracts.
-                        Where(c => c.contractType != null && c.contractType.name == name);
-
-                    // Special case for pre-loader contracts
-                    if (contract.ContractState == Contract.State.Withdrawn)
-                    {
-                        contractList = contractList.Union(ContractPreLoader.Instance.PendingContracts(this, contract.Prestige));
-                        contractList = contractList.Where(c => c != contract);
-                    }
-
-                    // Get the count of active contracts - excluding ours
-                    int activeContracts = contractList.Count();
-                    if (contract.ContractState == Contract.State.Offered ||
-                        contract.ContractState == Contract.State.Active ||
-                        contractList.Contains(contract))
-                    {
-                        activeContracts--;
-                    }
+                        Where(c => c.contractType != null && c.contractType.name == name && c != contract);
 
                     // Check if we're breaching the active limit
+                    int activeContracts = contractList.Count();
                     if (maxSimultaneous != 0 && activeContracts >= maxSimultaneous)
                     {
                         throw new ContractRequirementException("Too many active contracts.");
@@ -476,9 +663,7 @@ namespace ContractConfigurator
                     // Check if we're breaching the completed limit
                     if (maxCompletions != 0)
                     {
-                        int finishedContracts = ConfiguredContract.CompletedContracts.
-                            Count(c => c.contractType != null && c.contractType.name == name);
-                        if (finishedContracts + activeContracts >= maxCompletions)
+                        if (ActualCompletions() + activeContracts >= maxCompletions)
                         {
                             throw new ContractRequirementException("Too many completed/active/offered contracts.");
                         }
@@ -497,7 +682,7 @@ namespace ContractConfigurator
             {
                 LoggingUtil.LogLevel level = contract.ContractState == Contract.State.Active ? LoggingUtil.LogLevel.INFO : contract.contractType != null ? LoggingUtil.LogLevel.DEBUG : LoggingUtil.LogLevel.VERBOSE;
                 string prefix = contract.contractType != null ? "Cancelling contract of type " + name + " (" + contract.Title + "): " :
-                    "Didn't generate contract type " + name + ": ";
+                    "Didn't generate contract of type " + name + ": ";
                 LoggingUtil.Log(level, this.GetType(), prefix + e.Message);
                 return false;
             }
@@ -536,44 +721,24 @@ namespace ContractConfigurator
                     throw new ContractRequirementException("Contract definition changed.");
                 }
 
+                // Check prestige
+                if (prestige.Count > 0 && !prestige.Contains(contract.Prestige))
+                {
+                    throw new ContractRequirementException("Wrong prestige level.");
+                }
+
+                // Do a Research Bodies check, if applicable
+                ResearchBodiesCheck(contract);
+
                 // Check special values are not null
                 if (contract.contractType == null)
                 {
-                    foreach (KeyValuePair<string, bool> pair in dataValues)
+                    foreach (KeyValuePair<string, DataValueInfo> pair in dataValues)
                     {
                         // Only check if it is a required value
-                        if (pair.Value)
+                        if (pair.Value.required)
                         {
-                            string name = pair.Key;
-
-                            if (!dataNode.IsInitialized(name))
-                            {
-                                throw new ContractRequirementException("'" + name + "' was not initialized.");
-                            }
-
-                            object o = dataNode[name];
-                            if (o == null)
-                            {
-                                throw new ContractRequirementException("'" + name + "' was null.");
-                            }
-                            else if (o.GetType().GetGenericArguments().Any() && o.GetType().GetGenericTypeDefinition() == typeof(List<>))
-                            {
-                                PropertyInfo prop = o.GetType().GetProperty("Count");
-                                int count = (int)prop.GetValue(o, null);
-                                if (count == 0)
-                                {
-                                    throw new ContractRequirementException("'" + name + "' had zero count.");
-                                }
-                            }
-                            else if (o.GetType() == typeof(Vessel))
-                            {
-                                Vessel v = (Vessel)o;
-
-                                if (v.state == Vessel.State.DEAD)
-                                {
-                                    throw new ContractRequirementException("Vessel '" + v.vesselName + "' is dead.");
-                                }
-                            }
+                            CheckRequiredValue(pair.Key);
                         }
                     }
                 }
@@ -589,7 +754,7 @@ namespace ContractConfigurator
                         LoggingUtil.LogVerbose(this, "Doing unique value check for " + key);
 
                         // Get the active/offered contract lists
-                        IEnumerable<ConfiguredContract> contractList = ContractSystem.Instance.Contracts.OfType<ConfiguredContract>().
+                        IEnumerable<ConfiguredContract> contractList = ConfiguredContract.CurrentContracts.
                             Where(c => c != null && c.contractType != null && c != contract);
 
                         // Add in finished contracts
@@ -599,14 +764,7 @@ namespace ContractConfigurator
                                 Where(c => c != null && c.contractType != null && c != contract));
                         }
 
-                        // Special case for pre-loader contracts
-                        if (contract.ContractState == Contract.State.Withdrawn)
-                        {
-                            contractList = contractList.Union(ContractPreLoader.Instance.PendingContracts(this, contract.Prestige).
-                                Where(c => c != null && c != contract && c.contractType != null));
-                        }
-
-                        // Fileter anything that doesn't have our key
+                        // Filter anything that doesn't have our key
                         contractList = contractList.Where(c => c.uniqueData.ContainsKey(key));
 
                         // Check for contracts of the same type
@@ -658,7 +816,7 @@ namespace ContractConfigurator
             {
                 LoggingUtil.LogLevel level = contract.ContractState == Contract.State.Active ? LoggingUtil.LogLevel.INFO : contract.contractType != null ? LoggingUtil.LogLevel.DEBUG : LoggingUtil.LogLevel.VERBOSE;
                 string prefix = contract.contractType != null ? "Cancelling contract of type " + name + " (" + contract.Title + "): " :
-                    "Didn't generate contract type " + name + ": ";
+                    "Didn't generate contract of type " + name + ": ";
                 LoggingUtil.Log(level, this.GetType(), prefix + e.Message);
                 return false;
             }
@@ -671,6 +829,28 @@ namespace ContractConfigurator
             {
                 LoggingUtil.logLevel = origLogLevel;
                 loaded = true;
+            }
+        }
+
+        public void ResearchBodiesCheck(ConfiguredContract contract)
+        {
+            if (Util.Version.VerifyResearchBodiesVersion())
+            {
+                LoggingUtil.LogVerbose(this, "ResearchBodies check for contract type " + name);
+
+                // Check each body that the contract references
+                Dictionary<CelestialBody, RBWrapper.CelestialBodyInfo> bodyInfoDict = RBWrapper.RBactualAPI.CelestialBodies;
+                foreach (CelestialBody body in contract.ContractBodies)
+                {
+                    if (bodyInfoDict.ContainsKey(body) && !body.isHomeWorld)
+                    {
+                        RBWrapper.CelestialBodyInfo bodyInfo = bodyInfoDict[body];
+                        if (!bodyInfo.isResearched)
+                        {
+                            throw new ContractRequirementException("Research Bodies: " + body.name + " has not yet been researched.");
+                        }
+                    }
+                }
             }
         }
 
@@ -695,22 +875,10 @@ namespace ContractConfigurator
                 }
 
                 IEnumerable<ConfiguredContract> contractList = ConfiguredContract.CurrentContracts.
-                    Where(c => c.contractType != null);
-
-                // Special case for pre-loader contracts
-                if (contract.ContractState == Contract.State.Withdrawn)
-                {
-                    contractList = contractList.Union(ContractPreLoader.Instance.PendingContracts(contract.Prestige));
-                    contractList = contractList.Where(c => c != contract);
-                }
+                    Where(c => c.contractType != null && c != contract);
 
                 // Check the group active limit
                 int activeContracts = contractList.Count(c => c.contractType != null && group.BelongsToGroup(c.contractType));
-                if (contract.ContractState == Contract.State.Offered || contract.ContractState == Contract.State.Active)
-                {
-                    activeContracts--;
-                }
-
                 if (group.maxSimultaneous != 0 && activeContracts >= group.maxSimultaneous)
                 {
                     throw new ContractRequirementException("Too many active contracts in group (" + group.name + ").");
@@ -730,6 +898,51 @@ namespace ContractConfigurator
             }
 
             return true;
+        }
+
+        public void CheckRequiredValue(string name)
+        {
+            if (!dataNode.IsInitialized(name))
+            {
+                throw new ContractRequirementException("'" + name + "' was not initialized.");
+            }
+
+            object o = dataNode[name];
+            if (o == null)
+            {
+                throw new ContractRequirementException("'" + name + "' was null.");
+            }
+            else if (o.GetType().GetGenericArguments().Any() && o.GetType().GetGenericTypeDefinition() == typeof(List<>))
+            {
+                PropertyInfo prop = o.GetType().GetProperty("Count");
+                int count = (int)prop.GetValue(o, null);
+                if (count == 0)
+                {
+                    throw new ContractRequirementException("'" + name + "' had zero count.");
+                }
+            }
+            else if (o.GetType() == typeof(Vessel))
+            {
+                Vessel v = (Vessel)o;
+
+                if (v.state == Vessel.State.DEAD)
+                {
+                    throw new ContractRequirementException("Vessel '" + v.vesselName + "' is dead.");
+                }
+            }
+        }
+
+        public int ActualCompletions()
+        {
+            int count = 0;
+            foreach (ConfiguredContract c in ConfiguredContract.CompletedContracts)
+            {
+                if (c.contractType != null && c.contractType.name == name)
+                {
+                    count++;
+                }
+            }
+            return count;
         }
 
         /// <summary>

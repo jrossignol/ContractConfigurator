@@ -7,6 +7,7 @@ using UnityEngine;
 using KSP;
 using Contracts;
 using Contracts.Parameters;
+using FinePrint;
 
 namespace ContractConfigurator.Parameters
 {
@@ -20,6 +21,7 @@ namespace ContractConfigurator.Parameters
             public ParameterDelegateMatchType type = ParameterDelegateMatchType.FILTER;
             public List<AvailablePart> parts = new List<AvailablePart>();
             public List<string> partModules = new List<string>();
+            public List<string> partModuleTypes = new List<string>();
             public List<ConfigNode.ValueList> partModuleExtended = new List<ConfigNode.ValueList>();
             public PartCategories? category = null;
             public string manufacturer = null;
@@ -57,7 +59,16 @@ namespace ContractConfigurator.Parameters
                 output = "Parts";
                 if (state == ParameterState.Complete)
                 {
-                    output += ": " + ParameterDelegate<Part>.GetDelegateText(this);
+                    output += ": ";
+                    if (maxCount == int.MaxValue && minCount != 1)
+                    {
+                        output += "At least " + minCount + " ";
+                    }
+                    else if (maxCount != int.MaxValue && minCount == 1)
+                    {
+                        output += "At most " + maxCount + " ";
+                    }
+                    output += ParameterDelegate<Part>.GetDelegateText(this);
                 }
             }
             else
@@ -76,14 +87,21 @@ namespace ContractConfigurator.Parameters
                     foreach (AvailablePart part in filter.parts)
                     {
                         AddParameter(new CountParameterDelegate<Part>(filter.minCount, filter.maxCount, p => p.partInfo.name == part.name,
-                            part.title));
+                            part.title, false));
                     }
 
                     // Filter by part modules
                     foreach (string partModule in filter.partModules)
                     {
                         AddParameter(new CountParameterDelegate<Part>(filter.minCount, filter.maxCount, p => PartHasModule(p, partModule),
-                            "with module: " + ModuleName(partModule)));
+                            "with module: " + ModuleName(partModule), false));
+                    }
+
+                    // Filter by part module types
+                    foreach (string partModuleType in filter.partModuleTypes)
+                    {
+                        AddParameter(new CountParameterDelegate<Part>(filter.minCount, filter.maxCount, p => PartHasModuleType(p, partModuleType),
+                            "with module type: " + partModuleType, false));
                     }
                 }
                 else
@@ -100,6 +118,12 @@ namespace ContractConfigurator.Parameters
                     foreach (string partModule in filter.partModules)
                     {
                         AddParameter(new ParameterDelegate<Part>(filter.type.Prefix() + "module: " + ModuleName(partModule), p => PartHasModule(p, partModule), filter.type));
+                    }
+
+                    // Filter by part modules
+                    foreach (string partModuleType in filter.partModuleTypes)
+                    {
+                        AddParameter(new ParameterDelegate<Part>(filter.type.Prefix() + "module type: " + partModuleType, p => PartHasModuleType(p, partModuleType), filter.type));
                     }
 
                     // Filter by part modules - extended mode
@@ -141,7 +165,7 @@ namespace ContractConfigurator.Parameters
             }
         }
 
-        private string ModuleName(string partModule)
+        public static string ModuleName(string partModule)
         {
             string output = partModule.Replace("Module", "").Replace("FX", "");
 
@@ -174,6 +198,20 @@ namespace ContractConfigurator.Parameters
             return false;
         }
 
+        private bool PartHasModuleType(Part p, string partModuleType)
+        {
+            List<string> modules = ContractDefs.GetModules(partModuleType);
+
+            foreach (PartModule pm in p.Modules)
+            {
+                if (modules.Contains(pm.moduleName))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         private bool PartModuleCheck(Part p, ConfigNode.Value v)
         {
             foreach (PartModule pm in p.Modules)
@@ -193,7 +231,7 @@ namespace ContractConfigurator.Parameters
 
                 foreach (BaseField field in pm.Fields)
                 {
-                    if (field.name == v.name && field.originalValue.ToString() == v.value)
+                    if (field != null && field.name == v.name && field.originalValue != null && field.originalValue.ToString() == v.value)
                     {
                         return true;
                     }
@@ -237,6 +275,10 @@ namespace ContractConfigurator.Parameters
                 foreach (string partModule in filter.partModules)
                 {
                     child.AddValue("partModule", partModule);
+                }
+                foreach (string partModuleType in filter.partModuleTypes)
+                {
+                    child.AddValue("partModuleType", partModuleType);
                 }
                 foreach (ConfigNode.ValueList list in filter.partModuleExtended)
                 {
@@ -283,6 +325,7 @@ namespace ContractConfigurator.Parameters
 
                     filter.parts = ConfigNodeUtil.ParseValue<List<AvailablePart>>(child, "part", new List<AvailablePart>());
                     filter.partModules = child.GetValues("partModule").ToList();
+                    filter.partModuleTypes = child.GetValues("partModuleType").ToList();
                     filter.category = ConfigNodeUtil.ParseValue<PartCategories?>(child, "category", (PartCategories?)null);
                     filter.manufacturer = ConfigNodeUtil.ParseValue<string>(child, "manufacturer", (string)null);
                     filter.minCount = ConfigNodeUtil.ParseValue<int>(child, "minCount", 1);

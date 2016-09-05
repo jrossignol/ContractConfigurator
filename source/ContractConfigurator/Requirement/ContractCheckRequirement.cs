@@ -43,7 +43,7 @@ namespace ContractConfigurator
         private bool SetValues(string contractType)
         {
             bool valid = true;
-            if (ContractType.GetContractType(contractType) != null)
+            if (ContractType.AllContractTypes.Any(ct => contractType.StartsWith(ct.name)))
             {
                 ccType = contractType;
             }
@@ -55,7 +55,7 @@ namespace ContractConfigurator
                 if (!classes.Any())
                 {
                     valid = false;
-                    LoggingUtil.LogError(this.GetType(), "contractType '" + contractType +
+                    LoggingUtil.LogError(this, "contractType '" + contractType +
                         "' must either be a Contract sub-class or ContractConfigurator contract type");
                 }
                 else
@@ -87,6 +87,30 @@ namespace ContractConfigurator
 
             string contractType = ConfigNodeUtil.ParseValue<string>(configNode, "contractType");
             SetValues(contractType);
+        }
+
+        protected string ContractTitle()
+        {
+            string contractTitle;
+            if (ccType != null)
+            {
+                ContractType contractType = ContractType.AllValidContractTypes.Where(ct => ct.name == ccType).FirstOrDefault();
+                if (contractType != null)
+                {
+                    contractTitle = contractType.genericTitle;
+                }
+                else
+                {
+                    contractTitle = ccType;
+                }
+            }
+            else
+            {
+                // TODO - normalize name
+                contractTitle = contractClass.Name;
+            }
+
+            return contractTitle;
         }
     }
 }

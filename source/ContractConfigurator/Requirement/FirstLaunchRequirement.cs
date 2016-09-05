@@ -20,5 +20,10 @@ namespace ContractConfigurator
 
         public override void OnLoad(ConfigNode configNode) { }
         public override void OnSave(ConfigNode configNode) { }
+
+        protected override string RequirementText()
+        {
+            return "Must " + (invertRequirement ? "not " : "") + "have performed the first launch";
+        }
     }
 }
