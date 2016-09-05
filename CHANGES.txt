@@ -1,3 +1,6 @@
+Contract Configurator 1.19.1
+- Fixed NRE when vessel's Landed At string is null (thanks SamLex).
+
 Contract Configurator 1.19.0
 - Added Part.UnlockCost().
 - Added Part.Resources().
