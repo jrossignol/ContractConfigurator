@@ -1497,7 +1497,7 @@ namespace ContractConfigurator.Util
             // Do text for funds
             if (contractType.advanceFunds < 0)
             {
-                CurrencyModifierQuery q = new CurrencyModifierQuery(TransactionReasons.ContractAdvance, contractType.advanceFunds, 0.0f, 0.0f);
+                CurrencyModifierQuery q = new CurrencyModifierQuery(TransactionReasons.ContractAdvance, -contractType.advanceFunds, 0.0f, 0.0f);
                 GameEvents.Modifiers.OnCurrencyModifierQuery.Fire(q);
                 float fundsRequired = contractType.advanceFunds + q.GetEffectDelta(Currency.Funds);
 
