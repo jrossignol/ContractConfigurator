@@ -315,7 +315,7 @@ namespace ContractConfigurator.Parameters
 
         protected string TraitTitle(string traitName)
         {
-            ExperienceTraitConfig config = KerbalRoster.ExperienceConfig.Categories.Where(c => c.Name == traitName).FirstOrDefault();
+            ExperienceTraitConfig config = GameDatabase.Instance.ExperienceConfigs.Categories.Where(c => c.Name == traitName).FirstOrDefault();
 
             return config != null ? config.Title : traitName;
         }

@@ -925,13 +925,22 @@ namespace ContractConfigurator
 
         private static PartResourceDefinition ParseResourceValue(string name)
         {
-            PartResourceDefinition resource = PartResourceLibrary.Instance.resourceDefinitions.Where(prd => prd.name == name).FirstOrDefault();
-            if (resource == null)
+            var enumerator = PartResourceLibrary.Instance.resourceDefinitions.GetEnumerator();
+            try
             {
-                throw new ArgumentException("'" + name + "' is not a valid resource.");
+                while (enumerator.MoveNext())
+                {
+                    if (enumerator.Current.name == name)
+                    {
+                        return enumerator.Current;
+                    }
+                }
             }
-
-            return resource;
+            finally
+            {
+                enumerator.Dispose();
+            }
+            throw new ArgumentException("'" + name + "' is not a valid resource.");
         }
 
         private static Agent ParseAgentValue(string name)

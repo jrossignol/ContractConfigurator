@@ -39,7 +39,7 @@ namespace ContractConfigurator
             }
 
             valid &= ConfigNodeUtil.ParseValue<List<string>>(configNode, "partModule", x => partModules = x, this, new List<string>(), x => x.All(Validation.ValidatePartModule));
-            valid &= ConfigNodeUtil.ParseValue<List<string>>(configNode, "partModuleType", x => partModuleTypes = x, this, new List<string>(), x => x.All(Validation.ValidatePartModuleType));
+            valid &= ConfigNodeUtil.ParseValue<List<string>>(configNode, "partModuleType", x => partModuleTypes = x, this, new List<string>());
 
             valid &= ConfigNodeUtil.AtLeastOne(configNode, new string[] { "tech", "part", "partModule", "partModuleType" }, this);
 
@@ -107,27 +107,17 @@ namespace ContractConfigurator
 
             foreach (string partModuleType in partModuleTypes)
             {
-                List<string> modules = ContractDefs.GetModules(partModuleType);
-
                 bool hasType = false;
-                foreach (string module in modules)
+                foreach (AvailablePart part in PartLoader.LoadedPartsList)
                 {
-                    foreach (AvailablePart part in PartLoader.LoadedPartsList)
+                    if (part.partPrefab == null || part.partPrefab.Modules == null)
                     {
-                        if (part.partPrefab == null || part.partPrefab.Modules == null)
-                        {
-                            continue;
-                        }
-
-                        if (ResearchAndDevelopment.PartTechAvailable(part))
-                        {
-                            hasType = true;
-                            break;
-                        }
+                        continue;
                     }
 
-                    if (hasType)
+                    if (part.partPrefab.HasValidContractObjective(partModuleType) && ResearchAndDevelopment.PartTechAvailable(part))
                     {
+                        hasType = true;
                         break;
                     }
                 }

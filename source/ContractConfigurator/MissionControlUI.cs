@@ -345,7 +345,7 @@ namespace ContractConfigurator.Util
                 }
 
                 // Setup the toggle
-                Text toggleAllText = toggleAllObj.GetChild("Text").GetComponent<Text>();
+                TMPro.TextMeshProUGUI toggleAllText = toggleAllObj.GetChild("Text").GetComponent<TMPro.TextMeshProUGUI>();
                 toggleAllText.text = "All";
                 Toggle toggleAll = toggleAllObj.GetComponent<Toggle>();
                 toggleAll.onValueChanged.AddListener(new UnityAction<bool>(OnClickAll));
@@ -996,8 +996,8 @@ namespace ContractConfigurator.Util
             }
 
             // Setup the available text
-            Text availableText = availableTextObject.GetComponent<Text>();
-            availableText.alignment = TextAnchor.LowerRight;
+            TMPro.TextMeshProUGUI availableText = availableTextObject.GetComponent<TMPro.TextMeshProUGUI>();
+            availableText.alignment = TMPro.TextAlignmentOptions.BottomRight;
             availableText.text = "<color=#" + (groupContainer.availableContracts == 0 ? "CCCCCC" : "8BED8B") + ">Offered: " + groupContainer.availableContracts + "</color>";
             availableText.fontSize = groupContainer.mcListItem.title.fontSize - 3;
 
@@ -1308,10 +1308,10 @@ namespace ContractConfigurator.Util
             int exceptionalMax = Math.Min(ContractConfigurator.ContractLimit(Contract.ContractPrestige.Exceptional), maxActive);
 
             string output = "";
-            output += string.Format("<b><color=#f4ee21>        ★\t </color><color=#DB8310>Trivial Contracts:\t\t\t\t</color></b>" + (trivialCount >= trivialMax ? "<color=#f97306>{0}  [Max: {1}]</color>\n" : "{0}  [Max: {1}]\n"), trivialCount, trivialMax);
-            output += string.Format("<b><color=#f4ee21>    ★★\t </color><color=#DB8310>Significant Contracts:\t\t</color></b>" + (significantCount >= significantMax ? "<color=#f97306>{0}  [Max: {1}]</color>\n" : "{0}  [Max: {1}]\n"), significantCount, significantMax);
-            output += string.Format("<b><color=#f4ee21>★★★\t </color><color=#DB8310>Exceptional Contracts:\t</color></b>" + (exceptionalCount >= exceptionalMax ? "<color=#f97306>{0}  [Max: {1}]</color>\n" : "{0}  [Max: {1}]\n"), exceptionalCount, exceptionalMax);
-            output += string.Format("<b>\t\t\t <color=#DB8310>All Active Contracts:\t\t</color></b>" + (maxActive == int.MaxValue ? "{0}" : activeCount >= maxActive ? "<color=#f97306>{0}  [Max: {1}]</color>" : "{0}  [Max: {1}]"), activeCount, maxActive);
+            output += string.Format("<b><color=#f4ee21>      <sprite=0 tint=1>\t </color><color=#DB8310>Trivial Contracts:\t\t</color></b>" + (trivialCount >= trivialMax ? "<color=#f97306>{0}  [Max: {1}]</color>\n" : "{0}  [Max: {1}]\n"), trivialCount, trivialMax);
+            output += string.Format("<b><color=#f4ee21>   <sprite=0 tint=1><sprite=0 tint=1>\t </color><color=#DB8310>Significant Contracts:\t</color></b>" + (significantCount >= significantMax ? "<color=#f97306>{0}  [Max: {1}]</color>\n" : "{0}  [Max: {1}]\n"), significantCount, significantMax);
+            output += string.Format("<b><color=#f4ee21><sprite=0 tint=1><sprite=0 tint=1><sprite=0 tint=1>\t </color><color=#DB8310>Exceptional Contracts:\t</color></b>" + (exceptionalCount >= exceptionalMax ? "<color=#f97306>{0}  [Max: {1}]</color>\n" : "{0}  [Max: {1}]\n"), exceptionalCount, exceptionalMax);
+            output += string.Format("<b>\t <color=#DB8310>All Active Contracts:\t\t</color></b>" + (maxActive == int.MaxValue ? "{0}" : activeCount >= maxActive ? "<color=#f97306>{0}  [Max: {1}]</color>" : "{0}  [Max: {1}]"), activeCount, maxActive);
             MissionControl.Instance.textMCStats.text = output;
         }
 

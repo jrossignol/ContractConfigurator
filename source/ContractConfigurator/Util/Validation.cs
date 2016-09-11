@@ -115,27 +115,6 @@ namespace ContractConfigurator
         }
 
         /// <summary>
-        /// Checks that the given type of PartModule is valid.
-        /// </summary>
-        /// <param name="name">name of the PartModule type</param>
-        /// <returns>True if valid, exception otherwise</returns>
-        public static bool ValidatePartModuleType(string name)
-        {
-            // Check if we need to force-initalize the contract definitions
-            if (ContractDefs.config == null)
-            {
-                new ContractDefs();
-            }
-
-            if (ContractDefs.GetModules(name).Count == 0)
-            {
-                throw new ArgumentException("No PartModules found for type '" + name + "'.");
-            }
-
-            return true;
-        }
-
-        /// <summary>
         /// Checks whether a file exists at the given URL.
         /// </summary>
         /// <param name="fileURL">URL to check for a file.</param>

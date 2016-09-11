@@ -157,9 +157,6 @@ namespace ContractConfigurator
                         GenericCascadingList ccl = (GenericCascadingList)cascadingListField.GetValue(ContractsApp.Instance);
                         if (ccl != null)
                         {
-                            // Set the body width (I think this is used for word wrap logic)
-                            ccl.bodyTextStartWidth = (int)(166 * resizeFactor - (166 - 151));
-
                             // Fix the prefab for the header - will apply to any newly added contracts
                             FixListItem(ccl.cascadeHeader);
 

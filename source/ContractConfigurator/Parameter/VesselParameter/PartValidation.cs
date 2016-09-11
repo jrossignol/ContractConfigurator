@@ -100,7 +100,7 @@ namespace ContractConfigurator.Parameters
                     // Filter by part module types
                     foreach (string partModuleType in filter.partModuleTypes)
                     {
-                        AddParameter(new CountParameterDelegate<Part>(filter.minCount, filter.maxCount, p => PartHasModuleType(p, partModuleType),
+                        AddParameter(new CountParameterDelegate<Part>(filter.minCount, filter.maxCount, p => PartHasObjective(p, partModuleType),
                             "with module type: " + partModuleType, false));
                     }
                 }
@@ -123,7 +123,7 @@ namespace ContractConfigurator.Parameters
                     // Filter by part modules
                     foreach (string partModuleType in filter.partModuleTypes)
                     {
-                        AddParameter(new ParameterDelegate<Part>(filter.type.Prefix() + "module type: " + partModuleType, p => PartHasModuleType(p, partModuleType), filter.type));
+                        AddParameter(new ParameterDelegate<Part>(filter.type.Prefix() + "module type: " + partModuleType, p => PartHasObjective(p, partModuleType), filter.type));
                     }
 
                     // Filter by part modules - extended mode
@@ -198,18 +198,9 @@ namespace ContractConfigurator.Parameters
             return false;
         }
 
-        private bool PartHasModuleType(Part p, string partModuleType)
+        private bool PartHasObjective(Part p, string contractObjective)
         {
-            List<string> modules = ContractDefs.GetModules(partModuleType);
-
-            foreach (PartModule pm in p.Modules)
-            {
-                if (modules.Contains(pm.moduleName))
-                {
-                    return true;
-                }
-            }
-            return false;
+            return p.HasValidContractObjective(contractObjective);
         }
 
         private bool PartModuleCheck(Part p, ConfigNode.Value v)

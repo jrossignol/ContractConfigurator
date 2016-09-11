@@ -77,10 +77,21 @@ namespace ContractConfigurator.ExpressionParser
             List<Resource> resources = new List<Resource>();
             foreach (PartResource r in p.partPrefab.Resources)
             {
-                PartResourceDefinition resource = PartResourceLibrary.Instance.resourceDefinitions.Where(prd => prd.name == r.resourceName).FirstOrDefault();
-                if (resource != null)
+                var enumerator = PartResourceLibrary.Instance.resourceDefinitions.GetEnumerator();
+                try
                 {
-                    resources.Add(new Resource(resource));
+                    while (enumerator.MoveNext())
+                    {
+                        if (enumerator.Current.name == r.resourceName)
+                        {
+                            resources.Add(new Resource(enumerator.Current));
+                            break;
+                        }
+                    }
+                }
+                finally
+                {
+                    enumerator.Dispose();
                 }
             }
             return resources;

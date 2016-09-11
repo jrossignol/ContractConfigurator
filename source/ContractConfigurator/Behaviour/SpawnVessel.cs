@@ -371,7 +371,7 @@ namespace ContractConfigurator.Behaviour
                             }
                             if (cd.name != null)
                             {
-                                crewMember.name = cd.name;
+                                crewMember.ChangeName(cd.name);
                             }
 
                             // Add them to the part
@@ -443,7 +443,7 @@ namespace ContractConfigurator.Behaviour
                         ProtoCrewMember crewMember = HighLogic.CurrentGame.CrewRoster.GetNewKerbal(ProtoCrewMember.KerbalType.Unowned);
                         if (cd.name != null)
                         {
-                            crewMember.name = cd.name;
+                            crewMember.ChangeName(cd.name);
                         }
 
                         crewArray[i++] = crewMember;

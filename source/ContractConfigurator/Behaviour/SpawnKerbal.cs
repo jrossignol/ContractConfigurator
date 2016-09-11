@@ -218,7 +218,7 @@ namespace ContractConfigurator.Behaviour
                         {
                             child.AddValue("name", "RandomKerbalName(@gender)");
                         }
-                        valid &= ConfigNodeUtil.ParseValue<string>(child, "name", x => { kd.kerbal.name = x; if (kd.kerbal.pcm != null) kd.kerbal.pcm.name = x; },
+                        valid &= ConfigNodeUtil.ParseValue<string>(child, "name", x => { kd.kerbal.name = x; if (kd.kerbal.pcm != null) kd.kerbal.pcm.ChangeName(x); },
                             factory);
                     }
 
