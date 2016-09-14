@@ -14,7 +14,7 @@ using ContractConfigurator.Util;
 
 namespace ContractConfigurator
 {
-    [KSPAddon(KSPAddon.Startup.MainMenu, true)]
+    [KSPAddon(KSPAddon.Startup.PSystemSpawn, true)]
     public class ContractConfigurator : MonoBehaviour
     {
         public static System.Version ENHANCED_UI_VERSION = new System.Version(1, 15, 0);
@@ -33,8 +33,6 @@ namespace ContractConfigurator
         public static bool reloading = false;
         static ReloadStep reloadStep = ReloadStep.GAME_DATABASE;
 
-        static bool loading = false;
-
         static ScreenMessage lastMessage = null;
 
         public static int totalContracts = 0;
@@ -51,6 +49,8 @@ namespace ContractConfigurator
             DontDestroyOnLoad(this);
             Instance = this;
 
+            PSystemManager.Instance.OnPSystemReady.Add(PSystemReady);
+
             OnParameterChange.Add(new EventData<Contract, ContractParameter>.OnEvent(ParameterChange));
             GameEvents.OnTechnologyResearched.Add(new EventData<GameEvents.HostTargetAction<RDTech, RDTech.OperationResult>>.OnEvent(OnTechResearched));
         }
@@ -61,29 +61,27 @@ namespace ContractConfigurator
             GameEvents.OnTechnologyResearched.Remove(new EventData<GameEvents.HostTargetAction<RDTech, RDTech.OperationResult>>.OnEvent(OnTechResearched));
         }
 
+        void PSystemReady()
+        {
+            // Log version info
+            var ainfoV = Attribute.GetCustomAttribute(typeof(ContractConfigurator).Assembly,
+                    typeof(AssemblyInformationalVersionAttribute)) as AssemblyInformationalVersionAttribute;
+            LoggingUtil.LogInfo(this, "Contract Configurator " + ainfoV.InformationalVersion + " loading...");
+
+            LoggingUtil.LoadDebuggingConfig();
+
+            RegisterParameterFactories();
+            RegisterBehaviourFactories();
+            RegisterContractRequirements();
+            IEnumerator<YieldInstruction> iterator = LoadContractConfig();
+                while (iterator.MoveNext()) { }
+            DebugWindow.LoadTextures();
+
+            LoggingUtil.LogInfo(this, "Contract Configurator " + ainfoV.InformationalVersion + " finished loading.");
+        }
+
         void Update()
         {
-            // Load all the contract configurator configuration
-            if (HighLogic.LoadedScene == GameScenes.MAINMENU && !loading)
-            {
-                // Log version info
-                var ainfoV = Attribute.GetCustomAttribute(typeof(ContractConfigurator).Assembly,
-                    typeof(AssemblyInformationalVersionAttribute)) as AssemblyInformationalVersionAttribute;
-                LoggingUtil.LogInfo(this, "Contract Configurator " + ainfoV.InformationalVersion + " loading...");
-
-                LoggingUtil.LoadDebuggingConfig();
-
-                RegisterParameterFactories();
-                RegisterBehaviourFactories();
-                RegisterContractRequirements();
-                loading = true;
-                IEnumerator<YieldInstruction> iterator = LoadContractConfig();
-                while (iterator.MoveNext()) { }
-                DebugWindow.LoadTextures();
-
-                LoggingUtil.LogInfo(this, "Contract Configurator " + ainfoV.InformationalVersion + " finished loading.");
-            }
-
             // Alt-F10 shows the contract configurator window
             if (GameSettings.MODIFIER_KEY.GetKey() && Input.GetKeyDown(KeyCode.F10))
             {
