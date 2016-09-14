@@ -427,6 +427,9 @@ namespace ContractConfigurator
             // Load other things
             MissionControlUI.GroupContainer.LoadConfig();
 
+            // Emit settings for the menu
+            SettingsBuilder.EmitSettings();
+
             if (!reloading && LoggingUtil.logLevel == LoggingUtil.LogLevel.DEBUG || LoggingUtil.logLevel == LoggingUtil.LogLevel.VERBOSE)
             {
                 ScreenMessages.PostScreenMessage("Contract Configurator: Loaded " + successContracts + " out of " + totalContracts
