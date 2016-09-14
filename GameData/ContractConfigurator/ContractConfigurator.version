@@ -6,27 +6,27 @@
      "GITHUB":{
          "USERNAME":"jrossignol",
          "REPOSITORY":"ContractConfigurator",
-         "ALLOW_PRE_RELEASE":false
+         "ALLOW_PRE_RELEASE":true
      },
      "VERSION":{
          "MAJOR":1,
-         "MINOR":19,
+         "MINOR":20,
          "PATCH":0,
          "BUILD":0
      },
      "KSP_VERSION":{
          "MAJOR":1,
-         "MINOR":1,
-         "PATCH":3
+         "MINOR":2,
+         "PATCH":0
      },
      "KSP_VERSION_MIN":{
          "MAJOR":1,
-         "MINOR":1,
-         "PATCH":3
+         "MINOR":2,
+         "PATCH":0
      },
      "KSP_VERSION_MAX":{
          "MAJOR":1,
-         "MINOR":1,
-         "PATCH":3
+         "MINOR":2,
+         "PATCH":0
      }
  } 
