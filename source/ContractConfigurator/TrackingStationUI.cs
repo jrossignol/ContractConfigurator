@@ -119,10 +119,11 @@ namespace ContractConfigurator.Util
             offeredOrbitTSButton.spriteFalse = offeredOrbitDisabledSprite;
 
             // Set defaults
-            activeWaypointButton.GetComponent<TrackingStationObjectButton>().SetState(ContractConfiguratorSettings.Instance.DisplayActiveWaypoints);
-            offeredWaypointButton.GetComponent<TrackingStationObjectButton>().SetState(ContractConfiguratorSettings.Instance.DisplayOfferedWaypoints);
-            activeOrbitButton.GetComponent<TrackingStationObjectButton>().SetState(ContractConfiguratorSettings.Instance.DisplayActiveOrbits);
-            offeredOrbitButton.GetComponent<TrackingStationObjectButton>().SetState(ContractConfiguratorSettings.Instance.DisplayOfferedOrbits);
+            ContractConfiguratorParameters parms = HighLogic.CurrentGame.Parameters.CustomParams<ContractConfiguratorParameters>();
+            activeWaypointButton.GetComponent<TrackingStationObjectButton>().SetState(parms.DisplayActiveWaypoints);
+            offeredWaypointButton.GetComponent<TrackingStationObjectButton>().SetState(parms.DisplayOfferedWaypoints);
+            activeOrbitButton.GetComponent<TrackingStationObjectButton>().SetState(parms.DisplayActiveOrbits);
+            offeredOrbitButton.GetComponent<TrackingStationObjectButton>().SetState(parms.DisplayOfferedOrbits);
 
             // Disable counts
             activeWaypointButton.GetChild("Count").SetActive(false);
@@ -151,7 +152,8 @@ namespace ContractConfigurator.Util
             LoggingUtil.LogVerbose(this, "ActiveWaypointButtonClick");
 
             // Flip the toggle
-            ContractConfiguratorSettings.Instance.DisplayActiveWaypoints = !ContractConfiguratorSettings.Instance.DisplayActiveWaypoints;
+            ContractConfiguratorParameters parms = HighLogic.CurrentGame.Parameters.CustomParams<ContractConfiguratorParameters>();
+            parms.DisplayActiveWaypoints = !parms.DisplayActiveWaypoints;
 
             // Fire the filter modified event
             GameEvents.OnMapViewFiltersModified.Fire(MapViewFiltering.VesselTypeFilter.None);
@@ -162,7 +164,8 @@ namespace ContractConfigurator.Util
             LoggingUtil.LogVerbose(this, "OfferedWaypointButtonClick");
 
             // Flip the toggle
-            ContractConfiguratorSettings.Instance.DisplayOfferedWaypoints = !ContractConfiguratorSettings.Instance.DisplayOfferedWaypoints;
+            ContractConfiguratorParameters parms = HighLogic.CurrentGame.Parameters.CustomParams<ContractConfiguratorParameters>();
+            parms.DisplayOfferedWaypoints = !parms.DisplayOfferedWaypoints;
 
             // Fire the filter modified event
             GameEvents.OnMapViewFiltersModified.Fire(MapViewFiltering.VesselTypeFilter.None);
@@ -173,7 +176,8 @@ namespace ContractConfigurator.Util
             LoggingUtil.LogVerbose(this, "ActiveOrbitButtonClick");
 
             // Flip the toggle
-            ContractConfiguratorSettings.Instance.DisplayActiveOrbits = !ContractConfiguratorSettings.Instance.DisplayActiveOrbits;
+            ContractConfiguratorParameters parms = HighLogic.CurrentGame.Parameters.CustomParams<ContractConfiguratorParameters>();
+            parms.DisplayActiveOrbits = !parms.DisplayActiveOrbits;
 
             // Fire the filter modified event
             GameEvents.OnMapViewFiltersModified.Fire(MapViewFiltering.VesselTypeFilter.None);
@@ -184,7 +188,8 @@ namespace ContractConfigurator.Util
             LoggingUtil.LogVerbose(this, "OfferedOrbitButtonClick");
 
             // Flip the toggle
-            ContractConfiguratorSettings.Instance.DisplayOfferedOrbits = !ContractConfiguratorSettings.Instance.DisplayOfferedOrbits;
+            ContractConfiguratorParameters parms = HighLogic.CurrentGame.Parameters.CustomParams<ContractConfiguratorParameters>();
+            parms.DisplayOfferedOrbits = !parms.DisplayOfferedOrbits;
 
             // Fire the filter modified event
             GameEvents.OnMapViewFiltersModified.Fire(MapViewFiltering.VesselTypeFilter.None);

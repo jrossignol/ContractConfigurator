@@ -19,7 +19,6 @@ namespace ContractConfigurator
     {
         public static System.Version ENHANCED_UI_VERSION = new System.Version(1, 15, 0);
 
-
         private enum ReloadStep
         {
             GAME_DATABASE,

@@ -164,7 +164,6 @@
     <Compile Include="ParameterFactory\RecoverVesselFactory.cs" />
     <Compile Include="ParameterFactory\SCANsatCoverageFactory.cs" />
     <Compile Include="Requirement\VesselValidRequirement.cs" />
-    <Compile Include="ScenarioModules\ContractConfiguratorSettings.cs" />
     <Compile Include="ParameterFactory\MissionTimerFactory.cs" />
     <Compile Include="ScenarioModules\ContractPreLoader.cs" />
     <Compile Include="ExpressionParser\BaseParser.cs" />
