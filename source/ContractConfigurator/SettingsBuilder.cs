@@ -12,13 +12,11 @@ using ContractConfigurator.Util;
 
 namespace ContractConfigurator
 {
-    public class CommonTemplate : GameParameters.CustomParameterNode
+    public abstract class CommonTemplate : GameParameters.CustomParameterNode
     {
         public override GameParameters.GameMode GameMode { get { return GameParameters.GameMode.CAREER; } }
         public override bool HasPresets { get { return false; } }
         public override string Section { get { return "Contract Configurator"; } }
-        public override int SectionOrder { get { return 1; } }
-        public override string Title { get { return "TODO - remove"; } }
 
         public bool IsEnabled(string name)
         {
@@ -69,7 +67,7 @@ namespace ContractConfigurator
         }
     }
 
-    public class ContractGroupParametersTemplate : CommonTemplate
+    public abstract class ContractGroupParametersTemplate : CommonTemplate
     {
         public override int SectionOrder { get { return 1; } }
         public override string Title { get { return "Contract Groups"; } }
@@ -87,7 +85,7 @@ namespace ContractConfigurator
         }
     }
 
-    public class StockContractParametersTemplate : CommonTemplate
+    public abstract class StockContractParametersTemplate : CommonTemplate
     {
         public override int SectionOrder { get { return 2; } }
         public override string Title { get { return "Stock Contracts"; } }
@@ -161,11 +159,11 @@ namespace ContractConfigurator
                 TypeAttributes.Public | TypeAttributes.Class, typeof(StockContractParametersTemplate));
 
             // Define a field for each contract type
-            foreach (Type subclass in contractTypes)
+            foreach (MissionControlUI.GroupContainer container in contractTypes.Select(t => new MissionControlUI.GroupContainer(t)).OrderBy(mcui => mcui.DisplayName()))
             {
-                FieldBuilder groupField = stockParamBuilder.DefineField(subclass.Name, typeof(bool), FieldAttributes.Public);
+                FieldBuilder groupField = stockParamBuilder.DefineField(container.stockContractType.Name, typeof(bool), FieldAttributes.Public);
 
-                CustomAttributeBuilder attBuilder = new CustomAttributeBuilder(paramUICons, new object[] { new MissionControlUI.GroupContainer(subclass).DisplayName() });
+                CustomAttributeBuilder attBuilder = new CustomAttributeBuilder(paramUICons, new object[] { container.DisplayName() });
                 groupField.SetCustomAttribute(attBuilder);
             }
 
