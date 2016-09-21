@@ -36,17 +36,14 @@ namespace ContractConfigurator
         public override int SectionOrder { get { return 0; } }
         public override string Title { get { return "Settings"; } }
 
-        [GameParameters.CustomParameterUI("Display Offered Orbits")]
         public bool DisplayOfferedOrbits = ContractDefs.DisplayOfferedOrbits;
-
-        [GameParameters.CustomParameterUI("Display Active Orbits")]
         public bool DisplayActiveOrbits = true;
-
-        [GameParameters.CustomParameterUI("Display Offered Waypoints")]
         public bool DisplayOfferedWaypoints = ContractDefs.DisplayOfferedWaypoints;
-
-        [GameParameters.CustomParameterUI("Display Active Waypoints")]
         public bool DisplayActiveWaypoints = true;
+
+        [GameParameters.CustomFloatParameterUI("Active Contract Multiplier", displayFormat = "F2", logBase = 10, minValue = 0.1f, maxValue = 2.0f, stepCount = 11,
+            toolTip = "Multiplier applied to the active contract limits.")]
+        public float ActiveContractMultiplier = 1.0f;
 
         public enum MissionControlButton
         {
