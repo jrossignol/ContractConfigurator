@@ -628,8 +628,10 @@ namespace ContractConfigurator.Behaviour
             // Show only active waypoints in flight, but show offered as well in the tracking station
             if (HighLogic.LoadedScene == GameScenes.TRACKSTATION || HighLogic.LoadedScene == GameScenes.FLIGHT)
             {
-                if (contract.ContractState == Contract.State.Active && (ContractConfiguratorSettings.Instance.DisplayActiveWaypoints || HighLogic.LoadedScene != GameScenes.TRACKSTATION) ||
-                    contract.ContractState == Contract.State.Offered && ContractConfiguratorSettings.Instance.DisplayOfferedWaypoints && HighLogic.LoadedScene == GameScenes.TRACKSTATION)
+                ContractConfiguratorParameters parms = HighLogic.CurrentGame.Parameters.CustomParams<ContractConfiguratorParameters>();
+
+                if (contract.ContractState == Contract.State.Active && (parms.DisplayActiveWaypoints || HighLogic.LoadedScene != GameScenes.TRACKSTATION) ||
+                    contract.ContractState == Contract.State.Offered && parms.DisplayOfferedWaypoints && HighLogic.LoadedScene == GameScenes.TRACKSTATION)
                 {
                     WaypointManager.AddWaypoint(waypoint);
                     wpData.isAdded = true;

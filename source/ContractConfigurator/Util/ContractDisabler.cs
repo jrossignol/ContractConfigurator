@@ -46,6 +46,11 @@ namespace ContractConfigurator
 
         public static bool SetContractState(Type contractType, bool enabled)
         {
+            if (ContractSystem.ContractTypes == null)
+            {
+                return false;
+            }
+
             if (!enabled && ContractSystem.ContractTypes.Contains(contractType))
             {
                 LoggingUtil.LogDebug(typeof(ContractDisabler), "Disabling ContractType: " + contractType.FullName + " (" + contractType.Module + ")");

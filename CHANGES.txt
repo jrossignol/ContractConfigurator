@@ -1,3 +1,6 @@
+Contract Configurator 1.20.1
+- Moved settings into stock settings screen.
+
 Contract Configurator 1.20.0
 - Support for KSP 1.2
 - Fixed NRE when vessel's Landed At string is null (thanks SamLex).

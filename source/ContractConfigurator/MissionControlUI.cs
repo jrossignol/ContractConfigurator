@@ -410,26 +410,26 @@ namespace ContractConfigurator.Util
             {
                 // Set to the last view
                 MissionControl.Instance.toggleDisplayModeAvailable.isOn = false;
-                switch (ContractConfiguratorSettings.Instance.lastMCButton)
+                switch (HighLogic.CurrentGame.Parameters.CustomParams<ContractConfiguratorParameters>().lastMCButton)
                 {
-                    case ContractConfiguratorSettings.MissionControlButton.All:
+                    case ContractConfiguratorParameters.MissionControlButton.All:
                         GameObject sortGroup = MissionControl.Instance.gameObject.GetChild("Sorting Group");
                         GameObject toggleAllObj = sortGroup.GetChild("Toggle All");
                         Toggle toggleAll = toggleAllObj.GetComponent<Toggle>();
                         toggleAll.isOn = true;
                         OnClickAll(true);
                         break;
-                    case ContractConfiguratorSettings.MissionControlButton.Available:
+                    case ContractConfiguratorParameters.MissionControlButton.Available:
                         MissionControl.Instance.toggleDisplayModeAvailable.isOn = true;
                         MissionControl.Instance.OnClickAvailable(true);
                         OnClickAvailable(true);
                         break;
-                    case ContractConfiguratorSettings.MissionControlButton.Active:
+                    case ContractConfiguratorParameters.MissionControlButton.Active:
                         MissionControl.Instance.toggleDisplayModeActive.isOn = true;
                         MissionControl.Instance.OnClickActive(true);
                         OnClickActive(true);
                         break;
-                    case ContractConfiguratorSettings.MissionControlButton.Archive:
+                    case ContractConfiguratorParameters.MissionControlButton.Archive:
                         MissionControl.Instance.toggleDisplayModeArchive.isOn = true;
                         MissionControl.Instance.OnClickArchive(true);
                         OnClickArchive(true);
@@ -733,7 +733,9 @@ namespace ContractConfigurator.Util
         public IEnumerable<GroupContainer> GetGroups()
         {
             // Grouping for CC types
-            foreach (ContractGroup group in ContractGroup.AllGroups.Where(g => g != null && g.parent == null && ContractConfiguratorSettings.IsEnabled(g) && ContractType.AllValidContractTypes.Any(ct => g.BelongsToGroup(ct))))
+            foreach (ContractGroup group in ContractGroup.AllGroups.Where(g => g != null && g.parent == null &&
+                ((ContractGroupParametersTemplate)HighLogic.CurrentGame.Parameters.CustomParams(SettingsBuilder.GroupParametersType)).IsEnabled(g.name) &&
+                ContractType.AllValidContractTypes.Any(ct => g.BelongsToGroup(ct))))
             {
                 yield return new GroupContainer(group);
             }
@@ -783,7 +785,8 @@ namespace ContractConfigurator.Util
                 }
             }
 
-            ContractConfiguratorSettings.Instance.lastMCButton = ContractConfiguratorSettings.MissionControlButton.Available;
+            HighLogic.CurrentGame.Parameters.CustomParams<ContractConfiguratorParameters>().lastMCButton =
+                ContractConfiguratorParameters.MissionControlButton.Available;
             displayModeAll = false;
         }
 
@@ -808,7 +811,8 @@ namespace ContractConfigurator.Util
                 CreateGroupItem(groupContainer);
             }
 
-            ContractConfiguratorSettings.Instance.lastMCButton = ContractConfiguratorSettings.MissionControlButton.All;
+            HighLogic.CurrentGame.Parameters.CustomParams<ContractConfiguratorParameters>().lastMCButton =
+                ContractConfiguratorParameters.MissionControlButton.All;
             displayModeAll = true;
 
             // Update the contract counts
@@ -824,7 +828,8 @@ namespace ContractConfigurator.Util
                 return;
             }
 
-            ContractConfiguratorSettings.Instance.lastMCButton = ContractConfiguratorSettings.MissionControlButton.Active;
+            HighLogic.CurrentGame.Parameters.CustomParams<ContractConfiguratorParameters>().lastMCButton =
+                ContractConfiguratorParameters.MissionControlButton.Active;
             displayModeAll = false;
         }
 
@@ -837,7 +842,8 @@ namespace ContractConfigurator.Util
                 return;
             }
 
-            ContractConfiguratorSettings.Instance.lastMCButton = ContractConfiguratorSettings.MissionControlButton.Archive;
+            HighLogic.CurrentGame.Parameters.CustomParams<ContractConfiguratorParameters>().lastMCButton =
+                ContractConfiguratorParameters.MissionControlButton.Archive;
             displayModeAll = false;
         }
 

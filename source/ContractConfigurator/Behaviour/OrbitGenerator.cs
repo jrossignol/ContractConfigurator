@@ -68,8 +68,10 @@ namespace ContractConfigurator.Behaviour
 
                 if (HighLogic.LoadedScene == GameScenes.TRACKSTATION || HighLogic.LoadedScene == GameScenes.FLIGHT)
                 {
-                    if (contract.ContractState == Contract.State.Active && (ContractConfiguratorSettings.Instance.DisplayActiveOrbits || HighLogic.LoadedScene != GameScenes.TRACKSTATION) ||
-                        contract.ContractState == Contract.State.Offered && ContractConfiguratorSettings.Instance.DisplayOfferedOrbits && HighLogic.LoadedScene == GameScenes.TRACKSTATION)
+                    ContractConfiguratorParameters parms = HighLogic.CurrentGame.Parameters.CustomParams<ContractConfiguratorParameters>();
+
+                    if (contract.ContractState == Contract.State.Active && (parms.DisplayActiveOrbits || HighLogic.LoadedScene != GameScenes.TRACKSTATION) ||
+                        contract.ContractState == Contract.State.Offered && parms.DisplayOfferedOrbits && HighLogic.LoadedScene == GameScenes.TRACKSTATION)
                     {
                         orbitRenderer = ContractOrbitRenderer.Setup(contract, orbit);
                     }
@@ -255,8 +257,10 @@ namespace ContractConfigurator.Behaviour
                 // Reset state of renderers
                 foreach (OrbitData obData in orbits)
                 {
-                    if (contract.ContractState == Contract.State.Active && ContractConfiguratorSettings.Instance.DisplayActiveOrbits ||
-                        contract.ContractState == Contract.State.Offered && ContractConfiguratorSettings.Instance.DisplayOfferedOrbits)
+                    ContractConfiguratorParameters parms = HighLogic.CurrentGame.Parameters.CustomParams<ContractConfiguratorParameters>();
+
+                    if (contract.ContractState == Contract.State.Active && parms.DisplayActiveOrbits ||
+                        contract.ContractState == Contract.State.Offered && parms.DisplayOfferedOrbits)
                     {
                         obData.SetupRenderer();
                     }

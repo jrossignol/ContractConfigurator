@@ -19,7 +19,6 @@ namespace ContractConfigurator
     {
         public static System.Version ENHANCED_UI_VERSION = new System.Version(1, 15, 0);
 
-
         private enum ReloadStep
         {
             GAME_DATABASE,
@@ -424,6 +423,9 @@ namespace ContractConfigurator
 
             // Load other things
             MissionControlUI.GroupContainer.LoadConfig();
+
+            // Emit settings for the menu
+            SettingsBuilder.EmitSettings();
 
             if (!reloading && LoggingUtil.logLevel == LoggingUtil.LogLevel.DEBUG || LoggingUtil.logLevel == LoggingUtil.LogLevel.VERBOSE)
             {
