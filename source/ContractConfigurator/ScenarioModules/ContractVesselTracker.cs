@@ -49,14 +49,14 @@ namespace ContractConfigurator
 
         public void Start()
         {
-            GameEvents.onPartJointBreak.Add(new EventData<PartJoint>.OnEvent(OnPartJointBreak));
+            GameEvents.onPartJointBreak.Add(new EventData<PartJoint, float>.OnEvent(OnPartJointBreak));
             GameEvents.onVesselWasModified.Add(new EventData<Vessel>.OnEvent(OnVesselWasModified));
             GameEvents.onVesselDestroy.Add(new EventData<Vessel>.OnEvent(OnVesselDestroy));
         }
 
         public void OnDestroy()
         {
-            GameEvents.onPartJointBreak.Remove(new EventData<PartJoint>.OnEvent(OnPartJointBreak));
+            GameEvents.onPartJointBreak.Remove(new EventData<PartJoint, float>.OnEvent(OnPartJointBreak));
             GameEvents.onVesselWasModified.Remove(new EventData<Vessel>.OnEvent(OnVesselWasModified));
             GameEvents.onVesselDestroy.Remove(new EventData<Vessel>.OnEvent(OnVesselDestroy));
         }
@@ -148,7 +148,7 @@ namespace ContractConfigurator
             }
         }
 
-        protected virtual void OnPartJointBreak(PartJoint p)
+        protected virtual void OnPartJointBreak(PartJoint p, float breakForce)
         {
             LoggingUtil.LogVerbose(this, "OnPartJointBreak: " + p.Parent.vessel.id);
             if (HighLogic.LoadedScene == GameScenes.EDITOR)

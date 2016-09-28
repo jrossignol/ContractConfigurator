@@ -292,7 +292,7 @@ namespace ContractConfigurator.Parameters
             GameEvents.onFlightReady.Add(new EventVoid.OnEvent(OnFlightReady));
             GameEvents.onVesselCreate.Add(new EventData<Vessel>.OnEvent(OnVesselCreate));
             GameEvents.onVesselChange.Add(new EventData<Vessel>.OnEvent(OnVesselChange));
-            GameEvents.onPartJointBreak.Add(new EventData<PartJoint>.OnEvent(OnPartJointBreak));
+            GameEvents.onPartJointBreak.Add(new EventData<PartJoint, float>.OnEvent(OnPartJointBreak));
             GameEvents.onPartAttach.Add(new EventData<GameEvents.HostTargetAction<Part, Part>>.OnEvent(OnPartAttach));
             GameEvents.onCrewTransferred.Add(new EventData<GameEvents.HostedFromToAction<ProtoCrewMember, Part>>.OnEvent(OnCrewTransferred));
             GameEvents.Contract.onAccepted.Add(new EventData<Contract>.OnEvent(OnContractAccepted));
@@ -304,7 +304,7 @@ namespace ContractConfigurator.Parameters
             GameEvents.onFlightReady.Remove(new EventVoid.OnEvent(OnFlightReady));
             GameEvents.onVesselCreate.Remove(new EventData<Vessel>.OnEvent(OnVesselCreate));
             GameEvents.onVesselChange.Remove(new EventData<Vessel>.OnEvent(OnVesselChange));
-            GameEvents.onPartJointBreak.Remove(new EventData<PartJoint>.OnEvent(OnPartJointBreak));
+            GameEvents.onPartJointBreak.Remove(new EventData<PartJoint, float>.OnEvent(OnPartJointBreak));
             GameEvents.onPartAttach.Remove(new EventData<GameEvents.HostTargetAction<Part, Part>>.OnEvent(OnPartAttach));
             GameEvents.onCrewTransferred.Remove(new EventData<GameEvents.HostedFromToAction<ProtoCrewMember, Part>>.OnEvent(OnCrewTransferred));
             GameEvents.Contract.onAccepted.Remove(new EventData<Contract>.OnEvent(OnContractAccepted));
@@ -440,7 +440,7 @@ namespace ContractConfigurator.Parameters
             CheckVessel(vessel);
         }
 
-        protected virtual void OnPartJointBreak(PartJoint p)
+        protected virtual void OnPartJointBreak(PartJoint p, float breakForce)
         {
             if (HighLogic.LoadedScene == GameScenes.EDITOR || p.Parent.vessel == null)
             {

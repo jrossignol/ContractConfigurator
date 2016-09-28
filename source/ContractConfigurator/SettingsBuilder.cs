@@ -39,7 +39,7 @@ namespace ContractConfigurator
         public bool DisplayOfferedWaypoints = ContractDefs.DisplayOfferedWaypoints;
         public bool DisplayActiveWaypoints = true;
 
-        [GameParameters.CustomFloatParameterUI("Active Contract Multiplier", displayFormat = "F2", logBase = 10, minValue = 0.1f, maxValue = 2.0f, stepCount = 11,
+        [GameParameters.CustomFloatParameterUI("Active Contract Multiplier", displayFormat = "F2", minValue = 0.1f, maxValue = 2.0f, stepCount = 20,
             toolTip = "Multiplier applied to the active contract limits.")]
         public float ActiveContractMultiplier = 1.0f;
 
