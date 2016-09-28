@@ -353,6 +353,30 @@ namespace ContractConfigurator.Behaviour
                         p.temperature = 1.0;
                     }
 
+                    // Estimate an object class, numbers are based on the in game description of the
+                    // size classes.
+                    float size = shipConstruct.shipSize.magnitude / 2.0f;
+                    if (size < 4.0f)
+                    {
+                        sizeClass = UntrackedObjectClass.A;
+                    }
+                    else if (size < 7.0f)
+                    {
+                        sizeClass = UntrackedObjectClass.B;
+                    }
+                    else if (size < 12.0f)
+                    {
+                        sizeClass = UntrackedObjectClass.C;
+                    }
+                    else if (size < 18.0f)
+                    {
+                        sizeClass = UntrackedObjectClass.D;
+                    }
+                    else
+                    {
+                        sizeClass = UntrackedObjectClass.E;
+                    }
+
                     foreach (CrewData cd in vesselData.crew)
                     {
                         bool success = false;
@@ -387,11 +411,10 @@ namespace ContractConfigurator.Behaviour
 
                     // Create a dummy ProtoVessel, we will use this to dump the parts to a config node.
                     // We can't use the config nodes from the .craft file, because they are in a
-                    // slightly different format than those required for a ProtoVessel (seriously
-                    // Squad?!?).
+                    // slightly different format than those required for a ProtoVessel.
                     ConfigNode empty = new ConfigNode();
                     ProtoVessel dummyProto = new ProtoVessel(empty, null);
-                    Vessel dummyVessel = new Vessel();
+                    Vessel dummyVessel = new GameObject().AddComponent<Vessel>();
                     dummyVessel.parts = shipConstruct.parts;
                     dummyProto.vesselRef = dummyVessel;
 
@@ -408,29 +431,8 @@ namespace ContractConfigurator.Behaviour
                     // Create the ship's parts
                     partNodes = dummyProto.protoPartSnapshots.Select<ProtoPartSnapshot, ConfigNode>(GetNodeForPart).ToArray();
 
-                    // Estimate an object class, numbers are based on the in game description of the
-                    // size classes.
-                    float size = shipConstruct.shipSize.magnitude / 2.0f;
-                    if (size < 4.0f)
-                    {
-                        sizeClass = UntrackedObjectClass.A;
-                    }
-                    else if (size < 7.0f)
-                    {
-                        sizeClass = UntrackedObjectClass.B;
-                    }
-                    else if (size < 12.0f)
-                    {
-                        sizeClass = UntrackedObjectClass.C;
-                    }
-                    else if (size < 18.0f)
-                    {
-                        sizeClass = UntrackedObjectClass.D;
-                    }
-                    else
-                    {
-                        sizeClass = UntrackedObjectClass.E;
-                    }
+                    // Clean up
+                    GameObject.Destroy(dummyVessel.gameObject);
                 }
                 else
                 {
@@ -565,7 +567,8 @@ namespace ContractConfigurator.Behaviour
                 }
 
                 // Add vessel to the game
-                ProtoVessel protoVessel = HighLogic.CurrentGame.AddVessel(protoVesselNode);
+                ProtoVessel protoVessel = new ProtoVessel(protoVesselNode, HighLogic.CurrentGame);
+                protoVessel.Load(HighLogic.CurrentGame.flightState);
 
                 // Store the id for later use
                 vesselData.id = protoVessel.vesselRef.id;
