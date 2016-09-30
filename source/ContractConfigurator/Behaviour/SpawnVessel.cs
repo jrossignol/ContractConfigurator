@@ -546,9 +546,9 @@ namespace ContractConfigurator.Behaviour
                         rotation = rotation * Quaternion.FromToRotation(Vector3.up, Vector3.forward);
                     }
 
-                    rotation = rotation * Quaternion.AngleAxis(heading, Vector3.back);
+                    rotation = rotation * Quaternion.AngleAxis(vesselData.pitch, Vector3.right);
                     rotation = rotation * Quaternion.AngleAxis(vesselData.roll, Vector3.down);
-                    rotation = rotation * Quaternion.AngleAxis(vesselData.pitch, Vector3.left);
+                    rotation = rotation * Quaternion.AngleAxis(heading, Vector3.forward);
 
                     // Set the height and rotation
                     if (landed || splashed)
