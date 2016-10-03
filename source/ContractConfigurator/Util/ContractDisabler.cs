@@ -108,57 +108,5 @@ namespace ContractConfigurator
 
             return contractDetails[contract].disablingGroups;
         }
-
-        /// <summary>
-        /// Disables standard contract types as requested by contract packs.
-        /// </summary>
-        /// <returns>True if the disabling is done.</returns>
-        public static bool DisableContracts()
-        {
-            if (contractsDisabled)
-            {
-                return true;
-            }
-
-            // Don't do anything if the contract system has not yet loaded
-            if (ContractSystem.ContractTypes == null)
-            {
-                return false;
-            }
-
-            LoggingUtil.LogDebug(typeof(ContractDisabler), "Disabling contract types...");
-            ConfigNode[] nodes = GameDatabase.Instance.GetConfigNodes("CONTRACT_CONFIGURATOR");
-
-            int disabledCounter = 0;
-
-            // Start disabling via legacy method
-            Dictionary<string, Type> contractsToDisable = new Dictionary<string, Type>();
-            foreach (ConfigNode node in nodes)
-            {
-                foreach (string contractType in node.GetValues("disabledContractType"))
-                {
-                    LoggingUtil.LogWarning(typeof(ContractDisabler), "Disabling contract " + contractType +
-                        " via legacy method.  Recommend using the disableContractType attribute of the CONTRACT_GROUP node instead.");
-
-                    SetContractToDisabled(contractType, null);
-                    disabledCounter++;
-                }
-            }
-
-            // Disable via new method
-            foreach (ContractGroup contractGroup in ContractGroup.AllGroups.Where(g => g != null && g.parent == null))
-            {
-                foreach (string contractType in contractGroup.disabledContractType)
-                {
-                    SetContractToDisabled(contractType, contractGroup);
-                    disabledCounter++;
-                }
-            }
-
-            LoggingUtil.LogInfo(typeof(ContractDisabler), "Disabled " + disabledCounter + " ContractTypes.");
-
-            contractsDisabled = true;
-            return true;
-        }
     }
 }

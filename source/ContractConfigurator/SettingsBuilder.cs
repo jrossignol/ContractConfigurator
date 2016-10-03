@@ -87,9 +87,71 @@ namespace ContractConfigurator
         public override int SectionOrder { get { return 2; } }
         public override string Title { get { return "Stock Contracts"; } }
 
+        private List<FieldInfo> contractFields = new List<FieldInfo>();
+
         public StockContractParametersTemplate()
         {
+            foreach (FieldInfo fi in GetType().GetFields())
+            {
+                if (fi.FieldType == typeof(bool))
+                {
+                    contractFields.Add(fi);
+                    fi.SetValue(this, true);
+                }
+            }
+
+            DisableContracts();
+        }
+
+        public override void OnLoad(ConfigNode node)
+        {
+            base.OnLoad(node);
+
+            foreach (Type subclass in ContractConfigurator.GetAllTypes<Contract>().Where(t => t != null && !t.Name.StartsWith("ConfiguredContract")))
+            {
+                FieldInfo fi = GetType().GetField(subclass.Name);
+                if (fi != null)
+                {
+                    bool val = (bool)fi.GetValue(this);
+                    ContractDisabler.SetContractState(subclass, val);
+                }
+            }
+        }
+
+
+        /// <summary>
+        /// Disables standard contract types as requested by contract packs.
+        /// </summary>
+        /// <returns>True if the disabling is done.</returns>
+        public bool DisableContracts()
+        {
+            ConfigNode[] nodes = GameDatabase.Instance.GetConfigNodes("CONTRACT_CONFIGURATOR");
+
+            int disabledCounter = 0;
             SeedStockContractDetails();
+
+            // Start disabling via legacy method
+            Dictionary<string, Type> contractsToDisable = new Dictionary<string, Type>();
+            foreach (ConfigNode node in nodes)
+            {
+                foreach (string contractType in node.GetValues("disabledContractType"))
+                {
+                    SetContractToDisabled(contractType);
+                    disabledCounter++;
+                }
+            }
+
+            // Disable via new method
+            foreach (ContractGroup contractGroup in ContractGroup.AllGroups.Where(g => g != null && g.parent == null))
+            {
+                foreach (string contractType in contractGroup.disabledContractType)
+                {
+                    SetContractToDisabled(contractType);
+                    disabledCounter++;
+                }
+            }
+
+            return true;
         }
 
         private void SeedStockContractDetails()
@@ -104,17 +166,13 @@ namespace ContractConfigurator
             }
         }
 
-        public override void OnLoad(ConfigNode node)
+        private void SetContractToDisabled(string contractType)
         {
-            base.OnLoad(node);
-
-            foreach (Type subclass in ContractConfigurator.GetAllTypes<Contract>().Where(t => t != null && !t.Name.StartsWith("ConfiguredContract")))
+            foreach (FieldInfo fi in contractFields)
             {
-                FieldInfo fi = GetType().GetField(subclass.Name);
-                if (fi != null)
+                if (fi.Name == contractType)
                 {
-                    bool val = (bool)fi.GetValue(this);
-                    ContractDisabler.SetContractState(subclass, val);
+                    fi.SetValue(this, false);
                 }
             }
         }
