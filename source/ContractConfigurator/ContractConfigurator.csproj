@@ -321,7 +321,6 @@
     <Compile Include="Util\Version.cs" />
     <Compile Include="Util\ContractDisabler.cs" />
     <Compile Include="Util\WaypointUtil.cs" />
-    <Compile Include="Util\WiderContractsApp.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

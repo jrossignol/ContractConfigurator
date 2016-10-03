@@ -1,16 +1,25 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using UnityEngine;
 using Contracts;
 
 namespace ContractConfigurator
 {
     /// <summary>
-    /// Static class for disabling and tracking state of stock-style contracts.
+    /// Class for disabling and tracking state of stock-style contracts.
     /// </summary>
-    public static class ContractDisabler
+    [KSPAddon(KSPAddon.Startup.MainMenu, true)]
+    public class ContractDisabler : MonoBehaviour
     {
+        public static ContractDisabler Instance;
+
+        void Awake()
+        {
+            Instance = this;
+        }
+
         private class ContractDetails
         {
             public Type contractType;
@@ -25,13 +34,12 @@ namespace ContractConfigurator
         private static IEnumerable<Type> contractTypes = ContractConfigurator.GetAllTypes<Contract>();
         public static bool contractsDisabled = false;
 
-        public static bool SetContractToDisabled(string contract, ContractGroup group)
+        public static void SetContractToDisabled(string contract, ContractGroup group)
         {
             Type contractType = contractTypes.Where(t => t.Name == contract).FirstOrDefault();
             if (contractType == null)
             {
                 LoggingUtil.LogWarning(typeof(ContractDisabler), "Couldn't find ContractType '" + contract + "' to disable.");
-                return false;
             }
 
             if (!contractDetails.ContainsKey(contractType))
@@ -41,42 +49,50 @@ namespace ContractConfigurator
             ContractDetails details = contractDetails[contractType];
 
             details.disablingGroups.AddUnique(group);
-            return SetContractState(contractType, false);
+            SetContractState(contractType, false);
         }
 
-        public static bool SetContractState(Type contractType, bool enabled)
+        public static void SetContractState(Type contractType, bool enabled)
         {
-            if (ContractSystem.ContractTypes == null)
+            if (ContractSystem.ContractTypes == null || ContractSystem.Instance == null)
             {
-                return false;
+                Instance.StartCoroutine(Instance.SetContractStateDeferred(contractType, enabled));
             }
-
-            if (!enabled && ContractSystem.ContractTypes.Contains(contractType))
+            else
             {
-                LoggingUtil.LogDebug(typeof(ContractDisabler), "Disabling ContractType: " + contractType.FullName + " (" + contractType.Module + ")");
-                do
+                if (!enabled && ContractSystem.ContractTypes.Contains(contractType))
                 {
-                    ContractSystem.ContractTypes.Remove(contractType);
-                } while (ContractSystem.ContractTypes.Contains(contractType));
+                    LoggingUtil.LogDebug(typeof(ContractDisabler), "Disabling ContractType: " + contractType.FullName + " (" + contractType.Module + ")");
+                    do
+                    {
+                        ContractSystem.ContractTypes.Remove(contractType);
+                    } while (ContractSystem.ContractTypes.Contains(contractType));
 
-                // Remove Offered and active contracts 
-                foreach (Contract contract in ContractSystem.Instance.Contracts.Where(c => c != null && c.GetType() == contractType &&
-                    (c.ContractState == Contract.State.Offered || c.ContractState == Contract.State.Active)))
-                {
-                    contract.Withdraw();
+                    // Remove Offered and active contracts 
+                    foreach (Contract contract in ContractSystem.Instance.Contracts.Where(c => c != null && c.GetType() == contractType &&
+                        (c.ContractState == Contract.State.Offered || c.ContractState == Contract.State.Active)))
+                    {
+                        contract.Withdraw();
+                    }
                 }
-
-                return true;
+                else if (enabled && !ContractSystem.ContractTypes.Contains(contractType))
+                {
+                    LoggingUtil.LogDebug(typeof(ContractDisabler), "Enabling ContractType: " + contractType.FullName + " (" + contractType.Module + ")");
+                    ContractSystem.ContractTypes.Add(contractType);
+                }
             }
-            else if (enabled && !ContractSystem.ContractTypes.Contains(contractType))
-            {
-                LoggingUtil.LogDebug(typeof(ContractDisabler), "Enabling ContractType: " + contractType.FullName + " (" + contractType.Module + ")");
-                ContractSystem.ContractTypes.Add(contractType);
-                return true;
-            }
-
-            return false;
         }
+
+        public IEnumerator SetContractStateDeferred(Type contractType, bool enabled)
+        {
+            while (ContractSystem.ContractTypes == null || ContractSystem.Instance == null)
+            {
+                yield return null;
+            }
+
+            SetContractState(contractType, enabled);
+        }
+
 
         public static bool IsEnabled(Type contract)
         {
@@ -124,10 +140,8 @@ namespace ContractConfigurator
                     LoggingUtil.LogWarning(typeof(ContractDisabler), "Disabling contract " + contractType +
                         " via legacy method.  Recommend using the disableContractType attribute of the CONTRACT_GROUP node instead.");
 
-                    if (SetContractToDisabled(contractType, null))
-                    {
-                        disabledCounter++;
-                    }
+                    SetContractToDisabled(contractType, null);
+                    disabledCounter++;
                 }
             }
 
@@ -136,10 +150,8 @@ namespace ContractConfigurator
             {
                 foreach (string contractType in contractGroup.disabledContractType)
                 {
-                    if (SetContractToDisabled(contractType, contractGroup))
-                    {
-                        disabledCounter++;
-                    }
+                    SetContractToDisabled(contractType, contractGroup);
+                    disabledCounter++;
                 }
             }
 
