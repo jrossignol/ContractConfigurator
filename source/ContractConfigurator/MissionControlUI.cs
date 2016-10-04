@@ -463,9 +463,6 @@ namespace ContractConfigurator.Util
                 return;
             }
 
-            // Add to the unread list.  This gets done elsewhere, but the events fire in the wrong order for us to take advantage of it
-            ContractPreLoader.Instance.unreadContracts.Add(c.ContractGuid);
-
             ConfiguredContract cc = c as ConfiguredContract;
             ContractContainer container = null;
             if (cc != null)
@@ -763,6 +760,10 @@ namespace ContractConfigurator.Util
             MissionControl.Instance.displayMode = MissionControl.DisplayMode.Available;
             MissionControl.Instance.toggleArchiveGroup.gameObject.SetActive(false);
             MissionControl.Instance.scrollListContracts.Clear(true);
+            for (int i = MissionControl.Instance.scrollListContracts.transform.childCount; i-- > 0;)
+            {
+                Destroy(MissionControl.Instance.scrollListContracts.transform.GetChild(i).gameObject);
+            }
 
             foreach (Contract contract in ContractSystem.Instance.Contracts.Union(ContractPreLoader.Instance.PendingContracts().OfType<Contract>()).
                 Where(c => c.ContractState == Contract.State.Offered).
@@ -803,6 +804,10 @@ namespace ContractConfigurator.Util
             MissionControl.Instance.displayMode = MissionControl.DisplayMode.Available;
             MissionControl.Instance.toggleArchiveGroup.gameObject.SetActive(false);
             MissionControl.Instance.scrollListContracts.Clear(true);
+            for (int i = MissionControl.Instance.scrollListContracts.transform.childCount; i-- > 0;)
+            {
+                Destroy(MissionControl.Instance.scrollListContracts.transform.GetChild(i).gameObject);
+            }
 
             // Create the top level contract groups
             CreateGroupItem(new GroupContainer((ContractGroup)null));
@@ -964,7 +969,7 @@ namespace ContractConfigurator.Util
                     {
                         available++;
                     }
-                    if (ContractPreLoader.Instance.unreadContracts.Contains(contractContainer.contract.ContractGuid))
+                    if (contractContainer.contract.ContractViewed == Contract.Viewed.Unseen)
                     {
                         groupContainer.unread = true;
                     }
@@ -1066,12 +1071,6 @@ namespace ContractConfigurator.Util
             // Do other setup
             SetupContractItem(cc);
 
-            // Create as unexpanded
-            if (indent != 0)
-            {
-                mcListItem.gameObject.SetActive(false);
-            }
-
             // Add the list item to the UI, and add indent
             if (previous == null)
             {
@@ -1083,6 +1082,12 @@ namespace ContractConfigurator.Util
             else
             {
                 InsertIntoList(cc, indent, previous);
+            }
+
+            // Create as unexpanded
+            if (indent != 0)
+            {
+                mcListItem.gameObject.SetActive(false);
             }
 
             LayoutElement layoutElement = mcListItem.GetComponent<LayoutElement>();
@@ -1245,10 +1250,7 @@ namespace ContractConfigurator.Util
             // Mark as read
             if (cc.contract != null)
             {
-                if (ContractPreLoader.Instance.unreadContracts.Contains(cc.contract.ContractGuid))
-                {
-                    ContractPreLoader.Instance.unreadContracts.Remove(cc.contract.ContractGuid);
-                }
+                cc.contract.SetViewed(Contract.Viewed.Read);
                 SetContractTitle(cc.mcListItem, cc);
                 SetupParentGroups(cc);
             }
@@ -1365,9 +1367,9 @@ namespace ContractConfigurator.Util
             // Mark the contracts as unread without changing their display state
             foreach (ContractContainer contractContainer in groupContainer.childContracts)
             {
-                if (contractContainer.contract != null && ContractPreLoader.Instance.unreadContracts.Contains(contractContainer.contract.ContractGuid))
+                if (contractContainer.contract != null && contractContainer.contract.ContractViewed == Contract.Viewed.Unseen)
                 {
-                    ContractPreLoader.Instance.unreadContracts.Remove(contractContainer.contract.ContractGuid);
+                    contractContainer.contract.SetViewed(Contract.Viewed.Seen);
                 }
             }
             SetupGroupItem(groupContainer);
@@ -1417,10 +1419,10 @@ namespace ContractConfigurator.Util
                 }
             }
 
-            mcListItem.title.text = "<color=#" + color + ">" + title + "</color>";
-            if (cc.contract != null && ContractPreLoader.Instance.unreadContracts.Contains(cc.contract.ContractGuid))
+            mcListItem.title.text = StringBuilderCache.Format("<color=#{0}>{1}</color>", color, title);
+            if (cc.contract != null && cc.contract.ContractViewed != Contract.Viewed.Read)
             {
-                mcListItem.title.text = "<b>" + mcListItem.title.text + "</b>";
+                mcListItem.title.text = StringBuilderCache.Format("<b>{0}</b>", mcListItem.title.text);
             }
 
             // Setup prestige
