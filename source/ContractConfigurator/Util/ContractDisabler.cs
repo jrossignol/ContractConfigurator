@@ -18,6 +18,7 @@ namespace ContractConfigurator
         void Awake()
         {
             Instance = this;
+            DontDestroyOnLoad(this);
         }
 
         private class ContractDetails
