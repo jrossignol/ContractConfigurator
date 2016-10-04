@@ -1003,7 +1003,7 @@ namespace ContractConfigurator.Util
                 availableTextObject.transform.SetParent(groupContainer.mcListItem.title.transform.parent);
                 RectTransform availableTextRect = availableTextObject.GetComponent<RectTransform>();
                 availableTextRect.anchoredPosition3D = textRect.anchoredPosition3D;
-                availableTextRect.sizeDelta = new Vector2(availableTextRect.sizeDelta.x + 4, availableTextRect.sizeDelta.y - 4);
+                availableTextRect.sizeDelta = new Vector2(textRect.sizeDelta.x + 4, textRect.sizeDelta.y - 4);
             }
 
             // Setup the available text
