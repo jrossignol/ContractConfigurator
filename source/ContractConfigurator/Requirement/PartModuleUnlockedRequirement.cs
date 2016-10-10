@@ -48,7 +48,7 @@ namespace ContractConfigurator
 
                 // Search for a part that has our module
                 bool found = false;
-                foreach (AvailablePart p in PartLoader.Instance.parts)
+                foreach (AvailablePart p in PartLoader.Instance.loadedParts)
                 {
                     if (p != null && p.partPrefab != null && p.partPrefab.Modules != null)
                     {

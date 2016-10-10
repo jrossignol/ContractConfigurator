@@ -609,7 +609,7 @@ namespace ContractConfigurator.Parameters
             {
                 if (!idealRecoverMethodCache.ContainsKey(exp))
                 {
-                    IEnumerable<ConfigNode> expNodes = PartLoader.Instance.parts.
+                    IEnumerable<ConfigNode> expNodes = PartLoader.Instance.loadedParts.
                         Where(p => p.moduleInfos.Any(mod => mod.moduleName == "Science Experiment")).
                         SelectMany(p =>
                             p.partConfig.GetNodes("MODULE").

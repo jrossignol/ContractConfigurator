@@ -425,7 +425,7 @@ namespace ContractConfigurator.Util
                 experimentParts = new Dictionary<string, List<AvailablePart>>();
 
                 // Check the stock experiment
-                foreach (KeyValuePair<AvailablePart, string> pair in PartLoader.Instance.parts.
+                foreach (KeyValuePair<AvailablePart, string> pair in PartLoader.Instance.loadedParts.
                     Where(p => p.moduleInfos.Any(mod => experimentModules.Contains(mod.moduleName.Replace(" ", "")))).
                     SelectMany(p => p.partConfig.GetNodes("MODULE").
                         Where(node => experimentModules.Contains(node.GetValue("name"))).
@@ -450,7 +450,7 @@ namespace ContractConfigurator.Util
                     }
 
                     string module = rules.partModule;
-                    foreach (AvailablePart p in PartLoader.Instance.parts.Where(p => p.moduleInfos.Any(mod => mod.moduleName == module)))
+                    foreach (AvailablePart p in PartLoader.Instance.loadedParts.Where(p => p.moduleInfos.Any(mod => mod.moduleName == module)))
                     {
                         experimentParts[rules.id].Add(p);
                     }
@@ -466,7 +466,7 @@ namespace ContractConfigurator.Util
 
                     foreach (string pname in rules.part)
                     {
-                        foreach (AvailablePart p in PartLoader.Instance.parts.Where(p => p.name == pname))
+                        foreach (AvailablePart p in PartLoader.Instance.loadedParts.Where(p => p.name == pname))
                         {
                             LoggingUtil.LogVerbose(typeof(Science), "Adding entry for " + rules.id + " = " + p.name);
                             experimentParts[rules.id].Add(p);
