@@ -268,7 +268,10 @@ namespace ContractConfigurator.Parameters
             {
                 foreach (CelestialBody targetBody in targetBodies)
                 {
-                    node.AddValue("targetBody", targetBody.name);
+                    if (targetBody != null)
+                    {
+                        node.AddValue("targetBody", targetBody.name);
+                    }
                 }
             }
             if (!string.IsNullOrEmpty(biome))
