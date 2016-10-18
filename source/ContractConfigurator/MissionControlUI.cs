@@ -1230,6 +1230,12 @@ namespace ContractConfigurator.Util
 
             ContractContainer cc = (ContractContainer)button.GetComponent<KSP.UI.UIListItem>().Data;
 
+            // Check requirements before displaying the contract
+            if (cc.contract != null)
+            {
+                cc.contract.MeetRequirements();
+            }
+
             // Mark as read
             if (cc.contract != null)
             {
@@ -1487,6 +1493,16 @@ namespace ContractConfigurator.Util
 
 
             text += "<b><color=#DB8310>Pre-Requisites:</color></b>\n\n";
+
+            // Do text for funds
+            if (contractType.advanceFunds < 0)
+            {
+                CurrencyModifierQuery q = new CurrencyModifierQuery(TransactionReasons.ContractAdvance, -contractType.advanceFunds, 0.0f, 0.0f);
+                GameEvents.Modifiers.OnCurrencyModifierQuery.Fire(q);
+                float fundsRequired = contractType.advanceFunds + q.GetEffectDelta(Currency.Funds);
+
+                text += RequirementLine("Must have {0} funds for advance", Funding.CanAfford(fundsRequired));
+            }
 
             // Do text for max completions
             if (contractType.maxCompletions != 0)

@@ -640,6 +640,19 @@ namespace ContractConfigurator
                     LoggingUtil.LogWarning(this, "Tracing enabled for contract type " + name);
                 }
 
+                // Check funding
+                if (advanceFunds < 0)
+                {
+                    CurrencyModifierQuery q = new CurrencyModifierQuery(TransactionReasons.ContractAdvance, -advanceFunds, 0.0f, 0.0f);
+                    GameEvents.Modifiers.OnCurrencyModifierQuery.Fire(q);
+                    float fundsRequired = advanceFunds + q.GetEffectDelta(Currency.Funds);
+
+                    if (!Funding.CanAfford(fundsRequired))
+                    {
+                        throw new ContractRequirementException("Can't afford contract advance cost.");
+                    }
+                }
+
                 // Check expiry
                 if ((contract.ContractState == Contract.State.Offered || contract.ContractState == Contract.State.Withdrawn) &&
                     Planetarium.fetch != null && contract.DateExpire < Planetarium.fetch.time)

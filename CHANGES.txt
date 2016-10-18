@@ -1,12 +1,18 @@
+Contract Configurator 1.19.1
+- Fixed NRE when vessel's Landed At string is null (thanks SamLex).
+- Check for sufficient funds when there are negative contract advances (thanks 5thHorseman).
+
 Contract Configurator 1.19.0
 - Added Part.UnlockCost().
 - Added Part.Resources().
 - Added Part.ResourceCapacity().
 - Reworked ParameterDelegate - worst source of in-flight LINQ (ie. garbage).
+- Check contract requirements before displaying them in mission control in case something has changed.
 - Fixed issues with part parser (thanks 5thHorseman).
 - Fixed exception in Mission Control (thanks Conventia & AccidentalDisassembly).
 - Fixed a NullReferenceException in PartValidation.
 - Fixed an incorrect condition on the ReseachBodies check which caused heaps of garbage to be created (thanks xEvilReeperx).
+- Fixed issue with Duration parameter not kicking off correctly in some circumstances (thanks 5thHorseman).
 
 Contract Configurator 1.18.1
 - Fixed NRE on contract save (thanks CecilFF4).

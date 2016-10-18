@@ -98,7 +98,6 @@
     <Compile Include="TrackingStationUI.cs" />
     <Compile Include="ParameterFactory\NoStagingFactory.cs" />
     <Compile Include="ParameterFactory\ResourceConsumptionFactory.cs" />
-    <Compile Include="Parameter\Duration2.cs" />
     <Compile Include="Parameter\Duration.cs" />
     <Compile Include="Parameter\HasAstronaut.cs" />
     <Compile Include="Parameter\Not.cs" />

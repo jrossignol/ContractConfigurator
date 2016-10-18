@@ -217,7 +217,7 @@ namespace ContractConfigurator.Parameters
             // Fixes problems with special biomes like KSC buildings (total different naming)
             if (landedSituations.Contains(vessel.situation))
             {
-                if (Vessel.GetLandedAtString(vessel.landedAt) == biome)
+                if (vessel.landedAt != null && Vessel.GetLandedAtString(vessel.landedAt) == biome)
                 {
                     return true;
                 }

@@ -162,6 +162,7 @@ namespace ContractConfigurator.Parameters
             if (contract == Root && startCriteria == StartCriteria.CONTRACT_ACCEPTANCE)
             {
                 triggered = true;
+                waitTime = Time.fixedTime + 0.5;
             }
         }
 
@@ -170,6 +171,7 @@ namespace ContractConfigurator.Parameters
             if (startCriteria == StartCriteria.NEXT_LAUNCH)
             {
                 triggered = true;
+                waitTime = Time.fixedTime + 0.5;
             }
         }
 
@@ -190,10 +192,7 @@ namespace ContractConfigurator.Parameters
             }
 
             // Queue up a check
-            if (contract == Root)
-            {
-                waitTime = Time.fixedTime + 0.5;
-            }
+            waitTime = Time.fixedTime + 0.5;
         }
 
         protected override void OnUpdate()
