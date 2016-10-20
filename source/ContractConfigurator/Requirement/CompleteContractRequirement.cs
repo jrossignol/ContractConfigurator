@@ -61,7 +61,7 @@ namespace ContractConfigurator
             else if (contractClass != null)
             {
                 // Call the GetCompletedContracts with our type, and get the count
-                Contract[] completedContract = (Contract[])typeof(ContractSystem).GetMethod("GetCompletedContracts").MakeGenericMethod(contractClass).Invoke(ContractSystem.Instance, null);
+                Contract[] completedContract = (Contract[])typeof(ContractSystem).GetMethod("GetCompletedContracts").MakeGenericMethod(contractClass).Invoke(ContractSystem.Instance, new object[] { null });
                 finished = completedContract.Count();
                 if (finished > 0)
                 {
