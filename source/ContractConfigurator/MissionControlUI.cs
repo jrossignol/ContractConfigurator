@@ -215,6 +215,7 @@ namespace ContractConfigurator.Util
             public ContractType contractType;
             public MissionControl.MissionSelection missionSelection;
             public int indent;
+            public RectTransform statusRect;
             public UIStateImage statusImage;
             public GroupContainer parent;
             public GroupContainer root
@@ -1048,11 +1049,11 @@ namespace ContractConfigurator.Util
 
             // Create an icon to show the status
             GameObject statusImage = new GameObject("StatusImage");
-            RectTransform statusRect = statusImage.AddComponent<RectTransform>();
-            statusRect.anchoredPosition = new Vector2(16.0f, 0f);
-            statusRect.anchorMin = new Vector2(0, 0.5f);
-            statusRect.anchorMax = new Vector2(0, 0.5f);
-            statusRect.sizeDelta = new Vector2(10f, 10f);
+            cc.statusRect = statusImage.AddComponent<RectTransform>();
+            cc.statusRect.anchoredPosition = new Vector2(16.0f, 0f);
+            cc.statusRect.anchorMin = new Vector2(0, 0.5f);
+            cc.statusRect.anchorMax = new Vector2(0, 0.5f);
+            cc.statusRect.sizeDelta = new Vector2(10f, 10f);
             statusImage.AddComponent<CanvasRenderer>();
             cc.statusImage = statusImage.AddComponent<UIStateImage>();
             cc.statusImage.states = itemStatusStates;
@@ -1427,6 +1428,7 @@ namespace ContractConfigurator.Util
                 float preferredHeight = mcListItem.title.GetPreferredValues(mcListItem.title.text, 316 - cc.indent * 12 - 64, TMPro.TMP_Math.FLOAT_MAX).y;
                 bool twoLines = preferredHeight > 14;
                 mcListItem.GetComponent<LayoutElement>().preferredHeight = twoLines ? 38 : 25;
+                cc.statusRect.anchoredPosition = new Vector2(16.0f, 0f);
             }
 
             // Setup prestige
