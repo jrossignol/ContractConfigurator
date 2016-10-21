@@ -189,6 +189,7 @@ namespace ContractConfigurator.Parameters
 
         protected void UpdateDelegates()
         {
+            Debug.Log("Updating delegates");
             foreach (ContractParameter genericParam in this.GetAllDescendents())
             {
                 ParameterDelegate<Vessel> param = genericParam as ParameterDelegate<Vessel>;
@@ -221,6 +222,7 @@ namespace ContractConfigurator.Parameters
                         if (matchingSubjects.ContainsKey(exp))
                         {
                             param.SetTitle(matchingSubjects[exp].title);
+                            param.SetState(ParameterState.Complete);
                         }
                         else
                         {

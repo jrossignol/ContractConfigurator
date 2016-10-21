@@ -1,13 +1,10 @@
 Contract Configurator 1.20.2
-- Allow contract title in mission control to span two lines.
-
-Contract Configurator 1.20.1
-- Moved settings into stock settings screen.
-
-Contract Configurator 1.20.0
 - Support for KSP 1.2
+- Allow contract title in mission control to span two lines.
+- Moved settings into stock settings screen.
 - Fixed NRE when vessel's Landed At string is null (thanks SamLex).
 - Check for sufficient funds when there are negative contract advances (thanks 5thHorseman).
+- Fixed display issue with partially complete CollectScience parameters.
 
 Contract Configurator 1.19.0
 - Added Part.UnlockCost().
