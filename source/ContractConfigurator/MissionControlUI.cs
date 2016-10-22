@@ -1428,7 +1428,10 @@ namespace ContractConfigurator.Util
                 float preferredHeight = mcListItem.title.GetPreferredValues(mcListItem.title.text, 316 - cc.indent * 12 - 64, TMPro.TMP_Math.FLOAT_MAX).y;
                 bool twoLines = preferredHeight > 14;
                 mcListItem.GetComponent<LayoutElement>().preferredHeight = twoLines ? 38 : 25;
-                cc.statusRect.anchoredPosition = new Vector2(16.0f, 0f);
+                if (cc.statusRect != null)
+                {
+                    cc.statusRect.anchoredPosition = new Vector2(16.0f, 0f);
+                }
             }
 
             // Setup prestige
