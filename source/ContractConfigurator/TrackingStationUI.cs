@@ -60,7 +60,7 @@ namespace ContractConfigurator.Util
             LoggingUtil.LogVerbose(this, "Start");
 
             // Don't run if not in career
-            if (!HighLogic.CurrentGame.scenarios.Any(sm => sm.moduleName == "ContractConfiguratorSettings"))
+            if (HighLogic.CurrentGame.Mode != Game.Modes.CAREER)
             {
                 LoggingUtil.LogDebug(this, "Destroying TrackingStationUI - not in career mode.");
                 Destroy(this);
@@ -143,6 +143,14 @@ namespace ContractConfigurator.Util
             offeredWaypointButton.SetActive(true);
             activeOrbitButton.SetActive(true);
             offeredOrbitButton.SetActive(true);
+
+            // Move the commNet button
+            GameObject commNet = trackingFilters.transform.parent.gameObject.GetChild("CommNetVisualisation");
+            if (commNet != null)
+            {
+                RectTransform r = commNet.GetComponent<RectTransform>();
+                r.localPosition = new Vector3(r.localPosition.x + 132, r.localPosition.y);
+            }
 
             LoggingUtil.LogVerbose(this, "Finished setup");
         }
