@@ -6,7 +6,7 @@
      "GITHUB":{
          "USERNAME":"jrossignol",
          "REPOSITORY":"ContractConfigurator",
-         "ALLOW_PRE_RELEASE":true
+         "ALLOW_PRE_RELEASE":false
      },
      "VERSION":{
          "MAJOR":1,
