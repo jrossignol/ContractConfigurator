@@ -1,5 +1,6 @@
 Contract Configurator 1.20.3
 - Regenerate biome data for KSP 1.2 biomes (fixes Field Research "Rare Science" contracts, thanks FlatEric).
+- Added RemoteTech integration back in.
 
 Contract Configurator 1.20.2
 - Support for KSP 1.2
