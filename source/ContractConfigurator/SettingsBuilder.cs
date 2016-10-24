@@ -20,7 +20,7 @@ namespace ContractConfigurator
 
         public bool IsEnabled(string name)
         {
-            FieldInfo fi = GetType().GetField(name);
+            FieldInfo fi = GetType().GetField(SettingsBuilder.SanitizeName(name));
             if (fi != null)
             {
                 return (bool)fi.GetValue(this);
@@ -109,7 +109,7 @@ namespace ContractConfigurator
 
             foreach (Type subclass in ContractConfigurator.GetAllTypes<Contract>().Where(t => t != null && !t.Name.StartsWith("ConfiguredContract")))
             {
-                FieldInfo fi = GetType().GetField(subclass.Name);
+                FieldInfo fi = GetType().GetField(SettingsBuilder.SanitizeName(subclass.Name));
                 if (fi != null)
                 {
                     bool val = (bool)fi.GetValue(this);
@@ -170,7 +170,7 @@ namespace ContractConfigurator
         {
             foreach (FieldInfo fi in contractFields)
             {
-                if (fi.Name == contractType)
+                if (fi.Name == SettingsBuilder.SanitizeName(contractType))
                 {
                     fi.SetValue(this, false);
                 }
@@ -203,7 +203,7 @@ namespace ContractConfigurator
             // Define a field for each Group
             foreach (ContractGroup contractGroup in ContractGroup.AllGroups.Where(g => g != null && g.parent == null).OrderBy(g => g.displayName))
             {
-                FieldBuilder groupField = groupParamBuilder.DefineField(contractGroup.name, typeof(bool), FieldAttributes.Public);
+                FieldBuilder groupField = groupParamBuilder.DefineField(SettingsBuilder.SanitizeName(contractGroup.name), typeof(bool), FieldAttributes.Public);
 
                 CustomAttributeBuilder attBuilder = new CustomAttributeBuilder(paramUICons, new object[] { contractGroup.displayName });
                 groupField.SetCustomAttribute(attBuilder);
@@ -216,7 +216,7 @@ namespace ContractConfigurator
             // Define a field for each contract type
             foreach (MissionControlUI.GroupContainer container in contractTypes.Select(t => new MissionControlUI.GroupContainer(t)).OrderBy(mcui => mcui.DisplayName()))
             {
-                FieldBuilder groupField = stockParamBuilder.DefineField(container.stockContractType.Name, typeof(bool), FieldAttributes.Public);
+                FieldBuilder groupField = stockParamBuilder.DefineField(SettingsBuilder.SanitizeName(container.stockContractType.Name), typeof(bool), FieldAttributes.Public);
 
                 CustomAttributeBuilder attBuilder = new CustomAttributeBuilder(paramUICons, new object[] { container.DisplayName() });
                 groupField.SetCustomAttribute(attBuilder);
@@ -230,5 +230,23 @@ namespace ContractConfigurator
             AssemblyLoader.loadedAssemblies.Add(
                 new AssemblyLoader.LoadedAssembly(assemblyBuilder, "not_a_real_path.dll", "not_a_real_url.dll", new ConfigNode()));
         }
+
+        private static Dictionary<string, string> sanitization = new Dictionary<string, string>();
+        public static string SanitizeName(string name)
+        {
+            if (string.IsNullOrEmpty(name))
+            {
+                return string.Empty;
+            }
+
+            string sanitized;
+            if (!sanitization.TryGetValue(name, out sanitized))
+            {
+                sanitized = new String(name.Where(Char.IsLetterOrDigit).ToArray());
+                sanitization[name] = sanitized;
+            }
+            return sanitized;
+        }
+
     }
 }

@@ -882,7 +882,7 @@ namespace ContractConfigurator
             if (group != null)
             {
                 // Check the group is enabled
-                if (!((ContractGroupParametersTemplate)HighLogic.CurrentGame.Parameters.CustomParams(SettingsBuilder.GroupParametersType)).IsEnabled(group.name))
+                if (!((ContractGroupParametersTemplate)HighLogic.CurrentGame.Parameters.CustomParams(SettingsBuilder.GroupParametersType)).IsEnabled(group.Root.name))
                 {
                     throw new ContractRequirementException("Contract group " + group.name + " is not enabled.");
                 }
