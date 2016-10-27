@@ -189,7 +189,6 @@ namespace ContractConfigurator.Parameters
 
         protected void UpdateDelegates()
         {
-            Debug.Log("Updating delegates");
             foreach (ContractParameter genericParam in this.GetAllDescendents())
             {
                 ParameterDelegate<Vessel> param = genericParam as ParameterDelegate<Vessel>;
