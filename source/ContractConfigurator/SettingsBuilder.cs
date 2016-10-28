@@ -226,9 +226,9 @@ namespace ContractConfigurator
             GroupParametersType = groupParamBuilder.CreateType();
             StockParametersType = stockParamBuilder.CreateType();
 
-            // Hack the assembly into the assembly loader so it gets picked up
-            AssemblyLoader.loadedAssemblies.Add(
-                new AssemblyLoader.LoadedAssembly(assemblyBuilder, "not_a_real_path.dll", "not_a_real_url.dll", new ConfigNode()));
+            // Add the types into the custom parameter list so they get picked up
+            GameParameters.ParameterTypes.Add(GroupParametersType);
+            GameParameters.ParameterTypes.Add(StockParametersType);
         }
 
         private static Dictionary<string, string> sanitization = new Dictionary<string, string>();
