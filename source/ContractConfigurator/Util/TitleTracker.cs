@@ -59,7 +59,7 @@ namespace ContractConfigurator
 
         private ContractParameter parameter;
         private List<string> titles = new List<string>();
-        private Text text;
+        private TMPro.TextMeshProUGUI text;
         private LayoutElement layoutElement;
 
         public TitleTracker(ContractParameter parameter)
@@ -131,7 +131,7 @@ namespace ContractConfigurator
                 {
                     foreach (KSP.UI.UIListItem item in list.items)
                     {
-                        Text textComponent = item.GetComponentsInChildren<Text>(true).FirstOrDefault();
+                        TMPro.TextMeshProUGUI textComponent = item.GetComponentsInChildren<TMPro.TextMeshProUGUI>(true).FirstOrDefault();
                         if (textComponent != null)
                         {
                             // Check for any string in titleTracker
