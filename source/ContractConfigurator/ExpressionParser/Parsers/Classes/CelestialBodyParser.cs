@@ -96,6 +96,8 @@ namespace ContractConfigurator.ExpressionParser
             RegisterGlobalFunction(new Function<List<CelestialBody>>("ReachedBodies", () => BodiesForItem(ProgressItem.REACHED).ToList(), false));
             RegisterGlobalFunction(new Function<List<CelestialBody>>("ReturnedFromBodies", () => BodiesForItem(ProgressItem.RETURNED_FROM).ToList(), false));
             RegisterGlobalFunction(new Function<CelestialBody, CelestialBody>("CelestialBody", cb => cb));
+            RegisterGlobalFunction(new Function<CelestialBody>("NextUnreachedBody", () => FinePrint.Utilities.ProgressUtilities.GetNextUnreached(1).FirstOrDefault()));
+            RegisterGlobalFunction(new Function<int, List<CelestialBody>>("NextUnreachedBodies", (count) => FinePrint.Utilities.ProgressUtilities.GetNextUnreached(count)));
         }
 
         public CelestialBodyParser()
