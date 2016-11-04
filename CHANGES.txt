@@ -2,6 +2,7 @@ Contract Configurator 1.20.4
 - Found new workaround for GetExportedTypes reflection issue (the "toolbar" issue).
 - Added NextUnreachedBody() and NextUnreachedBodies() methods.
 - Added Part.MassDry() and Part.MassWet() methods.
+- Added CelestialBody.CanHaveSynchronousOrbit() method.
 - Recompile Kerbal Konstructs integration.
 - Fixed contract window text not updating for dynamic text (duration timers, etc.).
 

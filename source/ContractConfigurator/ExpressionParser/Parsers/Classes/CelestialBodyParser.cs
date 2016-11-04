@@ -62,6 +62,7 @@ namespace ContractConfigurator.ExpressionParser
             RegisterMethod(new Method<CelestialBody, bool>("HaveReturnedFrom", cb => IsReached(cb, ProgressItem.RETURNED_FROM), false));
 
             RegisterMethod(new Method<CelestialBody, bool>("CanHaveKolniyaOrbit", cb => cb != null && CelestialUtilities.CanBodyBeKolniya(cb)));
+            RegisterMethod(new Method<CelestialBody, double, bool>("CanHaveSynchronousOrbit", (cb, ecc) => cb != null && CelestialUtilities.CanBodyBeSynchronous(cb, ecc)));
             RegisterMethod(new Method<CelestialBody, bool>("CanHaveTundraOrbit", cb => cb != null && CelestialUtilities.CanBodyBeTundra(cb)));
 
             RegisterMethod(new Method<CelestialBody, double>("Radius", cb => cb != null ? cb.Radius : 0.0));
