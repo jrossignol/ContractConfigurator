@@ -1,4 +1,4 @@
-Contract Configurator 1.20.4
+Contract Configurator 1.21.0
 - Found new workaround for GetExportedTypes reflection issue (the "toolbar" issue).
 - Added NextUnreachedBody() and NextUnreachedBodies() methods.
 - Added Part.MassDry() and Part.MassWet() methods.
