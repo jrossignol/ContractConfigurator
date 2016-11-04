@@ -29,6 +29,8 @@ namespace ContractConfigurator.ExpressionParser
             RegisterMethod(new Method<AvailablePart, string>("Description", p => p == null ? "" : p.description));
             RegisterMethod(new Method<AvailablePart, string>("Manufacturer", p => p == null ? "" : p.manufacturer));
             RegisterMethod(new Method<AvailablePart, float>("Size", p => p == null ? 0.0f : p.partSize));
+            RegisterMethod(new Method<AvailablePart, float>("MassDry", p => p == null ? 0.0f : p.partPrefab.mass));
+            RegisterMethod(new Method<AvailablePart, float>("MassWet", p => p == null ? 0.0f : p.partPrefab.mass + p.partPrefab.GetResourceMass()));
             RegisterMethod(new Method<AvailablePart, Tech>("TechRequired", p => p == null ? null : Tech.GetTech(p.TechRequired)));
             RegisterMethod(new Method<AvailablePart, int>("UnlockCost", p => p == null ? 0 : p.entryCost));
             RegisterMethod(new Method<AvailablePart, bool>("IsUnlocked", p => p == null ? false : ResearchAndDevelopment.PartModelPurchased(p), false));
