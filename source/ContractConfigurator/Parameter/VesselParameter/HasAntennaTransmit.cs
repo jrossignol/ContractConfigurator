@@ -14,8 +14,8 @@ namespace ContractConfigurator.Parameters
     /// </summary>
     public class HasAntennaTransmit : VesselParameter
     {
-		protected double minAntennaPower { get; set; }
-		protected double maxAntennaPower { get; set; }
+        protected double minAntennaPower { get; set; }
+        protected double maxAntennaPower { get; set; }
 
         private float lastUpdate = 0.0f;
         private const float UPDATE_FREQUENCY = 0.25f;
@@ -25,16 +25,16 @@ namespace ContractConfigurator.Parameters
         {
         }
 
-		public HasAntennaTransmit(double minAntennaPower = 0.0, double maxAntennaPower = double.MaxValue, string title = null)
+        public HasAntennaTransmit(double minAntennaPower = 0.0, double maxAntennaPower = double.MaxValue, string title = null)
             : base(title)
         {
             this.minAntennaPower = minAntennaPower;
             this.maxAntennaPower = maxAntennaPower;
             if (title == null)
             {
-				this.title = "Transmit antenna (combined): ";
+                this.title = "Transmit antenna (combined): ";
 
-				if (maxAntennaPower == double.MaxValue)
+                if (maxAntennaPower == double.MaxValue)
                 {
                     this.title += "At least " + minAntennaPower + " power";
                 }
@@ -97,12 +97,12 @@ namespace ContractConfigurator.Parameters
         /// <returns>Whether the vessel meets the condition</returns>
         protected override bool VesselMeetsCondition(Vessel vessel)
         {
-			LoggingUtil.LogVerbose(this, "Checking VesselMeetsCondition: " + vessel.id);
-			double antennaPower = 0.0f;
-			if (vessel.connection != null)
-			{
-				antennaPower = vessel.connection.Comm.antennaTransmit.power;
-			}
+            LoggingUtil.LogVerbose(this, "Checking VesselMeetsCondition: " + vessel.id);
+            double antennaPower = 0.0f;
+            if (vessel.connection != null)
+            {
+                antennaPower = vessel.connection.Comm.antennaTransmit.power;
+            }
             return antennaPower >= minAntennaPower && antennaPower <= maxAntennaPower;
         }
     }

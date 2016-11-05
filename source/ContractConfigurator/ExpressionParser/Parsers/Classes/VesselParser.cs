@@ -59,8 +59,8 @@ namespace ContractConfigurator.ExpressionParser
             RegisterMethod(new Method<Vessel, double>("OrbitInclination", GetInclination, false));
             RegisterMethod(new Method<Vessel, double>("OrbitEccentricity", GetEccentricity, false));
 
-			RegisterMethod(new Method<Vessel, double>("AntennaTransmitPower", AntennaTransmitPower, false));
-			RegisterMethod(new Method<Vessel, double>("AntennaRelayPower", AntennaRelayPower, false));
+            RegisterMethod(new Method<Vessel, double>("AntennaTransmitPower", AntennaTransmitPower, false));
+            RegisterMethod(new Method<Vessel, double>("AntennaRelayPower", AntennaRelayPower, false));
 
             RegisterMethod(new Method<Vessel, Duration>("MET", v => new Duration(v == null ? 0.0 : v.missionTime), false));
 
@@ -244,35 +244,35 @@ namespace ContractConfigurator.ExpressionParser
             return orbit.eccentricity;
         }
 
-		static double AntennaTransmitPower(Vessel vessel)
-		{
-			if (vessel == null)
-			{
-				return 0.0;
-			}
+        static double AntennaTransmitPower(Vessel vessel)
+        {
+            if (vessel == null)
+            {
+                return 0.0;
+            }
 
-			if (vessel.connection == null)
-			{
-				return 0.0;
-			}
+            if (vessel.connection == null)
+            {
+                return 0.0;
+            }
 
-			return vessel.connection.Comm.antennaTransmit.power;
-		}
+            return vessel.connection.Comm.antennaTransmit.power;
+        }
 
-		static double AntennaRelayPower(Vessel vessel)
-		{
-			if (vessel == null)
-			{
-				return 0.0;
-			}
+        static double AntennaRelayPower(Vessel vessel)
+        {
+            if (vessel == null)
+            {
+                return 0.0;
+            }
 
-			if (vessel.connection == null)
-			{
-				return 0.0;
-			}
+            if (vessel.connection == null)
+            {
+                return 0.0;
+            }
 
-			return vessel.connection.Comm.antennaRelay.power;
-		}
+            return vessel.connection.Comm.antennaRelay.power;
+        }
 
         public override U ConvertType<U>(Vessel value)
         {
