@@ -49,14 +49,14 @@ namespace ContractConfigurator
 
         public void Start()
         {
-            GameEvents.onPartJointBreak.Add(new EventData<PartJoint>.OnEvent(OnPartJointBreak));
+            GameEvents.onPartJointBreak.Add(new EventData<PartJoint, float>.OnEvent(OnPartJointBreak));
             GameEvents.onVesselWasModified.Add(new EventData<Vessel>.OnEvent(OnVesselWasModified));
             GameEvents.onVesselDestroy.Add(new EventData<Vessel>.OnEvent(OnVesselDestroy));
         }
 
         public void OnDestroy()
         {
-            GameEvents.onPartJointBreak.Remove(new EventData<PartJoint>.OnEvent(OnPartJointBreak));
+            GameEvents.onPartJointBreak.Remove(new EventData<PartJoint, float>.OnEvent(OnPartJointBreak));
             GameEvents.onVesselWasModified.Remove(new EventData<Vessel>.OnEvent(OnVesselWasModified));
             GameEvents.onVesselDestroy.Remove(new EventData<Vessel>.OnEvent(OnVesselDestroy));
         }
@@ -73,21 +73,8 @@ namespace ContractConfigurator
                     Guid id = new Guid(child.GetValue("id"));
                     uint hash = ConfigNodeUtil.ParseValue<uint>(child, "hash", 0);
 
-                    Vessel vessel = FlightGlobals.Vessels.Find(v => v != null && v.id == id);
-                    if (vessel == null || vessel.state == Vessel.State.DEAD)
-                    {
-                        id = Guid.Empty;
-                    }
-                    else if (hash == 0 && HighLogic.LoadedScene == GameScenes.FLIGHT)
-                    {
-                        hash = vessel.GetHashes().FirstOrDefault();
-                        LoggingUtil.LogVerbose(this, "Setting hash for " + id + " on load to: " + hash);
-                    }
-
-                    if (id != Guid.Empty)
-                    {
-                        vessels[key] = new VesselInfo(id, hash);
-                    }
+                    StartCoroutine(CompleteVesselLoad(key, id));
+                    vessels[key] = new VesselInfo(id, hash);
                 }
             }
             catch (Exception e)
@@ -95,6 +82,32 @@ namespace ContractConfigurator
                 LoggingUtil.LogError(this, "Error loading ContractVesselTracker from persistance file!");
                 LoggingUtil.LogException(e);
                 ExceptionLogWindow.DisplayFatalException(ExceptionLogWindow.ExceptionSituation.SCENARIO_MODULE_LOAD, e, "ContractVesselTracker");
+            }
+        }
+
+        IEnumerator<YieldInstruction> CompleteVesselLoad(string key, Guid id)
+        {
+            if (FlightGlobals.Vessels.Count == 0)
+            {
+                yield return new WaitForEndOfFrame();
+            }
+
+            if (!vessels.ContainsKey(key))
+            {
+                yield break;
+            }
+
+            VesselInfo vi = vessels[key];
+            Vessel vessel = FlightGlobals.FindVessel(id);
+            if (vessel == null || vessel.state == Vessel.State.DEAD)
+            {
+                id = Guid.Empty;
+                vessels.Remove(key);
+            }
+            else if (vi.hash == 0 && HighLogic.LoadedScene == GameScenes.FLIGHT)
+            {
+                vi.hash = vessel.GetHashes().FirstOrDefault();
+                LoggingUtil.LogVerbose(this, "Setting hash for " + id + " on load to: " + vi.hash);
             }
         }
 
@@ -148,7 +161,7 @@ namespace ContractConfigurator
             }
         }
 
-        protected virtual void OnPartJointBreak(PartJoint p)
+        protected virtual void OnPartJointBreak(PartJoint p, float breakForce)
         {
             LoggingUtil.LogVerbose(this, "OnPartJointBreak: " + p.Parent.vessel.id);
             if (HighLogic.LoadedScene == GameScenes.EDITOR)
@@ -323,7 +336,7 @@ namespace ContractConfigurator
         {
             if (vessels.ContainsKey(key))
             {
-                return FlightGlobals.Vessels.Find(v => v != null && v.id == vessels[key].id);
+                return FlightGlobals.FindVessel(vessels[key].id);
             }
             return null;
         }

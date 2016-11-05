@@ -118,9 +118,9 @@ namespace ContractConfigurator.Parameters
             lastVesselChange = Time.fixedTime;
         }
 
-        protected override void OnPartJointBreak(PartJoint p)
+        protected override void OnPartJointBreak(PartJoint p, float breakForce)
         {
-            base.OnPartJointBreak(p);
+            base.OnPartJointBreak(p, breakForce);
 
             Vessel v = p.Parent.vessel;
             LoggingUtil.LogVerbose(this, "OnPartJointBreak: " + v.id);

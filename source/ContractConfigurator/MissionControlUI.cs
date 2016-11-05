@@ -215,6 +215,7 @@ namespace ContractConfigurator.Util
             public ContractType contractType;
             public MissionControl.MissionSelection missionSelection;
             public int indent;
+            public RectTransform statusRect;
             public UIStateImage statusImage;
             public GroupContainer parent;
             public GroupContainer root
@@ -345,7 +346,7 @@ namespace ContractConfigurator.Util
                 }
 
                 // Setup the toggle
-                Text toggleAllText = toggleAllObj.GetChild("Text").GetComponent<Text>();
+                TMPro.TextMeshProUGUI toggleAllText = toggleAllObj.GetChild("Text").GetComponent<TMPro.TextMeshProUGUI>();
                 toggleAllText.text = "All";
                 Toggle toggleAll = toggleAllObj.GetComponent<Toggle>();
                 toggleAll.onValueChanged.AddListener(new UnityAction<bool>(OnClickAll));
@@ -410,26 +411,26 @@ namespace ContractConfigurator.Util
             {
                 // Set to the last view
                 MissionControl.Instance.toggleDisplayModeAvailable.isOn = false;
-                switch (ContractConfiguratorSettings.Instance.lastMCButton)
+                switch (HighLogic.CurrentGame.Parameters.CustomParams<ContractConfiguratorParameters>().lastMCButton)
                 {
-                    case ContractConfiguratorSettings.MissionControlButton.All:
+                    case ContractConfiguratorParameters.MissionControlButton.All:
                         GameObject sortGroup = MissionControl.Instance.gameObject.GetChild("Sorting Group");
                         GameObject toggleAllObj = sortGroup.GetChild("Toggle All");
                         Toggle toggleAll = toggleAllObj.GetComponent<Toggle>();
                         toggleAll.isOn = true;
                         OnClickAll(true);
                         break;
-                    case ContractConfiguratorSettings.MissionControlButton.Available:
+                    case ContractConfiguratorParameters.MissionControlButton.Available:
                         MissionControl.Instance.toggleDisplayModeAvailable.isOn = true;
                         MissionControl.Instance.OnClickAvailable(true);
                         OnClickAvailable(true);
                         break;
-                    case ContractConfiguratorSettings.MissionControlButton.Active:
+                    case ContractConfiguratorParameters.MissionControlButton.Active:
                         MissionControl.Instance.toggleDisplayModeActive.isOn = true;
                         MissionControl.Instance.OnClickActive(true);
                         OnClickActive(true);
                         break;
-                    case ContractConfiguratorSettings.MissionControlButton.Archive:
+                    case ContractConfiguratorParameters.MissionControlButton.Archive:
                         MissionControl.Instance.toggleDisplayModeArchive.isOn = true;
                         MissionControl.Instance.OnClickArchive(true);
                         OnClickArchive(true);
@@ -462,9 +463,6 @@ namespace ContractConfigurator.Util
                 }
                 return;
             }
-
-            // Add to the unread list.  This gets done elsewhere, but the events fire in the wrong order for us to take advantage of it
-            ContractPreLoader.Instance.unreadContracts.Add(c.ContractGuid);
 
             ConfiguredContract cc = c as ConfiguredContract;
             ContractContainer container = null;
@@ -733,7 +731,9 @@ namespace ContractConfigurator.Util
         public IEnumerable<GroupContainer> GetGroups()
         {
             // Grouping for CC types
-            foreach (ContractGroup group in ContractGroup.AllGroups.Where(g => g != null && g.parent == null && ContractConfiguratorSettings.IsEnabled(g) && ContractType.AllValidContractTypes.Any(ct => g.BelongsToGroup(ct))))
+            foreach (ContractGroup group in ContractGroup.AllGroups.Where(g => g != null && g.parent == null &&
+                ((ContractGroupParametersTemplate)HighLogic.CurrentGame.Parameters.CustomParams(SettingsBuilder.GroupParametersType)).IsEnabled(g.name) &&
+                ContractType.AllValidContractTypes.Any(ct => g.BelongsToGroup(ct))))
             {
                 yield return new GroupContainer(group);
             }
@@ -761,6 +761,10 @@ namespace ContractConfigurator.Util
             MissionControl.Instance.displayMode = MissionControl.DisplayMode.Available;
             MissionControl.Instance.toggleArchiveGroup.gameObject.SetActive(false);
             MissionControl.Instance.scrollListContracts.Clear(true);
+            for (int i = MissionControl.Instance.scrollListContracts.transform.childCount; i-- > 0;)
+            {
+                Destroy(MissionControl.Instance.scrollListContracts.transform.GetChild(i).gameObject);
+            }
 
             foreach (Contract contract in ContractSystem.Instance.Contracts.Union(ContractPreLoader.Instance.PendingContracts().OfType<Contract>()).
                 Where(c => c.ContractState == Contract.State.Offered).
@@ -783,7 +787,8 @@ namespace ContractConfigurator.Util
                 }
             }
 
-            ContractConfiguratorSettings.Instance.lastMCButton = ContractConfiguratorSettings.MissionControlButton.Available;
+            HighLogic.CurrentGame.Parameters.CustomParams<ContractConfiguratorParameters>().lastMCButton =
+                ContractConfiguratorParameters.MissionControlButton.Available;
             displayModeAll = false;
         }
 
@@ -800,6 +805,10 @@ namespace ContractConfigurator.Util
             MissionControl.Instance.displayMode = MissionControl.DisplayMode.Available;
             MissionControl.Instance.toggleArchiveGroup.gameObject.SetActive(false);
             MissionControl.Instance.scrollListContracts.Clear(true);
+            for (int i = MissionControl.Instance.scrollListContracts.transform.childCount; i-- > 0;)
+            {
+                Destroy(MissionControl.Instance.scrollListContracts.transform.GetChild(i).gameObject);
+            }
 
             // Create the top level contract groups
             CreateGroupItem(new GroupContainer((ContractGroup)null));
@@ -808,7 +817,8 @@ namespace ContractConfigurator.Util
                 CreateGroupItem(groupContainer);
             }
 
-            ContractConfiguratorSettings.Instance.lastMCButton = ContractConfiguratorSettings.MissionControlButton.All;
+            HighLogic.CurrentGame.Parameters.CustomParams<ContractConfiguratorParameters>().lastMCButton =
+                ContractConfiguratorParameters.MissionControlButton.All;
             displayModeAll = true;
 
             // Update the contract counts
@@ -824,7 +834,8 @@ namespace ContractConfigurator.Util
                 return;
             }
 
-            ContractConfiguratorSettings.Instance.lastMCButton = ContractConfiguratorSettings.MissionControlButton.Active;
+            HighLogic.CurrentGame.Parameters.CustomParams<ContractConfiguratorParameters>().lastMCButton =
+                ContractConfiguratorParameters.MissionControlButton.Active;
             displayModeAll = false;
         }
 
@@ -837,7 +848,8 @@ namespace ContractConfigurator.Util
                 return;
             }
 
-            ContractConfiguratorSettings.Instance.lastMCButton = ContractConfiguratorSettings.MissionControlButton.Archive;
+            HighLogic.CurrentGame.Parameters.CustomParams<ContractConfiguratorParameters>().lastMCButton =
+                ContractConfiguratorParameters.MissionControlButton.Archive;
             displayModeAll = false;
         }
 
@@ -958,7 +970,7 @@ namespace ContractConfigurator.Util
                     {
                         available++;
                     }
-                    if (ContractPreLoader.Instance.unreadContracts.Contains(contractContainer.contract.ContractGuid))
+                    if (contractContainer.contract.ContractViewed == Contract.Viewed.Unseen)
                     {
                         groupContainer.unread = true;
                     }
@@ -992,12 +1004,12 @@ namespace ContractConfigurator.Util
                 availableTextObject.transform.SetParent(groupContainer.mcListItem.title.transform.parent);
                 RectTransform availableTextRect = availableTextObject.GetComponent<RectTransform>();
                 availableTextRect.anchoredPosition3D = textRect.anchoredPosition3D;
-                availableTextRect.sizeDelta = new Vector2(availableTextRect.sizeDelta.x + 4, availableTextRect.sizeDelta.y - 4);
+                availableTextRect.sizeDelta = new Vector2(textRect.sizeDelta.x + 4, textRect.sizeDelta.y - 4);
             }
 
             // Setup the available text
-            Text availableText = availableTextObject.GetComponent<Text>();
-            availableText.alignment = TextAnchor.LowerRight;
+            TMPro.TextMeshProUGUI availableText = availableTextObject.GetComponent<TMPro.TextMeshProUGUI>();
+            availableText.alignment = TMPro.TextAlignmentOptions.BottomRight;
             availableText.text = "<color=#" + (groupContainer.availableContracts == 0 ? "CCCCCC" : "8BED8B") + ">Offered: " + groupContainer.availableContracts + "</color>";
             availableText.fontSize = groupContainer.mcListItem.title.fontSize - 3;
 
@@ -1037,11 +1049,11 @@ namespace ContractConfigurator.Util
 
             // Create an icon to show the status
             GameObject statusImage = new GameObject("StatusImage");
-            RectTransform statusRect = statusImage.AddComponent<RectTransform>();
-            statusRect.anchoredPosition = new Vector2(16.0f, 0f);
-            statusRect.anchorMin = new Vector2(0, 0.5f);
-            statusRect.anchorMax = new Vector2(0, 0.5f);
-            statusRect.sizeDelta = new Vector2(10f, 10f);
+            cc.statusRect = statusImage.AddComponent<RectTransform>();
+            cc.statusRect.anchoredPosition = new Vector2(16.0f, 0f);
+            cc.statusRect.anchorMin = new Vector2(0, 0.5f);
+            cc.statusRect.anchorMax = new Vector2(0, 0.5f);
+            cc.statusRect.sizeDelta = new Vector2(10f, 10f);
             statusImage.AddComponent<CanvasRenderer>();
             cc.statusImage = statusImage.AddComponent<UIStateImage>();
             cc.statusImage.states = itemStatusStates;
@@ -1060,12 +1072,6 @@ namespace ContractConfigurator.Util
             // Do other setup
             SetupContractItem(cc);
 
-            // Create as unexpanded
-            if (indent != 0)
-            {
-                mcListItem.gameObject.SetActive(false);
-            }
-
             // Add the list item to the UI, and add indent
             if (previous == null)
             {
@@ -1079,8 +1085,11 @@ namespace ContractConfigurator.Util
                 InsertIntoList(cc, indent, previous);
             }
 
-            LayoutElement layoutElement = mcListItem.GetComponent<LayoutElement>();
-            layoutElement.preferredHeight /= 2;
+            // Create as unexpanded
+            if (indent != 0)
+            {
+                mcListItem.gameObject.SetActive(false);
+            }
         }
 
         protected void SetupContractItem(ContractContainer cc)
@@ -1239,10 +1248,7 @@ namespace ContractConfigurator.Util
             // Mark as read
             if (cc.contract != null)
             {
-                if (ContractPreLoader.Instance.unreadContracts.Contains(cc.contract.ContractGuid))
-                {
-                    ContractPreLoader.Instance.unreadContracts.Remove(cc.contract.ContractGuid);
-                }
+                cc.contract.SetViewed(Contract.Viewed.Read);
                 SetContractTitle(cc.mcListItem, cc);
                 SetupParentGroups(cc);
             }
@@ -1308,10 +1314,10 @@ namespace ContractConfigurator.Util
             int exceptionalMax = Math.Min(ContractConfigurator.ContractLimit(Contract.ContractPrestige.Exceptional), maxActive);
 
             string output = "";
-            output += string.Format("<b><color=#f4ee21>        ★\t </color><color=#DB8310>Trivial Contracts:\t\t\t\t</color></b>" + (trivialCount >= trivialMax ? "<color=#f97306>{0}  [Max: {1}]</color>\n" : "{0}  [Max: {1}]\n"), trivialCount, trivialMax);
-            output += string.Format("<b><color=#f4ee21>    ★★\t </color><color=#DB8310>Significant Contracts:\t\t</color></b>" + (significantCount >= significantMax ? "<color=#f97306>{0}  [Max: {1}]</color>\n" : "{0}  [Max: {1}]\n"), significantCount, significantMax);
-            output += string.Format("<b><color=#f4ee21>★★★\t </color><color=#DB8310>Exceptional Contracts:\t</color></b>" + (exceptionalCount >= exceptionalMax ? "<color=#f97306>{0}  [Max: {1}]</color>\n" : "{0}  [Max: {1}]\n"), exceptionalCount, exceptionalMax);
-            output += string.Format("<b>\t\t\t <color=#DB8310>All Active Contracts:\t\t</color></b>" + (maxActive == int.MaxValue ? "{0}" : activeCount >= maxActive ? "<color=#f97306>{0}  [Max: {1}]</color>" : "{0}  [Max: {1}]"), activeCount, maxActive);
+            output += string.Format("<b><color=#f4ee21>      <sprite=0 tint=1>\t </color><color=#DB8310>Trivial Contracts:\t\t</color></b>" + (trivialCount >= trivialMax ? "<color=#f97306>{0}  [Max: {1}]</color>\n" : "{0}  [Max: {1}]\n"), trivialCount, trivialMax);
+            output += string.Format("<b><color=#f4ee21>   <sprite=0 tint=1><sprite=0 tint=1>\t </color><color=#DB8310>Significant Contracts:\t</color></b>" + (significantCount >= significantMax ? "<color=#f97306>{0}  [Max: {1}]</color>\n" : "{0}  [Max: {1}]\n"), significantCount, significantMax);
+            output += string.Format("<b><color=#f4ee21><sprite=0 tint=1><sprite=0 tint=1><sprite=0 tint=1>\t </color><color=#DB8310>Exceptional Contracts:\t</color></b>" + (exceptionalCount >= exceptionalMax ? "<color=#f97306>{0}  [Max: {1}]</color>\n" : "{0}  [Max: {1}]\n"), exceptionalCount, exceptionalMax);
+            output += string.Format("<b>\t <color=#DB8310>All Active Contracts:\t\t</color></b>" + (maxActive == int.MaxValue ? "{0}" : activeCount >= maxActive ? "<color=#f97306>{0}  [Max: {1}]</color>" : "{0}  [Max: {1}]"), activeCount, maxActive);
             MissionControl.Instance.textMCStats.text = output;
         }
 
@@ -1359,9 +1365,9 @@ namespace ContractConfigurator.Util
             // Mark the contracts as unread without changing their display state
             foreach (ContractContainer contractContainer in groupContainer.childContracts)
             {
-                if (contractContainer.contract != null && ContractPreLoader.Instance.unreadContracts.Contains(contractContainer.contract.ContractGuid))
+                if (contractContainer.contract != null && contractContainer.contract.ContractViewed == Contract.Viewed.Unseen)
                 {
-                    ContractPreLoader.Instance.unreadContracts.Remove(contractContainer.contract.ContractGuid);
+                    contractContainer.contract.SetViewed(Contract.Viewed.Seen);
                 }
             }
             SetupGroupItem(groupContainer);
@@ -1411,10 +1417,21 @@ namespace ContractConfigurator.Util
                 }
             }
 
-            mcListItem.title.text = "<color=#" + color + ">" + title + "</color>";
-            if (cc.contract != null && ContractPreLoader.Instance.unreadContracts.Contains(cc.contract.ContractGuid))
+            mcListItem.title.text = StringBuilderCache.Format("<color=#{0}>{1}</color>", color, title);
+            if (cc.contract != null && cc.contract.ContractViewed != Contract.Viewed.Read)
             {
-                mcListItem.title.text = "<b>" + mcListItem.title.text + "</b>";
+                mcListItem.title.text = StringBuilderCache.Format("<b>{0}</b>", mcListItem.title.text);
+            }
+
+            if (displayModeAll)
+            {
+                float preferredHeight = mcListItem.title.GetPreferredValues(mcListItem.title.text, 316 - cc.indent * 12 - 64, TMPro.TMP_Math.FLOAT_MAX).y;
+                bool twoLines = preferredHeight > 14;
+                mcListItem.GetComponent<LayoutElement>().preferredHeight = twoLines ? 38 : 25;
+                if (cc.statusRect != null)
+                {
+                    cc.statusRect.anchoredPosition = new Vector2(16.0f, 0f);
+                }
             }
 
             // Setup prestige

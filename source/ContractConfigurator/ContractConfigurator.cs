@@ -14,11 +14,10 @@ using ContractConfigurator.Util;
 
 namespace ContractConfigurator
 {
-    [KSPAddon(KSPAddon.Startup.MainMenu, true)]
+    [KSPAddon(KSPAddon.Startup.PSystemSpawn, true)]
     public class ContractConfigurator : MonoBehaviour
     {
         public static System.Version ENHANCED_UI_VERSION = new System.Version(1, 15, 0);
-
 
         private enum ReloadStep
         {
@@ -32,8 +31,6 @@ namespace ContractConfigurator
 
         public static bool reloading = false;
         static ReloadStep reloadStep = ReloadStep.GAME_DATABASE;
-
-        static bool loading = false;
 
         static ScreenMessage lastMessage = null;
 
@@ -51,6 +48,8 @@ namespace ContractConfigurator
             DontDestroyOnLoad(this);
             Instance = this;
 
+            PSystemManager.Instance.OnPSystemReady.Add(PSystemReady);
+
             OnParameterChange.Add(new EventData<Contract, ContractParameter>.OnEvent(ParameterChange));
             GameEvents.OnTechnologyResearched.Add(new EventData<GameEvents.HostTargetAction<RDTech, RDTech.OperationResult>>.OnEvent(OnTechResearched));
         }
@@ -61,29 +60,27 @@ namespace ContractConfigurator
             GameEvents.OnTechnologyResearched.Remove(new EventData<GameEvents.HostTargetAction<RDTech, RDTech.OperationResult>>.OnEvent(OnTechResearched));
         }
 
+        void PSystemReady()
+        {
+            // Log version info
+            var ainfoV = Attribute.GetCustomAttribute(typeof(ContractConfigurator).Assembly,
+                    typeof(AssemblyInformationalVersionAttribute)) as AssemblyInformationalVersionAttribute;
+            LoggingUtil.LogInfo(this, "Contract Configurator " + ainfoV.InformationalVersion + " loading...");
+
+            LoggingUtil.LoadDebuggingConfig();
+
+            RegisterParameterFactories();
+            RegisterBehaviourFactories();
+            RegisterContractRequirements();
+            IEnumerator<YieldInstruction> iterator = LoadContractConfig();
+                while (iterator.MoveNext()) { }
+            DebugWindow.LoadTextures();
+
+            LoggingUtil.LogInfo(this, "Contract Configurator " + ainfoV.InformationalVersion + " finished loading.");
+        }
+
         void Update()
         {
-            // Load all the contract configurator configuration
-            if (HighLogic.LoadedScene == GameScenes.MAINMENU && !loading)
-            {
-                // Log version info
-                var ainfoV = Attribute.GetCustomAttribute(typeof(ContractConfigurator).Assembly,
-                    typeof(AssemblyInformationalVersionAttribute)) as AssemblyInformationalVersionAttribute;
-                LoggingUtil.LogInfo(this, "Contract Configurator " + ainfoV.InformationalVersion + " loading...");
-
-                LoggingUtil.LoadDebuggingConfig();
-
-                RegisterParameterFactories();
-                RegisterBehaviourFactories();
-                RegisterContractRequirements();
-                loading = true;
-                IEnumerator<YieldInstruction> iterator = LoadContractConfig();
-                while (iterator.MoveNext()) { }
-                DebugWindow.LoadTextures();
-
-                LoggingUtil.LogInfo(this, "Contract Configurator " + ainfoV.InformationalVersion + " finished loading.");
-            }
-
             // Alt-F10 shows the contract configurator window
             if (GameSettings.MODIFIER_KEY.GetKey() && Input.GetKeyDown(KeyCode.F10))
             {
@@ -427,6 +424,9 @@ namespace ContractConfigurator
             // Load other things
             MissionControlUI.GroupContainer.LoadConfig();
 
+            // Emit settings for the menu
+            SettingsBuilder.EmitSettings();
+
             if (!reloading && LoggingUtil.logLevel == LoggingUtil.LogLevel.DEBUG || LoggingUtil.logLevel == LoggingUtil.LogLevel.VERBOSE)
             {
                 ScreenMessages.PostScreenMessage("Contract Configurator: Loaded " + successContracts + " out of " + totalContracts
@@ -484,14 +484,15 @@ namespace ContractConfigurator
             int level = (int)Math.Round(ScenarioUpgradeableFacilities.GetFacilityLevel(SpaceCenterFacility.MissionControl) *
                 ScenarioUpgradeableFacilities.GetFacilityLevelCount(SpaceCenterFacility.MissionControl));
             float rep = Reputation.Instance.reputation;
+            float mult = HighLogic.CurrentGame.Parameters.CustomParams<ContractConfiguratorParameters>().ActiveContractMultiplier;
             switch (prestige)
             {
                 case Contract.ContractPrestige.Trivial:
-                    return Math.Max(2, (int)Math.Round((rep + rep * level / 3) / 200 + 6 + level));
+                    return Math.Max(2, (int)Math.Round((rep + rep * level / 3) * mult / 200 + 6 + level));
                 case Contract.ContractPrestige.Significant:
-                    return Math.Max(1, (int)Math.Round((rep + rep * level / 3) / 250 + 4 + level));
+                    return Math.Max(1, (int)Math.Round((rep + rep * level / 3) * mult / 250 + 4 + level));
                 case Contract.ContractPrestige.Exceptional:
-                    return Math.Max(0, (int)Math.Round((rep + rep * level / 3) / (1000/3.0) + 2 + level));
+                    return Math.Max(0, (int)Math.Round((rep + rep * level / 3) * mult / (1000/3.0) + 2 + level));
             }
             return 0;
         }

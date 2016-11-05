@@ -44,7 +44,7 @@ namespace ContractConfigurator.Behaviour
 
             if (HighLogic.CurrentGame.Parameters.Difficulty.BypassEntryPurchaseAfterResearch)
             {
-                ptd.partsPurchased = PartLoader.Instance.parts.Where(p => p.TechRequired == techID).ToList();
+                ptd.partsPurchased = PartLoader.Instance.loadedParts.Where(p => p.TechRequired == techID).ToList();
             }
             else
             {

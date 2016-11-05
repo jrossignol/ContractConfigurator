@@ -271,10 +271,10 @@ namespace ContractConfigurator.Parameters
             CheckVessel(v);
         }
 
-        protected override void OnPartJointBreak(PartJoint p)
+        protected override void OnPartJointBreak(PartJoint p, float breakForce)
         {
             LoggingUtil.LogVerbose(this, "OnPartJointBreak: " + p);
-            base.OnPartJointBreak(p);
+            base.OnPartJointBreak(p, breakForce);
 
             if (HighLogic.LoadedScene == GameScenes.EDITOR || p.Parent.vessel == null)
             {
@@ -315,7 +315,7 @@ namespace ContractConfigurator.Parameters
 
         protected string TraitTitle(string traitName)
         {
-            ExperienceTraitConfig config = KerbalRoster.ExperienceConfig.Categories.Where(c => c.Name == traitName).FirstOrDefault();
+            ExperienceTraitConfig config = GameDatabase.Instance.ExperienceConfigs.Categories.Where(c => c.Name == traitName).FirstOrDefault();
 
             return config != null ? config.Title : traitName;
         }

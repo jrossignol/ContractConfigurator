@@ -313,17 +313,6 @@ namespace ContractConfigurator.Behaviour
                         valid &= ConfigNodeUtil.ParseValue<string>(child, "icon", x => wpData.waypoint.id = x, factory);
                     }
 
-                    // The FinePrint logic is such that it will only look in Squad/Contracts/Icons for icons.
-                    // Cheat this by hacking the path in the game database.
-                    if (wpData.waypoint.id.Contains("/"))
-                    {
-                        GameDatabase.TextureInfo texInfo = GameDatabase.Instance.databaseTexture.Where(t => t.name == wpData.waypoint.id).FirstOrDefault();
-                        if (texInfo != null)
-                        {
-                            texInfo.name = "Squad/Contracts/Icons/" + wpData.waypoint.id;
-                        }
-                    }
-
                     valid &= ConfigNodeUtil.ParseValue<bool>(child, "underwater", x => wpData.underwater = x, factory, false);
                     valid &= ConfigNodeUtil.ParseValue<bool>(child, "clustered", x => wpData.waypoint.isClustered = x, factory, false);
 
@@ -628,8 +617,10 @@ namespace ContractConfigurator.Behaviour
             // Show only active waypoints in flight, but show offered as well in the tracking station
             if (HighLogic.LoadedScene == GameScenes.TRACKSTATION || HighLogic.LoadedScene == GameScenes.FLIGHT)
             {
-                if (contract.ContractState == Contract.State.Active && (ContractConfiguratorSettings.Instance.DisplayActiveWaypoints || HighLogic.LoadedScene != GameScenes.TRACKSTATION) ||
-                    contract.ContractState == Contract.State.Offered && ContractConfiguratorSettings.Instance.DisplayOfferedWaypoints && HighLogic.LoadedScene == GameScenes.TRACKSTATION)
+                ContractConfiguratorParameters parms = HighLogic.CurrentGame.Parameters.CustomParams<ContractConfiguratorParameters>();
+
+                if (contract.ContractState == Contract.State.Active && (parms.DisplayActiveWaypoints || HighLogic.LoadedScene != GameScenes.TRACKSTATION) ||
+                    contract.ContractState == Contract.State.Offered && parms.DisplayOfferedWaypoints && HighLogic.LoadedScene == GameScenes.TRACKSTATION)
                 {
                     WaypointManager.AddWaypoint(waypoint);
                     wpData.isAdded = true;

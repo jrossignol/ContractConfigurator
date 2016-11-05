@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using UnityEngine;
+using KSP;
 
 namespace ContractConfigurator.Util
 {
@@ -30,9 +31,12 @@ namespace ContractConfigurator.Util
         public static Assembly VerifyAssemblyVersion(string name, string version, bool silent = false)
         {
             // Logic courtesy of DMagic
-            var assembly = AssemblyLoader.loadedAssemblies.SingleOrDefault(a => a.assembly.GetName().Name == name);
+            var assemblies = AssemblyLoader.loadedAssemblies.Where(a => a.assembly.GetName().Name == name);
+            var assembly = assemblies.FirstOrDefault();
             if (assembly != null)
             {
+                LoggingUtil.LogWarning(typeof(ContractConfigurator), StringBuilderCache.Format("Multiple assemblies with name '{0}' found!", name));
+
                 string receivedStr;
 
                 // First try the informational version

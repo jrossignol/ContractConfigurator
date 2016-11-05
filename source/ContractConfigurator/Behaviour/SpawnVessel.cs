@@ -353,61 +353,6 @@ namespace ContractConfigurator.Behaviour
                         p.temperature = 1.0;
                     }
 
-                    foreach (CrewData cd in vesselData.crew)
-                    {
-                        bool success = false;
-
-                        // Find a seat for the crew
-                        Part part = shipConstruct.parts.Find(p => p.protoModuleCrew.Count < p.CrewCapacity);
-
-                        // Add the crew member
-                        if (part != null)
-                        {
-                            // Create the ProtoCrewMember
-                            ProtoCrewMember crewMember = HighLogic.CurrentGame.CrewRoster.GetNewKerbal(ProtoCrewMember.KerbalType.Unowned);
-                            if (cd.gender != null)
-                            {
-                                crewMember.gender = cd.gender.Value;
-                            }
-                            if (cd.name != null)
-                            {
-                                crewMember.name = cd.name;
-                            }
-
-                            // Add them to the part
-                            success = part.AddCrewmemberAt(crewMember, part.protoModuleCrew.Count);
-                        }
-
-                        if (!success)
-                        {
-                            LoggingUtil.LogWarning(this, "Unable to add crew to vessel named '" + vesselData.name + "'.  Perhaps there's no room?");
-                            break;
-                        }
-                    }
-
-                    // Create a dummy ProtoVessel, we will use this to dump the parts to a config node.
-                    // We can't use the config nodes from the .craft file, because they are in a
-                    // slightly different format than those required for a ProtoVessel (seriously
-                    // Squad?!?).
-                    ConfigNode empty = new ConfigNode();
-                    ProtoVessel dummyProto = new ProtoVessel(empty, null);
-                    Vessel dummyVessel = new Vessel();
-                    dummyVessel.parts = shipConstruct.parts;
-                    dummyProto.vesselRef = dummyVessel;
-
-                    // Create the ProtoPartSnapshot objects and then initialize them
-                    foreach (Part p in shipConstruct.parts)
-                    {
-                        dummyProto.protoPartSnapshots.Add(new ProtoPartSnapshot(p, dummyProto));
-                    }
-                    foreach (ProtoPartSnapshot p in dummyProto.protoPartSnapshots)
-                    {
-                        p.storePartRefs();
-                    }
-
-                    // Create the ship's parts
-                    partNodes = dummyProto.protoPartSnapshots.Select<ProtoPartSnapshot, ConfigNode>(GetNodeForPart).ToArray();
-
                     // Estimate an object class, numbers are based on the in game description of the
                     // size classes.
                     float size = shipConstruct.shipSize.magnitude / 2.0f;
@@ -431,6 +376,63 @@ namespace ContractConfigurator.Behaviour
                     {
                         sizeClass = UntrackedObjectClass.E;
                     }
+
+                    foreach (CrewData cd in vesselData.crew)
+                    {
+                        bool success = false;
+
+                        // Find a seat for the crew
+                        Part part = shipConstruct.parts.Find(p => p.protoModuleCrew.Count < p.CrewCapacity);
+
+                        // Add the crew member
+                        if (part != null)
+                        {
+                            // Create the ProtoCrewMember
+                            ProtoCrewMember crewMember = HighLogic.CurrentGame.CrewRoster.GetNewKerbal(ProtoCrewMember.KerbalType.Unowned);
+                            if (cd.gender != null)
+                            {
+                                crewMember.gender = cd.gender.Value;
+                            }
+                            if (cd.name != null)
+                            {
+                                crewMember.ChangeName(cd.name);
+                            }
+
+                            // Add them to the part
+                            success = part.AddCrewmemberAt(crewMember, part.protoModuleCrew.Count);
+                        }
+
+                        if (!success)
+                        {
+                            LoggingUtil.LogWarning(this, "Unable to add crew to vessel named '" + vesselData.name + "'.  Perhaps there's no room?");
+                            break;
+                        }
+                    }
+
+                    // Create a dummy ProtoVessel, we will use this to dump the parts to a config node.
+                    // We can't use the config nodes from the .craft file, because they are in a
+                    // slightly different format than those required for a ProtoVessel.
+                    ConfigNode empty = new ConfigNode();
+                    ProtoVessel dummyProto = new ProtoVessel(empty, null);
+                    Vessel dummyVessel = new GameObject().AddComponent<Vessel>();
+                    dummyVessel.parts = shipConstruct.parts;
+                    dummyProto.vesselRef = dummyVessel;
+
+                    // Create the ProtoPartSnapshot objects and then initialize them
+                    foreach (Part p in shipConstruct.parts)
+                    {
+                        dummyProto.protoPartSnapshots.Add(new ProtoPartSnapshot(p, dummyProto));
+                    }
+                    foreach (ProtoPartSnapshot p in dummyProto.protoPartSnapshots)
+                    {
+                        p.storePartRefs();
+                    }
+
+                    // Create the ship's parts
+                    partNodes = dummyProto.protoPartSnapshots.Select<ProtoPartSnapshot, ConfigNode>(GetNodeForPart).ToArray();
+
+                    // Clean up
+                    GameObject.Destroy(dummyVessel.gameObject);
                 }
                 else
                 {
@@ -443,7 +445,7 @@ namespace ContractConfigurator.Behaviour
                         ProtoCrewMember crewMember = HighLogic.CurrentGame.CrewRoster.GetNewKerbal(ProtoCrewMember.KerbalType.Unowned);
                         if (cd.name != null)
                         {
-                            crewMember.name = cd.name;
+                            crewMember.ChangeName(cd.name);
                         }
 
                         crewArray[i++] = crewMember;
@@ -544,9 +546,9 @@ namespace ContractConfigurator.Behaviour
                         rotation = rotation * Quaternion.FromToRotation(Vector3.up, Vector3.forward);
                     }
 
-                    rotation = rotation * Quaternion.AngleAxis(heading, Vector3.back);
+                    rotation = rotation * Quaternion.AngleAxis(vesselData.pitch, Vector3.right);
                     rotation = rotation * Quaternion.AngleAxis(vesselData.roll, Vector3.down);
-                    rotation = rotation * Quaternion.AngleAxis(vesselData.pitch, Vector3.left);
+                    rotation = rotation * Quaternion.AngleAxis(heading, Vector3.forward);
 
                     // Set the height and rotation
                     if (landed || splashed)
@@ -565,7 +567,8 @@ namespace ContractConfigurator.Behaviour
                 }
 
                 // Add vessel to the game
-                ProtoVessel protoVessel = HighLogic.CurrentGame.AddVessel(protoVesselNode);
+                ProtoVessel protoVessel = new ProtoVessel(protoVesselNode, HighLogic.CurrentGame);
+                protoVessel.Load(HighLogic.CurrentGame.flightState);
 
                 // Store the id for later use
                 vesselData.id = protoVessel.vesselRef.id;

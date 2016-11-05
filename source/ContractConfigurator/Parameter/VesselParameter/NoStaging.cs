@@ -84,7 +84,7 @@ namespace ContractConfigurator.Parameters
             }
         }
 
-        protected override void OnPartJointBreak(PartJoint pj)
+        protected override void OnPartJointBreak(PartJoint pj, float breakForce)
         {
             LoggingUtil.LogVerbose(this, "OnPartJointBreak");
 
@@ -119,7 +119,7 @@ namespace ContractConfigurator.Parameters
             }
 
             // Vessel check happens here
-            base.OnPartJointBreak(pj);
+            base.OnPartJointBreak(pj, breakForce);
         }
 
         protected override void OnVesselCreate(Vessel v)

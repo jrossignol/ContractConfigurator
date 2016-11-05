@@ -44,11 +44,21 @@ namespace ContractConfigurator.ExpressionParser
             {
                 string sVal = (string)(object)value;
 
-                // Get the actual resourece
-                PartResourceDefinition resource = PartResourceLibrary.Instance.resourceDefinitions.Where(prd => prd.name == sVal).FirstOrDefault();
-                if (resource != null)
+                // Get the actual resource
+                var enumerator = PartResourceLibrary.Instance.resourceDefinitions.GetEnumerator();
+                try
                 {
-                    return new Resource(resource);
+                    while (enumerator.MoveNext())
+                    {
+                        if (enumerator.Current.name == sVal)
+                        {
+                            return new Resource(enumerator.Current);
+                        }
+                    }
+                }
+                finally
+                {
+                    enumerator.Dispose();
                 }
                 throw new ArgumentException("'" + sVal + "' is not a valid resource.");
             }
@@ -78,10 +88,20 @@ namespace ContractConfigurator.ExpressionParser
             }
 
             // Get the actual resourece
-            PartResourceDefinition resource = PartResourceLibrary.Instance.resourceDefinitions.Where(prd => prd.name == identifier).FirstOrDefault();
-            if (resource != null)
+            var enumerator = PartResourceLibrary.Instance.resourceDefinitions.GetEnumerator();
+            try
             {
-                return new Resource(resource);
+                while (enumerator.MoveNext())
+                {
+                    if (enumerator.Current.name == identifier)
+                    {
+                        return new Resource(enumerator.Current);
+                    }
+                }
+            }
+            finally
+            {
+                enumerator.Dispose();
             }
             throw new ArgumentException("'" + identifier + "' is not a valid resource.");
         }

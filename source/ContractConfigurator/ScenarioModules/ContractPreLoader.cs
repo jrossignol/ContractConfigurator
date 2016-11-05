@@ -37,8 +37,6 @@ namespace ContractConfigurator
         private bool contractsLoaded = false;
         private double contractsLoadCheckTime = -1.0;
 
-        public HashSet<Guid> unreadContracts = new HashSet<Guid>();
-
         public ContractPreLoader()
         {
             Instance = this;
@@ -79,8 +77,6 @@ namespace ContractConfigurator
         void OnContractOffered(Contract c)
         {
             LoggingUtil.LogVerbose(this, "OnContractOffered");
-
-            unreadContracts.Add(c.ContractGuid);
         }
 
         void OnContractAccept(Contract c)
@@ -404,17 +400,6 @@ namespace ContractConfigurator
                     node.AddNode(child);
                     contract.Save(child);
                 }
-
-                ConfigNode unreadNode = new ConfigNode("UNREAD_CONTRACTS");
-                node.AddNode(unreadNode);
-                foreach (Contract c in ContractSystem.Instance.Contracts.Where(c => unreadContracts.Contains(c.ContractGuid)))
-                {
-                    unreadNode.AddValue("contract", c.ContractGuid);
-                }
-                foreach (ConfiguredContract c in contracts.Where(c => unreadContracts.Contains(c.ContractGuid)))
-                {
-                    unreadNode.AddValue("contract", c.ContractGuid);
-                }
             }
             catch (Exception e)
             {
@@ -447,12 +432,6 @@ namespace ContractConfigurator
                         contract.preLoaded = true;
                         contracts.Add(contract);
                     }
-                }
-
-                ConfigNode unreadNode = node.GetNode("UNREAD_CONTRACTS");
-                if (unreadNode != null)
-                {
-                    unreadContracts = new HashSet<Guid>(ConfigNodeUtil.ParseValue<List<Guid>>(unreadNode, "contract", new List<Guid>()));
                 }
             }
             catch (Exception e)
