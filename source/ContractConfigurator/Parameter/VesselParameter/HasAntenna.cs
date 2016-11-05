@@ -10,29 +10,45 @@ using Contracts.Parameters;
 namespace ContractConfigurator.Parameters
 {
     /// <summary>
-    /// Parameter for checking the relay antenna power of a vessel
+    /// Parameter for checking the relay or transmit antenna power of a vessel
     /// </summary>
-    public class HasAntennaRelay : VesselParameter
+    public class HasAntenna : VesselParameter
     {
-        protected double minAntennaPower { get; set; }
+        public enum AntennaType
+		{
+			RELAY,
+			TRANSMIT
+		};
+
+		protected double minAntennaPower { get; set; }
         protected double maxAntennaPower { get; set; }
+		protected AntennaType antennaType { get; set; }
 
         private float lastUpdate = 0.0f;
         private const float UPDATE_FREQUENCY = 0.25f;
 
-        public HasAntennaRelay()
+        public HasAntenna()
             : this(0.0)
         {
         }
 
-        public HasAntennaRelay(double minAntennaPower = 0.0, double maxAntennaPower = double.MaxValue, string title = null)
+		public HasAntenna(double minAntennaPower = 0.0, double maxAntennaPower = double.MaxValue, AntennaType antennaType = AntennaType.TRANSMIT, string title = null)
             : base(title)
         {
             this.minAntennaPower = minAntennaPower;
             this.maxAntennaPower = maxAntennaPower;
+			this.antennaType = antennaType;
+
             if (title == null)
             {
-                this.title = "Relay antenna (combined): ";
+				if (antennaType == AntennaType.TRANSMIT)
+				{
+					this.title = "Transmit antenna (combined): ";
+				}
+				else
+				{
+					this.title = "Relay antenna (combined): ";
+				}
 
                 if (maxAntennaPower == double.MaxValue)
                 {
@@ -61,6 +77,7 @@ namespace ContractConfigurator.Parameters
             {
                 node.AddValue("maxAntennaPower", maxAntennaPower);
             }
+			node.AddValue("antennaType", antennaType);
         }
 
         protected override void OnParameterLoad(ConfigNode node)
@@ -68,6 +85,7 @@ namespace ContractConfigurator.Parameters
             base.OnParameterLoad(node);
             minAntennaPower = Convert.ToDouble(node.GetValue("minAntennaPower"));
             maxAntennaPower = node.HasValue("maxAntennaPower") ? Convert.ToDouble(node.GetValue("maxAntennaPower")) : double.MaxValue;
+			antennaType = ConfigNodeUtil.ParseValue<AntennaType>(node, "antennaType", AntennaType.TRANSMIT);
         }
 
         protected override void OnRegister()
@@ -101,7 +119,14 @@ namespace ContractConfigurator.Parameters
             double antennaPower = 0.0f;
             if (vessel.connection != null)
             {
-                antennaPower = vessel.connection.Comm.antennaRelay.power;
+				if (antennaType == AntennaType.RELAY)
+				{
+					antennaPower = vessel.connection.Comm.antennaRelay.power;
+				}
+				else
+				{
+					antennaPower = vessel.connection.Comm.antennaTransmit.power;
+				}
             }
             return antennaPower >= minAntennaPower && antennaPower <= maxAntennaPower;
         }

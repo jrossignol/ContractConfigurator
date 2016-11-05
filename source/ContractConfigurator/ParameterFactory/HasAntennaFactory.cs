@@ -11,12 +11,13 @@ using ContractConfigurator.Parameters;
 namespace ContractConfigurator
 {
     /// <summary>
-    /// ParameterFactory wrapper for HasAntennaTransmit ContractParameter.
+    /// ParameterFactory wrapper for HasAntenna ContractParameter.
     /// </summary>
-    public class HasAntennaTransmitFactory : ParameterFactory
+    public class HasAntennaFactory : ParameterFactory
     {
         protected double minAntennaPower;
         protected double maxAntennaPower;
+		protected HasAntenna.AntennaType antennaType;
 
         public override bool Load(ConfigNode configNode)
         {
@@ -25,6 +26,7 @@ namespace ContractConfigurator
 
             valid &= ConfigNodeUtil.ParseValue<double>(configNode, "minAntennaPower", x => minAntennaPower = x, this, 0.0f, x => Validation.GE(x, 0.0f));
             valid &= ConfigNodeUtil.ParseValue<double>(configNode, "maxAntennaPower", x => maxAntennaPower = x, this, double.MaxValue, x => Validation.GE(x, 0.0f));
+			valid &= ConfigNodeUtil.ParseValue<HasAntenna.AntennaType>(configNode, "antennaType", x => antennaType = x, this, HasAntenna.AntennaType.TRANSMIT);
             valid &= ConfigNodeUtil.AtLeastOne(configNode, new string[] { "minAntennaPower", "maxAntennaPower" }, this);
 
             return valid;
@@ -32,7 +34,7 @@ namespace ContractConfigurator
 
         public override ContractParameter Generate(Contract contract)
         {
-            return new HasAntennaTransmit(minAntennaPower, maxAntennaPower, title);
+            return new HasAntenna(minAntennaPower, maxAntennaPower, antennaType, title);
         }
     }
 }
