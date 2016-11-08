@@ -1,3 +1,6 @@
+Contract Configurator 1.21.1
+- Change Vessel Identifier parsing to allow a wider range of characters.
+
 Contract Configurator 1.21.0
 - Found new workaround for GetExportedTypes reflection issue (the "toolbar" issue).
 - Added NextUnreachedBody() and NextUnreachedBodies() methods.
