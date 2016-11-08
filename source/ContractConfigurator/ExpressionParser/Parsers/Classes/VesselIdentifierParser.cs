@@ -61,11 +61,9 @@ namespace ContractConfigurator.ExpressionParser
 
         public override VesselIdentifier ParseIdentifier(Token token)
         {
-            // Try to parse more, as vessel names can have spaces
-            Match m = Regex.Match(expression, @"^((?>\s*[\w\d\-\.]+)+).*");
-            string identifier = m.Groups[1].Value;
-            expression = (expression.Length > identifier.Length ? expression.Substring(identifier.Length) : "");
-            identifier = token.sval + identifier;
+            // Vessel identifiers are greedy - grab the rest of the expression
+            string identifier = token.sval + expression;
+            expression = "";
 
             if (identifier.Equals("null", StringComparison.CurrentCultureIgnoreCase))
             {
