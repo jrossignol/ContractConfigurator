@@ -1518,7 +1518,7 @@ namespace ContractConfigurator.Util
                 GameEvents.Modifiers.OnCurrencyModifierQuery.Fire(q);
                 float fundsRequired = contractType.advanceFunds + q.GetEffectDelta(Currency.Funds);
 
-                text += RequirementLine("Must have {0} funds for advance", Funding.CanAfford(fundsRequired));
+                text += RequirementLine(StringBuilderCache.Format("Must have {0} funds for advance", fundsRequired), Funding.CanAfford(fundsRequired));
             }
 
             // Do text for max completions

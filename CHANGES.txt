@@ -1,5 +1,6 @@
 Contract Configurator 1.21.1
 - Change Vessel Identifier parsing to allow a wider range of characters.
+- Fixed format text for funding message in mission control (thanks JPLRepo).
 
 Contract Configurator 1.21.0
 - Found new workaround for GetExportedTypes reflection issue (the "toolbar" issue).
