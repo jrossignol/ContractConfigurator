@@ -264,7 +264,7 @@ namespace ContractConfigurator
             {
                 if (typeof(T).GetGenericArguments()[0].IsEnum)
                 {
-                    value = (T)Enum.Parse(typeof(T).GetGenericArguments()[0], stringValue);
+                    value = (T)Enum.Parse(typeof(T).GetGenericArguments()[0], stringValue, true);
                 }
                 else
                 {
@@ -285,7 +285,7 @@ namespace ContractConfigurator
             // Enum parsing logic
             else if (typeof(T).IsEnum)
             {
-                value = (T)Enum.Parse(typeof(T), stringValue);
+                value = (T)Enum.Parse(typeof(T), stringValue, true);
             }
             else if (typeof(T) == typeof(AvailablePart))
             {

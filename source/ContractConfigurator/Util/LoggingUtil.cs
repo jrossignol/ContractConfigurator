@@ -53,7 +53,7 @@ namespace ContractConfigurator
                     // Set LogLevel
                     if (debuggingConfig.HasValue("logLevel"))
                     {
-                        LoggingUtil.logLevel = (LoggingUtil.LogLevel)Enum.Parse(typeof(LoggingUtil.LogLevel), debuggingConfig.GetValue("logLevel"));
+                        LoggingUtil.logLevel = (LoggingUtil.LogLevel)Enum.Parse(typeof(LoggingUtil.LogLevel), debuggingConfig.GetValue("logLevel"), true);
                         LoggingUtil.LogInfo(typeof(LoggingUtil), "Set LogLevel = " + LoggingUtil.logLevel);
                     }
 
@@ -87,7 +87,7 @@ namespace ContractConfigurator
 
                             if (type != null)
                             {
-                                LoggingUtil.LogLevel logLevel = (LoggingUtil.LogLevel)Enum.Parse(typeof(LoggingUtil.LogLevel), levelExceptionNode.GetValue("logLevel"));
+                                LoggingUtil.LogLevel logLevel = (LoggingUtil.LogLevel)Enum.Parse(typeof(LoggingUtil.LogLevel), levelExceptionNode.GetValue("logLevel"), true);
                                 LoggingUtil.AddSpecificLogLevel(type, logLevel);
                                 LoggingUtil.LogDebug(typeof(LoggingUtil), "Added log level override (" + type.Name + " => " + logLevel + ")");
                             }

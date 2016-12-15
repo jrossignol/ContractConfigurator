@@ -225,7 +225,7 @@ namespace ContractConfigurator.Util
             {
                 try
                 {
-                    return (ExperimentSituations)Enum.Parse(typeof(ExperimentSituations), sitAndBiome);
+                    return (ExperimentSituations)Enum.Parse(typeof(ExperimentSituations), sitAndBiome, true);
                 }
                 catch
                 {
@@ -266,7 +266,7 @@ namespace ContractConfigurator.Util
             {
                 try
                 {
-                    Enum.Parse(typeof(ExperimentSituations), sitAndBiome);
+                    Enum.Parse(typeof(ExperimentSituations), sitAndBiome, true);
                     break;
                 }
                 catch
