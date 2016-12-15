@@ -1,3 +1,6 @@
+Contract Configurator 1.22.1
+- Fixed issue with vessel identifier parsing introduced in 1.22.0.
+
 Contract Configurator 1.22.0
 - Added HasAntenna parameter (thanks Kerbas-ad-astra).
 - Added Vessel.AntennaTransmitPower() and Vesse.AntennaRelayPower() (thanks Kerbas-ad-astra).
