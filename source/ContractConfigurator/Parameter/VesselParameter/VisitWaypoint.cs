@@ -43,6 +43,7 @@ namespace ContractConfigurator.Parameters
         protected int waypointIndex { get; set; }
         protected Waypoint waypoint { get; set; }
         protected double distance { get; set; }
+        protected double horizontalDistance { get; set; }
         protected bool hideOnCompletion { get; set; }
         protected bool showMessages { get; set; }
         
@@ -60,12 +61,13 @@ namespace ContractConfigurator.Parameters
             waypointChecker = new WaypointChecker(this);
         }
 
-        public VisitWaypoint(int waypointIndex, double distance, bool hideOnCompletion, bool showMessages, string title)
+        public VisitWaypoint(int waypointIndex, double distance, double horizontalDistance, bool hideOnCompletion, bool showMessages, string title)
             : base(title)
         {
             waypointChecker = new WaypointChecker(this);
 
             this.distance = distance;
+            this.horizontalDistance = horizontalDistance;
             this.waypointIndex = waypointIndex;
             this.hideOnCompletion = hideOnCompletion;
             this.showMessages = showMessages;
@@ -97,6 +99,7 @@ namespace ContractConfigurator.Parameters
         {
             base.OnParameterSave(node);
             node.AddValue("distance", distance);
+            node.AddValue("horizontalDistance", horizontalDistance);
             node.AddValue("waypointIndex", waypointIndex);
             node.AddValue("hideOnCompletion", hideOnCompletion);
             node.AddValue("showMessages", showMessages);
@@ -106,6 +109,7 @@ namespace ContractConfigurator.Parameters
         {
             base.OnParameterLoad(node);
             distance = Convert.ToDouble(node.GetValue("distance"));
+            horizontalDistance = ConfigNodeUtil.ParseValue<double>(node, "horizontalDistance", 0.0);
             waypointIndex = Convert.ToInt32(node.GetValue("waypointIndex"));
             hideOnCompletion = ConfigNodeUtil.ParseValue<bool?>(node, "hideOnCompletion", (bool?)true).Value;
             showMessages = ConfigNodeUtil.ParseValue<bool?>(node, "showMessages", (bool?)false).Value;
@@ -223,7 +227,7 @@ namespace ContractConfigurator.Parameters
             }
 
             // Default distance
-            if (distance == 0.0)
+            if (distance == 0.0 && horizontalDistance == 0.0)
             {
                 // Close to the surface
                 if (waypoint.altitude < 25.0)
@@ -237,10 +241,19 @@ namespace ContractConfigurator.Parameters
             }
 
             // Calculate the distance
-            double actualDistance = WaypointUtil.GetDistanceToWaypoint(vessel, waypoint, ref height);
-            LoggingUtil.LogVerbose(this, "Distance to waypoint '" + waypoint.name + "': " + actualDistance);
-
-            bool check = actualDistance <= distance;
+            bool check = false;
+            if (distance != 0.0)
+            {
+                double actualDistance = WaypointUtil.GetDistanceToWaypoint(vessel, waypoint, ref height);
+                LoggingUtil.LogVerbose(this, "Distance to waypoint '" + waypoint.name + "': " + actualDistance);
+                check = actualDistance <= distance;
+            }
+            else
+            {
+                double actualDistance = WaypointUtil.GetDistance(vessel.latitude, vessel.longitude, waypoint.latitude, waypoint.longitude, vessel.altitude);
+                LoggingUtil.LogVerbose(this, "Horizontal distance to waypoint '" + waypoint.name + "': " + actualDistance);
+                check = actualDistance <= horizontalDistance;
+            }
 
             // Output the message for entering/leaving the waypoint area.
             if (showMessages)

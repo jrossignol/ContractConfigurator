@@ -1,5 +1,6 @@
 Contract Configurator 1.22.0
 - Added minArgumentOfPeriapsis and maxArgumentOfPeriapsis to Orbit parameter.
+- Added horizontalDistance to VisitWaypoint.
 - Make references to 'Sun' generic in SolarScience.cfg to fix Galileo compatibility (thanks SirBriguy).
 - Added Sun() function to get the Sun in a non-name specific way.  Assumes a single star.
 - Change enum parse to be case insensitive.
