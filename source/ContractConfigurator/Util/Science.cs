@@ -26,7 +26,7 @@ namespace ContractConfigurator.Util
             public bool disallowHomeFlying;
             public bool disallowKSC;
             public bool partless;
-            public List<CelestialBody> validBodies;
+            public bool sunOnly;
             public string partModule;
             public List<string> part;
 
@@ -89,7 +89,7 @@ namespace ContractConfigurator.Util
                     exp.partless = ConfigNodeUtil.ParseValue<bool?>(config, "partless", (bool?)false).Value;
                     exp.part = ConfigNodeUtil.ParseValue<List<string>>(config, "part", null);
                     exp.partModule = ConfigNodeUtil.ParseValue<string>(config, "partModule", null);
-                    exp.validBodies = ConfigNodeUtil.ParseValue<List<CelestialBody>>(config, "validBody", null);
+                    exp.sunOnly = ConfigNodeUtil.ParseValue<bool>(config, "sunOnly", false);
                 }
 
                 // Add the experiment modules
@@ -330,12 +330,9 @@ namespace ContractConfigurator.Util
                 return false;
             }
 
-            if (rules.validBodies != null)
+            if (rules.sunOnly)
             {
-                if (!rules.validBodies.Contains(body))
-                {
-                    return false;
-                }
+                return body == FlightGlobals.Bodies[0];
             }
 
             // Filter out asteroid samples if not unlocked
