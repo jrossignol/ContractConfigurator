@@ -27,6 +27,8 @@ namespace ContractConfigurator.Parameters
         protected double maxEccentricity { get; set; }
         protected double minInclination { get; set; }
         protected double maxInclination { get; set; }
+        protected double minArgumentOfPeriapsis { get; set; }
+        protected double maxArgumentOfPeriapsis { get; set; }
         protected double minPeriod { get; set; }
         protected double maxPeriod { get; set; }
         protected Orbit orbit;
@@ -44,7 +46,7 @@ namespace ContractConfigurator.Parameters
         }
 
         public OrbitParameter(Vessel.Situations situation, double minAltitude, double maxAltitude, double minApoapsis, double maxApoapsis, double minPeriapsis, double maxPeriapsis,
-            double minEccentricity, double maxEccentricity, double minInclination, double maxInclination, double minPeriod, double maxPeriod, 
+            double minEccentricity, double maxEccentricity, double minInclination, double maxInclination, double minArgumentOfPeriapsis, double maxArgumentOfPeriapsis, double minPeriod, double maxPeriod, 
             CelestialBody targetBody, string title = null)
             : base(title)
         {
@@ -60,6 +62,8 @@ namespace ContractConfigurator.Parameters
             this.maxEccentricity = maxEccentricity;
             this.minInclination = minInclination;
             this.maxInclination = maxInclination;
+            this.minArgumentOfPeriapsis = minArgumentOfPeriapsis;
+            this.maxArgumentOfPeriapsis = maxArgumentOfPeriapsis;
             this.minPeriod = minPeriod;
             this.maxPeriod = maxPeriod;
             this.displayNotes = false;
@@ -240,6 +244,15 @@ namespace ContractConfigurator.Parameters
                 AddParameter(new ParameterDelegate<Vessel>(output, CheckInclination));
             }
 
+            // Filter for argument of periapsis
+            if (minArgumentOfPeriapsis != 0.0 || maxArgumentOfPeriapsis != 360.0)
+            {
+                string output = "Argument of Periapsis: Between " +
+                    minArgumentOfPeriapsis.ToString("F1") + "° and " + maxArgumentOfPeriapsis.ToString("F1") + "°";
+
+                AddParameter(new ParameterDelegate<Vessel>(output, CheckAoP));
+            }
+
             // Filter for orbital period
             if (minPeriod != 0.0 || maxPeriod != double.MaxValue)
             {
@@ -281,6 +294,23 @@ namespace ContractConfigurator.Parameters
             return inclination >= minInclination && inclination <= maxInclination;
         }
 
+        private bool CheckAoP(Vessel vessel)
+        {
+            double aop = vessel.orbit.argumentOfPeriapsis;
+
+            // Normalise
+            while (aop < 0.0)
+            {
+                aop += 360.0;
+            }
+            while (aop > 360.0)
+            {
+                aop -= 360.0;
+            }
+
+            return aop >= minArgumentOfPeriapsis && aop <= maxArgumentOfPeriapsis;
+        }
+
         protected override void OnParameterSave(ConfigNode node)
         {
             base.OnParameterSave(node);
@@ -314,6 +344,8 @@ namespace ContractConfigurator.Parameters
             {
                 node.AddValue("maxInclination", maxInclination);
             }
+            node.AddValue("minArgumentOfPeriapsis", minArgumentOfPeriapsis);
+            node.AddValue("maxArgumentOfPeriapsis", maxArgumentOfPeriapsis);
             node.AddValue("minPeriod", minPeriod);
             if (maxPeriod != double.MaxValue)
             {
@@ -345,6 +377,8 @@ namespace ContractConfigurator.Parameters
                 maxEccentricity = ConfigNodeUtil.ParseValue<double>(node, "maxEccentricity", double.MaxValue);
                 minInclination = ConfigNodeUtil.ParseValue<double>(node, "minInclination");
                 maxInclination = ConfigNodeUtil.ParseValue<double>(node, "maxInclination", double.MaxValue);
+                minArgumentOfPeriapsis = ConfigNodeUtil.ParseValue<double>(node, "minArgumentOfPeriapsis", 0.0);
+                maxArgumentOfPeriapsis = ConfigNodeUtil.ParseValue<double>(node, "maxArgumentOfPeriapsis", 360.0);
                 minPeriod = ConfigNodeUtil.ParseValue<double>(node, "minPeriod");
                 maxPeriod = ConfigNodeUtil.ParseValue<double>(node, "maxPeriod", double.MaxValue);
                 targetBody = ConfigNodeUtil.ParseValue<CelestialBody>(node, "targetBody", (CelestialBody)null);

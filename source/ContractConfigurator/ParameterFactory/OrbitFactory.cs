@@ -26,6 +26,8 @@ namespace ContractConfigurator
         protected double maxEccentricity;
         protected double minInclination;
         protected double maxInclination;
+        protected double minArgumentOfPeriapsis;
+        protected double maxArgumentOfPeriapsis;
         protected Duration minPeriod;
         protected Duration maxPeriod;
 
@@ -45,6 +47,8 @@ namespace ContractConfigurator
             valid &= ConfigNodeUtil.ParseValue<double>(configNode, "maxEccentricity", x => maxEccentricity = x, this, double.MaxValue, x => Validation.GE(x, 0.0));
             valid &= ConfigNodeUtil.ParseValue<double>(configNode, "minInclination", x => minInclination = x, this, 0.0, x => Validation.Between(x, 0.0, 180.0));
             valid &= ConfigNodeUtil.ParseValue<double>(configNode, "maxInclination", x => maxInclination = x, this, 180.0, x => Validation.Between(x, 0.0, 180.0));
+            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "minArgumentOfPeriapsis", x => minArgumentOfPeriapsis = x, this, 0.0, x => Validation.Between(x, 0.0, 360.0));
+            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "maxArgumentOfPeriapsis", x => maxArgumentOfPeriapsis = x, this, 360.0, x => Validation.Between(x, 0.0, 360.0));
             valid &= ConfigNodeUtil.ParseValue<Duration>(configNode, "minPeriod", x => minPeriod = x, this, new Duration(0.0));
             valid &= ConfigNodeUtil.ParseValue<Duration>(configNode, "maxPeriod", x => maxPeriod = x, this, new Duration(double.MaxValue));
 
@@ -53,7 +57,7 @@ namespace ContractConfigurator
 
             // Validation minimum and groupings
             valid &= ConfigNodeUtil.AtLeastOne(configNode, new string[] { "minAltitude", "maxAltitude", "minApA", "maxApA", "minPeA", "maxPeA",
-                "minEccentricity", "maxEccentricity", "minInclination", "maxInclination", "minPeriod", "maxPeriod" }, this);
+                "minEccentricity", "maxEccentricity", "minInclination", "maxInclination", "minPeriod", "maxPeriod", "minArgumentOfPeriapsis", "maxArgumentOfPeriapsis" }, this);
             valid &= ConfigNodeUtil.MutuallyExclusive(configNode, new string[] { "minAltitude", "maxAltitude" },
                 new string[] { "minApA", "maxApA", "minPeA", "maxPeA" }, this);
 
@@ -81,7 +85,7 @@ namespace ContractConfigurator
             }
 
             return new OrbitParameter(situation, minAltitude, maxAltitude, minApoapsis, maxApoapsis, minPeriapsis, maxPeriapsis,
-                minEccentricity, maxEccentricity, minInclination, maxInclination, minPeriod.Value, maxPeriod.Value, targetBody, title);
+                minEccentricity, maxEccentricity, minInclination, maxInclination, minArgumentOfPeriapsis, maxArgumentOfPeriapsis, minPeriod.Value, maxPeriod.Value, targetBody, title);
         }
     }
 }
