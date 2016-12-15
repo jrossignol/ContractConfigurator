@@ -89,7 +89,7 @@ namespace ContractConfigurator.Util
                     exp.partless = ConfigNodeUtil.ParseValue<bool?>(config, "partless", (bool?)false).Value;
                     exp.part = ConfigNodeUtil.ParseValue<List<string>>(config, "part", null);
                     exp.partModule = ConfigNodeUtil.ParseValue<string>(config, "partModule", null);
-                    exp.sunOnly = ConfigNodeUtil.ParseValue<bool>(config, "sunOnly", false);
+                    exp.sunOnly = ConfigNodeUtil.ParseValue<bool?>(config, "sunOnly", (bool?)false).Value;
                 }
 
                 // Add the experiment modules
