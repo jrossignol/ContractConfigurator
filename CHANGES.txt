@@ -1,4 +1,5 @@
 Contract Configurator 1.22.0
+- Contract weights for celestial bodies are now set by Contract Configurator (affecting the likelihood of stock contracts generating for the given body).
 - Added minArgumentOfPeriapsis and maxArgumentOfPeriapsis to Orbit parameter.
 - Added horizontalDistance to VisitWaypoint.
 - Make references to 'Sun' generic in SolarScience.cfg to fix Galileo compatibility (thanks SirBriguy).

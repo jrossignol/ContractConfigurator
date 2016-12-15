@@ -755,6 +755,7 @@ namespace ContractConfigurator
             }
 
             GameEvents.onVesselChange.Add(new EventData<Vessel>.OnEvent(OnVesselChange));
+            OnStateChange.Add(new EventData<State>.OnEvent(SelfStateChanged));
         }
 
         protected override void OnUnregister()
@@ -767,6 +768,7 @@ namespace ContractConfigurator
             }
 
             GameEvents.onVesselChange.Remove(new EventData<Vessel>.OnEvent(OnVesselChange));
+            OnStateChange.Remove(new EventData<State>.OnEvent(SelfStateChanged));
         }
 
         protected override void OnUpdate()
@@ -808,6 +810,14 @@ namespace ContractConfigurator
             foreach (ContractBehaviour behaviour in behaviours)
             {
                 behaviour.Withdraw();
+            }
+        }
+
+        protected void SelfStateChanged(State state)
+        {
+            if (targetBody != null)
+            {
+                ContractSystem.AdjustWeight(targetBody.name, this);
             }
         }
 
