@@ -245,7 +245,7 @@ namespace ContractConfigurator.Parameters
             }
 
             // Filter for argument of periapsis
-            if (minArgumentOfPeriapsis != 0.0 || maxArgumentOfPeriapsis != 360.0)
+            if (minArgumentOfPeriapsis != 0.0 || !(Mathf.Approximately((float)maxArgumentOfPeriapsis, 360.0f) || Mathf.Approximately((float)maxArgumentOfPeriapsis, 0.0f)))
             {
                 string output = "Argument of Periapsis: Between " +
                     minArgumentOfPeriapsis.ToString("F1") + "° and " + maxArgumentOfPeriapsis.ToString("F1") + "°";

@@ -1,3 +1,6 @@
+Contract Configurator 1.22.2
+- Fix possible argumentOfPeriapsis issue (thanks Intrepidrd).
+
 Contract Configurator 1.22.1
 - Fixed issue with vessel identifier parsing introduced in 1.22.0.
 
