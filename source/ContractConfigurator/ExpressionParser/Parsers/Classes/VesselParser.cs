@@ -59,6 +59,9 @@ namespace ContractConfigurator.ExpressionParser
             RegisterMethod(new Method<Vessel, double>("OrbitInclination", GetInclination, false));
             RegisterMethod(new Method<Vessel, double>("OrbitEccentricity", GetEccentricity, false));
 
+            RegisterMethod(new Method<Vessel, double>("AntennaTransmitPower", AntennaTransmitPower, false));
+            RegisterMethod(new Method<Vessel, double>("AntennaRelayPower", AntennaRelayPower, false));
+
             RegisterMethod(new Method<Vessel, Duration>("MET", v => new Duration(v == null ? 0.0 : v.missionTime), false));
 
             RegisterGlobalFunction(new Function<List<Vessel>>("AllVessels", () => FlightGlobals.Vessels.ToList(), false));
@@ -239,6 +242,36 @@ namespace ContractConfigurator.ExpressionParser
 
             Orbit orbit = vessel.loaded ? vessel.orbit : vessel.protoVessel.orbitSnapShot.Load();
             return orbit.eccentricity;
+        }
+
+        static double AntennaTransmitPower(Vessel vessel)
+        {
+            if (vessel == null)
+            {
+                return 0.0;
+            }
+
+            if (vessel.connection == null)
+            {
+                return 0.0;
+            }
+
+            return vessel.connection.Comm.antennaTransmit.power;
+        }
+
+        static double AntennaRelayPower(Vessel vessel)
+        {
+            if (vessel == null)
+            {
+                return 0.0;
+            }
+
+            if (vessel.connection == null)
+            {
+                return 0.0;
+            }
+
+            return vessel.connection.Comm.antennaRelay.power;
         }
 
         public override U ConvertType<U>(Vessel value)
