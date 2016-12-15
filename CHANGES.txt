@@ -1,5 +1,6 @@
 Contract Configurator 1.21.1
 - Make references to 'Sun' generic in SolarScience.cfg to fix Galileo compatibility (thanks SirBriguy).
+- Added Sun() function to get the Sun in a non-name specific way.  Assumes a single star.
 - Change Vessel Identifier parsing to allow a wider range of characters.
 - Fixed format text for funding message in mission control (thanks JPLRepo).
 - Fixed issue with NextUnreachedBody() call caching results (thanks severedsolo).
