@@ -91,6 +91,8 @@
     <Compile Include="Behaviour\UnlockTech.cs" />
     <Compile Include="ExpressionParser\Parsers\Classes\PQSCityParser.cs" />
     <Compile Include="IKerbalNameStorage.cs" />
+    <Compile Include="ParameterFactory\HasAntennaFactory.cs" />
+    <Compile Include="Parameter\VesselParameter\HasAntenna.cs" />
     <Compile Include="SettingsBuilder.cs" />
     <Compile Include="TrackingStationUI.cs" />
     <Compile Include="ParameterFactory\NoStagingFactory.cs" />

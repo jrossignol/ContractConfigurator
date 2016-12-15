@@ -1,4 +1,6 @@
 Contract Configurator 1.22.0
+- Added HasAntenna parameter (thanks Kerbas-ad-astra).
+- Added Vessel.AntennaTransmitPower() and Vesse.AntennaRelayPower() (thanks Kerbas-ad-astra).
 - Contract weights for celestial bodies are now set by Contract Configurator (affecting the likelihood of stock contracts generating for the given body).
 - Added minArgumentOfPeriapsis and maxArgumentOfPeriapsis to Orbit parameter.
 - Added horizontalDistance to VisitWaypoint.
