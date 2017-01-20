@@ -35,7 +35,7 @@ namespace KerKonConConExt
 
         protected override string RequirementText()
         {
-            string output = "Must " + (!invertRequirement ? "not have opened " : "have opened") + " base <color=#" + MissionControlUI.RequirementHighlightColor + ">'" + basename + "'</color>";
+            string output = "Base <color=#" + MissionControlUI.RequirementHighlightColor + ">'" + basename + "'</color> must " + (invertRequirement ? "not be opened" : "be opened");
             return output;
         }
     }
