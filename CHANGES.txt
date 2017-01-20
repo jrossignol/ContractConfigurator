@@ -1,3 +1,6 @@
+Contract Configurator 1.22.3
+- Fixed reversed base open/closed requirement text (thanks Keniamin).
+
 Contract Configurator 1.22.2
 - Fix possible argumentOfPeriapsis issue (thanks Intrepidrd).
 
