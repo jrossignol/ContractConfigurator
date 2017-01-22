@@ -36,7 +36,7 @@
       <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Kerbal Space Program\KSP_Data\Managed\Assembly-CSharp.dll</HintPath>
     </Reference>
     <Reference Include="RemoteTech">
-      <HintPath>..\..\..\KSP_1.2\KSP\GameData\RemoteTech\Plugins\RemoteTech.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Kerbal Space Program\GameData\RemoteTech\Plugins\RemoteTech.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -75,7 +75,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>copy /y "$(TargetPath)" "$(SolutionDir)..\GameData\ContractConfigurator\"
-copy /Y "$(TargetDir)$(TargetName).pdb" "$(SolutionDir)..\..\KSP_1.2\KSP\GameData\ContractConfigurator\" </PostBuildEvent>
+copy /Y "$(TargetDir)$(TargetName).pdb" "$(SolutionDir)..\..\..\..\..\..\Program Files (x86)\Kerbal Space Program\GameData\ContractConfigurator\" </PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

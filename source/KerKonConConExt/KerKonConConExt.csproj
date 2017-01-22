@@ -33,15 +33,15 @@
   <ItemGroup>
     <Reference Include="Assembly-CSharp, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Kerbal Space Program\KSP_Data\Managed\Assembly-CSharp.dll</HintPath>
+      <HintPath>C:\Program Files (x86)\Kerbal Space Program\KSP_Data\Managed\Assembly-CSharp.dll</HintPath>
     </Reference>
     <Reference Include="Assembly-CSharp-firstpass, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Kerbal Space Program\KSP_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
+      <HintPath>C:\Program Files (x86)\Kerbal Space Program\KSP_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
     </Reference>
     <Reference Include="KerbalKonstructs, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\KSP_1.2\KSP\GameData\KerbalKonstructs\KerbalKonstructs.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\KerbalSpaceProgram\GameData\KerbalKonstructs\KerbalKonstructs.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -51,13 +51,13 @@
     <Reference Include="System.Xml" />
     <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Kerbal Space Program\KSP_Data\Managed\UnityEngine.dll</HintPath>
+      <HintPath>C:\Program Files (x86)\Kerbal Space Program\KSP_Data\Managed\UnityEngine.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.UI">
-      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Kerbal Space Program\KSP_Data\Managed\UnityEngine.UI.dll</HintPath>
+      <HintPath>C:\Program Files (x86)\Kerbal Space Program\KSP_Data\Managed\UnityEngine.UI.dll</HintPath>
     </Reference>
     <Reference Include="Vectrosity">
-      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Kerbal Space Program\KSP_Data\Managed\Vectrosity.dll</HintPath>
+      <HintPath>C:\Program Files (x86)\Kerbal Space Program\KSP_Data\Managed\Vectrosity.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -92,11 +92,11 @@
     <PostBuildEvent>copy /y "$(TargetPath)" "$(SolutionDir)..\GameData\ContractConfigurator\"
 
 where /q pdb2mdb.exe || pdb2mdb.exe "$(TargetFileName)"
-copy /Y "$(TargetPath)" "$(SolutionDir)..\..\KSP_1.2\KSP\GameData\ContractConfigurator\"
+copy /Y "$(TargetPath)" "$(SolutionDir)..\..\..\..\..\..\Program Files (x86)\Kerbal Space Program\GameData\ContractConfigurator\"
 
-copy /Y "$(TargetDir)$(TargetName).pdb" "$(SolutionDir)..\..\KSP_1.2\KSP\GameData\ContractConfigurator\"
+copy /Y "$(TargetDir)$(TargetName).pdb" "$(SolutionDir)..\..\..\..\..\..\Program Files (x86)\Kerbal Space Program\GameData\ContractConfigurator\"
 
-if exist "$(TargetDir)$(TargetName).dll.mdb" (copy /Y "$(TargetDir)$(TargetName).dll.mdb" "C:\Program Files (x86)\Steam\steamapps\common\Kerbal Space Program\GameData\ContractConfigurator\")</PostBuildEvent>
+if exist "$(TargetDir)$(TargetName).dll.mdb" (copy /Y "$(TargetDir)$(TargetName).dll.mdb" "C:\Program Files (x86)\Kerbal Space Program\GameData\ContractConfigurator\")</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
