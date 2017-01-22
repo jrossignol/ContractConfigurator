@@ -1,6 +1,7 @@
 Contract Configurator 1.22.3
 - Fixed reversed base open/closed requirement text (thanks Keniamin).
 - Add logic to add waypoint icons into Waypoint Manager (happened automatically before KSP 1.2).
+- Don't allow astronaut complex biome to be used before it's at level 2 (thanks doktorstick).
 
 Contract Configurator 1.22.2
 - Fix possible argumentOfPeriapsis issue (thanks Intrepidrd).
