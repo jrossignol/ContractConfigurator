@@ -262,8 +262,7 @@ namespace ContractConfigurator
                 if (string.IsNullOrEmpty(contractType.description) && agent != null)
                 {
                     // Generate the contract description
-                    description = TextGen.GenerateBackStories(agent.Name, agent.GetMindsetString(),
-                        contractType.topic, contractType.subject, contractType.motivation, random.Next());
+                    description = TextGen.GenerateBackStories("ConfiguredContract", agent.Name, contractType.topic, contractType.subject, random.Next(), true, true, true);
                 }
                 else
                 {

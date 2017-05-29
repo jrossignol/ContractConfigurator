@@ -388,14 +388,14 @@ namespace ContractConfigurator.Parameters
         {
             CelestialBody first = targetBodies.First();
             CelestialBody last = targetBodies.Last();
-            string result = first.theName;
+            string result = first.CleanDisplayName();
             foreach (CelestialBody body in targetBodies.Where(b => b != first && b != last))
             {
-                result += ", " + body.theName;
+                result += ", " + body.CleanDisplayName(true);
             }
             if (last != first)
             {
-                result += " or " + last.theName;
+                result += " or " + last.CleanDisplayName(true);
             }
             return result;
         }

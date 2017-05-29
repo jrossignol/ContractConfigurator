@@ -15,6 +15,8 @@ namespace ContractConfigurator.ExpressionParser
     /// </summary>
     public class CelestialBodyParser : ClassExpressionParser<CelestialBody>, IExpressionParserRegistrer
     {
+        private static string[] emptyStrArr = new string[] { };
+
         private enum CelestialBodyType
         {
             NOT_APPLICABLE,
@@ -110,7 +112,7 @@ namespace ContractConfigurator.ExpressionParser
         {
             if (typeof(U) == typeof(string))
             {
-                return (U)(object)value.theName;
+                return (U)(object)value.CleanDisplayName(true);
             }
             return base.ConvertType<U>(value);
         }

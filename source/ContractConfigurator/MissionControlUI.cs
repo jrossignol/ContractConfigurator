@@ -1314,10 +1314,10 @@ namespace ContractConfigurator.Util
             int exceptionalMax = Math.Min(ContractConfigurator.ContractLimit(Contract.ContractPrestige.Exceptional), maxActive);
 
             string output = "";
-            output += string.Format("<b><color=#f4ee21>      <sprite=0 tint=1>\t </color><color=#DB8310>Trivial Contracts:\t\t</color></b>" + (trivialCount >= trivialMax ? "<color=#f97306>{0}  [Max: {1}]</color>\n" : "{0}  [Max: {1}]\n"), trivialCount, trivialMax);
-            output += string.Format("<b><color=#f4ee21>   <sprite=0 tint=1><sprite=0 tint=1>\t </color><color=#DB8310>Significant Contracts:\t</color></b>" + (significantCount >= significantMax ? "<color=#f97306>{0}  [Max: {1}]</color>\n" : "{0}  [Max: {1}]\n"), significantCount, significantMax);
-            output += string.Format("<b><color=#f4ee21><sprite=0 tint=1><sprite=0 tint=1><sprite=0 tint=1>\t </color><color=#DB8310>Exceptional Contracts:\t</color></b>" + (exceptionalCount >= exceptionalMax ? "<color=#f97306>{0}  [Max: {1}]</color>\n" : "{0}  [Max: {1}]\n"), exceptionalCount, exceptionalMax);
-            output += string.Format("<b>\t <color=#DB8310>All Active Contracts:\t\t</color></b>" + (maxActive == int.MaxValue ? "{0}" : activeCount >= maxActive ? "<color=#f97306>{0}  [Max: {1}]</color>" : "{0}  [Max: {1}]"), activeCount, maxActive);
+            output += string.Format("<b><color=#f4ee21><sprite=\"CurrencySpriteAsset\" name=\"Reputation\" tint=1>\t\t</color><color=#DB8310>Trivial Contracts:\t\t</color></b>" + (trivialCount >= trivialMax ? "<color=#f97306>{0}  [Max: {1}]</color>\n" : "{0}  [Max: {1}]\n"), trivialCount, trivialMax);
+            output += string.Format("<b><color=#f4ee21><sprite=\"CurrencySpriteAsset\" name=\"Reputation\" tint=1><sprite=\"CurrencySpriteAsset\" name=\"Reputation\" tint=1>\t\t</color><color=#DB8310>Significant Contracts:\t</color></b>" + (significantCount >= significantMax ? "<color=#f97306>{0}  [Max: {1}]</color>\n" : "{0}  [Max: {1}]\n"), significantCount, significantMax);
+            output += string.Format("<b><color=#f4ee21><sprite=\"CurrencySpriteAsset\" name=\"Reputation\" tint=1><sprite=\"CurrencySpriteAsset\" name=\"Reputation\" tint=1><sprite=\"CurrencySpriteAsset\" name=\"Reputation\" tint=1>\t</color><color=#DB8310>Exceptional Contracts:\t</color></b>" + (exceptionalCount >= exceptionalMax ? "<color=#f97306>{0}  [Max: {1}]</color>\n" : "{0}  [Max: {1}]\n"), exceptionalCount, exceptionalMax);
+            output += string.Format("<b>\t\t<color=#DB8310>All Active Contracts:\t\t</color></b>" + (maxActive == int.MaxValue ? "{0}" : activeCount >= maxActive ? "<color=#f97306>{0}  [Max: {1}]</color>" : "{0}  [Max: {1}]"), activeCount, maxActive);
             MissionControl.Instance.textMCStats.text = output;
         }
 
@@ -1608,7 +1608,7 @@ namespace ContractConfigurator.Util
                 if (bodyInfoDict.ContainsKey(body) && !body.isHomeWorld)
                 {
                     RBWrapper.CelestialBodyInfo bodyInfo = bodyInfoDict[body];
-                    output += RequirementLine("Must have researched " + body.theName, bodyInfo.isResearched);
+                    output += RequirementLine("Must have researched " + body.CleanDisplayName(true), bodyInfo.isResearched);
                 }
             }
 

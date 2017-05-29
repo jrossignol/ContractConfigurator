@@ -262,5 +262,19 @@ namespace ContractConfigurator
                 yield return hash;
             }
         }
+
+        private static string[] strArr = { "" };
+        public static string CleanDisplayName(this CelestialBody body, bool lower=false)
+        {
+            strArr[0] = body.GetDisplayName();
+            string displayName = KSP.Localization.Localizer.Format("<<1>>", strArr);
+
+            if (lower && displayName != body.name)
+            {
+                displayName = Char.ToLowerInvariant(displayName[0]) + displayName.Substring(1);
+            }
+
+            return displayName;
+        }
     }
 }

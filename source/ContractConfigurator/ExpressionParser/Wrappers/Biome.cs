@@ -78,7 +78,7 @@ namespace ContractConfigurator
                 return biome;
             }
 
-            return (body == null ? "" : IsKSC() ? "KSC's " : (body.theName + "'s ")) + PrintBiomeName(biome);
+            return (body == null ? "" : IsKSC() ? "KSC's " : (body.CleanDisplayName() + "'s ")) + PrintBiomeName(biome);
         }
 
         public override bool Equals(object obj)

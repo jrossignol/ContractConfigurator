@@ -31,7 +31,7 @@ namespace ContractConfigurator.Parameters
             string output;
             if (string.IsNullOrEmpty(title))
             {
-                output = "Plant a flag on " + targetBody.theName;
+                output = "Plant a flag on " + targetBody.CleanDisplayName(true);
             }
             else
             {

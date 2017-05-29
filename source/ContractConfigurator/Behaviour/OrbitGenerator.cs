@@ -199,7 +199,7 @@ namespace ContractConfigurator.Behaviour
         {
             if (obData.orbitType == OrbitType.KOLNIYA && !CelestialUtilities.CanBodyBeKolniya(obData.targetBody))
             {
-                string error = string.Format("Cannot use a Kolniya orbit with {0}.", obData.targetBody.theName);
+                string error = string.Format("Cannot use a Kolniya orbit with {0}.", obData.targetBody.CleanDisplayName(true));
                 if (factory != null)
                 {
                     LoggingUtil.LogError(factory, factory.ErrorPrefix() + ": " + error);
@@ -212,7 +212,7 @@ namespace ContractConfigurator.Behaviour
             }
             else if (obData.orbitType == OrbitType.TUNDRA && !CelestialUtilities.CanBodyBeTundra(obData.targetBody))
             {
-                string error = string.Format("Cannot use a tundra orbit with {0}.", obData.targetBody.theName);
+                string error = string.Format("Cannot use a tundra orbit with {0}.", obData.targetBody.CleanDisplayName(true));
                 if (factory != null)
                 {
                     LoggingUtil.LogError(factory, factory.ErrorPrefix() + ": " + error);

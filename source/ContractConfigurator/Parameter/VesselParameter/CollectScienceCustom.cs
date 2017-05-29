@@ -113,7 +113,7 @@ namespace ContractConfigurator.Parameters
                     }
                     else
                     {
-                        output += targetBody.theName;
+                        output += targetBody.CleanDisplayName(true);
                     }
                     
                     if (situation != null)
@@ -138,7 +138,7 @@ namespace ContractConfigurator.Parameters
             // Filter for celestial bodies
             if (targetBody != null && string.IsNullOrEmpty(biome))
             {
-                AddParameter(new ParameterDelegate<Vessel>("Destination: " + targetBody.theName,
+                AddParameter(new ParameterDelegate<Vessel>("Destination: " + targetBody.CleanDisplayName(),
                     subj => FlightGlobals.currentMainBody == targetBody, true));
             }
 
