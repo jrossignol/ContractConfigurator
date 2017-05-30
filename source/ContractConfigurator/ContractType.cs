@@ -625,7 +625,8 @@ namespace ContractConfigurator
         /// <returns>Whether the generation was successful.</returns>
         public bool GenerateParameters(ConfiguredContract contract)
         {
-            return ParameterFactory.GenerateParameters(contract, contract, paramFactories);
+            return ParameterFactory.GenerateParameters(contract, contract, paramFactories) &&
+                contract.ParameterCount > 0; // Check that at least one parameter was generated
         }
 
         /// <summary>
