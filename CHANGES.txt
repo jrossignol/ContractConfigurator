@@ -1,3 +1,7 @@
+Contract Configurator 1.23.0
+- Support for KSP 1.3.0
+- Fix issue with contract item sizes not always being set correctly in mission control when switching tabs.
+
 Contract Configurator 1.22.3
 - Fixed reversed base open/closed requirement text (thanks Keniamin).
 - Add logic to add waypoint icons into Waypoint Manager (happened automatically before KSP 1.2).

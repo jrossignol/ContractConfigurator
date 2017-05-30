@@ -757,6 +757,8 @@ namespace ContractConfigurator.Util
                 return;
             }
 
+            displayModeAll = false;
+
             // Set the state on the MissionControl object
             MissionControl.Instance.displayMode = MissionControl.DisplayMode.Available;
             MissionControl.Instance.toggleArchiveGroup.gameObject.SetActive(false);
@@ -789,17 +791,18 @@ namespace ContractConfigurator.Util
 
             HighLogic.CurrentGame.Parameters.CustomParams<ContractConfiguratorParameters>().lastMCButton =
                 ContractConfiguratorParameters.MissionControlButton.Available;
-            displayModeAll = false;
         }
 
         public void OnClickAll(bool selected)
         {
-            LoggingUtil.LogVerbose(this, "OnClickAll");
-
             if (!selected)
             {
                 return;
             }
+
+            displayModeAll = true;
+
+            LoggingUtil.LogVerbose(this, "OnClickAll");
 
             // Set the state on the MissionControl object
             MissionControl.Instance.displayMode = MissionControl.DisplayMode.Available;
@@ -819,7 +822,6 @@ namespace ContractConfigurator.Util
 
             HighLogic.CurrentGame.Parameters.CustomParams<ContractConfiguratorParameters>().lastMCButton =
                 ContractConfiguratorParameters.MissionControlButton.All;
-            displayModeAll = true;
 
             // Update the contract counts
             UpdateContractCounts();
@@ -868,7 +870,6 @@ namespace ContractConfigurator.Util
 
             // Force to the default state
             mcListItem.GetComponent<Image>().sprite = groupUnexpandedInactive;
-
 
             // Add the list item to the UI, and add indent
             if (previous == null)
@@ -1426,7 +1427,7 @@ namespace ContractConfigurator.Util
             if (displayModeAll)
             {
                 float preferredHeight = mcListItem.title.GetPreferredValues(mcListItem.title.text, 316 - cc.indent * 12 - 64, TMPro.TMP_Math.FLOAT_MAX).y;
-                bool twoLines = preferredHeight > 14;
+                bool twoLines = preferredHeight > 17;
                 mcListItem.GetComponent<LayoutElement>().preferredHeight = twoLines ? 38 : 25;
                 if (cc.statusRect != null)
                 {
