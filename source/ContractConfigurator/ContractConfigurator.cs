@@ -429,9 +429,15 @@ namespace ContractConfigurator
 
             if (!reloading && LoggingUtil.logLevel == LoggingUtil.LogLevel.DEBUG || LoggingUtil.logLevel == LoggingUtil.LogLevel.VERBOSE)
             {
-                ScreenMessages.PostScreenMessage("Contract Configurator: Loaded " + successContracts + " out of " + totalContracts
-                    + " contracts successfully.", 5, ScreenMessageStyle.UPPER_CENTER);
+                StartCoroutine(DisplayLoadSuccessMessage());
             }
+        }
+
+        public static IEnumerator<YieldInstruction> DisplayLoadSuccessMessage()
+        {
+            yield return new WaitForSeconds(0.05f);
+            ScreenMessages.PostScreenMessage("Contract Configurator: Loaded " + successContracts + " out of " + totalContracts
+                + " contracts successfully.", 5, ScreenMessageStyle.UPPER_CENTER);
         }
 
         public static IEnumerable<Type> GetAllTypes<T>()
