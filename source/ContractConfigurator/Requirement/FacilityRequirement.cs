@@ -52,7 +52,7 @@ namespace ContractConfigurator
         {
             int level = (int)Math.Round(ScenarioUpgradeableFacilities.GetFacilityLevel(facility) *
                 ScenarioUpgradeableFacilities.GetFacilityLevelCount(facility)) + 1;
-            return level == 0 && contract != null && contract.ContractState == Contracts.Contract.State.Active ||
+            return level == 1 && contract != null && contract.ContractState == Contracts.Contract.State.Active ||
                 level >= minLevel && level <= maxLevel;
         }
 
