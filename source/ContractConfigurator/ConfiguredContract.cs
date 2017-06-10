@@ -459,6 +459,12 @@ namespace ContractConfigurator
                     behaviours.Add(behaviour);
                 }
 
+                foreach (ConfigNode child in node.GetNodes("REQUIREMENT"))
+                {
+                    ContractRequirement requirement = ContractRequirement.LoadRequirement(child);
+                    requirements.Add(requirement);
+                }
+
                 // If the contract type is null, then it likely means that it was uninstalled
                 if (contractType == null)
                 {
