@@ -254,19 +254,27 @@ namespace ContractConfigurator.Behaviour
         {
             if (filter == MapViewFiltering.VesselTypeFilter.None)
             {
+                if (contract == null)
+                {
+                    return;
+                }
+
                 // Reset state of renderers
                 foreach (OrbitData obData in orbits)
                 {
                     ContractConfiguratorParameters parms = HighLogic.CurrentGame.Parameters.CustomParams<ContractConfiguratorParameters>();
 
-                    if (contract.ContractState == Contract.State.Active && parms.DisplayActiveOrbits ||
-                        contract.ContractState == Contract.State.Offered && parms.DisplayOfferedOrbits)
+                    if (parms != null  && obData != null)
                     {
-                        obData.SetupRenderer();
-                    }
-                    else
-                    {
-                        obData.CleanupRenderer();
+                        if (contract.ContractState == Contract.State.Active && parms.DisplayActiveOrbits ||
+                            contract.ContractState == Contract.State.Offered && parms.DisplayOfferedOrbits)
+                        {
+                            obData.SetupRenderer();
+                        }
+                        else
+                        {
+                            obData.CleanupRenderer();
+                        }
                     }
                 }
             }

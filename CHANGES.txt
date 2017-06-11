@@ -3,6 +3,7 @@ Contract Configurator 1.23.1
 - Fixed issue with FacilityRequirement in tracking station (thanks JPLRepo).
 - Fixed issue where some requirement details weren't being saved in contracts.
 - Fixed localisation issue with character names in dialog boxes.
+- Fixed exception when pressing orbit buttons in tracking station (thanks doktorstick).
 
 Contract Configurator 1.23.0
 - Support for KSP 1.3.0
