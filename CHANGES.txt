@@ -1,4 +1,5 @@
 Contract Configurator 1.23.1
+- Fixed major bug with VisitWaypoint not properly setting waypoint distances (thanks Keniamin and others).
 - Fixed issue with FacilityRequirement in tracking station (thanks JPLRepo).
 - Fixed issue where some requirement details weren't being saved in contracts.
 

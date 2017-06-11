@@ -29,7 +29,7 @@ namespace ContractConfigurator
 
             valid &= ConfigNodeUtil.ParseValue<int>(configNode, "index", x => index = x, this, 0, x => Validation.GE(x, 0));
             valid &= ConfigNodeUtil.ParseValue<double>(configNode, "distance", x => distance = x, this, 0.0, x => Validation.GE(x, 0.0));
-            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "horizontalDistance", x => distance = x, this, 0.0, x => Validation.GE(x, 0.0));
+            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "horizontalDistance", x => horizontalDistance = x, this, 0.0, x => Validation.GE(x, 0.0));
             valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "hideOnCompletion", x => hideOnCompletion = x, this, true);
             valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "showMessages", x => showMessages = x, this, false);
 
