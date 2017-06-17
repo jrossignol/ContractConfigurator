@@ -115,6 +115,21 @@ namespace ContractConfigurator
         }
 
         /// <summary>
+        /// Checks that the given PartModuleType is valid.
+        /// </summary>
+        /// <param name="name">name of the PartModuleType</param>
+        /// <returns>True if valid, exception otherwise</returns>
+        public static bool ValidatePartModuleType(string name)
+        {
+            if (name == "Power")
+            {
+                throw new ArgumentException("Stock partModuleType 'Power' has been replaced by 'Generator'.");
+            }
+
+            return true;
+        }
+
+        /// <summary>
         /// Checks whether a file exists at the given URL.
         /// </summary>
         /// <param name="fileURL">URL to check for a file.</param>

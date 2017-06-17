@@ -42,7 +42,7 @@ namespace ContractConfigurator
                 PartValidation.Filter filter = new PartValidation.Filter(defaultMatch);
                 valid &= ConfigNodeUtil.ParseValue<List<AvailablePart>>(configNode, "part", x => filter.parts = x, this, new List<AvailablePart>());
                 valid &= ConfigNodeUtil.ParseValue<List<string>>(configNode, "partModule", x => filter.partModules = x, this, new List<string>(), x => x.All(Validation.ValidatePartModule));
-                valid &= ConfigNodeUtil.ParseValue<List<string>>(configNode, "partModuleType", x => filter.partModuleTypes = x, this, new List<string>());
+                valid &= ConfigNodeUtil.ParseValue<List<string>>(configNode, "partModuleType", x => filter.partModuleTypes = x, this, new List<string>(), x => x.All(Validation.ValidatePartModuleType));
                 valid &= ConfigNodeUtil.ParseValue<PartCategories?>(configNode, "category", x => filter.category = x, this, (PartCategories?)null);
                 valid &= ConfigNodeUtil.ParseValue<string>(configNode, "manufacturer", x => filter.manufacturer = x, this, (string)null);
                 filters.Add(filter);
