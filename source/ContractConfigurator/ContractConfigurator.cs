@@ -384,7 +384,10 @@ namespace ContractConfigurator
                 }
             }
 
-            yield return new WaitForEndOfFrame();
+            if (!reloading)
+            {
+                yield return new WaitForEndOfFrame();
+            }
 
             // Emit settings for the menu
             SettingsBuilder.EmitSettings();
@@ -440,7 +443,10 @@ namespace ContractConfigurator
             foreach (ConfigNode contractConfig in contractConfigs)
             {
                 attemptedContracts++;
-                yield return new WaitForEndOfFrame();
+                if (!reloading)
+                {
+                    yield return new WaitForEndOfFrame();
+                }
 
                 // Fetch the contractType
                 string name = contractConfig.GetValue("name");

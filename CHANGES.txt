@@ -2,6 +2,7 @@ Contract Configurator 1.23.2
 - Clarified wording of ActiveVesselRangeRequirement for RemoteTech (thanks Alshain).
 - Added check for old useage of partModuleType=Power (thanks muppet9876).
 - Prevent Rendezvous parameter from completing when doing an EVA (thanks pap1723).
+- Don't allow main menu to continue while still loading (prevents issues on slower systems).
 
 Contract Configurator 1.23.1
 - Fixed major bug with VisitWaypoint not properly setting waypoint distances (thanks Keniamin and others).
