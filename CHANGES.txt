@@ -6,6 +6,7 @@ Contract Configurator 1.23.2
 - Made RemoteTech distance function (for coverage system) more generous (thanks NathanKell).
 - Fixed issue with Kerbals spawned at KSC starting an extra ~60 meters in the air (thanks Keniamin).
 - Fixed error when cancelling a contract with spawned Kerbals.
+- Fixed exception with FlyBy and ReturnFromFlyBy requirements.
 
 Contract Configurator 1.23.1
 - Fixed major bug with VisitWaypoint not properly setting waypoint distances (thanks Keniamin and others).

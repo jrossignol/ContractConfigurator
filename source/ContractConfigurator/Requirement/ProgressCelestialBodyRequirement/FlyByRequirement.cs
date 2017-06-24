@@ -15,8 +15,9 @@ namespace ContractConfigurator
     {
         public override bool RequirementMet(ConfiguredContract contract)
         {
-            return base.RequirementMet(contract) &&
-                GetCelestialBodySubtree().flyBy.IsComplete;
+            CelestialBodySubtree tree = GetCelestialBodySubtree();
+            return base.RequirementMet(contract) && tree.flyBy != null &&
+                tree.flyBy.IsComplete;
         }
 
 
