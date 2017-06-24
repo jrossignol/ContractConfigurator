@@ -547,10 +547,6 @@ namespace ContractConfigurator.Behaviour
 
                         // Remove the kerbal from the roster
                         HighLogic.CurrentGame.CrewRoster.Remove(kerbal.kerbal.name);
-                        if (kerbal.kerbal._pcm != null)
-                        {
-                            HighLogic.CurrentGame.CrewRoster.RemoveMIA(kerbal.kerbal._pcm);
-                        }
                         kerbal.kerbal._pcm = null;
                     }
                 }
