@@ -209,7 +209,13 @@ namespace ContractConfigurator.ExpressionParser
                 // For barycenters, the biggest one is a planet, the rest are moons.
                 if (cb.referenceBody.Radius < BARYCENTER_THRESHOLD)
                 {
-                    return cb == cb.referenceBody.orbitingBodies.MaxAt(child => child.Mass) ? CelestialBodyType.PLANET : CelestialBodyType.MOON;
+                    for (int i = cb.referenceBody.orbitingBodies.Count; i-- >= 0; )
+                    {
+                        if (cb.referenceBody.orbitingBodies[i].Mass > cb.Mass)
+                        {
+                            return CelestialBodyType.MOON;
+                        }
+                    }
                 }
 
                 return CelestialBodyType.PLANET;
