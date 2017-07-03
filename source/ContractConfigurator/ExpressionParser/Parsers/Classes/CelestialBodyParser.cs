@@ -141,6 +141,11 @@ namespace ContractConfigurator.ExpressionParser
 
         private static bool CheckTree(CelestialBodySubtree tree, ProgressItem pi)
         {
+            if (tree == null)
+            {
+                return false;
+            }
+
             switch (pi)
             {
                 case ProgressItem.REACHED:
