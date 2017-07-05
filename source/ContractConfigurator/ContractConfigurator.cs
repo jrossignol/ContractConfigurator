@@ -443,7 +443,7 @@ namespace ContractConfigurator
             foreach (ConfigNode contractConfig in contractConfigs)
             {
                 attemptedContracts++;
-                if (!reloading)
+                if (reloading)
                 {
                     yield return new WaitForEndOfFrame();
                 }
