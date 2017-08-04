@@ -1,6 +1,6 @@
 Contract Configurator 1.23.2
 - Clarified wording of ActiveVesselRangeRequirement for RemoteTech (thanks Alshain).
-- Added check for old useage of partModuleType=Power (thanks muppet9876).
+- Added check for old usage of partModuleType=Power (thanks muppet9876).
 - Prevent Rendezvous parameter from completing when doing an EVA (thanks pap1723).
 - Don't allow main menu to continue while still loading (prevents issues on slower systems).
 - Made RemoteTech distance function (for coverage system) more generous (thanks NathanKell).
