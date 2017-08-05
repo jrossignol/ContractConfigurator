@@ -1,3 +1,6 @@
+Contract Configurator 1.23.3
+- Fixed logic for determining contract prestige (thanks sopindm).
+
 Contract Configurator 1.23.2
 - Clarified wording of ActiveVesselRangeRequirement for RemoteTech (thanks Alshain).
 - Added check for old usage of partModuleType=Power (thanks muppet9876).
