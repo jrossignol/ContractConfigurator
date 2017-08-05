@@ -281,7 +281,7 @@ namespace ContractConfigurator
                 }
             }
             int selection = rand.Next(0, t1 + t2 + t3);
-            Contract.ContractPrestige prestige = selection < t1 ? Contract.ContractPrestige.Trivial : selection < t2 ? Contract.ContractPrestige.Significant : Contract.ContractPrestige.Exceptional;
+            Contract.ContractPrestige prestige = selection < t1 ? Contract.ContractPrestige.Trivial : selection < (t1 + t2) ? Contract.ContractPrestige.Significant : Contract.ContractPrestige.Exceptional;
 
             // Generate the template
             ConfiguredContract templateContract = Contract.Generate(typeof(ConfiguredContract), prestige, rand.Next(), Contract.State.Withdrawn) as ConfiguredContract;
