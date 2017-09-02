@@ -280,6 +280,9 @@ namespace ContractConfigurator.Behaviour
         {
             WaypointGenerator wpGenerator = new WaypointGenerator();
 
+            // Waypoint Manager integration
+            EventData<string> onWaypointIconAdded = GameEvents.FindEvent<EventData<string>>("OnWaypointIconAdded");
+
             bool valid = true;
             int index = 0;
             foreach (ConfigNode child in ConfigNodeUtil.GetChildNodes(configNode))
@@ -304,13 +307,22 @@ namespace ContractConfigurator.Behaviour
                     valid &= ConfigNodeUtil.ParseValue<double?>(child, "altitude", x => altitude = x, factory, (double?)null);
                     valid &= ConfigNodeUtil.ParseValue<List<string>>(child, "parameter", x => wpData.parameter = x, factory, new List<string>());
                     valid &= ConfigNodeUtil.ParseValue<bool>(child, "hidden", x => wpData.waypoint.visible = !x, factory, false);
+
+                    Action<string> assignWaypoint = (x) =>
+                    {
+                        wpData.waypoint.id = x;
+                        if (onWaypointIconAdded != null)
+                        {
+                            onWaypointIconAdded.Fire(x);
+                        }
+                    };
                     if (!wpData.waypoint.visible)
                     {
-                        valid &= ConfigNodeUtil.ParseValue<string>(child, "icon", x => wpData.waypoint.id = x, factory, "");
+                        valid &= ConfigNodeUtil.ParseValue<string>(child, "icon", assignWaypoint, factory, "");
                     }
                     else
                     {
-                        valid &= ConfigNodeUtil.ParseValue<string>(child, "icon", x => wpData.waypoint.id = x, factory);
+                        valid &= ConfigNodeUtil.ParseValue<string>(child, "icon", assignWaypoint, factory);
                     }
 
                     valid &= ConfigNodeUtil.ParseValue<bool>(child, "underwater", x => wpData.underwater = x, factory, false);

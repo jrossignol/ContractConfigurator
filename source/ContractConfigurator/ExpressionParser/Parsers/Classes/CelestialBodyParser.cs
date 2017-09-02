@@ -15,6 +15,8 @@ namespace ContractConfigurator.ExpressionParser
     /// </summary>
     public class CelestialBodyParser : ClassExpressionParser<CelestialBody>, IExpressionParserRegistrer
     {
+        private static string[] emptyStrArr = new string[] { };
+
         private enum CelestialBodyType
         {
             NOT_APPLICABLE,
@@ -90,6 +92,7 @@ namespace ContractConfigurator.ExpressionParser
             RegisterMethod(new Method<CelestialBody, string, double>("SCANsatCoverage", SCANsatCoverage, false));
 
             RegisterGlobalFunction(new Function<CelestialBody>("HomeWorld", () => FlightGlobals.Bodies.Where(cb => cb.isHomeWorld).First()));
+            RegisterGlobalFunction(new Function<CelestialBody>("Sun", () => FlightGlobals.Bodies[0]));
             RegisterGlobalFunction(new Function<List<CelestialBody>>("AllBodies", () => FlightGlobals.Bodies.Where(cb => cb != null && cb.Radius >= BARYCENTER_THRESHOLD).ToList()));
             RegisterGlobalFunction(new Function<List<CelestialBody>>("OrbitedBodies", () => BodiesForItem(ProgressItem.ORBITED).ToList(), false));
             RegisterGlobalFunction(new Function<List<CelestialBody>>("LandedBodies", () => BodiesForItem(ProgressItem.LANDED).ToList(), false));
@@ -97,8 +100,8 @@ namespace ContractConfigurator.ExpressionParser
             RegisterGlobalFunction(new Function<List<CelestialBody>>("ReachedBodies", () => BodiesForItem(ProgressItem.REACHED).ToList(), false));
             RegisterGlobalFunction(new Function<List<CelestialBody>>("ReturnedFromBodies", () => BodiesForItem(ProgressItem.RETURNED_FROM).ToList(), false));
             RegisterGlobalFunction(new Function<CelestialBody, CelestialBody>("CelestialBody", cb => cb));
-            RegisterGlobalFunction(new Function<CelestialBody>("NextUnreachedBody", () => FinePrint.Utilities.ProgressUtilities.GetNextUnreached(1).FirstOrDefault()));
-            RegisterGlobalFunction(new Function<int, List<CelestialBody>>("NextUnreachedBodies", (count) => FinePrint.Utilities.ProgressUtilities.GetNextUnreached(count)));
+            RegisterGlobalFunction(new Function<CelestialBody>("NextUnreachedBody", () => FinePrint.Utilities.ProgressUtilities.GetNextUnreached(1).FirstOrDefault(), false));
+            RegisterGlobalFunction(new Function<int, List<CelestialBody>>("NextUnreachedBodies", (count) => FinePrint.Utilities.ProgressUtilities.GetNextUnreached(count), false));
         }
 
         public CelestialBodyParser()
@@ -109,7 +112,7 @@ namespace ContractConfigurator.ExpressionParser
         {
             if (typeof(U) == typeof(string))
             {
-                return (U)(object)value.theName;
+                return (U)(object)value.CleanDisplayName(true);
             }
             return base.ConvertType<U>(value);
         }
@@ -138,6 +141,11 @@ namespace ContractConfigurator.ExpressionParser
 
         private static bool CheckTree(CelestialBodySubtree tree, ProgressItem pi)
         {
+            if (tree == null)
+            {
+                return false;
+            }
+
             switch (pi)
             {
                 case ProgressItem.REACHED:
@@ -206,7 +214,13 @@ namespace ContractConfigurator.ExpressionParser
                 // For barycenters, the biggest one is a planet, the rest are moons.
                 if (cb.referenceBody.Radius < BARYCENTER_THRESHOLD)
                 {
-                    return cb == cb.referenceBody.orbitingBodies.MaxAt(child => child.Mass) ? CelestialBodyType.PLANET : CelestialBodyType.MOON;
+                    for (int i = cb.referenceBody.orbitingBodies.Count; --i >= 0; )
+                    {
+                        if (cb.referenceBody.orbitingBodies[i].Mass > cb.Mass)
+                        {
+                            return CelestialBodyType.MOON;
+                        }
+                    }
                 }
 
                 return CelestialBodyType.PLANET;

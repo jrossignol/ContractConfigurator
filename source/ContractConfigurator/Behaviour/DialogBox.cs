@@ -5,6 +5,7 @@ using System.Text;
 using UnityEngine;
 using KSP;
 using KSP.UI.Screens;
+using KSP.Localization;
 using Contracts;
 using ContractConfigurator;
 using ContractConfigurator.ExpressionParser;
@@ -428,7 +429,7 @@ namespace ContractConfigurator.Behaviour
 
                     if (string.IsNullOrEmpty(characterName))
                     {
-                        characterName = instructor.CharacterName;
+                        characterName = Localizer.GetStringByTag(instructor.CharacterName);
                     }
 
                     instructor.SetupAnimations();

@@ -73,7 +73,7 @@ namespace ContractConfigurator.Parameters
                 }
                 if (destination != null)
                 {
-                    this.title += destination.theName;
+                    this.title += destination.CleanDisplayName(true);
                 }
                 else
                 {

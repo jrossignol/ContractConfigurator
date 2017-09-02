@@ -57,7 +57,7 @@ namespace ContractConfigurator.ExpressionParser
 
         public override T ParseIdentifier(Token token)
         {
-            return (T)Enum.Parse(typeof(T), token.sval);
+            return (T)Enum.Parse(typeof(T), token.sval, true);
         }
 
         public override bool EQ(T a, T b)

@@ -59,7 +59,7 @@ namespace ContractConfigurator.RemoteTech
 
         protected override string RequirementText()
         {
-            string output = "Must " + (invertRequirement ? "not " : "") + "have a RemoteTech constellation orbiting " + (targetBody == null ? "the target body" : targetBody.theName) + " with an active vessel dish (or omni antenna) with a range of at least " + (range / 1000.0).ToString("N0") + " km";
+            string output = "Must " + (invertRequirement ? "not " : "") + "have a RemoteTech constellation orbiting " + (targetBody == null ? "the target body" : targetBody.CleanDisplayName(true)) + " with an antenna or dish aimed at the active vessel with a range of at least " + (range / 1000.0).ToString("N0") + " km";
             return output;
         }
     }

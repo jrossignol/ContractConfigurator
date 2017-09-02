@@ -319,8 +319,9 @@ namespace ContractConfigurator.Behaviour
                     protoVesselNode.SetValue("lat", kd.latitude.ToString());
                     protoVesselNode.SetValue("lon", kd.longitude.ToString());
                     protoVesselNode.SetValue("alt", kd.altitude.ToString());
+                    protoVesselNode.SetValue("hgt", 0.276894391);
                     protoVesselNode.SetValue("rot", KSPUtil.WriteQuaternion(normal * rotation));
-
+                    
                     // Set the normal vector relative to the surface
                     Vector3 nrm = (rotation * Vector3.forward);
                     protoVesselNode.SetValue("nrm", nrm.x + "," + nrm.y + "," + nrm.z);
@@ -546,10 +547,6 @@ namespace ContractConfigurator.Behaviour
 
                         // Remove the kerbal from the roster
                         HighLogic.CurrentGame.CrewRoster.Remove(kerbal.kerbal.name);
-                        if (kerbal.kerbal._pcm != null)
-                        {
-                            HighLogic.CurrentGame.CrewRoster.RemoveMIA(kerbal.kerbal._pcm);
-                        }
                         kerbal.kerbal._pcm = null;
                     }
                 }

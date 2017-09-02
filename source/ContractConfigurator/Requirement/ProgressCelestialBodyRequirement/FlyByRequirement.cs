@@ -15,14 +15,15 @@ namespace ContractConfigurator
     {
         public override bool RequirementMet(ConfiguredContract contract)
         {
-            return base.RequirementMet(contract) &&
-                GetCelestialBodySubtree().flyBy.IsComplete;
+            CelestialBodySubtree tree = GetCelestialBodySubtree();
+            return base.RequirementMet(contract) && tree.flyBy != null &&
+                tree.flyBy.IsComplete;
         }
 
 
         protected override string RequirementText()
         {
-            string output = "Must " + (invertRequirement ? "not " : "") + "have performed " + ACheckTypeString() + "flyby of " + (targetBody == null ? "the target body" : targetBody.theName);
+            string output = "Must " + (invertRequirement ? "not " : "") + "have performed " + ACheckTypeString() + "flyby of " + (targetBody == null ? "the target body" : targetBody.CleanDisplayName(true));
 
             return output;
         }

@@ -172,7 +172,7 @@ namespace ContractConfigurator.Parameters
                 {
                     foreach (Vessel v in FlightGlobals.Vessels)
                     {
-                        if (v != v1)
+                        if (v != v1 && v.vesselType != VesselType.EVA && v.vesselType != VesselType.Debris && v.vesselType != VesselType.Flag)
                         {
                             float distance = Vector3.Distance(v1.transform.position, v.transform.position);
                             if (distance < this.distance)

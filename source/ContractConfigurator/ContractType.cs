@@ -145,7 +145,6 @@ namespace ContractConfigurator
         public string genericDescription = "";
         public string topic;
         public string subject;
-        public string motivation;
         public string synopsis;
         public string completedMessage;
         public Agent agent;
@@ -250,10 +249,16 @@ namespace ContractConfigurator
                 valid &= ConfigNodeUtil.ParseValue<string>(configNode, "description", x => description = x, this, (string)null);
                 valid &= ConfigNodeUtil.ParseValue<string>(configNode, "topic", x => topic = x, this, "");
                 valid &= ConfigNodeUtil.ParseValue<string>(configNode, "subject", x => subject = x, this, "");
-                valid &= ConfigNodeUtil.ParseValue<string>(configNode, "motivation", x => motivation = x, this, "");
                 valid &= ConfigNodeUtil.ParseValue<string>(configNode, "notes", x => notes = x, this, (string)null);
                 valid &= ConfigNodeUtil.ParseValue<string>(configNode, "synopsis", x => synopsis = x, this);
                 valid &= ConfigNodeUtil.ParseValue<string>(configNode, "completedMessage", x => completedMessage = x, this);
+
+                if (configNode.HasValue("motivation)"))
+                {
+                    string motivation;
+                    valid &= ConfigNodeUtil.ParseValue<string>(configNode, "motivation", x => motivation = x, this, "");
+                    LoggingUtil.LogWarning(this, "The 'motivation' attribute is no longer supported as of Contract Configurator 1.23.0");
+                }
 
                 // Load optional attributes
                 valid &= ConfigNodeUtil.ParseValue<Agent>(configNode, "agent", x => agent = x, this, group != null ? group.agent : null);
@@ -620,7 +625,8 @@ namespace ContractConfigurator
         /// <returns>Whether the generation was successful.</returns>
         public bool GenerateParameters(ConfiguredContract contract)
         {
-            return ParameterFactory.GenerateParameters(contract, contract, paramFactories);
+            return ParameterFactory.GenerateParameters(contract, contract, paramFactories) &&
+                contract.ParameterCount > 0; // Check that at least one parameter was generated
         }
 
         /// <summary>

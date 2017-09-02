@@ -134,7 +134,7 @@ namespace ContractConfigurator
                             " to work, and you are running version " + ainfoV.InformationalVersion +
                             ".  Please upgrade Contract Configurator to use the contracts in this group.";
                         DialogGUIButton dialogOption = new DialogGUIButton("Okay", new Callback(DoNothing), true);
-                        PopupDialog.SpawnPopupDialog(new MultiOptionDialog(message, title, UISkinManager.GetSkin("default"), dialogOption), false, UISkinManager.GetSkin("default"));
+                        PopupDialog.SpawnPopupDialog(new MultiOptionDialog("ContractConfiguratorMsg", message, title, UISkinManager.GetSkin("default"), dialogOption), false, UISkinManager.GetSkin("default"));
                     }
                 }
 

@@ -23,7 +23,15 @@ namespace ContractConfigurator
             // Load base class
             bool valid = base.Load(configNode);
 
-            valid &= ConfigNodeUtil.ParseValue<List<VesselIdentifier>>(configNode, "vessel", x => vessels = x, this, new List<VesselIdentifier>(), l => ValidateVesselList(l));
+            if (parent is VesselParameterGroupFactory)
+            {
+                valid &= ConfigNodeUtil.ParseValue<List<VesselIdentifier>>(configNode, "vessel", x => vessels = x, this, new List<VesselIdentifier>(), l => ValidateVesselList(l));
+            }
+            else
+            {
+                valid &= ConfigNodeUtil.ParseValue<List<VesselIdentifier>>(configNode, "vessel", x => vessels = x, this, l => ValidateVesselList(l));
+            }
+
             valid &= ConfigNodeUtil.ParseValue<double>(configNode, "distance", x => distance = x, this, 2000.0);
 
             return valid;

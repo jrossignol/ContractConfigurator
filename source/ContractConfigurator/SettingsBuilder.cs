@@ -17,6 +17,7 @@ namespace ContractConfigurator
         public override GameParameters.GameMode GameMode { get { return GameParameters.GameMode.CAREER; } }
         public override bool HasPresets { get { return false; } }
         public override string Section { get { return "Contract Configurator"; } }
+        public override string DisplaySection { get { return Section; } }
 
         public bool IsEnabled(string name)
         {

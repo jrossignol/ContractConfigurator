@@ -43,7 +43,6 @@ namespace ContractConfigurator
             {
                 yield return "KSC";
                 yield return "Administration";
-                yield return "AstronautComplex";
                 yield return "Crawlerway";
                 yield return "LaunchPad";
                 yield return "MissionControl";
@@ -52,6 +51,14 @@ namespace ContractConfigurator
                 yield return "SPH";
                 yield return "TrackingStation";
                 yield return "VAB";
+
+                // The AC is buggy for biomes before level 2
+                int aclevel = (int)Math.Round(ScenarioUpgradeableFacilities.GetFacilityLevel(SpaceCenterFacility.AstronautComplex) *
+                    ScenarioUpgradeableFacilities.GetFacilityLevelCount(SpaceCenterFacility.AstronautComplex)) + 1;
+                if (aclevel >= 2)
+                {
+                    yield return "AstronautComplex";
+                }
             }
         }
 
@@ -71,7 +78,7 @@ namespace ContractConfigurator
                 return biome;
             }
 
-            return (body == null ? "" : IsKSC() ? "KSC's " : (body.theName + "'s ")) + PrintBiomeName(biome);
+            return (body == null ? "" : IsKSC() ? "KSC's " : (body.CleanDisplayName() + "'s ")) + PrintBiomeName(biome);
         }
 
         public override bool Equals(object obj)

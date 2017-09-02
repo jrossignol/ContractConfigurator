@@ -72,11 +72,11 @@ namespace ContractConfigurator
             RegisterParameterFactories();
             RegisterBehaviourFactories();
             RegisterContractRequirements();
-            IEnumerator<YieldInstruction> iterator = LoadContractConfig();
-                while (iterator.MoveNext()) { }
+            IEnumerator<YieldInstruction> iterator = LoadGroupConfig();
+            while (iterator.MoveNext()) { }
             DebugWindow.LoadTextures();
 
-            LoggingUtil.LogInfo(this, "Contract Configurator " + ainfoV.InformationalVersion + " finished loading.");
+            StartCoroutine(FinalizeContractTypeLoad());
         }
 
         void Update()
@@ -201,7 +201,7 @@ namespace ContractConfigurator
 
             // Load contract configurator
             reloadStep = ReloadStep.LOAD_CONFIG;
-            IEnumerator<YieldInstruction> iterator = LoadContractConfig();
+            IEnumerator<YieldInstruction> iterator = LoadAllContractConfig();
             while (iterator.MoveNext())
             {
                 yield return iterator.Current;
@@ -322,7 +322,24 @@ namespace ContractConfigurator
         /// <summary>
         /// Loads all the contact configuration nodes and creates ContractType objects.
         /// </summary>
-        private IEnumerator<YieldInstruction> LoadContractConfig()
+        private IEnumerator<YieldInstruction> LoadAllContractConfig()
+        {
+            IEnumerator<YieldInstruction> iterator = LoadGroupConfig();
+            while (iterator.MoveNext())
+            {
+                yield return iterator.Current;
+            }
+            iterator = LoadContractTypeConfig();
+            while (iterator.MoveNext())
+            {
+                yield return iterator.Current;
+            }
+        }
+
+        /// <summary>
+        /// Loads all the contact configuration group nodes.
+        /// </summary>
+        private IEnumerator<YieldInstruction> LoadGroupConfig()
         {
             // Load all the contract groups
             LoggingUtil.LogDebug(this, "Loading CONTRACT_GROUP nodes.");
@@ -367,6 +384,42 @@ namespace ContractConfigurator
                 }
             }
 
+            if (!reloading)
+            {
+                yield return new WaitForEndOfFrame();
+            }
+
+            // Emit settings for the menu
+            SettingsBuilder.EmitSettings();
+
+            yield break;
+        }
+
+        public IEnumerator<YieldInstruction> FinalizeContractTypeLoad()
+        {
+            YieldInstruction eof = new WaitForEndOfFrame();
+            while (HighLogic.LoadedScene != GameScenes.MAINMENU)
+            {
+                yield return eof;
+            }
+            yield return eof;
+
+            IEnumerator<YieldInstruction> iterator = LoadContractTypeConfig();
+            while (iterator.MoveNext())
+            {
+                yield return iterator.Current;
+            }
+
+            var ainfoV = Attribute.GetCustomAttribute(typeof(ContractConfigurator).Assembly,
+                    typeof(AssemblyInformationalVersionAttribute)) as AssemblyInformationalVersionAttribute;
+            LoggingUtil.LogInfo(this, "Contract Configurator " + ainfoV.InformationalVersion + " finished loading.");
+        }
+
+        /// <summary>
+        /// Loads all the contact type nodes and creates ContractType objects.
+        /// </summary>
+        private IEnumerator<YieldInstruction> LoadContractTypeConfig()
+        {
             LoggingUtil.LogDebug(this, "Loading CONTRACT_TYPE nodes.");
             ConfigNode[] contractConfigs = GameDatabase.Instance.GetConfigNodes("CONTRACT_TYPE");
             totalContracts = contractConfigs.Count();
@@ -390,7 +443,10 @@ namespace ContractConfigurator
             foreach (ConfigNode contractConfig in contractConfigs)
             {
                 attemptedContracts++;
-                yield return new WaitForEndOfFrame();
+                if (reloading)
+                {
+                    yield return new WaitForEndOfFrame();
+                }
 
                 // Fetch the contractType
                 string name = contractConfig.GetValue("name");
@@ -423,9 +479,6 @@ namespace ContractConfigurator
 
             // Load other things
             MissionControlUI.GroupContainer.LoadConfig();
-
-            // Emit settings for the menu
-            SettingsBuilder.EmitSettings();
 
             if (!reloading && LoggingUtil.logLevel == LoggingUtil.LogLevel.DEBUG || LoggingUtil.logLevel == LoggingUtil.LogLevel.VERBOSE)
             {

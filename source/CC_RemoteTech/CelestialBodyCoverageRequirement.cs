@@ -70,7 +70,7 @@ namespace ContractConfigurator.RemoteTech
 
         protected override string RequirementText()
         {
-            string output = "Must " + (invertRequirement ? "not " : "") + "have between " + (minCoverage*100).ToString("N0") + "% and " + (maxCoverage*100).ToString("N0") + "% RemoteTech coverage of " + (targetBody == null ? "the target body" : targetBody.theName);
+            string output = "Must " + (invertRequirement ? "not " : "") + "have between " + (minCoverage*100).ToString("N0") + "% and " + (maxCoverage*100).ToString("N0") + "% RemoteTech coverage of " + (targetBody == null ? "the target body" : targetBody.CleanDisplayName(true));
 
             return output;
         }

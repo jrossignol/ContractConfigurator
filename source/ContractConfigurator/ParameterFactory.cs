@@ -278,18 +278,29 @@ namespace ContractConfigurator
             LoggingUtil.LogDebug(typeof(ParameterFactory), "Registering parameter factory class " +
                 factoryType.FullName + " for handling PARAMETER nodes with type = " + typeName + ".");
 
-            if (factories.ContainsKey(typeName))
+            // Make sure we can instantiate it (this will also run any static initializers)
+            Activator.CreateInstance(factoryType);
+
+            // Check for duplicates
+            Type existingType = null;
+            if (factories.TryGetValue(typeName, out existingType))
             {
-                LoggingUtil.LogError(typeof(ParameterFactory), "Cannot register " + factoryType.FullName + "[" + factoryType.Module +
-                    "] to handle type " + typeName + ": already handled by " +
-                    factories[typeName].FullName + "[" +
-                    factories[typeName].Module + "]");
+                // Give priority to non-Contract Configurator types
+                if (existingType.Assembly == typeof(ParameterFactory).Assembly)
+                {
+                    factories[typeName] = factoryType;
+                }
+                // If neither are the Contract Configurator type, throw an error
+                else if (factoryType.Assembly != typeof(ParameterFactory).Assembly)
+                {
+                    LoggingUtil.LogError(typeof(ParameterFactory), "Cannot register " + factoryType.FullName + "[" + factoryType.Module +
+                        "] to handle type " + typeName + ": already handled by " +
+                        existingType.FullName + "[" +
+                        existingType.Module + "]");
+                }
             }
             else
             {
-                // Make sure we can instantiate it (this will also run any static initializers)
-                Activator.CreateInstance(factoryType);
-
                 // Add it to our list
                 factories.Add(typeName, factoryType);
             }

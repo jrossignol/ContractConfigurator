@@ -34,7 +34,7 @@ namespace ContractConfigurator.Parameters
             string output;
             if (string.IsNullOrEmpty(title))
             {
-                output = "Perform an orbital resource survey of " + targetBody.theName;
+                output = "Perform an orbital resource survey of " + targetBody.CleanDisplayName(true);
             }
             else 
             {

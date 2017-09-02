@@ -50,15 +50,24 @@ namespace ContractConfigurator
 
         public override bool RequirementMet(ConfiguredContract contract)
         {
+            // Don't check active contracts in any scene but space center
+            if (HighLogic.LoadedScene != GameScenes.SPACECENTER && contract != null && contract.ContractState == Contracts.Contract.State.Active)
+            {
+                return true;
+            }
+
             int level = (int)Math.Round(ScenarioUpgradeableFacilities.GetFacilityLevel(facility) *
                 ScenarioUpgradeableFacilities.GetFacilityLevelCount(facility)) + 1;
-            return level == 0 && contract != null && contract.ContractState == Contracts.Contract.State.Active ||
-                level >= minLevel && level <= maxLevel;
+            return level >= minLevel && level <= maxLevel;
         }
 
         protected override string RequirementText()
         {
             string facilityName = Regex.Replace(facility.ToString(), @"([A-Z]+?(?=[A-Z][^A-Z])|\B[A-Z]+?(?=[^A-Z]))", " $1");
+            if (facility == SpaceCenterFacility.Administration || facility == SpaceCenterFacility.MissionControl || facility == SpaceCenterFacility.ResearchAndDevelopment)
+            {
+                facilityName += " Building";
+            }
 
             string output = "The " + facilityName + " must " + (invertRequirement ? "not " : "") + "be ";
             if (minLevel == maxLevel)

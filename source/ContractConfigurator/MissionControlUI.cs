@@ -757,6 +757,8 @@ namespace ContractConfigurator.Util
                 return;
             }
 
+            displayModeAll = false;
+
             // Set the state on the MissionControl object
             MissionControl.Instance.displayMode = MissionControl.DisplayMode.Available;
             MissionControl.Instance.toggleArchiveGroup.gameObject.SetActive(false);
@@ -789,17 +791,18 @@ namespace ContractConfigurator.Util
 
             HighLogic.CurrentGame.Parameters.CustomParams<ContractConfiguratorParameters>().lastMCButton =
                 ContractConfiguratorParameters.MissionControlButton.Available;
-            displayModeAll = false;
         }
 
         public void OnClickAll(bool selected)
         {
-            LoggingUtil.LogVerbose(this, "OnClickAll");
-
             if (!selected)
             {
                 return;
             }
+
+            displayModeAll = true;
+
+            LoggingUtil.LogVerbose(this, "OnClickAll");
 
             // Set the state on the MissionControl object
             MissionControl.Instance.displayMode = MissionControl.DisplayMode.Available;
@@ -819,7 +822,6 @@ namespace ContractConfigurator.Util
 
             HighLogic.CurrentGame.Parameters.CustomParams<ContractConfiguratorParameters>().lastMCButton =
                 ContractConfiguratorParameters.MissionControlButton.All;
-            displayModeAll = true;
 
             // Update the contract counts
             UpdateContractCounts();
@@ -868,7 +870,6 @@ namespace ContractConfigurator.Util
 
             // Force to the default state
             mcListItem.GetComponent<Image>().sprite = groupUnexpandedInactive;
-
 
             // Add the list item to the UI, and add indent
             if (previous == null)
@@ -1314,10 +1315,10 @@ namespace ContractConfigurator.Util
             int exceptionalMax = Math.Min(ContractConfigurator.ContractLimit(Contract.ContractPrestige.Exceptional), maxActive);
 
             string output = "";
-            output += string.Format("<b><color=#f4ee21>      <sprite=0 tint=1>\t </color><color=#DB8310>Trivial Contracts:\t\t</color></b>" + (trivialCount >= trivialMax ? "<color=#f97306>{0}  [Max: {1}]</color>\n" : "{0}  [Max: {1}]\n"), trivialCount, trivialMax);
-            output += string.Format("<b><color=#f4ee21>   <sprite=0 tint=1><sprite=0 tint=1>\t </color><color=#DB8310>Significant Contracts:\t</color></b>" + (significantCount >= significantMax ? "<color=#f97306>{0}  [Max: {1}]</color>\n" : "{0}  [Max: {1}]\n"), significantCount, significantMax);
-            output += string.Format("<b><color=#f4ee21><sprite=0 tint=1><sprite=0 tint=1><sprite=0 tint=1>\t </color><color=#DB8310>Exceptional Contracts:\t</color></b>" + (exceptionalCount >= exceptionalMax ? "<color=#f97306>{0}  [Max: {1}]</color>\n" : "{0}  [Max: {1}]\n"), exceptionalCount, exceptionalMax);
-            output += string.Format("<b>\t <color=#DB8310>All Active Contracts:\t\t</color></b>" + (maxActive == int.MaxValue ? "{0}" : activeCount >= maxActive ? "<color=#f97306>{0}  [Max: {1}]</color>" : "{0}  [Max: {1}]"), activeCount, maxActive);
+            output += string.Format("<b><color=#f4ee21><sprite=\"CurrencySpriteAsset\" name=\"Reputation\" tint=1>\t\t</color><color=#DB8310>Trivial Contracts:\t\t</color></b>" + (trivialCount >= trivialMax ? "<color=#f97306>{0}  [Max: {1}]</color>\n" : "{0}  [Max: {1}]\n"), trivialCount, trivialMax);
+            output += string.Format("<b><color=#f4ee21><sprite=\"CurrencySpriteAsset\" name=\"Reputation\" tint=1><sprite=\"CurrencySpriteAsset\" name=\"Reputation\" tint=1>\t\t</color><color=#DB8310>Significant Contracts:\t</color></b>" + (significantCount >= significantMax ? "<color=#f97306>{0}  [Max: {1}]</color>\n" : "{0}  [Max: {1}]\n"), significantCount, significantMax);
+            output += string.Format("<b><color=#f4ee21><sprite=\"CurrencySpriteAsset\" name=\"Reputation\" tint=1><sprite=\"CurrencySpriteAsset\" name=\"Reputation\" tint=1><sprite=\"CurrencySpriteAsset\" name=\"Reputation\" tint=1>\t</color><color=#DB8310>Exceptional Contracts:\t</color></b>" + (exceptionalCount >= exceptionalMax ? "<color=#f97306>{0}  [Max: {1}]</color>\n" : "{0}  [Max: {1}]\n"), exceptionalCount, exceptionalMax);
+            output += string.Format("<b>\t\t<color=#DB8310>All Active Contracts:\t\t</color></b>" + (maxActive == int.MaxValue ? "{0}" : activeCount >= maxActive ? "<color=#f97306>{0}  [Max: {1}]</color>" : "{0}  [Max: {1}]"), activeCount, maxActive);
             MissionControl.Instance.textMCStats.text = output;
         }
 
@@ -1426,7 +1427,7 @@ namespace ContractConfigurator.Util
             if (displayModeAll)
             {
                 float preferredHeight = mcListItem.title.GetPreferredValues(mcListItem.title.text, 316 - cc.indent * 12 - 64, TMPro.TMP_Math.FLOAT_MAX).y;
-                bool twoLines = preferredHeight > 14;
+                bool twoLines = preferredHeight > 17;
                 mcListItem.GetComponent<LayoutElement>().preferredHeight = twoLines ? 38 : 25;
                 if (cc.statusRect != null)
                 {
@@ -1518,7 +1519,7 @@ namespace ContractConfigurator.Util
                 GameEvents.Modifiers.OnCurrencyModifierQuery.Fire(q);
                 float fundsRequired = contractType.advanceFunds + q.GetEffectDelta(Currency.Funds);
 
-                text += RequirementLine("Must have {0} funds for advance", Funding.CanAfford(fundsRequired));
+                text += RequirementLine(StringBuilderCache.Format("Must have {0} funds for advance", fundsRequired), Funding.CanAfford(fundsRequired));
             }
 
             // Do text for max completions
@@ -1608,7 +1609,7 @@ namespace ContractConfigurator.Util
                 if (bodyInfoDict.ContainsKey(body) && !body.isHomeWorld)
                 {
                     RBWrapper.CelestialBodyInfo bodyInfo = bodyInfoDict[body];
-                    output += RequirementLine("Must have researched " + body.theName, bodyInfo.isResearched);
+                    output += RequirementLine("Must have researched " + body.CleanDisplayName(true), bodyInfo.isResearched);
                 }
             }
 

@@ -262,8 +262,7 @@ namespace ContractConfigurator
                 if (string.IsNullOrEmpty(contractType.description) && agent != null)
                 {
                     // Generate the contract description
-                    description = TextGen.GenerateBackStories(agent.Name, agent.GetMindsetString(),
-                        contractType.topic, contractType.subject, contractType.motivation, random.Next());
+                    description = TextGen.GenerateBackStories("ConfiguredContract", agent.Name, contractType.topic, contractType.subject, random.Next(), true, true, true);
                 }
                 else
                 {
@@ -458,6 +457,12 @@ namespace ContractConfigurator
                 {
                     ContractBehaviour behaviour = ContractBehaviour.LoadBehaviour(child, this);
                     behaviours.Add(behaviour);
+                }
+
+                foreach (ConfigNode child in node.GetNodes("REQUIREMENT"))
+                {
+                    ContractRequirement requirement = ContractRequirement.LoadRequirement(child);
+                    requirements.Add(requirement);
                 }
 
                 // If the contract type is null, then it likely means that it was uninstalled
@@ -755,6 +760,7 @@ namespace ContractConfigurator
             }
 
             GameEvents.onVesselChange.Add(new EventData<Vessel>.OnEvent(OnVesselChange));
+            OnStateChange.Add(new EventData<State>.OnEvent(SelfStateChanged));
         }
 
         protected override void OnUnregister()
@@ -767,6 +773,7 @@ namespace ContractConfigurator
             }
 
             GameEvents.onVesselChange.Remove(new EventData<Vessel>.OnEvent(OnVesselChange));
+            OnStateChange.Remove(new EventData<State>.OnEvent(SelfStateChanged));
         }
 
         protected override void OnUpdate()
@@ -808,6 +815,14 @@ namespace ContractConfigurator
             foreach (ContractBehaviour behaviour in behaviours)
             {
                 behaviour.Withdraw();
+            }
+        }
+
+        protected void SelfStateChanged(State state)
+        {
+            if (targetBody != null)
+            {
+                ContractSystem.AdjustWeight(targetBody.name, this);
             }
         }
 

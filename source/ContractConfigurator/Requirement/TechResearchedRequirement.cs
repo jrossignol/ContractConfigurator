@@ -39,7 +39,7 @@ namespace ContractConfigurator
             }
 
             valid &= ConfigNodeUtil.ParseValue<List<string>>(configNode, "partModule", x => partModules = x, this, new List<string>(), x => x.All(Validation.ValidatePartModule));
-            valid &= ConfigNodeUtil.ParseValue<List<string>>(configNode, "partModuleType", x => partModuleTypes = x, this, new List<string>());
+            valid &= ConfigNodeUtil.ParseValue<List<string>>(configNode, "partModuleType", x => partModuleTypes = x, this, new List<string>(), x => x.All(Validation.ValidatePartModuleType));
 
             valid &= ConfigNodeUtil.AtLeastOne(configNode, new string[] { "tech", "part", "partModule", "partModuleType" }, this);
 

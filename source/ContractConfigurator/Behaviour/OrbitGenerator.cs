@@ -199,7 +199,7 @@ namespace ContractConfigurator.Behaviour
         {
             if (obData.orbitType == OrbitType.KOLNIYA && !CelestialUtilities.CanBodyBeKolniya(obData.targetBody))
             {
-                string error = string.Format("Cannot use a Kolniya orbit with {0}.", obData.targetBody.theName);
+                string error = string.Format("Cannot use a Kolniya orbit with {0}.", obData.targetBody.CleanDisplayName(true));
                 if (factory != null)
                 {
                     LoggingUtil.LogError(factory, factory.ErrorPrefix() + ": " + error);
@@ -212,7 +212,7 @@ namespace ContractConfigurator.Behaviour
             }
             else if (obData.orbitType == OrbitType.TUNDRA && !CelestialUtilities.CanBodyBeTundra(obData.targetBody))
             {
-                string error = string.Format("Cannot use a tundra orbit with {0}.", obData.targetBody.theName);
+                string error = string.Format("Cannot use a tundra orbit with {0}.", obData.targetBody.CleanDisplayName(true));
                 if (factory != null)
                 {
                     LoggingUtil.LogError(factory, factory.ErrorPrefix() + ": " + error);
@@ -254,19 +254,27 @@ namespace ContractConfigurator.Behaviour
         {
             if (filter == MapViewFiltering.VesselTypeFilter.None)
             {
+                if (contract == null)
+                {
+                    return;
+                }
+
                 // Reset state of renderers
                 foreach (OrbitData obData in orbits)
                 {
                     ContractConfiguratorParameters parms = HighLogic.CurrentGame.Parameters.CustomParams<ContractConfiguratorParameters>();
 
-                    if (contract.ContractState == Contract.State.Active && parms.DisplayActiveOrbits ||
-                        contract.ContractState == Contract.State.Offered && parms.DisplayOfferedOrbits)
+                    if (parms != null  && obData != null)
                     {
-                        obData.SetupRenderer();
-                    }
-                    else
-                    {
-                        obData.CleanupRenderer();
+                        if (contract.ContractState == Contract.State.Active && parms.DisplayActiveOrbits ||
+                            contract.ContractState == Contract.State.Offered && parms.DisplayOfferedOrbits)
+                        {
+                            obData.SetupRenderer();
+                        }
+                        else
+                        {
+                            obData.CleanupRenderer();
+                        }
                     }
                 }
             }
