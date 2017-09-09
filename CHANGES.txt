@@ -1,4 +1,5 @@
 Contract Configurator 1.23.3
+- Improved display of HasAntenna parameter ratings (thanks Kerbas-ad-astra).
 - Fixed logic for determining contract prestige (thanks sopindm).
 - Fixed previously unlocked parts being re-locked if player tries to buy a science node they don't have sufficient funds for (thanks inigma).
 
