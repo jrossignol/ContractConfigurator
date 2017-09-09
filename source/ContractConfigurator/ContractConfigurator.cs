@@ -526,9 +526,12 @@ namespace ContractConfigurator
         // Remove experimental parts when a tech is researched
         private void OnTechResearched(GameEvents.HostTargetAction<RDTech, RDTech.OperationResult> hta)
         {
-            foreach (AvailablePart p in hta.host.partsAssigned)
+            if (hta.target == RDTech.OperationResult.Successful)
             {
-                ResearchAndDevelopment.RemoveExperimentalPart(p);
+                foreach (AvailablePart p in hta.host.partsAssigned)
+                {
+                    ResearchAndDevelopment.RemoveExperimentalPart(p);
+                }
             }
         }
 
