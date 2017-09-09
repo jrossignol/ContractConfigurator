@@ -43,24 +43,24 @@ namespace ContractConfigurator.Parameters
             {
 				if (antennaType == AntennaType.TRANSMIT)
 				{
-					this.title = "Transmit antenna (combined): ";
+					this.title = "Transmit antenna rating (combined): ";
 				}
 				else
 				{
-					this.title = "Relay antenna (combined): ";
+					this.title = "Relay antenna rating (combined): ";
 				}
 
                 if (maxAntennaPower == double.MaxValue)
                 {
-                    this.title += "At least " + minAntennaPower + " power";
+					this.title += "At least " + KSPUtil.PrintSI(minAntennaPower,"");
                 }
                 else if (minAntennaPower == 0.0)
                 {
-                    this.title += "At most " + maxAntennaPower + " power";
+                    this.title += "At most " + KSPUtil.PrintSI(maxAntennaPower,"");
                 }
                 else
                 {
-                    this.title += "Between " + minAntennaPower + " and " + maxAntennaPower + " power";
+                    this.title += "Between " + KSPUtil.PrintSI(minAntennaPower,"") + " and " + KSPUtil.PrintSI(maxAntennaPower,"");
                 }
             }
             else
