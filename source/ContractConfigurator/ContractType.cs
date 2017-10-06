@@ -422,6 +422,7 @@ namespace ContractConfigurator
                                     copy.AddNode(dataNode);
                                     dataNode.AddValue("type", dataExpandNode.GetValue("type"));
                                     dataNode.AddValue(key, val);
+                                    dataNode.AddValue("isLiteral", true);
 
                                     ContractType contractTypeCopy = new ContractType(newName);
                                     contractTypeCopy.Load(copy);
