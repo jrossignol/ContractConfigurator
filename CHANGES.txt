@@ -1,3 +1,7 @@
+Contract Configurator 1.24.0
+- Recompile for KSP 1.4.0
+- Added back MODULE checks in simple version of PartValidation (thanks chrisl).
+
 Contract Configurator 1.23.3
 - Recompile for KSP 1.3.1
 - Improved display of HasAntenna parameter ratings (thanks Kerbas-ad-astra).

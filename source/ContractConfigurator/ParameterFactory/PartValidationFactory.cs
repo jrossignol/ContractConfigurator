@@ -45,6 +45,18 @@ namespace ContractConfigurator
                 valid &= ConfigNodeUtil.ParseValue<List<string>>(configNode, "partModuleType", x => filter.partModuleTypes = x, this, new List<string>(), x => x.All(Validation.ValidatePartModuleType));
                 valid &= ConfigNodeUtil.ParseValue<PartCategories?>(configNode, "category", x => filter.category = x, this, (PartCategories?)null);
                 valid &= ConfigNodeUtil.ParseValue<string>(configNode, "manufacturer", x => filter.manufacturer = x, this, (string)null);
+
+                // Add modules
+                foreach (ConfigNode moduleNode in configNode.GetNodes("MODULE"))
+                {
+                    ConfigNode.ValueList tmp = new ConfigNode.ValueList();
+                    foreach (ConfigNode.Value v in moduleNode.values)
+                    {
+                        tmp.Add(new ConfigNode.Value(v.name, v.value));
+                    }
+                    filter.partModuleExtended.Add(tmp);
+                }
+
                 filters.Add(filter);
             }
 
