@@ -119,10 +119,10 @@ namespace ContractConfigurator
 
             if (GameSettings.KERBIN_TIME)
             {
-                SecondsPerYear = 9201600;  // = 426d
-                SecondsPerDay = 21600;     // = 6h
-                SecondsPerHour = 3600;     // = 60m
-                SecondsPerMinute = 60;     // = 60s
+                SecondsPerYear = (uint)KSPUtil.dateTimeFormatter.Year;
+                SecondsPerDay = (uint)KSPUtil.dateTimeFormatter.Day;
+                SecondsPerHour = (uint)KSPUtil.dateTimeFormatter.Hour;
+                SecondsPerMinute = (uint)KSPUtil.dateTimeFormatter.Minute;
             }
         }
 
