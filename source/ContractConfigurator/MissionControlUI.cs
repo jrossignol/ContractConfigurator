@@ -992,7 +992,7 @@ namespace ContractConfigurator.Util
             RectTransform textRect = textObject.GetComponent<RectTransform>();
 
             // Create or find a text object to display the number of contracts
-            Transform transform = groupContainer.mcListItem.title.transform.parent.FindChild("AvailableText");
+            Transform transform = groupContainer.mcListItem.title.transform.parent.Find("AvailableText");
             GameObject availableTextObject = null;
             if (transform != null)
             {
