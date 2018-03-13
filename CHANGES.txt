@@ -1,3 +1,6 @@
+Contract Configurator 1.24.1
+- Fix error message when despawning spawned Kerbals (thanks steve_v).
+
 Contract Configurator 1.24.0
 - Recompile for KSP 1.4.0
 - Added back MODULE checks in simple version of PartValidation (thanks chrisl).

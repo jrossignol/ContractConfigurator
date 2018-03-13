@@ -407,27 +407,9 @@ namespace ContractConfigurator.Behaviour
             count = Convert.ToInt32(node.GetValue("count"));
             removePassengers = ConfigNodeUtil.ParseValue<bool?>(node, "removePassengers", null) ?? true;
 
-            // Legacy support from Contract Configurator 1.8.3
-            if (node.HasValue("potentialPassenger"))
+            foreach (ConfigNode kerbalNode in node.GetNodes("KERBAL"))
             {
-                List<string> passengerNames = ConfigNodeUtil.ParseValue<List<string>>(node, "potentialPassenger", new List<string>());
-                ProtoCrewMember.Gender gender = ConfigNodeUtil.ParseValue<ProtoCrewMember.Gender>(node, "gender", Kerbal.RandomGender());
-                ProtoCrewMember.KerbalType kerbalType = ConfigNodeUtil.ParseValue<ProtoCrewMember.KerbalType>(node, "kerbalType", ProtoCrewMember.KerbalType.Tourist);
-                string experienceTrait = ConfigNodeUtil.ParseValue<string>(node, "experienceTrait", Kerbal.RandomExperienceTrait());
-
-                kerbals = passengerNames.Select(name => new Kerbal(gender, name, experienceTrait)).ToList();
-
-                foreach (Kerbal kerbal in kerbals)
-                {
-                    kerbal.kerbalType = kerbalType;
-                }
-            }
-            else
-            {
-                foreach (ConfigNode kerbalNode in node.GetNodes("KERBAL"))
-                {
-                    kerbals.Add(Kerbal.Load(kerbalNode));
-                }
+                kerbals.Add(Kerbal.Load(kerbalNode));
             }
 
             foreach (ConfigNode child in node.GetNodes("PASSENGER_DATA"))
