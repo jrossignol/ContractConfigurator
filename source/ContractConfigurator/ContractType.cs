@@ -404,6 +404,10 @@ namespace ContractConfigurator
                                     {
                                         LoggingUtil.LogWarning(this, ErrorPrefix() + ": Received an empty list of values when trying to do a DATA_EXPAND");
                                     }
+                                    else
+                                    {
+                                        LoggingUtil.LogWarning(this, ErrorPrefix() + ": Not expanding DATA_EXPAND node as the contract had validation errors.");
+                                    }
                                     valid = false;
                                     break;
                                 }
