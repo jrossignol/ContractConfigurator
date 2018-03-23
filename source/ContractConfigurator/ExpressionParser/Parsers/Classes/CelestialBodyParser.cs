@@ -151,13 +151,13 @@ namespace ContractConfigurator.ExpressionParser
                 case ProgressItem.REACHED:
                     return tree.IsReached;
                 case ProgressItem.ORBITED:
-                    return tree.orbit.IsComplete;
+                    return tree.orbit != null && tree.orbit.IsComplete;
                 case ProgressItem.LANDED:
-                    return tree.landing.IsComplete;
+                    return tree.landing != null && tree.landing.IsComplete;
                 case ProgressItem.ESCAPED:
-                    return tree.escape.IsComplete;
+                    return tree.escape != null && tree.escape.IsComplete;
                 case ProgressItem.RETURNED_FROM:
-                    return tree.returnFromFlyby.IsComplete;
+                    return tree.returnFromFlyby != null && tree.returnFromFlyby.IsComplete;
             }
 
             return false;
