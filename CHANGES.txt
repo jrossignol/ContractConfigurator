@@ -1,4 +1,5 @@
 Contract Configurator 1.24.1
+- Re-enabled RemoteTech and Kerbal Konstructs integration for KSP 1.4.1.
 - Fix error message when despawning spawned Kerbals (thanks steve_v).
 - Added a warning message when validation errors prevent a DATA_EXPAND node from being parsed (thanks gyf1214).
 - Fixed NRE when checking progress nodes (thanks DocMop).

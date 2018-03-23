@@ -31,7 +31,7 @@ namespace ContractConfigurator.RemoteTech
                 public bool Powered { get { return true; } }
                 public bool Connected { get { return true; } }
                 public bool CanTarget { get { return false; } }
-                public bool CanRelaySignal { get { return true; } }
+                public bool CanRelaySignal { get { return false; } }
                 public Guid Target { get { return Guid.Empty; } set { } }
                 public float Dish { get { return -1.0f; } }
                 public double CosAngle { get { return 1.0f; } }
@@ -60,6 +60,8 @@ namespace ContractConfigurator.RemoteTech
             public bool Powered { get { return true; } }
             public bool IsCommandStation { get { return true; } }
             public bool HasLocalControl { get { return true; } }
+
+            public bool CanRelaySignal { get { return false; } }
 
             /// <summary>
             /// Indicates whether the ISatellite corresponds to a vessel
