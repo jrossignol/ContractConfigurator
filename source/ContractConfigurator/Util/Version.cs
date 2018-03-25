@@ -35,7 +35,10 @@ namespace ContractConfigurator.Util
             var assembly = assemblies.FirstOrDefault();
             if (assembly != null)
             {
-                LoggingUtil.LogWarning(typeof(ContractConfigurator), StringBuilderCache.Format("Multiple assemblies with name '{0}' found!", name));
+                if (assemblies.Count() > 1)
+                {
+                    LoggingUtil.LogWarning(typeof(ContractConfigurator), StringBuilderCache.Format("Multiple assemblies with name '{0}' found!", name));
+                }
 
                 string receivedStr;
 
