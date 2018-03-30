@@ -227,7 +227,7 @@ namespace ContractConfigurator.Behaviour
 
             public override void OnSave(ConfigNode configNode)
             {
-                configNode.AddValue("text", text.Replace("\n", "\\n"));
+                configNode.AddValue("text", text.Replace("\n", "&br;"));
                 int a = (int)(textColor.a * 255);
                 int r = (int)(textColor.r * 255);
                 int g = (int)(textColor.g * 255);

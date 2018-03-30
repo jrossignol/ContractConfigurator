@@ -395,7 +395,7 @@ namespace ContractConfigurator
             // Do newline conversions
             else if (typeof(T) == typeof(string))
             {
-                value = (T)(object)stringValue.Replace("\\n", "\n");
+                value = (T)(object)stringValue.Replace("&br;", "\n").Replace("\\n", "\n");
             }
             // Try a basic type
             else

@@ -209,6 +209,7 @@ namespace ContractConfigurator.ExpressionParser
                     }
                 }
 
+                value = value.Replace("&br;", "\n");
                 value = value.Replace("\\n", "\n");
 
                 if (expression.Length > 0 && parentParser == null)

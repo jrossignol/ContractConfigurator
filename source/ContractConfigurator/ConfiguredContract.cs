@@ -506,23 +506,23 @@ namespace ContractConfigurator
                 node.AddValue("subtype", subType);
                 if (!string.IsNullOrEmpty(title))
                 {
-                    node.AddValue("title", title.Replace("\n", "\\n"));
+                    node.AddValue("title", title.Replace("\n", "&br;"));
                 }
                 if (!string.IsNullOrEmpty(description))
                 {
-                    node.AddValue("description", description.Replace("\n", "\\n"));
+                    node.AddValue("description", description.Replace("\n", "&br;"));
                 }
                 if (!string.IsNullOrEmpty(synopsis))
                 {
-                    node.AddValue("synopsis", synopsis.Replace("\n", "\\n"));
+                    node.AddValue("synopsis", synopsis.Replace("\n", "&br;"));
                 }
                 if (!string.IsNullOrEmpty(completedMessage))
                 {
-                    node.AddValue("completedMessage", completedMessage.Replace("\n", "\\n"));
+                    node.AddValue("completedMessage", completedMessage.Replace("\n", "&br;"));
                 }
                 if (!string.IsNullOrEmpty(notes))
                 {
-                    node.AddValue("notes", notes.Replace("\n", "\\n"));
+                    node.AddValue("notes", notes.Replace("\n", "&br;"));
                 }
                 node.AddValue("hash", hash);
 
