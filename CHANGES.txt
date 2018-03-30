@@ -6,6 +6,7 @@ Contract Configurator 1.24.1
 - Fixed NRE when checking progress nodes (thanks DocMop).
 - Fixed issue with duplicate assembly warning showing up when it shouldn't (thanks Gordon Dry).
 - Fixed some issues with handling of newlines in config nodes (thanks inigma).
+- Use case insensitive string comparison when loading celestial bodies in saved expressions (thanks gyf214).
 
 Contract Configurator 1.24.0
 - Recompile for KSP 1.4.0
