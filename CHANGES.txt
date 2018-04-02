@@ -1,3 +1,6 @@
+Contract Configurator 1.24.2
+- Workaround for stock bug #18267 (contract parameters creating extra messages on completion).
+
 Contract Configurator 1.24.1
 - Recompile against KSP 1.4.2
 - Re-enabled RemoteTech and Kerbal Konstructs integration for KSP 1.4.x.
