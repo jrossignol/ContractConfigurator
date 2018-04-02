@@ -1,3 +1,6 @@
+Contract Configurator 1.24.3
+- Proper fix for last release (thanks Warezcrawler).
+
 Contract Configurator 1.24.2
 - Workaround for stock bug #18267 (contract parameters creating extra messages on completion).
 
