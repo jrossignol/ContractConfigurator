@@ -1,3 +1,6 @@
+Contract Configurator 1.24.4
+- More attempts to workaround stock bug.
+
 Contract Configurator 1.24.3
 - Proper fix for last release (thanks Warezcrawler).
 
