@@ -62,6 +62,7 @@ namespace ContractConfigurator.RemoteTech
             public bool HasLocalControl { get { return true; } }
 
             public bool CanRelaySignal { get { return false; } }
+            public bool IsInRadioBlackout { get; set; }
 
             /// <summary>
             /// Indicates whether the ISatellite corresponds to a vessel
