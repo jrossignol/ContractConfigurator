@@ -1,4 +1,5 @@
 Contract Configurator 1.24.5
+- Increased max active contract multiplier slider maximum from 2.0 to 8.0.
 - Support for RemoteTech 1.8.10.3 (thanks wraithan).
 
 Contract Configurator 1.24.4
