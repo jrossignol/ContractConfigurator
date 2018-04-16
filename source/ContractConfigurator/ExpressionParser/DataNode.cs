@@ -283,6 +283,10 @@ namespace ContractConfigurator.ExpressionParser
             {
                 output = ((Vessel)(value)).vesselName;
             }
+            else if (type == typeof(Experience.ExperienceTrait))
+            {
+                output = ((Experience.ExperienceTrait)(value)).TypeName;
+            }
             else if (type.Name == "List`1")
             {
                 output = "[ ";

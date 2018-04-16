@@ -1,4 +1,6 @@
-Contract Configurator 1.24.5
+Contract Configurator 1.25.0
+- Added ExperienceTrait to parser.
+- Kerbal.ExperienceTrait now returns an ExperienceTrait instead of a localised string.
 - Increased max active contract multiplier slider maximum from 2.0 to 8.0.
 - Support for RemoteTech 1.8.10.3 (thanks wraithan).
 

@@ -26,7 +26,7 @@ namespace ContractConfigurator.ExpressionParser
         {
             RegisterMethod(new Method<Kerbal, float>("Experience", k => k == null ? 0.0f : k.experience));
             RegisterMethod(new Method<Kerbal, int>("ExperienceLevel", k => k == null ? 0 : k.experienceLevel));
-            RegisterMethod(new Method<Kerbal, string>("ExperienceTrait", k => k == null ? null : k.experienceTrait));
+            RegisterMethod(new Method<Kerbal, Experience.ExperienceTrait>("ExperienceTrait", k => k == null ? null : k.pcm.experienceTrait));
             RegisterMethod(new Method<Kerbal, ProtoCrewMember.RosterStatus>("RosterStatus", k => k == null ? ProtoCrewMember.RosterStatus.Dead : k.rosterStatus));
             RegisterMethod(new Method<Kerbal, ProtoCrewMember.KerbalType>("Type", k => k == null ? ProtoCrewMember.KerbalType.Applicant : k.kerbalType));
             RegisterMethod(new Method<Kerbal, ProtoCrewMember.Gender>("Gender", k => k == null ? ProtoCrewMember.Gender.Male : k.gender));
