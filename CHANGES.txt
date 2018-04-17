@@ -1,3 +1,6 @@
+Contract Configurator 1.25.1
+- Fixed a bug that prevented casting from string to ExperienceTrait.
+
 Contract Configurator 1.25.0
 - Added ExperienceTrait to parser.
 - Kerbal.ExperienceTrait now returns an ExperienceTrait instead of a localised string.

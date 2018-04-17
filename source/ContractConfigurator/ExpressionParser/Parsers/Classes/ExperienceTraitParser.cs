@@ -49,6 +49,38 @@ namespace ContractConfigurator.ExpressionParser
             return base.ConvertType<U>(value);
         }
 
+        public override bool ConvertableFrom(Type type)
+        {
+            return type == typeof(string);
+        }
+
+        public override ExperienceTrait ConvertFrom<U>(U value)
+        {
+            LoggingUtil.LogDebug(this, StringBuilderCache.Format("ExperienceTraitParser.ConvertFrom<{0}>({1}", typeof(U), value));
+            if (typeof(U) == typeof(string))
+            {
+                string sVal = (string)(object)value;
+
+                if (HighLogic.CurrentGame == null)
+                {
+                    currentDataNode.SetDeterministic(currentKey, false);
+                    return null;
+                }
+
+                for (int index = 0; index < GameDatabase.Instance.ExperienceConfigs.Categories.Count; ++index)
+                {
+                    if (sVal == GameDatabase.Instance.ExperienceConfigs.Categories[index].Name)
+                    {
+                        Type type = KerbalRoster.GetExperienceTraitType(sVal) ?? typeof(ExperienceTrait);
+                        return ExperienceTrait.Create(type, GameDatabase.Instance.ExperienceConfigs.Categories[index], null);
+                    }
+                }
+
+                throw new ArgumentException("'" + sVal + "' is not a valid experience trait.");
+            }
+            throw new DataStoreCastException(typeof(U), typeof(ExperienceTrait));
+        }
+
         public override bool EQ(ExperienceTrait a, ExperienceTrait b)
         {
             if (base.EQ(a, b))
