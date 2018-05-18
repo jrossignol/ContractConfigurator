@@ -232,7 +232,7 @@ namespace ContractConfigurator.ExpressionParser
 
         public override CelestialBody ParseIdentifier(Token token)
         {
-            // Try to parse more, as celestibla body names can have spaces
+            // Try to parse more, as celestial body names can have spaces
             Match m = Regex.Match(expression, @"^((?>\s*[\w\d]+)+).*");
             string identifier = m.Groups[1].Value;
             expression = (expression.Length > identifier.Length ? expression.Substring(identifier.Length) : "");
@@ -242,7 +242,16 @@ namespace ContractConfigurator.ExpressionParser
             {
                 return null;
             }
-            return ConfigNodeUtil.ParseCelestialBodyValue(identifier);
+
+            try
+            {
+                return ConfigNodeUtil.ParseCelestialBodyValue(identifier);
+            }
+            // Treat invalid CBs as null, improves compatibility with planet packs
+            catch (ArgumentException)
+            {
+                return null;
+            }
         }
     }
 }

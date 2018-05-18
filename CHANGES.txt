@@ -1,4 +1,5 @@
-Contract Configurator 1.25.1
+Contract Configurator 1.26.0
+- Invalid Celestial Bodies constants no longer throw an error on parsing (improves overall support for planet packs that remove/rename planets).
 - Fixed a bug that prevented casting from string to ExperienceTrait.
 
 Contract Configurator 1.25.0
