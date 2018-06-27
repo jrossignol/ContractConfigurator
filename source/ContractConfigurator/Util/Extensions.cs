@@ -269,7 +269,7 @@ namespace ContractConfigurator
             strArr[0] = body.GetDisplayName();
             string displayName = KSP.Localization.Localizer.Format("<<1>>", strArr);
 
-            if (lower && displayName != body.name)
+            if (lower && displayName != body.name && displayName != "Gael")
             {
                 displayName = Char.ToLowerInvariant(displayName[0]) + displayName.Substring(1);
             }
