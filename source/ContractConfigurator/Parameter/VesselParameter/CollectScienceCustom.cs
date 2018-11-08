@@ -262,7 +262,7 @@ namespace ContractConfigurator.Parameters
                 vesselBiome = ScienceUtil.GetExperimentBiome(vessel.mainBody, vessel.latitude, vessel.longitude);
             }
 
-            return vesselBiome.Replace(" ", "") == biome;
+            return vesselBiome.Replace(" ", "") == biome.Replace(" ", "");
         }
 
         protected override void OnParameterSave(ConfigNode node)
