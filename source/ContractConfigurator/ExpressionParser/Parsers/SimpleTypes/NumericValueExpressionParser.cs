@@ -171,6 +171,16 @@ namespace ContractConfigurator.ExpressionParser
 
             RegisterMethod(new Method<T, string>("Print", PrintNumber));
             RegisterMethod(new Method<T, string, string>("ToString", ToString));
+            
+            RegisterLocalFunction(new Function<T, T>("Sin", Sin));
+            RegisterLocalFunction(new Function<T, T>("Cos", Cos));
+            RegisterLocalFunction(new Function<T, T>("Tan", Tan));
+            RegisterLocalFunction(new Function<T, T>("Asin", Asin));
+            RegisterLocalFunction(new Function<T, T>("Acos", Acos));
+            RegisterLocalFunction(new Function<T, T>("Atan", Atan));
+            RegisterLocalFunction(new Function<T, T>("Sinh", Sinh));
+            RegisterLocalFunction(new Function<T, T>("Cosh", Cosh));
+            RegisterLocalFunction(new Function<T, T>("Tanh", Tanh));
         }
 
         public static string PrintNumber(T tval)
@@ -272,6 +282,78 @@ namespace ContractConfigurator.ExpressionParser
 
             double val = precision * Math.Round(dval / precision);
 
+            return (T)Convert.ChangeType(val, typeof(T));
+        }
+        
+        private static T Sin(T a)
+        {
+            double da = (double)Convert.ChangeType(a, typeof(double));
+
+            double val = Math.Sin(da);
+            return (T)Convert.ChangeType(val, typeof(T));
+        }
+
+        private static T Cos(T a)
+        {
+            double da = (double)Convert.ChangeType(a, typeof(double));
+
+            double val = Math.Cos(da);
+            return (T)Convert.ChangeType(val, typeof(T));
+        }
+
+        private static T Tan(T a)
+        {
+            double da = (double)Convert.ChangeType(a, typeof(double));
+
+            double val = Math.Tan(da);
+            return (T)Convert.ChangeType(val, typeof(T));
+        }
+
+        private static T Asin(T a)
+        {
+            double da = (double)Convert.ChangeType(a, typeof(double));
+
+            double val = Math.Asin(da);
+            return (T)Convert.ChangeType(val, typeof(T));
+        }
+
+        private static T Acos(T a)
+        {
+            double da = (double)Convert.ChangeType(a, typeof(double));
+
+            double val = Math.Acos(da);
+            return (T)Convert.ChangeType(val, typeof(T));
+        }
+
+        private static T Atan(T a)
+        {
+            double da = (double)Convert.ChangeType(a, typeof(double));
+
+            double val = Math.Atan(da);
+            return (T)Convert.ChangeType(val, typeof(T));
+        }
+
+        private static T Sinh(T a)
+        {
+            double da = (double)Convert.ChangeType(a, typeof(double));
+
+            double val = Math.Sinh(da);
+            return (T)Convert.ChangeType(val, typeof(T));
+        }
+
+        private static T Cosh(T a)
+        {
+            double da = (double)Convert.ChangeType(a, typeof(double));
+
+            double val = Math.Cosh(da);
+            return (T)Convert.ChangeType(val, typeof(T));
+        }
+
+        private static T Tanh(T a)
+        {
+            double da = (double)Convert.ChangeType(a, typeof(double));
+
+            double val = Math.Tanh(da);
             return (T)Convert.ChangeType(val, typeof(T));
         }
 
