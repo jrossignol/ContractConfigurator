@@ -262,7 +262,7 @@ namespace ContractConfigurator.Parameters
                 vesselBiome = ScienceUtil.GetExperimentBiome(vessel.mainBody, vessel.latitude, vessel.longitude);
             }
 
-            return vesselBiome.Replace(" ", "") == biome;
+            return vesselBiome.Replace(" ", "") == biome.Replace(" ", "");
         }
 
         protected override void OnParameterSave(ConfigNode node)
@@ -311,7 +311,7 @@ namespace ContractConfigurator.Parameters
             {
                 base.OnParameterLoad(node);
                 targetBody = ConfigNodeUtil.ParseValue<CelestialBody>(node, "targetBody", (CelestialBody)null);
-                biome = ConfigNodeUtil.ParseValue<string>(node, "biome", "");
+                biome = ConfigNodeUtil.ParseValue<string>(node, "biome", "").Replace(" ", "");
                 situation = ConfigNodeUtil.ParseValue<ExperimentSituations?>(node, "situation", (ExperimentSituations?)null);
                 location = ConfigNodeUtil.ParseValue<BodyLocation?>(node, "location", (BodyLocation?)null);
                 experiment = ConfigNodeUtil.ParseValue<List<string>>(node, "experiment", new string[] { "" }.ToList());
