@@ -1,3 +1,6 @@
+Contract Configurator 1.27.0
+- Added Expansion requirement.
+
 Contract Configurator 1.26.0
 - Recompile for KSP 1.5.1
 - Updated to work with RemoteTech 1.8.13+ (thanks PiezPiedPy).
