@@ -39,6 +39,8 @@ namespace ContractConfigurator.ExpressionParser
                 new Biome(FlightGlobals.Bodies.Where(cb => cb.isHomeWorld).Single(), b)).ToList(), false));
             RegisterGlobalFunction(new Function<List<Biome>>("MainKSCBiomes", () => Biome.MainKSCBiomes.Select(b =>
                 new Biome(FlightGlobals.Bodies.Where(cb => cb.isHomeWorld).Single(), b)).ToList(), false));
+            RegisterGlobalFunction(new Function<List<Biome>>("OtherKerbinBiomes", () => Biome.OtherKerbinBiomes.Select(b =>
+                new Biome(FlightGlobals.Bodies.Where(cb => cb.isHomeWorld).Single(), b)).ToList(), false));
         }
 
         public BiomeParser()

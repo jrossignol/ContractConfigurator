@@ -12,7 +12,32 @@ namespace ContractConfigurator
     /// </summary>
     public class Biome
     {
+        private static List<string> allKerbinBiomes = null;
+        private static List<string> otherKerbinBiomes = null;
         private static List<string> kscBiomes = null;
+
+        public static IEnumerable<string> AllKerbinBiomes
+        {
+            get
+            {
+                if (HighLogic.CurrentGame == null)
+                {
+                    return Enumerable.Empty<string>();
+                }
+
+                return allKerbinBiomes = allKerbinBiomes ?? UnityEngine.Object.FindObjectsOfType<Collider>()
+                    .Where(x => x.gameObject.layer == 15)
+                    .Select(x => x.gameObject.tag)
+                    .Where(x => x != "Untagged")
+                    .Where(x => !x.Contains("KSC_Runway_Light"))
+                    .Where(x => !x.Contains("KSC_Pad_Flag_Pole"))
+                    .Where(x => !x.Contains("Ladder"))
+                    .Select(x => Vessel.GetLandedAtString(x))
+                    .Select(x => x.Replace(" ", ""))
+                    .Distinct()
+                    .ToList();
+            }
+        }
 
         public static IEnumerable<string> KSCBiomes
         {
@@ -23,16 +48,23 @@ namespace ContractConfigurator
                     return Enumerable.Empty<string>();
                 }
 
-                return kscBiomes = kscBiomes ?? UnityEngine.Object.FindObjectsOfType<Collider>()
-                    .Where(x => x.gameObject.layer == 15)
-                    .Select(x => x.gameObject.tag)
-                    .Where(x => x != "Untagged")
-                    .Where(x => !x.Contains("KSC_Runway_Light"))
-                    .Where(x => !x.Contains("KSC_Pad_Flag_Pole"))
-                    .Where(x => !x.Contains("Ladder"))
-                    .Select(x => Vessel.GetLandedAtString(x))
-                    .Select(x => x.Replace(" ", ""))
-                    .Distinct()
+                return kscBiomes = kscBiomes ?? AllKerbinBiomes
+                    .Where(x => !x.Contains("Desert") && !x.Contains("Woomerang") && !x.Contains("Island") && !x.Contains("Baikerbanur"))
+                    .ToList();
+            }
+        }
+
+        public static IEnumerable<string> OtherKerbinBiomes
+        {
+            get
+            {
+                if (HighLogic.CurrentGame == null)
+                {
+                    return Enumerable.Empty<string>();
+                }
+
+                return otherKerbinBiomes = otherKerbinBiomes ?? AllKerbinBiomes
+                    .Where(x => x.Contains("Desert") || x.Contains("Woomerang") || x.Contains("Island") || x.Contains("Baikerbanur"))
                     .ToList();
             }
         }
@@ -100,6 +132,11 @@ namespace ContractConfigurator
         public bool IsKSC()
         {
             if (body == null || body.BiomeMap == null || !body.isHomeWorld)
+            {
+                return false;
+            }
+
+            if (biome.Contains("Desert") || biome.Contains("Woomerang") || biome.Contains("Island") || biome.Contains("Baikerbanur") || biome.Contains("Ice"))
             {
                 return false;
             }
