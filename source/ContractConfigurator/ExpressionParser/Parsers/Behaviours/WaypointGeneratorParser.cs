@@ -93,6 +93,9 @@ namespace ContractConfigurator.ExpressionParser
                     yield return "pqsCity";
                     yield return "pqsOffset";
                     break;
+                case "LAUNCH_SITE":
+                    yield return "launchSite";
+                    break;
             }
 
         }

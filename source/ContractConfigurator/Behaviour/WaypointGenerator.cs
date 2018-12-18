@@ -31,6 +31,7 @@ namespace ContractConfigurator.Behaviour
             public double maxDistance = 0.0;
             public PQSCity pqsCity = null;
             public Vector3d pqsOffset;
+            public LaunchSite launchSite = null;
             public List<string> parameter = new List<string>();
             public int count = 1;
             public bool underwater = false;
@@ -73,6 +74,7 @@ namespace ContractConfigurator.Behaviour
                 maxDistance = orig.maxDistance;
                 pqsCity = orig.pqsCity;
                 pqsOffset = orig.pqsOffset;
+                launchSite = orig.launchSite;
                 parameter = orig.parameter.ToList();
                 underwater = orig.underwater;
 
@@ -196,6 +198,10 @@ namespace ContractConfigurator.Behaviour
                     {
                         GeneratePQSCityCoordinates(wpData, body);
                     }
+                    else if (wpData.type == "LAUNCH_SITE")
+                    {
+                        GenerateLaunchSiteCoordinates(wpData, body);
+                    }
 
                     // Set altitude
                     SetAltitude(wpData, body);
@@ -233,6 +239,18 @@ namespace ContractConfigurator.Behaviour
             offsetPos *= (i.x * j.y * k.z) + (i.y * j.z * k.x) + (i.z * j.x * k.y) - (i.z * j.y * k.x) - (i.y * j.x * k.z) - (i.x * j.z * k.y);
             wpData.waypoint.latitude = body.GetLatitude(position + offsetPos);
             wpData.waypoint.longitude = body.GetLongitude(position + offsetPos);
+            LoggingUtil.LogVerbose(this, "    resulting lat, lon = (" + wpData.waypoint.latitude + ", " + wpData.waypoint.longitude + ")");
+        }
+
+        private void GenerateLaunchSiteCoordinates(WaypointData wpData, CelestialBody body)
+        {
+            LoggingUtil.LogVerbose(this, "   launch site: " + wpData.launchSite.name);
+            LoggingUtil.LogVerbose(this, "   Generating a waypoint based on launch site " + wpData.launchSite.name + "...");
+
+            LaunchSite.SpawnPoint spawnPoint = wpData.launchSite.GetSpawnPoint(wpData.launchSite.name);
+            wpData.waypoint.latitude = spawnPoint.latitude;
+            wpData.waypoint.longitude = spawnPoint.longitude;
+
             LoggingUtil.LogVerbose(this, "    resulting lat, lon = (" + wpData.waypoint.latitude + ", " + wpData.waypoint.longitude + ")");
         }
 
@@ -387,6 +405,35 @@ namespace ContractConfigurator.Behaviour
                                 catch (Exception e)
                                 {
                                     LoggingUtil.LogError(typeof(WaypointGenerator), "Couldn't load PQSCity with name '" + x + "'");
+                                    LoggingUtil.LogException(e);
+                                    v = false;
+                                }
+                            }
+                            else
+                            {
+                                // Force this to get re-run when the targetBody is loaded
+                                throw new DataNode.ValueNotInitialized("/targetBody");
+                            }
+                            return v;
+                        });
+                        valid &= ConfigNodeUtil.ParseValue<Vector3d>(child, "pqsOffset", x => wpData.pqsOffset = x, factory, new Vector3d());
+                    }
+                    else if (child.name == "LAUNCH_SITE")
+                    {
+                        wpData.randomAltitude = false;
+                        string dummy = null;
+                        valid &= ConfigNodeUtil.ParseValue<string>(child, "launchSite", x => dummy = x, factory, x =>
+                        {
+                            bool v = true;
+                            if (!string.IsNullOrEmpty(wpData.waypoint.celestialName))
+                            {
+                                try
+                                {
+                                    wpData.launchSite = ConfigNodeUtil.ParseLaunchSiteValue(x);
+                                }
+                                catch (Exception e)
+                                {
+                                    LoggingUtil.LogError(typeof(WaypointGenerator), "Couldn't load Launch Site with name '" + x + "'");
                                     LoggingUtil.LogException(e);
                                     v = false;
                                 }

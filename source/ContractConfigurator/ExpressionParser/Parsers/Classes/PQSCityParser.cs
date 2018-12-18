@@ -28,6 +28,7 @@ namespace ContractConfigurator.ExpressionParser
         {
             RegisterMethod(new Method<PQSCity, Location>("Location", GetLocation, false));
             RegisterMethod(new Method<PQSCity, string>("Name", city => city != null ? city.name : null));
+            RegisterMethod(new Method<PQSCity, CelestialBody>("CelestialBody", city => city != null ? city.celestialBody : null));
 
             RegisterGlobalFunction(new Function<PQSCity>("KSC", () => FlightGlobals.Bodies.Where(cb => cb.isHomeWorld).First().GetComponentsInChildren<PQSCity>(true).Where(city => city.name == "KSC").First()));
         }

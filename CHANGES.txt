@@ -1,5 +1,7 @@
 Contract Configurator 1.27.0
 - Added Expansion requirement.
+- Added LAUNCH_SITE sub-node to WaypointGenerator behaviour.
+- Added support for LaunchSite class in expressions.
 - Added OtherKerbinBiomes() function to return biomes like Baikerbanur biomes.
 - Fixed Biome functions to correctly distinguish between KSC biomes and other collider based biomes.
 

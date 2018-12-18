@@ -287,6 +287,10 @@ namespace ContractConfigurator.ExpressionParser
             {
                 output = ((Experience.ExperienceTrait)(value)).TypeName;
             }
+            else if (type == typeof(LaunchSite))
+            {
+                output = ((LaunchSite)value).name;
+            }
             else if (type.Name == "List`1")
             {
                 output = "[ ";

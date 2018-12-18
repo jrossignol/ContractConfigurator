@@ -392,6 +392,10 @@ namespace ContractConfigurator
                 CelestialBody cb = ParseCelestialBodyValue(biomeData[0]);
                 value = (T)(object)(new Biome(cb, biomeData[1]));
             }
+            else if (typeof(T) == typeof(LaunchSite))
+            {
+                value = (T)(object)ParseLaunchSiteValue(stringValue);
+            }
             // Do newline conversions
             else if (typeof(T) == typeof(string))
             {
@@ -958,6 +962,16 @@ namespace ContractConfigurator
         {
             Guid id = new Guid(name);
             return FlightGlobals.Vessels.Find(v => v != null && v.id == id);
+        }
+
+        public static LaunchSite ParseLaunchSiteValue(string siteName)
+        {
+            LaunchSite result = PSystemSetup.Instance.LaunchSites.Where(ls => ls.name == siteName).FirstOrDefault();
+            if (result == null)
+            {
+                throw new ArgumentException("'" + siteName + "' is not a valid LaunchSite.");
+            }
+            return result;
         }
 
         public static Type ParseTypeValue(string name)
