@@ -1,4 +1,5 @@
 Contract Configurator 1.27.0
+- Recompile for KSP 1.6.0
 - Added actual and vacuum delta-vee to ReachState.
 - Added Expansion requirement.
 - Added LAUNCH_SITE sub-node to WaypointGenerator behaviour.
