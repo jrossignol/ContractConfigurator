@@ -27,6 +27,10 @@ namespace ContractConfigurator.Parameters
         protected double maxRateOfClimb { get; set; }
         protected float minAcceleration { get; set; }
         protected float maxAcceleration { get; set; }
+        protected double minDeltaVeeActual { get; set; }
+        protected double maxDeltaVeeActual { get; set; }
+        protected double minDeltaVeeVacuum { get; set; }
+        protected double maxDeltaVeeVacuum { get; set; }
 
         private float lastUpdate = 0.0f;
         private const float UPDATE_FREQUENCY = 0.1f;
@@ -40,7 +44,7 @@ namespace ContractConfigurator.Parameters
 
         public ReachState(List<CelestialBody> targetBodies, string biome, List<Vessel.Situations> situation, float minAltitude, float maxAltitude,
             float minTerrainAltitude, float maxTerrainAltitude, double minSpeed, double maxSpeed, double minRateOfClimb, double maxRateOfClimb,
-            float minAcceleration, float maxAcceleration, string title)
+            float minAcceleration, float maxAcceleration, double minDeltaVeeActual, double maxDeltaVeeActual, double minDeltaVeeVacuum, double maxDeltaVeeVacuum, string title)
             : base(title)
         {
             this.targetBodies = targetBodies;
@@ -56,6 +60,10 @@ namespace ContractConfigurator.Parameters
             this.maxRateOfClimb = maxRateOfClimb;
             this.minAcceleration = minAcceleration;
             this.maxAcceleration = maxAcceleration;
+            this.minDeltaVeeActual = minDeltaVeeActual;
+            this.maxDeltaVeeActual = maxDeltaVeeActual;
+            this.minDeltaVeeVacuum = minDeltaVeeVacuum;
+            this.maxDeltaVeeVacuum = maxDeltaVeeVacuum;
 
             CreateDelegates();
         }
@@ -210,6 +218,46 @@ namespace ContractConfigurator.Parameters
                 AddParameter(new ParameterDelegate<Vessel>(output, v => v.acceleration.magnitude / 9.81f >= minAcceleration &&
                     v.acceleration.magnitude / 9.81f <= maxAcceleration));
             }
+
+            // Filter for delta-vee (actual)
+            if (minDeltaVeeActual != 0.0 || maxDeltaVeeActual != double.MaxValue)
+            {
+                string output = "Delta-Vee (actual): ";
+                if (minDeltaVeeActual == 0.0)
+                {
+                    output += "Less than " + maxDeltaVeeActual.ToString("N0") + " m/s";
+                }
+                else if (maxDeltaVeeActual == double.MaxValue)
+                {
+                    output += "Greater than " + minDeltaVeeActual.ToString("N0") + " m/s";
+                }
+                else
+                {
+                    output += "Between " + minDeltaVeeActual.ToString("N0") + " m/s and " + maxDeltaVeeActual.ToString("N0") + " m/s";
+                }
+
+                AddParameter(new ParameterDelegate<Vessel>(output, CheckVesselDeltaVeeActual));
+            }
+
+            // Filter for delta-vee (vacuum)
+            if (minDeltaVeeVacuum != 0.0 || maxDeltaVeeVacuum != double.MaxValue)
+            {
+                string output = "Delta-Vee (vacuum): ";
+                if (minDeltaVeeVacuum == 0.0)
+                {
+                    output += "Less than " + maxDeltaVeeVacuum.ToString("N0") + " m/s";
+                }
+                else if (maxDeltaVeeVacuum == double.MaxValue)
+                {
+                    output += "Greater than " + minDeltaVeeVacuum.ToString("N0") + " m/s";
+                }
+                else
+                {
+                    output += "Between " + minDeltaVeeActual.ToString("N0") + " m/s and " + maxDeltaVeeVacuum.ToString("N0") + " m/s";
+                }
+
+                AddParameter(new ParameterDelegate<Vessel>(output, CheckVesselDeltaVeeVacuum));
+            }
         }
 
         private bool CheckBiome(Vessel vessel)
@@ -246,6 +294,18 @@ namespace ContractConfigurator.Parameters
             speed = Math.Round(speed, maxSpeed > 0.5 ? 1 : 0);
 
             return speed >= minSpeed && speed <= maxSpeed;
+        }
+
+        private bool CheckVesselDeltaVeeActual(Vessel vessel)
+        {
+            double deltaVee = vessel.VesselDeltaV.TotalDeltaVActual;
+            return deltaVee >= minDeltaVeeActual && deltaVee <= maxDeltaVeeActual;
+        }
+
+        private bool CheckVesselDeltaVeeVacuum(Vessel vessel)
+        {
+            double deltaVee = vessel.VesselDeltaV.TotalDeltaVActual;
+            return deltaVee >= minDeltaVeeVacuum && deltaVee <= maxDeltaVeeVacuum;
         }
 
         private bool CheckVesselRateOfClimb(Vessel vessel)
@@ -329,6 +389,24 @@ namespace ContractConfigurator.Parameters
             {
                 node.AddValue("maxAcceleration", maxAcceleration);
             }
+
+            if (minDeltaVeeActual != 0.0)
+            {
+                node.AddValue("minDeltaVeeActual", minDeltaVeeActual);
+            }
+            if (maxDeltaVeeActual != double.MaxValue)
+            {
+                node.AddValue("maxDeltaVeeActual ", maxDeltaVeeActual);
+            }
+
+            if (minDeltaVeeVacuum != 0.0)
+            {
+                node.AddValue("minDeltaVeeVacuum", minDeltaVeeVacuum);
+            }
+            if (maxDeltaVeeVacuum != double.MaxValue)
+            {
+                node.AddValue("maxDeltaVeeVacuum ", maxDeltaVeeVacuum);
+            }
         }
 
         protected override void OnParameterLoad(ConfigNode node)
@@ -349,6 +427,10 @@ namespace ContractConfigurator.Parameters
                 maxRateOfClimb = ConfigNodeUtil.ParseValue<double>(node, "maxRateOfClimb", double.MaxValue);
                 minAcceleration = ConfigNodeUtil.ParseValue<float>(node, "minAcceleration", 0.0f);
                 maxAcceleration = ConfigNodeUtil.ParseValue<float>(node, "maxAcceleration", float.MaxValue);
+                minDeltaVeeActual = ConfigNodeUtil.ParseValue<double>(node, "minDeltaVeeActual", 0.0);
+                maxDeltaVeeActual = ConfigNodeUtil.ParseValue<double>(node, "maxDeltaVeeActual", double.MaxValue);
+                minDeltaVeeVacuum = ConfigNodeUtil.ParseValue<double>(node, "minDeltaVeeVacuum", 0.0);
+                maxDeltaVeeVacuum = ConfigNodeUtil.ParseValue<double>(node, "maxDeltaVeeVacuum", double.MaxValue);
 
                 CreateDelegates();
             }

@@ -28,7 +28,12 @@ namespace ContractConfigurator
         protected double maxRateOfClimb;
         protected float minAcceleration;
         protected float maxAcceleration;
+        protected double minDeltaVeeActual;
+        protected double maxDeltaVeeActual;
+        protected double minDeltaVeeVacuum;
+        protected double maxDeltaVeeVacuum;
         public List<CelestialBody> targetBodies;
+
 
         public override bool Load(ConfigNode configNode)
         {
@@ -51,6 +56,10 @@ namespace ContractConfigurator
             valid &= ConfigNodeUtil.ParseValue<double>(configNode, "maxRateOfClimb", x => maxRateOfClimb = x, this, double.MaxValue);
             valid &= ConfigNodeUtil.ParseValue<float>(configNode, "minAcceleration", x => minAcceleration = x, this, 0.0f, x => Validation.GE(x, 0.0f));
             valid &= ConfigNodeUtil.ParseValue<float>(configNode, "maxAcceleration", x => maxAcceleration = x, this, float.MaxValue, x => Validation.GE(x, 0.0f));
+            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "minDeltaVeeActual", x => minDeltaVeeActual = x, this, 0.0, x => Validation.GE(x, 0.0));
+            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "maxDeltaVeeActual", x => maxDeltaVeeActual = x, this, double.MaxValue, x => Validation.GE(x, 0.0));
+            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "minDeltaVeeVacuum", x => minDeltaVeeVacuum = x, this, 0.0, x => Validation.GE(x, 0.0));
+            valid &= ConfigNodeUtil.ParseValue<double>(configNode, "maxDeltaVeeVacuum", x => maxDeltaVeeVacuum = x, this, double.MaxValue, x => Validation.GE(x, 0.0));
 
             // Overload targetBody
             if (!configNode.HasValue("targetBody"))
@@ -61,7 +70,7 @@ namespace ContractConfigurator
 
             // Validation minimum set
             valid &= ConfigNodeUtil.AtLeastOne(configNode, new string[] { "targetBody", "biome", "situation", "minAltitude", "maxAltitude",
-                "minTerrainAltitude", "maxTerrainAltitude", "minSpeed", "maxSpeed", "minRateOfClimb", "maxRateOfClimb", "minAcceleration", "maxAcceleration" }, this);
+                "minTerrainAltitude", "maxTerrainAltitude", "minSpeed", "maxSpeed", "minRateOfClimb", "maxRateOfClimb", "minAcceleration", "maxAcceleration", "minDeltaVeeActual", "maxDeltaVeeActual", "minDeltaVeeVacuum", "maxDeltaVeeVacuum" }, this);
 
             return valid;
         }
@@ -69,7 +78,7 @@ namespace ContractConfigurator
         public override ContractParameter Generate(Contract contract)
         {
             ReachState param = new ReachState(targetBodies, biome == null ? "" : biome.biome, situation, minAltitude, maxAltitude,
-                minTerrainAltitude, maxTerrainAltitude, minSpeed, maxSpeed, minRateOfClimb, maxRateOfClimb, minAcceleration, maxAcceleration, title);
+                minTerrainAltitude, maxTerrainAltitude, minSpeed, maxSpeed, minRateOfClimb, maxRateOfClimb, minAcceleration, maxAcceleration, minDeltaVeeActual, maxDeltaVeeActual, minDeltaVeeVacuum, maxDeltaVeeVacuum, title);
             param.FailWhenUnmet = failWhenUnmet;
             return param;
         }
