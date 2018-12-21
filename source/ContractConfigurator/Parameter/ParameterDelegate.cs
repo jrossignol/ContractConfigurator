@@ -145,20 +145,22 @@ namespace ContractConfigurator.Parameters
             }
 
             // Get the source count
-            int count = GetCount(values, src);
+            int srcCount = GetCount(values, src);
 
             // Apply the filter
             ApplyFilterToDest(values);
 
             // Uncertain - return incomplete
-            if (count == 0)
+            if (srcCount == 0)
             {
                 SetState(matchType != ParameterDelegateMatchType.NONE ? ParameterState.Incomplete : ParameterState.Complete);
                 return;
             }
 
+            int destCount = GetCount(values, dest);
+
             // Some values - success
-            if (matchType == ParameterDelegateMatchType.VALIDATE_ALL ? GetCount(values, dest) == count : count > 0)
+            if (matchType == ParameterDelegateMatchType.VALIDATE_ALL ? destCount == srcCount : destCount > 0)
             {
                 SetState(matchType != ParameterDelegateMatchType.NONE ? ParameterState.Complete : ParameterState.Failed);
             }
@@ -302,6 +304,9 @@ namespace ContractConfigurator.Parameters
 
                     paramDelegate.InitializeBitArrays(values, current);
                     paramDelegate.SetState(values, ref conditionMet, checkOnly);
+
+                    LoggingUtil.LogVerbose(paramDelegate, "  after, conditionMet = " + conditionMet);
+
                     if (paramDelegate.matchType == ParameterDelegateMatchType.FILTER)
                     {
                         current = paramDelegate.dest;
@@ -483,6 +488,7 @@ namespace ContractConfigurator.Parameters
             // Set our state
             ApplyFilterToDest(values);
             int count = GetCount(values, dest);
+            LoggingUtil.LogVerbose(this, "Count = " + count);
             bool countConditionMet = (count >= minCount && count <= maxCount);
             if (!checkOnly)
             {

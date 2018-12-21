@@ -4,6 +4,7 @@ Contract Configurator 1.27.0
 - Added support for LaunchSite class in expressions.
 - Added OtherKerbinBiomes() function to return biomes like Baikerbanur biomes.
 - Fixed Biome functions to correctly distinguish between KSC biomes and other collider based biomes.
+- Fixed issue with sub-parameters sometimes showing as met when they shouldn't.
 - Clarified error message when SpawnPassengers is omitted from a contract that requires it.
 
 Contract Configurator 1.26.0
