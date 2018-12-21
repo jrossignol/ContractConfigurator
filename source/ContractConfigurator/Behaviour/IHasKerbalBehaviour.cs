@@ -29,7 +29,7 @@ namespace ContractConfigurator
             }
 
             throw new Exception("ContractConfigurator: index " + index +
-                " is out of range for number of Kerbals spawned (" + total + ").");
+                " is out of range for number of Kerbals spawned (" + total + ").  Check the appropriate behaviour for spawning Kerbals exists on the contract.");
         }
 
         public static int GetSpawnedKerbalCount(this ConfiguredContract contract)
