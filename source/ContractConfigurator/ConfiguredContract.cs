@@ -19,6 +19,8 @@ namespace ContractConfigurator
     /// </summary>
     public class ConfiguredContract : Contract, IKerbalNameStorage
     {
+        static FieldInfo agentField = typeof(Agent).GetFields(BindingFlags.Instance | BindingFlags.NonPublic).Where(fi => fi.FieldType == typeof(string)).ElementAt(1);
+
         public static EventData<ConfiguredContract> OnContractLoaded = new EventData<ConfiguredContract>("OnContractLoaded");
 
         public ContractType contractType { get; set; }
@@ -256,6 +258,12 @@ namespace ContractConfigurator
                 else
                 {
                     agent = AgentList.Instance.GetSuitableAgentForContract(this);
+                }
+
+                // Workaround for agencies defined without a title
+                if (agent.Title == null)
+                {
+                    agentField.SetValue(agent, agent.Name);
                 }
 
                 // Set description
