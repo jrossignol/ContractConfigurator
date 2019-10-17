@@ -165,7 +165,7 @@ namespace ContractConfigurator
 
             // Display the listing of contracts
             scrollPosition = GUILayout.BeginScrollView(scrollPosition, GUILayout.Height(640));
-            if (Event.current.type == EventType.layout)
+            if (Event.current.type == EventType.Layout)
             {
                 guiContracts = ContractType.AllContractTypes;
             }

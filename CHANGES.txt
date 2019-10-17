@@ -1,6 +1,5 @@
-Contract Configurator 1.27.2
-- Improved support for DMagic Orbital Science (thanks anotherlurker).
-- Workaround for "input is null" warning for agencies with no title set (thanks No3371 & denyasis).
+Contract Configurator 1.28.0
+- Support for KSP 1.8
 
 Contract Configurator 1.27.1
 - Improved performance of WaypointGenerator's RANDOM_WAYPOINT_NEAR when the min/max distances are very close to each other.

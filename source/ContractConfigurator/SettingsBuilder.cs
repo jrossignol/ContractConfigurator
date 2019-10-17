@@ -191,7 +191,7 @@ namespace ContractConfigurator
 
             // Create the assembly
             AssemblyBuilder assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(
-                new AssemblyName("ContractConfiguratorDynamic"), AssemblyBuilderAccess.ReflectionOnly);
+                new AssemblyName("ContractConfiguratorDynamic"), AssemblyBuilderAccess.Run);
             ModuleBuilder moduleBuilder = assemblyBuilder.DefineDynamicModule("ContractConfiguratorDynamicModule");
 
             // Attribute constructor
