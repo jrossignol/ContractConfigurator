@@ -74,7 +74,7 @@ namespace ContractConfigurator
             {
                 output += "at level " + NumericValueExpressionParser<int>.PrintNumber(minLevel);
             }
-            else if (minLevel >= 1)
+            else if (minLevel > 1)
             {
                 output += "at least at level " + NumericValueExpressionParser<int>.PrintNumber(minLevel);
             }
