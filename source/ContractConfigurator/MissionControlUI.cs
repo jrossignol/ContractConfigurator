@@ -13,6 +13,7 @@ using KSP.UI;
 using KSP.UI.Screens;
 using Contracts.Templates;
 using FinePrint.Contracts;
+using KSP.Localization;
 
 namespace ContractConfigurator.Util
 {
@@ -347,7 +348,7 @@ namespace ContractConfigurator.Util
 
                 // Setup the toggle
                 TMPro.TextMeshProUGUI toggleAllText = toggleAllObj.GetChild("Text").GetComponent<TMPro.TextMeshProUGUI>();
-                toggleAllText.text = "All";
+                toggleAllText.text = Localizer.Format("#ContractConfig_ALLbtn");//"All"
                 Toggle toggleAll = toggleAllObj.GetComponent<Toggle>();
                 toggleAll.onValueChanged.AddListener(new UnityAction<bool>(OnClickAll));
                 sortGroup.GetComponent<ToggleGroup>().RegisterToggle(toggleAll);
@@ -1011,7 +1012,7 @@ namespace ContractConfigurator.Util
             // Setup the available text
             TMPro.TextMeshProUGUI availableText = availableTextObject.GetComponent<TMPro.TextMeshProUGUI>();
             availableText.alignment = TMPro.TextAlignmentOptions.BottomRight;
-            availableText.text = "<color=#" + (groupContainer.availableContracts == 0 ? "CCCCCC" : "8BED8B") + ">Offered: " + groupContainer.availableContracts + "</color>";
+            availableText.text = "<color=#" + (groupContainer.availableContracts == 0 ? "CCCCCC" : "8BED8B") + ">"+Localizer.Format("#ContractConfig_Offered") +" " + groupContainer.availableContracts + "</color>";//Offered:
             availableText.fontSize = groupContainer.mcListItem.title.fontSize - 3;
 
             // Setup the group text
@@ -1126,7 +1127,7 @@ namespace ContractConfigurator.Util
                 }
 
                 // Set status
-                cc.statusImage.SetState(cc.contractType.maxCompletions != 0 && cc.contractType.ActualCompletions() >= cc.contractType.maxCompletions ? "Completed" : "Unavailable");
+                cc.statusImage.SetState(cc.contractType.maxCompletions != 0 && cc.contractType.ActualCompletions() >= cc.contractType.maxCompletions ? "Completed" : "Unavailable");//
             }
         }
 
@@ -1315,10 +1316,10 @@ namespace ContractConfigurator.Util
             int exceptionalMax = Math.Min(ContractConfigurator.ContractLimit(Contract.ContractPrestige.Exceptional), maxActive);
 
             string output = "";
-            output += string.Format("<b><color=#f4ee21><sprite=\"CurrencySpriteAsset\" name=\"Reputation\" tint=1>\t\t</color><color=#DB8310>Trivial Contracts:\t\t</color></b>" + (trivialCount >= trivialMax ? "<color=#f97306>{0}  [Max: {1}]</color>\n" : "{0}  [Max: {1}]\n"), trivialCount, trivialMax);
-            output += string.Format("<b><color=#f4ee21><sprite=\"CurrencySpriteAsset\" name=\"Reputation\" tint=1><sprite=\"CurrencySpriteAsset\" name=\"Reputation\" tint=1>\t\t</color><color=#DB8310>Significant Contracts:\t</color></b>" + (significantCount >= significantMax ? "<color=#f97306>{0}  [Max: {1}]</color>\n" : "{0}  [Max: {1}]\n"), significantCount, significantMax);
-            output += string.Format("<b><color=#f4ee21><sprite=\"CurrencySpriteAsset\" name=\"Reputation\" tint=1><sprite=\"CurrencySpriteAsset\" name=\"Reputation\" tint=1><sprite=\"CurrencySpriteAsset\" name=\"Reputation\" tint=1>\t</color><color=#DB8310>Exceptional Contracts:\t</color></b>" + (exceptionalCount >= exceptionalMax ? "<color=#f97306>{0}  [Max: {1}]</color>\n" : "{0}  [Max: {1}]\n"), exceptionalCount, exceptionalMax);
-            output += string.Format("<b>\t\t<color=#DB8310>All Active Contracts:\t\t</color></b>" + (maxActive == int.MaxValue ? "{0}" : activeCount >= maxActive ? "<color=#f97306>{0}  [Max: {1}]</color>" : "{0}  [Max: {1}]"), activeCount, maxActive);
+            output += string.Format("<b><color=#f4ee21><sprite=\"CurrencySpriteAsset\" name=\"Reputation\" tint=1>\t\t</color><color=#DB8310>"+Localizer.Format("#ContractConfig_title1") +"\t\t</color></b>" + (trivialCount >= trivialMax ? "<color=#f97306>{0}  ["+Localizer.Format("#ContractConfig_Max") +" {1}]</color>\n" : "{0}  [" + Localizer.Format("#ContractConfig_Max") + " {1}]\n"), trivialCount, trivialMax);//"Trivial Contracts:"Max:
+            output += string.Format("<b><color=#f4ee21><sprite=\"CurrencySpriteAsset\" name=\"Reputation\" tint=1><sprite=\"CurrencySpriteAsset\" name=\"Reputation\" tint=1>\t\t</color><color=#DB8310>"+Localizer.Format("#ContractConfig_title2") +"\t\t</color></b>" + (significantCount >= significantMax ? "<color=#f97306>{0}  [" + Localizer.Format("#ContractConfig_Max") + " {1}]</color>\n" : "{0}  [" + Localizer.Format("#ContractConfig_Max") + " {1}]\n"), significantCount, significantMax);//"Significant Contracts:"
+            output += string.Format("<b><color=#f4ee21><sprite=\"CurrencySpriteAsset\" name=\"Reputation\" tint=1><sprite=\"CurrencySpriteAsset\" name=\"Reputation\" tint=1><sprite=\"CurrencySpriteAsset\" name=\"Reputation\" tint=1>\t</color><color=#DB8310>"+Localizer.Format("#ContractConfig_title3") +"\t\t</color></b>" + (exceptionalCount >= exceptionalMax ? "<color=#f97306>{0}  [" + Localizer.Format("#ContractConfig_Max") + " {1}]</color>\n" : "{0}  [" + Localizer.Format("#ContractConfig_Max") + " {1}]\n"), exceptionalCount, exceptionalMax);//"Exceptional Contracts:"
+            output += string.Format("<b>\t\t<color=#DB8310>"+Localizer.Format("#ContractConfig_title4") +"\t\t</color></b>" + (maxActive == int.MaxValue ? "{0}" : activeCount >= maxActive ? "<color=#f97306>{0}  [" + Localizer.Format("#ContractConfig_Max") + " {1}]</color>" : "{0}  [" + Localizer.Format("#ContractConfig_Max") + " {1}]"), activeCount, maxActive);//"All Active Contracts:"
             MissionControl.Instance.textMCStats.text = output;
         }
 
@@ -1474,7 +1475,7 @@ namespace ContractConfigurator.Util
             if (contractType.agent != null)
             {
                 MissionControl.Instance.logoRenderer.texture = contractType.agent.Logo;
-                agentText = "\n\n<b><color=#DB8310>Agent:</color></b>\n" + contractType.agent.Name;
+                agentText = "\n\n<b><color=#DB8310>" + Localizer.Format("#ContractConfig_Agent") + "</color></b>\n" + contractType.agent.Name;//Agent:
             }
             else
             {
@@ -1482,7 +1483,7 @@ namespace ContractConfigurator.Util
             }
 
             // Set up text
-            MissionControl.Instance.textContractInfo.text = "<b><color=#DB8310>Contract:</color></b>\n" + contractType.genericTitle + agentText;
+            MissionControl.Instance.textContractInfo.text = "<b><color=#DB8310>" + Localizer.Format("#ContractConfig_Contract") + "</color></b>\n" + contractType.genericTitle + agentText;//Contract:
             MissionControl.Instance.contractTextRect.verticalNormalizedPosition = 1f;
             MissionControl.Instance.textDateInfo.text = "";
 
@@ -1492,7 +1493,7 @@ namespace ContractConfigurator.Util
 
         protected void MissionControlText(ContractType contractType)
         {
-            string text = "<b><color=#DB8310>Briefing:</color></b>\n\n";
+            string text = "<b><color=#DB8310>" + Localizer.Format("#ContractConfig_Briefing") + "</color></b>\n\n";//Briefing:
 
             // Special case for one-off contracts
             string description = contractType.genericDescription;
@@ -1510,7 +1511,7 @@ namespace ContractConfigurator.Util
             text += "<color=#CCCCCC>" + description + "</color>\n\n";
 
 
-            text += "<b><color=#DB8310>Pre-Requisites:</color></b>\n\n";
+            text += "<b><color=#DB8310>"+Localizer.Format("#ContractConfig_PreRequisites") +"</color></b>\n\n";//Pre-Requisites:
 
             // Do text for funds
             if (contractType.advanceFunds < 0)
@@ -1519,7 +1520,7 @@ namespace ContractConfigurator.Util
                 GameEvents.Modifiers.OnCurrencyModifierQuery.Fire(q);
                 float fundsRequired = contractType.advanceFunds + q.GetEffectDelta(Currency.Funds);
 
-                text += RequirementLine(StringBuilderCache.Format("Must have {0} funds for advance", fundsRequired), Funding.CanAfford(fundsRequired));
+                text += RequirementLine(StringBuilderCache.Format("Must have {0} funds for advance", fundsRequired), Funding.CanAfford(fundsRequired));//
             }
 
             // Do text for max completions
