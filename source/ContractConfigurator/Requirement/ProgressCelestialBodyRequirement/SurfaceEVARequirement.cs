@@ -13,10 +13,15 @@ namespace ContractConfigurator
     /// </summary>
     public class SurfaceEVARequirement : ProgressCelestialBodyRequirement
     {
+        protected override ProgressNode GetTypeSpecificProgressNode(CelestialBodySubtree celestialBodySubtree)
+        {
+            return celestialBodySubtree.surfaceEVA;
+        }
+
         public override bool RequirementMet(ConfiguredContract contract)
         {
             return base.RequirementMet(contract) &&
-                GetCelestialBodySubtree().surfaceEVA.IsComplete;
+                GetCelestialBodySubtree().IsComplete;
         }
 
         protected override string RequirementText()

@@ -13,10 +13,15 @@ namespace ContractConfigurator
     /// </summary>
     public class RendezvousRequirement : ProgressCelestialBodyRequirement
     {
+        protected override ProgressNode GetTypeSpecificProgressNode(CelestialBodySubtree celestialBodySubtree)
+        {
+            return celestialBodySubtree.rendezvous;
+        }
+
         public override bool RequirementMet(ConfiguredContract contract)
         {
             return base.RequirementMet(contract) &&
-                GetCelestialBodySubtree().rendezvous.IsComplete;
+                GetCelestialBodySubtree().IsComplete;
         }
 
         protected override string RequirementText()

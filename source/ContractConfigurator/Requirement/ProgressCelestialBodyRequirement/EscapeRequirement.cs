@@ -13,10 +13,15 @@ namespace ContractConfigurator
     /// </summary>
     public class EscapeRequirement : ProgressCelestialBodyRequirement
     {
+        protected override ProgressNode GetTypeSpecificProgressNode(CelestialBodySubtree celestialBodySubtree)
+        {
+            return celestialBodySubtree.escape;
+        }
+
         public override bool RequirementMet(ConfiguredContract contract)
         {
             return base.RequirementMet(contract) &&
-                GetCelestialBodySubtree().escape.IsComplete;
+                GetCelestialBodySubtree().IsComplete;
         }
 
         protected override string RequirementText()

@@ -13,11 +13,15 @@ namespace ContractConfigurator
     /// </summary>
     public class ReturnFromFlyByRequirement : ProgressCelestialBodyRequirement
     {
+        protected override ProgressNode GetTypeSpecificProgressNode(CelestialBodySubtree celestialBodySubtree)
+        {
+            return celestialBodySubtree.returnFromFlyby;
+        }
+
         public override bool RequirementMet(ConfiguredContract contract)
         {
-            CelestialBodySubtree tree = GetCelestialBodySubtree();
-            return base.RequirementMet(contract) && tree.returnFromFlyby != null &&
-                tree.returnFromFlyby.IsComplete;
+            return base.RequirementMet(contract) &&
+				GetCelestialBodySubtree().IsComplete;
         }
 
         protected override string RequirementText()

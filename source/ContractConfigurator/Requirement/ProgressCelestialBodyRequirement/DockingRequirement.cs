@@ -13,10 +13,15 @@ namespace ContractConfigurator
     /// </summary>
     public class DockingRequirement : ProgressCelestialBodyRequirement
     {
+        protected override ProgressNode GetTypeSpecificProgressNode(CelestialBodySubtree celestialBodySubtree)
+        {
+            return celestialBodySubtree.docking;
+        }
+
         public override bool RequirementMet(ConfiguredContract contract)
         {
             return base.RequirementMet(contract) &&
-                GetCelestialBodySubtree().docking.IsComplete;
+                GetCelestialBodySubtree().IsComplete;
         }
 
         protected override string RequirementText()
