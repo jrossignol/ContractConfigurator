@@ -64,15 +64,26 @@ namespace ContractConfigurator
         /// <param name="lat2">Second latitude</param>
         /// <param name="lon2">Second longitude</param>
         /// <returns>the distance</returns>
-        public static double GetDistance(double lat1, double lon1, double lat2, double lon2, double altitude)
+        public static double GetDistance(double lat1, double lon1, double lat2, double lon2, double radius)
         {
             // Use the haversine formula to calculate great circle distance.
-            double sin1 = Math.Sin(Math.PI / 180.0 * (lat1 - lat2) / 2);
-            double sin2 = Math.Sin(Math.PI / 180.0 * (lon1 - lon2) / 2);
-            double cos1 = Math.Cos(Math.PI / 180.0 * lat2);
-            double cos2 = Math.Cos(Math.PI / 180.0 * lat1);
+            double R = radius / 1000;
+            double dLat = (Math.PI / 180.0) * (lat2 - lat1);
+            double dLon = (Math.PI / 180.0) * (lon2 - lon1);
+            lat1 = Math.PI / 180.0 * lat1;
+            lat2 = Math.PI / 180.0 * lat2;
 
-            return  2 * (altitude) * Math.Asin(Math.Sqrt(sin1 * sin1 + cos1 * cos2 * sin2 * sin2));
+            double a = Math.Pow(Math.Sin(dLat / 2), 2) + Math.Pow(Math.Sin(dLon / 2), 2) * Math.Cos(lat1) * Math.Cos(lat2);
+            double c = 2 * Math.Asin(Math.Sqrt(a));
+
+            return R * c;
+
+            // This is the old code, instead of using the radius of the planet, it is using the radius of the orbit (it would seem). This stopped the test from being accurate.
+            //double sin1 = Math.Sin(Math.PI / 180.0 * (lat1 - lat2) / 2);
+            //double sin2 = Math.Sin(Math.PI / 180.0 * (lon1 - lon2) / 2);
+            //double cos1 = Math.Cos(Math.PI / 180.0 * lat2);
+            //double cos2 = Math.Cos(Math.PI / 180.0 * lat1);
+            //return  2 * (radius) * Math.Asin(Math.Sqrt(sin1 * sin1 + cos1 * cos2 * sin2 * sin2));
         }
     }
 }

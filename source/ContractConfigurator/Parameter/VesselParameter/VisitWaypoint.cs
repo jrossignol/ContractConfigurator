@@ -250,8 +250,8 @@ namespace ContractConfigurator.Parameters
             }
             else
             {
-                double actualDistance = WaypointUtil.GetDistance(vessel.latitude, vessel.longitude, waypoint.latitude, waypoint.longitude, vessel.altitude);
-                LoggingUtil.LogVerbose(this, "Horizontal distance to waypoint '" + waypoint.name + "': " + actualDistance);
+                double actualDistance = WaypointUtil.GetDistance(vessel.latitude, vessel.longitude, waypoint.latitude, waypoint.longitude, vessel.mainBody.Radius);
+                LoggingUtil.LogVerbose(this, "Horizontal distance to waypoint : '" + horizontalDistance + "': " + actualDistance);
                 check = actualDistance <= horizontalDistance;
             }
 
