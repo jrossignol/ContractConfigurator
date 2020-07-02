@@ -44,19 +44,21 @@ namespace ContractConfigurator
             checkType = ConfigNodeUtil.ParseValue<CheckType?>(configNode, "checkType", (CheckType?)null);
         }
 
-        protected CelestialBodySubtree GetCelestialBodySubtree()
+        protected ProgressNode GetCelestialBodySubtree()
         {
             // Get the progress tree for our celestial body
             foreach (var node in ProgressTracking.Instance.celestialBodyNodes)
             {
                 if (node.Body == targetBody)
                 {
-                    return node;
+                    return GetTypeSpecificProgressNode(node);
                 }
             }
 
             return null;
         }
+
+        protected abstract ProgressNode GetTypeSpecificProgressNode(CelestialBodySubtree celestialBodySubtree);
 
         public override bool RequirementMet(ConfiguredContract contract)
         {
@@ -67,7 +69,7 @@ namespace ContractConfigurator
             }
 
             // Validate the CelestialBodySubtree exists
-            CelestialBodySubtree cbProgress = GetCelestialBodySubtree();
+            ProgressNode cbProgress = GetCelestialBodySubtree();
             if (cbProgress == null)
             {
                 LoggingUtil.LogError(this, ": ProgressNode for targetBody " + targetBody.bodyName + " not found.");

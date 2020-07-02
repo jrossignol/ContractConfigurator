@@ -14,6 +14,11 @@ namespace ContractConfigurator
     /// </summary>
     public class ReturnFromSurfaceRequirement : ProgressCelestialBodyRequirement
     {
+        protected override ProgressNode GetTypeSpecificProgressNode(CelestialBodySubtree celestialBodySubtree)
+        {
+            return celestialBodySubtree.returnFromSurface;
+        }
+
         public override bool LoadFromConfig(ConfigNode configNode)
         {
             // Load base class
@@ -26,7 +31,7 @@ namespace ContractConfigurator
         {
             // This appears bugged - returnFromSurface is null
             return base.RequirementMet(contract) &&
-                GetCelestialBodySubtree().returnFromSurface.IsComplete;
+                GetCelestialBodySubtree().IsComplete;
         }
 
         protected override string RequirementText()
