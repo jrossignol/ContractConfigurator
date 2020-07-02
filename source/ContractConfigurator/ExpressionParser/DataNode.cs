@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using UnityEngine;
+using Contracts.Agents;
 
 namespace ContractConfigurator.ExpressionParser
 {
@@ -290,6 +291,10 @@ namespace ContractConfigurator.ExpressionParser
             else if (type == typeof(LaunchSite))
             {
                 output = ((LaunchSite)value).name;
+            }
+            else if (type == typeof(Agent))
+            {
+                output = ((Agent)value).Name;
             }
             else if (type.Name == "List`1")
             {
