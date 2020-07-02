@@ -269,9 +269,13 @@ namespace ContractConfigurator
             strArr[0] = body.GetDisplayName();
             string displayName = KSP.Localization.Localizer.Format("<<1>>", strArr);
 
-            if (lower && displayName != body.name)
+            if (lower)
             {
-                displayName = Char.ToLowerInvariant(displayName[0]) + displayName.Substring(1);
+                // Some planet packs can't rename Kerbin, so workaround that
+                if (displayName != body.name && body.name != "Kerbin")
+                {
+                    displayName = Char.ToLowerInvariant(displayName[0]) + displayName.Substring(1);
+                }
             }
 
             return displayName;
