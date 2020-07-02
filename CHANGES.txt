@@ -1,3 +1,7 @@
+Contract Configurator 1.29.0
+- Support for KSP 1.9
+- Add ModuleManager patch to fix old Agent definitions with a missing title (thanks Tonka Crash).
+
 Contract Configurator 1.28.1
 - Added new AgentParser (allows for assigning a random agency through expressions).
 - Merged change to improve accuracy of great circle distance in contract distance calculations (thanks pap1723).
