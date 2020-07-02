@@ -1,5 +1,6 @@
 Contract Configurator 1.28.2
-- Merged change to improve accurate of great circle distance in contract distance calculations (thanks pap1723).
+- Merged change to improve accuracy of great circle distance in contract distance calculations (thanks pap1723).
+- Merged change to fix issues with certain celestial body progress requirements not working correctly for the manned/unmanned checks (thanks SirMortimer).
 
 Contract Configurator 1.28.1
 - Fixed incorrect requirement text when FacilityRequirement and maxLevel are used (thanks histalonia).
