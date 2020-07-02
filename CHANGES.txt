@@ -1,10 +1,8 @@
-Contract Configurator 1.28.2
+Contract Configurator 1.28.1
 - Added new AgentParser (allows for assigning a random agency through expressions).
 - Merged change to improve accuracy of great circle distance in contract distance calculations (thanks pap1723).
 - Merged change to fix issues with certain celestial body progress requirements not working correctly for the manned/unmanned checks (thanks SirMortimer).
 - Fixed issue with planet packs that renamed Kerbin displaying the name in lower case (thanks TheSpaceDad).
-
-Contract Configurator 1.28.1
 - Fixed incorrect requirement text when FacilityRequirement and maxLevel are used (thanks histalonia).
 
 Contract Configurator 1.28.0
