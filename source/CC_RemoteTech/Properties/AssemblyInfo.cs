@@ -33,8 +33,8 @@ using System.Runtime.InteropServices;
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("1.0")]
-[assembly: AssemblyFileVersion("1.28.1")]
-[assembly: AssemblyInformationalVersion("1.28.1")]
+[assembly: AssemblyFileVersion("1.28.2")]
+[assembly: AssemblyInformationalVersion("1.28.2")]
 [assembly: KSPAssembly("CC_RemoteTech", 1, 0)]
 [assembly: KSPAssemblyDependency("ContractConfigurator", 1, 0)]
 [assembly: KSPAssemblyDependency("RemoteTech", 1, 7)]
