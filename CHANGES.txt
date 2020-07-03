@@ -1,5 +1,5 @@
-Contract Configurator 1.29.0
-- Support for KSP 1.9
+Contract Configurator 1.28.2
+- Allowed a wider range of Agent names to be parsed by the AgentParser (thanks Morphisor244).
 - Add ModuleManager patch to fix old Agent definitions with a missing title (thanks Tonka Crash).
 
 Contract Configurator 1.28.1
