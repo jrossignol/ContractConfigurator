@@ -45,7 +45,7 @@ namespace ContractConfigurator.ExpressionParser
         public override Agent ParseIdentifier(Token token)
         {
             // Try to parse more, as Agent names can have spaces
-            Match m = Regex.Match(expression, @"^((?>\s*[\w\d-+/*,!@#$%^&*()]+)+).*");
+            Match m = Regex.Match(expression, @"^((?>\s*[\w\d-+/*!@#$%^&*()]+)+).*");
             string identifier = m.Groups[1].Value;
             expression = (expression.Length > identifier.Length ? expression.Substring(identifier.Length) : "");
             identifier = token.sval + identifier;

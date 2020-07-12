@@ -1,3 +1,6 @@
+Contract Configurator 1.28.3
+- More changes to AgentParser, now commas are disallowed as part of agent names (thanks Morphisor244).
+
 Contract Configurator 1.28.2
 - Allowed a wider range of Agent names to be parsed by the AgentParser (thanks Morphisor244).
 - Add ModuleManager patch to fix old Agent definitions with a missing title (thanks Tonka Crash).
