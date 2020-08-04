@@ -307,7 +307,10 @@ namespace ContractConfigurator
                 requirements = new List<ContractRequirement>();
                 foreach (ContractRequirement requirement in contractType.Requirements)
                 {
-                    requirements.Add(requirement);
+                    ConfigNode serializedRequirement = new ConfigNode();
+                    requirement.Save(serializedRequirement);
+                    ContractRequirement copy = ContractRequirement.LoadRequirement(serializedRequirement);
+                    requirements.Add(copy);
                 }
 
                 LoggingUtil.LogDebug(this, "Initialized contract: " + contractType);
