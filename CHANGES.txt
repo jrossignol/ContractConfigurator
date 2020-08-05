@@ -1,3 +1,7 @@
+Contract Configurator 1.29.0
+- Recompile against KSP 1.9.1.
+- Fixed various vessel spawning issues.
+
 Contract Configurator 1.28.3
 - More changes to AgentParser, now commas are disallowed as part of agent names (thanks Tonas1997).
 - Fixed requirements being regenerated incorrectly on some contracts, resolves issues with "flickering" of contracts in mission control (thanks severedsolo).

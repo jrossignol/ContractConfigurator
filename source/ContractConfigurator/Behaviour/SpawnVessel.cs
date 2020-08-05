@@ -351,6 +351,8 @@ namespace ContractConfigurator.Behaviour
                         // why.  End result is the vessel exploding, so let's just set it to a positive
                         // value.
                         p.temperature = 1.0;
+
+                        p.UpdateOrgPosAndRot(shipConstruct.parts[0]);
                     }
 
                     // Estimate an object class, numbers are based on the in game description of the
@@ -421,6 +423,8 @@ namespace ContractConfigurator.Behaviour
                     // Create the ProtoPartSnapshot objects and then initialize them
                     foreach (Part p in shipConstruct.parts)
                     {
+                        p.flightID = ShipConstruction.GetUniqueFlightID(HighLogic.CurrentGame.flightState);
+                        p.vessel = dummyVessel;
                         dummyProto.protoPartSnapshots.Add(new ProtoPartSnapshot(p, dummyProto));
                     }
                     foreach (ProtoPartSnapshot p in dummyProto.protoPartSnapshots)
@@ -432,6 +436,10 @@ namespace ContractConfigurator.Behaviour
                     partNodes = dummyProto.protoPartSnapshots.Select<ProtoPartSnapshot, ConfigNode>(GetNodeForPart).ToArray();
 
                     // Clean up
+                    foreach (Part p in shipConstruct.parts)
+                    {
+                        GameObject.Destroy(p.gameObject);
+                    }
                     GameObject.Destroy(dummyVessel.gameObject);
                 }
                 else

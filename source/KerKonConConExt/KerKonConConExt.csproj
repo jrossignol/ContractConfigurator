@@ -56,9 +56,6 @@
     <Reference Include="UnityEngine.UI">
       <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Kerbal Space Program\KSP_x64_Data\Managed\UnityEngine.UI.dll</HintPath>
     </Reference>
-    <Reference Include="Vectrosity">
-      <HintPath>C:\Program Files (x86)\Kerbal Space Program\KSP_Data\Managed\Vectrosity.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Behaviours\UnlockBaseFactory.cs" />
