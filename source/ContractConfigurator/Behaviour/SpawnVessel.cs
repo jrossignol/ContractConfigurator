@@ -355,28 +355,43 @@ namespace ContractConfigurator.Behaviour
                         p.UpdateOrgPosAndRot(shipConstruct.parts[0]);
                     }
 
-                    // Estimate an object class, numbers are based on the in game description of the
-                    // size classes.
+                    // Estimate an object class, numbers are based on the code that generate objects.
                     float size = shipConstruct.shipSize.magnitude / 2.0f;
-                    if (size < 4.0f)
+                    if (size < 4.05f)
                     {
                         sizeClass = UntrackedObjectClass.A;
                     }
-                    else if (size < 7.0f)
+                    else if (size < 6.75f)
                     {
                         sizeClass = UntrackedObjectClass.B;
                     }
-                    else if (size < 12.0f)
+                    else if (size < 11.25f)
                     {
                         sizeClass = UntrackedObjectClass.C;
                     }
-                    else if (size < 18.0f)
+                    else if (size < 18.25f)
                     {
                         sizeClass = UntrackedObjectClass.D;
                     }
-                    else
+                    else if (size < 31.25f)
                     {
                         sizeClass = UntrackedObjectClass.E;
+                    }
+                    else if (size < 52.125f)
+                    {
+                        sizeClass = UntrackedObjectClass.F;
+                    }
+                    else if (size < 86.875f)
+                    {
+                        sizeClass = UntrackedObjectClass.G;
+                    }
+                    else if (size < 144.75f)
+                    {
+                        sizeClass = UntrackedObjectClass.H;
+                    }
+                    else
+                    {
+                        sizeClass = UntrackedObjectClass.I;
                     }
 
                     foreach (CrewData cd in vesselData.crew)
