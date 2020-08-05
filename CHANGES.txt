@@ -1,5 +1,5 @@
 Contract Configurator 1.30.0
-- Recompile against KSP 1.10.0.
+- Recompile against KSP 1.10.1.
 - Support all size classes up to I in SpawnVessel.
 
 Contract Configurator 1.29.0
