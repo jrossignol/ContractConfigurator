@@ -1,6 +1,10 @@
 Contract Configurator 1.30.0
 - Recompile against KSP 1.10.1.
-- Support all size classes up to I in SpawnVessel.
+- Localization support.
+- Partial translation for Chinese Simplified (thanks tinygrox).
+- Support all tracking station object size classes up to I in SpawnVessel.
+- Allow apostrophe in AgentParser, fixes Kerbin-Side Jobs.
+- Improved some validation in Requirement nodes to throw certain errors at contract validation time instead of at run-time.
 
 Contract Configurator 1.29.0
 - Recompile against KSP 1.9.1.

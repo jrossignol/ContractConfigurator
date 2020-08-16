@@ -5,6 +5,7 @@ using System.Text;
 using UnityEngine;
 using KSP;
 using KSPAchievements;
+using KSP.Localization;
 
 namespace ContractConfigurator
 {
@@ -13,6 +14,9 @@ namespace ContractConfigurator
     /// </summary>
     public abstract class ProgressCelestialBodyRequirement : ContractRequirement
     {
+        protected string tag;
+        protected string tagx;
+
         enum CheckType
         {
             UNMANNED,
@@ -24,6 +28,9 @@ namespace ContractConfigurator
         {
             // Load base class
             bool valid = base.LoadFromConfig(configNode);
+
+            tag  = StringBuilderCache.Format("#cc.req.{0}", type);
+            tagx = StringBuilderCache.Format("#cc.req.{0}.x", type);
 
             valid &= ValidateTargetBody(configNode);
             valid &= ConfigNodeUtil.ParseValue<CheckType?>(configNode, "checkType", x => checkType = x, this, (CheckType?)null);
@@ -88,19 +95,15 @@ namespace ContractConfigurator
             return true;
         }
 
-        protected string CheckTypeString()
+        protected int CheckTypeId()
         {
-            return checkType == null ? "" : checkType == CheckType.MANNED ? "crewed " : "uncrewed ";
+            return checkType == null ? 0 : checkType == CheckType.MANNED ? 2 : 1;
         }
 
-        protected string ACheckTypeString()
+        protected override string RequirementText()
         {
-            return checkType == null ? "a " : checkType == CheckType.MANNED ? "a crewed " : "an uncrewed ";
-        }
-
-        protected string AnCheckTypeString()
-        {
-            return checkType == null ? "an " : checkType == CheckType.MANNED ? "a crewed " : "an uncrewed ";
+            return Localizer.Format(invertRequirement ? tagx : tag, CheckTypeId(),
+                targetBody == null ? Localizer.GetStringByTag("#cc.req.ProgressCelestialBody.genericBody") : targetBody.CleanDisplayName(true));
         }
     }
 }

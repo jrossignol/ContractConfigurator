@@ -1,10 +1,11 @@
-﻿using System;
+﻿using System.ComponentModel;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using UnityEngine;
 using KSP;
 using Expansions;
+using KSP.Localization;
 
 namespace ContractConfigurator
 {
@@ -13,74 +14,44 @@ namespace ContractConfigurator
     /// </summary>
     public class ExpansionRequirement : ContractRequirement
     {
-        protected List<string> expansions;
+        protected enum Expansion
+        {
+            [Description("#autoLOC_8400166")]       MakingHistory,
+            [Description("#cc.expansion.Serenity")] Serenity
+        }
+        protected Expansion expansion;
 
         public override bool LoadFromConfig(ConfigNode configNode)
         {
             // Load base class
             bool valid = base.LoadFromConfig(configNode);
 
-            valid &= ConfigNodeUtil.ParseValue<List<string>>(configNode, "expansion", x => expansions = x, this, new List<string>());
+            valid &= ConfigNodeUtil.ParseValue<Expansion>(configNode, "expansion", x => expansion = x, this);
+
+            // Not invertable
+            valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "invertRequirement", x => invertRequirement = x, this, false, x => Validation.EQ(x, false));
 
             return valid;
         }
 
         public override void OnSave(ConfigNode configNode)
         {
-            foreach (string expansion in expansions)
-            {
-                configNode.AddValue("expansion", expansion);
-            }
+            configNode.AddValue("expansion", expansion);
         }
 
         public override void OnLoad(ConfigNode configNode)
         {
-            expansions = ConfigNodeUtil.ParseValue<List<string>>(configNode, "expansion", new List<string>());
+            expansion = ConfigNodeUtil.ParseValue<Expansion>(configNode, "expansion");
         }
 
         public override bool RequirementMet(ConfiguredContract contract)
         {
-            foreach (string expansion in expansions)
-            {
-                if (!ExpansionsLoader.IsExpansionInstalled(expansion))
-                {
-                    return false;
-                }
-            }
-
-            return true;
+            return ExpansionsLoader.IsExpansionInstalled(expansion.ToString());
         }
 
         protected override string RequirementText()
         {
-            string expansionStr = "";
-            for (int i = 0; i < expansions.Count; i++)
-            {
-                if (i != 0)
-                {
-                    if (i == expansions.Count - 1)
-                    {
-                        expansionStr += " and ";
-                    }
-                    else
-                    {
-                        expansionStr += ", ";
-                    }
-                }
-
-                expansionStr += Regex.Replace(expansions[i], @"([A-Z&]+?(?=[A-Z][^A-Z])|\B[A-Z]+?(?=[^A-Z]))", " $1");
-            }
-
-            if (expansions.Count > 1)
-            {
-                expansionStr += " expansions";
-            }
-            else
-            {
-                expansionStr += " expanion";
-            }
-
-            return "Must " + (invertRequirement ? "not " : "") + " have the " + expansionStr + " installed.";
+            return Localizer.Format("#cc.req.Expansion", expansion.displayDescription());
         }
     }
 }

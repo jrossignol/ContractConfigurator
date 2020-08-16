@@ -9,6 +9,7 @@ using Contracts.Parameters;
 using FinePrint;
 using FinePrint.Utilities;
 using ContractConfigurator.Behaviour;
+using KSP.Localization;
 
 namespace ContractConfigurator.Parameters
 {
@@ -85,11 +86,11 @@ namespace ContractConfigurator.Parameters
             {
                 if (waypoint.isOnSurface)
                 {
-                    output = "Location: " + waypoint.name;
+                    output = Localizer.Format("#cc.param.CollectScience.location", waypoint.name);
                 }
                 else
                 {
-                    output = "Location: " + waypoint.altitude.ToString("N0") + "meters above " + waypoint.name;
+                    output = Localizer.Format("#cc.param.VisitWaypoint", waypoint.altitude.ToString("N0"), waypoint.name);
                 }
             }
             return output;

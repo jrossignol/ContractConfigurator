@@ -6,6 +6,7 @@ using UnityEngine;
 using KSP;
 using Contracts;
 using Contracts.Parameters;
+using KSP.Localization;
 
 namespace ContractConfigurator.Parameters
 {
@@ -155,6 +156,12 @@ namespace ContractConfigurator.Parameters
                 this.minRate = minRate;
                 this.maxRate = maxRate;
             }
+
+            if (maxRate == double.MaxValue && minRate == double.MinValue)
+            {
+                this.minRate = this.maxRate = 0.0;
+            }
+
             this.resource = resource;
         }
 
@@ -163,27 +170,41 @@ namespace ContractConfigurator.Parameters
             string output = null;
             if (string.IsNullOrEmpty(title))
             {
-                output = "Resource " + (minRate >= 0 ? "Consumption: " : "Production: ") + resource.name + ": ";
-                if (maxRate == 0 && minRate == 0)
+                string resourceStr;
+                if (maxRate == 0.0 && minRate == 0.0)
                 {
-                    output += "None";
+                    resourceStr = Localizer.GetStringByTag("#cc.param.count.none");
                 }
                 else if (maxRate == double.MaxValue)
                 {
-                    output += "At least " + minRate.ToString("N1") + " units/s";
+                    resourceStr = Localizer.Format("#cc.param.ResourceConsumption.atLeast", minRate.ToString("N1"));
+                }
+                else if (minRate == 0.0)
+                {
+                    resourceStr = Localizer.Format("#cc.param.ResourceConsumption.atMost", maxRate.ToString("N1"));
                 }
                 else if (minRate == double.MinValue)
                 {
-                    output += "At least " + (-maxRate).ToString("N1") + " units/s";
+                    resourceStr = Localizer.Format("#cc.param.ResourceConsumption.atLeast", (-maxRate).ToString("N1"));
+                }
+                else if (maxRate == 0.0)
+                {
+                    resourceStr = Localizer.Format("#cc.param.ResourceConsumption.atMost", (-minRate).ToString("N1"));
                 }
                 else if (minRate >= 0)
                 {
-                    output += "Between " + minRate.ToString("N1") + " and " + maxRate.ToString("N1") + " units/s";
+                    resourceStr = Localizer.Format("#cc.param.ResourceConsumption.between", minRate.ToString("N1"), maxRate.ToString("N1"));
                 }
                 else if (minRate < 0)
                 {
-                    output += "Between " + (-maxRate).ToString("N1") + " and " + (-minRate).ToString("N1") + " units/s";
+                    resourceStr = Localizer.Format("#cc.param.ResourceConsumption.between", (-maxRate).ToString("N1"), (-minRate).ToString("N1"));
                 }
+                else
+                {
+                    // Shouldn't happen
+                    resourceStr = "Unknown";
+                }
+                output = Localizer.Format((minRate >= 0.0 && maxRate > 0.0 ? "#cc.param.ResourceConsumption.consumption" : "#cc.param.ResourceConsumption.production"), resource.name, resourceStr);
             }
             else
             {

@@ -7,6 +7,7 @@ using KSP;
 using Contracts;
 using Contracts.Parameters;
 using FinePrint.Utilities;
+using KSP.Localization;
 
 namespace ContractConfigurator.Parameters
 {
@@ -25,7 +26,7 @@ namespace ContractConfigurator.Parameters
         public NewVessel(string title)
             : base(title)
         {
-            this.title = string.IsNullOrEmpty(title) ? "Launch a new vessel" : title;
+            this.title = string.IsNullOrEmpty(title) ? Localizer.GetStringByTag("#cc.param.NewVessel") : title;
         }
 
         protected override void OnParameterSave(ConfigNode node)

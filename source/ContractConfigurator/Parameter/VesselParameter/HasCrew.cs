@@ -7,6 +7,7 @@ using KSP;
 using Contracts;
 using Contracts.Parameters;
 using Experience;
+using KSP.Localization;
 
 namespace ContractConfigurator.Parameters
 {
@@ -59,48 +60,81 @@ namespace ContractConfigurator.Parameters
                         hideChildren = true;
                     }
 
-                    string traitString = String.IsNullOrEmpty(trait) ? "Kerbal" : TraitTitle(trait);
-                    output = "Crew: ";
+                    // Build the count string
+                    string countStr;
                     if (maxCrew == 0)
                     {
-                        output += "Unmanned";
+                        countStr = Localizer.GetStringByTag("#cc.param.HasCrew.unmanned");
                     }
                     else if (maxCrew == int.MaxValue)
                     {
-                        output += "At least " + minCrew + " " + traitString + (minCrew != 1 ? "s" : "");
+                        countStr = Localizer.Format("#cc.param.count.atLeast", minCrew);
                     }
                     else if (minCrew == 0)
                     {
-                        output += "At most " + maxCrew + " " + traitString + (maxCrew != 1 ? "s" : "");
+                        countStr = Localizer.Format("#cc.param.count.atMost", maxCrew);
                     }
                     else if (minCrew == maxCrew)
                     {
-                        output += minCrew + " " + traitString + (minCrew != 1 ? "s" : "");
+                        countStr = Localizer.Format("#cc.param.count.exact", minCrew);
                     }
                     else
                     {
-                        output += "Between " + minCrew + " and " + maxCrew + " " + traitString + "s";
+                        countStr = Localizer.Format("#cc.param.count.between", minCrew, maxCrew);
                     }
 
-                    if (minExperience != 0 || maxExperience != 5)
+                    // Build the trait string
+                    string traitStr = null;
+                    if (!String.IsNullOrEmpty(trait))
+                    {
+                        traitStr = Localizer.Format("#cc.param.HasAstronaut.trait", LocalizationUtil.TraitTitle(trait));
+                    }
+
+                    // Build the experience string
+                    string experienceStr = null;
+                    if (minExperience != 0 && maxExperience != 5)
                     {
                         if (minExperience == 0)
                         {
-                            output += " with experience level of at most " + maxExperience;
+                            experienceStr = Localizer.Format("#cc.param.HasAstronaut.experience.atMost", maxExperience);
                         }
                         else if (maxExperience == 5)
                         {
-                            output += " with experience level of at least " + minExperience;
+                            experienceStr = Localizer.Format("#cc.param.HasAstronaut.experience.atLeast", minExperience);
+                        }
+                        else if (minExperience == maxExperience)
+                        {
+                            experienceStr = Localizer.Format("#cc.param.HasAstronaut.experience.exact", minExperience);
                         }
                         else
                         {
-                            output += " with experience level between " + minExperience + " and " + maxExperience;
+                            experienceStr = Localizer.Format("#cc.param.HasAstronaut.experience.between", minExperience, maxExperience);
                         }
+                    }
+
+                    // Build the output string
+                    if (String.IsNullOrEmpty(traitStr))
+                    {
+                        if (String.IsNullOrEmpty(experienceStr))
+                        {
+                            output = Localizer.Format("#cc.param.HasCrew.1", countStr);
+                        }
+                        else
+                        {
+                            output = Localizer.Format("#cc.param.HasCrew.2", countStr, experienceStr);
+                        }
+                    }
+                    else if (String.IsNullOrEmpty(experienceStr))
+                    {
+                        output = Localizer.Format("#cc.param.HasCrew.2", countStr, traitStr);
+                    }
+                    else
+                    {
+                        output = Localizer.Format("#cc.param.HasCrew.3", countStr, traitStr, experienceStr);
                     }
                 }
                 else
                 {
-                    output = "Crew";
                     if (state == ParameterState.Complete || ParameterCount == 1)
                     {
                         if (ParameterCount == 1)
@@ -108,7 +142,11 @@ namespace ContractConfigurator.Parameters
                             hideChildren = true;
                         }
 
-                        output += ": " + ParameterDelegate<ProtoCrewMember>.GetDelegateText(this);
+                        output = Localizer.Format("#cc.param.HasCrew.1", ParameterDelegate<ProtoCrewMember>.GetDelegateText(this));
+                    }
+                    else
+                    {
+                        output = Localizer.GetStringByTag("#cc.param.HasCrew");
                     }
                 }
             }
@@ -124,28 +162,32 @@ namespace ContractConfigurator.Parameters
             // Experience trait
             if (!string.IsNullOrEmpty(trait))
             {
-                AddParameter(new ParameterDelegate<ProtoCrewMember>("Trait: " + TraitTitle(trait),
+                AddParameter(new ParameterDelegate<ProtoCrewMember>(Localizer.Format("#cc.param.HasCrew.trait", LocalizationUtil.TraitTitle(trait)),
                     cm => cm.experienceTrait.Config.Name == trait));
             }
 
             // Filter for experience
             if (minExperience != 0 || maxExperience != 5)
             {
-                string filterText;
+                string countText;
                 if (minExperience == 0)
                 {
-                    filterText = "Experience Level: At most " + maxExperience;
+                    countText = Localizer.Format("#cc.param.count.atMost.num", maxExperience);
                 }
                 else if (maxExperience == 5)
                 {
-                    filterText = "Experience Level: At least " + minExperience;
+                    countText = Localizer.Format("#cc.param.count.atLeast.num", minExperience);
+                }
+                else if (minExperience == maxExperience)
+                {
+                    countText = Localizer.Format("#cc.param.count.exact.num", minExperience);
                 }
                 else
                 {
-                    filterText = "Experience Level: Between " + minExperience + " and " + maxExperience;
+                    countText = Localizer.Format("#cc.param.count.between.num", minExperience, maxExperience);
                 }
 
-                AddParameter(new ParameterDelegate<ProtoCrewMember>(filterText,
+                AddParameter(new ParameterDelegate<ProtoCrewMember>(Localizer.Format("#cc.param.HasCrew.experience", countText),
                     cm => cm.experienceLevel >= minExperience && cm.experienceLevel <= maxExperience));
             }
 
@@ -155,7 +197,7 @@ namespace ContractConfigurator.Parameters
                 // Special handling for unmanned
                 if (minCrew == 0 && maxCrew == 0)
                 {
-                    AddParameter(new ParameterDelegate<ProtoCrewMember>("Unmanned", pcm => true, ParameterDelegateMatchType.NONE));
+                    AddParameter(new ParameterDelegate<ProtoCrewMember>(Localizer.GetStringByTag("#cc.param.HasCrew.unmanned"), pcm => true, ParameterDelegateMatchType.NONE));
                 }
                 else
                 {
@@ -166,7 +208,7 @@ namespace ContractConfigurator.Parameters
             // Validate specific kerbals
             foreach (Kerbal kerbal in kerbals)
             {
-                AddParameter(new ParameterDelegate<ProtoCrewMember>(kerbal.name + ": On board",
+                AddParameter(new ParameterDelegate<ProtoCrewMember>(Localizer.Format("#cc.param.HasCrew.specific", kerbal.name),
                     pcm => pcm == kerbal.pcm, ParameterDelegateMatchType.VALIDATE));
             }
         }
@@ -311,13 +353,6 @@ namespace ContractConfigurator.Parameters
             }
 
             return ParameterDelegate<ProtoCrewMember>.CheckChildConditions(this, GetVesselCrew(vessel, maxCrew == int.MaxValue), checkOnly);
-        }
-
-        protected string TraitTitle(string traitName)
-        {
-            ExperienceTraitConfig config = GameDatabase.Instance.ExperienceConfigs.Categories.Where(c => c.Name == traitName).FirstOrDefault();
-
-            return config != null ? config.Title : traitName;
         }
 
         /// <summary>

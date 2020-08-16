@@ -25,7 +25,7 @@ namespace ContractConfigurator.ExpressionParser
 
         public static void RegisterMethods()
         {
-            RegisterMethod(new Method<Biome, string>("Name", biome => biome == null ? "" : Biome.PrintBiomeName(biome.biome)));
+            RegisterMethod(new Method<Biome, string>("Name", biome => biome == null ? "" : ScienceUtil.GetBiomedisplayName(biome.body, biome.biome)));
             RegisterMethod(new Method<Biome, string>("FullName", biome => biome == null ? "" : biome.ToString()));
             RegisterMethod(new Method<Biome, CelestialBody>("CelestialBody", biome => biome == null ? null : biome.body));
             RegisterMethod(new Method<Biome, bool>("IsKSC", biome => biome == null ? false : biome.IsKSC()));

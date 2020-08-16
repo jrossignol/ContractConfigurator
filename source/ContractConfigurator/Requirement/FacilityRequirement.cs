@@ -6,6 +6,7 @@ using UnityEngine;
 using KSP;
 using Upgradeables;
 using ContractConfigurator.ExpressionParser;
+using KSP.Localization;
 
 namespace ContractConfigurator
 {
@@ -30,6 +31,9 @@ namespace ContractConfigurator
             valid &= ConfigNodeUtil.ParseValue<int>(configNode, "minLevel", x => minLevel = x, this, 1, x => Validation.Between(x, 1, 3));
             valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxLevel", x => maxLevel = x, this, 3, x => Validation.Between(x, 1, 3));
             valid &= ConfigNodeUtil.AtLeastOne(configNode, new string[] { "minLevel", "maxLevel" }, this);
+
+            // Not invertable
+            valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "invertRequirement", x => invertRequirement = x, this, false, x => Validation.EQ(x, false));
 
             return valid;
         }
@@ -63,27 +67,18 @@ namespace ContractConfigurator
 
         protected override string RequirementText()
         {
-            string facilityName = Regex.Replace(facility.ToString(), @"([A-Z]+?(?=[A-Z][^A-Z])|\B[A-Z]+?(?=[^A-Z]))", " $1");
-            if (facility == SpaceCenterFacility.Administration || facility == SpaceCenterFacility.MissionControl || facility == SpaceCenterFacility.ResearchAndDevelopment)
-            {
-                facilityName += " Building";
-            }
-
-            string output = "The " + facilityName + " must " + (invertRequirement ? "not " : "") + "be ";
             if (minLevel == maxLevel)
             {
-                output += "at level " + NumericValueExpressionParser<int>.PrintNumber(minLevel);
+                return Localizer.Format("#cc.req.Facility.exact", facility.displayDescription(), minLevel);
             }
             else if (minLevel > 1)
             {
-                output += "at least at level " + NumericValueExpressionParser<int>.PrintNumber(minLevel);
+                return Localizer.Format("#cc.req.Facility.atLeast", facility.displayDescription(), minLevel);
             }
             else
             {
-                output += "at most at level " + NumericValueExpressionParser<int>.PrintNumber(maxLevel);
+                return Localizer.Format("#cc.req.Facility.atMost", facility.displayDescription(), maxLevel);
             }
-
-            return output;
         }
     }
 }

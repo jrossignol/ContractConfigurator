@@ -6,6 +6,7 @@ using UnityEngine;
 using KSP;
 using Contracts;
 using Contracts.Parameters;
+using KSP.Localization;
 
 namespace ContractConfigurator.Parameters
 {
@@ -30,7 +31,7 @@ namespace ContractConfigurator.Parameters
             string output = null;
             if (string.IsNullOrEmpty(title))
             {
-                output = "Is not true";
+                output = Localizer.GetStringByTag("#cc.param.Not");
             }
             else
             {

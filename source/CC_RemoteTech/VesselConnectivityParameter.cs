@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System;
 using UnityEngine;
+using KSP.Localization;
 using RemoteTech;
 using ContractConfigurator;
 
@@ -37,8 +38,7 @@ namespace ContractConfigurator.RemoteTech
             string output;
             if (string.IsNullOrEmpty(title))
             {
-                output = (hasConnectivity ? "Direct connection to: " : "No direct connection to: ");
-                output += ContractVesselTracker.GetDisplayName(vesselKey);
+                output = Localizer.Format(hasConnectivity ? "#cc.remotetech.param.VesselConnectivity" : "#cc.remotetech.param.VesselConnectivity.x", ContractVesselTracker.GetDisplayName(vesselKey));
             }
             else
             {

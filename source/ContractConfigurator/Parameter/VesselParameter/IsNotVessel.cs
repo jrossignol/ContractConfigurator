@@ -6,6 +6,7 @@ using UnityEngine;
 using KSP;
 using Contracts;
 using Contracts.Parameters;
+using KSP.Localization;
 
 namespace ContractConfigurator.Parameters
 {
@@ -35,7 +36,7 @@ namespace ContractConfigurator.Parameters
             string output;
             if (string.IsNullOrEmpty(title))
             {
-                output = "Vessel: Not " + ContractVesselTracker.GetDisplayName(vesselKey);
+                output = Localizer.Format("#cc.param.IsNotVessel", ContractVesselTracker.GetDisplayName(vesselKey));
             }
             else
             {

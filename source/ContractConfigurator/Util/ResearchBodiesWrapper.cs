@@ -606,23 +606,23 @@ namespace ContractConfigurator
         /// <summary>
         /// Some Structured logging to the debug file - ONLY RUNS WHEN TST Debug mode is on
         /// </summary>
-        /// <param name="Message">Text to be printed - can be formatted as per String.format</param>
-        /// <param name="strParams">Objects to feed into a String.format</param>        
+        /// <param name="Message">Text to be printed - can be formatted as per StringBuilderCache.Format</param>
+        /// <param name="strParams">Objects to feed into a StringBuilderCache.Format</param>        
         [Conditional("DEBUG")]
         internal static void LogFormatted_DebugOnly(String Message, params Object[] strParams)
         {
-            LoggingUtil.LogDebug(typeof(RBWrapper), String.Format(Message, strParams));
+            LoggingUtil.LogDebug(typeof(RBWrapper), StringBuilderCache.Format(Message, strParams));
         }
 
         /// <summary>
         /// Some Structured logging to the debug file
         /// </summary>
-        /// <param name="Message">Text to be printed - can be formatted as per String.format</param>
-        /// <param name="strParams">Objects to feed into a String.format</param>
+        /// <param name="Message">Text to be printed - can be formatted as per StringBuilderCache.Format</param>
+        /// <param name="strParams">Objects to feed into a StringBuilderCache.Format</param>
         internal static void LogFormatted(String Message, params Object[] strParams)
         {
-            Message = String.Format(Message, strParams);
-            String strMessageLine = String.Format("{0},{2}-{3},{1}",
+            Message = StringBuilderCache.Format(Message, strParams);
+            String strMessageLine = StringBuilderCache.Format("{0},{2}-{3},{1}",
                 DateTime.Now, Message, Assembly.GetExecutingAssembly().GetName().Name,
                 MethodBase.GetCurrentMethod().DeclaringType.Name);
             Debug.Log(strMessageLine);

@@ -8,6 +8,7 @@ using KSP.UI.Screens;
 using Contracts;
 using Contracts.Parameters;
 using ContractConfigurator.Behaviour;
+using KSP.Localization;
 
 namespace ContractConfigurator.Parameters
 {
@@ -55,12 +56,14 @@ namespace ContractConfigurator.Parameters
             {
                 if (kerbals.Count == 1)
                 {
-                    output = "Recover " + kerbals[0];
+                    // Recover <<1>>
+                    output = Localizer.Format("#cc.param.RecoverKerbal.one", kerbals[0]);
                     hideChildren = true;
                 }
                 else
                 {
-                    output = "Recover Kerbals";
+                    // Recover Kerbals
+                    output = Localizer.GetStringByTag("#cc.param.RecoverKerbal.many");
                 }
             }
             else

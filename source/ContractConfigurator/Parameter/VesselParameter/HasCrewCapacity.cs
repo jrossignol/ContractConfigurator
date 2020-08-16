@@ -6,6 +6,7 @@ using UnityEngine;
 using KSP;
 using Contracts;
 using Contracts.Parameters;
+using KSP.Localization;
 
 namespace ContractConfigurator.Parameters
 {
@@ -39,24 +40,29 @@ namespace ContractConfigurator.Parameters
 
             if (string.IsNullOrEmpty(title))
             {
-                this.title = "Crew Capacity: ";
-
+                // Build the count string
+                string countStr;
                 if (maxCapacity == 0)
                 {
-                    this.title += "None";
+                    countStr = Localizer.GetStringByTag("#cc.param.HasCrewCapacity.none");
                 }
                 else if (maxCapacity == int.MaxValue)
                 {
-                    this.title += "At least " + minCapacity;
+                    countStr = Localizer.Format("#cc.param.count.atLeast", minCapacity);
                 }
                 else if (minCapacity == 0)
                 {
-                    this.title += "At most " + maxCapacity;
+                    countStr = Localizer.Format("#cc.param.count.atMost", maxCapacity);
+                }
+                else if (minCapacity == maxCapacity)
+                {
+                    countStr = Localizer.Format("#cc.param.count.exact", minCapacity);
                 }
                 else
                 {
-                    this.title += "Between " + minCapacity + " and " + maxCapacity;
+                    countStr = Localizer.Format("#cc.param.count.between", minCapacity, maxCapacity);
                 }
+                this.title = Localizer.Format("#cc.param.HasCrewCapacity", countStr);
             }
             else
             {

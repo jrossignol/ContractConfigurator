@@ -6,6 +6,8 @@ using UnityEngine;
 using KSP;
 using FinePrint;
 using FinePrint.Utilities;
+using KSP.Localization;
+using ContractConfigurator.Util;
 
 namespace ContractConfigurator
 {
@@ -65,25 +67,10 @@ namespace ContractConfigurator
 
         protected override string RequirementText()
         {
-            string partStr = "";
-            for (int i = 0; i < partModuleTypes.Count; i++)
-            {
-                if (i != 0)
-                {
-                    if (i == partModuleTypes.Count - 1)
-                    {
-                        partStr += " or ";
-                    }
-                    else
-                    {
-                        partStr += ", ";
-                    }
-                }
-
-                partStr += partModuleTypes[i];
-            }
-
-            return "Must " + (invertRequirement ? "not " : "") + "have a part unlocked of type " + partStr;
+            return Localizer.Format(invertRequirement ? "#cc.req.PartModuleTypeUnlocked.x" : "#cc.req.PartModuleTypeUnlocked",
+                LocalizationUtil.LocalizeList<string>(invertRequirement ? LocalizationUtil.Conjunction.AND : LocalizationUtil.Conjunction.OR, partModuleTypes,
+                x => StringBuilderCache.Format("<color=#{0}" + ">{1}</color>", MissionControlUI.RequirementHighlightColor, Parameters.PartValidation.ModuleTypeName(x))),
+                partModuleTypes.Count);
         }
     }
 }

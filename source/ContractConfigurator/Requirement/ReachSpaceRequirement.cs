@@ -5,6 +5,7 @@ using System.Text;
 using UnityEngine;
 using KSP;
 using KSPAchievements;
+using KSP.Localization;
 
 namespace ContractConfigurator
 {
@@ -23,8 +24,7 @@ namespace ContractConfigurator
 
         protected override string RequirementText()
         {
-            string output = "Must " + (invertRequirement ? "not " : "") + "have reached space";
-            return output;
+            return Localizer.GetStringByTag(invertRequirement ? "#cc.req.ReachSpace.x" : "#cc.req.ReachSpace");
         }
     }
 }

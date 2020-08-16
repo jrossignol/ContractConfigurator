@@ -5,6 +5,7 @@ using System.Text;
 using UnityEngine;
 using Contracts;
 using ContractConfigurator;
+using KSP.Localization;
 
 namespace ContractConfigurator.Parameters
 {
@@ -53,7 +54,10 @@ namespace ContractConfigurator.Parameters
                 }
             }
 
-            string output = (optional && !fakeOptional && string.IsNullOrEmpty(title) ? "(Optional) " : "") + GetParameterTitle();
+            // (Optional)
+            string output = (optional && !fakeOptional && string.IsNullOrEmpty(title) ?
+                StringBuilderCache.Format("{0} {1}", Localizer.GetStringByTag("#cc.param.optionalTag"), GetParameterTitle()) :
+                GetParameterTitle());
 
             // Update the contract window title
             titleTracker.Add(output);

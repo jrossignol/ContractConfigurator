@@ -6,6 +6,7 @@ using UnityEngine;
 using KSP;
 using Contracts;
 using Contracts.Parameters;
+using KSP.Localization;
 
 namespace ContractConfigurator.Parameters
 {
@@ -57,6 +58,10 @@ namespace ContractConfigurator.Parameters
 
                     output = ParameterDelegate<Vessel>.GetDelegateText(this);
                 }
+                else
+                {
+                    output = Localizer.GetStringByTag("#cc.param.HasResource");
+                }
             }
             else
             {
@@ -69,28 +74,29 @@ namespace ContractConfigurator.Parameters
         {
             foreach (Filter filter in filters)
             {
-                string output = (capacity ? "Resource Capacity: " : "Resource: ") + filter.resource.name + ": ";
+                string resourceStr;
                 if (filter.maxQuantity == 0)
                 {
-                    output += "None";
+                    resourceStr = Localizer.GetStringByTag("#cc.param.count.none");
                 }
                 else if (filter.maxQuantity == double.MaxValue && (filter.minQuantity > 0.0 && filter.minQuantity <= 0.01))
                 {
-                    output += "Not zero units";
+                    resourceStr  = Localizer.GetStringByTag("#cc.param.HasResource.notzero");
                 }
                 else if (filter.maxQuantity == double.MaxValue)
                 {
-                    output += "At least " + filter.minQuantity + " units";
+                    resourceStr = Localizer.Format("#cc.param.HasResource.measure", Localizer.Format("#cc.param.count.atLeast.num", filter.minQuantity));
                 }
                 else if (filter.minQuantity == 0)
                 {
-                    output += "At most " + filter.maxQuantity + " units";
+                    resourceStr = Localizer.Format("#cc.param.HasResource.measure", Localizer.Format("#cc.param.count.atMost.num", filter.maxQuantity));
                 }
                 else
                 {
-                    output += "Between " + filter.minQuantity + " and " + filter.maxQuantity + " units";
+                    resourceStr = Localizer.Format("#cc.param.HasResource.measure", Localizer.Format("#cc.param.count.between.num", filter.minQuantity, filter.maxQuantity));
                 }
 
+                string output = Localizer.Format((capacity ? "#cc.param.HasResource.capacity" : "#cc.param.HasResource.resource"), filter.resource.name, resourceStr);
                 AddParameter(new ParameterDelegate<Vessel>(output, v => VesselHasResource(v, filter.resource, capacity, filter.minQuantity, filter.maxQuantity),
                     ParameterDelegateMatchType.VALIDATE));
             }

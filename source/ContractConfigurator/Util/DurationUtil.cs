@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using UnityEngine;
 using KSP;
 using ContractConfigurator.Parameters;
+using KSP.Localization;
 
 namespace ContractConfigurator
 {
@@ -14,10 +15,11 @@ namespace ContractConfigurator
     /// </summary>
     public class DurationUtil
     {
-        private static uint SecondsPerYear;
-        private static uint SecondsPerDay;
-        private static uint SecondsPerHour;
-        private static uint SecondsPerMinute;
+        private static bool cached = false;
+        private static string YEAR;
+        private static string YEARS;
+        private static string DAY;
+        private static string DAYS;
 
         /// <summary>
         /// Parses a duration in the form "1y 2d 3h 4m 5s"
@@ -35,10 +37,10 @@ namespace ContractConfigurator
 
             SetTimeConsts();
             return seconds +
-                minutes * SecondsPerMinute +
-                hours * SecondsPerHour +
-                days * SecondsPerDay +
-                years * SecondsPerYear;
+                minutes * KSPUtil.dateTimeFormatter.Minute +
+                hours * KSPUtil.dateTimeFormatter.Hour +
+                days * KSPUtil.dateTimeFormatter.Day +
+                years * KSPUtil.dateTimeFormatter.Year;
         }
         
         /// <summary>
@@ -63,66 +65,68 @@ namespace ContractConfigurator
             double time = duration;
             SetTimeConsts();
 
-            string output = "";
+            StringBuilder sb = StringBuilderCache.Acquire(64);
 
             if (displayDaysAndYears)
             {
-                int years = (int)(time / SecondsPerYear);
-                time -= years * SecondsPerYear;
+                int years = (int)(time / KSPUtil.dateTimeFormatter.Year);
+                time -= years * KSPUtil.dateTimeFormatter.Year;
 
-                int days = (int)(time / SecondsPerDay);
-                time -= days * SecondsPerDay;
+                int days = (int)(time / KSPUtil.dateTimeFormatter.Day);
+                time -= days * KSPUtil.dateTimeFormatter.Day;
 
                 if (years != 0)
                 {
-                    output += years + (years == 1 ? " year" : " years");
+                    sb.Append(years);
+                    sb.Append(" ");
+                    sb.Append(years == 1 ? YEAR : YEARS);
                 }
                 if (days != 0)
                 {
-                    if (output.Length != 0) output += ", ";
-                    output += days + (days == 1 ? " day" : " days");
+                    if (sb.Length != 0) sb.Append(", ");
+                    sb.Append(days);
+                    sb.Append(" ");
+                    sb.Append(days == 1 ? DAY : DAYS);
                 }
             }
 
-            int hours = (int)(time / SecondsPerHour);
-            time -= hours * SecondsPerHour;
+            int hours = (int)(time / KSPUtil.dateTimeFormatter.Hour);
+            time -= hours * KSPUtil.dateTimeFormatter.Hour;
 
-            int minutes = (int)(time / SecondsPerMinute);
-            time -= minutes * SecondsPerMinute;
+            int minutes = (int)(time / KSPUtil.dateTimeFormatter.Minute);
+            time -= minutes * KSPUtil.dateTimeFormatter.Minute;
 
             int seconds = (int)(time);
 
-            if (hours != 0 || minutes != 0 || seconds != 0 || output.Length == 0)
+            if (hours != 0 || minutes != 0 || seconds != 0 || sb.Length == 0)
             {
-                if (output.Length != 0) output += ", ";
-                output += hours.ToString("D2") + ":" + minutes.ToString("D2") + ":" + seconds.ToString("D2");
+                if (sb.Length != 0) sb.Append(", ");
+                sb.Append(hours.ToString("D2"));
+                sb.Append(":");
+                sb.Append(minutes.ToString("D2"));
+                sb.Append(":");
+                sb.Append(seconds.ToString("D2"));
             }
 
             if (displayMilli)
             {
                 time -= seconds;
                 int millis = (int)(time * 1000);
-                output += "." + millis.ToString("D3");
+                sb.Append(".");
+                sb.Append(millis.ToString("D3"));
             }
 
-
-            return output;
+            return sb.ToStringAndRelease();
         }
 
         private static void SetTimeConsts()
         {
-            // Earthtime
-            SecondsPerYear = 31536000; // = 365d
-            SecondsPerDay = 86400;     // = 24h
-            SecondsPerHour = 3600;     // = 60m
-            SecondsPerMinute = 60;     // = 60s
-
-            if (GameSettings.KERBIN_TIME)
+            if (!cached)
             {
-                SecondsPerYear = (uint)KSPUtil.dateTimeFormatter.Year;
-                SecondsPerDay = (uint)KSPUtil.dateTimeFormatter.Day;
-                SecondsPerHour = (uint)KSPUtil.dateTimeFormatter.Hour;
-                SecondsPerMinute = (uint)KSPUtil.dateTimeFormatter.Minute;
+                YEAR = Localizer.GetStringByTag("#autoLOC_6002334");
+                YEARS = Localizer.GetStringByTag("#autoLOC_6002335");
+                DAY = Localizer.GetStringByTag("#autoLOC_6002337");
+                DAYS = Localizer.GetStringByTag("#autoLOC_6002336");
             }
         }
 

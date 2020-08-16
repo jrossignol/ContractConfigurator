@@ -6,6 +6,7 @@ using UnityEngine;
 using KSP;
 using Contracts;
 using ContractConfigurator.Util;
+using KSP.Localization;
 
 namespace ContractConfigurator
 {
@@ -14,6 +15,18 @@ namespace ContractConfigurator
     /// </summary>
     public class AcceptContractRequirement : ContractCheckRequirement
     {
+        public override bool LoadFromConfig(ConfigNode configNode)
+        {
+            // Load base class
+            bool valid = base.LoadFromConfig(configNode);
+
+            // Don't support min/max counts
+            valid &= ConfigNodeUtil.ParseValue<uint>(configNode, "minCount", x => minCount = x, this, 1, x => Validation.EQ<uint>(x, 1));
+            valid &= ConfigNodeUtil.ParseValue<uint>(configNode, "maxCount", x => maxCount = x, this, UInt32.MaxValue, x => Validation.EQ<uint>(x, UInt32.MaxValue));
+
+            return valid;
+        }
+
         public override bool RequirementMet(ConfiguredContract contract)
         {
             // Get the count of accepted contracts
@@ -41,7 +54,8 @@ namespace ContractConfigurator
 
         protected override string RequirementText()
         {
-            return "Must " + (invertRequirement ? "not " : "") + "have accepted contract <color=#" + MissionControlUI.RequirementHighlightColor + ">'" + ContractTitle() + "'</color>";
+            string title = StringBuilderCache.Format("<color=#{0}" + ">{1}</color>", MissionControlUI.RequirementHighlightColor, ContractTitle());
+            return Localizer.Format(invertRequirement ? "#cc.req.AcceptContract.x" : "#cc.req.AcceptContract", title);
         }
     }
 }

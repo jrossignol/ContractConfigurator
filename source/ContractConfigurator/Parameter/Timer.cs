@@ -6,6 +6,7 @@ using UnityEngine;
 using KSP;
 using Contracts;
 using Contracts.Parameters;
+using KSP.Localization;
 
 namespace ContractConfigurator.Parameters
 {
@@ -48,15 +49,15 @@ namespace ContractConfigurator.Parameters
         {
             if (state == ParameterState.Failed)
             {
-                return "Time expired!";
+                return Localizer.GetStringByTag("#cc.param.Timer.expired");
             }
             else if (endTime > 0.01)
             {
-                return "Time remaining: " + DurationUtil.StringValue(endTime - Planetarium.GetUniversalTime());
+                return Localizer.Format("#cc.param.Timer.active", DurationUtil.StringValue(endTime - Planetarium.GetUniversalTime()));
             }
             else
             {
-                return "Time limit: " + DurationUtil.StringValue(duration);
+                return Localizer.Format("#cc.param.Timer.inactive", DurationUtil.StringValue(duration));
             }
         }
 

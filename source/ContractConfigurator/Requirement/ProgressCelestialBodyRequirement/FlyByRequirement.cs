@@ -5,6 +5,7 @@ using System.Text;
 using UnityEngine;
 using KSP;
 using KSPAchievements;
+using KSP.Localization;
 
 namespace ContractConfigurator
 {
@@ -13,6 +14,13 @@ namespace ContractConfigurator
     /// </summary>
     public class FlyByRequirement : ProgressCelestialBodyRequirement
     {
+        public override bool LoadFromConfig(ConfigNode configNode)
+        {
+            // Disallow Kerbin
+            allowKerbin = false;
+            return base.LoadFromConfig(configNode);
+        }
+
         protected override ProgressNode GetTypeSpecificProgressNode(CelestialBodySubtree celestialBodySubtree)
         {
             return celestialBodySubtree.flyBy;
@@ -22,14 +30,6 @@ namespace ContractConfigurator
         {
             return base.RequirementMet(contract) &&
                 GetCelestialBodySubtree().IsComplete;
-        }
-
-
-        protected override string RequirementText()
-        {
-            string output = "Must " + (invertRequirement ? "not " : "") + "have performed " + ACheckTypeString() + "flyby of " + (targetBody == null ? "the target body" : targetBody.CleanDisplayName(true));
-
-            return output;
         }
     }
 }

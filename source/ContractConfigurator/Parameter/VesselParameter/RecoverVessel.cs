@@ -6,6 +6,7 @@ using UnityEngine;
 using KSP;
 using Contracts;
 using Contracts.Parameters;
+using KSP.Localization;
 
 namespace ContractConfigurator.Parameters
 {
@@ -24,7 +25,7 @@ namespace ContractConfigurator.Parameters
         public RecoverVessel(string title)
             : base(title)
         {
-            this.title = title != null ? title : "Recover vessel";
+            this.title = title != null ? title : Localizer.GetStringByTag("#autoLOC_5050049");
 
             disableOnStateChange = true;
         }

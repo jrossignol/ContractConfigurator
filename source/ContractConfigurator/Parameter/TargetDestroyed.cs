@@ -6,6 +6,7 @@ using UnityEngine;
 using KSP;
 using Contracts;
 using Contracts.Parameters;
+using KSP.Localization;
 
 namespace ContractConfigurator.Parameters
 {
@@ -41,7 +42,7 @@ namespace ContractConfigurator.Parameters
             string output = "";
             if (string.IsNullOrEmpty(title))
             {
-                output = "Target" + (vessels.Count > 1 ? "s" : "") + " destroyed";
+                output = Localizer.Format("#cc.param.TargetDestroyed", vessels.Count);
             }
             else
             {

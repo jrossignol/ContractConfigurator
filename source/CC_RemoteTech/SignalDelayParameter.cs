@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System;
 using UnityEngine;
+using KSP.Localization;
 using ContractConfigurator;
 using RemoteTech;
 using RemoteTech.API;
@@ -26,19 +27,17 @@ namespace ContractConfigurator.RemoteTech
         {
             if (string.IsNullOrEmpty(title))
             {
-                this.title = "Signal Delay: ";
-
                 if (maxSignalDelay == double.MaxValue)
                 {
-                    this.title += "At least " + minSignalDelay.ToString("N1") + " seconds";
+                    this.title = Localizer.Format("#cc.remotetech.param.SignalDelay", Localizer.Format("#cc.param.count.atLeast", minSignalDelay.ToString("N1")));
                 }
                 else if (minSignalDelay == 0.0)
                 {
-                    this.title += "At most " + maxSignalDelay.ToString("N1") + " seconds";
+                    this.title = Localizer.Format("#cc.remotetech.param.SignalDelay", Localizer.Format("#cc.param.count.atMost", maxSignalDelay.ToString("N1")));
                 }
                 else
                 {
-                    this.title += "Between " + minSignalDelay.ToString("N1") + " and " + maxSignalDelay.ToString("N1") + " seconds";
+                    this.title = Localizer.Format("#cc.remotetech.param.SignalDelay", Localizer.Format("#cc.param.count.between", minSignalDelay.ToString("N1"), maxSignalDelay.ToString("N1")));
                 }
             }
             else

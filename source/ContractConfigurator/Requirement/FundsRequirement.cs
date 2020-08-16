@@ -5,6 +5,7 @@ using System.Text;
 using UnityEngine;
 using KSP;
 using KSPAchievements;
+using KSP.Localization;
 
 namespace ContractConfigurator
 {
@@ -24,6 +25,9 @@ namespace ContractConfigurator
             valid &= ConfigNodeUtil.ParseValue<double>(configNode, "minFunds", x => minFunds = x, this, 0.0, x => Validation.GE(x, 0.0));
             valid &= ConfigNodeUtil.ParseValue<double>(configNode, "maxFunds", x => maxFunds = x, this, double.MaxValue, x => Validation.GE(x, 0.0));
             valid &= ConfigNodeUtil.AtLeastOne(configNode, new string[] { "minFunds", "maxFunds" }, this);
+
+            // Not invertable
+            valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "invertRequirement", x => invertRequirement = x, this, false, x => Validation.EQ(x, false));
 
             return valid;
         }
@@ -51,23 +55,18 @@ namespace ContractConfigurator
 
         protected override string RequirementText()
         {
-            string output = "Must " + (invertRequirement ? "not " : "") + "have ";
-
-            if (minFunds >= 0 && maxFunds < double.MaxValue)
+            if (minFunds > 0 && maxFunds < double.MaxValue)
             {
-                output += "between " + minFunds.ToString("N0") + " and " + maxFunds.ToString("N0");
+                return Localizer.Format("#cc.req.Funds.between", minFunds.ToString("N0"), maxFunds.ToString("N0"));
             }
-            else if (minFunds >= 0)
+            else if (minFunds > 0)
             {
-                output += "at least " + minFunds.ToString("N0");
+                return Localizer.Format("#cc.req.Funds.atLeast", minFunds.ToString("N0"));
             }
-            else if (maxFunds < double.MaxValue)
+            else
             {
-                output += "at most " + maxFunds.ToString("N0");
+                return Localizer.Format("#cc.req.Funds.atMost", maxFunds.ToString("N0"));
             }
-            output += " funds";
-
-            return output;
         }
     }
 }

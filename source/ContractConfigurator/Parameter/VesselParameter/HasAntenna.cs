@@ -6,6 +6,7 @@ using UnityEngine;
 using KSP;
 using Contracts;
 using Contracts.Parameters;
+using KSP.Localization;
 
 namespace ContractConfigurator.Parameters
 {
@@ -41,27 +42,21 @@ namespace ContractConfigurator.Parameters
 
             if (title == null)
             {
-				if (antennaType == AntennaType.TRANSMIT)
-				{
-					this.title = "Transmit antenna rating (combined): ";
-				}
-				else
-				{
-					this.title = "Relay antenna rating (combined): ";
-				}
-
+                string countStr;
                 if (maxAntennaPower == double.MaxValue)
                 {
-					this.title += "At least " + KSPUtil.PrintSI(minAntennaPower,"");
+                    countStr = Localizer.Format("#cc.param.count.atLeast", KSPUtil.PrintSI(minAntennaPower,""));
                 }
                 else if (minAntennaPower == 0.0)
                 {
-                    this.title += "At most " + KSPUtil.PrintSI(maxAntennaPower,"");
+                    countStr = Localizer.Format("#cc.param.count.atMost", KSPUtil.PrintSI(maxAntennaPower,""));
                 }
                 else
                 {
-                    this.title += "Between " + KSPUtil.PrintSI(minAntennaPower,"") + " and " + KSPUtil.PrintSI(maxAntennaPower,"");
+                    countStr = Localizer.Format("#cc.param.count.between", KSPUtil.PrintSI(minAntennaPower, ""), KSPUtil.PrintSI(maxAntennaPower, ""));
                 }
+
+                this.title = Localizer.Format(antennaType == AntennaType.TRANSMIT ? "#cc.param.HasAntenna.transmit" : "#cc.param.HasAntenna.relay", countStr);
             }
             else
             {

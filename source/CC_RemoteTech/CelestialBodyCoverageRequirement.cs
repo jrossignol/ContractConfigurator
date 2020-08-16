@@ -5,6 +5,7 @@ using System.Text;
 using UnityEngine;
 using KSP;
 using KSPAchievements;
+using KSP.Localization;
 using RemoteTech;
 using ContractConfigurator;
 
@@ -28,6 +29,9 @@ namespace ContractConfigurator.RemoteTech
 
             // Do not check on active contracts
             checkOnActiveContract = configNode.HasValue("checkOnActiveContract") ? checkOnActiveContract : false;
+
+            // Not invertable
+            valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "invertRequirement", x => invertRequirement = x, this, false, x => Validation.EQ(x, false));
 
             valid &= ConfigNodeUtil.ParseValue<double>(configNode, "minCoverage", x => minCoverage = x, this, 0.0, x => Validation.BetweenInclusive(x, 0.0, 1.0));
             valid &= ConfigNodeUtil.ParseValue<double>(configNode, "maxCoverage", x => maxCoverage = x, this, 1.0, x => Validation.BetweenInclusive(x, 0.0, 1.0));
@@ -70,9 +74,19 @@ namespace ContractConfigurator.RemoteTech
 
         protected override string RequirementText()
         {
-            string output = "Must " + (invertRequirement ? "not " : "") + "have between " + (minCoverage*100).ToString("N0") + "% and " + (maxCoverage*100).ToString("N0") + "% RemoteTech coverage of " + (targetBody == null ? "the target body" : targetBody.CleanDisplayName(true));
-
-            return output;
+            string body = targetBody == null ? Localizer.GetStringByTag("#cc.req.ProgressCelestialBody.genericBody") : targetBody.CleanDisplayName(true);
+            if (minCoverage > 0 && maxCoverage < 1.0)
+            {
+                return Localizer.Format("#cc.scansat.req.SCANsatCoverage.between", (minCoverage * 100).ToString("N0"), (maxCoverage * 100).ToString("N0"), "RemoteTech", body);
+            }
+            else if (minCoverage > 0)
+            {
+                return Localizer.Format("#cc.scansat.req.SCANsatCoverage.atLeast", (minCoverage * 100).ToString("N0"), "RemoteTech", body);
+            }
+            else
+            {
+                return Localizer.Format("#cc.scansat.req.SCANsatCoverage.atMost", (maxCoverage * 100).ToString("N0"), "RemoteTech", body);
+            }
         }
     }
 }

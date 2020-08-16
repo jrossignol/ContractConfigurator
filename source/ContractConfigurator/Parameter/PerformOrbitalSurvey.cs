@@ -6,6 +6,7 @@ using UnityEngine;
 using KSP;
 using Contracts;
 using Contracts.Parameters;
+using KSP.Localization;
 
 namespace ContractConfigurator.Parameters
 {
@@ -34,7 +35,8 @@ namespace ContractConfigurator.Parameters
             string output;
             if (string.IsNullOrEmpty(title))
             {
-                output = "Perform an orbital resource survey of " + targetBody.CleanDisplayName(true);
+                // Perform an orbital resource survey of <<1>>
+                output = Localizer.Format("#cc.param.PerformOrbitalSurvey", targetBody.CleanDisplayName(true));
             }
             else 
             {

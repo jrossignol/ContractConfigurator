@@ -6,6 +6,7 @@ using UnityEngine;
 using KSP;
 using Contracts;
 using Contracts.Parameters;
+using KSP.Localization;
 
 namespace ContractConfigurator.Parameters
 {
@@ -80,16 +81,16 @@ namespace ContractConfigurator.Parameters
         protected override string GetParameterTitle()
         {
             double end = endTime == 0.0 ? Planetarium.GetUniversalTime() : endTime;
-            string prefix = string.IsNullOrEmpty(title) ? "Mission Timer:" : title;
+            string prefix = string.IsNullOrEmpty(title) ? Localizer.GetStringByTag("#cc.param.MissionTimer") : title;
 
             string output;
             if (startTime == 0.0)
             {
-                output = prefix + " 00:00:00";
+                output = StringBuilderCache.Format("{0} 00:00:00", prefix);
             }
             else
             {
-                output = prefix + " " + DurationUtil.StringValue(end - startTime, true, (endTime != 0.0));
+                output = StringBuilderCache.Format("{0} {1}", prefix, DurationUtil.StringValue(end - startTime, true, (endTime != 0.0)));
             }
 
             return output;

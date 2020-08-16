@@ -5,6 +5,7 @@ using System.Text;
 using UnityEngine;
 using KSP;
 using KSPAchievements;
+using KSP.Localization;
 
 namespace ContractConfigurator
 {
@@ -107,25 +108,8 @@ namespace ContractConfigurator
 
         protected override string RequirementText()
         {
-            string techStr = "";
-            for (int i = 0; i < techs.Count; i++)
-            {
-                if (i != 0)
-                {
-                    if (i == techs.Count - 1)
-                    {
-                        techStr += " and ";
-                    }
-                    else
-                    {
-                        techStr += ", ";
-                    }
-                }
-
-                techStr += Tech.GetTech(techs[i]).title;
-            }
-
-            return "Must " + (invertRequirement ? "not " : "") + " be able to research (or have already researched) " + techStr;
+            string techStr = LocalizationUtil.LocalizeList<string>(invertRequirement ? LocalizationUtil.Conjunction.OR : LocalizationUtil.Conjunction.AND, techs, t  => Tech.GetTech(t).title);
+            return Localizer.Format(invertRequirement ? "#cc.req.CanResearchTech.x" : "#cc.req.CanResearchTech", techStr);
         }
     }
 }

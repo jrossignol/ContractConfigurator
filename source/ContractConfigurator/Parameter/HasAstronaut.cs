@@ -6,6 +6,7 @@ using UnityEngine;
 using KSP;
 using Contracts;
 using Contracts.Parameters;
+using KSP.Localization;
 
 namespace ContractConfigurator.Parameters
 {
@@ -40,39 +41,31 @@ namespace ContractConfigurator.Parameters
             string output = null;
             if (string.IsNullOrEmpty(title))
             {
-                string traitString = String.IsNullOrEmpty(trait) ? "Kerbal" : trait;
-                output = "Astronauts: ";
-                if (maxCount == int.MaxValue)
-                {
-                    output += "At least " + minCount + " " + traitString + (minCount != 1 ? "s" : "");
-                }
-                else if (minCount == 0)
-                {
-                    output += "At most " + maxCount + " " + traitString + (maxCount != 1 ? "s" : "");
-                }
-                else if (minCount == maxCount)
-                {
-                    output += minCount + " " + traitString + (minCount != 1 ? "s" : "");
-                }
-                else
-                {
-                    output += "Between " + minCount + " and " + maxCount + " " + traitString + "s";
-                }
+                // Build the strings
+                string countStr;
+                string traitStr = null;
+                string experienceStr = null;
+                HasAstronaut.GetTitleStrings(minCount, maxCount, trait, minExperience, maxExperience, out countStr, out traitStr, out experienceStr);
 
-                if (minExperience != 0 && maxExperience != 5)
+                // Build the output string
+                if (String.IsNullOrEmpty(traitStr))
                 {
-                    if (minExperience == 0)
+                    if (String.IsNullOrEmpty(experienceStr))
                     {
-                        output += " with experience level of at most " + maxExperience;
-                    }
-                    else if (maxExperience == 5)
-                    {
-                        output += " with experience level of at least " + minExperience;
+                        output = Localizer.Format("#cc.param.HasAstronaut.1", countStr);
                     }
                     else
                     {
-                        output += " with experience level between " + minExperience + " and " + maxExperience;
+                        output = Localizer.Format("#cc.param.HasAstronaut.2", countStr, experienceStr);
                     }
+                }
+                else if (String.IsNullOrEmpty(experienceStr))
+                {
+                    output = Localizer.Format("#cc.param.HasAstronaut.2", countStr, traitStr);
+                }
+                else
+                {
+                    output = Localizer.Format("#cc.param.HasAstronaut.3", countStr, traitStr, experienceStr);
                 }
             }
             else
@@ -80,6 +73,62 @@ namespace ContractConfigurator.Parameters
                 output = title;
             }
             return output;
+        }
+
+        public static void GetTitleStrings(int minCount, int maxCount, string trait, int minExperience, int maxExperience, out string countStr, out string traitStr, out string experienceStr)
+        {
+            // Build the count string
+            if (maxCount == int.MaxValue)
+            {
+                countStr = Localizer.Format("#cc.param.count.atLeast", minCount);
+            }
+            else if (minCount == 0)
+            {
+                countStr = Localizer.Format("#cc.param.count.atMost", maxCount);
+            }
+            else if (minCount == maxCount)
+            {
+                countStr = Localizer.Format("#cc.param.count.exact", minCount);
+            }
+            else
+            {
+                countStr = Localizer.Format("#cc.param.count.between", minCount, maxCount);
+            }
+
+            // Build the trait string
+            if (!String.IsNullOrEmpty(trait))
+            {
+                traitStr = Localizer.Format("#cc.param.HasAstronaut.trait", LocalizationUtil.TraitTitle(trait));
+            }
+            else
+            {
+                traitStr = null;
+            }
+
+            // Build the experience string
+            if (minExperience != 0 && maxExperience != 5)
+            {
+                if (minExperience == 0)
+                {
+                    experienceStr = Localizer.Format("#cc.param.HasAstronaut.experience.atMost", maxExperience);
+                }
+                else if (maxExperience == 5)
+                {
+                    experienceStr = Localizer.Format("#cc.param.HasAstronaut.experience.atLeast", minExperience);
+                }
+                else if (minExperience == maxExperience)
+                {
+                    experienceStr = Localizer.Format("#cc.param.HasAstronaut.experience.exact", minExperience);
+                }
+                else
+                {
+                    experienceStr = Localizer.Format("#cc.param.HasAstronaut.experience.between", minExperience, maxExperience);
+                }
+            }
+            else
+            {
+                experienceStr = null;
+            }
         }
 
         protected override void OnParameterSave(ConfigNode node)

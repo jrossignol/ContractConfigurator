@@ -49,10 +49,23 @@ namespace ContractConfigurator
                 // Add modules
                 foreach (ConfigNode moduleNode in configNode.GetNodes("MODULE"))
                 {
-                    ConfigNode.ValueList tmp = new ConfigNode.ValueList();
+                    List<Tuple<string, string, string>> tmp = new List<Tuple<string, string, string>>();
+                    string nextLabel = "";
                     foreach (ConfigNode.Value v in moduleNode.values)
                     {
-                        tmp.Add(new ConfigNode.Value(v.name, v.value));
+                        if (v.name == "name")
+                        {
+                            tmp.Add(new Tuple<string, string, string>(v.name, "", v.value));
+                        }
+                        else if (v.name == "label")
+                        {
+                            nextLabel = v.value;
+                        }
+                        else
+                        {
+                            tmp.Add(new Tuple<string, string, string>(v.name, nextLabel, v.value));
+                            nextLabel = "";
+                        }
                     }
                     filter.partModuleExtended.Add(tmp);
                 }
@@ -101,10 +114,23 @@ namespace ContractConfigurator
 
                 foreach (ConfigNode moduleNode in child.GetNodes("MODULE"))
                 {
-                    ConfigNode.ValueList tmp = new ConfigNode.ValueList();
+                    List<Tuple<string, string, string>> tmp = new List<Tuple<string, string, string>>();
+                    string nextLabel = "";
                     foreach (ConfigNode.Value v in moduleNode.values)
                     {
-                        tmp.Add(new ConfigNode.Value(v.name, v.value));
+                        if (v.name == "name")
+                        {
+                            tmp.Add(new Tuple<string, string, string>(v.name, "", v.value));
+                        }
+                        else if (v.name == "label")
+                        {
+                            nextLabel = v.value;
+                        }
+                        else
+                        {
+                            tmp.Add(new Tuple<string, string, string>(v.name, nextLabel, v.value));
+                            nextLabel = "";
+                        }
                     }
                     filter.partModuleExtended.Add(tmp);
                 }

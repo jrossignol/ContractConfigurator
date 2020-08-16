@@ -6,6 +6,7 @@ using UnityEngine;
 using KSP;
 using Contracts;
 using Contracts.Parameters;
+using KSP.Localization;
 
 namespace ContractConfigurator.Parameters
 {
@@ -44,38 +45,22 @@ namespace ContractConfigurator.Parameters
             {
                 if (vesselIdentifier != null)
                 {
-                    if (countMax == 1)
-                    {
-                        output = "Kill no Kerbals";
-                    }
-                    else
-                    {
-                        output = "Kill no more than " + countMax + " Kerbals";
-                    }
-                    output += " on vessel " + ContractVesselTracker.GetDisplayName(vesselIdentifier.identifier);
+                    output = Localizer.Format("#cc.param.KerbalDeaths.vessel", countMax - 1, ContractVesselTracker.GetDisplayName(vesselIdentifier.identifier));
                 }
                 else if (!kerbals.Any())
                 {
-                    if (countMax == 1)
-                    {
-                        output = "Kill no Kerbals";
-                    }
-                    else
-                    {
-                        output = "Kill no more than " + countMax + " Kerbals";
-                    }
+                    output = Localizer.Format("#cc.param.KerbalDeaths.generic", countMax - 1);
                 }
                 else
                 {
-                    output = "Do not kill";
+                    output = Localizer.Format("#cc.param.KerbalDeaths.specific");
                     if (state != ParameterState.Incomplete || ParameterCount == 1)
                     {
                         if (ParameterCount == 1)
                         {
+                            output = StringBuilderCache.Format("{0}: {1}", output, ParameterDelegate<ProtoCrewMember>.GetDelegateText(this));
                             hideChildren = true;
                         }
-
-                        output += ": " + ParameterDelegate<ProtoCrewMember>.GetDelegateText(this);
                     }
                 }
             }

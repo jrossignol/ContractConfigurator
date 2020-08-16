@@ -6,6 +6,7 @@ using UnityEngine;
 using KSP;
 using Contracts;
 using Contracts.Parameters;
+using KSP.Localization;
 
 namespace ContractConfigurator.Parameters
 {
@@ -31,7 +32,7 @@ namespace ContractConfigurator.Parameters
             string output;
             if (string.IsNullOrEmpty(title))
             {
-                output = "Plant a flag on " + targetBody.CleanDisplayName(true);
+                output = Localizer.Format("#autoLOC_284213", targetBody.CleanDisplayName(true));
             }
             else
             {

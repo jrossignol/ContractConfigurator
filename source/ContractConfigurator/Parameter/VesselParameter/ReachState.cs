@@ -6,6 +6,7 @@ using UnityEngine;
 using KSP;
 using Contracts;
 using Contracts.Parameters;
+using KSP.Localization;
 
 namespace ContractConfigurator.Parameters
 {
@@ -78,15 +79,17 @@ namespace ContractConfigurator.Parameters
                 {
                     if (ParameterCount == 1)
                     {
-                        output = "";
+                        output = ParameterDelegate<Vessel>.GetDelegateText(this); ;
                         hideChildren = true;
                     }
                     else
                     {
-                        output += ": ";
+                        output = Localizer.Format("#cc.param.ReachState.detail", ParameterDelegate<Vessel>.GetDelegateText(this));
                     }
-
-                    output += ParameterDelegate<Vessel>.GetDelegateText(this);
+                }
+                else
+                {
+                    Localizer.GetStringByTag("#cc.param.ReachState");
                 }
             }
             else
@@ -101,38 +104,39 @@ namespace ContractConfigurator.Parameters
             // Filter for celestial bodies
             if (targetBodies != null && targetBodies.Count() != FlightGlobals.Bodies.Count)
             {
-                AddParameter(new ParameterDelegate<Vessel>("Destination: " + BodyList(),
+                AddParameter(new ParameterDelegate<Vessel>(Localizer.Format("#cc.param.CollectScience.destination", BodyList()),
                     v => targetBodies.Contains(v.mainBody)));
             }
 
             // Filter for biome
             if (!string.IsNullOrEmpty(biome))
             {
-                AddParameter(new ParameterDelegate<Vessel>("Biome: " + biome, CheckBiome));
+                Biome b = new Biome(targetBodies.First(), biome);
+                AddParameter(new ParameterDelegate<Vessel>(Localizer.Format("#cc.param.CollectScience.biome", b), CheckBiome));
             }
 
             // Filter for situation
             if (situation.Any())
             {
-                AddParameter(new ParameterDelegate<Vessel>("Situation: " + SituationList(),
+                AddParameter(new ParameterDelegate<Vessel>(Localizer.Format("#cc.param.CollectScience.situation", SituationList()),
                     v => situation.Contains(v.situation)));
             }
 
             // Filter for altitude
             if (minAltitude != float.MinValue || maxAltitude != float.MaxValue)
             {
-                string output = "Altitude: ";
+                string output;
                 if (minAltitude == float.MinValue)
                 {
-                    output += "Below " + maxAltitude.ToString("N0") + " m";
+                    output = Localizer.Format("#cc.param.Orbit.below.meters", Localizer.GetStringByTag("#autoLOC_8000093"), maxAltitude.ToString("N0"));
                 }
                 else if (maxAltitude == float.MaxValue)
                 {
-                    output += "Above " + minAltitude.ToString("N0") + " m";
+                    output = Localizer.Format("#cc.param.Orbit.above.meters", Localizer.GetStringByTag("#autoLOC_8000093"), minAltitude.ToString("N0"));
                 }
                 else
                 {
-                    output += "Between " + minAltitude.ToString("N0") + " m and " + maxAltitude.ToString("N0") + " m";
+                    output = Localizer.Format("#cc.param.Orbit.between.meters", Localizer.GetStringByTag("#autoLOC_8000093"), minAltitude.ToString("N0"), maxAltitude.ToString("N0"));
                 }
 
                 AddParameter(new ParameterDelegate<Vessel>(output, CheckVesselAltitude));
@@ -141,18 +145,18 @@ namespace ContractConfigurator.Parameters
             // Filter for terrain altitude
             if (minTerrainAltitude != 0.0f || maxTerrainAltitude != float.MaxValue)
             {
-                string output = "Altitude (terrain): ";
+                string output;
                 if (minTerrainAltitude == 0.0f)
                 {
-                    output += "Below " + maxTerrainAltitude.ToString("N0") + " m";
+                    output = Localizer.Format("#cc.param.Orbit.below.meters", Localizer.GetStringByTag("#cc.param.ReachState.altitudeTerrain"), maxTerrainAltitude.ToString("N0"));
                 }
                 else if (maxTerrainAltitude == float.MaxValue)
                 {
-                    output += "Above " + minTerrainAltitude.ToString("N0") + " m";
+                    output = Localizer.Format("#cc.param.Orbit.above.meters", Localizer.GetStringByTag("#cc.param.ReachState.altitudeTerrain"), minTerrainAltitude.ToString("N0"));
                 }
                 else
                 {
-                    output += "Between " + minTerrainAltitude.ToString("N0") + " m and " + maxTerrainAltitude.ToString("N0") + " m";
+                    output = Localizer.Format("#cc.param.Orbit.between.meters", Localizer.GetStringByTag("#cc.param.ReachState.altitudeTerrain"), minTerrainAltitude.ToString("N0"), maxTerrainAltitude.ToString("N0"));
                 }
 
                 AddParameter(new ParameterDelegate<Vessel>(output, v => v.heightFromTerrain >= minTerrainAltitude && v.heightFromTerrain <= maxTerrainAltitude));
@@ -161,18 +165,18 @@ namespace ContractConfigurator.Parameters
             // Filter for speed
             if (minSpeed != 0.0 || maxSpeed != double.MaxValue)
             {
-                string output = "Speed: ";
+                string output;
                 if (minSpeed == 0.0)
                 {
-                    output += "Less than " + maxSpeed.ToString("N0") + " m/s";
+                    output = Localizer.Format("#cc.param.ReachState.below.speed", Localizer.GetStringByTag("#autoLOC_900381"), maxSpeed.ToString("N0"));
                 }
                 else if (maxSpeed == double.MaxValue)
                 {
-                    output += "Greater than " + minSpeed.ToString("N0") + " m/s";
+                    output = Localizer.Format("#cc.param.ReachState.above.speed", Localizer.GetStringByTag("#autoLOC_900381"), minSpeed.ToString("N0"));
                 }
                 else
                 {
-                    output += "Between " + minSpeed.ToString("N0") + " m/s and " + maxSpeed.ToString("N0") + " m/s";
+                    output = Localizer.Format("#cc.param.ReachState.between.speed", Localizer.GetStringByTag("#autoLOC_900381"), minSpeed.ToString("N0"), maxSpeed.ToString("N0"));
                 }
 
                 AddParameter(new ParameterDelegate<Vessel>(output, CheckVesselSpeed));
@@ -181,18 +185,18 @@ namespace ContractConfigurator.Parameters
             // Filter for rate of climb
             if (minRateOfClimb != double.MinValue|| maxRateOfClimb != double.MaxValue)
             {
-                string output = "Rate of Climb: ";
+                string output;
                 if (minRateOfClimb == double.MinValue)
                 {
-                    output += "Less than " + maxRateOfClimb.ToString("N0") + " m/s";
+                    output = Localizer.Format("#cc.param.ReachState.below.speed", Localizer.GetStringByTag("#cc.rateOfClimb"), maxRateOfClimb.ToString("N0"));
                 }
                 else if (maxRateOfClimb == double.MaxValue)
                 {
-                    output += "Greater than " + minRateOfClimb.ToString("N0") + " m/s";
+                    output = Localizer.Format("#cc.param.ReachState.above.speed", Localizer.GetStringByTag("#cc.rateOfClimb"), minRateOfClimb.ToString("N0"));
                 }
                 else
                 {
-                    output += "Between " + minRateOfClimb.ToString("N0") + " m/s and " + maxRateOfClimb.ToString("N0") + " m/s";
+                    output = Localizer.Format("#cc.param.ReachState.between.speed", Localizer.GetStringByTag("#cc.rateOfClimb"), minRateOfClimb.ToString("N0"), maxRateOfClimb.ToString("N0"));
                 }
 
                 AddParameter(new ParameterDelegate<Vessel>(output, CheckVesselRateOfClimb));
@@ -201,18 +205,18 @@ namespace ContractConfigurator.Parameters
             // Filter for acceleration
             if (minAcceleration != 0.0f || maxAcceleration != float.MaxValue)
             {
-                string output = "Acceleration: ";
+                string output;
                 if (minAcceleration == 0.0f)
                 {
-                    output += "Less than " + maxAcceleration.ToString("F1") + " gee" + (maxAcceleration == 1.0f ? "" : "s");
+                    output = Localizer.Format("#cc.param.ReachState.below.acceleration", Localizer.GetStringByTag("#cc.acceleration"), maxAcceleration.ToString("F1"));
                 }
                 else if (maxAcceleration == float.MaxValue)
                 {
-                    output += "Greater than " + minAcceleration.ToString("F1") + " gee" + (maxAcceleration == 1.0f ? "" : "s");
+                    output = Localizer.Format("#cc.param.ReachState.above.acceleration", Localizer.GetStringByTag("#cc.acceleration"), minAcceleration.ToString("F1"));
                 }
                 else
                 {
-                    output += "Between " + minAcceleration.ToString("F1") + " and " + maxAcceleration.ToString("F1") + " gees";
+                    output = Localizer.Format("#cc.param.ReachState.between.acceleration", Localizer.GetStringByTag("#cc.acceleration"), minAcceleration.ToString("F1"), maxAcceleration.ToString("F1"));
                 }
 
                 AddParameter(new ParameterDelegate<Vessel>(output, v => v.acceleration.magnitude / 9.81f >= minAcceleration &&
@@ -222,18 +226,18 @@ namespace ContractConfigurator.Parameters
             // Filter for delta-vee (actual)
             if (minDeltaVeeActual != 0.0 || maxDeltaVeeActual != double.MaxValue)
             {
-                string output = "Delta-Vee (actual): ";
+                string output;
                 if (minDeltaVeeActual == 0.0)
                 {
-                    output += "Less than " + maxDeltaVeeActual.ToString("N0") + " m/s";
+                    output = Localizer.Format("#cc.param.ReachState.below.speed", Localizer.GetStringByTag("#cc.deltav.actual"), maxDeltaVeeActual.ToString("N0"));
                 }
                 else if (maxDeltaVeeActual == double.MaxValue)
                 {
-                    output += "Greater than " + minDeltaVeeActual.ToString("N0") + " m/s";
+                    output = Localizer.Format("#cc.param.ReachState.above.speed", Localizer.GetStringByTag("#cc.deltav.actual"), minDeltaVeeActual.ToString("N0"));
                 }
                 else
                 {
-                    output += "Between " + minDeltaVeeActual.ToString("N0") + " m/s and " + maxDeltaVeeActual.ToString("N0") + " m/s";
+                    output = Localizer.Format("#cc.param.ReachState.between.speed", Localizer.GetStringByTag("#cc.deltav.actual"), minDeltaVeeActual.ToString("N0"), maxDeltaVeeActual.ToString("N0"));
                 }
 
                 AddParameter(new ParameterDelegate<Vessel>(output, CheckVesselDeltaVeeActual));
@@ -242,18 +246,18 @@ namespace ContractConfigurator.Parameters
             // Filter for delta-vee (vacuum)
             if (minDeltaVeeVacuum != 0.0 || maxDeltaVeeVacuum != double.MaxValue)
             {
-                string output = "Delta-Vee (vacuum): ";
-                if (minDeltaVeeVacuum == 0.0)
+                string output;
+                if (minDeltaVeeActual == 0.0)
                 {
-                    output += "Less than " + maxDeltaVeeVacuum.ToString("N0") + " m/s";
+                    output = Localizer.Format("#cc.param.ReachState.below.speed", Localizer.GetStringByTag("#cc.deltav.vacuum"), maxDeltaVeeVacuum.ToString("N0"));
                 }
                 else if (maxDeltaVeeVacuum == double.MaxValue)
                 {
-                    output += "Greater than " + minDeltaVeeVacuum.ToString("N0") + " m/s";
+                    output = Localizer.Format("#cc.param.ReachState.above.speed", Localizer.GetStringByTag("#cc.deltav.vacuum"), minDeltaVeeVacuum.ToString("N0"));
                 }
                 else
                 {
-                    output += "Between " + minDeltaVeeActual.ToString("N0") + " m/s and " + maxDeltaVeeVacuum.ToString("N0") + " m/s";
+                    output = Localizer.Format("#cc.param.ReachState.between.speed", Localizer.GetStringByTag("#cc.deltav.vacuum"), minDeltaVeeVacuum.ToString("N0"), maxDeltaVeeVacuum.ToString("N0"));
                 }
 
                 AddParameter(new ParameterDelegate<Vessel>(output, CheckVesselDeltaVeeVacuum));
@@ -452,34 +456,12 @@ namespace ContractConfigurator.Parameters
 
         public string SituationList()
         {
-            Vessel.Situations first = situation.First();
-            Vessel.Situations last = situation.Last();
-            string result = ReachSituation.GetTitleStringShort(first);
-            foreach (Vessel.Situations sit in situation.Where(s => s != first && s != last))
-            {
-                result += ", " + ReachSituation.GetTitleStringShort(sit);
-            }
-            if (last != first)
-            {
-                result += " or " + ReachSituation.GetTitleStringShort(last);
-            }
-            return result;
+            return LocalizationUtil.LocalizeList<Vessel.Situations>(LocalizationUtil.Conjunction.OR, situation, sit => ReachSituation.GetTitleStringShort(sit));
         }
 
         public string BodyList()
         {
-            CelestialBody first = targetBodies.First();
-            CelestialBody last = targetBodies.Last();
-            string result = first.CleanDisplayName();
-            foreach (CelestialBody body in targetBodies.Where(b => b != first && b != last))
-            {
-                result += ", " + body.CleanDisplayName(true);
-            }
-            if (last != first)
-            {
-                result += " or " + last.CleanDisplayName(true);
-            }
-            return result;
+            return LocalizationUtil.LocalizeList<CelestialBody>(LocalizationUtil.Conjunction.OR, targetBodies, cb => cb.CleanDisplayName(true));
         }
 
         /// <summary>

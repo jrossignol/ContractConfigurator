@@ -6,6 +6,7 @@ using UnityEngine;
 using KSP;
 using Contracts;
 using Contracts.Parameters;
+using KSP.Localization;
 
 namespace ContractConfigurator.Parameters
 {
@@ -29,7 +30,16 @@ namespace ContractConfigurator.Parameters
             string output = null;
             if (string.IsNullOrEmpty(title))
             {
-                output = "Prevent ALL of the following";
+                // "Complete ALL of the following"
+                if (state == ParameterState.Complete)
+                {
+                    output = StringBuilderCache.Format("{0}: {1}", Localizer.GetStringByTag("#cc.param.None"),
+                        LocalizationUtil.LocalizeList<ContractParameter>(LocalizationUtil.Conjunction.OR, this.GetChildren().Where(x => x.State == ParameterState.Complete), x => x.Title));
+                }
+                else
+                {
+                    output = Localizer.GetStringByTag("#cc.param.None");
+                }
             }
             else
             {

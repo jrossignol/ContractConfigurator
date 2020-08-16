@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
-using KSP;
+using KSP.Localization;
 
 namespace ContractConfigurator.Util
 {
@@ -19,7 +19,7 @@ namespace ContractConfigurator.Util
 
                 // Add the Contract Configurator tip
                 List<string> contractTips = new List<string>();
-                contractTips.Add("Configuring Contracts...");
+                contractTips.Add(Localizer.GetStringByTag("#cc.loadingtip"));
 
                 // Read tips from root contract groups
                 ConfigNode[] contractGroups = GameDatabase.Instance.GetConfigNodes("CONTRACT_GROUP");

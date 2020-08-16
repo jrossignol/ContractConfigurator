@@ -5,6 +5,7 @@ using System.Text;
 using UnityEngine;
 using KSP;
 using FinePrint;
+using KSP.Localization;
 
 namespace ContractConfigurator
 {
@@ -41,7 +42,7 @@ namespace ContractConfigurator
             valid &= ConfigNodeUtil.ParseValue<List<string>>(configNode, "partModule", x => partModules = x, this, new List<string>(), x => x.All(Validation.ValidatePartModule));
             valid &= ConfigNodeUtil.ParseValue<List<string>>(configNode, "partModuleType", x => partModuleTypes = x, this, new List<string>(), x => x.All(Validation.ValidatePartModuleType));
 
-            valid &= ConfigNodeUtil.AtLeastOne(configNode, new string[] { "tech", "part", "partModule", "partModuleType" }, this);
+            valid &= ConfigNodeUtil.OnlyOne(configNode, new string[] { "tech", "part", "partModule", "partModuleType" }, this);
 
             return valid;
         }
@@ -134,83 +135,22 @@ namespace ContractConfigurator
         protected override string RequirementText()
         {
             // Techs
-            string techStr = "";
-            for (int i = 0; i < techs.Count; i++)
-            {
-                if (i != 0)
-                {
-                    if (i == techs.Count - 1)
-                    {
-                        techStr += " and ";
-                    }
-                    else
-                    {
-                        techStr += ", ";
-                    }
-                }
-
-                techStr += Tech.GetTech(techs[i]).title;
-            }
             if (techs.Count > 0)
             {
-                techStr = "have researched " + techStr;
+                return Localizer.Format(invertRequirement ? "#cc.req.TechResearched.tech.x" : "#cc.req.TechResearched.tech",
+                    LocalizationUtil.LocalizeList<string>(invertRequirement ? LocalizationUtil.Conjunction.AND : LocalizationUtil.Conjunction.OR, techs, x => { Tech t = Tech.GetTech(x); return t != null ? t.title : x; } ));
             }
 
             // Part module 
-            string pmStr = "";
-            for (int i = 0; i < partModules.Count; i++)
-            {
-                if (i != 0)
-                {
-                    if (i == partModules.Count - 1)
-                    {
-                        pmStr += " and ";
-                    }
-                    else
-                    {
-                        pmStr += ", ";
-                    }
-                }
-
-                pmStr += partModules[i];
-            }
             if (partModules.Count > 0)
             {
-                if (techs.Count > 0)
-                {
-                    techStr += " and";
-                }
-                pmStr = " have researched tech for " + pmStr;
+                return Localizer.Format(invertRequirement ? "#cc.req.TechResearched.part.x" : "#cc.req.TechResearched.part",
+                    LocalizationUtil.LocalizeList<string>(invertRequirement ? LocalizationUtil.Conjunction.AND : LocalizationUtil.Conjunction.OR, partModules, x => Parameters.PartValidation.ModuleName(x)));
             }
 
             // Part module type
-            string pmtStr = "";
-            for (int i = 0; i < partModuleTypes.Count; i++)
-            {
-                if (i != 0)
-                {
-                    if (i == partModuleTypes.Count - 1)
-                    {
-                        pmtStr += " and ";
-                    }
-                    else
-                    {
-                        pmtStr += ", ";
-                    }
-                }
-
-                pmtStr += partModuleTypes[i];
-            }
-            if (partModuleTypes.Count > 0)
-            {
-                if (techs.Count > 0 || partModules.Count > 0)
-                {
-                    pmStr += " and";
-                }
-                pmtStr = " have researched tech for " + pmtStr;
-            }
-
-            return "Must " + (invertRequirement ? "not " : "") + techStr + pmStr + pmtStr;
+            return Localizer.Format(invertRequirement ? "#cc.req.TechResearched.part.x" : "#cc.req.TechResearched.part",
+                LocalizationUtil.LocalizeList<string>(invertRequirement ? LocalizationUtil.Conjunction.AND : LocalizationUtil.Conjunction.OR, partModuleTypes, x => Parameters.PartValidation.ModuleTypeName(x)));
         }
     }
 }

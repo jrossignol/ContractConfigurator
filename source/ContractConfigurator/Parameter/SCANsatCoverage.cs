@@ -6,6 +6,7 @@ using System.Text;
 using ContractConfigurator;
 using System;
 using UnityEngine;
+using KSP.Localization;
 
 namespace ContractConfigurator
 {
@@ -23,7 +24,7 @@ namespace ContractConfigurator
         private const int CONSECUTIVE_SUCCESSES_REQUIRED = 2;
         private double currentCoverage = 0.0;
 
-        private Dictionary<string, string> nameRemap = new Dictionary<string, string>();
+        private static Dictionary<string, string> nameRemap = null;
 
         public SCANsatCoverage()
             : base(null)
@@ -39,22 +40,40 @@ namespace ContractConfigurator
             this.targetBody = targetBody;
         }
 
+        public static string ScanDisplayName(string scanName)
+        {
+            if (nameRemap == null)
+            {
+                nameRemap = new Dictionary<string, string>();
+
+                // Localized scan names
+                nameRemap["AltimetryLoRes"]  = Localizer.GetStringByTag("#autoLOC_SCANsat_Science_Lo_Title");
+                nameRemap["AltimetryHiRes"]  = Localizer.GetStringByTag("#autoLOC_SCANsat_Science_Hi_Title");
+                nameRemap["Anomaly"]         = Localizer.GetStringByTag("#cc.scansat.scan.Anomaly");
+                nameRemap["AnomalyDetail"]   = Localizer.GetStringByTag("#cc.scansat.scan.AnomalyDetail");
+                nameRemap["Biome"]           = Localizer.GetStringByTag("#cc.scansat.scan.Biome");
+                nameRemap["ResourceLoRes"]   = Localizer.GetStringByTag("#cc.scansat.scan.ResourceLoRes");
+                nameRemap["ResourceHiRes"]   = Localizer.GetStringByTag("#cc.scansat.scan.ResourceHiRes");
+                nameRemap["VisualLoRes"]     = Localizer.GetStringByTag("#cc.scansat.scan.VisualLoRes");
+                nameRemap["VisualHiRes"]     = Localizer.GetStringByTag("#cc.scansat.scan.VisualHiRes");
+            }
+
+            return nameRemap.ContainsKey(scanName) ? nameRemap[scanName] : scanName;
+        }
+
         protected override string GetParameterTitle()
         {
             string output;
             if (string.IsNullOrEmpty(title))
             {
-                // Re-label a couple of scan names to make them nicer
-                nameRemap["AltimetryLoRes"] = "Low resolution altimetry";
-                nameRemap["AltimetryHiRes"] = "High resolution altimetry";
-
-                string scanTypeName = nameRemap.ContainsKey(scanName) ? nameRemap[scanName] : scanName;
-                output = scanTypeName + " scan of " + targetBody.CleanDisplayName(true) + ": ";
                 if (currentCoverage > 0.0 && state != ParameterState.Complete)
                 {
-                    output += currentCoverage.ToString("N0") + "% / ";
+                    output = Localizer.Format("#cc.scansat.param.SCANsatCoverage.inProgress", ScanDisplayName(scanName), targetBody.CleanDisplayName(true), currentCoverage.ToString("N0"), coverage.ToString("N0"));
                 }
-                output += coverage.ToString("N0") + "%";
+                else
+                {
+                    output = Localizer.Format("#cc.scansat.param.SCANsatCoverage", ScanDisplayName(scanName), targetBody.CleanDisplayName(true), coverage.ToString("N0"));
+                }
             }
             else
             {

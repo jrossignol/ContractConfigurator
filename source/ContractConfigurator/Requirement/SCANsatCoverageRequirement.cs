@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 using KSP;
+using KSP.Localization;
 
 namespace ContractConfigurator
 {
@@ -26,6 +27,9 @@ namespace ContractConfigurator
 
             // Load base class
             bool valid = base.LoadFromConfig(configNode);
+
+            // Not invertable
+            valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "invertRequirement", x => invertRequirement = x, this, false, x => Validation.EQ(x, false));
 
             // Do not check the requirement on active contracts.  Otherwise when they scan the
             // contract is invalidated, which is usually not what's meant.
@@ -67,21 +71,19 @@ namespace ContractConfigurator
 
         protected override string RequirementText()
         {
-            string scanName;
-            if (scanType == "AltimetryLoRes")
+            string body = targetBody == null ? Localizer.GetStringByTag("#cc.req.ProgressCelestialBody.genericBody") : targetBody.CleanDisplayName(true);
+            if (minCoverage > 0 && maxCoverage < 100.0)
             {
-                scanName = "low resolution altimetry";
+                return Localizer.Format("#cc.scansat.req.SCANsatCoverage.between", minCoverage.ToString("N0"), maxCoverage.ToString("N0"), SCANsatCoverage.ScanDisplayName(scanType), body);
             }
-            else if (scanType == "AltimetryHiRes")
+            else if (minCoverage > 0)
             {
-                scanName = "high resolution altimetry";
+                return Localizer.Format("#cc.scansat.req.SCANsatCoverage.atLeast", minCoverage.ToString("N0"), SCANsatCoverage.ScanDisplayName(scanType), body);
             }
             else
             {
-                scanName = scanType.ToLower();
+                return Localizer.Format("#cc.scansat.req.SCANsatCoverage.atMost", maxCoverage.ToString("N0"), SCANsatCoverage.ScanDisplayName(scanType), body);
             }
-
-            return "Must " + (invertRequirement ? "not " : "") + "have between " + minCoverage.ToString("N0") + "% and " + maxCoverage.ToString("N0") + "% " + scanName + " coverage of " + (targetBody == null ? "the target body" : targetBody.CleanDisplayName(true));
         }
     }
 }

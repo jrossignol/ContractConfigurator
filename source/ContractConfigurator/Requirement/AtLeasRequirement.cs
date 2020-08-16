@@ -6,6 +6,7 @@ using UnityEngine;
 using KSP;
 using ContractConfigurator.ExpressionParser;
 using ContractConfigurator.Util;
+using KSP.Localization;
 
 namespace ContractConfigurator
 {
@@ -22,6 +23,9 @@ namespace ContractConfigurator
             bool valid = base.LoadFromConfig(configNode);
 
             valid &= ConfigNodeUtil.ParseValue<int>(configNode, "count", x => count = x, this, x => Validation.GE<int>(x, 0));
+
+            // Not invertable
+            valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "invertRequirement", x => invertRequirement = x, this, false, x => Validation.EQ(x, false));
 
             return valid;
         }
@@ -56,8 +60,7 @@ namespace ContractConfigurator
 
         protected override string RequirementText()
         {
-            string output = "Must meet at least <color=#" + MissionControlUI.RequirementHighlightColor + ">" + NumericValueExpressionParser<int>.PrintNumber(count) + "</color> of the following:";
-            return output;
+            return Localizer.Format("#cc.req.AtLeast", MissionControlUI.RequirementHighlightColor, count);
         }
     }
 }

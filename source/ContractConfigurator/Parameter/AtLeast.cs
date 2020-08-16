@@ -6,6 +6,7 @@ using UnityEngine;
 using KSP;
 using Contracts;
 using Contracts.Parameters;
+using KSP.Localization;
 
 namespace ContractConfigurator.Parameters
 {
@@ -32,22 +33,15 @@ namespace ContractConfigurator.Parameters
             string output = null;
             if (string.IsNullOrEmpty(title))
             {
-                output = string.Format("Complete at least {0} of the following", count);
-
+                // "Complete at least <<1>> of the following"
                 if (state == ParameterState.Complete)
                 {
-                    int counter = 0;
-                    foreach (ContractParameter child in this.GetChildren())
-                    {
-                        if (child.State == ParameterState.Complete)
-                        {
-                            output += (counter == 0 ? ": " : ", ") + child.Title;
-                            if (counter++ >= count)
-                            {
-                                break;
-                            }
-                        }
-                    }
+                    output = StringBuilderCache.Format("{0}: {1}", Localizer.Format("#cc.param.AtLeast", count),
+                        LocalizationUtil.LocalizeList<ContractParameter>(LocalizationUtil.Conjunction.OR, this.GetChildren().Where(x => x.State == ParameterState.Complete), x => x.Title));
+                }
+                else
+                {
+                    output = Localizer.Format("#cc.param.AtLeast", count);
                 }
             }
             else

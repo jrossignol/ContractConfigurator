@@ -6,6 +6,8 @@ using UnityEngine;
 using KSP;
 using Contracts;
 using Contracts.Parameters;
+using KSP.Localization;
+using Lingoona;
 
 namespace ContractConfigurator.Parameters
 {
@@ -29,23 +31,15 @@ namespace ContractConfigurator.Parameters
             string output = null;
             if (string.IsNullOrEmpty(title))
             {
-                output = "Complete ALL of the following: ";
-
+                // "Complete ALL of the following"
                 if (state == ParameterState.Complete)
                 {
-                    bool first = true;
-                    foreach (ContractParameter child in this.GetChildren())
-                    {
-                        if (child.State == ParameterState.Complete)
-                        {
-                            if (!first)
-                            {
-                                output += ", ";
-                            }
-                            output += child.Title;
-                            first = false;
-                        }
-                    }
+                    output = StringBuilderCache.Format("{0}: {1}", Localizer.GetStringByTag("#cc.param.All"),
+                        LocalizationUtil.LocalizeList<ContractParameter>(LocalizationUtil.Conjunction.AND, this.GetChildren().Where(x => x.State == ParameterState.Complete), x => x.Title));
+                }
+                else
+                {
+                    output = Localizer.GetStringByTag("#cc.param.All");
                 }
             }
             else

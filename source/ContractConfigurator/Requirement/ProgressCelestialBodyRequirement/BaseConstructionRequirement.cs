@@ -5,6 +5,7 @@ using System.Text;
 using UnityEngine;
 using KSP;
 using KSPAchievements;
+using KSP.Localization;
 
 namespace ContractConfigurator
 {
@@ -13,7 +14,6 @@ namespace ContractConfigurator
     /// </summary>
     public class BaseConstructionRequirement : ProgressCelestialBodyRequirement
     {
-
 		protected override ProgressNode GetTypeSpecificProgressNode(CelestialBodySubtree celestialBodySubtree)
 		{
             return celestialBodySubtree.baseConstruction;
@@ -23,13 +23,6 @@ namespace ContractConfigurator
         {
             return base.RequirementMet(contract) &&
                 GetCelestialBodySubtree().IsComplete;
-        }
-
-        protected override string RequirementText()
-        {
-            string output = "Must " + (invertRequirement ? "not " : "") + "have built a " + CheckTypeString() + "base on " + (targetBody == null ? "the target body" : targetBody.CleanDisplayName(true));
-
-            return output;
         }
     }
 }

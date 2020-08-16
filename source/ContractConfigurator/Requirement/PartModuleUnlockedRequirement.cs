@@ -4,7 +4,8 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 using KSP;
-using ContractConfigurator.Parameters;
+using KSP.Localization;
+using ContractConfigurator.Util;
 
 namespace ContractConfigurator
 {
@@ -85,25 +86,10 @@ namespace ContractConfigurator
 
         protected override string RequirementText()
         {
-            string partStr = "";
-            for (int i = 0; i < partModules.Count; i++)
-            {
-                if (i != 0)
-                {
-                    if (i == partModules.Count - 1)
-                    {
-                        partStr += " or ";
-                    }
-                    else
-                    {
-                        partStr += ", ";
-                    }
-                }
-
-                partStr += PartValidation.ModuleName(partModules[i]);
-            }
-
-            return "Must " + (invertRequirement ? "not " : "") + "have a part unlocked with " + partStr;
+            return Localizer.Format(invertRequirement ? "#cc.req.PartModuleUnlocked.x" : "#cc.req.PartModuleUnlocked",
+                LocalizationUtil.LocalizeList<string>(invertRequirement ? LocalizationUtil.Conjunction.AND : LocalizationUtil.Conjunction.OR, partModules,
+                x => StringBuilderCache.Format("<color=#{0}" + ">{1}</color>", MissionControlUI.RequirementHighlightColor, Parameters.PartValidation.ModuleName(x))),
+                partModules.Count);
         }
     }
 }

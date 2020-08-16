@@ -5,6 +5,7 @@ using System.Text;
 using UnityEngine;
 using KSP;
 using KSPAchievements;
+using KSP.Localization;
 
 namespace ContractConfigurator
 {
@@ -48,23 +49,18 @@ namespace ContractConfigurator
 
         protected override string RequirementText()
         {
-            string output = "Must " + (invertRequirement ? "not " : "") + "have ";
-
             if (minScience > 0 && maxScience < float.MaxValue)
             {
-                output += "between " + minScience.ToString("N0") + " and " + maxScience.ToString("N0");
+                return Localizer.Format("#cc.req.Science.between", minScience.ToString("N0"), maxScience.ToString("N0"));
             }
             else if (minScience > 0)
             {
-                output += "at least " + minScience.ToString("N0");
+                return Localizer.Format("#cc.req.Science.atLeast", minScience.ToString("N0"));
             }
-            else if (maxScience < float.MaxValue)
+            else
             {
-                output += "at most " + maxScience.ToString("N0");
+                return Localizer.Format("#cc.req.Science.atMost", maxScience.ToString("N0"));
             }
-            output += " science";
-
-            return output;
         }
     }
 }

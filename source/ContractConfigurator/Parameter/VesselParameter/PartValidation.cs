@@ -8,6 +8,7 @@ using KSP;
 using Contracts;
 using Contracts.Parameters;
 using FinePrint;
+using KSP.Localization;
 
 namespace ContractConfigurator.Parameters
 {
@@ -22,7 +23,7 @@ namespace ContractConfigurator.Parameters
             public List<AvailablePart> parts = new List<AvailablePart>();
             public List<string> partModules = new List<string>();
             public List<string> partModuleTypes = new List<string>();
-            public List<ConfigNode.ValueList> partModuleExtended = new List<ConfigNode.ValueList>();
+            public List<List<Tuple<string, string, string>>> partModuleExtended = new List<List<Tuple<string, string, string>>>();
             public PartCategories? category = null;
             public string manufacturer = null;
             public int minCount = 1;
@@ -56,19 +57,24 @@ namespace ContractConfigurator.Parameters
             string output = null;
             if (string.IsNullOrEmpty(title))
             {
-                output = "Parts";
                 if (state == ParameterState.Complete)
                 {
-                    output += ": ";
                     if (maxCount == int.MaxValue && minCount != 1)
                     {
-                        output += "At least " + minCount + " ";
+                        output = Localizer.Format("#cc.param.PartValidation.atLeast", minCount, ParameterDelegate<Part>.GetDelegateText(this));
                     }
                     else if (maxCount != int.MaxValue && minCount == 1)
                     {
-                        output += "At most " + maxCount + " ";
+                        output = Localizer.Format("#cc.param.PartValidation.atMost", maxCount, ParameterDelegate<Part>.GetDelegateText(this));
                     }
-                    output += ParameterDelegate<Part>.GetDelegateText(this);
+                    else
+                    {
+                        output = Localizer.Format("#cc.param.PartValidation.nocount", ParameterDelegate<Part>.GetDelegateText(this));
+                    }
+                }
+                else
+                {
+                    output = Localizer.GetStringByTag("#cc.param.PartValidation");
                 }
             }
             else
@@ -94,14 +100,14 @@ namespace ContractConfigurator.Parameters
                     foreach (string partModule in filter.partModules)
                     {
                         AddParameter(new CountParameterDelegate<Part>(filter.minCount, filter.maxCount, p => PartHasModule(p, partModule),
-                            "with module: " + ModuleName(partModule), false));
+                            Localizer.Format("#cc.param.PartValidation.withModule", ModuleName(partModule)), false));
                     }
 
                     // Filter by part module types
                     foreach (string partModuleType in filter.partModuleTypes)
                     {
                         AddParameter(new CountParameterDelegate<Part>(filter.minCount, filter.maxCount, p => PartHasObjective(p, partModuleType),
-                            "with module type: " + partModuleType, false));
+                            Localizer.Format("#cc.param.PartValidation.withModuleType", ModuleTypeName(partModuleType)), false));
                     }
                 }
                 else
@@ -109,50 +115,59 @@ namespace ContractConfigurator.Parameters
                     // Filter by part
                     if (filter.parts.Any())
                     {
-                        AddParameter(new ParameterDelegate<Part>(filter.type.Prefix() + "type: " +
-                            filter.parts.Select(p => p.title).Aggregate((sum, s) => sum + " or " + s),
+                        AddParameter(new ParameterDelegate<Part>(
+                            Localizer.Format("#cc.param.PartValidation.type", filter.type.Prefix(), LocalizationUtil.LocalizeList<AvailablePart>(LocalizationUtil.Conjunction.OR, filter.parts, p => p.title)),
                             p => filter.parts.Any(pp => p.partInfo.name == pp.name), filter.type));
                     }
 
                     // Filter by part modules
                     foreach (string partModule in filter.partModules)
                     {
-                        AddParameter(new ParameterDelegate<Part>(filter.type.Prefix() + "module: " + ModuleName(partModule), p => PartHasModule(p, partModule), filter.type));
+                        AddParameter(new ParameterDelegate<Part>(Localizer.Format("#cc.param.PartValidation.module", filter.type.Prefix(), ModuleName(partModule)), p => PartHasModule(p, partModule), filter.type));
                     }
 
                     // Filter by part modules
                     foreach (string partModuleType in filter.partModuleTypes)
                     {
-                        AddParameter(new ParameterDelegate<Part>(filter.type.Prefix() + "module type: " + partModuleType, p => PartHasObjective(p, partModuleType), filter.type));
+                        AddParameter(new ParameterDelegate<Part>(Localizer.Format("#cc.param.PartValidation.moduleType", filter.type.Prefix(), ModuleTypeName(partModuleType)), p => PartHasObjective(p, partModuleType), filter.type));
                     }
 
                     // Filter by part modules - extended mode
-                    foreach (ConfigNode.ValueList list in filter.partModuleExtended)
+                    foreach (List<Tuple<string, string, string>> list in filter.partModuleExtended)
                     {
-                        ContractParameter wrapperParam = AddParameter(new AllParameterDelegate<Part>(filter.type.Prefix() + "module", filter.type));
+                        ContractParameter wrapperParam = AddParameter(new AllParameterDelegate<Part>(Localizer.Format("#cc.param.PartValidation.moduleShort", filter.type.Prefix()), filter.type));
 
-                        foreach (ConfigNode.Value v in list)
+                        foreach (Tuple<string, string, string> v in list)
                         {
-                            string name = Regex.Replace(v.name, @"([A-Z]+?(?=[A-Z][^A-Z])|\B[A-Z]+?(?=[^A-Z]))", " $1");
-                            name = name.Substring(0, 1).ToUpper() + name.Substring(1);
-                            string value = v.name == "name" ? ModuleName(v.value) : v.value;
+                            string name = v.Item1;
+                            string label;
+                            if (string.IsNullOrEmpty(v.Item2))
+                            {
+                                label = Regex.Replace(name, @"([A-Z]+?(?=[A-Z][^A-Z])|\B[A-Z]+?(?=[^A-Z]))", " $1");
+                                label = label.Substring(0, 1).ToUpper() + label.Substring(1);
+                            }
+                            else
+                            {
+                                label = v.Item2;
+                            }
+                            string value = name == "name" ? ModuleName(v.Item3) : v.Item3;
 
                             ParameterDelegateMatchType childFilter = ParameterDelegateMatchType.FILTER;
-                            wrapperParam.AddParameter(new ParameterDelegate<Part>(childFilter.Prefix() + name + ": " + value, p => PartModuleCheck(p, v), childFilter));
+                            wrapperParam.AddParameter(new ParameterDelegate<Part>(Localizer.Format("#cc.param.PartValidation.generic", childFilter.Prefix(), label, value), p => PartModuleCheck(p, v), childFilter));
                         }
                     }
 
                     // Filter by category
                     if (filter.category != null)
                     {
-                        AddParameter(new ParameterDelegate<Part>(filter.type.Prefix() + "category: " + filter.category,
+                        AddParameter(new ParameterDelegate<Part>(Localizer.Format("#cc.param.PartValidation.category", filter.type.Prefix(), filter.category),
                             p => p.partInfo.category == filter.category.Value, filter.type));
                     }
 
                     // Filter by manufacturer
                     if (filter.manufacturer != null)
                     {
-                        AddParameter(new ParameterDelegate<Part>(filter.type.Prefix() + "manufacturer: " + filter.manufacturer,
+                        AddParameter(new ParameterDelegate<Part>(Localizer.Format("#cc.param.PartValidation.manufacturer", filter.type.Prefix(), filter.manufacturer),
                             p => p.partInfo.manufacturer == filter.manufacturer, filter.type));
                     }
                 }
@@ -186,6 +201,28 @@ namespace ContractConfigurator.Parameters
             return Regex.Replace(output, "(\\B[A-Z])", " $1");
         }
 
+        public static string ModuleTypeName(string partModule)
+        {
+            // We don't have a reliable way to translate these, so we just do hardcoded mappings
+            switch(partModule)
+            {
+                case "Antenna":
+                    return Localizer.GetStringByTag("#autoLOC_234196");
+                case "Battery":
+                    return Localizer.GetStringByTag("#cc.parts.battery");
+                case "Dock":
+                    return Localizer.GetStringByTag("#cc.parts.dock");
+                case "Generator":
+                    return Localizer.GetStringByTag("#autoLOC_235532");
+                case "Grapple":
+                    return Localizer.GetStringByTag("#autoLOC_8005456");
+                case "Wheel":
+                    return Localizer.GetStringByTag("#autoLOC_148102");
+                default:
+                    return partModule;
+            }
+        }
+
         private bool PartHasModule(Part p, string partModule)
         {
             foreach (PartModule pm in p.Modules)
@@ -203,26 +240,26 @@ namespace ContractConfigurator.Parameters
             return p.HasValidContractObjective(contractObjective);
         }
 
-        private bool PartModuleCheck(Part p, ConfigNode.Value v)
+        private bool PartModuleCheck(Part p, Tuple<string, string, string> v)
         {
             foreach (PartModule pm in p.Modules)
             {
-                if (v.name == "name")
+                if (v.Item1 == "name")
                 {
-                    if (pm.moduleName == v.value)
+                    if (pm.moduleName == v.Item3)
                     {
                         return true;
                     }
                 }
-                else if (v.name == "EngineType")
+                else if (v.Item1 == "EngineType")
                 {
                     ModuleEngines me = pm as ModuleEngines;
-                    return me != null && me.engineType.ToString() == v.value;
+                    return me != null && me.engineType.ToString() == v.Item3;
                 }
 
                 foreach (BaseField field in pm.Fields)
                 {
-                    if (field != null && field.name == v.name && field.originalValue != null && field.originalValue.ToString() == v.value)
+                    if (field != null && field.name == v.Item1 && field.originalValue != null && field.originalValue.ToString() == v.Item3)
                     {
                         return true;
                     }
@@ -271,14 +308,18 @@ namespace ContractConfigurator.Parameters
                 {
                     child.AddValue("partModuleType", partModuleType);
                 }
-                foreach (ConfigNode.ValueList list in filter.partModuleExtended)
+                foreach (List<Tuple<string, string, string>> list in filter.partModuleExtended)
                 {
                     ConfigNode moduleNode = new ConfigNode("MODULE");
                     child.AddNode(moduleNode);
 
-                    foreach (ConfigNode.Value v in list)
+                    foreach (Tuple<string, string, string> v in list)
                     {
-                        moduleNode.AddValue(v.name, v.value);
+                        if (!String.IsNullOrEmpty(v.Item2))
+                        {
+                            moduleNode.AddValue("label", v.Item2);
+                        }
+                        moduleNode.AddValue(v.Item1, v.Item3);
                     }
                 }
                 if (filter.category != null)
@@ -324,10 +365,23 @@ namespace ContractConfigurator.Parameters
 
                     foreach (ConfigNode moduleNode in child.GetNodes("MODULE"))
                     {
-                        ConfigNode.ValueList tmp = new ConfigNode.ValueList();
+                        List<Tuple<string, string, string>> tmp = new List<Tuple<string, string, string>>();
+                        string nextLabel = "";
                         foreach (ConfigNode.Value v in moduleNode.values)
                         {
-                            tmp.Add(new ConfigNode.Value(v.name, v.value));
+                            if (v.name == "name")
+                            {
+                                tmp.Add(new Tuple<string, string, string>(v.name, "", v.value));
+                            }
+                            else if (v.name == "label")
+                            {
+                                nextLabel = v.value;
+                            }
+                            else
+                            {
+                                tmp.Add(new Tuple<string, string, string>(v.name, nextLabel, v.value));
+                                nextLabel = "";
+                            }
                         }
                         filter.partModuleExtended.Add(tmp);
                     }

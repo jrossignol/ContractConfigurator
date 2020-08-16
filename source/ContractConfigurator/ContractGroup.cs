@@ -108,11 +108,11 @@ namespace ContractConfigurator
 
                 valid &= ConfigNodeUtil.ParseValue<string>(configNode, "name", x => name = x, this);
                 valid &= ConfigNodeUtil.ParseValue<string>(configNode, "displayName", x => displayName = x, this, name);
-                valid &= ConfigNodeUtil.ParseValue<string>(configNode, "minVersion", x => minVersionStr = x, this, "");
+                valid &= ConfigNodeUtil.ParseValue<string>(configNode, "minVersion", x => minVersionStr = x, this, parent == null ? "" : parent.minVersion.ToString());
                 valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxCompletions", x => maxCompletions = x, this, 0, x => Validation.GE(x, 0));
                 valid &= ConfigNodeUtil.ParseValue<int>(configNode, "maxSimultaneous", x => maxSimultaneous = x, this, 0, x => Validation.GE(x, 0));
                 valid &= ConfigNodeUtil.ParseValue<List<string>>(configNode, "disabledContractType", x => disabledContractType = x, this, new List<string>());
-                valid &= ConfigNodeUtil.ParseValue<Agent>(configNode, "agent", x => agent = x, this, (Agent)null);
+                valid &= ConfigNodeUtil.ParseValue<Agent>(configNode, "agent", x => agent = x, this, parent == null ? (Agent)null : parent.agent);
                 valid &= ConfigNodeUtil.ParseValue<string>(configNode, "sortKey", x => sortKey = x, this, displayName);
                 valid &= ConfigNodeUtil.ParseValue<string>(configNode, "tip", x => unused = x, this, "");
 

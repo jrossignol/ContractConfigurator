@@ -1,4 +1,5 @@
 ﻿using System;
+using KSP.Localization;
 using KerbalKonstructs.LaunchSites;
 using ContractConfigurator;
 using ContractConfigurator.Util;
@@ -35,8 +36,8 @@ namespace KerKonConConExt
 
         protected override string RequirementText()
         {
-            string output = "Base <color=#" + MissionControlUI.RequirementHighlightColor + ">'" + basename + "'</color> must " + (invertRequirement ? "not exist" : "exist");
-            return output;
+            return Localizer.Format(invertRequirement ? "#cc.kk.req.BaseExists.x" : "#cc.kk.req.BaseExists.x",
+                StringBuilderCache.Format("<color=#{0}" + ">{1}</color>", MissionControlUI.RequirementHighlightColor, basename));
         }
     }
 }

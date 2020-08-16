@@ -5,6 +5,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using UnityEngine;
 using KSP;
+using KSP.Localization;
 
 namespace ContractConfigurator.Util
 {
@@ -521,17 +522,17 @@ namespace ContractConfigurator.Util
             switch (exp)
             {
                 case ExperimentSituations.FlyingHigh:
-                    return "Flying high";
+                    return Localizer.Format("<<zC:1>>", Localizer.GetStringByTag("#autoLOC_6002003"));
                 case ExperimentSituations.FlyingLow:
-                    return "Flying low";
+                    return Localizer.Format("<<zC:1>>", Localizer.GetStringByTag("#autoLOC_6002002"));
                 case ExperimentSituations.InSpaceHigh:
-                    return "High in space";
+                    return Localizer.GetStringByTag("#cc.science.sit.InSpaceHigh");
                 case ExperimentSituations.InSpaceLow:
-                    return "Low in space";
+                    return Localizer.GetStringByTag("#cc.science.sit.InSpaceLow");
                 case ExperimentSituations.SrfLanded:
-                    return "Landed";
+                    return Localizer.GetStringByTag("#autoLOC_268855");
                 case ExperimentSituations.SrfSplashed:
-                    return "Splashed down";
+                    return Localizer.GetStringByTag("#autoLOC_268858");
                 default:
                     throw new ArgumentException("Unexpected experiment situation: " + exp);
             }

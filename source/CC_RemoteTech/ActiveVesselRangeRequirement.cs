@@ -7,6 +7,7 @@ using KSP;
 using KSPAchievements;
 using RemoteTech;
 using ContractConfigurator;
+using KSP.Localization;
 
 namespace ContractConfigurator.RemoteTech
 {
@@ -59,8 +60,8 @@ namespace ContractConfigurator.RemoteTech
 
         protected override string RequirementText()
         {
-            string output = "Must " + (invertRequirement ? "not " : "") + "have a RemoteTech constellation orbiting " + (targetBody == null ? "the target body" : targetBody.CleanDisplayName(true)) + " with an antenna or dish aimed at the active vessel with a range of at least " + (range / 1000.0).ToString("N0") + " km";
-            return output;
+            string body = targetBody == null ? Localizer.GetStringByTag("#cc.req.ProgressCelestialBody.genericBody") : targetBody.CleanDisplayName(true);
+            return Localizer.Format(invertRequirement ? "#cc.remotetech.req.activeVesselRange.x" : "#cc.remotetech.req.activeVesselRange", body, (range / 1000.0).ToString("N0"));
         }
     }
 }

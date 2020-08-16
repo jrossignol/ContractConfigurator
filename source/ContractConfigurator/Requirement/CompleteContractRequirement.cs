@@ -6,6 +6,7 @@ using UnityEngine;
 using KSP;
 using Contracts;
 using ContractConfigurator.Util;
+using KSP.Localization;
 
 namespace ContractConfigurator
 {
@@ -82,15 +83,16 @@ namespace ContractConfigurator
 
         protected override string RequirementText()
         {
-            bool inverted = invertRequirement ^ cooldownDuration.Value > 0.0;
-
-            string output = "Must " + (inverted ? "not " : "") + "have completed contract <color=#" + MissionControlUI.RequirementHighlightColor + ">'" + ContractTitle() + "'</color>";
+            string title = StringBuilderCache.Format("<color=#{0}" + ">{1}</color>", MissionControlUI.RequirementHighlightColor, ContractTitle());
             if (cooldownDuration.Value > 0.0)
             {
-                output += " within the last " + cooldownDuration.ToString();
+                return Localizer.Format(invertRequirement ? "#cc.req.CompleteContract.cooldown.x" : "#cc.req.CompleteContract.cooldown", title, cooldownDuration.ToString());
+            }
+            else
+            {
+                return Localizer.Format(invertRequirement ? "#cc.req.CompleteContract.x" : "#cc.req.CompleteContract", title);
             }
 
-            return output;
         }
     }
 }

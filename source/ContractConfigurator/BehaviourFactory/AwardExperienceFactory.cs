@@ -31,7 +31,7 @@ namespace ContractConfigurator.Behaviour
 
             for (int i = 3; i <= 64; i++)
             {
-                KerbalRoster.AddExperienceType(AwardExperience.SPECIAL_XP + i, "Special experience from", 0.0f, (float)i);
+                KerbalRoster.AddExperienceType(AwardExperience.SPECIAL_XP + i, "#cc.experienceType", 0.0f, (float)i);
             }
         }
 

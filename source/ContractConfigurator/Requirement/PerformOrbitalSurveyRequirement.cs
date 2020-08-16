@@ -5,6 +5,7 @@ using System.Text;
 using UnityEngine;
 using KSP;
 using KSPAchievements;
+using KSP.Localization;
 
 namespace ContractConfigurator
 {
@@ -44,8 +45,8 @@ namespace ContractConfigurator
 
         protected override string RequirementText()
         {
-            string output = "Must " + (invertRequirement ? "not " : "") + "have performed an orbital survey of " + (targetBody == null ? "the target body" : targetBody.CleanDisplayName(true));
-            return output;
+            string body = targetBody == null ? Localizer.GetStringByTag("#cc.req.ProgressCelestialBody.genericBody") : targetBody.CleanDisplayName(true);
+            return Localizer.Format(invertRequirement ? "#cc.req.PerformOrbitalSurvey.x" : "#cc.req.PerformOrbitalSurvey", body);
         }
     }
 }

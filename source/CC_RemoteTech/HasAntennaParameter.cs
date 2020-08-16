@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using UnityEngine;
 using KSP;
+using KSP.Localization;
 using Contracts;
 using Contracts.Parameters;
 using RemoteTech;
@@ -19,8 +21,8 @@ namespace ContractConfigurator.RemoteTech
     {
         public enum AntennaType
         {
-            Dish,
-            Omni
+            [Description("#RT_Editor_Dish")] Dish,
+            [Description("#RT_Editor_Omni")] Omni
         };
 
         protected int minCount { get; set; }
@@ -79,50 +81,50 @@ namespace ContractConfigurator.RemoteTech
             // Filter by type
             if (antennaType == AntennaType.Dish)
             {
-                AddParameter(new ParameterDelegate<IAntenna>("Type: " + antennaType,
+                AddParameter(new ParameterDelegate<IAntenna>(Localizer.Format("#cc.remotetech.param.HasAntenna.type", antennaType.displayDescription()),
                     a => a.CanTarget, matchType));
             }
             else if (antennaType == AntennaType.Omni)
             {
-                AddParameter(new ParameterDelegate<IAntenna>("Type: " + antennaType,
+                AddParameter(new ParameterDelegate<IAntenna>(Localizer.Format("#cc.remotetech.param.HasAntenna.type", antennaType.displayDescription()),
                     a => !a.CanTarget, matchType));
             }
 
             // Filter for active vessel
             if (activeVessel)
             {
-                AddParameter(new ParameterDelegate<IAntenna>("Target: Active vessel",
+                AddParameter(new ParameterDelegate<IAntenna>(Localizer.Format("#cc.remotetech.param.HasAntenna.target", Localizer.GetStringByTag("#RT_ModuleUI_ActiveVessel")),
                     a => a.Target == NetworkManager.ActiveVesselGuid || a.Omni > 0.0, matchType));
             }
             // Filter for celestial bodies
             else if (targetBody != null)
             {
-                AddParameter(new ParameterDelegate<IAntenna>("Target: " + targetBody.CleanDisplayName(),
+                AddParameter(new ParameterDelegate<IAntenna>(Localizer.Format("#cc.remotetech.param.HasAntenna.target", targetBody.CleanDisplayName()),
                     a => a.Target == targetBody.Guid(), matchType));
             }
 
             // Activated and powered
-            AddParameter(new ParameterDelegate<IAntenna>("Activated", a => a.Activated, matchType, true));
-            AddParameter(new ParameterDelegate<IAntenna>("Powered", a => a.Powered, matchType, true));
+            AddParameter(new ParameterDelegate<IAntenna>(Localizer.GetStringByTag("#cc.remotetech.param.HasAntenna.activated"), a => a.Activated, matchType, true));
+            AddParameter(new ParameterDelegate<IAntenna>(Localizer.GetStringByTag("#cc.remotetech.param.HasAntenna.powered"), a => a.Powered, matchType, true));
 
             // Filter for range
             if (minRange != 0.0 || maxRange != double.MaxValue)
             {
-                string output = "Range: ";
+                string countStr;
                 if (maxRange == double.MaxValue)
                 {
-                    output += "At least " + RemoteTechAssistant.RangeString(minRange);
+                    countStr = Localizer.Format("#cc.param.count.atLeast", RemoteTechAssistant.RangeString(minRange));
                 }
                 else if (minRange == 0)
                 {
-                    output += "At most " + RemoteTechAssistant.RangeString(maxRange);
+                    countStr = Localizer.Format("#cc.param.count.atMost", RemoteTechAssistant.RangeString(maxRange));
                 }
                 else
                 {
-                    output += "Between " + RemoteTechAssistant.RangeString(minRange) + " and " + RemoteTechAssistant.RangeString(maxRange);
+                    countStr = Localizer.Format("#cc.param.count.between", RemoteTechAssistant.RangeString(minRange), RemoteTechAssistant.RangeString(maxRange));
                 }
 
-                AddParameter(new ParameterDelegate<IAntenna>(output,
+                AddParameter(new ParameterDelegate<IAntenna>(Localizer.Format("#cc.remotetech.param.HasAntenna.range", countStr),
                     a => Math.Max(a.Omni, a.Dish) >= minRange && Math.Max(a.Omni, a.Dish) <= maxRange, matchType));
             }
 
@@ -130,7 +132,7 @@ namespace ContractConfigurator.RemoteTech
             if (!activeVessel && targetBody != null)
             {
                 double distance = (Planetarium.fetch.Home.position - targetBody.position).magnitude;
-                AddParameter(new ParameterDelegate<IAntenna>("Range: In range of " + targetBody.CleanDisplayName(true),
+                AddParameter(new ParameterDelegate<IAntenna>(Localizer.Format("#cc.remotetech.param.HasAntenna.range.body", targetBody.CleanDisplayName(true)),
                     a => Math.Max(a.Omni, a.Dish) >= distance, matchType, true));
             }
 

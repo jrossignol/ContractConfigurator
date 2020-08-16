@@ -777,11 +777,54 @@ namespace ContractConfigurator
             {
                 LoggingUtil.LogError(obj, obj.ErrorPrefix(configNode) + ": Either " + output + " is required.");
             }
-            else
+            else 
             {
                 LoggingUtil.LogError(obj, obj.ErrorPrefix(configNode) + ": One of " + output + " is required.");
             }
             return false;
+        }
+
+        /// <summary>
+        /// Ensures the given config node has at exactly  one of the given values.
+        /// </summary>
+        /// <param name="configNode"></param>
+        /// <param name="values"></param>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public static bool OnlyOne(ConfigNode configNode, string[] values, IContractConfiguratorFactory obj)
+        {
+            int count = 0;
+            string output = "";
+            foreach (string value in values)
+            {
+                if (configNode.HasValue(value))
+                {
+                    count++;
+                }
+
+                if (value == values.First())
+                {
+                    output = value;
+                }
+                else if (value == values.Last())
+                {
+                    output += " or " + value;
+                }
+                else
+                {
+                    output += ", " + value;
+                }
+            }
+
+            if (count != 1)
+            {
+                LoggingUtil.LogError(obj, obj.ErrorPrefix(configNode) + ": Exactly one of the following types is allowed: " + output);
+                return false;
+            }
+            else
+            {
+                return true;
+            }
         }
 
         /// <summary>

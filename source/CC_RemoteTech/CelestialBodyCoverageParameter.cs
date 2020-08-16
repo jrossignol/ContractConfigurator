@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System;
 using UnityEngine;
+using KSP.Localization;
 using RemoteTech;
 using ContractConfigurator;
 
@@ -36,12 +37,14 @@ namespace ContractConfigurator.RemoteTech
             string output;
             if (string.IsNullOrEmpty(title))
             {
-                output = targetBody.name + ": Communication coverage: ";
-                if (currentCoverage >= 0.0 && state != ParameterState.Complete)
+                if (currentCoverage > 0.0 && state != ParameterState.Complete)
                 {
-                    output += (currentCoverage * 100).ToString("F0") + "% / ";
+                    output = Localizer.Format("#cc.remotetech.param.CelestialBodyCoverage.inProgress", targetBody.CleanDisplayName(true), (currentCoverage * 100).ToString("N0"), (coverage * 100).ToString("N0"));
                 }
-                output += (coverage * 100).ToString("F0") + "%";
+                else
+                {
+                    output = Localizer.Format("#cc.remotetech.param.CelestialBodyCoverage", targetBody.CleanDisplayName(true), (coverage * 100).ToString("N0"));
+                }
             }
             else
             {

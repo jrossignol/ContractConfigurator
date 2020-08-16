@@ -6,6 +6,7 @@ using UnityEngine;
 using KSP;
 using Contracts;
 using Contracts.Parameters;
+using KSP.Localization;
 
 namespace ContractConfigurator.Parameters
 {
@@ -67,16 +68,19 @@ namespace ContractConfigurator.Parameters
                 double time = currentVessel != null ? endTimes[currentVessel.id] : endTime;
                 if (time - Planetarium.GetUniversalTime() > 0.0)
                 {
-                    title = (waitingText ?? "Time to completion:") + " " + DurationUtil.StringValue(time - Planetarium.GetUniversalTime());
+                    // Time to completion:
+                    title = StringBuilderCache.Format("{0} {1}", (waitingText ?? Localizer.GetStringByTag("#cc.param.Duration.waiting")), DurationUtil.StringValue(time - Planetarium.GetUniversalTime()));
                 }
                 else
                 {
-                    title = completionText ?? "Wait time over";
+                    // Wait time over
+                    title = completionText ?? Localizer.GetStringByTag("#cc.param.Duration.completion");
                 }
             }
             else
             {
-                title = (preWaitText ?? "Waiting time required:") + " " + DurationUtil.StringValue(duration);
+                // Waiting time required:
+                title = StringBuilderCache.Format("{0} {1}", (preWaitText ?? Localizer.GetStringByTag("#cc.param.Duration.preWait")), DurationUtil.StringValue(duration));
             }
 
             return title;

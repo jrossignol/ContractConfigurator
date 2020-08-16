@@ -7,6 +7,7 @@ using KSP;
 using KSPAchievements;
 using Contracts;
 using Contracts.Parameters;
+using KSP.Localization;
 
 namespace ContractConfigurator.Parameters
 {
@@ -28,47 +29,47 @@ namespace ContractConfigurator.Parameters
         {
             if (title == null)
             {
-                this.title = "Perform ";
+                string bodyStr = (destination != null) ? destination.CleanDisplayName(true) : Localizer.GetStringByTag("#autoLOC_8000273").ToLower();
                 switch (entryType)
                 {
                     case FlightLog.EntryType.BoardVessel:
-                        this.title = "Board a vessel on ";
+                        this.title = Localizer.Format("#cc.param.VesselHasVisited.BoardVessel", bodyStr);
                         break;
                     case FlightLog.EntryType.Die:
-                        this.title = "Die on ";
+                        this.title = Localizer.Format("#cc.param.VesselHasVisited.Die", bodyStr);
                         break;
                     case FlightLog.EntryType.Escape:
-                        this.title += "an escape from";
+                        this.title = Localizer.Format("#cc.param.VesselHasVisited.Escape", bodyStr);
                         break;
                     case FlightLog.EntryType.ExitVessel:
-                        this.title = "Exit a vessel on ";
+                        this.title = Localizer.Format("#cc.param.VesselHasVisited.ExitVessel", bodyStr);
                         break;
                     case FlightLog.EntryType.Flight:
-                        this.title += "a flight on ";
+                        this.title = Localizer.Format("#cc.param.VesselHasVisited.Flight", bodyStr);
                         break;
                     case FlightLog.EntryType.Flyby:
-                        this.title += "a flyby of ";
+                        this.title = Localizer.Format("#cc.param.VesselHasVisited.Flyby", bodyStr);
                         break;
                     case FlightLog.EntryType.Land:
-                        this.title += "a landing on ";
+                        this.title = Localizer.Format("#cc.param.VesselHasVisited.Land", bodyStr);
                         break;
                     case FlightLog.EntryType.Launch:
-                        this.title += "a launch from ";
+                        this.title = Localizer.Format("#cc.param.VesselHasVisited.Launch", bodyStr);
                         break;
                     case FlightLog.EntryType.Orbit:
-                        this.title += "an orbit of ";
+                        this.title = Localizer.Format("#cc.param.VesselHasVisited.Orbit", bodyStr);
                         break;
                     case FlightLog.EntryType.PlantFlag:
-                        this.title = "Plant a flag on ";
+                        this.title = Localizer.Format("#cc.param.VesselHasVisited.PlantFlag", bodyStr);
                         break;
                     case FlightLog.EntryType.Recover:
-                        this.title += " a recovery on ";
+                        this.title = Localizer.Format("#cc.param.VesselHasVisited.Recover", bodyStr);
                         break;
                     case FlightLog.EntryType.Spawn:
-                        this.title = "Spawn on ";
+                        this.title = Localizer.Format("#cc.param.VesselHasVisited.Spawn", bodyStr);
                         break;
                     case FlightLog.EntryType.Suborbit:
-                        this.title += "a sub-orbital trajectory of ";
+                        this.title = Localizer.Format("#cc.param.VesselHasVisited.Suborbit", bodyStr);
                         break;
                 }
                 if (destination != null)

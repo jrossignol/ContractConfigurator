@@ -5,6 +5,7 @@ using System.Text;
 using UnityEngine;
 using KSP;
 using KSPAchievements;
+using KSP.Localization;
 
 namespace ContractConfigurator
 {
@@ -24,6 +25,9 @@ namespace ContractConfigurator
             valid &= ConfigNodeUtil.ParseValue<float>(configNode, "minReputation", x => minReputation = x, this, -1000.0f, x => Validation.Between(x, -1000.0f, 1000.0f));
             valid &= ConfigNodeUtil.ParseValue<float>(configNode, "maxReputation", x => maxReputation = x, this, 1000.0f, x => Validation.Between(x, -1000.0f, 1000.0f));
             valid &= ConfigNodeUtil.AtLeastOne(configNode, new string[] { "minReputation", "maxReputation" }, this);
+
+            // Not invertable
+            valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "invertRequirement", x => invertRequirement = x, this, false, x => Validation.EQ(x, false));
 
             return valid;
         }
@@ -48,23 +52,18 @@ namespace ContractConfigurator
 
         protected override string RequirementText()
         {
-            string output = "Must " + (invertRequirement ? "not " : "") + "have ";
-
             if (minReputation > -1000 && maxReputation < 1000)
             {
-                output += "between " + minReputation.ToString("N0") + " and " + maxReputation.ToString("N0");
+                return Localizer.Format("#cc.req.Reputation.between", minReputation.ToString("N0"), maxReputation.ToString("N0"));
             }
             else if (minReputation > -1000)
             {
-                output += "at least " + minReputation.ToString("N0");
+                return Localizer.Format("#cc.req.Reputation.atLeast", minReputation.ToString("N0"));
             }
-            else if (maxReputation < 1000)
+            else
             {
-                output += "at most " + maxReputation.ToString("N0");
+                return Localizer.Format("#cc.req.Reputation.atMost", maxReputation.ToString("N0"));
             }
-            output += " reputation";
-
-            return output;
         }
     }
 }

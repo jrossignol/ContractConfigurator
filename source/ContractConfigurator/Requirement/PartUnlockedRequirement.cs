@@ -5,6 +5,8 @@ using System.Text;
 using UnityEngine;
 using KSP;
 using KSPAchievements;
+using KSP.Localization;
+using ContractConfigurator.Util;
 
 namespace ContractConfigurator
 {
@@ -55,25 +57,10 @@ namespace ContractConfigurator
 
         protected override string RequirementText()
         {
-            string partStr = "";
-            for (int i = 0; i < parts.Count; i++)
-            {
-                if (i != 0)
-                {
-                    if (i == parts.Count - 1)
-                    {
-                        partStr += " and ";
-                    }
-                    else
-                    {
-                        partStr += ", ";
-                    }
-                }
-
-                partStr += parts[i].title;
-            }
-
-            return "Must " + (invertRequirement ? "not " : "") + "have unlocked the " + partStr;
+            return Localizer.Format(invertRequirement ? "#cc.req.PartUnlocked.x" : "#cc.req.PartUnlocked",
+                LocalizationUtil.LocalizeList<AvailablePart>(invertRequirement ? LocalizationUtil.Conjunction.OR : LocalizationUtil.Conjunction.AND, parts,
+                x => StringBuilderCache.Format("<color=#{0}" + ">{1}</color>", MissionControlUI.RequirementHighlightColor, x.title)),
+                parts.Count);
         }
     }
 }

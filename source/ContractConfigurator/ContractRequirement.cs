@@ -53,6 +53,8 @@ namespace ContractConfigurator
             }
         }
 
+        protected bool allowKerbin = true;
+
         /// <summary>
         /// Loads the ContractRequirement from the given ConfigNode.  The base version loads the following:
         ///     - child nodes
@@ -85,7 +87,8 @@ namespace ContractConfigurator
             {
                 configNode.AddValue("targetBody", "@/targetBody");
             }
-            valid &= ConfigNodeUtil.ParseValue<CelestialBody>(configNode, "targetBody", x => _targetBody = x, this, (CelestialBody)null);
+            valid &= ConfigNodeUtil.ParseValue<CelestialBody>(configNode, "targetBody", x => _targetBody = x, this, (CelestialBody)null,
+                x => allowKerbin || Validation.NE(x.name, FlightGlobals.Bodies.Where(cb => cb.isHomeWorld).FirstOrDefault().name));
 
             // By default, do not check the requirement for active contracts
             valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "checkOnActiveContract", x => checkOnActiveContract = x, this, false);

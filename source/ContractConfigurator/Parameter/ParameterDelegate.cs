@@ -7,6 +7,7 @@ using UnityEngine;
 using KSP;
 using Contracts;
 using Contracts.Parameters;
+using KSP.Localization;
 
 namespace ContractConfigurator.Parameters
 {
@@ -35,13 +36,12 @@ namespace ContractConfigurator.Parameters
             switch (type)
             {
                 case ParameterDelegateMatchType.FILTER:
-                    return "With ";
                 case ParameterDelegateMatchType.VALIDATE:
-                    return "With ";
+                    return Localizer.GetStringByTag("#cc.param.ParameterDelegate.MatchExtension.validate");
                 case ParameterDelegateMatchType.VALIDATE_ALL:
-                    return "All have ";
+                    return Localizer.GetStringByTag("#cc.param.ParameterDelegate.MatchExtension.all");
                 case ParameterDelegateMatchType.NONE:
-                    return "None have ";
+                    return Localizer.GetStringByTag("#cc.param.ParameterDelegate.MatchExtension.none");
             }
             return null;
         }
@@ -59,6 +59,7 @@ namespace ContractConfigurator.Parameters
         protected bool trivial;
         protected BitArray src = new BitArray(32);
         protected BitArray dest = new BitArray(32);
+        protected string origTitle;
 
         public ParameterDelegate()
             : this(null, null, false)
@@ -73,7 +74,7 @@ namespace ContractConfigurator.Parameters
         public ParameterDelegate(string title, Func<T, bool> filterFunc, bool trivial, ParameterDelegateMatchType matchType = ParameterDelegateMatchType.FILTER)
             : base(title)
         {
-            this.id = title;
+            this.origTitle = title;
             this.filterFunc = filterFunc;
             this.matchType = matchType;
             this.trivial = trivial;
@@ -114,7 +115,7 @@ namespace ContractConfigurator.Parameters
 
         public void ResetTitle()
         {
-            title = id;
+            title = origTitle;
         }
 
         public void SetTitle(string newTitle)
@@ -454,28 +455,39 @@ namespace ContractConfigurator.Parameters
             this.maxCount = maxCount;
             this.ignorePreviousFailures = ignorePreviousFailures;
 
-            title = filterFunc == DefaultFilter ? "Count: " : "";
+            StringBuilder sb = StringBuilderCache.Acquire();
+            if (filterFunc == DefaultFilter)
+            {
+                sb.Append(Localizer.GetStringByTag("#cc.param.count"));
+                sb.Append(" ");
+            }
+
             if (maxCount == 0)
             {
-                title += filterFunc == DefaultFilter && string.IsNullOrEmpty(extraTitle) ? "None" : "No";
+                sb.Append(filterFunc == DefaultFilter && string.IsNullOrEmpty(extraTitle) ? Localizer.GetStringByTag("#cc.param.count.none") : Localizer.GetStringByTag("#cc.param.count.no"));
             }
             else if (maxCount == int.MaxValue)
             {
-                title += "At least " + minCount;
+                sb.Append(Localizer.Format("#cc.param.count.atLeast", minCount));
             }
             else if (minCount == 0)
             {
-                title += "At most " + maxCount;
+                sb.Append(Localizer.Format("#cc.param.count.atMost", maxCount));
             }
             else if (minCount == maxCount)
             {
-                title += "Exactly " + minCount;
+                sb.Append(Localizer.Format("#cc.param.count.exact", minCount));
             }
             else
             {
-                title += "Between " + minCount + " and " + maxCount;
+                sb.Append(Localizer.Format("#cc.param.count.between", minCount, maxCount));
             }
-            title += " " + extraTitle;
+            if (!string.IsNullOrEmpty(extraTitle))
+            {
+                sb.Append(" ");
+                sb.Append(extraTitle);
+            }
+            title = sb.ToStringAndRelease();
         }
 
         private static bool DefaultFilter(T t)

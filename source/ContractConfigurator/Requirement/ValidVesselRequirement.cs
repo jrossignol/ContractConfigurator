@@ -7,6 +7,8 @@ using KSP;
 using KSPAchievements;
 using Contracts;
 using ContractConfigurator.ExpressionParser;
+using ContractConfigurator.Util;
+using KSP.Localization;
 
 namespace ContractConfigurator
 {
@@ -45,7 +47,8 @@ namespace ContractConfigurator
 
         protected override string RequirementText()
         {
-            return "The vessel " + vessel.identifier + " must be a valid vessel";
+            string title = StringBuilderCache.Format("<color=#{0}" + ">{1}</color>", MissionControlUI.RequirementHighlightColor, vessel.identifier);
+            return Localizer.Format(invertRequirement ? "#cc.req.ValidVessel.x" : "#cc.req.ValidVessel", title);
         }
     }
 }

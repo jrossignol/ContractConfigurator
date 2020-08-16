@@ -6,6 +6,7 @@ using UnityEngine;
 using KSP;
 using Contracts;
 using Contracts.Parameters;
+using KSP.Localization;
 
 namespace ContractConfigurator.Parameters
 {
@@ -27,7 +28,7 @@ namespace ContractConfigurator.Parameters
         public NoStaging(bool failContract, string title)
             : base(title)
         {
-            this.title = title != null ? title : "Vessel not staged";
+            this.title = title != null ? title : Localizer.GetStringByTag("#cc.param.NoStaging");
 
             failWhenUnmet = true;
             fakeFailures = !failContract;

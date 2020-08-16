@@ -7,6 +7,7 @@ using KSP;
 using Contracts;
 using Contracts.Parameters;
 using ContractConfigurator.Behaviour;
+using KSP.Localization;
 
 namespace ContractConfigurator.Parameters
 {
@@ -48,20 +49,20 @@ namespace ContractConfigurator.Parameters
             {
                 if (passengers.Count == 0)
                 {
-                    output = "Load " + (count == 0 ? "all" : count.ToString()) + " passenger" + (count != 1 ? "s" : "") + " while on the launchpad/runway";
+                    output = Localizer.Format("#cc.param.HasPassenger.initial", count);
                 }
                 else if (passengers.Count == 1)
                 {
-                    output = "Passenger " + ParameterDelegate<Vessel>.GetDelegateText(this);
+                    output = Localizer.Format("#cc.param.HasPassenger.summary", ParameterDelegate<Vessel>.GetDelegateText(this));
                     hideChildren = true;
                 }
                 else if (state == ParameterState.Complete)
                 {
-                    output = "Passengers: " + passengers.Count;
+                    output = Localizer.Format("#cc.param.HasPassenger.summary", passengers.Count);
                 }
                 else
                 {
-                    output = "Passengers";
+                    output = Localizer.GetStringByTag("#cc.param.HasPassenger");
                 }
             }
             else
@@ -86,12 +87,12 @@ namespace ContractConfigurator.Parameters
                 {
                     if (passenger.pcm != null)
                     {
-                        AddParameter(new ParameterDelegate<Vessel>("On Board: " + passenger.name,
+                        AddParameter(new ParameterDelegate<Vessel>(Localizer.Format("#cc.param.HasPassenger.detail", passenger.name),
                             v => v.GetVesselCrew().Contains(passenger.pcm), ParameterDelegateMatchType.VALIDATE_ALL));
                     }
                     else
                     {
-                        AddParameter(new ParameterDelegate<Vessel>("On Board: " + passenger.name, v => false,
+                        AddParameter(new ParameterDelegate<Vessel>(Localizer.Format("#cc.param.HasPassenger.detail", passenger.name), v => false,
                             ParameterDelegateMatchType.VALIDATE_ALL));
                     }
                 }

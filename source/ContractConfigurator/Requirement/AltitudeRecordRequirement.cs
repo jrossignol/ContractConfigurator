@@ -5,6 +5,7 @@ using System.Text;
 using UnityEngine;
 using KSP;
 using KSPAchievements;
+using KSP.Localization;
 
 namespace ContractConfigurator
 {
@@ -43,11 +44,11 @@ namespace ContractConfigurator
 
         protected override string RequirementText()
         {
-            string output = "Must " + (invertRequirement ? "not " : "") + "have reached an altitude of at least " + minAltitude.ToString("N0") + " m";
+            string output = Localizer.Format(invertRequirement ? "#cc.req.AltitudeRecord.x" : "#cc.req.AltitudeRecord", minAltitude.ToString("N0"));
 
             if (ProgressTracking.Instance.altitudeRecords.record < minAltitude)
             {
-                output += " (current record: " + ProgressTracking.Instance.altitudeRecords.record.ToString("N0") + " m)";
+                output = Localizer.Format("#cc.req.AltitudeRecord.additional", output, ProgressTracking.Instance.altitudeRecords.record.ToString("N0"));
             }
 
             return output;

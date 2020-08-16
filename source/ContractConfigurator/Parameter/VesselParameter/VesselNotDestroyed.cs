@@ -6,6 +6,7 @@ using UnityEngine;
 using KSP;
 using Contracts;
 using Contracts.Parameters;
+using KSP.Localization;
 
 namespace ContractConfigurator.Parameters
 {
@@ -40,39 +41,27 @@ namespace ContractConfigurator.Parameters
             {
                 if (vessels.Count == 1)
                 {
-                    output = ContractVesselTracker.GetDisplayName(vessels[0]) + ": Not destroyed";
+                    output = Localizer.Format("#cc.param.VesselNotDestroyed", ContractVesselTracker.GetDisplayName(vessels[0]));
                 }
                 else if (vessels.Count != 0)
                 {
-                    output = "Vessels not destroyed: ";
-                    bool first = true;
-                    foreach (string vessel in vessels)
-                    {
-                        output += (first ? "" : ", ") + ContractVesselTracker.GetDisplayName(vessel);
-                        first = false;
-                    }
+                    output = Localizer.Format("#cc.param.VesselNotDestroyed", LocalizationUtil.LocalizeList<string>(LocalizationUtil.Conjunction.OR, vessels, v => ContractVesselTracker.GetDisplayName(v)));
                 }
                 else if (Parent is VesselParameterGroup && ((VesselParameterGroup)Parent).VesselList.Any())
                 {
                     IEnumerable<string> vesselList = ((VesselParameterGroup)Parent).VesselList;
                     if (vesselList.Count() == 1)
                     {
-                        output = ContractVesselTracker.GetDisplayName(vesselList.First()) + ": Not destroyed";
+                        output = Localizer.Format("#cc.param.VesselNotDestroyed", ContractVesselTracker.GetDisplayName(vesselList.First()));
                     }
                     else
                     {
-                        output = "Vessels not destroyed: ";
-                        bool first = true;
-                        foreach (string vessel in vesselList)
-                        {
-                            output += (first ? "" : ", ") + ContractVesselTracker.GetDisplayName(vessel);
-                            first = false;
-                        }
+                        output = Localizer.Format("#cc.param.VesselNotDestroyed", LocalizationUtil.LocalizeList<string>(LocalizationUtil.Conjunction.OR, vesselList, v => ContractVesselTracker.GetDisplayName(v)));
                     }
                 }
                 else
                 {
-                    output = "No vessels destroyed";
+                    output = Localizer.GetStringByTag("#cc.param.VesselNotDestroyed.any");
                 }
             }
             else

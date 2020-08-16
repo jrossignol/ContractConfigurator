@@ -5,6 +5,8 @@ using System.Text;
 using UnityEngine;
 using KSP;
 using KSPAchievements;
+using KSP.Localization;
+using ContractConfigurator.Parameters;
 
 namespace ContractConfigurator
 {
@@ -76,50 +78,32 @@ namespace ContractConfigurator
 
         protected override string RequirementText()
         {
-            string output = "Must " + (invertRequirement ? "not " : "") + "have ";
+            // Build the strings
+            string countStr;
+            string traitStr = null;
+            string experienceStr = null;
+            HasAstronaut.GetTitleStrings(minCount, maxCount, trait, minExperience, maxExperience, out countStr, out traitStr, out experienceStr);
 
-            if (minCount == maxCount)
+            // Build the output string
+            if (String.IsNullOrEmpty(traitStr))
             {
-                if (minCount == 1)
+                if (String.IsNullOrEmpty(experienceStr))
                 {
-                    output += "an astronaut";
+                    return Localizer.Format(invertRequirement ? "#cc.req.HasAstronaut.1.x" : "#cc.req.HasAstronaut.1", countStr);
                 }
                 else
                 {
-                    output += "exactly " + minCount + " astronauts";
+                    return Localizer.Format(invertRequirement ? "#cc.req.HasAstronaut.2.x" : "#cc.req.HasAstronaut.2", countStr, experienceStr);
                 }
             }
-            else if (minCount > 0 && maxCount < int.MaxValue)
+            else if (String.IsNullOrEmpty(experienceStr))
             {
-                output += "between " + minCount + " and " + maxCount + " astronauts";
+                return Localizer.Format(invertRequirement ? "#cc.req.HasAstronaut.2.x" : "#cc.req.HasAstronaut.2", countStr, traitStr);
             }
-            else if (minCount == 1)
+            else
             {
-                output += "at least one astronaut";
+                return Localizer.Format(invertRequirement ? "#cc.req.HasAstronaut.3.x" : "#cc.req.HasAstronaut.3", countStr, traitStr, experienceStr);
             }
-            else if (minCount > 0)
-            {
-                output += "at least " + minCount + " astronauts";
-            }
-            else if (maxCount < int.MaxValue)
-            {
-                output += "no more than " + maxCount + " astronauts";
-            }
-
-            if (minExperience > 0 && maxExperience < 5)
-            {
-                output += " with between " + minExperience + " and " + maxExperience + " experience levels";
-            }
-            else if (minExperience > 0)
-            {
-                output += " with at least " + minExperience + " experience levels";
-            }
-            else if (maxExperience < 5)
-            {
-                output += " with no more than  " + maxExperience + " experience levels";
-            }
-
-            return output;
         }
     }
 }

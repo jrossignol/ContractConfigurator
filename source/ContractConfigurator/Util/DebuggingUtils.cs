@@ -53,11 +53,11 @@ namespace ContractConfigurator.Util
 
             foreach (FieldInfo fi in o.GetType().GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance | BindingFlags.FlattenHierarchy))
             {
-                Debug.Log(string.Format("    {0} = {1}", fi.Name, fi.GetValue(o)));
+                Debug.Log(StringBuilderCache.Format("    {0} = {1}", fi.Name, fi.GetValue(o)));
             }
             foreach (PropertyInfo pi in o.GetType().GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance | BindingFlags.FlattenHierarchy))
             {
-                Debug.Log(string.Format("    {0} = {1}", pi.Name, pi.GetValue(o, null)));
+                Debug.Log(StringBuilderCache.Format("    {0} = {1}", pi.Name, pi.GetValue(o, null)));
             }
         }
     }

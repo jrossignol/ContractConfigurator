@@ -6,6 +6,7 @@ using UnityEngine;
 using KSP;
 using Contracts;
 using Contracts.Parameters;
+using KSP.Localization;
 
 namespace ContractConfigurator.Parameters
 {
@@ -25,7 +26,7 @@ namespace ContractConfigurator.Parameters
         }
 
         public Sequence(List<string> hiddenParameters, bool failWhenCompleteOutOfOrder, string title)
-            : base(title ?? "Complete the following in order")
+            : base(title ?? Localizer.GetStringByTag("#cc.param.Sequence"))
         {
             this.hiddenParameters = hiddenParameters;
             this.failWhenCompleteOutOfOrder = failWhenCompleteOutOfOrder;

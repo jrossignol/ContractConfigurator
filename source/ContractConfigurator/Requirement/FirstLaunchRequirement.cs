@@ -5,6 +5,7 @@ using System.Text;
 using UnityEngine;
 using KSP;
 using KSPAchievements;
+using KSP.Localization;
 
 namespace ContractConfigurator
 {
@@ -23,7 +24,7 @@ namespace ContractConfigurator
 
         protected override string RequirementText()
         {
-            return "Must " + (invertRequirement ? "not " : "") + "have performed the first launch";
+            return Localizer.GetStringByTag(invertRequirement ? "#cc.req.FirstLaunch.x" : "#cc.req.FirstLaunch");
         }
     }
 }

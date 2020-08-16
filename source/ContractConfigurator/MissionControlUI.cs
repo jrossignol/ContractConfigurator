@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
@@ -11,8 +10,7 @@ using Contracts;
 using Contracts.Agents;
 using KSP.UI;
 using KSP.UI.Screens;
-using Contracts.Templates;
-using FinePrint.Contracts;
+using KSP.Localization;
 
 namespace ContractConfigurator.Util
 {
@@ -166,12 +164,17 @@ namespace ContractConfigurator.Util
                 }
                 else
                 {
-                    return "Contract Configurator";
+                    return Localizer.GetStringByTag("#cc.settings.Section");
                 }
             }
 
             public static string DisplayName(Type type)
             {
+                if (contractNames.Count == 0)
+                {
+                    LoadConfig();
+                }
+
                 return contractNames.ContainsKey(type.Name) ? contractNames[type.Name] : type.Name;
             }
 
@@ -347,7 +350,7 @@ namespace ContractConfigurator.Util
 
                 // Setup the toggle
                 TMPro.TextMeshProUGUI toggleAllText = toggleAllObj.GetChild("Text").GetComponent<TMPro.TextMeshProUGUI>();
-                toggleAllText.text = "All";
+                toggleAllText.text = Localizer.Format("#cc.mcui.all"); ;
                 Toggle toggleAll = toggleAllObj.GetComponent<Toggle>();
                 toggleAll.onValueChanged.AddListener(new UnityAction<bool>(OnClickAll));
                 sortGroup.GetComponent<ToggleGroup>().RegisterToggle(toggleAll);
@@ -1011,7 +1014,8 @@ namespace ContractConfigurator.Util
             // Setup the available text
             TMPro.TextMeshProUGUI availableText = availableTextObject.GetComponent<TMPro.TextMeshProUGUI>();
             availableText.alignment = TMPro.TextAlignmentOptions.BottomRight;
-            availableText.text = "<color=#" + (groupContainer.availableContracts == 0 ? "CCCCCC" : "8BED8B") + ">Offered: " + groupContainer.availableContracts + "</color>";
+            Localizer.Format("");
+            availableText.text = StringBuilderCache.Format("<color=#{0}>{1} {2}</color>", (groupContainer.availableContracts == 0 ? "CCCCCC" : "8BED8B"), Localizer.Format("#cc.mcui.offered"), groupContainer.availableContracts);
             availableText.fontSize = groupContainer.mcListItem.title.fontSize - 3;
 
             // Setup the group text
@@ -1315,11 +1319,11 @@ namespace ContractConfigurator.Util
             int exceptionalMax = Math.Min(ContractConfigurator.ContractLimit(Contract.ContractPrestige.Exceptional), maxActive);
 
             string output = "";
-            output += string.Format("<b><color=#f4ee21><sprite=\"CurrencySpriteAsset\" name=\"Reputation\" tint=1>\t\t</color><color=#DB8310>Trivial Contracts:\t\t</color></b>" + (trivialCount >= trivialMax ? "<color=#f97306>{0}  [Max: {1}]</color>\n" : "{0}  [Max: {1}]\n"), trivialCount, trivialMax);
-            output += string.Format("<b><color=#f4ee21><sprite=\"CurrencySpriteAsset\" name=\"Reputation\" tint=1><sprite=\"CurrencySpriteAsset\" name=\"Reputation\" tint=1>\t\t</color><color=#DB8310>Significant Contracts:\t</color></b>" + (significantCount >= significantMax ? "<color=#f97306>{0}  [Max: {1}]</color>\n" : "{0}  [Max: {1}]\n"), significantCount, significantMax);
-            output += string.Format("<b><color=#f4ee21><sprite=\"CurrencySpriteAsset\" name=\"Reputation\" tint=1><sprite=\"CurrencySpriteAsset\" name=\"Reputation\" tint=1><sprite=\"CurrencySpriteAsset\" name=\"Reputation\" tint=1>\t</color><color=#DB8310>Exceptional Contracts:\t</color></b>" + (exceptionalCount >= exceptionalMax ? "<color=#f97306>{0}  [Max: {1}]</color>\n" : "{0}  [Max: {1}]\n"), exceptionalCount, exceptionalMax);
-            output += string.Format("<b>\t\t<color=#DB8310>All Active Contracts:\t\t</color></b>" + (maxActive == int.MaxValue ? "{0}" : activeCount >= maxActive ? "<color=#f97306>{0}  [Max: {1}]</color>" : "{0}  [Max: {1}]"), activeCount, maxActive);
-            MissionControl.Instance.textMCStats.text = output;
+            output += StringBuilderCache.Format("<b><color=#f4ee21><sprite=\"CurrencySpriteAsset\" name=\"Reputation\" tint=1>\t\t</color><color=#DB8310>{0}\t\t</color></b>" + (trivialCount >= trivialMax ? "<color=#f97306>{0}  [{1}: {3}]</color>\n" : "{2}  [{1}: {3}]\n"), Localizer.Format("#cc.mcui.title.trivial"), Localizer.Format("#cc.mcui.max"), trivialCount, trivialMax);
+            output += StringBuilderCache.Format("<b><color=#f4ee21><sprite=\"CurrencySpriteAsset\" name=\"Reputation\" tint=1><sprite=\"CurrencySpriteAsset\" name=\"Reputation\" tint=1>\t\t</color><color=#DB8310>{0}\t</color></b>" + (significantCount >= significantMax ? "<color=#f97306>{0}  [{1}: {3}]</color>\n" : "{2}  [{1}: {3}]\n"), Localizer.Format("#cc.mcui.title.significant"), Localizer.Format("#cc.mcui.max"), significantCount, significantMax);
+            output += StringBuilderCache.Format("<b><color=#f4ee21><sprite=\"CurrencySpriteAsset\" name=\"Reputation\" tint=1><sprite=\"CurrencySpriteAsset\" name=\"Reputation\" tint=1><sprite=\"CurrencySpriteAsset\" name=\"Reputation\" tint=1>\t</color><color=#DB8310>{0}\t</color></b>" + (exceptionalCount >= exceptionalMax ? "<color=#f97306>{0}  [{1}: {3}]</color>\n" : "{2}  [{1}: {3}]\n"), Localizer.Format("#cc.mcui.title.exceptional"), Localizer.Format("#cc.mcui.max"), exceptionalCount, exceptionalMax);
+            output += StringBuilderCache.Format("<b>\t\t<color=#DB8310>{0}\t\t</color></b>" + (maxActive == int.MaxValue ? "{2}" : activeCount >= maxActive ? "<color=#f97306>{2}  [{1}: {3}]</color>" : "{2}  [{1}: {3}]"), Localizer.Format("#cc.mcui.title.allActive"), Localizer.Format("#cc.mcui.max"), activeCount, maxActive);
+            MissionControl.Instance.textMCStats.text = output; MissionControl.Instance.textMCStats.text = output;
         }
 
         protected void OnDeselectContract(UIRadioButton button, UIRadioButton.CallType callType, PointerEventData data)
@@ -1474,7 +1478,7 @@ namespace ContractConfigurator.Util
             if (contractType.agent != null)
             {
                 MissionControl.Instance.logoRenderer.texture = contractType.agent.Logo;
-                agentText = "\n\n<b><color=#DB8310>Agent:</color></b>\n" + contractType.agent.Name;
+                agentText = StringBuilderCache.Format("\n\n<b><color=#DB8310>{0}</color></b>\n{1}", Localizer.Format("#cc.mcui.agent"), contractType.agent.Name);
             }
             else
             {
@@ -1482,7 +1486,7 @@ namespace ContractConfigurator.Util
             }
 
             // Set up text
-            MissionControl.Instance.textContractInfo.text = "<b><color=#DB8310>Contract:</color></b>\n" + contractType.genericTitle + agentText;
+            MissionControl.Instance.textContractInfo.text = StringBuilderCache.Format("<b><color=#DB8310>{0}</color></b>\n{1}{2}", Localizer.Format("#cc.mcui.contract"), contractType.genericTitle, agentText);
             MissionControl.Instance.contractTextRect.verticalNormalizedPosition = 1f;
             MissionControl.Instance.textDateInfo.text = "";
 
@@ -1492,8 +1496,6 @@ namespace ContractConfigurator.Util
 
         protected void MissionControlText(ContractType contractType)
         {
-            string text = "<b><color=#DB8310>Briefing:</color></b>\n\n";
-
             // Special case for one-off contracts
             string description = contractType.genericDescription;
             if (contractType.maxCompletions == 1)
@@ -1507,10 +1509,9 @@ namespace ContractConfigurator.Util
                     }
                 }
             }
-            text += "<color=#CCCCCC>" + description + "</color>\n\n";
 
-
-            text += "<b><color=#DB8310>Pre-Requisites:</color></b>\n\n";
+            string text = StringBuilderCache.Format("<b><color=#DB8310>{0}</color></b>\n\n<color=#CCCCCC>{1}</color>\n\n<b><color=#DB8310>{2}</color></b>\n\n",
+                Localizer.Format("#cc.mcui.briefing"), description, Localizer.Format("#cc.mcui.preRequisites"));
 
             // Do text for funds
             if (contractType.advanceFunds < 0)
@@ -1519,7 +1520,8 @@ namespace ContractConfigurator.Util
                 GameEvents.Modifiers.OnCurrencyModifierQuery.Fire(q);
                 float fundsRequired = contractType.advanceFunds + q.GetEffectDelta(Currency.Funds);
 
-                text += RequirementLine(StringBuilderCache.Format("Must have {0} funds for advance", fundsRequired), Funding.CanAfford(fundsRequired));
+                // Must have <<1>> funds for advance 
+                text += RequirementLine(Localizer.Format("#cc.mcui.req.advance", fundsRequired), Funding.CanAfford(fundsRequired));
             }
 
             // Do text for max completions
@@ -1529,12 +1531,15 @@ namespace ContractConfigurator.Util
                 bool met = completionCount < contractType.maxCompletions;
                 if (contractType.maxCompletions == 1)
                 {
-                    text += RequirementLine("Must not have been completed before", met);
+                    // Must not have been completed before
+                    text += RequirementLine(Localizer.Format("#cc.mcui.req.oneoff"), met);
                 }
                 else
                 {
-                    text += RequirementLine("May only be completed " + contractType.maxCompletions + " times", met,
-                        "has been completed " + completionCount + " times");
+                    // May only be completed <<1>> times
+                    // has been completed <<1>> times
+                    text += RequirementLine(Localizer.Format("#cc.mcui.req.maxCompletions", contractType.maxCompletions), met,
+                        Localizer.Format("#cc.mcui.req.maxCompletions_reason", completionCount));
                 }
             }
 
@@ -1544,8 +1549,9 @@ namespace ContractConfigurator.Util
                 if (currentGroup.maxSimultaneous != 0)
                 {
                     int count = currentGroup.CurrentContracts();
-                    text += RequirementLine(string.Format("May only have {0} offered/active {1} contracts at a time",
-                        currentGroup.maxSimultaneous, currentGroup.displayName, count), count < currentGroup.maxSimultaneous);
+                    // "May only have <<1>> offered/active <<2>> contracts at a time"
+                    text += RequirementLine(Localizer.Format("#cc.mcui.req.maxSimultaneous",
+                        currentGroup.maxSimultaneous, currentGroup.displayName), count < currentGroup.maxSimultaneous);
                 }
             }
 
@@ -1567,7 +1573,8 @@ namespace ContractConfigurator.Util
                         met = false;
                     }
 
-                    string title = string.IsNullOrEmpty(pair.Value.title) ? "Key " + name + " must have a value" : pair.Value.title;
+                    // Key <<1>> must have a value
+                    string title = string.IsNullOrEmpty(pair.Value.title) ? Localizer.Format("#cc.mcui.req.keyValue", name) : pair.Value.title;
                     if (titlesMet.ContainsKey(title))
                     {
                         titlesMet[title] &= met;
@@ -1609,7 +1616,8 @@ namespace ContractConfigurator.Util
                 if (bodyInfoDict.ContainsKey(body) && !body.isHomeWorld)
                 {
                     RBWrapper.CelestialBodyInfo bodyInfo = bodyInfoDict[body];
-                    output += RequirementLine("Must have researched " + body.CleanDisplayName(true), bodyInfo.isResearched);
+                    // Must have researched <<1>>
+                    output += RequirementLine(Localizer.Format("#cc.mcui.req.researchBody", body.CleanDisplayName(true)), bodyInfo.isResearched);
                 }
             }
 
@@ -1638,7 +1646,7 @@ namespace ContractConfigurator.Util
         protected string RequirementLine(string text, bool met, string unmetReason = "")
         {
             string color = met ? "#8BED8B" : "#FFEA04";
-            string output = "<b><color=#BEC2AE>" + text + ": </color></b><color=" + color + ">" + (met ? "Met" : "Unmet") + "</color>";
+            string output = StringBuilderCache.Format("<b><color=#BEC2AE>{0}: </color></b><color={1}>{2}</color>", text, color, Localizer.GetStringByTag((met ? "#cc.mcui.status.met" : "#cc.mcui.status.unmet")));
             if (!string.IsNullOrEmpty(unmetReason) && !met)
             {
                 output += " <color=#CCCCCC>(" + unmetReason + ")</color>\n";

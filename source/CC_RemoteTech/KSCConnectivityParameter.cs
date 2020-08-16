@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System;
 using UnityEngine;
+using KSP.Localization;
 using RemoteTech;
 using RemoteTech.API;
 using ContractConfigurator;
@@ -28,7 +29,7 @@ namespace ContractConfigurator.RemoteTech
         public KSCConnectivityParameter(bool hasConnectivity, string title)
             : base(title)
         {
-            this.title = string.IsNullOrEmpty(title) ? (hasConnectivity ? "Connected to KSC" : " Not connected to KSC") : title;
+            this.title = string.IsNullOrEmpty(title) ? Localizer.GetStringByTag(hasConnectivity ? "#cc.remotetech.param.KSCConnectivity" : "#cc.remotetech.param.KSCConnectivity.x") : title;
             this.hasConnectivity = hasConnectivity;
         }
 

@@ -9,6 +9,7 @@ using KSP;
 using Contracts;
 using FinePrint;
 using ContractConfigurator.Util;
+using KSP.Localization;
 
 namespace ContractConfigurator
 {
@@ -17,7 +18,7 @@ namespace ContractConfigurator
         public override GameParameters.GameMode GameMode { get { return GameParameters.GameMode.CAREER; } }
         public override bool HasPresets { get { return false; } }
         public override string Section { get { return "Contract Configurator"; } }
-        public override string DisplaySection { get { return Section; } }
+        public override string DisplaySection { get { return Localizer.GetStringByTag("#cc.settings.Section"); } }
 
         public bool IsEnabled(string name)
         {
@@ -33,15 +34,15 @@ namespace ContractConfigurator
     public class ContractConfiguratorParameters : CommonTemplate
     {
         public override int SectionOrder { get { return 0; } }
-        public override string Title { get { return "Settings"; } }
+        public override string Title { get { return "#autoLOC_149458"; } } // Settings
 
         public bool DisplayOfferedOrbits = ContractDefs.DisplayOfferedOrbits;
         public bool DisplayActiveOrbits = true;
         public bool DisplayOfferedWaypoints = ContractDefs.DisplayOfferedWaypoints;
         public bool DisplayActiveWaypoints = true;
 
-        [GameParameters.CustomFloatParameterUI("Active Contract Multiplier", displayFormat = "F2", minValue = 0.2f, maxValue = 8.0f, stepCount = 40,
-            toolTip = "Multiplier applied to the active contract limits.")]
+        [GameParameters.CustomFloatParameterUI("#cc.settings.contractMultiplier.name", displayFormat = "F2", minValue = 0.2f, maxValue = 8.0f, stepCount = 40,
+            toolTip = "#cc.settings.contractMultiplier.desc")]
         public float ActiveContractMultiplier = 1.0f;
 
         public enum MissionControlButton
@@ -68,7 +69,7 @@ namespace ContractConfigurator
     public abstract class ContractGroupParametersTemplate : CommonTemplate
     {
         public override int SectionOrder { get { return 1; } }
-        public override string Title { get { return "Contract Groups"; } }
+        public override string Title { get { return Localizer.GetStringByTag("#cc.settings.contractGroups"); } }
 
         public ContractGroupParametersTemplate()
         {
@@ -86,7 +87,7 @@ namespace ContractConfigurator
     public abstract class StockContractParametersTemplate : CommonTemplate
     {
         public override int SectionOrder { get { return 2; } }
-        public override string Title { get { return "Stock Contracts"; } }
+        public override string Title { get { return Localizer.GetStringByTag("#cc.settings.stockContracts"); } }
 
         private List<FieldInfo> contractFields = new List<FieldInfo>();
 
