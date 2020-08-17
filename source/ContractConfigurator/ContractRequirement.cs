@@ -283,7 +283,7 @@ namespace ContractConfigurator
             if (requirementTypes.ContainsKey(typeName))
             {
                 LoggingUtil.LogError(typeof(ContractRequirement), "Cannot register {0}[{1}] to handle type {2}: already handled by {3}[{4}]",
-                    crType.FullName, crType.Module.ToString(), typeName, requirementTypes[typeName].FullName, requirementTypes[typeName].Module.ToString());
+                    crType.FullName, crType.Module, typeName, requirementTypes[typeName].FullName, requirementTypes[typeName].Module);
             }
             else
             {
@@ -405,7 +405,7 @@ namespace ContractConfigurator
             }
             else
             {
-                return StringBuilderCache.Format("REQUIREMENT '{1}' of type '{2}'", (name ?? "<blank>"), type);
+                return StringBuilderCache.Format("REQUIREMENT '{0}' of type '{1}'", (name ?? "<blank>"), type);
             }
         }
 

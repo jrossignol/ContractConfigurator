@@ -370,7 +370,7 @@ namespace ContractConfigurator.Parameters
             {
                 if (child is ParameterDelegate<T> && !((ParameterDelegate<T>)child).trivial)
                 {
-                    if (sb.Length == 0)
+                    if (sb.Length != 0)
                     {
                         sb.Append("; ");
                     }

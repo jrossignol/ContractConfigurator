@@ -293,7 +293,7 @@ namespace ContractConfigurator
                 else if (factoryType.Assembly != typeof(ParameterFactory).Assembly)
                 {
                     LoggingUtil.LogError(typeof(ParameterFactory), "Cannot register {0}[{1}] to handle type {2}: already handled by {3}[{4}]",
-                        factoryType.FullName, factoryType.Module.ToString(), typeName, existingType.FullName, existingType.Module.ToString());
+                        factoryType.FullName, factoryType.Module, typeName, existingType.FullName, existingType.Module);
                 }
             }
             else
@@ -434,7 +434,7 @@ namespace ContractConfigurator
             }
             else
             {
-                return StringBuilderCache.Format("PARAMETER '{1}' of type '{2}'", (name ?? "<blank>"), type);
+                return StringBuilderCache.Format("PARAMETER '{0}' of type '{1}'", (name ?? "<blank>"), type);
             }
         }
 

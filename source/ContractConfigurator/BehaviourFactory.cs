@@ -112,7 +112,7 @@ namespace ContractConfigurator
             if (factories.ContainsKey(typeName))
             {
                 LoggingUtil.LogError(typeof(BehaviourFactory), "Cannot register {0}[{1}] to handle type {2}: already handled by {3}[{4}]",
-                    factoryType.FullName, factoryType.Module.ToString(), typeName, factories[typeName].FullName, factories[typeName].Module.ToString());
+                    factoryType.FullName, factoryType.Module, typeName, factories[typeName].FullName, factories[typeName].Module);
             }
             else
             {
@@ -198,7 +198,7 @@ namespace ContractConfigurator
             }
             else
             {
-                return StringBuilderCache.Format("BEHAVIOUR '{1}' of type '{2}'", (name ?? "<blank>"), type);
+                return StringBuilderCache.Format("BEHAVIOUR '{0}' of type '{1}'", (name ?? "<blank>"), type);
             }
         }
 
