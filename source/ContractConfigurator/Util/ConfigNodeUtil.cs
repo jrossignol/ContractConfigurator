@@ -62,9 +62,9 @@ namespace ContractConfigurator
 
             public static void LogCircularDependencyError<T>(DeferredLoadObject<T> loadObj)
             {
-                LoggingUtil.LogError(loadObj.obj, loadObj.obj.ErrorPrefix(loadObj.configNode) + ": Error parsing " + loadObj.key + ": " +
-                    "Circular dependency detected while parsing an expression (possible culprit(s): " +
-                    string.Join(", ", loadObj.dependencies.ToArray()) + ").");
+                LoggingUtil.LogError(loadObj.obj, "{0}: Error parsing {1}: Circular dependency detected while parsing an expression (possible culprit(s): {2}).",
+                    loadObj.obj.ErrorPrefix(loadObj.configNode), loadObj.key,
+                    string.Join(", ", loadObj.dependencies.ToArray()));
             }
         }
 
@@ -107,8 +107,7 @@ namespace ContractConfigurator
         {
             if (!configNode.HasNode(field))
             {
-                LoggingUtil.LogError(obj.GetType(), obj.ErrorPrefix() +
-                    ": missing required child node '" + field + "'.");
+                LoggingUtil.LogError(obj.GetType(), "{0}: missing required child node '{1}'.", obj.ErrorPrefix(), field);
                 return false;
             }
 
@@ -126,8 +125,7 @@ namespace ContractConfigurator
         {
             if (configNode.HasNode(field) || configNode.HasValue(field))
             {
-                LoggingUtil.LogWarning(obj.GetType(), obj.ErrorPrefix() +
-                    ": unexpected entry '" + field + "' found, ignored.");
+                LoggingUtil.LogWarning(obj.GetType(), "{0}: unexpected entry '{1}' found, ignored.", obj.ErrorPrefix(), field);
             }
 
             return true;
@@ -190,7 +188,7 @@ namespace ContractConfigurator
                             }
 
                             // The rest gets logged
-                            LoggingUtil.LogWarning(typeof(ConfigNodeUtil), "Got an unexpected exception trying to load '" + key + "' as a list:");
+                            LoggingUtil.LogWarning(typeof(ConfigNodeUtil), "Got an unexpected exception trying to load '{0}' as a list:", key);
                             LoggingUtil.LogException(e);
                         }
 
@@ -518,7 +516,7 @@ namespace ContractConfigurator
             // Check for required value
             if (!configNode.HasValue(key) && !configNode.HasNode(key))
             {
-                LoggingUtil.LogError(obj, obj.ErrorPrefix(configNode) + ": Missing required value '" + key + "'.");
+                LoggingUtil.LogError(obj, "{0}: Missing required value '{1}'.", obj.ErrorPrefix(configNode), key);
                 return false;
             }
 
@@ -556,7 +554,7 @@ namespace ContractConfigurator
             // Check for required value
             if (!configNode.HasValue(key) && !configNode.HasNode(key))
             {
-                LoggingUtil.LogError(obj, obj.ErrorPrefix(configNode) + ": Missing required value '" + key + "'.");
+                LoggingUtil.LogError(obj, "{0}: Missing required value '{1}'.", obj.ErrorPrefix(configNode), key);
                 return false;
             }
 
@@ -592,7 +590,7 @@ namespace ContractConfigurator
                     // Check whether there's a value
                     if (configNode.HasValue(key) && string.IsNullOrEmpty(configNode.GetValue(key)))
                     {
-                        LoggingUtil.LogError(obj, obj.ErrorPrefix(configNode) + ": Required value '" + key + "' is empty.");
+                        LoggingUtil.LogError(obj, "{0}: Required value '{1}' is empty.", obj.ErrorPrefix(configNode), key);
                         valid = false;
                     }
                     else
@@ -610,7 +608,7 @@ namespace ContractConfigurator
                             if (!valid)
                             {
                                 // In general, the validation function should throw an exception and give a much better message
-                                LoggingUtil.LogError(obj, obj.ErrorPrefix(configNode) + ": A validation error occured while loading the key '" + key + "' with value '" + value + "'.");
+                                LoggingUtil.LogError(obj, "{0}: A validation error occured while loading the key '{1}' with value '{2}'.", obj.ErrorPrefix(configNode), key, value);
                             }
                         }
                         catch (Exception e)
@@ -620,7 +618,7 @@ namespace ContractConfigurator
                                 throw;
                             }
 
-                            LoggingUtil.LogError(obj, obj.ErrorPrefix(configNode) + ": A validation error occured while loading the key '" + key + "' with value '" + value + "'.");
+                            LoggingUtil.LogError(obj, "{0}: A validation error occured while loading the key '{1}' with value '{2}'.", obj.ErrorPrefix(configNode), key, value);
                             LoggingUtil.LogException(e);
                             valid = false;
                         }
@@ -633,7 +631,7 @@ namespace ContractConfigurator
                         string dependency = ((DataNode.ValueNotInitialized)e).key;
                         string path = currentDataNode.Path() + key;
 
-                        LoggingUtil.LogVerbose(typeof(ConfigNodeUtil), "Trying to load " + path + ", but " + dependency + " is uninitialized.");
+                        LoggingUtil.LogVerbose(typeof(ConfigNodeUtil), "Trying to load {0}, but {1} is uninitialized.", path, dependency);
 
                         // Defer loading this value
                         DeferredLoadObject<T> loadObj = null;
@@ -652,13 +650,13 @@ namespace ContractConfigurator
                         }
                     }
 
-                    LoggingUtil.LogError(obj, obj.ErrorPrefix(configNode) + ": Error parsing " + key);
+                    LoggingUtil.LogError(obj, "{0}: Error parsing {1}", obj.ErrorPrefix(configNode), key);
 
                     // Return immediately on deferred load error
                     if (e.GetType() == typeof(DataNode.ValueNotInitialized))
                     {
                         DataNode.ValueNotInitialized vni = e as DataNode.ValueNotInitialized;
-                        LoggingUtil.LogException(new Exception("Unknown identifier '@" + vni.key + "'."));
+                        LoggingUtil.LogException(new Exception(StringBuilderCache.Format("Unknown identifier '@{0}'.", vni.key)));
                         return false;
                     }
                     LoggingUtil.LogException(e);
@@ -775,11 +773,11 @@ namespace ContractConfigurator
 
             if (values.Count() == 2)
             {
-                LoggingUtil.LogError(obj, obj.ErrorPrefix(configNode) + ": Either " + output + " is required.");
+                LoggingUtil.LogError(obj, "{0}: Either {1} is required.", obj.ErrorPrefix(configNode), output);
             }
             else 
             {
-                LoggingUtil.LogError(obj, obj.ErrorPrefix(configNode) + ": One of " + output + " is required.");
+                LoggingUtil.LogError(obj, "{0}: One of {1} is required.", obj.ErrorPrefix(configNode), output);
             }
             return false;
         }
@@ -818,7 +816,7 @@ namespace ContractConfigurator
 
             if (count != 1)
             {
-                LoggingUtil.LogError(obj, obj.ErrorPrefix(configNode) + ": Exactly one of the following types is allowed: " + output);
+                LoggingUtil.LogError(obj, "{0}: Exactly one of the following types is allowed: {1}", obj.ErrorPrefix(configNode), output);
                 return false;
             }
             else
@@ -876,7 +874,7 @@ namespace ContractConfigurator
 
             if (group1Value && group2Value)
             {
-                LoggingUtil.LogError(obj, obj.ErrorPrefix(configNode) + ": The values " + group1String + " and " + group2String + " are mutually exclusive.");
+                LoggingUtil.LogError(obj, "{0}: The values {1} and {2} are mutually exclusive.", obj.ErrorPrefix(configNode), group1String, group2String);
                 return false;
             }
 
@@ -920,7 +918,7 @@ namespace ContractConfigurator
                 foreach (DeferredLoadBase loadObj in node.DeferredLoads.Where(dl => startWith == null || dl.dataNode.IsChildOf(startWith)))
                 {
                     initialLoad = false;
-                    LoggingUtil.LogVerbose(typeof(ConfigNodeUtil), "Doing non-deterministic load for key '" + loadObj.key + "'");
+                    LoggingUtil.LogVerbose(typeof(ConfigNodeUtil), "Doing non-deterministic load for key '{0}'", loadObj.key);
 
                     MethodInfo method = methodExecuteLoad.MakeGenericMethod(loadObj.GetType().GetGenericArguments());
                     bool valid = (bool)method.Invoke(null, new object[] { loadObj });
@@ -1195,8 +1193,7 @@ namespace ContractConfigurator
             if (!keysFound.ContainsKey(configNode))
             {
                 obj.hasWarnings = true;
-                LoggingUtil.LogWarning(obj.GetType(), obj.ErrorPrefix() +
-                    ": did not attempt to load values for ConfigNode!");
+                LoggingUtil.LogWarning(obj.GetType(), "{0}: did not attempt to load values for ConfigNode!", obj.ErrorPrefix());
                 return false;
             }
 
@@ -1206,8 +1203,7 @@ namespace ContractConfigurator
                 if (!found.ContainsKey(pair.name))
                 {
                     obj.hasWarnings = true;
-                    LoggingUtil.LogWarning(obj.GetType(), obj.ErrorPrefix() +
-                        ": unexpected attribute '" + pair.name + "' found, ignored.");
+                    LoggingUtil.LogWarning(obj.GetType(), "{0}: unexpected attribute '{1}' found, ignored.", obj.ErrorPrefix(), pair.name);
                 }
             }
 
@@ -1225,8 +1221,7 @@ namespace ContractConfigurator
                 if (!found.ContainsKey(child.name))
                 {
                     obj.hasWarnings = true;
-                    LoggingUtil.LogWarning(obj.GetType(), obj.ErrorPrefix() +
-                        ": unexpected child node '" + child.name + "' found, ignored.");
+                    LoggingUtil.LogWarning(obj.GetType(), "{0}: unexpected child node '{1}' found, ignored.", obj.ErrorPrefix(), child.name);
                 }
             }
 

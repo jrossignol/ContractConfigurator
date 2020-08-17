@@ -54,12 +54,12 @@ namespace ContractConfigurator.RemoteTech
         /// <returns>Whether the vessel meets the condition</returns>
         protected override bool VesselMeetsCondition(Vessel vessel)
         {
-            LoggingUtil.LogVerbose(this, "Checking VesselMeetsCondition: " + vessel.id);
+            LoggingUtil.LogVerbose(this, "Checking VesselMeetsCondition: {0}", vessel.id);
             var satellite = RTCore.Instance.Satellites[vessel.id];
             foreach (var v in RTCore.Instance.Network[satellite])
             {
-                LoggingUtil.LogVerbose(this, "    Goal = " + v.Goal.Name);
-                LoggingUtil.LogVerbose(this, "    Links.Count = " + v.Links.Count);
+                LoggingUtil.LogVerbose(this, "    Goal = {0}", v.Goal.Name);
+                LoggingUtil.LogVerbose(this, "    Links.Count = {0}", v.Links.Count);
             }
 
             // Do a single check

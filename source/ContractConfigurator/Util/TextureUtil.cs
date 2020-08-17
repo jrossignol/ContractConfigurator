@@ -62,12 +62,12 @@ namespace ContractConfigurator.Util
                 }
                 else
                 {
-                    throw new Exception("Couldn't find file for image  '" + url + "'");
+                    throw new Exception(StringBuilderCache.Format("Couldn't find file for image '{0}'", url));
                 }
             }
             catch (Exception e)
             {
-                LoggingUtil.LogError(typeof(TextureUtil), "Couldn't create texture for '" + url + "'!");
+                LoggingUtil.LogError(typeof(TextureUtil), "Couldn't create texture for '{0}'!", url);
                 LoggingUtil.LogException(e);
                 texture = null;
             }

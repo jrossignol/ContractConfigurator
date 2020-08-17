@@ -46,12 +46,12 @@ namespace ContractConfigurator
 
                 if (subjects.Any(s => !Util.Science.GetBiome(s).Equals(b)))
                 {
-                    LoggingUtil.LogError(this, ErrorPrefix(configNode) + ": When using 'subject', the subjects must all have the same biome.");
+                    LoggingUtil.LogError(this, "{0}: When using 'subject', the subjects must all have the same biome.", ErrorPrefix(configNode));
                     valid = false;
                 }
                 if (subjects.Any(s => !Util.Science.GetSituation(s).Equals(es)))
                 {
-                    LoggingUtil.LogError(this, ErrorPrefix(configNode) + ": When using 'subject', the subjects must all have the same experiment situation.");
+                    LoggingUtil.LogError(this, "{0}: When using 'subject', the subjects must all have the same experiment situation.", ErrorPrefix(configNode));
                     valid = false;
                 }
             }

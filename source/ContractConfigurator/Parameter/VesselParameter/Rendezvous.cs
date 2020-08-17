@@ -131,8 +131,8 @@ namespace ContractConfigurator.Parameters
                     }
                 }
 
-                LoggingUtil.LogVerbose(this, "v1 = " + (v1 == null ? "null" : v1.id.ToString()));
-                LoggingUtil.LogVerbose(this, "v2 = " + (v2 == null ? "null" : v2.id.ToString()));
+                LoggingUtil.LogVerbose(this, "v1 = {0}", (v1 == null ? "null" : v1.id.ToString()));
+                LoggingUtil.LogVerbose(this, "v2 = {0}", (v2 == null ? "null" : v2.id.ToString()));
 
                 if (v1 == null)
                 {
@@ -184,7 +184,7 @@ namespace ContractConfigurator.Parameters
         /// <returns>Whether the vessel meets the condition</returns>
         protected override bool VesselMeetsCondition(Vessel vessel)
         {
-            LoggingUtil.LogVerbose(this, "Checking VesselMeetsCondition: " + vessel.id);
+            LoggingUtil.LogVerbose(this, "Checking VesselMeetsCondition: {0}", vessel.id);
             return GetState(vessel) == ParameterState.Complete;
         }
     }

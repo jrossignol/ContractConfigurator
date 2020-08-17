@@ -88,12 +88,12 @@ namespace ContractConfigurator.Behaviour
                 // Update the position information
                 foreach (KerbalData kd in kerbals)
                 {
-                    LoggingUtil.LogVerbose(this, "Positioning kerbal " + kd.kerbal.name);
+                    LoggingUtil.LogVerbose(this, "Positioning kerbal {0}", kd.kerbal.name);
 
                     // Generate PQS city coordinates
                     if (kd.pqsCity != null)
                     {
-                        LoggingUtil.LogVerbose(this, "Generating coordinates from PQS city for Kerbal " + kd.kerbal.name);
+                        LoggingUtil.LogVerbose(this, "Generating coordinates from PQS city for Kerbal {0}", kd.kerbal.name);
 
                         // Translate by the PQS offset (inverse transform of coordinate system)
                         Vector3d position = kd.pqsCity.transform.position;
@@ -164,7 +164,7 @@ namespace ContractConfigurator.Behaviour
                                 }
                                 catch (Exception e)
                                 {
-                                    LoggingUtil.LogError(typeof(WaypointGenerator), "Couldn't load PQSCity with name '" + pqsCityStr + "'");
+                                    LoggingUtil.LogError(typeof(WaypointGenerator), "Couldn't load PQSCity with name '{0}'", pqsCityStr);
                                     LoggingUtil.LogException(e);
                                     valid = false;
                                 }
@@ -251,7 +251,7 @@ namespace ContractConfigurator.Behaviour
             // Actually spawn the kerbals in the game world!
             foreach (KerbalData kd in kerbals)
             {
-                LoggingUtil.LogVerbose(this, "Spawning a Kerbal named " + kd.kerbal.name);
+                LoggingUtil.LogVerbose(this, "Spawning a Kerbal named {0}", kd.kerbal.name);
 
                 // Generate the ProtoCrewMember
                 kd.kerbal.GenerateKerbal();
@@ -268,7 +268,7 @@ namespace ContractConfigurator.Behaviour
 
                     kd.orbit = new Orbit(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, kd.body);
                     kd.orbit.UpdateFromStateVectors(pos, kd.body.getRFrmVel(pos), kd.body, Planetarium.GetUniversalTime());
-                    LoggingUtil.LogVerbose(typeof(SpawnKerbal), "kerbal generated, orbit = " + kd.orbit);
+                    LoggingUtil.LogVerbose(typeof(SpawnKerbal), "kerbal generated, orbit = {0}", kd.orbit);
                 }
                 else
                 {
@@ -402,7 +402,7 @@ namespace ContractConfigurator.Behaviour
 
         private void OnVesselRecovered(ProtoVessel v, bool quick)
         {
-            LoggingUtil.LogVerbose(this, "OnVesselRecovered: " + v);
+            LoggingUtil.LogVerbose(this, "OnVesselRecovered: {0}", v);
 
             // EVA vessel
             if (v.vesselType == VesselType.EVA)
@@ -483,19 +483,19 @@ namespace ContractConfigurator.Behaviour
 
         private void RemoveKerbals(bool onlyUnowned = false)
         {
-            LoggingUtil.LogVerbose(this, "Removing kerbals, onlyUnowned = " + onlyUnowned);
+            LoggingUtil.LogVerbose(this, "Removing kerbals, onlyUnowned = {0}", onlyUnowned);
             foreach (KerbalData kerbal in kerbals)
             {
                 if (!kerbal.addToRoster || !onlyUnowned)
                 {
-                    LoggingUtil.LogVerbose(this, "    Removing " + kerbal.kerbal.name + "...");
+                    LoggingUtil.LogVerbose(this, "    Removing {0}...", kerbal.kerbal.name);
                     Vessel vessel = FlightGlobals.Vessels.Where(v => v.GetVesselCrew().Contains(kerbal.kerbal.pcm)).FirstOrDefault();
                     if (vessel != null)
                     {
                         // If it's an EVA make them disappear...
                         if (vessel.isEVA)
                         {
-                            LoggingUtil.LogVerbose(this, "    Removing EVA Kerbal " + kerbal.kerbal.name + ".");
+                            LoggingUtil.LogVerbose(this, "    Removing EVA Kerbal {0}.", kerbal.kerbal.name);
                             FlightGlobals.Vessels.Remove(vessel);
                         }
                         else
@@ -514,7 +514,7 @@ namespace ContractConfigurator.Behaviour
                                         // Everything else
                                         else
                                         {
-                                            LoggingUtil.LogVerbose(this, "    Removing " + kerbal.kerbal.name + " from vessel " + vessel.vesselName);
+                                            LoggingUtil.LogVerbose(this, "    Removing {0} from vessel {1}", kerbal.kerbal.name, vessel.vesselName);
                                             p.RemoveCrewmember(kerbal.kerbal.pcm);
                                         }
                                         break;
@@ -527,7 +527,7 @@ namespace ContractConfigurator.Behaviour
                                 {
                                     if (pps.HasCrew(kerbal.kerbal.pcm.name))
                                     {
-                                        LoggingUtil.LogVerbose(this, "    Removing " + kerbal.kerbal.name + " from part " + pps.partName + " on vessel " + vessel.vesselName);
+                                        LoggingUtil.LogVerbose(this, "    Removing {0} from part {1} on vessel {2}", kerbal.kerbal.name, pps.partName, vessel.vesselName);
 
                                         // Command seats
                                         if (pps.partName.StartsWith("kerbalEVA"))

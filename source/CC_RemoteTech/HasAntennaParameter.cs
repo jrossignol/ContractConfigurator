@@ -192,7 +192,7 @@ namespace ContractConfigurator.RemoteTech
         /// <returns>Whether the vessel meets the parameter condition(s).</returns>
         protected override bool VesselMeetsCondition(Vessel vessel)
         {
-            LoggingUtil.LogVerbose(this, "Checking VesselMeetsCondition: " + vessel.id + " (" + vessel.vesselName + ")");
+            LoggingUtil.LogVerbose(this, "Checking VesselMeetsCondition: {0} ({1})", vessel.id, vessel.vesselName);
 
             // Get all the antennae
             VesselSatellite sat = RTCore.Instance.Satellites[vessel.id];

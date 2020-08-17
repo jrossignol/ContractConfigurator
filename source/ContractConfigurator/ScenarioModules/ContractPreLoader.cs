@@ -213,8 +213,7 @@ namespace ContractConfigurator
 
             if (UnityEngine.Time.realtimeSinceStartup - start > 0.1)
             {
-                LoggingUtil.LogDebug(this, "Contract attribute took too long (" + (UnityEngine.Time.realtimeSinceStartup - start) +
-                    " seconds) to generate: " + lastKey);
+                LoggingUtil.LogDebug(this, "Contract attribute took too long ({0} seconds) to generate: {1}", (UnityEngine.Time.realtimeSinceStartup - start), lastKey);
             }
 
             // Call update on offered contracts to check expiry, etc - do this infrequently
@@ -289,7 +288,7 @@ namespace ContractConfigurator
             // First, check the basic requirements
             if (!contractType.MeetBasicRequirements(templateContract))
             {
-                LoggingUtil.LogVerbose(this, contractType.name + " was not generated: basic requirements not met.");
+                LoggingUtil.LogVerbose(this, "{0} was not generated: basic requirements not met.", contractType.name);
                 if (++contractType.failedGenerationAttempts >= contractType.maxConsecutiveGenerationFailures)
                 {
                     contractType.lastGenerationFailure = Time.realtimeSinceStartup;
@@ -317,7 +316,7 @@ namespace ContractConfigurator
                 }
 
                 // Update the actual values
-                LoggingUtil.LogVerbose(this, "Refresh non-deterministic values for CONTRACT_TYPE = " + contractType.name);
+                LoggingUtil.LogVerbose(this, "Refresh non-deterministic values for CONTRACT_TYPE = {0}", contractType.name);
                 foreach (string val in iter)
                 {
                     lastKey = contractType.name + "[" + val + "]";
@@ -328,7 +327,7 @@ namespace ContractConfigurator
 
                     if (val == null)
                     {
-                        LoggingUtil.LogVerbose(this, contractType.name + " was not generated: non-deterministic expression failure.");
+                        LoggingUtil.LogVerbose(this, "{0} was not generated: non-deterministic expression failure.", contractType.name);
                         if (++contractType.failedGenerationAttempts >= contractType.maxConsecutiveGenerationFailures)
                         {
                             contractType.lastGenerationFailure = Time.realtimeSinceStartup;
@@ -379,7 +378,7 @@ namespace ContractConfigurator
             // Failure, add a pause in before finishing
             else
             {
-                LoggingUtil.LogVerbose(this, contractType.name + " was not generated: requirement not met.");
+                LoggingUtil.LogVerbose(this, "{0} was not generated: requirement not met.", contractType.name);
                 if (++contractType.failedGenerationAttempts >= contractType.maxConsecutiveGenerationFailures)
                 {
                     contractType.lastGenerationFailure = Time.realtimeSinceStartup;

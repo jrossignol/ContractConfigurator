@@ -64,18 +64,18 @@ namespace ContractConfigurator.Util
 
                 if (received >= expected)
                 {
-                    LoggingUtil.LogVerbose(typeof(ContractConfigurator), "Version check for '" + name + "' passed.  Minimum required is " + version + ", version found was " + receivedStr);
+                    LoggingUtil.LogVerbose(typeof(ContractConfigurator), "Version check for '{0}' passed.  Minimum required is {1}, version found was {2}", name, version, receivedStr);
                     return assembly.assembly;
                 }
                 else
                 {
-                    LoggingUtil.Log(silent ? LoggingUtil.LogLevel.DEBUG : LoggingUtil.LogLevel.ERROR, typeof(Version), "Version check for '" + name + "' failed!  Minimum required is " + version + ", version found was " + receivedStr);
+                    LoggingUtil.Log(silent ? LoggingUtil.LogLevel.DEBUG : LoggingUtil.LogLevel.ERROR, typeof(Version), "Version check for '{0}' failed!  Minimum required is {1}, version found was {2}", name, version, receivedStr);
                     return null;
                 }
             }
             else
             {
-                LoggingUtil.Log(silent ? LoggingUtil.LogLevel.VERBOSE : LoggingUtil.LogLevel.ERROR, typeof(Version), "Couldn't find assembly for '" + name + "'!");
+                LoggingUtil.Log(silent ? LoggingUtil.LogLevel.VERBOSE : LoggingUtil.LogLevel.ERROR, typeof(Version), "Couldn't find assembly for '{0}'!", name);
                 return null;
             }
         }

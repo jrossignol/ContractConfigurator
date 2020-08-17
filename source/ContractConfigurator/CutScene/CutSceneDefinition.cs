@@ -101,7 +101,7 @@ namespace ContractConfigurator.CutScene
                 }
                 else
                 {
-                    LoggingUtil.LogError(this, "Couldn't load CutSceneDefinition - unknown type '" + child.name + "'.");
+                    LoggingUtil.LogError(this, "Couldn't load CutSceneDefinition - unknown type '{0}'.", child.name);
                 }
             }
         }

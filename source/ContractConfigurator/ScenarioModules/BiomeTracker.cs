@@ -143,7 +143,7 @@ namespace ContractConfigurator
             int bu = 0;
             int bv = 0;
 
-            LoggingUtil.LogInfo(this, "Starting background load of " + body.name + " biome data.");
+            LoggingUtil.LogInfo(this, "Starting background load of {0} biome data.", body.name);
             int count = 0;
             for (int i = 0; i < w; i++)
             {
@@ -232,7 +232,7 @@ namespace ContractConfigurator
             bodyInfo[body] = biomeData;
             Save();
 
-            LoggingUtil.LogInfo(this, "Completed background load of " + body.name + " biome data.");
+            LoggingUtil.LogInfo(this, "Completed background load of {0} biome data.", body.name);
         }
 
         public override void OnLoad(ConfigNode node)

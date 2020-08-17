@@ -273,7 +273,7 @@ namespace ContractConfigurator.Parameters
         /// <returns>Whether the vessel meets the condition</returns>
         protected override bool VesselMeetsCondition(Vessel vessel)
         {
-            LoggingUtil.LogVerbose(this, "Checking VesselMeetsCondition: " + vessel.id);
+            LoggingUtil.LogVerbose(this, "Checking VesselMeetsCondition: {0}", vessel.id);
 
             double delta = 0.0;
             if (ResourceConsumptionChecker.CanCheckVessel(vessel))
@@ -285,7 +285,7 @@ namespace ContractConfigurator.Parameters
                 return false;
             }
 
-            LoggingUtil.LogVerbose(this, "Delta for resource " + resource.name + " is: " + delta);
+            LoggingUtil.LogVerbose(this, "Delta for resource {0} is: {1}", resource.name, delta);
             return delta - minRate >= -0.001 && maxRate - delta >= -0.001;
         }
     }

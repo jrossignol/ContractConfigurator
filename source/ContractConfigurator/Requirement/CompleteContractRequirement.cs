@@ -73,7 +73,7 @@ namespace ContractConfigurator
             // Check cooldown
             if (cooldownDuration.Value > 0.0 && finished > 0 && lastFinished + cooldownDuration.Value > Planetarium.GetUniversalTime())
             {
-                LoggingUtil.LogDebug(this, "Returning false due to cooldown for " + contractType.name);
+                LoggingUtil.LogDebug(this, "Returning false due to cooldown for {0}", contractType.name);
                 return false;
             }
 
@@ -83,7 +83,7 @@ namespace ContractConfigurator
 
         protected override string RequirementText()
         {
-            string title = StringBuilderCache.Format("<color=#{0}" + ">{1}</color>", MissionControlUI.RequirementHighlightColor, ContractTitle());
+            string title = StringBuilderCache.Format("<color=#{0}>{1}</color>", MissionControlUI.RequirementHighlightColor, ContractTitle());
             if (cooldownDuration.Value > 0.0)
             {
                 return Localizer.Format(invertRequirement ? "#cc.req.CompleteContract.cooldown.x" : "#cc.req.CompleteContract.cooldown", title, cooldownDuration.ToString());

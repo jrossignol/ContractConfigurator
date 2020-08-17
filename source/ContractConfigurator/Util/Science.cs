@@ -66,12 +66,12 @@ namespace ContractConfigurator.Util
 
             foreach (ConfigNode experimentConfig in experimentConfigs)
             {
-                LoggingUtil.LogDebug(this, "Loading experiment definitions for " + experimentConfig.GetValue("name"));
+                LoggingUtil.LogDebug(this, "Loading experiment definitions for {0}", experimentConfig.GetValue("name"));
 
                 foreach (ConfigNode config in experimentConfig.GetNodes("EXPERIMENT"))
                 {
                     string name = ConfigNodeUtil.ParseValue<string>(config, "name");
-                    LoggingUtil.LogVerbose(this, "    loading experiment " + name);
+                    LoggingUtil.LogVerbose(this, "    loading experiment {0}", name);
 
                     ExperimentRules exp = new ExperimentRules(name);
                     experimentRules[name] = exp;
@@ -97,7 +97,7 @@ namespace ContractConfigurator.Util
                 foreach (ConfigNode config in experimentConfig.GetNodes("MODULE"))
                 {
                     string name = ConfigNodeUtil.ParseValue<string>(config, "name");
-                    LoggingUtil.LogVerbose(this, "    loading module " + name);
+                    LoggingUtil.LogVerbose(this, "    loading module {0}", name);
 
                     experimentModules.Add(name);
                 }
@@ -106,7 +106,7 @@ namespace ContractConfigurator.Util
             // Add experiment modules based on class
             foreach (Type expModule in ContractConfigurator.GetAllTypes<ModuleScienceExperiment>())
             {
-                LoggingUtil.LogVerbose(this, "    adding module for class " + expModule.Name);
+                LoggingUtil.LogVerbose(this, "    adding module for class {0}", expModule.Name);
                 experimentModules.AddUnique(expModule.Name);
             }
 
@@ -466,7 +466,7 @@ namespace ContractConfigurator.Util
                     {
                         foreach (AvailablePart p in PartLoader.Instance.loadedParts.Where(p => p.name == pname))
                         {
-                            LoggingUtil.LogVerbose(typeof(Science), "Adding entry for " + rules.id + " = " + p.name);
+                            LoggingUtil.LogVerbose(typeof(Science), "Adding entry for {0} = {1}", rules.id, p.name);
                             experimentParts[rules.id].Add(p);
                         }
                     }
@@ -505,7 +505,7 @@ namespace ContractConfigurator.Util
             // Get the experiment rules
             if (!experimentRules.ContainsKey(id))
             {
-                LoggingUtil.LogWarning(typeof(Science), "Experiment '" + id + "' is unknown, assuming a standard experiment.");
+                LoggingUtil.LogWarning(typeof(Science), "Experiment '{0}' is unknown, assuming a standard experiment.", id);
                 experimentRules[id] = new ExperimentRules(id);
             }
             return experimentRules[id];

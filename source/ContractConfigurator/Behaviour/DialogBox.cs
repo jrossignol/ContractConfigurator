@@ -129,7 +129,7 @@ namespace ContractConfigurator.Behaviour
 
                 GUILayout.BeginHorizontal();
                 GUILayout.FlexibleSpace();
-                if (GUILayout.Button("OK", GUILayout.MinWidth(80)))
+                if (GUILayout.Button(Localizer.GetStringByTag("#autoLOC_211274"), GUILayout.MinWidth(80)))
                 {
                     windowPos = new Rect(0, 0, 0, 0);
                     windowStyle = null;
@@ -232,7 +232,7 @@ namespace ContractConfigurator.Behaviour
                 int r = (int)(textColor.r * 255);
                 int g = (int)(textColor.g * 255);
                 int b = (int)(textColor.b * 255);
-                configNode.AddValue("textColor", "#" + a.ToString("X2") + r.ToString("X2") + g.ToString("X2") + b.ToString("X2"));
+                configNode.AddValue("textColor", StringBuilderCache.Format("#{0}{1}{2}{3}", a.ToString("X2"), r.ToString("X2"), g.ToString("X2"), b.ToString("X2")));
                 configNode.AddValue("fontSize", fontSize);
             }
 
@@ -283,7 +283,7 @@ namespace ContractConfigurator.Behaviour
                 int r = (int)(textColor.r * 255);
                 int g = (int)(textColor.g * 255);
                 int b = (int)(textColor.b * 255);
-                configNode.AddValue("textColor", "#" + a.ToString("X2") + r.ToString("X2") + g.ToString("X2") + b.ToString("X2"));
+                configNode.AddValue("textColor", StringBuilderCache.Format("#{0}{1}{2}{3}", a.ToString("X2"), r.ToString("X2"), g.ToString("X2"), b.ToString("X2")));
             }
 
             public override void OnLoad(ConfigNode configNode)
@@ -750,7 +750,7 @@ namespace ContractConfigurator.Behaviour
                 int r = (int)(titleColor.r * 255);
                 int g = (int)(titleColor.g * 255);
                 int b = (int)(titleColor.b * 255);
-                configNode.AddValue("titleColor", "#" + a.ToString("X2") + r.ToString("X2") + g.ToString("X2") + b.ToString("X2"));
+                configNode.AddValue("titleColor", StringBuilderCache.Format("#{0}{1}{2}{3}", a.ToString("X2"), r.ToString("X2"), g.ToString("X2"), b.ToString("X2")));
 
                 foreach (Section section in sections)
                 {

@@ -416,7 +416,7 @@ namespace ContractConfigurator.Parameters
         /// <returns>Whether the vessel meets the condition</returns>
         protected override bool VesselMeetsCondition(Vessel vessel)
         {
-            LoggingUtil.LogVerbose(this, "Checking VesselMeetsCondition: " + vessel.id);
+            LoggingUtil.LogVerbose(this, "Checking VesselMeetsCondition: {0}", vessel.id);
 
             // If we're a VesselParameterGroup child, only do actual state change if we're the tracked vessel
             bool checkOnly = false;

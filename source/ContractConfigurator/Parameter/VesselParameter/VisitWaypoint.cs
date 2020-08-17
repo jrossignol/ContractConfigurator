@@ -179,7 +179,7 @@ namespace ContractConfigurator.Parameters
             waypoint = waypointGenerators.SelectMany(wg => wg.Waypoints()).ElementAtOrDefault(waypointIndex);
             if (waypoint == null)
             {
-                LoggingUtil.LogError(this, "Couldn't find waypoint in WaypointGenerator behaviour(s) with index " + waypointIndex + ".");
+                LoggingUtil.LogError(this, "Couldn't find waypoint in WaypointGenerator behaviour(s) with index {0}.", waypointIndex);
             }
 
             return waypoint;
@@ -209,7 +209,7 @@ namespace ContractConfigurator.Parameters
         /// <returns>Whether the vessel meets the condition</returns>
         protected override bool VesselMeetsCondition(Vessel vessel)
         {
-            LoggingUtil.LogVerbose(this, "Checking VesselMeetsCondition: " + vessel.id);
+            LoggingUtil.LogVerbose(this, "Checking VesselMeetsCondition: {0}", vessel.id);
 
             // Make sure we have a waypoint
             if (waypoint == null && Root != null)
@@ -246,13 +246,13 @@ namespace ContractConfigurator.Parameters
             if (distance != 0.0)
             {
                 double actualDistance = WaypointUtil.GetDistanceToWaypoint(vessel, waypoint, ref height);
-                LoggingUtil.LogVerbose(this, "Distance to waypoint '" + waypoint.name + "': " + actualDistance);
+                LoggingUtil.LogVerbose(this, "Distance to waypoint '{0}': {1}", waypoint.name, actualDistance);
                 check = actualDistance <= distance;
             }
             else
             {
                 double actualDistance = WaypointUtil.GetDistance(vessel.latitude, vessel.longitude, waypoint.latitude, waypoint.longitude, vessel.mainBody.Radius);
-                LoggingUtil.LogVerbose(this, "Horizontal distance to waypoint : '" + horizontalDistance + "': " + actualDistance);
+                LoggingUtil.LogVerbose(this, "Horizontal distance to waypoint : '{0}': {1}", horizontalDistance, actualDistance);
                 check = actualDistance <= horizontalDistance;
             }
 
@@ -263,7 +263,7 @@ namespace ContractConfigurator.Parameters
                 {
                     nearWaypoint = check;
                     string waypointName = waypoint.name + (waypoint.isClustered ? " " + StringUtilities.IntegerToGreek(waypoint.index) : "");
-                    string msg = "You are " + (nearWaypoint ? "entering " : "leaving ") + waypointName + ".";
+                    string msg = Localizer.Format(nearWaypoint ? "#autoLOC_285872" : "autoLOC_285861", waypointName);
                     ScreenMessages.PostScreenMessage(msg, 5.0f, ScreenMessageStyle.UPPER_CENTER);
                 }
 

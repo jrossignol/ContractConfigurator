@@ -177,7 +177,7 @@ namespace ContractConfigurator.CutScene
 
                     if (++currentIndex < cutSceneDefinition.actions.Count)
                     {
-                        LoggingUtil.LogVerbose(this, "Invoking action " + currentAction);
+                        LoggingUtil.LogVerbose(this, "Invoking action {0}", currentAction);
                         currentAction = cutSceneDefinition.actions[currentIndex];
                         currentAction.InvokeAction();
                     }
@@ -197,7 +197,7 @@ namespace ContractConfigurator.CutScene
 
         public void ExecuteCutScene()
         {
-            LoggingUtil.LogVerbose(this, "Execute cut scene '" + cutSceneDefinition.name + "'");
+            LoggingUtil.LogVerbose(this, "Execute cut scene '{0}'", cutSceneDefinition.name);
 
             state = State.STARTING_CUTSCENE_FADE_OUT;
             fadeTimer = 0.0f;

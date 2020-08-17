@@ -115,7 +115,7 @@ namespace ContractConfigurator.RemoteTech
         /// <returns>Whether the vessel meets the condition</returns>
         protected override bool VesselMeetsCondition(Vessel vessel)
         {
-            LoggingUtil.LogVerbose(this, "Checking VesselMeetsCondition: " + vessel.id);
+            LoggingUtil.LogVerbose(this, "Checking VesselMeetsCondition: {0}", vessel.id);
             
             // Check vessels
             Vessel vessel2 = ContractVesselTracker.Instance.GetAssociatedVessel(vesselKey);

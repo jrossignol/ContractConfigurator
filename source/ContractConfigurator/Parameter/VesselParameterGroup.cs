@@ -91,7 +91,7 @@ namespace ContractConfigurator.Parameters
                             }
                             else
                             {
-                                LoggingUtil.LogWarning(this, "Unable to get vessel display name for '" + vesselName + "' - ContractVesselTracker is null.  This is likely caused by another ScenarioModule crashing, preventing others from loading.");
+                                LoggingUtil.LogWarning(this, "Unable to get vessel display name for '{0}' - ContractVesselTracker is null.  This is likely caused by another ScenarioModule crashing, preventing others from loading.", vesselName);
                                 return vesselName;
                             }
                         }
@@ -219,7 +219,7 @@ namespace ContractConfigurator.Parameters
                 return;
             }
 
-            LoggingUtil.LogVerbose(this, "-> UpdateState(" + (vessel != null ? vessel.id.ToString() : "null") + ")");
+            LoggingUtil.LogVerbose(this, "-> UpdateState({0})", (vessel != null ? vessel.id.ToString() : "null"));
 
             // If this vessel doesn't match our list of valid vessels, ignore the update
             if (!VesselCanBeConsidered(vessel))
@@ -466,7 +466,7 @@ namespace ContractConfigurator.Parameters
             {
                 if (dissassociateVesselsOnContractCompletion && !string.IsNullOrEmpty(define) && trackedVessel != null)
                 {
-                    LoggingUtil.LogVerbose(this, "Removing defined vessel " + define);
+                    LoggingUtil.LogVerbose(this, "Removing defined vessel {0}", define);
                 }
 
                 if (!string.IsNullOrEmpty(defineList) && trackedVessel != null)
@@ -487,7 +487,7 @@ namespace ContractConfigurator.Parameters
         {
             if (c == Root && dissassociateVesselsOnContractFailure && !string.IsNullOrEmpty(define) && trackedVessel != null)
             {
-                LoggingUtil.LogVerbose(this, "Removing defined vessel " + define);
+                LoggingUtil.LogVerbose(this, "Removing defined vessel {0}", define);
                 ContractVesselTracker.Instance.AssociateVessel(define, null);
             }
         }
@@ -548,7 +548,7 @@ namespace ContractConfigurator.Parameters
 
         protected void OnVesselChange(Vessel vessel)
         {
-            LoggingUtil.LogVerbose(this, "OnVesselChange(" + (vessel != null && vessel.id != null ? vessel.id.ToString() : "null") + "), Active = " +
+            LoggingUtil.LogVerbose(this, "OnVesselChange({0}), Active = ", (vessel != null && vessel.id != null ? vessel.id.ToString() : "null"),
                 (FlightGlobals.ActiveVessel != null && FlightGlobals.ActiveVessel.id != null ? FlightGlobals.ActiveVessel.id.ToString() : "null"));
             UpdateState(vessel);
         }
@@ -561,7 +561,7 @@ namespace ContractConfigurator.Parameters
                 LoggingUtil.LogVerbose(this, "OnParameterStateChange");
                 if (AllChildParametersComplete())
                 {
-                    LoggingUtil.LogVerbose(this, "    AllChildParametersComplete (waiting = " + waiting + ")");
+                    LoggingUtil.LogVerbose(this, "    AllChildParametersComplete (waiting = {0})", waiting);
                     if (!waiting && trackedVessel != null)
                     {
                         LoggingUtil.LogVerbose(this, "    set waiting");
@@ -571,7 +571,7 @@ namespace ContractConfigurator.Parameters
                         // Set the tracked vessel association
                         if (!string.IsNullOrEmpty(define))
                         {
-                            LoggingUtil.LogVerbose(this, "setting " + define + " as " + trackedVessel.vesselName);
+                            LoggingUtil.LogVerbose(this, "setting {0} as {1}", define, trackedVessel.vesselName);
                             ContractVesselTracker.Instance.AssociateVessel(define, trackedVessel);
                         }
                     }
@@ -588,7 +588,7 @@ namespace ContractConfigurator.Parameters
                     // Set the tracked vessel association
                     if (!string.IsNullOrEmpty(define))
                     {
-                        LoggingUtil.LogVerbose(this, "setting " + define + " as null");
+                        LoggingUtil.LogVerbose(this, "setting {0} as null", define);
                         ContractVesselTracker.Instance.AssociateVessel(define, null);
                     }
 
@@ -630,7 +630,7 @@ namespace ContractConfigurator.Parameters
 
                     if (durationParameter != null)
                     {
-                        durationParameter.SetTitle("Time Remaining: " + DurationUtil.StringValue(completionTime - Planetarium.GetUniversalTime()));
+                        durationParameter.SetTitle(Localizer.Format("#cc.param.VesselParameterGroup.time", DurationUtil.StringValue(completionTime - Planetarium.GetUniversalTime())));
                     }
                 }
             }
@@ -638,7 +638,7 @@ namespace ContractConfigurator.Parameters
             {
                 if (durationParameter != null)
                 {
-                    durationParameter.SetTitle("Duration: " + DurationUtil.StringValue(duration));
+                    durationParameter.SetTitle(Localizer.Format("#cc.param.VesselParameterGroup.duration", DurationUtil.StringValue(duration)));
                 }
             }
         }

@@ -263,11 +263,9 @@ namespace ContractConfigurator
             }
         }
 
-        private static string[] strArr = { "" };
         public static string CleanDisplayName(this CelestialBody body, bool lower=false)
         {
-            strArr[0] = body.GetDisplayName();
-            string displayName = KSP.Localization.Localizer.Format("<<1>>", strArr);
+            string displayName = body.displayName;
 
             if (lower)
             {

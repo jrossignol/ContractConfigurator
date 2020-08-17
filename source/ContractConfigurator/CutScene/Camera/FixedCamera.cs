@@ -93,7 +93,7 @@ namespace ContractConfigurator.CutScene
 
         public override void MakeActive()
         {
-            LoggingUtil.LogVerbose(this, "CutScene: camera '" + name + "' active");
+            LoggingUtil.LogVerbose(this, "CutScene: camera '{0}' active", name);
 
             double alt = altitude + LocationUtil.TerrainHeight(latitude, longitude, FlightGlobals.currentMainBody);
             Vector3d pos = FlightGlobals.currentMainBody.GetWorldSurfacePosition(latitude, longitude, alt);

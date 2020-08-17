@@ -202,7 +202,7 @@ namespace ContractConfigurator.Behaviour
                 string error = StringBuilderCache.Format("Cannot use a Kolniya orbit with {0}.", obData.targetBody.CleanDisplayName(true));
                 if (factory != null)
                 {
-                    LoggingUtil.LogError(factory, factory.ErrorPrefix() + ": " + error);
+                    LoggingUtil.LogError(factory, "{0} : {1}", factory.ErrorPrefix(), error);
                     return false;
                 }
                 else
@@ -215,7 +215,7 @@ namespace ContractConfigurator.Behaviour
                 string error = StringBuilderCache.Format("Cannot use a tundra orbit with {0}.", obData.targetBody.CleanDisplayName(true));
                 if (factory != null)
                 {
-                    LoggingUtil.LogError(factory, factory.ErrorPrefix() + ": " + error);
+                    LoggingUtil.LogError(factory, "{0} : {1}", factory.ErrorPrefix(), error);
                     return false;
                 }
                 else

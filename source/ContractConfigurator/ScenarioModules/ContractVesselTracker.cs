@@ -107,7 +107,7 @@ namespace ContractConfigurator
             else if (vi.hash == 0 && HighLogic.LoadedScene == GameScenes.FLIGHT)
             {
                 vi.hash = vessel.GetHashes().FirstOrDefault();
-                LoggingUtil.LogVerbose(this, "Setting hash for " + id + " on load to: " + vi.hash);
+                LoggingUtil.LogVerbose(this, "Setting hash for {0} on load to: {1}", id, vi.hash);
             }
         }
 
@@ -137,7 +137,7 @@ namespace ContractConfigurator
                             IEnumerable<uint> hashes = vessel.GetHashes();
                             if (hashes.Any() && !hashes.Contains(vi.hash))
                             {
-                                LoggingUtil.LogVerbose(this, "Setting hash for " + vi.id + " on save from " + vi.hash + " to " + hashes.FirstOrDefault());
+                                LoggingUtil.LogVerbose(this, "Setting hash for {0} on save from {1} to {2}", vi.id, vi.hash, hashes.FirstOrDefault());
                                 vi.hash = hashes.FirstOrDefault();
                             }
                         }
@@ -163,7 +163,7 @@ namespace ContractConfigurator
 
         protected virtual void OnPartJointBreak(PartJoint p, float breakForce)
         {
-            LoggingUtil.LogVerbose(this, "OnPartJointBreak: " + p.Parent.vessel.id);
+            LoggingUtil.LogVerbose(this, "OnPartJointBreak: {0}", p.Parent.vessel.id);
             if (HighLogic.LoadedScene == GameScenes.EDITOR)
             {
                 return;
@@ -178,7 +178,7 @@ namespace ContractConfigurator
 
         protected virtual void OnVesselWasModified(Vessel vessel)
         {
-            LoggingUtil.LogDebug(this, "OnVesselWasModified: " + vessel.id);
+            LoggingUtil.LogDebug(this, "OnVesselWasModified: {0}", vessel.id);
             vessel.GetHashes().Count();
 
             // Check for a vessel creation after a part joint break
@@ -212,7 +212,7 @@ namespace ContractConfigurator
                 VesselInfo vi = vessels[key];
                 if (otherVesselHashes.Contains(vi.hash))
                 {
-                    LoggingUtil.LogDebug(this, "Moving association for '" + key + "' from " + vi.id + " to " + lastBreak.id);
+                    LoggingUtil.LogDebug(this, "Moving association for '{0}' from {1} to {2}", key, vi.id, lastBreak.id);
                     vi.id = lastBreak.id;
                     OnVesselAssociation.Fire(new GameEvents.HostTargetAction<Vessel, string>(lastBreak, key));
                 }
@@ -223,7 +223,7 @@ namespace ContractConfigurator
                 VesselInfo vi = vessels[key];
                 if (vesselHashes.Contains(vi.hash))
                 {
-                    LoggingUtil.LogDebug(this, "Moving association for '" + key + "' from " + vi.id + " to " + vessel.id);
+                    LoggingUtil.LogDebug(this, "Moving association for '{0}' from {1} to {2}", key, vi.id, vessel.id);
                     vi.id = vessel.id;
                     OnVesselAssociation.Fire(new GameEvents.HostTargetAction<Vessel, string>(vessel, key));
                 }
@@ -234,7 +234,7 @@ namespace ContractConfigurator
 
         protected virtual void OnVesselDestroy(Vessel vessel)
         {
-            LoggingUtil.LogVerbose(this, "OnVesselDestroy " + vessel.id);
+            LoggingUtil.LogVerbose(this, "OnVesselDestroy {0}", vessel.id);
 
             if (HighLogic.LoadedScene != GameScenes.FLIGHT)
             {
@@ -245,14 +245,14 @@ namespace ContractConfigurator
             // Try to change any associations over if this is due to a docking event
                 foreach (string key in GetAssociatedKeys(vessel).ToList())
             {
-                LoggingUtil.LogVerbose(this, "    checking key " + key);
+                LoggingUtil.LogVerbose(this, "    checking key {0}", key);
 
                 // Check if we need to switch over to the newly created vessel
                 VesselInfo vi = vessels[key];
                 Vessel newVessel = FlightGlobals.Vessels.Find(v => {
                     if (v != null && v != vessel)
                     {
-                        LoggingUtil.LogVerbose(this, "    loading protovessel for " + v.vesselName);
+                        LoggingUtil.LogVerbose(this, "    loading protovessel for {0}", v.vesselName);
 
                         // If the vessel is loaded, refresh the protovessel.  We do this to support
                         // grappling - when a new vessel is grappled the protovessel information
@@ -297,11 +297,11 @@ namespace ContractConfigurator
 
             if (vessel != null)
             {
-                LoggingUtil.LogVerbose(this, "Associating vessel " + vessel.id + " with key '" + key + "'.");
+                LoggingUtil.LogVerbose(this, "Associating vessel {0} with key '{1}'.", vessel.id, key);
             }
             else
             {
-                LoggingUtil.LogVerbose(this, "Disassociating key '" + key + "'.");
+                LoggingUtil.LogVerbose(this, "Disassociating key '{0}'.", key);
             }
 
             // First remove whatever was there

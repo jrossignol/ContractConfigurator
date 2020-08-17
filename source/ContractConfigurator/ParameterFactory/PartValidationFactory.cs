@@ -95,7 +95,7 @@ namespace ContractConfigurator
                 }
                 else
                 {
-                    LoggingUtil.LogError(this, ErrorPrefix() + ": unexpected node '" + child.name + "'.");
+                    LoggingUtil.LogError(this, "{0}: unexpected node '{1}'.", ErrorPrefix(), child.name);
                     valid = false;
                     continue;
                 }

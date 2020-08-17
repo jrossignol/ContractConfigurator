@@ -17,7 +17,7 @@ namespace ContractConfigurator.ExpressionParser
             public Type expected { get; private set; }
 
             public WrongDataType(Type exp, Type got)
-                : base("Expected " + exp + " got " + got)
+                : base(StringBuilderCache.Format("Expected {0} got {1}", exp, got))
             {
                 expected = exp;
             }
@@ -215,7 +215,7 @@ namespace ContractConfigurator.ExpressionParser
 
             if (newParser == null)
             {
-                throw new NotSupportedException("Unsupported type: " + typeof(T));
+                throw new NotSupportedException(StringBuilderCache.Format("Unsupported type: {0}", typeof(T)));
             }
 
             newParser.Init(orig.expression);
@@ -282,17 +282,31 @@ namespace ContractConfigurator.ExpressionParser
 
         protected bool LogEntryDebug<TResult>(string function, params object[] args)
         {
-            string log = (spacing > 0 ? new String(' ', spacing * 2) : "");
-            log += "-> " + GetType().Name + (GetType().IsGenericType ? "[" + GetType().GetGenericArguments()[0].Name + "]" : "");
-            log += "." + function + "<" + typeof(TResult).Name + ">(";
-            List<string> stringArg = new List<string>();
+            StringBuilder sb = StringBuilderCache.Acquire();
+            if (spacing > 0)
+            {
+                sb.Append(' ', spacing * 2);
+            }
+            sb.Append("-> ");
+            sb.Append(GetType().Name);
+            if (GetType().IsGenericType)
+            {
+                sb.AppendFormat("[{0}]", GetType().GetGenericArguments()[0].Name);
+            }
+            sb.AppendFormat(".{0}<{1}>(", function, typeof(TResult).Name);
+            bool first = true;
             foreach (object arg in args)
             {
-                stringArg.Add(arg != null ? arg.ToString() : "null");
+                if (!first)
+                {
+                    sb.Append(", ");
+                }
+                first = false;
+                sb.Append(arg != null ? arg.ToString() : "null");
             }
-            log += string.Join(", ", stringArg.ToArray());
-            log += "), expression = " + expression;
-            LoggingUtil.LogVerbose(typeof(BaseParser), log);
+            sb.Append("), expression = ");
+            sb.Append(expression);
+            LoggingUtil.LogVerbose(typeof(BaseParser), sb.ToStringAndRelease());
             spacing++;
 
             return true;
@@ -301,12 +315,22 @@ namespace ContractConfigurator.ExpressionParser
         protected bool LogExitDebug<TResult>(string function, string result)
         {
             spacing--;
-            string log = (spacing > 0 ? new String(' ', spacing * 2) : "");
-            log += "<- " + GetType().Name + (GetType().IsGenericType ? "[" + GetType().GetGenericArguments()[0].Name + "]" : "");
-            log += "." + function + "<" + typeof(TResult).Name + ">() = ";
-            log += result;
-            log += ", expression = " + expression;
-            LoggingUtil.LogVerbose(typeof(BaseParser), log);
+            StringBuilder sb = StringBuilderCache.Acquire();
+            if (spacing > 0)
+            {
+                sb.Append(' ', spacing * 2);
+            }
+            sb.Append("<- ");
+            sb.Append(GetType().Name);
+            if (GetType().IsGenericType)
+            {
+                sb.AppendFormat("[{0}]", GetType().GetGenericArguments()[0].Name);
+            }
+            sb.AppendFormat(".{0}<{1}>() = ", function, typeof(TResult).Name);
+            sb.Append(result);
+            sb.Append(", expression = ");
+            sb.Append(expression);
+            LoggingUtil.LogVerbose(typeof(BaseParser), sb.ToStringAndRelease());
 
             return true;
         }

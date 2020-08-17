@@ -43,19 +43,19 @@ namespace ContractConfigurator.Behaviour
                 {
                     if (kerb.kerbalType != null)
                     {
-                        LoggingUtil.LogDebug(this, "Setting type  of " + kerb.kerbal.name + " to " + kerb.kerbalType);
+                        LoggingUtil.LogDebug(this, "Setting type  of {0} to {1}", kerb.kerbal.name, kerb.kerbalType);
                         kerb.kerbal.pcm.type = kerb.kerbalType.Value;
                     }
 
                     if (!string.IsNullOrEmpty(kerb.trait))
                     {
-                        LoggingUtil.LogDebug(this, "Setting trait of " + kerb.kerbal.name + " to " + kerb.trait);
+                        LoggingUtil.LogDebug(this, "Setting trait of {0} to {1}", kerb.kerbal.name, kerb.trait);
                         KerbalRoster.SetExperienceTrait(kerb.kerbal.pcm, kerb.trait);
                     }
                 }
                 else
                 {
-                    LoggingUtil.LogWarning(this, "Couldn't change type of Kerbal " + kerb.kerbal.name + ", no ProtoCrewMember!");
+                    LoggingUtil.LogWarning(this, "Couldn't change type of Kerbal {0}, no ProtoCrewMember!", kerb.kerbal.name);
                 }
             }
         }

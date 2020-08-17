@@ -110,7 +110,7 @@ namespace ContractConfigurator
                 string name = Instance.nameQueue.Dequeue();
                 Instance.recentNames.Enqueue(name);
 
-                LoggingUtil.LogVerbose(typeof(DraftTwitchViewers), "    " + name);
+                LoggingUtil.LogVerbose(typeof(DraftTwitchViewers), "    {0}", name);
                 return name;
             }
             else
@@ -129,7 +129,7 @@ namespace ContractConfigurator
             }
 
             string name = dict["name"];
-            LoggingUtil.LogVerbose(typeof(DraftTwitchViewers), "DraftTwitchViewers Success: " + name);
+            LoggingUtil.LogDebug(typeof(DraftTwitchViewers), "DraftTwitchViewers Success: {0}", name);
 
             // Queue the name if it is new
             if (Instance.IsUnique(name))
@@ -141,7 +141,7 @@ namespace ContractConfigurator
 
         public static void OnFailure(string errorMessage)
         {
-            LoggingUtil.LogVerbose(typeof(DraftTwitchViewers), "DraftTwitchViewers Error: " + errorMessage);
+            LoggingUtil.LogError(typeof(DraftTwitchViewers), "DraftTwitchViewers Error: {0}", errorMessage);
 
             // Wait a bit before trying again
             Instance.routinesRunning--;
@@ -156,7 +156,7 @@ namespace ContractConfigurator
             {
                 foreach (string name in storedNames.KerbalNames().Distinct().Where(n => names.Contains(n)))
                 {
-                    LoggingUtil.LogVerbose(typeof(DraftTwitchViewers), "    saving '" + name + "'");
+                    LoggingUtil.LogVerbose(typeof(DraftTwitchViewers), "    saving '{0}'", name);
                     saveMethod.Invoke(null, new object[] { name });
                 }
             }

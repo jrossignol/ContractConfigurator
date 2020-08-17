@@ -2,6 +2,7 @@ Contract Configurator 1.30.0
 - Recompile against KSP 1.10.1.
 - Localization support.
 - Partial translation for Chinese Simplified (thanks tinygrox).
+- Significant cleanup of string addition to reduce garbage generation.
 - Support all tracking station object size classes up to I in SpawnVessel.
 - Added Mission Control icons for Sentinel (KSP 1.3) and Robotics (Breaking Ground) stock contracts.
 - Allow apostrophe in AgentParser, fixes Kerbin-Side Jobs.

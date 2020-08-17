@@ -73,7 +73,7 @@ namespace ContractConfigurator.Util
                     }
                     catch (Exception e)
                     {
-                        LoggingUtil.LogError(typeof(ContractConfigurator), "Error loading 'CONTRACT_DEFINITION' node with name '" + name + "':");
+                        LoggingUtil.LogError(typeof(ContractConfigurator), "Error loading 'CONTRACT_DEFINITION' node with name '{0}':", name);
                         LoggingUtil.LogException(e);
                     }
                 }
@@ -198,16 +198,16 @@ namespace ContractConfigurator.Util
                     {
                         if (group.parent != null)
                         {
-                            key = group.parent.sortKey + "." + key;
+                            key = StringBuilderCache.Format("{0}.{1}", group.parent.sortKey, key);
                         }
                     }
-                    key += "." + cc.contractType.sortKey;
+                    key = StringBuilderCache.Format("{0}.{1}", key, cc.contractType.sortKey);
 
                     return key;
                 }
                 else
                 {
-                    return DisplayName(c.GetType()) + "." + c.Title;
+                    return StringBuilderCache.Format("{0}.{1}", DisplayName(c.GetType()), c.Title);
                 }
             }
         }
@@ -444,7 +444,7 @@ namespace ContractConfigurator.Util
 
         protected void OnContractOffered(Contract c)
         {
-            LoggingUtil.LogVerbose(this, "OnContractOffered: " + c.Title);
+            LoggingUtil.LogVerbose(this, "OnContractOffered: {0}", c.Title);
             if (MissionControl.Instance == null)
             {
                 return;
@@ -783,7 +783,7 @@ namespace ContractConfigurator.Util
                 cc.missionSelection = new MissionControl.MissionSelection(true, cc.contract, cc.mcListItem.container);
                 mcListItem.radioButton.onFalseBtn.AddListener(new UnityAction<UIRadioButton, UIRadioButton.CallType, PointerEventData>(OnDeselectContract));
                 mcListItem.radioButton.onTrueBtn.AddListener(new UnityAction<UIRadioButton, UIRadioButton.CallType, PointerEventData>(OnSelectContract));
-                mcListItem.Setup(contract, "<color=#fefa87>" + contract.Title + "</color>");
+                mcListItem.Setup(contract, StringBuilderCache.Format("<color=#fefa87>{0}</color>", contract.Title));
                 MissionControl.Instance.scrollListContracts.AddItem(mcListItem.container, true);
 
                 if (MissionControl.Instance.selectedMission != null && MissionControl.Instance.selectedMission.contract == contract)
@@ -1019,10 +1019,10 @@ namespace ContractConfigurator.Util
             availableText.fontSize = groupContainer.mcListItem.title.fontSize - 3;
 
             // Setup the group text
-            groupContainer.mcListItem.title.text = "<color=#fefa87>" + groupContainer.DisplayName() + "</color>";
+            groupContainer.mcListItem.title.text = StringBuilderCache.Format("<color=#fefa87>{0}</color>", groupContainer.DisplayName());
             if (groupContainer.unread)
             {
-                groupContainer.mcListItem.title.text = "<b>" + groupContainer.mcListItem.title.text + "</b>";
+                groupContainer.mcListItem.title.text = StringBuilderCache.Format("<b>{0}</b>", groupContainer.mcListItem.title.text);
             }
         }
 
@@ -1649,7 +1649,7 @@ namespace ContractConfigurator.Util
             string output = StringBuilderCache.Format("<b><color=#BEC2AE>{0}: </color></b><color={1}>{2}</color>", text, color, Localizer.GetStringByTag((met ? "#cc.mcui.status.met" : "#cc.mcui.status.unmet")));
             if (!string.IsNullOrEmpty(unmetReason) && !met)
             {
-                output += " <color=#CCCCCC>(" + unmetReason + ")</color>\n";
+                output += StringBuilderCache.Format(" <color=#CCCCCC>({0})</color>\n", unmetReason);
             }
             else
             {

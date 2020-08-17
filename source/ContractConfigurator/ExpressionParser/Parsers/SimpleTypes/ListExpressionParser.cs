@@ -123,7 +123,7 @@ namespace ContractConfigurator.ExpressionParser
             if (dataNode != null && dataNode.IsDeterministic(key) && (uniquenessCheck == DataNode.UniquenessCheck.CONTRACT_ALL || uniquenessCheck == DataNode.UniquenessCheck.CONTRACT_ACTIVE))
             {
                 IContractConfiguratorFactory factory = BaseParser.currentParser.currentDataNode.Factory;
-                LoggingUtil.LogWarning(factory, factory.ErrorPrefix() + ": Consider using a DATA_EXPAND node instead of the SelectUnique function when the values are deterministic - this will cause the player to see the full set of values in mission control before the contract is offered.");
+                LoggingUtil.LogWarning(factory, "{0}: Consider using a DATA_EXPAND node instead of the SelectUnique function when the values are deterministic - this will cause the player to see the full set of values in mission control before the contract is offered.", factory.ErrorPrefix());
             }
 
             // Check for properly uniquness check

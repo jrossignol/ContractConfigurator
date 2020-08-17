@@ -95,7 +95,7 @@ namespace ContractConfigurator
 
                 if (techTreeRoot == null || techTree == null)
                 {
-                    LoggingUtil.LogError(typeof(Tech), "Couldn't load tech tree from " + HighLogic.CurrentGame.Parameters.Career.TechTreeUrl);
+                    LoggingUtil.LogError(typeof(Tech), "Couldn't load tech tree from {0}", HighLogic.CurrentGame.Parameters.Career.TechTreeUrl);
                     return false;
                 }
 

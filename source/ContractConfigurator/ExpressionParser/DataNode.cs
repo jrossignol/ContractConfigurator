@@ -64,7 +64,7 @@ namespace ContractConfigurator.ExpressionParser
             }
 
             public ValueNotInitialized(string key, Exception e)
-                : base("Value @" + key + " has not yet been initialized.", e)
+                : base(StringBuilderCache.Format("Value @{0} has not yet been initialized.", key), e)
             {
                 this.key = key;
             }
@@ -105,7 +105,7 @@ namespace ContractConfigurator.ExpressionParser
                     node.data[s].initialized = true;
                 }
 
-                LoggingUtil.LogVerbose(this, "DataNode[" + node.name + "], storing " + s + " = " + OutputValue(value));
+                LoggingUtil.LogVerbose(this, "DataNode[{0}], storing {1} = {2}", node.name, s, OutputValue(value));
             }
         }
 
@@ -430,7 +430,8 @@ namespace ContractConfigurator.ExpressionParser
                                 doneTitleWarning = true;
 
                                 LoggingUtil.Log(obj.minVersion >= ContractConfigurator.ENHANCED_UI_VERSION ? LoggingUtil.LogLevel.ERROR : LoggingUtil.LogLevel.WARNING, this,
-                                    obj.ErrorPrefix() + ": " + name + ": The field 'title' is required in for data node values where 'requiredValue' is true.  Alternatively, the attribute 'hidden' can be set to true (but be careful - this can cause player confusion if all lines for the contract type show as 'Met' and the contract isn't generating).");
+                                    "{0}: {1}: The field 'title' is required in for data node values where 'requiredValue' is true.  Alternatively, the attribute 'hidden' can be set to true (but be careful - this can cause player confusion if all lines for the contract type show as 'Met' and the contract isn't generating).",
+                                    obj.ErrorPrefix(), name);
 
                                 // Error on newer versions of contract packs
                                 if (obj.minVersion >= ContractConfigurator.ENHANCED_UI_VERSION)
@@ -572,7 +573,7 @@ namespace ContractConfigurator.ExpressionParser
             string[] names = key.Split(':');
             if (names.Count() > 2)
             {
-                throw new ArgumentException("Key value '" + key + "' is invalid, can only have one namespace preceeded by a colon (:).");
+                throw new ArgumentException(StringBuilderCache.Format("Key value '{0}' is invalid, can only have one namespace preceeded by a colon (:).", key));
             }
 
             string group = names[0];
@@ -586,7 +587,7 @@ namespace ContractConfigurator.ExpressionParser
                 }
             }
 
-            throw new ArgumentException("Contract group '" + group + "' does not exist, or is not a parent of this contract.");
+            throw new ArgumentException(StringBuilderCache.Format("Contract group '{0}' does not exist, or is not a parent of this contract.", group));
         }
 
         public static void NullAction(object o)
