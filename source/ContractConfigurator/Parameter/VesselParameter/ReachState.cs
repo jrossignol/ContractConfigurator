@@ -461,7 +461,7 @@ namespace ContractConfigurator.Parameters
 
         public string BodyList()
         {
-            return LocalizationUtil.LocalizeList<CelestialBody>(LocalizationUtil.Conjunction.OR, targetBodies, cb => cb.CleanDisplayName(true));
+            return LocalizationUtil.LocalizeList<CelestialBody>(LocalizationUtil.Conjunction.OR, targetBodies, cb => cb.displayName);
         }
 
         /// <summary>

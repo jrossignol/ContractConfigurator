@@ -71,7 +71,7 @@ namespace ContractConfigurator
 
         protected override string RequirementText()
         {
-            string body = targetBody == null ? Localizer.GetStringByTag("#cc.req.ProgressCelestialBody.genericBody") : targetBody.CleanDisplayName(true);
+            string body = targetBody == null ? Localizer.GetStringByTag("#cc.req.ProgressCelestialBody.genericBody") : targetBody.displayName;
             if (minCoverage > 0 && maxCoverage < 100.0)
             {
                 return Localizer.Format("#cc.scansat.req.SCANsatCoverage.between", minCoverage.ToString("N0"), maxCoverage.ToString("N0"), SCANsatCoverage.ScanDisplayName(scanType), body);

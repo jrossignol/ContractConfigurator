@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using UnityEngine;
-using KSP;
+using KSP.Localization;
 using Contracts;
 using ContractConfigurator.Parameters;
 
@@ -263,20 +263,10 @@ namespace ContractConfigurator
             }
         }
 
+        [ Obsolete("The CleanDisplayName is no longer supported, and should be replaced by proper localization.")]
         public static string CleanDisplayName(this CelestialBody body, bool lower=false)
         {
-            string displayName = body.displayName;
-
-            if (lower)
-            {
-                // Some planet packs can't rename Kerbin, so workaround that
-                if (displayName != body.name && body.name != "Kerbin")
-                {
-                    displayName = Char.ToLowerInvariant(displayName[0]) + displayName.Substring(1);
-                }
-            }
-
-            return displayName;
+            return lower ? body.displayName : Localizer.Format("<<C:1>>", body.displayName);
         }
     }
 }

@@ -110,7 +110,7 @@ namespace ContractConfigurator.Parameters
                 else
                 {
                     string experimentStr = (experiment.Count > 1 ? Localizer.GetStringByTag("#cc.science.experiment.many") : ExperimentName(experiment[0]));
-                    string biomeStr = string.IsNullOrEmpty(biome) ? targetBody.CleanDisplayName(true) : new Biome(targetBody, biome).ToString();
+                    string biomeStr = string.IsNullOrEmpty(biome) ? targetBody.displayName : new Biome(targetBody, biome).ToString();
                     string situationStr = situation != null ? situation.Value.Print().ToLower() :
                         location != null ? Localizer.GetStringByTag(location.Value == BodyLocation.Surface ? "#cc.science.location.Surface" : "#cc.science.location.Space") : null;
 
@@ -136,7 +136,7 @@ namespace ContractConfigurator.Parameters
             // Filter for celestial bodies
             if (targetBody != null && string.IsNullOrEmpty(biome))
             {
-                AddParameter(new ParameterDelegate<Vessel>(Localizer.Format("#cc.param.CollectScience.destination", targetBody.CleanDisplayName()),
+                AddParameter(new ParameterDelegate<Vessel>(Localizer.Format("#cc.param.CollectScience.destination", targetBody.displayName),
                     subj => FlightGlobals.currentMainBody == targetBody, true)).ID = "destination";
             }
 

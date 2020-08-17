@@ -32,7 +32,7 @@ namespace ContractConfigurator.Parameters
             string output;
             if (string.IsNullOrEmpty(title))
             {
-                output = Localizer.Format("#autoLOC_284213", targetBody.CleanDisplayName(true));
+                output = Localizer.Format("#autoLOC_284213", targetBody.displayName);
             }
             else
             {

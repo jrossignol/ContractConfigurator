@@ -103,7 +103,7 @@ namespace ContractConfigurator
         protected override string RequirementText()
         {
             return Localizer.Format(invertRequirement ? tagx : tag, CheckTypeId(),
-                targetBody == null ? Localizer.GetStringByTag("#cc.req.ProgressCelestialBody.genericBody") : targetBody.CleanDisplayName(true));
+                targetBody == null ? Localizer.GetStringByTag("#cc.req.ProgressCelestialBody.genericBody") : targetBody.displayName);
         }
     }
 }

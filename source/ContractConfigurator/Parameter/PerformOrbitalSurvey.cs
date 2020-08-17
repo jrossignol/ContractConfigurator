@@ -36,7 +36,7 @@ namespace ContractConfigurator.Parameters
             if (string.IsNullOrEmpty(title))
             {
                 // Perform an orbital resource survey of <<1>>
-                output = Localizer.Format("#cc.param.PerformOrbitalSurvey", targetBody.CleanDisplayName(true));
+                output = Localizer.Format("#cc.param.PerformOrbitalSurvey", targetBody.displayName);
             }
             else 
             {

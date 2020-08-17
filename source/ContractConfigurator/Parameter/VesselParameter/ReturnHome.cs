@@ -24,7 +24,7 @@ namespace ContractConfigurator.Parameters
             : base(title)
         {
             CelestialBody home = FlightGlobals.Bodies.Where(cb => cb.isHomeWorld).First();
-            this.title = title != null ? title : Localizer.Format("#cc.param.ReturnHome", home.CleanDisplayName(true));
+            this.title = title != null ? title : Localizer.Format("#cc.param.ReturnHome", home.displayName);
         }
 
         protected override void OnParameterSave(ConfigNode node)

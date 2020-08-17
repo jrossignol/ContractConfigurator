@@ -1617,7 +1617,7 @@ namespace ContractConfigurator.Util
                 {
                     RBWrapper.CelestialBodyInfo bodyInfo = bodyInfoDict[body];
                     // Must have researched <<1>>
-                    output += RequirementLine(Localizer.Format("#cc.mcui.req.researchBody", body.CleanDisplayName(true)), bodyInfo.isResearched);
+                    output += RequirementLine(Localizer.Format("#cc.mcui.req.researchBody", body.displayName), bodyInfo.isResearched);
                 }
             }
 

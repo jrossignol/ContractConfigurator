@@ -74,7 +74,7 @@ namespace ContractConfigurator.RemoteTech
 
         protected override string RequirementText()
         {
-            string body = targetBody == null ? Localizer.GetStringByTag("#cc.req.ProgressCelestialBody.genericBody") : targetBody.CleanDisplayName(true);
+            string body = targetBody == null ? Localizer.GetStringByTag("#cc.req.ProgressCelestialBody.genericBody") : targetBody.displayName;
             if (minCoverage > 0 && maxCoverage < 1.0)
             {
                 return Localizer.Format("#cc.scansat.req.SCANsatCoverage.between", (minCoverage * 100).ToString("N0"), (maxCoverage * 100).ToString("N0"), "RemoteTech", body);

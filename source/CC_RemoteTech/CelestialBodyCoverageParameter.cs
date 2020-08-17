@@ -39,11 +39,11 @@ namespace ContractConfigurator.RemoteTech
             {
                 if (currentCoverage > 0.0 && state != ParameterState.Complete)
                 {
-                    output = Localizer.Format("#cc.remotetech.param.CelestialBodyCoverage.inProgress", targetBody.CleanDisplayName(true), (currentCoverage * 100).ToString("N0"), (coverage * 100).ToString("N0"));
+                    output = Localizer.Format("#cc.remotetech.param.CelestialBodyCoverage.inProgress", targetBody.displayName, (currentCoverage * 100).ToString("N0"), (coverage * 100).ToString("N0"));
                 }
                 else
                 {
-                    output = Localizer.Format("#cc.remotetech.param.CelestialBodyCoverage", targetBody.CleanDisplayName(true), (coverage * 100).ToString("N0"));
+                    output = Localizer.Format("#cc.remotetech.param.CelestialBodyCoverage", targetBody.displayName, (coverage * 100).ToString("N0"));
                 }
             }
             else
