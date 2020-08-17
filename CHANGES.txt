@@ -1,6 +1,7 @@
 Contract Configurator 1.30.0
 - Recompile against KSP 1.10.1.
 - Localization support.
+- Added Format() function to expressions to support better contract pack localization.
 - Partial translation for Chinese Simplified (thanks tinygrox).
 - Significant cleanup of string addition to reduce garbage generation.
 - Support all tracking station object size classes up to I in SpawnVessel.

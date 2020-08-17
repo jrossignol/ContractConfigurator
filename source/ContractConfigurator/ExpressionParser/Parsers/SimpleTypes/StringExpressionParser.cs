@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using UnityEngine;
+using KSP.Localization;
 
 namespace ContractConfigurator.ExpressionParser
 {
@@ -45,6 +46,8 @@ namespace ContractConfigurator.ExpressionParser
             RegisterMethod(new Method<string, string, bool>("Contains", (s, value) => s.Contains(value)));
             RegisterMethod(new Method<string, string, bool>("StartsWith", (s, value) => s.StartsWith(value)));
             RegisterMethod(new Method<string, string, bool>("EndsWith", (s, value) => s.EndsWith(value)));
+
+            RegisterGlobalFunction(new Function<string, List<string>, string>("Format", (fmt, vals) => Localizer.Format(fmt, vals.ToArray())));
         }
 
         /// <summary>
