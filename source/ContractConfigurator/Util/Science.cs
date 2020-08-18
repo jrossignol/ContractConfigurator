@@ -535,7 +535,10 @@ namespace ContractConfigurator.Util
             // Get the experiment rules
             if (!experimentRules.ContainsKey(id))
             {
-                LoggingUtil.LogWarning(typeof(Science), "Experiment '{0}' is unknown, assuming a standard experiment.", id);
+                if (!id.StartsWith("ROCScience_"))
+                {
+                    LoggingUtil.LogWarning(typeof(Science), "Experiment '{0}' is unknown, assuming a standard experiment.", id);
+                }
                 experimentRules[id] = new ExperimentRules(id);
             }
             return experimentRules[id];
