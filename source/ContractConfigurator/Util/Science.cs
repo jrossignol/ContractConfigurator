@@ -103,7 +103,7 @@ namespace ContractConfigurator.Util
                 }
             }
 
-            // Add experiment modules based on class
+            // Add experiment modules based on subclassing
             foreach (Type expModule in ContractConfigurator.GetAllTypes<ModuleScienceExperiment>())
             {
                 LoggingUtil.LogVerbose(this, "    adding module for class {0}", expModule.Name);
@@ -324,6 +324,21 @@ namespace ContractConfigurator.Util
                 return false;
             }
 
+            // Check if experiement is unlocked
+            if (!exp.IsUnlocked())
+            {
+                return false;
+            }
+
+            // Special Breaking Ground logic
+            if (exp.id.StartsWith("ROCScience"))
+            {
+                if (!exp.id.Contains(body.name))
+                {
+                    return false;
+                }
+            }
+
             // Get the experiment rules
             ExperimentRules rules = GetExperimentRules(exp.id);
 
@@ -332,12 +347,12 @@ namespace ContractConfigurator.Util
                 return false;
             }
 
-            if (rules.requireAtmosphere && !body.atmosphere)
+            if ((rules.requireAtmosphere || exp.requireAtmosphere) && !body.atmosphere)
             {
                 return false;
             }
 
-            if (rules.requireNoAtmosphere && body.atmosphere)
+            if ((rules.requireNoAtmosphere || exp.requireNoAtmosphere) && body.atmosphere)
             {
                 return false;
             }
@@ -379,15 +394,6 @@ namespace ContractConfigurator.Util
             if (!exp.IsAvailableWhile(sit, body))
             {
                 return false;
-            }
-
-            // Special Breaking Ground logic
-            if (exp.id.StartsWith("ROCScience"))
-            {
-                if (!exp.id.Contains(body.name))
-                {
-                    return false;
-                }
             }
 
             // Get the experiment rules
@@ -454,10 +460,10 @@ namespace ContractConfigurator.Util
 
                 // Check the stock experiment
                 foreach (KeyValuePair<AvailablePart, string> pair in PartLoader.Instance.loadedParts.
-                    Where(p => p.moduleInfos.Any(mod => experimentModules.Contains(mod.moduleName.Replace(" ", "")))).
+                    Where(p => p.partConfig != null).
                     SelectMany(p => p.partConfig.GetNodes("MODULE").
                         Where(node => experimentModules.Contains(node.GetValue("name"))).
-                        Select(node => new KeyValuePair<AvailablePart, string>(p, node.GetValue("experimentID")))))
+                        Select(node => new KeyValuePair<AvailablePart, string>(p, node.GetValue("experimentID") ?? node.GetValue("experimentId")))))
                 {
                     if (!string.IsNullOrEmpty(pair.Value))
                     {
@@ -480,6 +486,7 @@ namespace ContractConfigurator.Util
                     string module = rules.partModule;
                     foreach (AvailablePart p in PartLoader.Instance.loadedParts.Where(p => p.moduleInfos.Any(mod => mod.moduleName == module)))
                     {
+                        LoggingUtil.LogVerbose(typeof(Science), "Adding entry for {0} = {1}", rules.id, p.name);
                         experimentParts[rules.id].Add(p);
                     }
                 }
@@ -496,7 +503,6 @@ namespace ContractConfigurator.Util
                     {
                         foreach (AvailablePart p in PartLoader.Instance.loadedParts.Where(p => p.name == pname))
                         {
-                            LoggingUtil.LogVerbose(typeof(Science), "Adding entry for {0} = {1}", rules.id, p.name);
                             experimentParts[rules.id].Add(p);
                         }
                     }
