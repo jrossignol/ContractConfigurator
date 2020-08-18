@@ -161,6 +161,18 @@ namespace ContractConfigurator.Util
                                         ScienceSubject(experiment, ExperimentSituations.SrfLanded, body, staticName))
                                         : Enumerable.Empty<ScienceSubject>());
                     }
+                    else if (experiment.id.StartsWith("ROCScience") && biomesFiltered)
+                    {
+                        ROCDefinition roc = ROCManager.Instance.rocDefinitions.Where(r => r.myCelestialBodies.Any(x => x.name == body.name) && experiment.id.Contains(r.type)).FirstOrDefault();
+                        if (roc != null && roc.myCelestialBodies.First().biomes.Where(biomeFilter).Any())
+                        {
+                            return new ScienceSubject[] { ScienceSubject(experiment, sit, body, "") };
+                        }
+                        else
+                        {
+                            return Enumerable.Empty<ScienceSubject>();
+                        }
+                    }
                     else if (!biomesFiltered && !difficult)
                     {
                         return new ScienceSubject[] { ScienceSubject(experiment, sit, body, "") };
@@ -245,8 +257,17 @@ namespace ContractConfigurator.Util
                 return null;
             }
 
-            Match m = Regex.Match(subject.id, @"@([A-Z][\w]+?)([A-Z].*)");
-            string celestialBody = m.Groups[1].Value;
+            string celestialBody;
+            if (subject.id.StartsWith("ROCScience"))
+            {
+                Match m = Regex.Match(subject.id, @"ROCScience_([A-Z][\w]+?)([A-Z].*)");
+                celestialBody = m.Groups[1].Value;
+            }
+            else
+            {
+                Match m = Regex.Match(subject.id, @"@([A-Z][\w]+?)([A-Z].*)");
+                celestialBody = m.Groups[1].Value;
+            }
 
             return string.IsNullOrEmpty(celestialBody) ? null : ConfigNodeUtil.ParseCelestialBodyValue(celestialBody);
         }
@@ -358,6 +379,15 @@ namespace ContractConfigurator.Util
             if (!exp.IsAvailableWhile(sit, body))
             {
                 return false;
+            }
+
+            // Special Breaking Ground logic
+            if (exp.id.StartsWith("ROCScience"))
+            {
+                if (!exp.id.Contains(body.name))
+                {
+                    return false;
+                }
             }
 
             // Get the experiment rules
@@ -481,7 +511,7 @@ namespace ContractConfigurator.Util
 
             // Filter out anything tied to a part that isn't unlocked
             experiments = experiments.Where(exp => partlessExperiments.ContainsKey(exp.id) ||
-                experimentParts.ContainsKey(exp.id) && experimentParts[exp.id].Any(ResearchAndDevelopment.PartTechAvailable));
+                experimentParts.ContainsKey(exp.SummaryID()) && experimentParts[exp.SummaryID()].Any(ResearchAndDevelopment.PartTechAvailable));
 
             return experiments;
         }
@@ -535,6 +565,18 @@ namespace ContractConfigurator.Util
                     return Localizer.GetStringByTag("#autoLOC_268858");
                 default:
                     throw new ArgumentException("Unexpected experiment situation: " + exp);
+            }
+        }
+
+        public static string SummaryID(this ScienceExperiment exp)
+        {
+            if (exp.id.StartsWith("ROCScience"))
+            {
+                return "ROCScience";
+            }
+            else
+            {
+                return exp.id;
             }
         }
     }
