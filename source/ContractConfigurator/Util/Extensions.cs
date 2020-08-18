@@ -263,10 +263,9 @@ namespace ContractConfigurator
             }
         }
 
-        [ Obsolete("The CleanDisplayName is no longer supported, and should be replaced by proper localization.")]
         public static string CleanDisplayName(this CelestialBody body, bool lower=false)
         {
-            return lower ? body.displayName : Localizer.Format("<<C:1>>", body.displayName);
+            return lower ? Localizer.Format("<<1>>", body.displayName) : Localizer.Format("<<C:1>>", body.displayName);
         }
     }
 }
