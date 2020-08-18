@@ -118,11 +118,11 @@ namespace ContractConfigurator.Parameters
             {
                 if (trackedVessel == null)
                 {
-                    return Localizer.GetStringByTag("#cc.param.VesselParameterGroup.noVessel");
+                    return Localizer.GetStringByTag("#cc.param.VesselParameterGroup.notes.noVessel");
                 }
                 else if (!waiting)
                 {
-                    return Localizer.GetStringByTag("#cc.param.VesselParameterGroup.activeVessel");
+                    return Localizer.GetStringByTag("#cc.param.VesselParameterGroup.notes.activeVessel");
                 }
                 else
                 {
