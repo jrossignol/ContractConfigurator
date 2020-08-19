@@ -103,7 +103,7 @@ namespace ContractConfigurator
 
             GUILayout.Label(label);
             scrollPosition = GUILayout.BeginScrollView(scrollPosition, GUILayout.Height(280));
-            GUILayout.TextArea("Exception occured " + situationString + ":\n" + message, GUILayout.ExpandHeight(true));
+            GUILayout.TextArea(StringBuilderCache.Format("Exception occured {0}:\n{1}", situationString, message), GUILayout.ExpandHeight(true));
             GUILayout.EndScrollView();
             GUILayout.BeginHorizontal();
             if (GUILayout.Button("OK"))

@@ -24,7 +24,7 @@ namespace ContractConfigurator.Parameters
             : base(title)
         {
             CelestialBody home = FlightGlobals.Bodies.Where(cb => cb.isHomeWorld).First();
-            this.title = title != null ? title : Localizer.Format("#cc.param.ReturnHome", home.CleanDisplayName(true));
+            this.title = title != null ? title : Localizer.Format("#cc.param.ReturnHome", home.displayName);
         }
 
         protected override void OnParameterSave(ConfigNode node)
@@ -71,7 +71,7 @@ namespace ContractConfigurator.Parameters
         /// <returns>Whether the vessel meets the condition</returns>
         protected override bool VesselMeetsCondition(Vessel vessel)
         {
-            LoggingUtil.LogVerbose(this, "Checking VesselMeetsCondition: " + vessel.id);
+            LoggingUtil.LogVerbose(this, "Checking VesselMeetsCondition: {0}", vessel.id);
             return vessel.mainBody.isHomeWorld &&
                 (vessel.situation == Vessel.Situations.LANDED || vessel.situation == Vessel.Situations.SPLASHED);
         }

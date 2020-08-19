@@ -112,7 +112,7 @@ namespace ContractConfigurator.Parameters
             base.OnPartJointBreak(p, breakForce);
 
             Vessel v = p.Parent.vessel;
-            LoggingUtil.LogVerbose(this, "OnPartJointBreak: " + v.id);
+            LoggingUtil.LogVerbose(this, "OnPartJointBreak: {0}", v.id);
             if (v.vesselType == VesselType.Debris)
             {
                 return;
@@ -150,7 +150,7 @@ namespace ContractConfigurator.Parameters
         protected override void OnVesselCreate(Vessel vessel)
         {
             base.OnVesselCreate(vessel);
-            LoggingUtil.LogVerbose(this, "OnVesselCreate: " + vessel.id);
+            LoggingUtil.LogVerbose(this, "OnVesselCreate: {0}", vessel.id);
 
             if (addNextVessel)
             {
@@ -162,7 +162,7 @@ namespace ContractConfigurator.Parameters
 
         protected virtual void OnVesselWillDestroy(Vessel v)
         {
-            LoggingUtil.LogVerbose(this, "OnVesselWillDestroy: " + v.id);
+            LoggingUtil.LogVerbose(this, "OnVesselWillDestroy: {0}", v.id);
 
             // Give a quarter second grace for detecting a "destroyed" EVA that is actually just a boarding event
             if (v.vesselType == VesselType.EVA && Time.fixedTime - lastVesselChange < 0.25)
@@ -209,7 +209,7 @@ namespace ContractConfigurator.Parameters
             {
                 if (keys.Contains(vessel))
                 {
-                    LoggingUtil.LogVerbose(this, "Specific vessel match on '" + vessel + "', failing parameter.");
+                    LoggingUtil.LogVerbose(this, "Specific vessel match on '{0}', failing parameter.", vessel);
                     SetState(ParameterState.Failed);
                     return;
                 }
@@ -224,7 +224,7 @@ namespace ContractConfigurator.Parameters
             }
 
             Vessel v = p.vessel;
-            LoggingUtil.LogVerbose(this, "OnPartDie: " + v.id);
+            LoggingUtil.LogVerbose(this, "OnPartDie: {0}", v.id);
             if (!v.IsControllable)
             {
                 LoggingUtil.LogVerbose(this, "Vessel not contrallable, treating part death as vessel death");

@@ -55,14 +55,14 @@ namespace ContractConfigurator.Parameters
         {
             foreach (string vessel in vessels)
             {
-                AddParameter(new ParameterDelegate<string>("Target: " + (ContractVesselTracker.Instance != null ? ContractVesselTracker.GetDisplayName(vessel) : vessel),
+                AddParameter(new ParameterDelegate<string>(Localizer.Format("#cc.param.TargetDestroyed.target", (ContractVesselTracker.Instance != null ? ContractVesselTracker.GetDisplayName(vessel) : vessel)),
                     ignored => CheckTargetDestroyed(vessel), ParameterDelegateMatchType.VALIDATE_ALL, true));
             }
         }
 
         private bool CheckTargetDestroyed(string vessel)
         {
-            LoggingUtil.LogVerbose(this, "TargetDestroyed(" + vessel + ")");
+            LoggingUtil.LogVerbose(this, "TargetDestroyed({0})", vessel);
             
             // Already tracked as destroyed
             if (destroyedTargets.Contains(vessel))
@@ -138,10 +138,10 @@ namespace ContractConfigurator.Parameters
 
         protected virtual void OnVesselWillDestroy(Vessel v)
         {
-            LoggingUtil.LogVerbose(this, "OnVesselWillDestroy: " + v.id);
+            LoggingUtil.LogVerbose(this, "OnVesselWillDestroy: {0}", v.id);
             foreach (string key in ContractVesselTracker.Instance.GetAssociatedKeys(v))
             {
-                LoggingUtil.LogVerbose(this, "adding to destroyedTargets: " + key);
+                LoggingUtil.LogVerbose(this, "    adding to destroyedTargets: {0}", key);
                 destroyedTargets.AddUnique(key);
             }
 

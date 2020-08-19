@@ -70,7 +70,7 @@ namespace ContractConfigurator
                 situation != Vessel.Situations.ORBITING &&
                 situation != Vessel.Situations.SUB_ORBITAL)
             {
-                LoggingUtil.LogError(this, "Invalid situation for Orbit parameter: " + situation + ".  For non-orbital situations, use ReachState instead.");
+                LoggingUtil.LogError(this, "Invalid situation for Orbit parameter: {0}.  For non-orbital situations, use ReachState instead.", situation);
                 return false;
             }
             return true;

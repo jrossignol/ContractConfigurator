@@ -220,7 +220,7 @@ namespace ContractConfigurator
                 // Logging on
                 LoggingUtil.CaptureLog = true;
                 ConfigNodeUtil.SetCurrentDataNode(null);
-                LoggingUtil.LogInfo(this, "Loading CONTRACT_TYPE: '" + name + "'");
+                LoggingUtil.LogInfo(this, "Loading CONTRACT_TYPE: '{0}'", name);
 
                 // Clear the config node cache
                 ConfigNodeUtil.ClearCache(true);
@@ -240,7 +240,7 @@ namespace ContractConfigurator
                 if (trace)
                 {
                     LoggingUtil.logLevel = LoggingUtil.LogLevel.VERBOSE;
-                    LoggingUtil.LogWarning(this, "Tracing enabled for contract type " + name);
+                    LoggingUtil.LogWarning(this, "Tracing enabled for contract type {0}", name);
                 }
 
                 // Load contract text details
@@ -287,7 +287,7 @@ namespace ContractConfigurator
                 {
                     double weight;
                     valid &= ConfigNodeUtil.ParseValue<double>(configNode, "weight", x => weight = x, this);
-                    LoggingUtil.LogWarning(this, ErrorPrefix() + ": The weight attribute is deprecated as of Contract Configurator 1.15.0.  Contracts are no longer generated using a weighted system.");
+                    LoggingUtil.LogWarning(this, "{0}: The weight attribute is deprecated as of Contract Configurator 1.15.0.  Contracts are no longer generated using a weighted system.", ErrorPrefix());
                 }
 
                 // Merge in data from the parent contract group
@@ -363,7 +363,7 @@ namespace ContractConfigurator
                 // Check we have at least one valid parameter
                 if (paramFactories.Count() == 0)
                 {
-                    LoggingUtil.LogError(this, ErrorPrefix() + ": Need at least one parameter for a contract!");
+                    LoggingUtil.LogError(this, "{0}: Need at least one parameter for a contract!", ErrorPrefix());
                     valid = false;
                 }
 
@@ -402,11 +402,11 @@ namespace ContractConfigurator
                                 {
                                     if (values == null)
                                     {
-                                        LoggingUtil.LogWarning(this, ErrorPrefix() + ": Received an empty list of values when trying to do a DATA_EXPAND");
+                                        LoggingUtil.LogWarning(this, "{0}: Received an empty list of values when trying to do a DATA_EXPAND", ErrorPrefix());
                                     }
                                     else
                                     {
-                                        LoggingUtil.LogWarning(this, ErrorPrefix() + ": Not expanding DATA_EXPAND node as the contract had validation errors.");
+                                        LoggingUtil.LogWarning(this, "{0}: Not expanding DATA_EXPAND node as the contract had validation errors.", ErrorPrefix());
                                     }
                                     valid = false;
                                     break;
@@ -436,7 +436,7 @@ namespace ContractConfigurator
                                 contractTypes.Remove(name);
 
                                 // Don't do any more loading for this one
-                                LoggingUtil.LogInfo(this, "Successfully expanded CONTRACT_TYPE '" + name + "'");
+                                LoggingUtil.LogInfo(this, "Successfully expanded CONTRACT_TYPE '{0}'", name);
                                 return valid;
                             }
                         }
@@ -458,7 +458,7 @@ namespace ContractConfigurator
                 if (!configNode.HasValue("genericTitle") && !dataNode.IsDeterministic("title"))
                 {
                     LoggingUtil.Log(minVersion >= ContractConfigurator.ENHANCED_UI_VERSION ? LoggingUtil.LogLevel.ERROR : LoggingUtil.LogLevel.WARNING, this,
-                        ErrorPrefix() + ": The field 'genericTitle' is required when the title is not determistic (ie. when expressions are used).");
+                        "{0}: The field 'genericTitle' is required when the title is not determistic (ie. when expressions are used).", ErrorPrefix());
 
                     // Error on newer versions of contract packs
                     if (minVersion >= ContractConfigurator.ENHANCED_UI_VERSION)
@@ -469,7 +469,7 @@ namespace ContractConfigurator
                 else if (!dataNode.IsDeterministic("genericTitle"))
                 {
                     valid = false;
-                    LoggingUtil.LogError(this, ErrorPrefix() + ": The field 'genericTitle' must be deterministic.");
+                    LoggingUtil.LogError(this, "{0}: The field 'genericTitle' must be deterministic.", ErrorPrefix());
                 }
 
                 // Generic description
@@ -477,7 +477,7 @@ namespace ContractConfigurator
                 if (!configNode.HasValue("genericDescription") && !dataNode.IsDeterministic("description"))
                 {
                     LoggingUtil.Log(minVersion >= ContractConfigurator.ENHANCED_UI_VERSION ? LoggingUtil.LogLevel.ERROR : LoggingUtil.LogLevel.WARNING, this,
-                        ErrorPrefix() + ": The field 'genericDescription' is required when the description is not determistic (ie. when expressions are used).");
+                        "{0}: The field 'genericDescription' is required when the description is not determistic (ie. when expressions are used).", ErrorPrefix());
 
                     // Error on newer versions of contract packs
                     if (minVersion >= ContractConfigurator.ENHANCED_UI_VERSION)
@@ -488,7 +488,7 @@ namespace ContractConfigurator
                 else if (!dataNode.IsDeterministic("genericDescription"))
                 {
                     valid = false;
-                    LoggingUtil.LogError(this, ErrorPrefix() + ": The field 'genericDescription' must be deterministic.");
+                    LoggingUtil.LogError(this, "{0}: The field 'genericDescription' must be deterministic.", ErrorPrefix());
                 }
 
                 // Sorting key
@@ -499,11 +499,11 @@ namespace ContractConfigurator
 
                 if (valid)
                 {
-                    LoggingUtil.LogInfo(this, "Successfully loaded CONTRACT_TYPE '" + name + "'");
+                    LoggingUtil.LogInfo(this, "Successfully loaded CONTRACT_TYPE '{0}'", name);
                 }
                 else
                 {
-                    LoggingUtil.LogWarning(this, "Errors encountered while trying to load CONTRACT_TYPE '" + name + "'");
+                    LoggingUtil.LogWarning(this, "Errors encountered while trying to load CONTRACT_TYPE '{0}'", name);
                 }
                 config = configNode.ToString();
                 hash = config.GetHashCode();
@@ -527,7 +527,7 @@ namespace ContractConfigurator
                         }
                         catch (Exception e)
                         {
-                            LoggingUtil.LogException(new Exception("Exception while attempting to delete the file: " + path, e));
+                            LoggingUtil.LogException(new Exception(StringBuilderCache.Format("Exception while attempting to delete the file: {0}", path), e));
                         }
                     }
 
@@ -550,7 +550,7 @@ namespace ContractConfigurator
                     }
                     catch
                     {
-                        LoggingUtil.LogError(this, "Exception while attempting to write to the file: " + path);
+                        LoggingUtil.LogError(this, "Exception while attempting to write to the file: {0}", path);
                     }
                 }
 
@@ -581,7 +581,7 @@ namespace ContractConfigurator
             // Check that we actually got a deterministic value
             if (!dataNode.IsDeterministic(key))
             {
-                LoggingUtil.LogError(this, ErrorPrefix() + ": Values captured in a DATA_EXPAND node must be deterministic (the value needs to be fixed when loaded on game startup.");
+                LoggingUtil.LogError(this, "{0}: Values captured in a DATA_EXPAND node must be deterministic (the value needs to be fixed when loaded on game startup.", ErrorPrefix());
                 return null;
             }
 
@@ -648,7 +648,7 @@ namespace ContractConfigurator
                 if (trace)
                 {
                     LoggingUtil.logLevel = LoggingUtil.LogLevel.VERBOSE;
-                    LoggingUtil.LogWarning(this, "Tracing enabled for contract type " + name);
+                    LoggingUtil.LogWarning(this, "Tracing enabled for contract type {0}", name);
                 }
 
                 // Check funding
@@ -705,14 +705,19 @@ namespace ContractConfigurator
             catch (ContractRequirementException e)
             {
                 LoggingUtil.LogLevel level = contract.ContractState == Contract.State.Active ? LoggingUtil.LogLevel.INFO : contract.contractType != null ? LoggingUtil.LogLevel.DEBUG : LoggingUtil.LogLevel.VERBOSE;
-                string prefix = contract.contractType != null ? "Cancelling contract of type " + name + " (" + contract.Title + "): " :
-                    "Didn't generate contract of type " + name + ": ";
-                LoggingUtil.Log(level, this.GetType(), prefix + e.Message);
+                if (contract.contractType != null)
+                {
+                    LoggingUtil.Log(level, this.GetType(), "Cancelling contract of type {0} ({1}): {2}", name, contract.Title, e.Message);
+                }
+                else
+                {
+                    LoggingUtil.Log(level, this.GetType(), "Didn't generate contract of type {0}: {1}", name, e.Message);
+                }
                 return false;
             }
             catch
             {
-                LoggingUtil.LogError(this, "Exception while attempting to check requirements of contract type " + name);
+                LoggingUtil.LogError(this, "Exception while attempting to check requirements of contract type {0}", name);
                 throw;
             }
             finally
@@ -736,7 +741,7 @@ namespace ContractConfigurator
                 if (trace)
                 {
                     LoggingUtil.logLevel = LoggingUtil.LogLevel.VERBOSE;
-                    LoggingUtil.LogWarning(this, "Tracing enabled for contract type " + name);
+                    LoggingUtil.LogWarning(this, "Tracing enabled for contract type {0}", name);
                 }
 
                 // Hash check
@@ -775,7 +780,7 @@ namespace ContractConfigurator
                         string key = pair.Key;
                         DataNode.UniquenessCheck uniquenessCheck = pair.Value;
 
-                        LoggingUtil.LogVerbose(this, "Doing unique value check for " + key);
+                        LoggingUtil.LogVerbose(this, "Doing unique value check for {0}", key);
 
                         // Get the active/offered contract lists
                         IEnumerable<ConfiguredContract> contractList = ConfiguredContract.CurrentContracts.
@@ -839,14 +844,19 @@ namespace ContractConfigurator
             catch (ContractRequirementException e)
             {
                 LoggingUtil.LogLevel level = contract.ContractState == Contract.State.Active ? LoggingUtil.LogLevel.INFO : contract.contractType != null ? LoggingUtil.LogLevel.DEBUG : LoggingUtil.LogLevel.VERBOSE;
-                string prefix = contract.contractType != null ? "Cancelling contract of type " + name + " (" + contract.Title + "): " :
-                    "Didn't generate contract of type " + name + ": ";
-                LoggingUtil.Log(level, this.GetType(), prefix + e.Message);
+                if (contract.contractType != null)
+                {
+                    LoggingUtil.Log(level, this.GetType(), "Cancelling contract of type {0} ({1}): {2}", name, contract.Title, e.Message);
+                }
+                else
+                {
+                    LoggingUtil.Log(level, this.GetType(), "Didn't generate contract of type {0}: {1}", name, e.Message);
+                }
                 return false;
             }
             catch
             {
-                LoggingUtil.LogError(this, "Exception while attempting to check requirements of contract type " + name);
+                LoggingUtil.LogError(this, "Exception while attempting to check requirements of contract type {0}", name);
                 throw;
             }
             finally
@@ -860,7 +870,7 @@ namespace ContractConfigurator
         {
             if (Util.Version.VerifyResearchBodiesVersion())
             {
-                LoggingUtil.LogVerbose(this, "ResearchBodies check for contract type " + name);
+                LoggingUtil.LogVerbose(this, "ResearchBodies check for contract type {0}", name);
 
                 // Check each body that the contract references
                 Dictionary<CelestialBody, RBWrapper.CelestialBodyInfo> bodyInfoDict = RBWrapper.RBactualAPI.CelestialBodies;
@@ -871,7 +881,7 @@ namespace ContractConfigurator
                         RBWrapper.CelestialBodyInfo bodyInfo = bodyInfoDict[body];
                         if (!bodyInfo.isResearched)
                         {
-                            throw new ContractRequirementException("Research Bodies: " + body.name + " has not yet been researched.");
+                            throw new ContractRequirementException(StringBuilderCache.Format("Research Bodies: {0} has not yet been researched.", body.name));
                         }
                     }
                 }
@@ -975,12 +985,12 @@ namespace ContractConfigurator
         /// <returns>String for the contract type.</returns>
         public override string ToString()
         {
-            return "CONTRACT_TYPE [" + name + "]";
+            return StringBuilderCache.Format("CONTRACT_TYPE [{0}]", name);
         }
         
         public string ErrorPrefix()
         {
-            return "CONTRACT_TYPE '" + name + "'";
+            return StringBuilderCache.Format("CONTRACT_TYPE '{0}'", name);
         }
 
         public string ErrorPrefix(ConfigNode configNode)

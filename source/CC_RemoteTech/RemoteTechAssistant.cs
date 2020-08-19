@@ -79,7 +79,7 @@ namespace ContractConfigurator.RemoteTech
                 }
 
                 // Fire our event
-                LoggingUtil.LogVerbose(this, "OnRemoteTechUpdate: " + s);
+                LoggingUtil.LogVerbose(this, "OnRemoteTechUpdate: {0}", s);
                 OnRemoteTechUpdate.Fire(s);
             }
             mTickIndex += takeCount;

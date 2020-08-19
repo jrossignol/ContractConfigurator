@@ -60,7 +60,7 @@ namespace ContractConfigurator.RemoteTech
 
         protected override string RequirementText()
         {
-            string body = targetBody == null ? Localizer.GetStringByTag("#cc.req.ProgressCelestialBody.genericBody") : targetBody.CleanDisplayName(true);
+            string body = targetBody == null ? Localizer.GetStringByTag("#cc.req.ProgressCelestialBody.genericBody") : targetBody.displayName;
             return Localizer.Format(invertRequirement ? "#cc.remotetech.req.activeVesselRange.x" : "#cc.remotetech.req.activeVesselRange", body, (range / 1000.0).ToString("N0"));
         }
     }

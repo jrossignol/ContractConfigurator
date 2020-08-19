@@ -110,7 +110,7 @@ namespace ContractConfigurator.Parameters
                 else
                 {
                     string experimentStr = (experiment.Count > 1 ? Localizer.GetStringByTag("#cc.science.experiment.many") : ExperimentName(experiment[0]));
-                    string biomeStr = string.IsNullOrEmpty(biome) ? targetBody.CleanDisplayName(true) : new Biome(targetBody, biome).ToString();
+                    string biomeStr = string.IsNullOrEmpty(biome) ? targetBody.displayName : new Biome(targetBody, biome).ToString();
                     string situationStr = situation != null ? situation.Value.Print().ToLower() :
                         location != null ? Localizer.GetStringByTag(location.Value == BodyLocation.Surface ? "#cc.science.location.Surface" : "#cc.science.location.Space") : null;
 
@@ -136,7 +136,7 @@ namespace ContractConfigurator.Parameters
             // Filter for celestial bodies
             if (targetBody != null && string.IsNullOrEmpty(biome))
             {
-                AddParameter(new ParameterDelegate<Vessel>(Localizer.Format("#cc.param.CollectScience.destination", targetBody.CleanDisplayName()),
+                AddParameter(new ParameterDelegate<Vessel>(Localizer.Format("#cc.param.CollectScience.destination", targetBody.displayName),
                     subj => FlightGlobals.currentMainBody == targetBody, true)).ID = "destination";
             }
 
@@ -395,7 +395,7 @@ namespace ContractConfigurator.Parameters
             {
                 return;
             }
-            LoggingUtil.LogVerbose(this, "OnExperimentDeployed: " + scienceData.subjectID + ", " + vessel.id);
+            LoggingUtil.LogVerbose(this, "OnExperimentDeployed: {0}, {1}", scienceData.subjectID, vessel.id);
 
             // Decide if this is a matching subject
             ScienceSubject subject = ResearchAndDevelopment.GetSubjectByID(scienceData.subjectID);
@@ -422,7 +422,7 @@ namespace ContractConfigurator.Parameters
                 return false;
             }
 
-            LoggingUtil.LogVerbose(this, "CheckSubject: " + exp + ", " + subject.id);
+            LoggingUtil.LogVerbose(this, "CheckSubject: {0}, {1}", exp, subject.id);
             if (targetBody != null && !subject.id.Contains(targetBody.name))
             {
                 LoggingUtil.LogVerbose(this, "    wrong target body");
@@ -431,11 +431,11 @@ namespace ContractConfigurator.Parameters
 
             // Need to pick up a bit of the situation string to that Flats doesn't pick up GreaterFlats
             if (!string.IsNullOrEmpty(biome) &&
-                !subject.id.Contains("High" + biome) &&
-                !subject.id.Contains("Low" + biome) &&
-                !subject.id.Contains("ed" + biome))
+                !subject.id.Contains(StringBuilderCache.Format("High{0}", biome)) &&
+                !subject.id.Contains(StringBuilderCache.Format("Low{0}", biome)) &&
+                !subject.id.Contains(StringBuilderCache.Format("ed{0}", biome)))
             {
-                LoggingUtil.LogVerbose(this, "    wrong situation (biome = " + (biome == null ? "null" : biome) + ")");
+                LoggingUtil.LogVerbose(this, "    wrong situation (biome = {0})", (biome == null ? "null" : biome));
                 return false;
             }
 
@@ -465,7 +465,7 @@ namespace ContractConfigurator.Parameters
 
             if (!string.IsNullOrEmpty(exp))
             {
-                LoggingUtil.LogVerbose(this, "    doing final subject check for " + subject.id + " containing " + exp);
+                LoggingUtil.LogVerbose(this, "    doing final subject check for {0} containing {1}", subject.id, exp);
             }
             if (!string.IsNullOrEmpty(exp) && !subject.id.Contains(exp))
             {
@@ -481,10 +481,10 @@ namespace ContractConfigurator.Parameters
         {
             if (protoVessel == null || reverseEngineered)
             {
-                LoggingUtil.LogVerbose(this, "OnScienceReceived: returning, protoVessel = " + (protoVessel == null ? "null" :protoVessel.vesselName) + ", reverseEng = " + reverseEngineered);
+                LoggingUtil.LogVerbose(this, "OnScienceReceived: returning, protoVessel = {0}, reverseEng = {1}", (protoVessel == null ? "null" : protoVessel.vesselName), reverseEngineered);
                 return;
             }
-            LoggingUtil.LogVerbose(this, "OnScienceReceived: " + subject.id + ", " + protoVessel.vesselID);
+            LoggingUtil.LogVerbose(this, "OnScienceReceived: {0}, {1}", subject.id, protoVessel.vesselID);
 
             // Check the given subject is okay
             foreach (string exp in experiment)
@@ -645,7 +645,7 @@ namespace ContractConfigurator.Parameters
         /// <returns>Whether the vessel meets the condition</returns>
         protected override bool VesselMeetsCondition(Vessel vessel)
         {
-            LoggingUtil.LogVerbose(this, "Checking VesselMeetsCondition: " + vessel.id);
+            LoggingUtil.LogVerbose(this, "Checking VesselMeetsCondition: {0}", vessel.id);
 
             ParameterDelegate<Vessel>.CheckChildConditions(this, vessel);
 

@@ -99,7 +99,7 @@ namespace ContractConfigurator.RemoteTech
             // Filter for celestial bodies
             else if (targetBody != null)
             {
-                AddParameter(new ParameterDelegate<IAntenna>(Localizer.Format("#cc.remotetech.param.HasAntenna.target", targetBody.CleanDisplayName()),
+                AddParameter(new ParameterDelegate<IAntenna>(Localizer.Format("#cc.remotetech.param.HasAntenna.target", targetBody.displayName),
                     a => a.Target == targetBody.Guid(), matchType));
             }
 
@@ -132,7 +132,7 @@ namespace ContractConfigurator.RemoteTech
             if (!activeVessel && targetBody != null)
             {
                 double distance = (Planetarium.fetch.Home.position - targetBody.position).magnitude;
-                AddParameter(new ParameterDelegate<IAntenna>(Localizer.Format("#cc.remotetech.param.HasAntenna.range.body", targetBody.CleanDisplayName(true)),
+                AddParameter(new ParameterDelegate<IAntenna>(Localizer.Format("#cc.remotetech.param.HasAntenna.range.body", targetBody.displayName),
                     a => Math.Max(a.Omni, a.Dish) >= distance, matchType, true));
             }
 
@@ -192,7 +192,7 @@ namespace ContractConfigurator.RemoteTech
         /// <returns>Whether the vessel meets the parameter condition(s).</returns>
         protected override bool VesselMeetsCondition(Vessel vessel)
         {
-            LoggingUtil.LogVerbose(this, "Checking VesselMeetsCondition: " + vessel.id + " (" + vessel.vesselName + ")");
+            LoggingUtil.LogVerbose(this, "Checking VesselMeetsCondition: {0} ({1})", vessel.id, vessel.vesselName);
 
             // Get all the antennae
             VesselSatellite sat = RTCore.Instance.Satellites[vessel.id];

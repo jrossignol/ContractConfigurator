@@ -47,7 +47,7 @@ namespace ContractConfigurator
             Orbit orbit = orbitGenerator.GetOrbit(index);
             if (orbit == null)
             {
-                LoggingUtil.LogError(this, "Could not find orbit with index " + index + ".");
+                LoggingUtil.LogError(this, "Could not find orbit with index {0}.", index);
                 return null;
             }
 

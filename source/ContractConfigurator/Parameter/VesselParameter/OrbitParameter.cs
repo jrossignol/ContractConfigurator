@@ -137,7 +137,7 @@ namespace ContractConfigurator.Parameters
             // Filter for celestial bodies
             if (targetBody != null)
             {
-                AddParameter(new ParameterDelegate<Vessel>(Localizer.Format("#cc.param.CollectScience.destination", targetBody.CleanDisplayName()),
+                AddParameter(new ParameterDelegate<Vessel>(Localizer.Format("#cc.param.CollectScience.destination", targetBody.displayName),
                     v => v.mainBody == targetBody, true));
             }
 
@@ -416,7 +416,7 @@ namespace ContractConfigurator.Parameters
         /// <returns>Whether the vessel meets the conditions.</returns>
         protected override bool VesselMeetsCondition(Vessel vessel)
         {
-            LoggingUtil.LogVerbose(this, "Checking VesselMeetsCondition: " + vessel.id);
+            LoggingUtil.LogVerbose(this, "Checking VesselMeetsCondition: {0}", vessel.id);
             return ParameterDelegate<Vessel>.CheckChildConditions(this, vessel);
         }
     }

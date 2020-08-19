@@ -47,7 +47,7 @@ namespace ContractConfigurator
 
         protected override string RequirementText()
         {
-            string title = StringBuilderCache.Format("<color=#{0}" + ">{1}</color>", MissionControlUI.RequirementHighlightColor, vessel.identifier);
+            string title = StringBuilderCache.Format("<color=#{0}>{1}</color>", MissionControlUI.RequirementHighlightColor, vessel.identifier);
             return Localizer.Format(invertRequirement ? "#cc.req.ValidVessel.x" : "#cc.req.ValidVessel", title);
         }
     }

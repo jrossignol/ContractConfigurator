@@ -105,7 +105,7 @@ namespace ContractConfigurator.Parameters
         {
             if (dockedVessels[0] != null && !string.IsNullOrEmpty(defineDockedVessel))
             {
-                LoggingUtil.LogVerbose(this, "OnVesselDestroy(" + v.id + ")");
+                LoggingUtil.LogVerbose(this, "OnVesselDestroy({0})", v.id);
 
                 // Figure out which of the two vessels was kept after docking
                 Vessel keptVessel = null;
@@ -121,7 +121,7 @@ namespace ContractConfigurator.Parameters
                 // If we are seeing a destroy event for something we care about
                 if (keptVessel != null)
                 {
-                    LoggingUtil.LogVerbose(this, "Associating '" + defineDockedVessel + "' to " + keptVessel.id);
+                    LoggingUtil.LogVerbose(this, "Associating '{0}' to {1}", defineDockedVessel, keptVessel.id);
                     ContractVesselTracker.Instance.AssociateVessel(defineDockedVessel, keptVessel);
                     dockedVessels[0] = dockedVessels[1] = null;
                 }
@@ -164,10 +164,10 @@ namespace ContractConfigurator.Parameters
                 }
             }
 
-            LoggingUtil.LogVerbose(this, "v1 = " + (v1 == null ? "null" : v1.id.ToString()));
-            LoggingUtil.LogVerbose(this, "v2 = " + (v2 == null ? "null" : v2.id.ToString()));
-            LoggingUtil.LogVerbose(this, "e.host.vessel = " + e.host.vessel.id.ToString());
-            LoggingUtil.LogVerbose(this, "e.target.vessel = " + e.target.vessel.id.ToString());
+            LoggingUtil.LogVerbose(this, "v1 = {0}", (v1 == null ? "null" : v1.id.ToString()));
+            LoggingUtil.LogVerbose(this, "v2 = {1}", (v2 == null ? "null" : v2.id.ToString()));
+            LoggingUtil.LogVerbose(this, "e.host.vessel = {0}", e.host.vessel.id.ToString());
+            LoggingUtil.LogVerbose(this, "e.target.vessel = {0}", e.target.vessel.id.ToString());
 
             // Check for match
             bool forceStateChange = false;
@@ -194,7 +194,7 @@ namespace ContractConfigurator.Parameters
         /// <returns>Whether the vessel meets the condition</returns>
         protected override bool VesselMeetsCondition(Vessel vessel)
         {
-            LoggingUtil.LogVerbose(this, "Checking VesselMeetsCondition: " + vessel.id);
+            LoggingUtil.LogVerbose(this, "Checking VesselMeetsCondition: {0}", vessel.id);
             return GetState(vessel) == ParameterState.Complete;
         }
     }

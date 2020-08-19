@@ -37,7 +37,7 @@ namespace KerKonConConExt
         protected override string RequirementText()
         {
             return Localizer.Format(invertRequirement ? "#cc.kk.req.BaseOpen" : "#cc.kk.req.BaseClosed",
-                StringBuilderCache.Format("<color=#{0}" + ">{1}</color>", MissionControlUI.RequirementHighlightColor, basename));
+                StringBuilderCache.Format("<color=#{0}>{1}</color>", MissionControlUI.RequirementHighlightColor, basename));
         }
     }
 }

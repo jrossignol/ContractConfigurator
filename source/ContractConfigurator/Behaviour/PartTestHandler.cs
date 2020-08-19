@@ -78,11 +78,11 @@ namespace ContractConfigurator.Behaviour
 
                 if (!handled)
                 {
-                    LoggingUtil.LogWarning(this, "Part " + part.name + " does not have a ModuleTestSubject, cannot be used as the target of a PartTest");
+                    LoggingUtil.LogWarning(this, "Part {0} does not have a ModuleTestSubject, cannot be used as the target of a PartTest", part.name);
                 }
                 else
                 {
-                    LoggingUtil.LogVerbose(this, "    activate part " + part.name);
+                    LoggingUtil.LogVerbose(this, "    activate part {0}", part.name);
                 }
             }
         }
@@ -120,7 +120,7 @@ namespace ContractConfigurator.Behaviour
                 SelectMany(PartsToTest).
                 Select(p => p.title);
             bool isActive = partsToTest.Contains(targetPart.title);
-            LoggingUtil.LogVerbose(this, "   part " + targetPart.title + ", active = " + isActive);
+            LoggingUtil.LogVerbose(this, "   part {0}, active = {1}", targetPart.title, isActive);
 
             foreach (Part part in targetVessel.parts.Where(p => partsToTest.Contains(p.partInfo.title)))
             {

@@ -67,7 +67,7 @@ namespace ContractConfigurator
             // Log version info
             var ainfoV = Attribute.GetCustomAttribute(typeof(ContractConfigurator).Assembly,
                     typeof(AssemblyInformationalVersionAttribute)) as AssemblyInformationalVersionAttribute;
-            LoggingUtil.LogInfo(this, "Contract Configurator " + ainfoV.InformationalVersion + " loading...");
+            LoggingUtil.LogInfo(this, "Contract Configurator {0} loading...", ainfoV.InformationalVersion);
 
             LoggingUtil.LoadDebuggingConfig();
 
@@ -190,7 +190,7 @@ namespace ContractConfigurator
             if (allMM.Count() > 0)
             {
                 Assembly mmAssembly = allMM.First().assembly;
-                LoggingUtil.LogVerbose(this, "Reloading config using ModuleManager: " + mmAssembly.FullName);
+                LoggingUtil.LogVerbose(this, "Reloading config using ModuleManager: {0}", mmAssembly.FullName);
 
                 // Get the module manager object
                 Type mmPatchType = mmAssembly.GetType("ModuleManager.MMPatchLoader");
@@ -260,7 +260,7 @@ namespace ContractConfigurator
                 }
                 catch (Exception e)
                 {
-                    LoggingUtil.LogError(this, "Error registering parameter factory " + subclass.Name);
+                    LoggingUtil.LogError(this, "Error registering parameter factory {0}", subclass.Name);
                     LoggingUtil.LogException(e);
                 }
             }
@@ -290,7 +290,7 @@ namespace ContractConfigurator
                 }
                 catch (Exception e)
                 {
-                    LoggingUtil.LogError(this, "Error registering behaviour factory " + subclass.Name);
+                    LoggingUtil.LogError(this, "Error registering behaviour factory {0}", subclass.Name);
                     LoggingUtil.LogException(e);
                 }
             }
@@ -320,7 +320,7 @@ namespace ContractConfigurator
                 }
                 catch (Exception e)
                 {
-                    LoggingUtil.LogError(this, "Error registering contract requirement " + subclass.Name);
+                    LoggingUtil.LogError(this, "Error registering contract requirement {0}", subclass.Name);
                     LoggingUtil.LogException(e);
                 }
             }
@@ -368,7 +368,7 @@ namespace ContractConfigurator
             {
                 // Create the group
                 string name = groupConfig.GetValue("name");
-                LoggingUtil.LogInfo(this, "Loading CONTRACT_GROUP: '" + name + "'");
+                LoggingUtil.LogInfo(this, "Loading CONTRACT_GROUP: '{0}'", name);
                 ContractGroup contractGroup = null;
                 try
                 {
@@ -376,7 +376,7 @@ namespace ContractConfigurator
                 }
                 catch (ArgumentException)
                 {
-                    LoggingUtil.LogError(this, "Couldn't load CONTRACT_GROUP '" + name + "' due to a duplicate name.");
+                    LoggingUtil.LogError(this, "Couldn't load CONTRACT_GROUP '{0}' due to a duplicate name.", name);
                 }
 
                 // Peform the actual load
@@ -431,7 +431,7 @@ namespace ContractConfigurator
 
             var ainfoV = Attribute.GetCustomAttribute(typeof(ContractConfigurator).Assembly,
                     typeof(AssemblyInformationalVersionAttribute)) as AssemblyInformationalVersionAttribute;
-            LoggingUtil.LogInfo(this, "Contract Configurator " + ainfoV.InformationalVersion + " finished loading.");
+            LoggingUtil.LogInfo(this, "Contract Configurator {0} finished loading.", ainfoV.InformationalVersion);
         }
 
         /// <summary>
@@ -447,14 +447,14 @@ namespace ContractConfigurator
             foreach (ConfigNode contractConfig in contractConfigs)
             {
                 // Create the initial contract type
-                LoggingUtil.LogVerbose(this, "Pre-load for node: '" + contractConfig.GetValue("name") + "'");
+                LoggingUtil.LogVerbose(this, "Pre-load for node: '{0}'", contractConfig.GetValue("name"));
                 try
                 {
                     ContractType contractType = new ContractType(contractConfig.GetValue("name"));
                 }
                 catch (ArgumentException)
                 {
-                    LoggingUtil.LogError(this, "Couldn't load CONTRACT_TYPE '" + contractConfig.GetValue("name") + "' due to a duplicate name.");
+                    LoggingUtil.LogError(this, "Couldn't load CONTRACT_TYPE '{0}' due to a duplicate name.", contractConfig.GetValue("name"));
                 }
             }
 
@@ -488,7 +488,7 @@ namespace ContractConfigurator
                 }
             }
 
-            LoggingUtil.LogInfo(this, "Loaded " + successContracts + " out of " + totalContracts + " CONTRACT_TYPE nodes.");
+            LoggingUtil.LogInfo(this, "Loaded {0} out of {1} CONTRACT_TYPE nodes.", successContracts, totalContracts);
 
             // Check for empty groups and warn
             foreach (ContractGroup group in ContractGroup.contractGroups.Values.Where(g => g != null))
@@ -522,7 +522,7 @@ namespace ContractConfigurator
                     // Only log once
                     if (!badAssemblies.Contains(assembly))
                     {
-                        LoggingUtil.LogException(new Exception("Error loading types from assembly " + assembly.FullName, e));
+                        LoggingUtil.LogException(new Exception(StringBuilderCache.Format("Error loading types from assembly {0}", assembly.FullName), e));
                         badAssemblies.Add(assembly);
                     }
                     continue;

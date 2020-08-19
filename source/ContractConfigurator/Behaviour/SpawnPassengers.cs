@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
-using KSP;
+using KSP.Localization;
 using Contracts;
 using ContractConfigurator;
 
@@ -162,12 +162,14 @@ namespace ContractConfigurator.Behaviour
 
                 GUILayout.BeginVertical();
 
-                GUILayout.Label("One or more contracts require passengers to be loaded.  Would you like to load them onto this vessel?");
+                // One or more contracts require passengers to be loaded.  Would you like to load them onto this vessel?
+                GUILayout.Label(Localizer.GetStringByTag("#cc.loadPassengers.1"));
                 GUILayout.BeginHorizontal();
-                GUILayout.Label("Passengers to load:");
+                // Passengers to load:
+                GUILayout.Label(Localizer.GetStringByTag("#cc.loadPassengers.2"));
                 GUILayout.Label(selectedPassengers.ToString(), (selectedPassengers > emptySeats ? redLabel : GUI.skin.label));
                 GUILayout.EndHorizontal();
-                GUILayout.Label("Empty seats on vessel: " + emptySeats);
+                GUILayout.Label(Localizer.Format("#cc.loadPassengers.3", emptySeats));
 
                 GUILayout.BeginVertical(GUI.skin.box);
 
@@ -175,7 +177,7 @@ namespace ContractConfigurator.Behaviour
                 selectedPassengers = 0;
                 foreach (PassengerDetail pd in passengerDetails)
                 {
-                    pd.selected = GUILayout.Toggle(pd.selected, pd.passengerCount + " passenger" + (pd.passengerCount > 1 ? "s: " : ": ") + pd.contractTitle);
+                    pd.selected = GUILayout.Toggle(pd.selected, Localizer.Format("#cc.loadPassengers.passengerCount", pd.passengerCount, pd.contractTitle));
                     if (pd.selected)
                     {
                         count += pd.passengerCount;
@@ -185,7 +187,7 @@ namespace ContractConfigurator.Behaviour
 
                 GUILayout.EndVertical();
 
-                if (GUILayout.Button("Load passengers", (count > emptySeats ? disabledButton : GUI.skin.button)) && count <= emptySeats)
+                if (GUILayout.Button(Localizer.GetStringByTag("#cc.loadPassengers.button"), (count > emptySeats ? disabledButton : GUI.skin.button)) && count <= emptySeats)
                 {
                     foreach (PassengerDetail pd in passengerDetails)
                     {
@@ -201,7 +203,7 @@ namespace ContractConfigurator.Behaviour
                     Destroy(this);
                 }
 
-                if (GUILayout.Button("No passengers"))
+                if (GUILayout.Button(Localizer.GetStringByTag("#cc.loadPassengers.button.no")))
                 {
                     visible = false;
                     Destroy(this);
@@ -264,7 +266,7 @@ namespace ContractConfigurator.Behaviour
 
         private void OnVesselRecovered(ProtoVessel v, bool quick)
         {
-            LoggingUtil.LogVerbose(this, "OnVesselRecovered: " + v);
+            LoggingUtil.LogVerbose(this, "OnVesselRecovered: {0}", v);
 
             // EVA vessel
             if (v.vesselType == VesselType.EVA)
@@ -328,7 +330,7 @@ namespace ContractConfigurator.Behaviour
 
                 if (!success)
                 {
-                    LoggingUtil.LogError(this, "Unable to add crew to vessel named '" + v.name + "'.  Perhaps there's no room?");
+                    LoggingUtil.LogError(this, "Unable to add crew to vessel named '{0}'.  Perhaps there's no room?", v.name);
                     break;
                 }
             }

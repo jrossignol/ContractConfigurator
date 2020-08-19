@@ -55,7 +55,7 @@ namespace ContractConfigurator.Behaviour
             string srcPath = string.Join(Path.DirectorySeparatorChar.ToString(), srcPathComponents);
             string destPath = string.Join(Path.DirectorySeparatorChar.ToString(), destPathComponents.ToArray());
 
-            LoggingUtil.LogDebug(this, "Copying from '" + srcPath + "' to '" + destPath + "'.");
+            LoggingUtil.LogDebug(this, "Copying from '{0}' to '{1}'.", srcPath, destPath);
             try
             {
                 File.Copy(srcPath, destPath, true);

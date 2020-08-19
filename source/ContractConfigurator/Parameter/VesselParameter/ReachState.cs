@@ -461,7 +461,7 @@ namespace ContractConfigurator.Parameters
 
         public string BodyList()
         {
-            return LocalizationUtil.LocalizeList<CelestialBody>(LocalizationUtil.Conjunction.OR, targetBodies, cb => cb.CleanDisplayName(true));
+            return LocalizationUtil.LocalizeList<CelestialBody>(LocalizationUtil.Conjunction.OR, targetBodies, cb => cb.displayName);
         }
 
         /// <summary>
@@ -471,7 +471,7 @@ namespace ContractConfigurator.Parameters
         /// <returns>Whether the vessel meets the condition</returns>
         protected override bool VesselMeetsCondition(Vessel vessel)
         {
-            LoggingUtil.LogVerbose(this, "Checking VesselMeetsCondition: " + vessel.id);
+            LoggingUtil.LogVerbose(this, "Checking VesselMeetsCondition: {0}", vessel.id);
             return ParameterDelegate<Vessel>.CheckChildConditions(this, vessel);
         }
     }

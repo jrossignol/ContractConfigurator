@@ -111,7 +111,7 @@ namespace ContractConfigurator
                 return ScienceUtil.GetBiomedisplayName(body, biome);
             }
 
-            return Localizer.Format("#cc.science.biomeIdentifier", (body == null ? "" : IsKSC() ? Localizer.GetStringByTag("#autoLOC_300900") : (body.CleanDisplayName())), ScienceUtil.GetBiomedisplayName(body, biome));
+            return Localizer.Format("#cc.science.biomeIdentifier", (body == null ? "" : IsKSC() ? Localizer.GetStringByTag("#autoLOC_300900") : body.displayName), ScienceUtil.GetBiomedisplayName(body, biome));
         }
 
         public override bool Equals(object obj)

@@ -107,15 +107,12 @@ namespace ContractConfigurator
         /// <param name="typeName">Name to associate with the given type</param>
         public static void Register(Type factoryType, string typeName)
         {
-            LoggingUtil.LogDebug(typeof(BehaviourFactory), "Registering behaviour factory class " +
-                factoryType.FullName + " for handling BEHAVIOUR nodes with type = " + typeName + ".");
+            LoggingUtil.LogDebug(typeof(BehaviourFactory), "Registering behaviour factory class {0} for handling BEHAVIOUR nodes with type = {1}.", factoryType.FullName, typeName);
 
             if (factories.ContainsKey(typeName))
             {
-                LoggingUtil.LogError(typeof(BehaviourFactory), "Cannot register " + factoryType.FullName + "[" + factoryType.Module +
-                    "] to handle type " + typeName + ": already handled by " +
-                    factories[typeName].FullName + "[" +
-                    factories[typeName].Module + "]");
+                LoggingUtil.LogError(typeof(BehaviourFactory), "Cannot register {0}[{1}] to handle type {2}: already handled by {3}[{4}]",
+                    factoryType.FullName, factoryType.Module, typeName, factories[typeName].FullName, factories[typeName].Module);
             }
             else
             {
@@ -145,16 +142,15 @@ namespace ContractConfigurator
             string name = behaviourConfig.HasValue("name") ? behaviourConfig.GetValue("name") : type;
             if (string.IsNullOrEmpty(type))
             {
-                LoggingUtil.LogError(typeof(ParameterFactory), "CONTRACT_TYPE '" + contractType.name + "'," +
-                    "BEHAVIOUR '" + behaviourConfig.GetValue("name") + "' does not specify the mandatory 'type' attribute.");
+                LoggingUtil.LogError(typeof(ParameterFactory), "CONTRACT_TYPE '{0}', BEHAVIOUR '{1}' does not specify the mandatory 'type' attribute.",
+                    contractType.name, behaviourConfig.GetValue("name"));
                 behaviourFactory = new InvalidBehaviourFactory();
                 valid = false;
             }
             else if (!factories.ContainsKey(type))
             {
-                LoggingUtil.LogError(typeof(ParameterFactory), "CONTRACT_TYPE '" + contractType.name + "'," +
-                    "BEHAVIOUR '" + behaviourConfig.GetValue("name") + "' of type '" + behaviourConfig.GetValue("type") + "': " +
-                    "Unknown behaviour '" + type + "'.");
+                LoggingUtil.LogError(typeof(ParameterFactory), "CONTRACT_TYPE '{0}', BEHAVIOUR '{1}' of type '{2}': Unknown behaviour '{3}'.",
+                    contractType.name, behaviourConfig.GetValue("name"), behaviourConfig.GetValue("type"), type);
                 behaviourFactory = new InvalidBehaviourFactory();
                 valid = false;
             }
@@ -186,14 +182,24 @@ namespace ContractConfigurator
 
         public string ErrorPrefix()
         {
-            return (contractType != null ? "CONTRACT_TYPE '" + contractType.name + "', " : "") + 
-                "BEHAVIOUR '" + name + "' of type '" + type + "'";
+            return ErrorPrefix(name, type);
         }
 
         public string ErrorPrefix(ConfigNode configNode)
         {
-            return (contractType != null ? "CONTRACT_TYPE '" + contractType.name + "', " : "") +
-                "BEHAVIOUR '" + configNode.GetValue("name") + "' of type '" + type ?? configNode.GetValue("type") + "'";
+            return ErrorPrefix(configNode.GetValue("name"), type ?? configNode.GetValue("type"));
+        }
+
+        private string ErrorPrefix(string name, string type)
+        {
+            if (contractType != null)
+            {
+                return StringBuilderCache.Format("CONTRACT_TYPE '{0}', BEHAVIOUR '{1}' of type '{2}'", contractType.name, (name ?? "<blank>"), type);
+            }
+            else
+            {
+                return StringBuilderCache.Format("BEHAVIOUR '{0}' of type '{1}'", (name ?? "<blank>"), type);
+            }
         }
 
         /// <summary>

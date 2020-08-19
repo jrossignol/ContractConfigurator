@@ -70,7 +70,7 @@ namespace ContractConfigurator
 
                 if (techTreeRoot == null || techTree == null)
                 {
-                    LoggingUtil.LogError(this, "Couldn't load tech tree from " + HighLogic.CurrentGame.Parameters.Career.TechTreeUrl);
+                    LoggingUtil.LogError(this, "Couldn't load tech tree from {0}", HighLogic.CurrentGame.Parameters.Career.TechTreeUrl);
                     return false;
                 }
             }
@@ -81,7 +81,7 @@ namespace ContractConfigurator
 
                 if (techNode == null)
                 {
-                    LoggingUtil.LogWarning(this, "No tech node found with id '" + tech + "'");
+                    LoggingUtil.LogWarning(this, "No tech node found with id '{0}'", tech);
                     return false;
                 }
 

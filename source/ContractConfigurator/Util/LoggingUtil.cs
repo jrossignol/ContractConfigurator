@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 using System.Text;
-using UnityEngine;
 using ContractConfigurator.ExpressionParser;
 
 namespace ContractConfigurator
@@ -25,11 +24,23 @@ namespace ContractConfigurator
             get { return captureLog; }
             set
             {
-                captureLog = value;
-                capturedLog = "";
+                if (captureLog != value)
+                {
+                    captureLog = value;
+                    _capturedLog = StringBuilderCache.Acquire(1024);
+                }
             }
         }
-        public static string capturedLog = "";
+        public static string capturedLog
+        {
+            get
+            {
+                string s = _capturedLog.ToStringAndRelease();
+                CaptureLog = false;
+                return s;
+            }
+        }
+        private static StringBuilder _capturedLog = StringBuilderCache.Acquire(1024);
 
         private static Dictionary<string, LogLevel> specificLogLevels = new Dictionary<string, LogLevel>();
 
@@ -54,7 +65,7 @@ namespace ContractConfigurator
                     if (debuggingConfig.HasValue("logLevel"))
                     {
                         LoggingUtil.logLevel = (LoggingUtil.LogLevel)Enum.Parse(typeof(LoggingUtil.LogLevel), debuggingConfig.GetValue("logLevel"), true);
-                        LoggingUtil.LogInfo(typeof(LoggingUtil), "Set LogLevel = " + LoggingUtil.logLevel);
+                        LoggingUtil.LogInfo(typeof(LoggingUtil), StringBuilderCache.Format("Set LogLevel = {0}", LoggingUtil.logLevel));
                     }
 
                     // Fetch specific loglevels for given types
@@ -81,7 +92,7 @@ namespace ContractConfigurator
                                 }
                                 catch (Exception e)
                                 {
-                                    UnityEngine.Debug.LogWarning("[WARNING] Error loading types from assembly " + a.FullName + ": " + e.Message);
+                                    UnityEngine.Debug.LogWarning(StringBuilderCache.Format("[WARNING] Error loading types from assembly {0}: {1}", a.FullName, e.Message));
                                 }
                             }
 
@@ -89,11 +100,11 @@ namespace ContractConfigurator
                             {
                                 LoggingUtil.LogLevel logLevel = (LoggingUtil.LogLevel)Enum.Parse(typeof(LoggingUtil.LogLevel), levelExceptionNode.GetValue("logLevel"), true);
                                 LoggingUtil.AddSpecificLogLevel(type, logLevel);
-                                LoggingUtil.LogDebug(typeof(LoggingUtil), "Added log level override (" + type.Name + " => " + logLevel + ")");
+                                LoggingUtil.LogDebug(typeof(LoggingUtil), "Added log level override ({0} => {1})", type.Name, logLevel);
                             }
                             else
                             {
-                                UnityEngine.Debug.LogWarning("[WARNING] ContractConfigurator.LoggingUtil: Couldn't find Type with name: '" + typeName + "'");
+                                UnityEngine.Debug.LogWarning(StringBuilderCache.Format("[WARNING] ContractConfigurator.LoggingUtil: Couldn't find Type with name: '{0}'", typeName));
                             }
                         }
                         else
@@ -109,7 +120,7 @@ namespace ContractConfigurator
                     LoggingUtil.ClearSpecificLogLevel();
                     LoggingUtil.logLevel = LoggingUtil.LogLevel.INFO;
 
-                    LoggingUtil.LogWarning(typeof(LoggingUtil), "Debugging Config failed to load! Message: '" + e.Message + "' Set LogLevel to INFO and cleaned specific LogLevels");
+                    LoggingUtil.LogWarning(typeof(LoggingUtil), StringBuilderCache.Format("Debugging Config failed to load! Message: '{0}' Set LogLevel to INFO and cleaned specific LogLevels", e.Message));
                 }
             }
             else
@@ -125,38 +136,38 @@ namespace ContractConfigurator
         }
 
         [Conditional("DEBUG")]
-        public static void LogVerbose(System.Object obj, string message)
+        public static void LogVerbose(System.Object obj, string message, params object[] parameters)
         {
-            LoggingUtil.Log(LogLevel.VERBOSE, obj.GetType(), message);
+            LoggingUtil.Log(LogLevel.VERBOSE, obj.GetType(), message, parameters);
         }
 
         [Conditional("DEBUG")]
-        public static void LogVerbose(Type type, string message)
+        public static void LogVerbose(Type type, string message, params Object[] parameters)
         {
-            LoggingUtil.Log(LogLevel.VERBOSE, type, message);
+            LoggingUtil.Log(LogLevel.VERBOSE, type, message, parameters);
         }
 
-        public static void LogDebug(System.Object obj, string message)
+        public static void LogDebug(System.Object obj, string message, params object[] parameters)
         {
-            LoggingUtil.Log(LogLevel.DEBUG, obj.GetType(), message);
+            LoggingUtil.Log(LogLevel.DEBUG, obj.GetType(), message, parameters);
         }
 
-        public static void LogDebug(Type type, string message)
+        public static void LogDebug(Type type, string message, params object[] parameters)
         {
-            LoggingUtil.Log(LogLevel.DEBUG, type, message);
+            LoggingUtil.Log(LogLevel.DEBUG, type, message, parameters);
         }
 
-        public static void LogInfo(System.Object obj, string message)
+        public static void LogInfo(System.Object obj, string message, params object[] parameters)
         {
-            LoggingUtil.Log(LogLevel.INFO, obj.GetType(), message);
+            LoggingUtil.Log(LogLevel.INFO, obj.GetType(), message, parameters);
         }
 
-        public static void LogInfo(Type type, string message)
+        public static void LogInfo(Type type, string message, params Object[] parameters)
         {
-            LoggingUtil.Log(LogLevel.INFO, type, message);
+            LoggingUtil.Log(LogLevel.INFO, type, message, parameters);
         }
 
-        public static void LogWarning(System.Object obj, string message)
+        public static void LogWarning(System.Object obj, string message, params object[] parameters)
         {
             // Set the hasWarnings flag
             IContractConfiguratorFactory ccFactory = obj as IContractConfiguratorFactory;
@@ -177,29 +188,29 @@ namespace ContractConfigurator
                 ccFactory.hasWarnings = true;
             }
 
-            LoggingUtil.Log(LogLevel.WARNING, obj.GetType(), message);
+            LoggingUtil.Log(LogLevel.WARNING, obj.GetType(), message, parameters);
         }
 
-        public static void LogWarning(Type type, string message)
+        public static void LogWarning(Type type, string message, params object[] parameters)
         {
-            LoggingUtil.Log(LogLevel.WARNING, type, message);
+            LoggingUtil.Log(LogLevel.WARNING, type, message, parameters);
         }
 
-        public static void LogError(System.Object obj, string message)
+        public static void LogError(System.Object obj, string message, params object[] parameters)
         {
-            LoggingUtil.Log(LogLevel.ERROR, obj.GetType(), message);
+            LoggingUtil.Log(LogLevel.ERROR, obj.GetType(), message, parameters);
         }
 
-        public static void LogError(Type type, string message)
+        public static void LogError(Type type, string message, params object[] parameters)
         {
-            LoggingUtil.Log(LogLevel.ERROR, type, message);
+            LoggingUtil.Log(LogLevel.ERROR, type, message, parameters);
         }
 
         public static void LogException(Exception e)
         {
             if (captureLog)
             {
-                capturedLog += "[EXCEPTION] ";
+                _capturedLog.Append("[EXCEPTION] ");
                 CaptureException(e);
             }
 
@@ -211,26 +222,26 @@ namespace ContractConfigurator
             if (e.InnerException != null)
             {
                 CaptureException(e.InnerException);
-                capturedLog += "Rethrow as ";
+                _capturedLog.Append("Rethrow as ");
             }
-            capturedLog += StringBuilderCache.Format("{0}: {1}\n{2}\n", e.GetType(), e.Message, e.StackTrace);
+            _capturedLog.Append(StringBuilderCache.Format("{0}: {1}\n{2}\n", e.GetType(), e.Message, e.StackTrace));
         }
 
-        public static void Log(LogLevel logLevel, System.Object obj, string message)
+        public static void Log(LogLevel logLevel, System.Object obj, string message, params object[] parameters)
         {
             // Need to handle special warnings for loaded types
             if (logLevel == LogLevel.WARNING)
             {
-                LogWarning(obj, message);
+                LogWarning(obj, message, parameters);
             }
             else
             {
-                Log(logLevel, obj != null ? obj.GetType() : null, message);
+                Log(logLevel, obj != null ? obj.GetType() : null, message, parameters);
             }
         }
 
 
-        public static void Log(LogLevel logLevel, Type type, string message)
+        public static void Log(LogLevel logLevel, Type type, string message, params object[] parameters)
         {
             LogLevel logLevelCheckAgainst = LoggingUtil.logLevel;
             if (logLevel <= LogLevel.DEBUG && specificLogLevels.ContainsKey(type.Name))
@@ -242,9 +253,9 @@ namespace ContractConfigurator
             {
                 if (captureLog)
                 {
-                    capturedLog += StringBuilderCache.Format("[{0}] {1}: {2}\n", logLevel, type, message);
+                    _capturedLog.Append(StringBuilderCache.Format("[{0}] {1}: {2}\n", logLevel, type, (parameters.Length > 0 ? StringBuilderCache.Format(message, parameters) : message)));
                 }
-                message = StringBuilderCache.Format(logLevel <= LogLevel.INFO ? "[{0}] {1}: {2}" : "{1}: {2}", logLevel, type, message);
+                message = StringBuilderCache.Format(logLevel <= LogLevel.INFO ? "[{0}] {1}: {2}" : "{1}: {2}", logLevel, type, (parameters.Length > 0 ? StringBuilderCache.Format(message, parameters) : message));
 
                 if (logLevel <= LogLevel.INFO)
                 {

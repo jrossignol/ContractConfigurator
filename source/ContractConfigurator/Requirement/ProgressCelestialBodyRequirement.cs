@@ -79,7 +79,7 @@ namespace ContractConfigurator
             ProgressNode cbProgress = GetCelestialBodySubtree();
             if (cbProgress == null)
             {
-                LoggingUtil.LogError(this, (contract != null ? contract.contractType.name : "Unknown contract") + ": ProgressNode for targetBody " + targetBody.bodyName + " not found.");
+                LoggingUtil.LogError(this, "{0}: ProgressNode for targetBody {1} not found.", (contract != null ? contract.contractType.name : "Unknown contract"), targetBody.bodyName);
                 return false;
             }
 
@@ -103,7 +103,7 @@ namespace ContractConfigurator
         protected override string RequirementText()
         {
             return Localizer.Format(invertRequirement ? tagx : tag, CheckTypeId(),
-                targetBody == null ? Localizer.GetStringByTag("#cc.req.ProgressCelestialBody.genericBody") : targetBody.CleanDisplayName(true));
+                targetBody == null ? Localizer.GetStringByTag("#cc.req.ProgressCelestialBody.genericBody") : targetBody.displayName);
         }
     }
 }

@@ -69,7 +69,7 @@ namespace ContractConfigurator
         {
             return Localizer.Format(invertRequirement ? "#cc.req.PartModuleTypeUnlocked.x" : "#cc.req.PartModuleTypeUnlocked",
                 LocalizationUtil.LocalizeList<string>(invertRequirement ? LocalizationUtil.Conjunction.AND : LocalizationUtil.Conjunction.OR, partModuleTypes,
-                x => StringBuilderCache.Format("<color=#{0}" + ">{1}</color>", MissionControlUI.RequirementHighlightColor, Parameters.PartValidation.ModuleTypeName(x))),
+                x => StringBuilderCache.Format("<color=#{0}>{1}</color>", MissionControlUI.RequirementHighlightColor, Parameters.PartValidation.ModuleTypeName(x))),
                 partModuleTypes.Count);
         }
     }

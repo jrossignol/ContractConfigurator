@@ -56,7 +56,7 @@ namespace ContractConfigurator.ExpressionParser
 
         public override ExperienceTrait ConvertFrom<U>(U value)
         {
-            LoggingUtil.LogDebug(this, StringBuilderCache.Format("ExperienceTraitParser.ConvertFrom<{0}>({1}", typeof(U), value));
+            LoggingUtil.LogDebug(this, "ExperienceTraitParser.ConvertFrom<{0}>({1}", typeof(U), value);
             if (typeof(U) == typeof(string))
             {
                 string sVal = (string)(object)value;

@@ -77,7 +77,7 @@ namespace ContractConfigurator.Parameters
         {
             foreach (Kerbal kerbal in kerbals)
             {
-                AddParameter(new ParameterDelegate<string>("Recover " + kerbal.name,
+                AddParameter(new ParameterDelegate<string>(Localizer.Format("#cc.param.RecoverKerbal.one", kerbal.name),
                     unused => recovered[kerbal.name], ParameterDelegateMatchType.FILTER));
             }
         }

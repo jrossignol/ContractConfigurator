@@ -82,7 +82,30 @@ namespace ContractConfigurator.ExpressionParser
                 return null;
             }
 
-            return new Biome(null, identifier);
+            if (currentDataNode.IsInitialized("targetBody"))
+            {
+                object nodeBody = currentDataNode["targetBody"];
+
+                List<CelestialBody> listBody = nodeBody as List<CelestialBody>;
+                CelestialBody body = nodeBody as CelestialBody;
+                if (listBody != null)
+                {
+                    body = listBody.First();
+                }
+
+                if (body != null)
+                {
+                    return new Biome(body, identifier);
+                }
+                else
+                {
+                    return new Biome(null, identifier);
+                }
+            }
+            else
+            {
+                throw new DataNode.ValueNotInitialized(currentDataNode.Path() + "targetBody");
+            }
         }
     }
 }

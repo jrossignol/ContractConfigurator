@@ -301,12 +301,12 @@ namespace ContractConfigurator.Parameters
                 ParameterDelegate<T> paramDelegate = param[i] as ParameterDelegate<T>;
                 if (paramDelegate != null)
                 {
-                    LoggingUtil.LogVerbose(paramDelegate, "Checking condition for '" + paramDelegate.title + "', conditionMet = " + conditionMet);
+                    LoggingUtil.LogVerbose(paramDelegate, "Checking condition for '{0}', conditionMet = {1}", paramDelegate.title, conditionMet);
 
                     paramDelegate.InitializeBitArrays(values, current);
                     paramDelegate.SetState(values, ref conditionMet, checkOnly);
 
-                    LoggingUtil.LogVerbose(paramDelegate, "  after, conditionMet = " + conditionMet);
+                    LoggingUtil.LogVerbose(paramDelegate, "  after, conditionMet = {0}", conditionMet);
 
                     if (paramDelegate.matchType == ParameterDelegateMatchType.FILTER)
                     {
@@ -365,24 +365,25 @@ namespace ContractConfigurator.Parameters
         /// <returns>The full delegate string</returns>
         public static string GetDelegateText(ContractParameter param)
         {
-            string output = "";
+            StringBuilder sb = StringBuilderCache.Acquire();
             foreach (ContractParameter child in param.GetChildren())
             {
                 if (child is ParameterDelegate<T> && !((ParameterDelegate<T>)child).trivial)
                 {
-                    if (!string.IsNullOrEmpty(output))
+                    if (sb.Length != 0)
                     {
-                        output += "; ";
+                        sb.Append("; ");
                     }
-                    output += ((ParameterDelegate<T>)child).title;
+                    sb.Append(((ParameterDelegate<T>)child).title);
 
                     if (child is AllParameterDelegate<T>)
                     {
-                        output += ": " + GetDelegateText(child);
+                        sb.Append(": ");
+                        sb.Append(GetDelegateText(child));
                     }
                 }
             }
-            return output;
+            return sb.ToStringAndRelease();
         }
     }
     
@@ -405,14 +406,14 @@ namespace ContractConfigurator.Parameters
 
         protected override string GetParameterTitle()
         {
-            string title = base.GetParameterTitle();
-
             if (state != ParameterState.Incomplete)
             {
-                title += ": " + ParameterDelegate<T>.GetDelegateText(this);
+                return StringBuilderCache.Format("{0}: {1}", base.GetParameterTitle(), ParameterDelegate<T>.GetDelegateText(this));
             }
-
-            return title;
+            else
+            {
+                return base.GetParameterTitle();
+            }
         }
 
         protected override void SetState(IEnumerable<T> values, ref bool conditionMet, bool checkOnly = false)
@@ -500,7 +501,7 @@ namespace ContractConfigurator.Parameters
             // Set our state
             ApplyFilterToDest(values);
             int count = GetCount(values, dest);
-            LoggingUtil.LogVerbose(this, "Count = " + count);
+            LoggingUtil.LogVerbose(this, "Count = {0}", count);
             bool countConditionMet = (count >= minCount && count <= maxCount);
             if (!checkOnly)
             {

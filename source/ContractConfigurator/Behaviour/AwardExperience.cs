@@ -69,10 +69,10 @@ namespace ContractConfigurator.Behaviour
 
         protected void SetCrew(Vessel v)
         {
-            LoggingUtil.LogVerbose(this, "Setting crew to those on vessel " + v.vesselName);
+            LoggingUtil.LogVerbose(this, "Setting crew to those on vessel {0}", v.vesselName);
             foreach (ProtoCrewMember pcm in v.GetVesselCrew())
             {
-                LoggingUtil.LogVerbose(this, "    Adding " + pcm.name + " to crew list.");
+                LoggingUtil.LogVerbose(this, "    Adding {0} to crew list.", pcm.name);
                 crew.AddUnique(pcm);
             }
         }
@@ -81,7 +81,7 @@ namespace ContractConfigurator.Behaviour
         {
             IEnumerable<ProtoCrewMember> awardees = crew.Union(kerbals.Where(k => k.pcm != null).Select(k => k.pcm));
 
-            LoggingUtil.LogVerbose(this, "Awarding " + experience + " points to " + awardees.Count() + " crew member(s)");
+            LoggingUtil.LogDebug(this, "Awarding {0} points to {1} crew member(s)", experience, awardees.Count());
 
             // Set the homeworld
             if (homeworld == null)
@@ -91,7 +91,7 @@ namespace ContractConfigurator.Behaviour
 
             foreach (ProtoCrewMember pcm in awardees.Where(pcm => pcm != null))
             {
-                LoggingUtil.LogVerbose(this, "    Awarding experience to " + pcm.name);
+                LoggingUtil.LogVerbose(this, "    Awarding experience to {0}", pcm.name);
 
                 // Find existing entries
                 int currentValue = 2;

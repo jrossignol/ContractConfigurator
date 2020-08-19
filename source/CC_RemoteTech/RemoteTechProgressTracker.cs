@@ -234,7 +234,7 @@ namespace ContractConfigurator.RemoteTech
                 body = FlightGlobals.Bodies[nextCheck++ % FlightGlobals.Bodies.Count];
                 i = (nextCheck / FlightGlobals.Bodies.Count) % POINT_COUNT;
             }
-            LoggingUtil.LogVerbose(this, "OnFixedUpdate check (" + priorityUpdate + "): " + body.name + ", point = " + i);
+            LoggingUtil.LogVerbose(this, "OnFixedUpdate check ({0}): {1}, point = {2}", priorityUpdate, body.name, i);
 
             // Set the position
             fakeSatellite.Position = body.GetWorldSurfacePosition(Math.Sin((i * LAT_OFFSET) / POINT_COUNT * 2.0 * Math.PI) * 45.0, (i * LON_OFFSET) / POINT_COUNT * 360.0, 10000.0);

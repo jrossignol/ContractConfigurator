@@ -123,7 +123,7 @@ namespace ContractConfigurator.ExpressionParser
             }
             else
             {
-                LoggingUtil.LogWarning(this, "Unable to store value for '" + key + "' - PersistentDataStore is null.  This is likely caused by another ScenarioModule crashing, preventing others from loading.");
+                LoggingUtil.LogWarning(this, "Unable to store value for '{0}' - PersistentDataStore is null.  This is likely caused by another ScenarioModule crashing, preventing others from loading.", key);
             }
         }
 
@@ -139,7 +139,7 @@ namespace ContractConfigurator.ExpressionParser
         /// <returns>The result of parsing the expression</returns>
         public T ParseExpression(string key, string expression, DataNode dataNode)
         {
-            LoggingUtil.LogVerbose(typeof(BaseParser), "Parsing expression: " + expression);
+            LoggingUtil.LogVerbose(typeof(BaseParser), "Parsing expression: {0}", expression);
             spacing = 0;
 
             Init(expression);
@@ -333,7 +333,7 @@ namespace ContractConfigurator.ExpressionParser
                             }
                         default:
                             expression = token.sval + expression;
-                            throw new ArgumentException("Unexpected value: " + token.sval);
+                            throw new ArgumentException(StringBuilderCache.Format("Unexpected value: {0}", token.sval));
                     }
 
                     // Get next token
@@ -424,7 +424,7 @@ namespace ContractConfigurator.ExpressionParser
                                 default:
                                     resetExpression = false;
                                     expression = token.sval + expression;
-                                    throw new ArgumentException("Unexpected operator: " + token.sval);
+                                    throw new ArgumentException(StringBuilderCache.Format("Unexpected operator: {0}", token.sval));
                             }
                         case TokenType.VALUE:
                             resetExpression = false;
@@ -448,7 +448,7 @@ namespace ContractConfigurator.ExpressionParser
                         default:
                             resetExpression = false;
                             expression = token.sval + expression;
-                            throw new ArgumentException("Unexpected value: " + token.sval);
+                            throw new ArgumentException(StringBuilderCache.Format("Unexpected value: {0}", token.sval));
                     }
                 }
                 finally
@@ -509,7 +509,7 @@ namespace ContractConfigurator.ExpressionParser
                             break;
                         default:
                             expression = token.sval + expression;
-                            throw new ArgumentException("Unexpected value: " + token.sval);
+                            throw new ArgumentException(StringBuilderCache.Format("Unexpected value: {0}", token.sval));
                     }
                 }
 
@@ -551,7 +551,7 @@ namespace ContractConfigurator.ExpressionParser
                             break;
                         default:
                             expression = token.sval + expression;
-                            throw new ArgumentException("Unexpected value: " + token.sval);
+                            throw new ArgumentException(StringBuilderCache.Format("Unexpected value: {0}", token.sval));
                     }
                 }
 
@@ -734,7 +734,7 @@ namespace ContractConfigurator.ExpressionParser
                 return ParseIdentifier();
             }
 
-            throw new ArgumentException("Expected a valid expression, found: '" + c + "'");
+            throw new ArgumentException(StringBuilderCache.Format("Expected a valid expression, found: '{0}'", c));
         }
 
         public Token ParseMethodToken()
@@ -801,11 +801,11 @@ namespace ContractConfigurator.ExpressionParser
             Token token = ParseToken();
             if (token == null)
             {
-                throw new ArgumentException("Expected '" + expected + "', but reached end of expression!");
+                throw new ArgumentException(StringBuilderCache.Format("Expected '{0}', but reached end of expression!", expected));
             }
             if (token.sval != expected)
             {
-                throw new ArgumentException("Expected '" + expected + "', got: " + token.sval);
+                throw new ArgumentException(StringBuilderCache.Format("Expected '{0}', got: {1}", expected, token.sval));
             }
         }
 
@@ -856,7 +856,7 @@ namespace ContractConfigurator.ExpressionParser
         /// <returns>Value of the identifier</returns>
         public virtual T ParseIdentifier(Token token)
         {
-            throw new NotSupportedException("Can't parse identifier for type " + typeof(T) + " in class " + this.GetType() + " - not supported!");
+            throw new NotSupportedException(StringBuilderCache.Format("Can't parse identifier for type {0} in class {1} - not supported!", typeof(T), this.GetType()));
         }
 
         public virtual TResult ParseMethod<TResult>(Token token, T obj, bool isFunction = false)
@@ -1473,7 +1473,7 @@ namespace ContractConfigurator.ExpressionParser
                 case "/":
                     return ConvertType<TResult>(Div(lval, rval));
                 default:
-                    throw new ArgumentException("Unexpected operator:  '" + op);
+                    throw new ArgumentException(StringBuilderCache.Format("Unexpected operator:  '{0}'", op));
             }
         }
 
@@ -1498,7 +1498,7 @@ namespace ContractConfigurator.ExpressionParser
                 case ">=":
                     return GE(lval, rval);
                 default:
-                    throw new ArgumentException("Unexpected operator:  '" + op);
+                    throw new ArgumentException(StringBuilderCache.Format("Unexpected operator:  '{0}'", op));
             }
         }
 
@@ -1683,72 +1683,72 @@ namespace ContractConfigurator.ExpressionParser
 
         public virtual T Negate(T val)
         {
-            throw new NotSupportedException("Negation (-) not supported for type " + typeof(T));
+            throw new NotSupportedException(StringBuilderCache.Format("Negation (-) not supported for type {0}", typeof(T)));
         }
 
         public virtual T Add(T a, T b)
         {
-            throw new NotSupportedException("Addition (+) not supported for type " + typeof(T));
+            throw new NotSupportedException(StringBuilderCache.Format("Addition (+) not supported for type {0}", typeof(T)));
         }
 
         public virtual T Sub(T a, T b)
         {
-            throw new NotSupportedException("Subtraction (-) not supported for type " + typeof(T));
+            throw new NotSupportedException(StringBuilderCache.Format("Subtraction (-) not supported for type {0}", typeof(T)));
         }
 
         public virtual T Mult(T a, T b)
         {
-            throw new NotSupportedException("Multiplication (*) not supported for type " + typeof(T));
+            throw new NotSupportedException(StringBuilderCache.Format("Multiplication (*) not supported for type {0}", typeof(T)));
         }
 
         public virtual T Div(T a, T b)
         {
-            throw new NotSupportedException("Division (/) not supported for type " + typeof(T));
+            throw new NotSupportedException(StringBuilderCache.Format("Division (/) not supported for type {0}", typeof(T)));
         }
 
         public virtual T Not(T val)
         {
-            throw new NotSupportedException("Logical NOT (!) is not supported for type " + typeof(T));
+            throw new NotSupportedException(StringBuilderCache.Format("Logical NOT (!) is not supported for type {0}", typeof(T)));
         }
 
         public virtual bool Or(T a, T b)
         {
-            throw new NotSupportedException("Logical OR (||) not supported for type " + typeof(T));
+            throw new NotSupportedException(StringBuilderCache.Format("Logical OR (||) not supported for type {0}", typeof(T)));
         }
 
         public virtual bool And(T a, T b)
         {
-            throw new NotSupportedException("Logical AND (&&) not supported for type " + typeof(T));
+            throw new NotSupportedException(StringBuilderCache.Format("Logical AND (&&) not supported for type {0}", typeof(T)));
         }
 
         public virtual bool LT(T a, T b)
         {
-            throw new NotSupportedException("Less than (<) not supported for type " + typeof(T));
+            throw new NotSupportedException(StringBuilderCache.Format("Less than (<) not supported for type {0}", typeof(T)));
         }
 
         public virtual bool LE(T a, T b)
         {
-            throw new NotSupportedException("Less than or equal (<=) not supported for type " + typeof(T));
+            throw new NotSupportedException(StringBuilderCache.Format("Less than or equal (<=) not supported for type {0}", typeof(T)));
         }
 
         public virtual bool EQ(T a, T b)
         {
-            throw new NotSupportedException("Equal (==) not supported for type " + typeof(T));
+            throw new NotSupportedException(StringBuilderCache.Format("Equal (==) not supported for type {0}", typeof(T)));
         }
 
         public virtual bool NE(T a, T b)
         {
-            throw new NotSupportedException("Equal (==) not supported for type " + typeof(T));
+            throw new NotSupportedException(StringBuilderCache.Format("Equal (==) not supported for type {0}", typeof(T)));
         }
 
         public virtual bool GE(T a, T b)
         {
-            throw new NotSupportedException("Greater than or equal (>=) not supported for type " + typeof(T));
+            throw new NotSupportedException(StringBuilderCache.Format("Greater than or equal (>=) not supported for type {0}", typeof(T)));
         }
 
         public virtual bool GT(T a, T b)
         {
-            throw new NotSupportedException("Greater than (>) not supported for type " + typeof(T));
+            throw new NotSupportedException(StringBuilderCache.Format("Greater than (>) not supported for type {0}", typeof(T)));
         }
     }
 }

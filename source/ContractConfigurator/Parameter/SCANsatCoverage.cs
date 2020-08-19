@@ -68,11 +68,11 @@ namespace ContractConfigurator
             {
                 if (currentCoverage > 0.0 && state != ParameterState.Complete)
                 {
-                    output = Localizer.Format("#cc.scansat.param.SCANsatCoverage.inProgress", ScanDisplayName(scanName), targetBody.CleanDisplayName(true), currentCoverage.ToString("N0"), coverage.ToString("N0"));
+                    output = Localizer.Format("#cc.scansat.param.SCANsatCoverage.inProgress", ScanDisplayName(scanName), targetBody.displayName, currentCoverage.ToString("N0"), coverage.ToString("N0"));
                 }
                 else
                 {
-                    output = Localizer.Format("#cc.scansat.param.SCANsatCoverage", ScanDisplayName(scanName), targetBody.CleanDisplayName(true), coverage.ToString("N0"));
+                    output = Localizer.Format("#cc.scansat.param.SCANsatCoverage", ScanDisplayName(scanName), targetBody.displayName, coverage.ToString("N0"));
                 }
             }
             else

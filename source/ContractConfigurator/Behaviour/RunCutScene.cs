@@ -37,7 +37,7 @@ namespace ContractConfigurator.Behaviour
 
         protected override void TriggerAction()
         {
-            LoggingUtil.LogVerbose(this, "Running cut scene '" + cutSceneDefinition.name + "'");
+            LoggingUtil.LogVerbose(this, "Running cut scene '{0}'", cutSceneDefinition.name);
 
             GameObject cutScene = new GameObject("CutScene");
             cutSceneExecutor = cutScene.AddComponent<CutSceneExecutor>();

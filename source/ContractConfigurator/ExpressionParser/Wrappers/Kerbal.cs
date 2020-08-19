@@ -232,7 +232,7 @@ namespace ContractConfigurator
 
         public static void RemoveKerbal(ProtoCrewMember pcm)
         {
-            LoggingUtil.LogVerbose(typeof(Kerbal), "Removing kerbal " + pcm.name + "...");
+            LoggingUtil.LogVerbose(typeof(Kerbal), "Removing kerbal {0}...", pcm.name);
             Vessel vessel = FlightGlobals.Vessels.Where(v => v.GetVesselCrew().Contains(pcm)).FirstOrDefault();
             if (vessel != null)
             {
@@ -257,7 +257,7 @@ namespace ContractConfigurator
                                 // Everything else
                                 else
                                 {
-                                    LoggingUtil.LogVerbose(typeof(Kerbal), "    Removing " + pcm.name + " from vessel " + vessel.vesselName);
+                                    LoggingUtil.LogVerbose(typeof(Kerbal), "    Removing {0} from vessel {1}", pcm.name, vessel.vesselName);
                                     p.RemoveCrewmember(pcm);
                                 }
                                 break;
@@ -278,7 +278,7 @@ namespace ContractConfigurator
                                 // Everything else
                                 else
                                 {
-                                    LoggingUtil.LogVerbose(typeof(Kerbal), "    Removing " + pcm.name + " from vessel " + vessel.vesselName);
+                                    LoggingUtil.LogVerbose(typeof(Kerbal), "    Removing {0} from vessel {1}", pcm.name, vessel.vesselName);
                                     pps.RemoveCrew(pcm);
                                 }
                                 break;

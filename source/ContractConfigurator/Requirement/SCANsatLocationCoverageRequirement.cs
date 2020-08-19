@@ -51,7 +51,7 @@ namespace ContractConfigurator
                 }
                 catch (Exception e)
                 {
-                    LoggingUtil.LogError(this, "Couldn't load PQSCity with name '" + pqsCity + "'");
+                    LoggingUtil.LogError(this, "Couldn't load PQSCity with name '{0}'", pqsCity);
                     LoggingUtil.LogException(e);
                     valid = false;
                 }
@@ -103,9 +103,9 @@ namespace ContractConfigurator
 
         protected override string RequirementText()
         {
-            string body = targetBody == null ? Localizer.GetStringByTag("#cc.req.ProgressCelestialBody.genericBody") : targetBody.CleanDisplayName(true);
-            string lat = StringBuilderCache.Format("<color=#{0}" + ">{1}</color>", MissionControlUI.RequirementHighlightColor, latitude.ToString("N1"));
-            string lon = StringBuilderCache.Format("<color=#{0}" + ">{1}</color>", MissionControlUI.RequirementHighlightColor, longitude.ToString("N1"));
+            string body = targetBody == null ? Localizer.GetStringByTag("#cc.req.ProgressCelestialBody.genericBody") : targetBody.displayName;
+            string lat = StringBuilderCache.Format("<color=#{0}>{1}</color>", MissionControlUI.RequirementHighlightColor, latitude.ToString("N1"));
+            string lon = StringBuilderCache.Format("<color=#{0}>{1}</color>", MissionControlUI.RequirementHighlightColor, longitude.ToString("N1"));
 
             return Localizer.Format(invertRequirement ? "#cc.scansat.req.SCANsatLocationCoverage.x" : "#cc.scansat.req.SCANsatLocationCoverage",
                 SCANsatCoverage.ScanDisplayName(scanType), lat, lon, body);

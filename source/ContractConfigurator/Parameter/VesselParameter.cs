@@ -160,11 +160,11 @@ namespace ContractConfigurator.Parameters
             // Check if the transition is allowed
             if (state == ParameterState.Complete && !ReadyToComplete())
             {
-                LoggingUtil.LogVerbose(this, "Not setting state for vessel " + vessel.id + ", not ready to complete!");
+                LoggingUtil.LogVerbose(this, "Not setting state for vessel {0}, not ready to complete!", vessel.id);
                 return false;
             }
 
-            LoggingUtil.LogVerbose(this, "SetState to " + state + " for vessel " + vessel.id);
+            LoggingUtil.LogVerbose(this, "SetState to {0} for vessel {1}", state, vessel.id);
 
             // Before we wreck anything, don't allow the default disable on state change logic
             if (disableOnStateChange)
@@ -230,7 +230,7 @@ namespace ContractConfigurator.Parameters
         /// <param name="vessel">The vessel to use for the state change.</param>
         public virtual void SetState(Vessel vessel)
         {
-            LoggingUtil.LogVerbose(this, "SetState to that of vessel " + (vessel != null ? vessel.id.ToString() : "null"));
+            LoggingUtil.LogVerbose(this, "SetState to that of vessel {0}", (vessel != null ? vessel.id.ToString() : "null"));
 
             if (vessel != null && vesselInfo.ContainsKey(vessel.id))
             {
@@ -393,7 +393,7 @@ namespace ContractConfigurator.Parameters
                 return;
             }
 
-            LoggingUtil.LogVerbose(this, "OnVesselCreate(" + vessel.id + ")");
+            LoggingUtil.LogVerbose(this, "OnVesselCreate({0})", vessel.id);
 
             // Go through the hashes to try to set the parameters for this vessel
             KeyValuePair<ParamStrength, double>? dockedInfo = null;
@@ -420,7 +420,7 @@ namespace ContractConfigurator.Parameters
                 v.completionTime = dockedInfo.Value.Value;
                 v.state = ParameterState.Complete;
                 vesselInfo[vessel.id] = v;
-                LoggingUtil.LogVerbose(this, "   set state to " + v.state + " and strength to " + v.strength);
+                LoggingUtil.LogVerbose(this, "   set state to {0} and strength to {1}", v.state, v.strength);
             }
             else
             {
@@ -434,7 +434,7 @@ namespace ContractConfigurator.Parameters
         {
             if (vessel != null)
             {
-                LoggingUtil.LogVerbose(this, "OnVesselChange(" + vessel.id + ")");
+                LoggingUtil.LogVerbose(this, "OnVesselChange({0})", vessel.id);
             }
 
             CheckVessel(vessel);
@@ -447,7 +447,7 @@ namespace ContractConfigurator.Parameters
                 return;
             }
 
-            LoggingUtil.LogVerbose(this, "OnPartJointBreak(" + p.Parent.vessel.id + ")");
+            LoggingUtil.LogVerbose(this, "OnPartJointBreak({0})", p.Parent.vessel.id);
 
             // Check if we need to make modifications based on undocking
             if (vesselInfo.ContainsKey(p.Parent.vessel.id) && vesselInfo[p.Parent.vessel.id].state == ParameterState.Complete)
@@ -597,10 +597,10 @@ namespace ContractConfigurator.Parameters
                 return;
             }
 
-            LoggingUtil.LogVerbose(this, "-> CheckVessel(" + vessel.id + ")");
+            LoggingUtil.LogVerbose(this, "-> CheckVessel({0})", vessel.id);
             if (IsIgnoredVesselType(vessel.vesselType))
             {
-                LoggingUtil.LogVerbose(this, "<- CheckVessel - ignored vessel type (" + vessel.vesselType + ")");
+                LoggingUtil.LogVerbose(this, "<- CheckVessel - ignored vessel type ({0})", vessel.vesselType);
                 return;
             }
 

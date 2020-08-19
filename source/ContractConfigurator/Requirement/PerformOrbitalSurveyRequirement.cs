@@ -45,7 +45,7 @@ namespace ContractConfigurator
 
         protected override string RequirementText()
         {
-            string body = targetBody == null ? Localizer.GetStringByTag("#cc.req.ProgressCelestialBody.genericBody") : targetBody.CleanDisplayName(true);
+            string body = targetBody == null ? Localizer.GetStringByTag("#cc.req.ProgressCelestialBody.genericBody") : targetBody.displayName;
             return Localizer.Format(invertRequirement ? "#cc.req.PerformOrbitalSurvey.x" : "#cc.req.PerformOrbitalSurvey", body);
         }
     }

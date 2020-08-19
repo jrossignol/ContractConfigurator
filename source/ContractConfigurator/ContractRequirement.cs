@@ -217,7 +217,7 @@ namespace ContractConfigurator
             bool nodeMet = RequirementMet(contract);
             nodeMet = invertRequirement ? !nodeMet : nodeMet;
             lastResult = nodeMet;
-            LoggingUtil.LogVerbose(typeof(ContractRequirement), "Checked requirement '" + name + "' of type " + type + ": " + nodeMet);
+            LoggingUtil.LogVerbose(typeof(ContractRequirement), "Checked requirement '{0}' of type {1}: {2}", name, type, nodeMet);
             return nodeMet;
         }
 
@@ -233,7 +233,7 @@ namespace ContractConfigurator
             bool allReqMet = true;
             try
             {
-                LoggingUtil.LogVerbose(typeof(ContractRequirement), "Checking requirements for contract '" + contractType.name);
+                LoggingUtil.LogVerbose(typeof(ContractRequirement), "Checking requirements for contract '{0}'", contractType.name);
                 foreach (ContractRequirement requirement in contractRequirements)
                 {
                     if (requirement.enabled)
@@ -246,7 +246,7 @@ namespace ContractConfigurator
                             {
                                 LoggingUtil.Log(contract != null && contract.ContractState == Contract.State.Active ? LoggingUtil.LogLevel.INFO :
                                     contract != null && contract.ContractState == Contract.State.Offered ? LoggingUtil.LogLevel.DEBUG : LoggingUtil.LogLevel.VERBOSE,
-                                    requirement.GetType(), "Contract " + contractType.name + ": requirement " + requirement.name + " was not met.");
+                                    requirement.GetType(), "Contract {0}: requirement {1} was not met.", contractType.name, requirement.name);
                                 break;
                             }
                         }
@@ -278,15 +278,12 @@ namespace ContractConfigurator
         /// <param name="typeName">Name to associate to the type</param>
         public static void Register(Type crType, string typeName)
         {
-            LoggingUtil.LogDebug(typeof(ContractRequirement), "Registering ContractRequirement class " +
-                crType.FullName + " for handling REQUIREMENT nodes with type = " + typeName + ".");
+            LoggingUtil.LogDebug(typeof(ContractRequirement), "Registering ContractRequirement class {0} for handling REQUIREMENT nodes with type = {1}.", crType.FullName, typeName);
 
             if (requirementTypes.ContainsKey(typeName))
             {
-                LoggingUtil.LogError(typeof(ContractRequirement), "Cannot register " + crType.FullName + "[" + crType.Module +
-                    "] to handle type " + typeName + ": already handled by " +
-                    requirementTypes[typeName].FullName + "[" +
-                    requirementTypes[typeName].Module + "]");
+                LoggingUtil.LogError(typeof(ContractRequirement), "Cannot register {0}[{1}] to handle type {2}: already handled by {3}[{4}]",
+                    crType.FullName, crType.Module, typeName, requirementTypes[typeName].FullName, requirementTypes[typeName].Module);
             }
             else
             {
@@ -317,16 +314,15 @@ namespace ContractConfigurator
             string name = configNode.HasValue("name") ? configNode.GetValue("name") : type;
             if (string.IsNullOrEmpty(type))
             {
-                LoggingUtil.LogError(typeof(ParameterFactory), "CONTRACT_TYPE '" + contractType.name + "'," +
-                    "REQUIREMENT '" + configNode.GetValue("name") + "' does not specify the mandatory 'type' attribute.");
+                LoggingUtil.LogError(typeof(ParameterFactory), "CONTRACT_TYPE '{0}', REQUIREMENT '{1}' does not specify the mandatory 'type' attribute.",
+                    contractType.name, configNode.GetValue("name"));
                 requirement = new InvalidContractRequirement();
                 valid = false;
             }
             else if (!requirementTypes.ContainsKey(type))
             {
-                LoggingUtil.LogError(typeof(ParameterFactory), "CONTRACT_TYPE '" + contractType.name + "'," +
-                    "REQUIREMENT '" + configNode.GetValue("name") + "' of type '" + configNode.GetValue("type") + "': " +
-                    "Unknown requirement '" + type + "'.");
+                LoggingUtil.LogError(typeof(ParameterFactory), "CONTRACT_TYPE '{0}', REQUIREMENT '{1}' of type '{2}': Unknown requirement '{3}'.",
+                    contractType.name, configNode.GetValue("name"), configNode.GetValue("type"), type);
                 requirement = new InvalidContractRequirement();
                 valid = false;
             }
@@ -380,7 +376,7 @@ namespace ContractConfigurator
             {
                 valid = contractType.minVersion < ContractConfigurator.ENHANCED_UI_VERSION;
                 LoggingUtil.Log(contractType.minVersion >= ContractConfigurator.ENHANCED_UI_VERSION ? LoggingUtil.LogLevel.ERROR : LoggingUtil.LogLevel.WARNING,
-                    requirement, requirement.ErrorPrefix(configNode) + ": missing required attribute 'title'.");
+                    requirement, "{0}: missing required attribute 'title'.", requirement.ErrorPrefix(configNode));
             }
 
             requirement.enabled = valid;
@@ -390,16 +386,27 @@ namespace ContractConfigurator
             return valid;
         }
 
+
         public string ErrorPrefix()
         {
-            return (contractType != null ? "CONTRACT_TYPE '" + contractType.name + "', " : "") + 
-                "REQUIREMENT '" + name + "' of type '" + type + "'";
+            return ErrorPrefix(name, type);
         }
 
         public string ErrorPrefix(ConfigNode configNode)
         {
-            return (contractType != null ? "CONTRACT_TYPE '" + contractType.name + "', " : "") + 
-                "REQUIREMENT '" + configNode.GetValue("name") + "' of type '" + configNode.GetValue("type") + "'";
+            return ErrorPrefix(configNode.GetValue("name"), type ?? configNode.GetValue("type"));
+        }
+
+        private string ErrorPrefix(string name, string type)
+        {
+            if (contractType != null)
+            {
+                return StringBuilderCache.Format("CONTRACT_TYPE '{0}', REQUIREMENT '{1}' of type '{2}'", contractType.name, (name ?? "<blank>"), type);
+            }
+            else
+            {
+                return StringBuilderCache.Format("REQUIREMENT '{0}' of type '{1}'", (name ?? "<blank>"), type);
+            }
         }
 
         /// <summary>
@@ -411,7 +418,7 @@ namespace ContractConfigurator
         {
             if (targetBody == null && dataNode.IsDeterministic("targetBody") && dataNode.IsInitialized("targetBody"))
             {
-                LoggingUtil.LogError(this, ErrorPrefix(configNode) + ": targetBody for " + GetType() + " must be specified.");
+                LoggingUtil.LogError(this, "{0}: targetBody for {1} must be specified.", ErrorPrefix(configNode), GetType());
                 return false;
             }
             return true;

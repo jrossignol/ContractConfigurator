@@ -119,7 +119,7 @@ namespace ContractConfigurator
                 if (configNode.HasValue("sortKey") && parent == null)
                 {
                     sortKey = displayName;
-                    LoggingUtil.LogWarning(this, ErrorPrefix() + ": Using the sortKey field is only applicable on child CONTRACT_GROUP elements");
+                    LoggingUtil.LogWarning(this, "{0}: Using the sortKey field is only applicable on child CONTRACT_GROUP elements", ErrorPrefix());
                 }
 
                 if (!string.IsNullOrEmpty(minVersionStr))
@@ -147,15 +147,15 @@ namespace ContractConfigurator
                 // Do post-deferred load warnings
                 if (agent == null)
                 {
-                    LoggingUtil.LogWarning(this, ErrorPrefix() + ": Providing the agent field for all CONTRACT_GROUP nodes is highly recommended, as the agent is used to group contracts in Mission Control.");
+                    LoggingUtil.LogWarning(this, "{0}: Providing the agent field for all CONTRACT_GROUP nodes is highly recommended, as the agent is used to group contracts in Mission Control.", ErrorPrefix());
                 }
                 if (string.IsNullOrEmpty(minVersionStr) || minVersion < ContractConfigurator.ENHANCED_UI_VERSION)
                 {
-                    LoggingUtil.LogWarning(this, ErrorPrefix() + ": No minVersion or older minVersion provided.  It is recommended that the minVersion is set to at least 1.15.0 to turn important warnings for deprecated functionality into errors.");
+                    LoggingUtil.LogWarning(this, "{0}: No minVersion or older minVersion provided.  It is recommended that the minVersion is set to at least 1.15.0 to turn important warnings for deprecated functionality into errors.", ErrorPrefix());
                 }
                 if (!configNode.HasValue("displayName"))
                 {
-                    LoggingUtil.LogWarning(this, ErrorPrefix() + ": No display name provided.  A display name is recommended, as it is used in the Mission Control UI.");
+                    LoggingUtil.LogWarning(this, "{0}: No display name provided.  A display name is recommended, as it is used in the Mission Control UI.", ErrorPrefix());
                 }
 
                 config = configNode.ToString();
@@ -173,7 +173,7 @@ namespace ContractConfigurator
                     }
                     catch (ArgumentException)
                     {
-                        LoggingUtil.LogError(this, "Couldn't load CONTRACT_GROUP '" + childName + "' due to a duplicate name.");
+                        LoggingUtil.LogError(this, "Couldn't load CONTRACT_GROUP '{0}' due to a duplicate name.", childName);
                         valid = false;
                         continue;
                     }
@@ -259,7 +259,7 @@ namespace ContractConfigurator
                 if (!ContractGroup.AllGroups.Where(g => g != null && g.parent != null && g.parent.name == name).Any())
                 {
                     LoggingUtil.CaptureLog = true;
-                    LoggingUtil.LogWarning(this, "Contract group '" + name + "' contains no contract types or child groups!");
+                    LoggingUtil.LogWarning(this, "Contract group '{0}' contains no contract types or child groups!", name);
                     log += LoggingUtil.capturedLog;
                     LoggingUtil.CaptureLog = false;
                     hasWarnings = true;
@@ -280,12 +280,12 @@ namespace ContractConfigurator
         /// <returns></returns>
         public override string ToString()
         {
-            return "CONTRACT_GROUP[" + name + "]";
+            return StringBuilderCache.Format("CONTRACT_GROUP[{0}]", name);
         }
         
         public string ErrorPrefix()
         {
-            return "CONTRACT_GROUP '" + name + "'";
+            return StringBuilderCache.Format("CONTRACT_GROUP '{0}'", name);
         }
 
         public string ErrorPrefix(ConfigNode configNode)

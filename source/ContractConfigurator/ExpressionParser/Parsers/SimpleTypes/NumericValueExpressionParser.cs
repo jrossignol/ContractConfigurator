@@ -456,7 +456,7 @@ namespace ContractConfigurator.ExpressionParser
                 }
                 else
                 {
-                    LoggingUtil.LogWarning(this, "Unable to retrieve value for '" + token.sval + "' - PersistentDataStore is null.  This is likely caused by another ScenarioModule crashing, preventing others from loading.");
+                    LoggingUtil.LogWarning(this, "Unable to retrieve value for '{0}' - PersistentDataStore is null.  This is likely caused by another ScenarioModule crashing, preventing others from loading.", token.sval);
                     return default(T);
                 }
             }

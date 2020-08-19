@@ -31,7 +31,7 @@ namespace ContractConfigurator
             {
                 if (configNode.GetValues("vessel").Count() > 1)
                 {
-                    LoggingUtil.LogError(this, ErrorPrefix() + ": When used under a VesselParameterGroup, no more than one vessel may be specified for the Docking parameter.");
+                    LoggingUtil.LogError(this, "{0}: When used under a VesselParameterGroup, no more than one vessel may be specified for the Docking parameter.", ErrorPrefix());
                     valid = false;
                 }
             }
@@ -39,12 +39,12 @@ namespace ContractConfigurator
             {
                 if (configNode.GetValues("vessel").Count() == 0)
                 {
-                    LoggingUtil.LogError(this, ErrorPrefix() + ": Need at least one vessel specified for the Docking parameter.");
+                    LoggingUtil.LogError(this, "{0}: Need at least one vessel specified for the Docking parameter.", ErrorPrefix());
                     valid = false;
                 }
                 if (configNode.GetValues("vessel").Count() > 2)
                 {
-                    LoggingUtil.LogError(this, ErrorPrefix() + ": Cannot specify more than two vessels for the Docking parameter.");
+                    LoggingUtil.LogError(this, "{0}: Cannot specify more than two vessels for the Docking parameter.", ErrorPrefix());
                     valid = false;
                 }
             }

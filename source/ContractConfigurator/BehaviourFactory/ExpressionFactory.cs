@@ -27,7 +27,7 @@ namespace ContractConfigurator.Behaviour
             catch (Exception e)
             {
                 valid = false;
-                LoggingUtil.LogError(this, ErrorPrefix(configNode) + ": Couldn't load expression.");
+                LoggingUtil.LogError(this, "{0}: Couldn't load expression.", ErrorPrefix(configNode));
                 LoggingUtil.LogException(e);
             }
 

@@ -214,7 +214,7 @@ namespace ContractConfigurator.Parameters
             }
 
             LoggingUtil.LogVerbose(this, "OnCrewKilled");
-            LoggingUtil.LogVerbose(this, "    report.sender = " + report.sender);
+            LoggingUtil.LogVerbose(this, "    report.sender = {0}", report.sender);
 
             if (kerbals.Any() || vesselIdentifier != null)
             {

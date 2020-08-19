@@ -160,7 +160,7 @@ namespace ContractConfigurator
             // First check any requirements
             if (!ContractRequirement.RequirementsMet(contract, contract.contractType, requirements))
             {
-                LoggingUtil.LogVerbose(typeof(ParameterFactory), "Returning null for " + contract.contractType.name + "." + name + ": requirements not met.");
+                LoggingUtil.LogVerbose(typeof(ParameterFactory), "Returning null for {0}.{1}: requirements not met.", contract.contractType.name, name);
                 return null;
             }
 
@@ -168,7 +168,7 @@ namespace ContractConfigurator
             ContractParameter parameter = Generate(contract);
             if (parameter == null)
             {
-                LoggingUtil.LogWarning(this, GetType().FullName + ".Generate() returned a null ContractParameter!");
+                LoggingUtil.LogWarning(this, "{0}.Generate() returned a null ContractParameter!", GetType().FullName);
                 return null;
             }
 
@@ -275,8 +275,7 @@ namespace ContractConfigurator
         /// <param name="typeName">The name of the factory.</param>
         public static void Register(Type factoryType, string typeName)
         {
-            LoggingUtil.LogDebug(typeof(ParameterFactory), "Registering parameter factory class " +
-                factoryType.FullName + " for handling PARAMETER nodes with type = " + typeName + ".");
+            LoggingUtil.LogDebug(typeof(ParameterFactory), "Registering parameter factory class {0} for handling PARAMETER nodes with type = {1}.", factoryType.FullName, typeName);
 
             // Make sure we can instantiate it (this will also run any static initializers)
             Activator.CreateInstance(factoryType);
@@ -293,10 +292,8 @@ namespace ContractConfigurator
                 // If neither are the Contract Configurator type, throw an error
                 else if (factoryType.Assembly != typeof(ParameterFactory).Assembly)
                 {
-                    LoggingUtil.LogError(typeof(ParameterFactory), "Cannot register " + factoryType.FullName + "[" + factoryType.Module +
-                        "] to handle type " + typeName + ": already handled by " +
-                        existingType.FullName + "[" +
-                        existingType.Module + "]");
+                    LoggingUtil.LogError(typeof(ParameterFactory), "Cannot register {0}[{1}] to handle type {2}: already handled by {3}[{4}]",
+                        factoryType.FullName, factoryType.Module, typeName, existingType.FullName, existingType.Module);
                 }
             }
             else
@@ -326,16 +323,15 @@ namespace ContractConfigurator
             string name = parameterConfig.HasValue("name") ? parameterConfig.GetValue("name") : type;
             if (string.IsNullOrEmpty(type))
             {
-                LoggingUtil.LogError(typeof(ParameterFactory), "CONTRACT_TYPE '" + contractType.name + "'," +
-                    "PARAMETER '" + parameterConfig.GetValue("name") + "' does not specify the mandatory 'type' attribute.");
+                LoggingUtil.LogError(typeof(ParameterFactory), "CONTRACT_TYPE '{0}', PARAMETER '{1}' does not specify the mandatory 'type' attribute.",
+                    contractType.name, parameterConfig.GetValue("name"));
                 paramFactory = new InvalidParameterFactory();
                 valid = false;
             }
             else if (!factories.ContainsKey(type))
             {
-                LoggingUtil.LogError(typeof(ParameterFactory), "CONTRACT_TYPE '" + contractType.name + "'," +
-                    "PARAMETER '" + parameterConfig.GetValue("name") + "' of type '" + parameterConfig.GetValue("type") + "': " +
-                    "Unknown parameter '" + type + "'.");
+                LoggingUtil.LogError(typeof(ParameterFactory), "CONTRACT_TYPE '{0}', PARAMETER '{1}' of type '{2}': Unknown parameter '{3}'.",
+                    contractType.name, parameterConfig.GetValue("name"), parameterConfig.GetValue("type"), type);
                 paramFactory = new InvalidParameterFactory();
                 valid = false;
             }
@@ -417,8 +413,7 @@ namespace ContractConfigurator
         /// <returns>Prefix for error messages.</returns>
         public string ErrorPrefix()
         {
-            return (contractType != null ? "CONTRACT_TYPE '" + contractType.name + "', " : "") + 
-                "PARAMETER '" + name + "' of type '" + type + "'";
+            return ErrorPrefix(name, type);
         }
 
         /// <summary>
@@ -428,8 +423,19 @@ namespace ContractConfigurator
         /// <returns>Prefix for error messages.</returns>
         public string ErrorPrefix(ConfigNode configNode)
         {
-            return (contractType != null ? "CONTRACT_TYPE '" + contractType.name + "', " : "") + 
-                "PARAMETER '" + configNode.GetValue("name") + "' of type '" + configNode.GetValue("type") + "'";
+            return ErrorPrefix(configNode.GetValue("name"), type ?? configNode.GetValue("type"));
+        }
+
+        private string ErrorPrefix(string name, string type)
+        {
+            if (contractType != null)
+            {
+                return StringBuilderCache.Format("CONTRACT_TYPE '{0}', PARAMETER '{1}' of type '{2}'", contractType.name, (name ?? "<blank>"), type);
+            }
+            else
+            {
+                return StringBuilderCache.Format("PARAMETER '{0}' of type '{1}'", (name ?? "<blank>"), type);
+            }
         }
 
         /// <summary>
@@ -441,7 +447,7 @@ namespace ContractConfigurator
         {
             if (targetBody == null && dataNode.IsDeterministic("targetBody") && dataNode.IsInitialized("targetBody"))
             {
-                LoggingUtil.LogError(this, ErrorPrefix(configNode) + ": targetBody for " + GetType() + " must be specified.");
+                LoggingUtil.LogError(this, "{0}: targetBody for {1} must be specified.", ErrorPrefix(configNode), GetType());
                 return false;
             }
             return true;

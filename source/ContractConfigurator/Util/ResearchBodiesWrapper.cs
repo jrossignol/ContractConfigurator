@@ -611,7 +611,7 @@ namespace ContractConfigurator
         [Conditional("DEBUG")]
         internal static void LogFormatted_DebugOnly(String Message, params Object[] strParams)
         {
-            LoggingUtil.LogDebug(typeof(RBWrapper), StringBuilderCache.Format(Message, strParams));
+            LoggingUtil.LogDebug(typeof(RBWrapper),Message, strParams);
         }
 
         /// <summary>
