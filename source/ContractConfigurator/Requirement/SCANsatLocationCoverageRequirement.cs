@@ -108,7 +108,7 @@ namespace ContractConfigurator
             string lon = StringBuilderCache.Format("<color=#{0}>{1}</color>", MissionControlUI.RequirementHighlightColor, longitude.ToString("N1"));
 
             return Localizer.Format(invertRequirement ? "#cc.scansat.req.SCANsatLocationCoverage.x" : "#cc.scansat.req.SCANsatLocationCoverage",
-                lat, lon, body, SCANsatCoverage.ScanDisplayName(scanType));
+                SCANsatCoverage.ScanDisplayName(scanType), lat, lon, body);
         }
     }
 }
