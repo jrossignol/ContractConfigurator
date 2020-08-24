@@ -372,10 +372,11 @@ namespace ContractConfigurator.Behaviour
                     {
                         sizeClass = UntrackedObjectClass.D;
                     }
-                    else if (size < 31.25f)
+                    else if (size < 31.25f || (Versioning.version_major <= 1 && Versioning.version_minor <= 10))
                     {
                         sizeClass = UntrackedObjectClass.E;
                     }
+                    // Only for KSP 1.10+
                     else if (size < 52.125f)
                     {
                         sizeClass = UntrackedObjectClass.F;
