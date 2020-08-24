@@ -1,3 +1,6 @@
+Contract Configurator 1.30.1
+- Translation for Chinese Simplified (thanks tinygrox).
+
 Contract Configurator 1.30.0
 - Recompile against KSP 1.10.1.
 - Localization support.
