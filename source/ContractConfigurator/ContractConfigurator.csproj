@@ -246,6 +246,7 @@
     <Compile Include="ParameterFactory\PerformOrbitalSurveyFactory.cs" />
     <Compile Include="ParameterFactory\VesselDestroyedFactory.cs" />
     <Compile Include="ScenarioModules\BiomeTracker.cs" />
+    <Compile Include="Util\ContractConfiguratorException.cs" />
     <Compile Include="Util\LocalizationUtil.cs" />
     <Compile Include="Util\ResearchBodiesWrapper.cs" />
     <Compile Include="Util\DebugWindow.cs" />

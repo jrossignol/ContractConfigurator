@@ -40,31 +40,40 @@ namespace ContractConfigurator.Parameters
 
         protected override string GetTitle()
         {
-            if (hidden)
+            string output = "";
+            try
             {
-                return "";
-            }
-            
-            if (Parent != null)
-            {
-                ContractConfiguratorParameter ccpParent = Parent as ContractConfiguratorParameter;
-                if (ccpParent != null && ccpParent.hideChildren)
+                if (hidden)
                 {
                     return "";
                 }
+
+                if (Parent != null)
+                {
+                    ContractConfiguratorParameter ccpParent = Parent as ContractConfiguratorParameter;
+                    if (ccpParent != null && ccpParent.hideChildren)
+                    {
+                        return "";
+                    }
+                }
+
+                // (Optional)
+                output = (optional && !fakeOptional && string.IsNullOrEmpty(title) ?
+                    StringBuilderCache.Format("{0} {1}", Localizer.GetStringByTag("#cc.param.optionalTag"), GetParameterTitle()) :
+                    GetParameterTitle());
+
+                // Update the contract window title
+                titleTracker.Add(output);
+                if (lastTitle != output && Root != null && (Root.ContractState == Contract.State.Active || Root.ContractState == Contract.State.Failed))
+                {
+                    titleTracker.UpdateContractWindow(output);
+                    lastTitle = output;
+                }
             }
-
-            // (Optional)
-            string output = (optional && !fakeOptional && string.IsNullOrEmpty(title) ?
-                StringBuilderCache.Format("{0} {1}", Localizer.GetStringByTag("#cc.param.optionalTag"), GetParameterTitle()) :
-                GetParameterTitle());
-
-            // Update the contract window title
-            titleTracker.Add(output);
-            if (lastTitle != output && Root != null && (Root.ContractState == Contract.State.Active || Root.ContractState == Contract.State.Failed))
+            catch (Exception e)
             {
-                titleTracker.UpdateContractWindow(output);
-                lastTitle = output;
+                // Don't let exceptions mess us up
+                LoggingUtil.LogException(new ContractConfiguratorException(this, e));
             }
 
             return output;
@@ -125,7 +134,7 @@ namespace ContractConfigurator.Parameters
             }
             catch (Exception e)
             {
-                LoggingUtil.LogException(e);
+                LoggingUtil.LogException(new ContractConfiguratorException(this, e));
                 ExceptionLogWindow.DisplayFatalException(ExceptionLogWindow.ExceptionSituation.PARAMETER_SAVE, e, Root.ToString(), ID);
             }
         }
@@ -159,12 +168,13 @@ namespace ContractConfigurator.Parameters
             }
             catch (Exception e)
             {
-                string contractName = "unknown";
+                string contractName = "<unknown contract type>";
                 try
                 {
                     contractName = ConfigNodeUtil.ParseValue<string>(node, "ContractIdentifier");
                 }
                 catch { }
+                LoggingUtil.LogError(this, "Error loading contract parameter in contract {0}:", contractName);
                 LoggingUtil.LogException(e);
                 ExceptionLogWindow.DisplayFatalException(ExceptionLogWindow.ExceptionSituation.PARAMETER_LOAD, e, contractName, ID);
             }

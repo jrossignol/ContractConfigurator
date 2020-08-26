@@ -352,10 +352,11 @@ namespace ContractConfigurator
             }
             catch (Exception e)
             {
-                LoggingUtil.LogError(this, "Error generating contract!");
+                string contractTypeName = contractType == null ? "<unknown contract type>" : contractType.FullName;
+                LoggingUtil.LogError(this, "Error generating contract {0}!", contractTypeName);
                 LoggingUtil.LogException(e);
                 ExceptionLogWindow.DisplayFatalException(ExceptionLogWindow.ExceptionSituation.CONTRACT_GENERATION, e,
-                    contractType == null ? "unknown" : contractType.FullName);
+                    contractTypeName);
 
                 try
                 {
@@ -496,7 +497,7 @@ namespace ContractConfigurator
             catch (Exception e)
             {
                 LoggingUtil.LogError(this, "Error loading contract from persistance file!");
-                LoggingUtil.LogException(e);
+                LoggingUtil.LogException(new ContractConfiguratorException(this, e));
                 ExceptionLogWindow.DisplayFatalException(ExceptionLogWindow.ExceptionSituation.CONTRACT_LOAD, e, this);
 
                 try
