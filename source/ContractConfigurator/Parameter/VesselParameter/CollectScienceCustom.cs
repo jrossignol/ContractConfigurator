@@ -110,11 +110,15 @@ namespace ContractConfigurator.Parameters
                 else
                 {
                     string experimentStr = (experiment.Count > 1 ? Localizer.GetStringByTag("#cc.science.experiment.many") : ExperimentName(experiment[0]));
-                    string biomeStr = string.IsNullOrEmpty(biome) ? targetBody.displayName : new Biome(targetBody, biome).ToString();
+                    string biomeStr = string.IsNullOrEmpty(biome) ? (targetBody == null ? null : targetBody.displayName) : new Biome(targetBody, biome).ToString();
                     string situationStr = situation != null ? situation.Value.Print().ToLower() :
                         location != null ? Localizer.GetStringByTag(location.Value == BodyLocation.Surface ? "#cc.science.location.Surface" : "#cc.science.location.Space") : null;
 
-                    if (situationStr == null)
+                    if (biomeStr == null)
+                    {
+                        output = Localizer.Format("#cc.param.CollectScience.1", experimentStr);
+                    }
+                    else if (situationStr == null)
                     {
                         output = Localizer.Format("#cc.param.CollectScience.2", experimentStr, biomeStr);
                     }
