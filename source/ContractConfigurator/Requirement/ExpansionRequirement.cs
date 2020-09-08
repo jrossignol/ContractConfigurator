@@ -16,7 +16,7 @@ namespace ContractConfigurator
     {
         protected enum Expansion
         {
-            [Description("#autoLOC_8400166")]       MakingHistory,
+            [Description("#cc.expansion.MakingHistory")]       MakingHistory,
             [Description("#cc.expansion.Serenity")] Serenity
         }
         protected Expansion expansion;

@@ -128,15 +128,15 @@ namespace ContractConfigurator.Parameters
                 string output;
                 if (minAltitude == float.MinValue)
                 {
-                    output = Localizer.Format("#cc.param.Orbit.below.meters", Localizer.GetStringByTag("#autoLOC_8000093"), maxAltitude.ToString("N0"));
+                    output = Localizer.Format("#cc.param.Orbit.below.meters", Localizer.GetStringByTag("#cc.altitude"), maxAltitude.ToString("N0"));
                 }
                 else if (maxAltitude == float.MaxValue)
                 {
-                    output = Localizer.Format("#cc.param.Orbit.above.meters", Localizer.GetStringByTag("#autoLOC_8000093"), minAltitude.ToString("N0"));
+                    output = Localizer.Format("#cc.param.Orbit.above.meters", Localizer.GetStringByTag("#cc.altitude"), minAltitude.ToString("N0"));
                 }
                 else
                 {
-                    output = Localizer.Format("#cc.param.Orbit.between.meters", Localizer.GetStringByTag("#autoLOC_8000093"), minAltitude.ToString("N0"), maxAltitude.ToString("N0"));
+                    output = Localizer.Format("#cc.param.Orbit.between.meters", Localizer.GetStringByTag("#cc.altitude"), minAltitude.ToString("N0"), maxAltitude.ToString("N0"));
                 }
 
                 AddParameter(new ParameterDelegate<Vessel>(output, CheckVesselAltitude));

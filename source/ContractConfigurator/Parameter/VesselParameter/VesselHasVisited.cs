@@ -29,7 +29,7 @@ namespace ContractConfigurator.Parameters
         {
             if (title == null)
             {
-                string bodyStr = (destination != null) ? destination.displayName : Localizer.GetStringByTag("#autoLOC_8000273").ToLower();
+                string bodyStr = (destination != null) ? destination.displayName : Localizer.GetStringByTag("#cc.anyBody").ToLower();
                 switch (entryType)
                 {
                     case FlightLog.EntryType.BoardVessel:

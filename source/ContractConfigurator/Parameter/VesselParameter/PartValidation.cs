@@ -215,7 +215,7 @@ namespace ContractConfigurator.Parameters
                 case "Generator":
                     return Localizer.GetStringByTag("#autoLOC_235532");
                 case "Grapple":
-                    return Localizer.GetStringByTag("#autoLOC_8005456");
+                    return Localizer.GetStringByTag("#cc.parts.grapple");
                 case "Wheel":
                     return Localizer.GetStringByTag("#autoLOC_148102");
                 default:

@@ -154,15 +154,15 @@ namespace ContractConfigurator.Parameters
                 string output;
                 if (minAltitude == 0.0)
                 {
-                    output = Localizer.Format("#cc.param.Orbit.below.meters", Localizer.GetStringByTag("#autoLOC_8000093"), maxAltitude.ToString("N0"));
+                    output = Localizer.Format("#cc.param.Orbit.below.meters", Localizer.GetStringByTag("#cc.altitude"), maxAltitude.ToString("N0"));
                 }
                 else if (maxAltitude == double.MaxValue)
                 {
-                    output = Localizer.Format("#cc.param.Orbit.above.meters", Localizer.GetStringByTag("#autoLOC_8000093"), minAltitude.ToString("N0"));
+                    output = Localizer.Format("#cc.param.Orbit.above.meters", Localizer.GetStringByTag("#cc.altitude"), minAltitude.ToString("N0"));
                 }
                 else
                 {
-                    output = Localizer.Format("#cc.param.Orbit.between.meters", Localizer.GetStringByTag("#autoLOC_8000093"), minAltitude.ToString("N0"), maxAltitude.ToString("N0"));
+                    output = Localizer.Format("#cc.param.Orbit.between.meters", Localizer.GetStringByTag("#cc.altitude"), minAltitude.ToString("N0"), maxAltitude.ToString("N0"));
                 }
 
                 AddParameter(new ParameterDelegate<Vessel>(output, v => v.orbit.PeA >= minAltitude && v.orbit.ApA <= maxAltitude));
@@ -174,15 +174,15 @@ namespace ContractConfigurator.Parameters
                 string output;
                 if (minApoapsis == 0.0)
                 {
-                    output = Localizer.Format("#cc.param.Orbit.below.meters", Localizer.GetStringByTag("#autoLOC_8100059"), maxApoapsis.ToString("N0"));
+                    output = Localizer.Format("#cc.param.Orbit.below.meters", Localizer.GetStringByTag("#cc.apoapsis"), maxApoapsis.ToString("N0"));
                 }
                 else if (maxApoapsis == double.MaxValue)
                 {
-                    output = Localizer.Format("#cc.param.Orbit.above.meters", Localizer.GetStringByTag("#autoLOC_8100059"), minApoapsis.ToString("N0"));
+                    output = Localizer.Format("#cc.param.Orbit.above.meters", Localizer.GetStringByTag("#cc.apoapsis"), minApoapsis.ToString("N0"));
                 }
                 else
                 {
-                    output = Localizer.Format("#cc.param.Orbit.between.meters", Localizer.GetStringByTag("#autoLOC_8100059"), minApoapsis.ToString("N0"), maxApoapsis.ToString("N0"));
+                    output = Localizer.Format("#cc.param.Orbit.between.meters", Localizer.GetStringByTag("#cc.apoapsis"), minApoapsis.ToString("N0"), maxApoapsis.ToString("N0"));
                 }
 
                 AddParameter(new ParameterDelegate<Vessel>(output, v => v.orbit.ApA >= minApoapsis && v.orbit.ApA <= maxApoapsis));
@@ -194,15 +194,15 @@ namespace ContractConfigurator.Parameters
                 string output;
                 if (minPeriapsis == 0.0)
                 {
-                    output = Localizer.Format("#cc.param.Orbit.below.meters", Localizer.GetStringByTag("#autoLOC_8100060"), maxPeriapsis.ToString("N0"));
+                    output = Localizer.Format("#cc.param.Orbit.below.meters", Localizer.GetStringByTag("#cc.periapsis"), maxPeriapsis.ToString("N0"));
                 }
                 else if (maxPeriapsis == double.MaxValue)
                 {
-                    output = Localizer.Format("#cc.param.Orbit.above.meters", Localizer.GetStringByTag("#autoLOC_8100060"), minPeriapsis.ToString("N0"));
+                    output = Localizer.Format("#cc.param.Orbit.above.meters", Localizer.GetStringByTag("#cc.periapsis"), minPeriapsis.ToString("N0"));
                 }
                 else
                 {
-                    output = Localizer.Format("#cc.param.Orbit.between.meters", Localizer.GetStringByTag("#autoLOC_8100060"), minPeriapsis.ToString("N0"), maxPeriapsis.ToString("N0"));
+                    output = Localizer.Format("#cc.param.Orbit.between.meters", Localizer.GetStringByTag("#cc.periapsis"), minPeriapsis.ToString("N0"), maxPeriapsis.ToString("N0"));
                 }
 
                 AddParameter(new ParameterDelegate<Vessel>(output, v => v.orbit.PeA >= minPeriapsis && v.orbit.PeA <= maxPeriapsis));
@@ -214,15 +214,15 @@ namespace ContractConfigurator.Parameters
                 string output;
                 if (minEccentricity == 0.0)
                 {
-                    output = Localizer.Format("#cc.param.Orbit.below.nounits", Localizer.GetStringByTag("#autoLOC_8100061"), maxEccentricity.ToString("F4"));
+                    output = Localizer.Format("#cc.param.Orbit.below.nounits", Localizer.GetStringByTag("#cc.eccentricity"), maxEccentricity.ToString("F4"));
                 }
                 else if (maxEccentricity == double.MaxValue)
                 {
-                    output = Localizer.Format("#cc.param.Orbit.above.nounits", Localizer.GetStringByTag("#autoLOC_8100061"), minEccentricity.ToString("F4"));
+                    output = Localizer.Format("#cc.param.Orbit.above.nounits", Localizer.GetStringByTag("#cc.eccentricity"), minEccentricity.ToString("F4"));
                 }
                 else
                 {
-                    output = Localizer.Format("#cc.param.Orbit.between.nounits", Localizer.GetStringByTag("#autoLOC_8100061"), minEccentricity.ToString("F4"), maxEccentricity.ToString("F4"));
+                    output = Localizer.Format("#cc.param.Orbit.between.nounits", Localizer.GetStringByTag("#cc.eccentricity"), minEccentricity.ToString("F4"), maxEccentricity.ToString("F4"));
                 }
 
                 AddParameter(new ParameterDelegate<Vessel>(output, v => v.orbit.eccentricity >= minEccentricity && v.orbit.eccentricity <= maxEccentricity));
@@ -234,15 +234,15 @@ namespace ContractConfigurator.Parameters
                 string output;
                 if (minInclination == 0.0)
                 {
-                    output = Localizer.Format("#cc.param.Orbit.below.degrees", Localizer.GetStringByTag("#autoLOC_8100062"), maxInclination.ToString("F1"));
+                    output = Localizer.Format("#cc.param.Orbit.below.degrees", Localizer.GetStringByTag("#cc.inclination"), maxInclination.ToString("F1"));
                 }
                 else if (maxInclination == 180.0)
                 {
-                    output = Localizer.Format("#cc.param.Orbit.above.degrees", Localizer.GetStringByTag("#autoLOC_8100062"), minInclination.ToString("F1"));
+                    output = Localizer.Format("#cc.param.Orbit.above.degrees", Localizer.GetStringByTag("#cc.inclination"), minInclination.ToString("F1"));
                 }
                 else
                 {
-                    output = Localizer.Format("#cc.param.Orbit.between.degrees", Localizer.GetStringByTag("#autoLOC_8100062"), minInclination.ToString("F1"), maxInclination.ToString("F1"));
+                    output = Localizer.Format("#cc.param.Orbit.between.degrees", Localizer.GetStringByTag("#cc.inclination"), minInclination.ToString("F1"), maxInclination.ToString("F1"));
                 }
 
                 AddParameter(new ParameterDelegate<Vessel>(output, CheckInclination));
