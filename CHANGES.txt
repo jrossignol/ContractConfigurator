@@ -1,3 +1,6 @@
+Contract Configurator 1.30.3
+- Fixed issue where invertRequirement was no longer allowed for Any (and All) REQUIREMENT nodes (thanks Morphisor).
+
 Contract Configurator 1.30.2
 - Backport localization tags missing from KSP 1.8 into Contract Configurator (thanks MatjaBrown, TomTheHand, IonTracks & Lignite).
 

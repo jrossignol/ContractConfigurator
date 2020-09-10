@@ -20,9 +20,6 @@ namespace ContractConfigurator
             // Load base class
             bool valid = base.LoadFromConfig(configNode);
 
-            // Not invertable
-            valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "invertRequirement", x => invertRequirement = x, this, false, x => Validation.EQ(x, false));
-
             return valid;
         }
 
@@ -44,7 +41,7 @@ namespace ContractConfigurator
 
         protected override string RequirementText()
         {
-            return Localizer.Format("#cc.req.Any", MissionControlUI.RequirementHighlightColor);
+            return Localizer.Format(invertRequirement ? "#cc.req.Any.x" : "#cc.req.Any", MissionControlUI.RequirementHighlightColor);
         }
     }
 }
