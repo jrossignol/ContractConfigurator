@@ -25,6 +25,7 @@ namespace ContractConfigurator.ExpressionParser
         public static void RegisterMethods()
         {
             RegisterMethod(new Method<ScienceExperiment, string>("Name", e => e == null ? "" : e.experimentTitle));
+            RegisterMethod(new Method<ScienceExperiment, string>("ID", e => e == null ? "" : e.id));
 
             RegisterGlobalFunction(new Function<List<ScienceExperiment>>("AllExperiments", () => ResearchAndDevelopment.Instance == null ? new List<ScienceExperiment>() :
                 ResearchAndDevelopment.GetExperimentIDs().Select<string, ScienceExperiment>(ResearchAndDevelopment.GetExperiment).ToList(), false));
