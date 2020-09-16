@@ -52,14 +52,12 @@ namespace ContractConfigurator
 
             OnParameterChange.Add(new EventData<Contract, ContractParameter>.OnEvent(ParameterChange));
             GameEvents.OnTechnologyResearched.Add(new EventData<GameEvents.HostTargetAction<RDTech, RDTech.OperationResult>>.OnEvent(OnTechResearched));
-            GameEvents.Contract.onParameterChange.Add(new EventData<Contract, ContractParameter>.OnEvent(StockOnParameterChange));
         }
 
         void Destroy()
         {
             OnParameterChange.Remove(new EventData<Contract, ContractParameter>.OnEvent(ParameterChange));
             GameEvents.OnTechnologyResearched.Remove(new EventData<GameEvents.HostTargetAction<RDTech, RDTech.OperationResult>>.OnEvent(OnTechResearched));
-            GameEvents.Contract.onParameterChange.Remove(new EventData<Contract, ContractParameter>.OnEvent(StockOnParameterChange));
         }
 
         void PSystemReady()
@@ -128,23 +126,6 @@ namespace ContractConfigurator
         private void ParameterChange(Contract c, ContractParameter p)
         {
             GameEvents.Contract.onParameterChange.Fire(c, p);
-        }
-
-        void StockOnParameterChange(Contract c, ContractParameter p)
-        {
-            // Workaround for stock bug #18267
-            if (p.State == ParameterState.Complete && p.FundsCompletion == 0 && p.ScienceCompletion == 0 && p.ReputationCompletion == 0)
-            {
-                Versioning v = Versioning.Instance as Versioning;
-                if (v.versionMajor == 1 && v.versionMinor == 4 && v.revision == 2)
-                {
-                    MessageSystem.Message message = MessageSystem.Instance.FindMessages(m => m.message.Contains(p.MessageComplete)).FirstOrDefault();
-                    if (message != null)
-                    {
-                        MessageSystem.Instance.DiscardMessage(message.button);
-                    }
-                }
-            }
         }
 
         public void OnGUI()

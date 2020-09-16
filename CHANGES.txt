@@ -3,6 +3,7 @@ Contract Configurator 1.30.3
 - Made Asteroid and Comet science into Sun-only science to prevent them from showing up in weird (but valid according to the game) scenarios.  Prevents contracts for things like "comet sample while landed on Kerbin" (thanks Lathari).
 - Cleaned up some duplicated name in the contract type selection settings window (thanks gamerscircle).
 - Added Experiment.ID().
+- Removed a workaround for a stock bug fixed in 1.4.3 (#18267).
 
 Contract Configurator 1.30.2
 - Backport localization tags missing from KSP 1.8 into Contract Configurator (thanks MatjaBrown, TomTheHand, IonTracks & Lignite).
