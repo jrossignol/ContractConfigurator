@@ -119,6 +119,7 @@
     <Compile Include="Behaviour\SpawnVessel.cs" />
     <Compile Include="Behaviour\UnlockPart.cs" />
     <Compile Include="Behaviour\UnlockTech.cs" />
+    <Compile Include="ScenarioModules\ScienceReporter.cs" />
     <Compile Include="ExpressionParser\Parsers\Classes\ExperienceTraitParser.cs" />
     <Compile Include="ExpressionParser\Parsers\Classes\AgentParser.cs" />
     <Compile Include="ExpressionParser\Parsers\Classes\LaunchSiteParser.cs" />

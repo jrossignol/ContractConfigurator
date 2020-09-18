@@ -1,4 +1,5 @@
 Contract Configurator 1.30.3
+- Deployed Science from Breaking Ground no longer generates tons of message spam.  Instead, the messages (including screen messages) are intercepted and combined into a single more useful message.
 - Fixed issue where invertRequirement was no longer allowed for Any (and All) REQUIREMENT nodes (thanks Morphisor).
 - Made Asteroid and Comet science into Sun-only science to prevent them from showing up in weird (but valid according to the game) scenarios.  Prevents contracts for things like "comet sample while landed on Kerbin" (thanks Lathari).
 - Cleaned up some duplicated name in the contract type selection settings window (thanks gamerscircle).
