@@ -7,9 +7,9 @@ using System.Text;
 using System.Text.RegularExpressions;
 using UnityEngine;
 using KSP;
+using KSP.Localization;
 using KSP.UI.Screens;
 using Contracts;
-using FinePrint;
 using ContractConfigurator.Util;
 
 namespace ContractConfigurator
