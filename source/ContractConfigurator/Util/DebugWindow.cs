@@ -150,9 +150,9 @@ namespace ContractConfigurator
                 ContractConfigurator.successContracts == ContractConfigurator.totalContracts ? greenLabel : redLabel);
 
             GUILayout.BeginHorizontal();
-            if (GUILayout.Button("Reload Contracts (BROKEN)"))
+            if (GUILayout.Button("Reload Contracts"))
             {
-                //ContractConfigurator.StartReload();
+                ContractConfigurator.StartReload();
             }
             if (HighLogic.LoadedScene != GameScenes.MAINMENU)
             {
