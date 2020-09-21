@@ -20,8 +20,8 @@ namespace ContractConfigurator
     {
         static FieldInfo messageListField = typeof(MessageSystem).GetFields(BindingFlags.Instance | BindingFlags.NonPublic).Where(fi => fi.FieldType == typeof(List<MessageSystemButton>)).First();
         static List<MessageSystemButton> messageList = null;
-        static string deployedScienceTag = Localizer.GetStringByTag("#autoLOC_8002254");
-        static string deployedScienceMessageTitle = Localizer.GetStringByTag("#cc.science.deployedScienceReport");
+        static string deployedScienceTag = null;
+        static string deployedScienceMessageTitle = null;
 
         int lastMessageCount = 0;
         List<ScienceSubject> recentScience = new List<ScienceSubject>();
@@ -37,6 +37,9 @@ namespace ContractConfigurator
             {
                 Destroy(this);
             }
+
+            deployedScienceTag = Localizer.GetStringByTag("#autoLOC_8002254");
+            deployedScienceMessageTitle = Localizer.GetStringByTag("#cc.science.deployedScienceReport");
         }
 
         void Start()

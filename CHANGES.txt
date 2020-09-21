@@ -1,3 +1,6 @@
+Contract Configurator 1.30.4
+- Fixed major issue when Breaking Ground wasn't installed (thanks boribori).
+
 Contract Configurator 1.30.3
 - Deployed Science from Breaking Ground no longer generates tons of message spam.  Instead, the messages (including screen messages) are intercepted and combined into a single more useful message.
 - Re-enable the reload contracts button (may or may not work).
