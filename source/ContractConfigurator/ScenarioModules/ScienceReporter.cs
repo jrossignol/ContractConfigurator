@@ -37,9 +37,11 @@ namespace ContractConfigurator
             {
                 Destroy(this);
             }
-
-            deployedScienceTag = Localizer.GetStringByTag("#autoLOC_8002254");
-            deployedScienceMessageTitle = Localizer.GetStringByTag("#cc.science.deployedScienceReport");
+            else
+            {
+                deployedScienceTag = Localizer.GetStringByTag("#autoLOC_8002254");
+                deployedScienceMessageTitle = Localizer.GetStringByTag("#cc.science.deployedScienceReport");
+            }
         }
 
         void Start()
