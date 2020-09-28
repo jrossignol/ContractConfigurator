@@ -45,15 +45,15 @@ namespace ContractConfigurator.Parameters
                 string countStr;
                 if (maxAntennaPower == double.MaxValue)
                 {
-                    countStr = Localizer.Format("#cc.param.count.atLeast", KSPUtil.PrintSI(minAntennaPower,""));
+                    countStr = Localizer.Format("#cc.param.count.atLeast.num", KSPUtil.PrintSI(minAntennaPower,""));
                 }
                 else if (minAntennaPower == 0.0)
                 {
-                    countStr = Localizer.Format("#cc.param.count.atMost", KSPUtil.PrintSI(maxAntennaPower,""));
+                    countStr = Localizer.Format("#cc.param.count.atMost.num", KSPUtil.PrintSI(maxAntennaPower,""));
                 }
                 else
                 {
-                    countStr = Localizer.Format("#cc.param.count.between", KSPUtil.PrintSI(minAntennaPower, ""), KSPUtil.PrintSI(maxAntennaPower, ""));
+                    countStr = Localizer.Format("#cc.param.count.between.num", KSPUtil.PrintSI(minAntennaPower, ""), KSPUtil.PrintSI(maxAntennaPower, ""));
                 }
 
                 this.title = Localizer.Format(antennaType == AntennaType.TRANSMIT ? "#cc.param.HasAntenna.transmit" : "#cc.param.HasAntenna.relay", countStr);

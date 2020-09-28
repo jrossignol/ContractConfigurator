@@ -1,3 +1,6 @@
+Contract Configurator 1.30.5
+- Fixed SI units not appearing on HasAntenna parameter (thanks Nobody6).
+
 Contract Configurator 1.30.4
 - Fixed major issue when Breaking Ground wasn't installed (thanks boribori).
 
