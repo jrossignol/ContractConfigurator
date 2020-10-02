@@ -63,11 +63,15 @@ namespace ContractConfigurator
             {
                 if (!enabled && ContractSystem.ContractTypes.Contains(contractType))
                 {
-                    LoggingUtil.LogDebug(typeof(ContractDisabler), "Disabling ContractType: {0} ({1})", contractType.FullName, contractType.Module);
+                    LoggingUtil.LogInfo(typeof(ContractDisabler), "Disabling ContractType: {0} ({1})", contractType.FullName, contractType.Module);
                     do
                     {
                         ContractSystem.ContractTypes.Remove(contractType);
                     } while (ContractSystem.ContractTypes.Contains(contractType));
+                    while (ContractSystem.MandatoryTypes.Contains(contractType))
+                    {
+                        ContractSystem.MandatoryTypes.Remove(contractType);
+                    }
 
                     // Remove Offered and active contracts 
                     foreach (Contract contract in ContractSystem.Instance.Contracts.Where(c => c != null && c.GetType() == contractType &&
@@ -78,8 +82,12 @@ namespace ContractConfigurator
                 }
                 else if (enabled && !ContractSystem.ContractTypes.Contains(contractType))
                 {
-                    LoggingUtil.LogDebug(typeof(ContractDisabler), "Enabling ContractType: {0} ({1})", contractType.FullName, contractType.Module);
+                    LoggingUtil.LogInfo(typeof(ContractDisabler), "Enabling ContractType: {0} ({1})", contractType.FullName, contractType.Module);
                     ContractSystem.ContractTypes.Add(contractType);
+                    if (contractType == typeof(FinePrint.Contracts.ExplorationContract))
+                    {
+                        ContractSystem.MandatoryTypes.Add(contractType);
+                    }
                 }
             }
         }
