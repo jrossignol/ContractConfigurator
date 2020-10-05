@@ -51,15 +51,16 @@ namespace ContractConfigurator
             {
                 ccType = null;
 
-                IEnumerable<Type> classes = ContractConfigurator.GetAllTypes<Contract>().Where(t => t.Name == contractType);
-                if (!classes.Any())
+                Type type = null;
+                ContractConfigurator.contractTypeMap.TryGetValue(contractType, out type);
+                if (type == null)
                 {
                     valid = false;
                     LoggingUtil.LogError(this, "contractType '{0}' must either be a Contract sub-class or ContractConfigurator contract type", contractType);
                 }
                 else
                 {
-                    contractClass = classes.First();
+                    contractClass = type;
                 }
             }
             return valid;

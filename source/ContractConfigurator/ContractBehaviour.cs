@@ -15,6 +15,18 @@ namespace ContractConfigurator
     {
         public ConfiguredContract contract { get; set; }
 
+        private static Dictionary<string, Type> typeMap = null;
+
+        static ContractBehaviour()
+        {
+            // Pre-load type map
+            typeMap = new Dictionary<string, Type>();
+            foreach (Type t in ContractConfigurator.GetAllTypes<ContractBehaviour>())
+            {
+                typeMap[t.FullName] = t;
+            }
+        }
+
         /// <summary>
         /// Loads a behaviour from a ConfigNode.
         /// </summary>
@@ -25,7 +37,8 @@ namespace ContractConfigurator
         {
             // Determine the type
             string typeName = configNode.GetValue("type");
-            Type type = ContractConfigurator.GetAllTypes<ContractBehaviour>().Where(t => t.FullName == typeName).FirstOrDefault();
+            Type type = null;
+            typeMap.TryGetValue(typeName, out type);
             if (type == null)
             {
                 throw new Exception("No ContractBehaviour with type = '" + typeName + "'.");

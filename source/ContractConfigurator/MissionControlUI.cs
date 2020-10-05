@@ -742,7 +742,7 @@ namespace ContractConfigurator.Util
             }
 
             // Groupings for non-CC types
-            foreach (Type subclass in ContractConfigurator.GetAllTypes<Contract>().Where(t => t != null && !t.Name.StartsWith("ConfiguredContract")))
+            foreach (Type subclass in ContractConfigurator.contractTypeMap.Values.Where(t => t != null && !t.Name.StartsWith("ConfiguredContract")))
             {
                 if (ContractDisabler.IsEnabled(subclass))
                 {

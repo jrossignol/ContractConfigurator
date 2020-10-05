@@ -109,7 +109,7 @@ namespace ContractConfigurator
         {
             base.OnLoad(node);
 
-            foreach (Type subclass in ContractConfigurator.GetAllTypes<Contract>().Where(t => t != null && !t.Name.StartsWith("ConfiguredContract")))
+            foreach (Type subclass in ContractConfigurator.contractTypeMap.Values.Where(t => t != null && !t.Name.StartsWith("ConfiguredContract")))
             {
                 FieldInfo fi = GetType().GetField(SettingsBuilder.SanitizeName(subclass.Name));
                 if (fi != null)
@@ -188,7 +188,7 @@ namespace ContractConfigurator
         public static void EmitSettings()
         {
             // Do this before we start creating assemblies
-            List<Type> contractTypes = ContractConfigurator.GetAllTypes<Contract>().Where(t => t != null && !t.Name.StartsWith("ConfiguredContract")).ToList();
+            List<Type> contractTypes = ContractConfigurator.contractTypeMap.Values.Where(t => t != null && !t.Name.StartsWith("ConfiguredContract")).ToList();
 
             // Create the assembly
             AssemblyBuilder assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(

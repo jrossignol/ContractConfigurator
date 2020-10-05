@@ -43,6 +43,8 @@ namespace ContractConfigurator
 
         public static EventData<Contract, ContractParameter> OnParameterChange = new EventData<Contract, ContractParameter>("OnParameterChange");
 
+        public static Dictionary<string, Type> contractTypeMap = new Dictionary<string, Type>();
+
         void Start()
         {
             DontDestroyOnLoad(this);
@@ -72,6 +74,9 @@ namespace ContractConfigurator
             RegisterParameterFactories();
             RegisterBehaviourFactories();
             RegisterContractRequirements();
+
+            LoadTypeInfo();
+
             IEnumerator<YieldInstruction> iterator = LoadGroupConfig();
             while (iterator.MoveNext()) { }
             DebugWindow.LoadTextures();
@@ -307,6 +312,15 @@ namespace ContractConfigurator
             }
 
             LoggingUtil.LogInfo(this, "Finished Registering ContractRequirements");
+        }
+
+        private void LoadTypeInfo()
+        {
+            contractTypeMap.Clear();
+            foreach (Type t in ContractConfigurator.GetAllTypes<Contract>())
+            {
+                contractTypeMap[t.Name] = t;
+            }
         }
 
         /// <summary>

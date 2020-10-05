@@ -727,6 +727,19 @@ namespace ContractConfigurator.Behaviour
             public string parameter;
             public List<Section> sections = new List<Section>();
 
+            private static Dictionary<string, Type> sectionTypes = null;
+
+            static DialogDetail()
+            {
+                // Load section types
+                sectionTypes = new Dictionary<string, Type>();
+                IEnumerable<Type> types = ContractConfigurator.GetAllTypes<Section>();
+                foreach (Type t in types)
+                {
+                    sectionTypes[t.Name] = t;
+                }
+            }
+
             public DialogDetail()
             {
             }
@@ -770,10 +783,10 @@ namespace ContractConfigurator.Behaviour
                 titleColor = ConfigNodeUtil.ParseValue<Color>(configNode, "titleColor");
                 parameter = ConfigNodeUtil.ParseValue<string>(configNode, "parameter", "");
 
-                IEnumerable<Type> sectionTypes = ContractConfigurator.GetAllTypes<Section>();
                 foreach (ConfigNode sectionNode in configNode.GetNodes())
                 {
-                    Type type = sectionTypes.Where(t => t.Name == sectionNode.name).FirstOrDefault();
+                    Type type = null;
+                    sectionTypes.TryGetValue(sectionNode.name, out type);
                     if (type == null)
                     {
                         throw new ArgumentException("Couldn't find dialog box section of type " + sectionNode.name);
