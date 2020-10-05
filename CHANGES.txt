@@ -1,5 +1,5 @@
 Contract Configurator 1.30.5
-- Major performance improvements to loading times (thanks siimav).
+- Major performance improvements to save loading time (thanks siimav).
 - Fixed SI units not appearing on HasAntenna parameter (thanks Nobody6).
 - Fixed Exploration contracts not being fully disabled when requested (thanks ussdefiant).
 
