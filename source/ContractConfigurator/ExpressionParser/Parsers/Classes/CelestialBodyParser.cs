@@ -84,7 +84,8 @@ namespace ContractConfigurator.ExpressionParser
             RegisterMethod(new Method<CelestialBody, List<Biome>>("Biomes", cb => cb != null && cb.BiomeMap != null ?
                 cb.BiomeMap.Attributes.Select(att => new Biome(cb, att.name)).ToList() : new List<Biome>()));
 
-            RegisterMethod(new Method<CelestialBody, string>("Name", cb => cb != null ? cb.name : ""));
+            RegisterMethod(new Method<CelestialBody, string>("Name", cb => cb?.name));
+            RegisterMethod(new Method<CelestialBody, string>("DisplayName", cb => cb?.displayName));
 
             RegisterMethod(new Method<CelestialBody, double>("Multiplier", cb => cb != null ? GameVariables.Instance.GetContractDestinationWeight(cb) : 1.0));
 
