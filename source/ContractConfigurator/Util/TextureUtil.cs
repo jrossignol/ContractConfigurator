@@ -16,15 +16,28 @@ namespace ContractConfigurator.Util
             Texture2D texture;
             try
             {
+                // Auto-detect file type
                 string path = "GameData/" + url;
+                if (!File.Exists(path))
+                {
+                    if (File.Exists(path + ".png"))
+                    {
+                        path += ".png";
+                    }
+                    else if (File.Exists(path + ".dds"))
+                    {
+                        path += ".dds";
+                    }
+                }
+
                 // PNG loading
-                if (File.Exists(path) && path.Contains(".png"))
+                if (File.Exists(path) && path.EndsWith(".png"))
                 {
                     texture = new Texture2D(2, 2, TextureFormat.RGBA32, false);
                     texture.LoadImage(File.ReadAllBytes(path.Replace('/', Path.DirectorySeparatorChar)));
                 }
                 // DDS loading
-                else if (File.Exists(path) && path.Contains(".dds"))
+                else if (File.Exists(path) && path.EndsWith(".dds"))
                 {
                     BinaryReader br = new BinaryReader(new MemoryStream(File.ReadAllBytes(path)));
 

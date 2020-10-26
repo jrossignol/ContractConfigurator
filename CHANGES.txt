@@ -1,3 +1,6 @@
+Contract Configurator 1.30.6
+- Allow PNG/DSS to be auto-detected correctly in dialog boxes.
+
 Contract Configurator 1.30.5
 - Major performance improvements to save loading time (thanks siimav).
 - Fixed SI units not appearing on HasAntenna parameter (thanks Nobody6).
