@@ -191,13 +191,25 @@ namespace ContractConfigurator
         ///   Gets the full name with the Lingoona gender extension, e.g. "Valentina Kerman^f"
         /// </summary>
         public string DisplayName()
-            => this.name + this.GetLingoonaExtension();
+        {
+            return StringBuilderCache.Format("{0}{1}", name, GetLingoonaExtension());
+        }
 
         /// <summary>
-        ///   Gets the full name with the Lingoona gender extension, e.g. "Jebediah^m"
+        ///   Gets the first name with the Lingoona gender extension, e.g. "Jebediah^m"
         /// </summary>
         public string FirstName()
-            => this.name.Split(new char[] { ' ' }).First() + this.GetLingoonaExtension();
+        {
+            return StringBuilderCache.Format("{0}{1}", name.Substring(0, name.IndexOf(' ')), GetLingoonaExtension());
+        }
+
+        /// <summary>
+        ///   Gets the last name with the Lingoona gender extension, e.g. "Kerman^m"
+        /// </summary>
+        public string LastName()
+        {
+            return StringBuilderCache.Format("{0}{1}", name.Substring(name.IndexOf(' ') + 1), GetLingoonaExtension());
+        }
 
         /// <summary>
         ///   Gets the Lingoona extension for the gender of the Kerbal.  Ideally, we'd let
@@ -240,7 +252,7 @@ namespace ContractConfigurator
                 return k;
             }
         }
-
+        
         public static void RemoveKerbal(Kerbal kerbal)
         {
             if (kerbal.pcm != null)

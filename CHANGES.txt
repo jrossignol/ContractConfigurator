@@ -1,4 +1,6 @@
-Contract Configurator 1.30.6
+Contract Configurator 1.31.0
+- Add FirstName and LastName methods to Kerbal.
+- Kerbals and Celestial Bodies used as strings now include the correct Lingoona gender suffixes.
 - Allow PNG/DSS to be auto-detected correctly in dialog boxes.
 
 Contract Configurator 1.30.5
