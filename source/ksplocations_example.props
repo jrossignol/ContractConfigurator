@@ -1,0 +1,8 @@
+<!-- Sample ksplocations.props file.  Copy to ksplocations.props and change the attributes below as required. -->
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MonoExe>C:\Program Files\Unity\Editor\Data\MonoBleedingEdge\bin\mono</MonoExe>
+    <Pdb2MdbExe>c:\pdb2mdb\pdb2mdb.exe</Pdb2MdbExe>
+    <KspInstallationDir>C:\Program Files (x86)\Steam\steamapps\common\Kerbal Space Program\</KspInstallationDir>
+  </PropertyGroup>
+</Project>
