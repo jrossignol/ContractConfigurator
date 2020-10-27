@@ -1,0 +1,8 @@
+<Project>
+  <PropertyGroup>
+    <!-- Edit these to point to the files as you find them on your machine -->
+    <TextTransformExe>C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\Common7\IDE\texttransform.exe</TextTransformExe>
+    <Pdb2MdbExe>c:\pdb2mdb\pdb2mdb.exe</Pdb2MdbExe>
+    <KspInstallationDir>C:\Program Files (x86)\Steam\steamapps\common\Kerbal Space Program - Plain\</KspInstallationDir>
+  </PropertyGroup>
+</Project>

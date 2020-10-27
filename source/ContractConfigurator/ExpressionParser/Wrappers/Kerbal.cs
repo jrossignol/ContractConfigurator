@@ -187,6 +187,26 @@ namespace ContractConfigurator
             return name;
         }
 
+        /// <summary>
+        ///   Gets the full name with the Lingoona gender extension, e.g. "Valentina Kerman^f"
+        /// </summary>
+        public string DisplayName()
+            => this.name + this.GetLingoonaExtension();
+
+        /// <summary>
+        ///   Gets the full name with the Lingoona gender extension, e.g. "Jebediah^m"
+        /// </summary>
+        public string FirstName()
+            => this.name.Split(new char[] { ' ' }).First() + this.GetLingoonaExtension();
+
+        /// <summary>
+        ///   Gets the Lingoona extension for the gender of the Kerbal.  Ideally, we'd let
+        ///   KSP do this, but we can't count on the Kerbal actually having a ProtoCrewMember
+        ///   all the time, so this seems safer.
+        /// </summary>
+        private string GetLingoonaExtension()
+         => this.gender == ProtoCrewMember.Gender.Female ? "^f" : "^m";
+
         public void Save(ConfigNode node)
         {
             node.AddValue("name", name);
