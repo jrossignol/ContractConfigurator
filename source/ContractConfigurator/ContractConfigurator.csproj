@@ -368,8 +368,7 @@
   </Target>
   <PropertyGroup>
     <PostBuildEvent>if $(ConfigurationName) == Debug (
-  echo "$(MonoExe)" "$(Pdb2MdbExe)" "$(TargetPath)"
-  "$(MonoExe)" "$(Pdb2MdbExe)" "$(TargetPath)"
+  "$(Pdb2MdbExe)" "$(TargetPath)"
 )
 
 copy /y "$(TargetPath)" "$(SolutionDir)..\GameData\ContractConfigurator\"

@@ -87,12 +87,11 @@
   <PropertyGroup>
     <PostBuildEvent>
         if $(ConfigurationName) == Debug (
-          echo "$(MonoExe)" "$(Pdb2MdbExe)" "$(TargetPath)"
-          "$(MonoExe)" "$(Pdb2MdbExe)" "$(TargetPath)"
+          "$(Pdb2MdbExe)" "$(TargetPath)"
         )
         
         copy /y "$(TargetPath)" "$(SolutionDir)..\GameData\ContractConfigurator\"
-        copy /Y "$(TargetDir)$(TargetName).pdb" "$(SolutionDir)..\..\..\..\..\..\Program Files (x86)\Kerbal Space Program\GameData\ContractConfigurator\"
+        copy /Y "$(TargetDir)$(TargetName).pdb" "$(KspInstallationDir)\GameData\ContractConfigurator\"
         if exist "$(TargetDir)$(TargetName).dll.mdb" (copy /Y "$(TargetDir)$(TargetName).dll.mdb" "$(KspInstallationDir)\GameData\ContractConfigurator\")
     </PostBuildEvent>
   </PropertyGroup>
