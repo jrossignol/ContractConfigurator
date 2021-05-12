@@ -112,6 +112,11 @@ namespace ContractConfigurator.Parameters
             base.OnPartJointBreak(p, breakForce);
 
             Vessel v = p.Parent.vessel;
+            if (v == null)
+            {
+                LoggingUtil.LogDebug(this, "OnPartJointBreak: p.Parent.vessel was null");
+                return;
+            }
             LoggingUtil.LogVerbose(this, "OnPartJointBreak: {0}", v.id);
             if (v.vesselType == VesselType.Debris)
             {
