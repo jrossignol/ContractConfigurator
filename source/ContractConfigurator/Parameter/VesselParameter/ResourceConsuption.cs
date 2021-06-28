@@ -64,6 +64,7 @@ namespace ContractConfigurator.Parameters
                 // Reset counter on vessel change
                 if (partCount != localCount)
                 {
+                    partCount = localCount;
                     checks = 0;
                 }
 
