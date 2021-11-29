@@ -53,7 +53,7 @@ namespace ContractConfigurator
                 IEnumerable<ConfiguredContract> completedContract = ConfiguredContract.CompletedContracts.
                     Where(c => c.contractType != null && c.contractType.name.Equals(ccType));
                 finished = completedContract.Count();
-                if (finished > 0)
+                if (finished > 0 && cooldownDuration.Value > 0.0)
                 {
                     lastFinished = completedContract.OrderByDescending<ConfiguredContract, double>(c => c.DateFinished).First().DateFinished;
                 }

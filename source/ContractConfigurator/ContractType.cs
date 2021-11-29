@@ -672,7 +672,7 @@ namespace ContractConfigurator
                 }
 
                 // Checks for maxSimultaneous/maxCompletions
-                if (maxSimultaneous != 0 || maxCompletions != 0)
+                if (contract.ContractState != Contract.State.Active && (maxSimultaneous != 0 || maxCompletions != 0))
                 {
                     IEnumerable<ConfiguredContract> contractList = ConfiguredContract.CurrentContracts.
                         Where(c => c.contractType != null && c.contractType.name == name && c != contract);
@@ -695,7 +695,7 @@ namespace ContractConfigurator
                 }
 
                 // Check the group values
-                if (group != null)
+                if (group != null && contract.ContractState != Contract.State.Active)
                 {
                     CheckContractGroup(contract, group);
                 }
