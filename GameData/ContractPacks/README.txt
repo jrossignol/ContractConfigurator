@@ -3,4 +3,4 @@ available from:
     https://github.com/jrossignol/ContractConfigurator
 
 To see a listing of available Contract Packs, please visit:
-    http://forum.kerbalspaceprogram.com/threads/101604
+    https://forum.kerbalspaceprogram.com/index.php?/topic/91625-1101-contract-configurator-v1305-2020-10-05/
