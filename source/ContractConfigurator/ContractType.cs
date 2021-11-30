@@ -672,20 +672,23 @@ namespace ContractConfigurator
                 }
 
                 // Checks for maxSimultaneous/maxCompletions
-                if (maxSimultaneous != 0 || maxCompletions != 0)
+                bool checkMaxSimultaneous = maxSimultaneous != 0 && contract.ContractState != Contract.State.Active;
+                bool checkMaxCompletions = maxCompletions != 0 &&
+                    (contract.ContractState != Contract.State.Active || maxSimultaneous > 1);   // For active contracts only need to run check if multiple instances of the contract can be active at the same time
+                if (checkMaxSimultaneous || checkMaxCompletions)
                 {
                     IEnumerable<ConfiguredContract> contractList = ConfiguredContract.CurrentContracts.
                         Where(c => c.contractType != null && c.contractType.name == name && c != contract);
 
                     // Check if we're breaching the active limit
                     int activeContracts = contractList.Count();
-                    if (maxSimultaneous != 0 && activeContracts >= maxSimultaneous)
+                    if (checkMaxSimultaneous && activeContracts >= maxSimultaneous)
                     {
                         throw new ContractRequirementException("Too many active contracts.");
                     }
 
                     // Check if we're breaching the completed limit
-                    if (maxCompletions != 0)
+                    if (checkMaxCompletions)
                     {
                         if (ActualCompletions() + activeContracts >= maxCompletions)
                         {
@@ -902,29 +905,33 @@ namespace ContractConfigurator
         {
             if (group != null)
             {
-                // Check the group is enabled
-                if (!((ContractGroupParametersTemplate)HighLogic.CurrentGame.Parameters.CustomParams(SettingsBuilder.GroupParametersType)).IsEnabled(group.Root.name))
+                // Check the group is enabled. No need to fail active contracts though.
+                if (contract.ContractState != Contract.State.Active &&
+                    !((ContractGroupParametersTemplate)HighLogic.CurrentGame.Parameters.CustomParams(SettingsBuilder.GroupParametersType)).IsEnabled(group.Root.name))
                 {
                     throw new ContractRequirementException("Contract group " + group.name + " is not enabled.");
                 }
 
-                IEnumerable<ConfiguredContract> contractList = ConfiguredContract.CurrentContracts.
-                    Where(c => c.contractType != null && c != contract);
-
-                // Check the group active limit
-                int activeContracts = contractList.Count(c => c.contractType != null && group.BelongsToGroup(c.contractType));
-                if (group.maxSimultaneous != 0 && activeContracts >= group.maxSimultaneous)
+                if (group.maxSimultaneous != 0 || group.maxCompletions != 0)
                 {
-                    throw new ContractRequirementException("Too many active contracts in group (" + group.name + ").");
-                }
+                    IEnumerable<ConfiguredContract> contractList = ConfiguredContract.CurrentContracts.
+                        Where(c => c.contractType != null && c != contract);
 
-                // Check the group completed limit
-                if (group.maxCompletions != 0)
-                {
-                    int finishedContracts = ConfiguredContract.CompletedContracts.Count(c => c.contractType != null && group.BelongsToGroup(c.contractType));
-                    if (finishedContracts + activeContracts >= maxCompletions)
+                    // Check the group active limit
+                    int activeContracts = contractList.Count(c => c.contractType != null && group.BelongsToGroup(c.contractType));
+                    if (group.maxSimultaneous != 0 && activeContracts >= group.maxSimultaneous)
                     {
-                        throw new ContractRequirementException("Too many completed contracts in group (" + group.name + ").");
+                        throw new ContractRequirementException("Too many active contracts in group (" + group.name + ").");
+                    }
+
+                    // Check the group completed limit
+                    if (group.maxCompletions != 0)
+                    {
+                        int finishedContracts = ConfiguredContract.CompletedContracts.Count(c => c.contractType != null && group.BelongsToGroup(c.contractType));
+                        if (finishedContracts + activeContracts >= maxCompletions)
+                        {
+                            throw new ContractRequirementException("Too many completed contracts in group (" + group.name + ").");
+                        }
                     }
                 }
 
