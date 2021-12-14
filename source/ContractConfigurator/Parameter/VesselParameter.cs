@@ -87,28 +87,31 @@ namespace ContractConfigurator.Parameters
                 node.AddValue("failWhenUnmet", failWhenUnmet);
             }
 
-            // Save vessel information
-            foreach (KeyValuePair<Guid, VesselInfo> p in vesselInfo.Where(p => p.Value.state != ParameterState.Incomplete))
+            // Save vessel information. This is only relevant for active contracts.
+            if (Root != null && Root.ContractState == Contract.State.Active)
             {
-                ConfigNode child = new ConfigNode("VESSEL_STATS");
-                child.AddValue("vessel", p.Key);
-                child.AddValue("state", p.Value.state);
-                child.AddValue("strength", p.Value.strength);
-                if (p.Value.state == ParameterState.Complete)
+                foreach (KeyValuePair<Guid, VesselInfo> p in vesselInfo.Where(p => p.Value.state != ParameterState.Incomplete))
                 {
-                    child.AddValue("completionTime", p.Value.completionTime);
+                    ConfigNode child = new ConfigNode("VESSEL_STATS");
+                    child.AddValue("vessel", p.Key);
+                    child.AddValue("state", p.Value.state);
+                    child.AddValue("strength", p.Value.strength);
+                    if (p.Value.state == ParameterState.Complete)
+                    {
+                        child.AddValue("completionTime", p.Value.completionTime);
+                    }
+                    node.AddNode(child);
                 }
-                node.AddNode(child);
-            }
 
-            // Save docked sub-vessels
-            foreach (KeyValuePair<uint, KeyValuePair<ParamStrength, double>> p in dockedVesselInfo)
-            {
-                ConfigNode child = new ConfigNode("DOCKED_SUB_VESSEL");
-                child.AddValue("hash", p.Key);
-                child.AddValue("strength", p.Value.Key);
-                child.AddValue("completionTime", p.Value.Value);
-                node.AddNode(child);
+                // Save docked sub-vessels
+                foreach (KeyValuePair<uint, KeyValuePair<ParamStrength, double>> p in dockedVesselInfo)
+                {
+                    ConfigNode child = new ConfigNode("DOCKED_SUB_VESSEL");
+                    child.AddValue("hash", p.Key);
+                    child.AddValue("strength", p.Value.Key);
+                    child.AddValue("completionTime", p.Value.Value);
+                    node.AddNode(child);
+                }
             }
         }
 
