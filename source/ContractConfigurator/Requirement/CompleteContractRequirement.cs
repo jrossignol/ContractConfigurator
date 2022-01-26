@@ -43,6 +43,12 @@ namespace ContractConfigurator
 
         public override bool RequirementMet(ConfiguredContract contract)
         {
+            if (ccType != null && contract?.ContractState == Contract.State.Active && maxCount == uint.MaxValue && !invertRequirement)
+            {
+                // If the contract is already accepted and there's no maxCount limit then these checks can never go back to false again.
+                return true;
+            }
+
             // Get the count of finished contracts
             int finished = 0;
             double lastFinished = 0.0;
