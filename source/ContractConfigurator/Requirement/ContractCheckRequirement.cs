@@ -24,11 +24,13 @@ namespace ContractConfigurator
             // Load base class
             bool valid = base.LoadFromConfig(configNode);
 
-            checkOnActiveContract = true;
-
             // Get type
             string contractType = null;
             valid &= ConfigNodeUtil.ParseValue<string>(configNode, "contractType", x => contractType = x, this);
+
+            // By default, always check the requirement for active contracts
+            valid &= ConfigNodeUtil.ParseValue<bool>(configNode, "checkOnActiveContract", x => checkOnActiveContract = x, this, true);
+
             if (valid)
             {
                 valid &= SetValues(contractType);
@@ -70,6 +72,7 @@ namespace ContractConfigurator
         {
             configNode.AddValue("minCount", minCount);
             configNode.AddValue("maxCount", maxCount);
+            configNode.AddValue("checkOnActiveContract", checkOnActiveContract);
             if (ccType != null)
             {
                 configNode.AddValue("contractType", ccType);
